@@ -1,10 +1,13 @@
 # Drawbot_image_to_gcode_v2
 This code is used to generate gcode for drawbots, polargraphs or other vertical drawing machines. \
-It takes an original image, manipulates it and generates a drawing path that kinda sorta looks like the original image.
-This code was specifically written to work with multiple Copic markers.
+It takes an original image, manipulates it and generates a drawing path that kinda sorta looks like the original image. \
+This code was specifically written to work with multiple Copic markers. \
 The code was intended to be heavily modified to generate different and unique drawing styles.
 
-## Key bindings:
+If your clipboard contains a URL to an image, the code will download it.  This makes finding usable images easy and straight forword.
+If your clipboard contains a URL to a web site, the code will crash and burn in a spectacular fashion.
+
+## Key Bindings:
 | Key | Description |
 | ------------- |:-------------|
 | r | Rotate drawing |
@@ -44,3 +47,6 @@ The code was intended to be heavily modified to generate different and unique dr
 | shift 5 | Decrease percentage of lines drawn by pen 5 |
 | { | Change Copic marker sets, increment |
 | } | Change Copic marker sets, decrement |
+
+
+Examples of drawings made with this software:  http://dullbits.com/drawbot/gallery
