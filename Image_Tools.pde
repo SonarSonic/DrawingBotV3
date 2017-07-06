@@ -146,24 +146,125 @@ void image_boarder(String fname, int shrink, int blur) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-void image_sharpen() {
-  // It's possible to perform a convolution the image with different matrices
-  // Simple sharpen matrix
-  //float[][] matrix = { {  0, -1,  0 },
-  //                     { -1,  5, -1 },
-  //                     {  0, -1,  0 } }; 
-  
+void image_unsharpen(PImage img, float factor) {
   // Source:  https://www.taylorpetrick.com/blog/post/convolution-part3
-  // subtle unsharp matrix
+  // Subtle unsharp matrix
   float[][] matrix = { { -0.00391, -0.01563, -0.02344, -0.01563, -0.00391 },
                        { -0.01563, -0.06250, -0.09375, -0.06250, -0.01563 },
                        { -0.02344, -0.09375,  1.85980, -0.09375, -0.02344 },
                        { -0.01563, -0.06250, -0.09375, -0.06250, -0.01563 },
                        { -0.00391, -0.01563, -0.02344, -0.01563, -0.00391 } };
   
+  matrix = normalize_matrix(matrix);
+  image_convolution(img, matrix, factor, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_test(PImage img) {
+
+  // Looks like some kind on inverting edge detection
+  //float[][] matrix = { { -1, -1, -1 },
+  //                     { -1,  8, -1 },
+  //                     { -1, -1, -1 } }; 
+                       
+  //float[][] matrix = { {  1,  2,   0,  -2,  -1 },
+  //                     {  4,  8,   0,  -8,  -4 },
+  //                     {  6, 12,   0, -12,  -6 },
+  //                     {  4,  8,   0,  -8,  -4 },
+  //                     {  1,  2,   0,  -2,  -1 } };
+
+  float factor = 3; 
+  float bias = 0.5;
+  
+  // Sobel 3x3 X
+  float[][] matrixX = { { -1,  0,  1 },
+                        { -2,  0,  2 },
+                        { -1,  0,  1 } }; 
+
+  // Sobel 3x3 Y
+  float[][] matrixY = { { -1, -2, -1 },
+                        {  0,  0,  0 },
+                        {  1,  2,  1 } }; 
+
+  image_convolution(img, matrixX, factor, bias);
+  image_convolution(img, matrixY, factor, bias);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_sharpen(PImage img) {
+  // Simple sharpen matrix
+
+  float[][] matrix = { {  0, -1,  0 },
+                       { -1,  5, -1 },
+                       {  0, -1,  0 } }; 
+  
+  image_convolution(img, matrix, 1, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_emboss(PImage img) {
+  float[][] matrix = { { -2, -1,  0 },
+                       { -1,  1,  1 },
+                       {  0,  1,  2 } }; 
+                       
+  image_convolution(img, matrix, 1, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_edge_detect(PImage img) {
+  // Edge detect
+  float[][] matrix = { {  0,  1,  0 },
+                       {  1, -4,  1 },
+                       {  0,  1,  0 } }; 
+                       
+  image_convolution(img, matrix, 1, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_sobel(PImage img, float factor, float bias) {
+
+  // Looks like some kind on inverting edge detection
+  //float[][] matrix = { { -1, -1, -1 },
+  //                     { -1,  8, -1 },
+  //                     { -1, -1, -1 } }; 
+                       
+  //float[][] matrix = { {  1,  2,   0,  -2,  -1 },
+  //                     {  4,  8,   0,  -8,  -4 },
+  //                     {  6, 12,   0, -12,  -6 },
+  //                     {  4,  8,   0,  -8,  -4 },
+  //                     {  1,  2,   0,  -2,  -1 } };
+  
+  // Sobel 3x3 X
+  float[][] matrixX = { { -1,  0,  1 },
+                        { -2,  0,  2 },
+                        { -1,  0,  1 } }; 
+
+  // Sobel 3x3 Y
+  float[][] matrixY = { { -1, -2, -1 },
+                        {  0,  0,  0 },
+                        {  1,  2,  1 } }; 
+  
+  image_convolution(img, matrixX, factor, bias);
+  image_convolution(img, matrixY, factor, bias);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_convolution(PImage img, float[][] matrix, float factor, float bias) {
+  // What about edge pixels?  Ignoring (maxrixsize-1)/2 pixels on the edges?
+  
+  int n = matrix.length;      // matrix rows
+  int m = matrix[0].length;   // matrix columns
+  
+  for(int i=0; i<n; i++){
+    for(int j=0; j<m; j++){
+      matrix[i][j] = matrix[i][j] * factor + bias;
+    }
+  }
+
   PImage simg = createImage(img.width, img.height, RGB);
   simg.copy(img, 0, 0, img.width, img.height, 0, 0, simg.width, simg.height);
-  int matrixsize = 5;
+  int matrixsize = matrix.length;
+
   for (int x = 0; x < simg.width; x++) {
     for (int y = 0; y < simg.height; y++ ) {
       color c = convolution(x, y, matrix, matrixsize, simg);
@@ -173,6 +274,7 @@ void image_sharpen() {
   }
   updatePixels();
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Source:  https://py.processing.org/tutorials/pixels/
@@ -205,6 +307,62 @@ color convolution(int x, int y, float[][] matrix, int matrixsize, PImage img) {
   btotal = constrain(btotal,0,255);
   // Return the resulting color
   return color(rtotal,gtotal,btotal);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+float [][] multiply_matrix (float[][] matrixA, float[][] matrixB) {
+  // Source:  https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm
+  // Test:    http://www.calcul.com/show/calculator/matrix-multiplication_;2;3;3;5
+  
+  int n = matrixA.length;      // matrixA rows
+  int m = matrixA[0].length;   // matrixA columns
+  int p = matrixB[0].length;
+
+  float[][] matrixC;
+  matrixC = new float[n][p]; 
+
+  for(int i=0; i<n; i++){
+    for(int j=0; j<p; j++){
+      for(int k=0; k<m; k++){
+        matrixC[i][j] = matrixC[i][j] + matrixA[i][k] * matrixB[k][j];
+      }
+    }
+  }
+
+  //for(int i=0; i<n; i++){
+  //  for(int j=0; j<p; j++){
+  //    print(matrixC[i][j], "   ");
+  //  }
+  //  println();
+  //}
+
+  return matrixC;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+float [][] normalize_matrix (float[][] matrix) {
+  // Source:  https://www.taylorpetrick.com/blog/post/convolution-part2
+  // The resulting matrix is the same size as the original, but the output range will be constrained 
+  // between 0.0 and 1.0.  Useful for keeping brightness the same.
+  // Do not use on a maxtix that sums to zero, such as sobel.
+  
+  int n = matrix.length;      // rows
+  int m = matrix[0].length;   // columns
+  float sum = 0;
+  
+  for(int i=0; i<n; i++){
+    for(int j=0; j<m; j++){
+      sum += matrix[i][j];
+    }
+  }
+  
+  for(int i=0; i<n; i++){
+    for(int j=0; j<m; j++){
+      matrix[i][j] = matrix[i][j] / abs(sum);
+    }
+  }
+  
+  return matrix;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

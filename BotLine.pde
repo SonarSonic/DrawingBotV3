@@ -9,6 +9,7 @@
 class botLine {
   int pen_number;
   boolean pen_down;
+  boolean pen_continuation;
   float x1;
   float y1;
   float x2;
@@ -16,6 +17,7 @@ class botLine {
   
   botLine(boolean pen_down_, int pen_number_, float x1_, float y1_, float x2_, float y2_) {
     pen_down = pen_down_;
+    pen_continuation = false;
     pen_number = pen_number_;
     x1 = x1_;
     y1 = y1_;

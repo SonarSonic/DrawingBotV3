@@ -23,7 +23,7 @@ class Pfm_original {
   public void pre_processing() {
     image_crop();
     image_scale(1000);   // 900+ for final drawing
-    image_sharpen();
+    image_sharpen(img);
     //image_posterize(6);
     //image_erode();
     //image_dilate();

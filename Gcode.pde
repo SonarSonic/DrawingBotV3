@@ -176,3 +176,63 @@ void create_gcode_test_file () {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+// Thanks to John Cliff for getting the SVG output moving forward.
+void create_svg_file (int line_count) {
+  boolean drawing_polyline = false;
+  
+  String gname = "gcode\\gcode_" + basefile_selected + ".svg";
+  OUTPUT = createWriter(sketchPath("") + gname);
+  OUTPUT.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+  OUTPUT.println("<svg width=\"" + nf(img.width * gcode_scale,0,2) + "mm\" height=\"" + nf(img.height * gcode_scale,0,2) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+  d1.set_pen_continuation_flags();
+  
+  // Loop over pens backwards to display dark lines last.
+  // Then loop over all displayed lines.
+  for(int p=pen_count-1; p>=0; p--) {    
+    OUTPUT.println("<g id=\"" + copic_sets[current_copic_set][p] + "\">");
+    for(int i=1; i<line_count; i++) { 
+      if (d1.lines[i].pen_number == p) {
+        
+        // Do we add gcode_offsets needed by my bot, or zero based?
+        //float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale + gcode_offset_x;
+        //float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale + gcode_offset_y;
+        //float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale + gcode_offset_x;
+        //float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale + gcode_offset_y;
+        float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale;
+        float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale;
+        float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale;
+        float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale;
+
+        if (d1.lines[i].pen_continuation == false && drawing_polyline) {
+          OUTPUT.println("\" />");
+          drawing_polyline = false;
+        }
+
+        if (d1.lines[i].pen_down) {
+          if (d1.lines[i].pen_continuation) {
+            String buf = nf(gcode_scaled_x2,0,2) + "," + nf(gcode_scaled_y2,0,2);
+            OUTPUT.println(buf);
+            drawing_polyline = true;
+          } else {
+            color c = copic.get_original_color(copic_sets[current_copic_set][p]);
+            OUTPUT.println("<polyline fill=\"none\" stroke=\"#" + hex(c, 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
+            String buf = nf(gcode_scaled_x1,0,2) + "," + nf(gcode_scaled_y1,0,2);
+            OUTPUT.println(buf);
+            drawing_polyline = true;
+          }
+        }
+      }
+    }
+    if (drawing_polyline) {
+      OUTPUT.println("\" />");
+      drawing_polyline = false;
+    }
+    OUTPUT.println("</g>");
+  }
+  OUTPUT.println("</svg>");
+  OUTPUT.flush();
+  OUTPUT.close();
+  println("SVG created");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////

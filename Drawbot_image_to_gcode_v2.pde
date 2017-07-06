@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.5 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.7 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
@@ -105,12 +105,12 @@ void setup() {
     
   // If the clipboard contains a URL, try to download the picture instead of using local storage.
   String url = GClip.paste();
-  if (match(url, "^https?:..") != null) {
-    println("URL found: "+ url);
+  if (match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
+    println("Image URL found on clipboard: "+ url);
     path_selected = url;
     state++;
   } else {
-    println("URL not found on clipboard");
+    println("Image URL not found on clipboard");
     selectInput("Select a image to process:", "fileSelected");
   }
   
@@ -181,12 +181,13 @@ void setup_squiggles() {
 
   println("setup_squiggles running...");
   //randomSeed(millis());
-  img_orginal = loadImage(path_selected, "jpeg");  // Load the image into the program  
+  img = loadImage(path_selected, "jpeg");  // Load the image into the program  
   gcode_comment("loadImage: " + path_selected);
 
-  img = createImage(img_orginal.width, img_orginal.height, RGB);
-  img.copy(img_orginal, 0, 0, img_orginal.width, img_orginal.height, 0, 0, img_orginal.width, img_orginal.height);
   image_rotate();
+
+  img_orginal = createImage(img.width, img.height, RGB);
+  img_orginal.copy(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
 
   pfm.pre_processing();
   img.loadPixels();
@@ -383,6 +384,7 @@ void keyPressed() {
   }
   if (key == 'g') { 
     create_gcode_files(display_line_count);
+    create_svg_file(display_line_count);
     create_gcode_test_file ();
     d1.render_to_pdf(display_line_count);
     //save_jpg();
