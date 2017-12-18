@@ -56,7 +56,7 @@ void create_gcode_files (int line_count) {
   float distance;
   
   // Loop over all lines for every pen.
-  for(int p=0; p<pen_count; p++) {    
+  for (int p=0; p<pen_count; p++) {    
     is_pen_down = false;
     pen_lifts = 2;
     pen_movement = 0;
@@ -69,7 +69,7 @@ void create_gcode_files (int line_count) {
     OUTPUT.println(gcode_comments);
     gcode_header();
     
-    for(int i=1; i<line_count; i++) { 
+    for (int i=1; i<line_count; i++) { 
       if (d1.lines[i].pen_number == p) {
         
         float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale + gcode_offset_x;
@@ -123,7 +123,7 @@ void create_gcode_files (int line_count) {
     OUTPUT.println("(Extreams of Y: " + dy.min + " thru " + dy.max + ")");
     OUTPUT.flush();
     OUTPUT.close();
-    println("gcode created for pen " + p);
+    println("gcode created:  " + gname);
   }
 }
 
@@ -172,7 +172,17 @@ void create_gcode_test_file () {
   gcode_trailer();
   OUTPUT.flush();
   OUTPUT.close();
-  println("gcode test file created");
+  println("gcode test created:  " + gname);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// Thanks to Vladimir Bochkov for helping me debug the SVG international decimal separators problem.
+String svg_decimal (String s) {
+  final char regional_decimal_separator = ',';
+  final char svg_decimal_seperator = '.';
+
+  s = s.replace(regional_decimal_separator, svg_decimal_seperator);
+  return s;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,28 +190,32 @@ void create_gcode_test_file () {
 void create_svg_file (int line_count) {
   boolean drawing_polyline = false;
   
+  // Inkscape versions before 0.91 used 90dpi, Today most software assumes 96dpi.
+  float svgdpi = 96.0 / 25.4;
+  
   String gname = "gcode\\gcode_" + basefile_selected + ".svg";
   OUTPUT = createWriter(sketchPath("") + gname);
   OUTPUT.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-  OUTPUT.println("<svg width=\"" + nf(img.width * gcode_scale,0,2) + "mm\" height=\"" + nf(img.height * gcode_scale,0,2) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+  OUTPUT.println("<svg width=\"" + svg_decimal(nf(img.width * gcode_scale,0,2)) + "mm\" height=\"" + svg_decimal(nf(img.height * gcode_scale,0,2)) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
   d1.set_pen_continuation_flags();
   
   // Loop over pens backwards to display dark lines last.
   // Then loop over all displayed lines.
-  for(int p=pen_count-1; p>=0; p--) {    
+  for (int p=pen_count-1; p>=0; p--) {    
     OUTPUT.println("<g id=\"" + copic_sets[current_copic_set][p] + "\">");
-    for(int i=1; i<line_count; i++) { 
+    for (int i=1; i<line_count; i++) { 
       if (d1.lines[i].pen_number == p) {
-        
+
         // Do we add gcode_offsets needed by my bot, or zero based?
-        //float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale + gcode_offset_x;
-        //float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale + gcode_offset_y;
-        //float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale + gcode_offset_x;
-        //float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale + gcode_offset_y;
-        float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale;
-        float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale;
-        float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale;
-        float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale;
+        //float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale * svgdpi + gcode_offset_x;
+        //float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale * svgdpi + gcode_offset_y;
+        //float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale * svgdpi + gcode_offset_x;
+        //float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale * svgdpi + gcode_offset_y;
+        
+        float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale * svgdpi;
+        float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale * svgdpi;
+        float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale * svgdpi;
+        float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale * svgdpi;
 
         if (d1.lines[i].pen_continuation == false && drawing_polyline) {
           OUTPUT.println("\" />");
@@ -210,13 +224,13 @@ void create_svg_file (int line_count) {
 
         if (d1.lines[i].pen_down) {
           if (d1.lines[i].pen_continuation) {
-            String buf = nf(gcode_scaled_x2,0,2) + "," + nf(gcode_scaled_y2,0,2);
+            String buf = svg_decimal(nf(gcode_scaled_x2,0,2)) + "," + svg_decimal(nf(gcode_scaled_y2,0,2));
             OUTPUT.println(buf);
             drawing_polyline = true;
           } else {
             color c = copic.get_original_color(copic_sets[current_copic_set][p]);
             OUTPUT.println("<polyline fill=\"none\" stroke=\"#" + hex(c, 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
-            String buf = nf(gcode_scaled_x1,0,2) + "," + nf(gcode_scaled_y1,0,2);
+            String buf = svg_decimal(nf(gcode_scaled_x1,0,2)) + "," + svg_decimal(nf(gcode_scaled_y1,0,2));
             OUTPUT.println(buf);
             drawing_polyline = true;
           }
@@ -232,7 +246,7 @@ void create_svg_file (int line_count) {
   OUTPUT.println("</svg>");
   OUTPUT.flush();
   OUTPUT.close();
-  println("SVG created");
+  println("SVG created:  " + gname);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

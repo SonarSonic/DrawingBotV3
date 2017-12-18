@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.7 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.71 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
@@ -82,7 +82,7 @@ String[][] copic_sets = {
   {"100", "100", "YR09", "N6", "N4", "N2"},     // Dark Grey Orange
   {"100", "100", "B39", "G28", "B26", "G14"},   // Blue Green
   {"100", "100", "B39", "V09", "B02", "V04"},   // Purples
-  {"100", "E29", "R29", "R27", "R24", "R20"},   // Reds
+  {"100", "100", "R29", "R27", "R24", "R20"},   // Reds
   {"100", "E29", "YG99", "Y17", "YG03", "Y11"}, // Yellow, green
 };
 
@@ -92,6 +92,7 @@ String[][] copic_sets = {
 void setup() {
   size(1415, 1100, P3D);
   surface.setResizable(true);
+  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.71");
   colorMode(RGB);
   frameRate(999);
   //randomSeed(millis());
@@ -111,7 +112,7 @@ void setup() {
     state++;
   } else {
     println("Image URL not found on clipboard");
-    selectInput("Select a image to process:", "fileSelected");
+    selectInput("Select an image to process:", "fileSelected");
   }
   
 }
@@ -122,13 +123,13 @@ void draw() {
   if (state != 3) { background(255, 255, 255); }
   scale(screen_scale);
   translate(mx, my);
-  rotate(PI/2*screen_rotate);
+  rotate(HALF_PI*screen_rotate);
   
   switch(state) {
   case 1: 
     // Waiting for filename selection
     break;
-  case 2: 
+  case 2:
     //println("State=2, Setup squiggles");
     setup_squiggles();
     startTime = millis();
@@ -159,7 +160,8 @@ void draw() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void fileSelected(File selection) {
   if (selection == null) {
-    println("Window was closed or the user hit cancel.");
+    println("No image file selected.  Exiting program.");
+    exit();
   } else {
     path_selected = selection.getAbsolutePath();
     file_selected = selection.getName();
@@ -229,7 +231,7 @@ void grid() {
   // It looks like a big logic bug, but it just can't display a one pixel line scaled down well.
   
   blendMode(BLEND);
-  if(is_grid_on) {
+  if (is_grid_on) {
     int image_center_x = int(img.width / 2);
     int image_center_y = int(img.height / 2);
     int gridlines = 100;
@@ -384,8 +386,8 @@ void keyPressed() {
   }
   if (key == 'g') { 
     create_gcode_files(display_line_count);
-    create_svg_file(display_line_count);
     create_gcode_test_file ();
+    create_svg_file(display_line_count);
     d1.render_to_pdf(display_line_count);
     //save_jpg();
   }
@@ -449,13 +451,12 @@ void set_even_distribution() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void set_black_distribution() {
-  println();
+  println("set_black_distribution");
   for (int p=0; p<pen_count; p++) {
     pen_distribution[p] = 0;
-    println("pen_distribution[" + p + "] = " + pen_distribution[p]);
+    //println("pen_distribution[" + p + "] = " + pen_distribution[p]);
   }
   pen_distribution[0] = display_line_count;
-  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
