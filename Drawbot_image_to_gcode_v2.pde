@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.71 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.72 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
@@ -19,13 +19,16 @@ import processing.pdf.*;
 Pfm_original  pfm;
 //Pfm_your_version  pfm;
 
-// Constants 
+// Constants
 final float   paper_size_x = 32 * 25.4;
 final float   paper_size_y = 40 * 25.4;
 final float   image_size_x = 28 * 25.4;
 final float   image_size_y = 36 * 25.4;
-final float   paper_top_to_origin = 285;  //mm, make smaller to move drawing down on paper
+final float   paper_top_to_origin = 285;      //mm, make smaller to move drawing down on paper
 final int     pen_count = 6;
+final char    gcode_decimal_seperator = '.';    
+final int     gcode_decimals = 2;             // Number of digits right of the decimal point in the gcode files.
+final int     svg_decimals = 2;               // Number of digits right of the decimal point in the SVG file.
 
 
 // Every good program should have a shit pile of badly named globals.
@@ -92,7 +95,7 @@ String[][] copic_sets = {
 void setup() {
   size(1415, 1100, P3D);
   surface.setResizable(true);
-  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.71");
+  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.72");
   colorMode(RGB);
   frameRate(999);
   //randomSeed(millis());

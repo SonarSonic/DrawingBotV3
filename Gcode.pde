@@ -12,7 +12,7 @@ void gcode_header() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void gcode_trailer() {
   OUTPUT.println("G1 Z0");
-  OUTPUT.println("G1 X0.10 y0.10");
+  OUTPUT.println("G1 X" + gcode_format(0.1) + " Y" + gcode_format(0.1));
   OUTPUT.println("G1 X0 y0");
 }
 
@@ -42,6 +42,14 @@ void move_abs(float x, float y) {
   
   old_x = x;
   old_y = y;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+String gcode_format (Float n) {
+  String s = nf(n, 0, gcode_decimals);
+  s = s.replace('.', gcode_decimal_seperator);
+  s = s.replace(',', gcode_decimal_seperator);
+  return s; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +91,7 @@ void create_gcode_files (int line_count) {
           OUTPUT.println("G1 Z0");
           is_pen_down = false;
           distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-          String buf = "G1 X" + nf(gcode_scaled_x1,0,2) + " Y" + nf(gcode_scaled_y1,0,2);
+          String buf = "G1 X" + gcode_format(gcode_scaled_x1) + " Y" + gcode_format(gcode_scaled_y1);
           OUTPUT.println(buf);
           x = gcode_scaled_x1;
           y = gcode_scaled_y1;
@@ -107,7 +115,7 @@ void create_gcode_files (int line_count) {
           }
         }
         
-        String buf = "G1 X" + nf(gcode_scaled_x2,0,2) + " Y" + nf(gcode_scaled_y2,0,2);
+        String buf = "G1 X" + gcode_format(gcode_scaled_x2) + " Y" + gcode_format(gcode_scaled_y2);
         OUTPUT.println(buf);
         x = gcode_scaled_x2;
         y = gcode_scaled_y2;
@@ -142,31 +150,31 @@ void create_gcode_test_file () {
   gcode_header();
   
   OUTPUT.println("(Upper left)");
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.min + test_length,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.min) + " Y" + gcode_format(dy.min + test_length));
   OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.min,0,2));
-  OUTPUT.println("G1 X" + nf(dx.min + test_length,0,2) + " Y" + nf(dy.min,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.min) + " Y" + gcode_format(dy.min));
+  OUTPUT.println("G1 X" + gcode_format(dx.min + test_length) + " Y" + gcode_format(dy.min));
   OUTPUT.println("G1 Z0");
 
   OUTPUT.println("(Upper right)");
-  OUTPUT.println("G1 X" + nf(dx.max - test_length,0,2) + " Y" + nf(dy.min,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.max - test_length) + " Y" + gcode_format(dy.min));
   OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.min,0,2));
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.min + test_length,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.max) + " Y" + gcode_format(dy.min));
+  OUTPUT.println("G1 X" + gcode_format(dx.max) + " Y" + gcode_format(dy.min + test_length));
   OUTPUT.println("G1 Z0");
 
   OUTPUT.println("(Lower right)");
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.max - test_length,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.max) + " Y" + gcode_format(dy.max - test_length));
   OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.max,0,2));
-  OUTPUT.println("G1 X" + nf(dx.max - test_length,0,2) + " Y" + nf(dy.max,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.max) + " Y" + gcode_format(dy.max));
+  OUTPUT.println("G1 X" + gcode_format(dx.max - test_length) + " Y" + gcode_format(dy.max));
   OUTPUT.println("G1 Z0");
 
   OUTPUT.println("(Lower left)");
-  OUTPUT.println("G1 X" + nf(dx.min + test_length,0,2) + " Y" + nf(dy.max,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.min + test_length) + " Y" + gcode_format(dy.max));
   OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.max,0,2));
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.max - test_length,0,2));
+  OUTPUT.println("G1 X" + gcode_format(dx.min) + " Y" + gcode_format(dy.max));
+  OUTPUT.println("G1 X" + gcode_format(dx.min) + " Y" + gcode_format(dy.max - test_length));
   OUTPUT.println("G1 Z0");
 
   gcode_trailer();
@@ -177,10 +185,11 @@ void create_gcode_test_file () {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Thanks to Vladimir Bochkov for helping me debug the SVG international decimal separators problem.
-String svg_decimal (String s) {
+String svg_format (Float n) {
   final char regional_decimal_separator = ',';
   final char svg_decimal_seperator = '.';
-
+  
+  String s = nf(n, 0, svg_decimals);
   s = s.replace(regional_decimal_separator, svg_decimal_seperator);
   return s;
 }
@@ -196,7 +205,7 @@ void create_svg_file (int line_count) {
   String gname = "gcode\\gcode_" + basefile_selected + ".svg";
   OUTPUT = createWriter(sketchPath("") + gname);
   OUTPUT.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-  OUTPUT.println("<svg width=\"" + svg_decimal(nf(img.width * gcode_scale,0,2)) + "mm\" height=\"" + svg_decimal(nf(img.height * gcode_scale,0,2)) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+  OUTPUT.println("<svg width=\"" + svg_format(img.width * gcode_scale) + "mm\" height=\"" + svg_format(img.height * gcode_scale) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
   d1.set_pen_continuation_flags();
   
   // Loop over pens backwards to display dark lines last.
@@ -224,13 +233,13 @@ void create_svg_file (int line_count) {
 
         if (d1.lines[i].pen_down) {
           if (d1.lines[i].pen_continuation) {
-            String buf = svg_decimal(nf(gcode_scaled_x2,0,2)) + "," + svg_decimal(nf(gcode_scaled_y2,0,2));
+            String buf = svg_format(gcode_scaled_x2) + "," + svg_format(gcode_scaled_y2);
             OUTPUT.println(buf);
             drawing_polyline = true;
           } else {
             color c = copic.get_original_color(copic_sets[current_copic_set][p]);
             OUTPUT.println("<polyline fill=\"none\" stroke=\"#" + hex(c, 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
-            String buf = svg_decimal(nf(gcode_scaled_x1,0,2)) + "," + svg_decimal(nf(gcode_scaled_y1,0,2));
+            String buf = svg_format(gcode_scaled_x1) + "," + svg_format(gcode_scaled_y1);
             OUTPUT.println(buf);
             drawing_polyline = true;
           }
