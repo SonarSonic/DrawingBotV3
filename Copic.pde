@@ -22,8 +22,8 @@ void copic_alpha_simulator() {
   int pen_off=200;
   int off=30;
   
-  for(int pen=0; pen<5; pen++) {
-    for(int x=0; x<5; x++) {
+  for (int pen=0; pen<5; pen++) {
+    for (int x=0; x<5; x++) {
       //fill(p[pen], alpha);  rect(pen*150+10, pen*off+x*pen_off, 500, 80);
       stroke(p[pen], alpha);
       strokeWeight(50);

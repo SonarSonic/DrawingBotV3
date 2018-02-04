@@ -6,37 +6,37 @@ void image_threshold() {
   
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_desaturate() {
-  gcode_comment("Desaturated");
+  gcode_comment("image_desaturate");
   img.filter(GRAY);
 }
   
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_invert() {
-  gcode_comment("Inverted");
+  gcode_comment("image_invert");
   img.filter(INVERT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_posterize(int amount) {
-  gcode_comment("Posterized");
+  gcode_comment("image_posterize");
   img.filter(POSTERIZE, amount);
 }
   
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_blur(int amount) {
-  gcode_comment("Blured");
+  gcode_comment("image_blur");
   img.filter(BLUR, amount);
 }
  
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_erode() {
-  gcode_comment("Eroded");
+  gcode_comment("image_erode");
   img.filter(ERODE);
 }
   
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_dilate() {
-  gcode_comment("Dilated");
+  gcode_comment("image_dilate");
   img.filter(DILATE);
 }
   
@@ -48,7 +48,6 @@ void image_rotate() {
   //image[original_height - y][original_width - x]  // 180 degrees
 
   if (img.width > img.height) {
-    gcode_comment("Rotated");
     PImage img2 = createImage(img.height, img.width, RGB);
     img.loadPixels();
     for (int x=1; x<img.width; x++) {
@@ -60,6 +59,9 @@ void image_rotate() {
     }
     img = img2;
     updatePixels();
+    gcode_comment("image_rotate: rotated 90 degrees to fit machines sweet spot");
+  } else {
+    gcode_comment("image_rotate: no rotation necessary");
   }
 }
 
@@ -77,8 +79,9 @@ void lighten_one_pixel(int adjustbrightness, int x, int y) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_scale(int new_width) {
   if (img.width != new_width) {
-    gcode_comment("Resizing, dimensions were " + img.width + " by " + img.height);
+    gcode_comment("image_scale, old size: " + img.width + " by " + img.height + "     ratio: " + (float)img.width / (float)img.height);
     img.resize(new_width, 0);
+    gcode_comment("image_scale, new size: " + img.width + " by " + img.height + "     ratio: " + (float)img.width / (float)img.height);
   }
 }
 
@@ -101,10 +104,10 @@ void image_crop() {
   float desired_ratio = image_size_x / image_size_y;
   float current_ratio = (float)img.width / (float)img.height;
   
-  gcode_comment("Cropping image to desired ratio of " + desired_ratio);
-  gcode_comment("Current image: " + img.width + "x" + img.height + "     ratio: " + current_ratio);
+  gcode_comment("image_crop desired ratio of " + desired_ratio);
+  gcode_comment("image_crop old size: " + img.width + " by " + img.height + "     ratio: " + current_ratio);
   
-  if ( current_ratio < desired_ratio ) {
+  if (current_ratio < desired_ratio) {
     int desired_x = img.width;
     int desired_y = int(img.width / desired_ratio);
     int half_y = (img.height - desired_y) / 2;
@@ -119,7 +122,7 @@ void image_crop() {
   }
 
   img = img2;
-  gcode_comment("Cropped image: " + img.width + "x" + img.height + "     ratio: " + (float)img.width / (float)img.height);
+  gcode_comment("image_crop new size: " + img.width + " by " + img.height + "     ratio: " + (float)img.width / (float)img.height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,18 +138,20 @@ void image_boarder(String fname, int shrink, int blur) {
   // shrink:  Number of pixels to pull the boarder away, 0 for no change. 
   // blur:    Guassian blur the boarder, 0 for no blur, 10+ for a lot.
   
-  PImage boarder = createImage(img.width+(shrink*2), img.height+(shrink*2), RGB);
+  //PImage boarder = createImage(img.width+(shrink*2), img.height+(shrink*2), RGB);
   PImage temp_boarder = loadImage("boarder/" + fname);
+  temp_boarder.resize(img.width, img.height);
   temp_boarder.filter(GRAY);
   temp_boarder.filter(INVERT);
   temp_boarder.filter(BLUR, blur);
   
-  boarder.copy(temp_boarder, 0, 0, temp_boarder.width, temp_boarder.height, 0, 0, boarder.width, boarder.height);
-  img.blend(boarder, shrink, shrink, img.width, img.height,  0, 0, img.width, img.height, ADD); 
+  //boarder.copy(temp_boarder, 0, 0, temp_boarder.width, temp_boarder.height, 0, 0, boarder.width, boarder.height);
+  img.blend(temp_boarder, shrink, shrink, img.width, img.height,  0, 0, img.width, img.height, ADD); 
+  gcode_comment("image_boarder: " + fname + "   " + shrink + "   " + blur);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-void image_unsharpen(PImage img, float factor) {
+void image_unsharpen(PImage img, int amount) {
   // Source:  https://www.taylorpetrick.com/blog/post/convolution-part3
   // Subtle unsharp matrix
   float[][] matrix = { { -0.00391, -0.01563, -0.02344, -0.01563, -0.00391 },
@@ -155,39 +160,27 @@ void image_unsharpen(PImage img, float factor) {
                        { -0.01563, -0.06250, -0.09375, -0.06250, -0.01563 },
                        { -0.00391, -0.01563, -0.02344, -0.01563, -0.00391 } };
   
+  
+  //print_matrix(matrix);
+  matrix = scale_matrix(matrix, amount);
+  //print_matrix(matrix);
   matrix = normalize_matrix(matrix);
-  image_convolution(img, matrix, factor, 0);
+  //print_matrix(matrix);
+
+  image_convolution(img, matrix, 1.0, 0.0);
+  gcode_comment("image_unsharpen: " + amount);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-void image_test(PImage img) {
+void image_blurr(PImage img) {
+  // Basic blur matrix
 
-  // Looks like some kind on inverting edge detection
-  //float[][] matrix = { { -1, -1, -1 },
-  //                     { -1,  8, -1 },
-  //                     { -1, -1, -1 } }; 
-                       
-  //float[][] matrix = { {  1,  2,   0,  -2,  -1 },
-  //                     {  4,  8,   0,  -8,  -4 },
-  //                     {  6, 12,   0, -12,  -6 },
-  //                     {  4,  8,   0,  -8,  -4 },
-  //                     {  1,  2,   0,  -2,  -1 } };
-
-  float factor = 3; 
-  float bias = 0.5;
+  float[][] matrix = { { 1, 1, 1 },
+                       { 1, 1, 1 },
+                       { 1, 1, 1 } }; 
   
-  // Sobel 3x3 X
-  float[][] matrixX = { { -1,  0,  1 },
-                        { -2,  0,  2 },
-                        { -1,  0,  1 } }; 
-
-  // Sobel 3x3 Y
-  float[][] matrixY = { { -1, -2, -1 },
-                        {  0,  0,  0 },
-                        {  1,  2,  1 } }; 
-
-  image_convolution(img, matrixX, factor, bias);
-  image_convolution(img, matrixY, factor, bias);
+  matrix = normalize_matrix(matrix);
+  image_convolution(img, matrix, 1, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +191,7 @@ void image_sharpen(PImage img) {
                        { -1,  5, -1 },
                        {  0, -1,  0 } }; 
   
+  //print_matrix(matrix);
   image_convolution(img, matrix, 1, 0);
 }
 
@@ -221,9 +215,43 @@ void image_edge_detect(PImage img) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_motion_blur(PImage img) {
+  // Motion Blur
+  // http://lodev.org/cgtutor/filtering.html
+                       
+  float[][] matrix = { {  1, 0, 0, 0, 0, 0, 0, 0, 0 },
+                       {  0, 1, 0, 0, 0, 0, 0, 0, 0 },
+                       {  0, 0, 1, 0, 0, 0, 0, 0, 0 },
+                       {  0, 0, 0, 1, 0, 0, 0, 0, 0 },
+                       {  0, 0, 0, 0, 1, 0, 0, 0, 0 },
+                       {  0, 0, 0, 0, 0, 1, 0, 0, 0 },
+                       {  0, 0, 0, 0, 0, 0, 1, 0, 0 },
+                       {  0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                       {  0, 0, 0, 0, 0, 0, 0, 0, 1 } };
+
+  matrix = normalize_matrix(matrix);
+  image_convolution(img, matrix, 1, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void image_outline(PImage img) {
+  // Outline (5x5)
+  // https://www.jmicrovision.com/help/v125/tools/classicfilterop.htm
+
+  float[][] matrix = { { 1,  1,   1,  1,  1 },
+                       { 1,  0,   0,  0,  1 },
+                       { 1,  0, -16,  0,  1 },
+                       { 1,  0,   0,  0,  1 },
+                       { 1,  1,   1,  1,  1 } };
+                       
+  //matrix = normalize_matrix(matrix);
+  image_convolution(img, matrix, 1, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_sobel(PImage img, float factor, float bias) {
 
-  // Looks like some kind on inverting edge detection
+  // Looks like some kind of inverting edge detection
   //float[][] matrix = { { -1, -1, -1 },
   //                     { -1,  8, -1 },
   //                     { -1, -1, -1 } }; 
@@ -255,19 +283,15 @@ void image_convolution(PImage img, float[][] matrix, float factor, float bias) {
   int n = matrix.length;      // matrix rows
   int m = matrix[0].length;   // matrix columns
   
-  for(int i=0; i<n; i++){
-    for(int j=0; j<m; j++){
-      matrix[i][j] = matrix[i][j] * factor + bias;
-    }
-  }
-
+  //print_matrix(matrix);
+  
   PImage simg = createImage(img.width, img.height, RGB);
   simg.copy(img, 0, 0, img.width, img.height, 0, 0, simg.width, simg.height);
   int matrixsize = matrix.length;
 
   for (int x = 0; x < simg.width; x++) {
     for (int y = 0; y < simg.height; y++ ) {
-      color c = convolution(x, y, matrix, matrixsize, simg);
+      color c = convolution(x, y, matrix, matrixsize, simg, factor, bias);
       int loc = x + y*simg.width;
       img.pixels[loc] = c;
     }
@@ -278,16 +302,18 @@ void image_convolution(PImage img, float[][] matrix, float factor, float bias) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Source:  https://py.processing.org/tutorials/pixels/
-// Daniel Shiffman
+// By: Daniel Shiffman
+// Factor & bias added by SCC
 
-color convolution(int x, int y, float[][] matrix, int matrixsize, PImage img) {
+color convolution(int x, int y, float[][] matrix, int matrixsize, PImage img, float factor, float bias) {
   float rtotal = 0.0;
   float gtotal = 0.0;
   float btotal = 0.0;
   int offset = matrixsize / 2;
+
   // Loop through convolution matrix
-  for (int i = 0; i < matrixsize; i++){
-    for (int j= 0; j < matrixsize; j++){
+  for (int i = 0; i < matrixsize; i++) {
+    for (int j= 0; j < matrixsize; j++) {
       // What pixel are we testing
       int xloc = x+i-offset;
       int yloc = y+j-offset;
@@ -301,6 +327,12 @@ color convolution(int x, int y, float[][] matrix, int matrixsize, PImage img) {
       btotal += (blue(img.pixels[loc]) * matrix[i][j]);
     }
   }
+  
+  // Added factor and bias
+  rtotal = (rtotal * factor) + bias;
+  gtotal = (gtotal * factor) + bias;
+  btotal = (btotal * factor) + bias;
+  
   // Make sure RGB is within range
   rtotal = constrain(rtotal,0,255);
   gtotal = constrain(gtotal,0,255);
@@ -321,21 +353,15 @@ float [][] multiply_matrix (float[][] matrixA, float[][] matrixB) {
   float[][] matrixC;
   matrixC = new float[n][p]; 
 
-  for(int i=0; i<n; i++){
-    for(int j=0; j<p; j++){
-      for(int k=0; k<m; k++){
+  for (int i=0; i<n; i++) {
+    for (int j=0; j<p; j++) {
+      for (int k=0; k<m; k++) {
         matrixC[i][j] = matrixC[i][j] + matrixA[i][k] * matrixB[k][j];
       }
     }
   }
 
-  //for(int i=0; i<n; i++){
-  //  for(int j=0; j<p; j++){
-  //    print(matrixC[i][j], "   ");
-  //  }
-  //  println();
-  //}
-
+  //print_matrix(matrix);
   return matrixC;
 }
 
@@ -350,19 +376,63 @@ float [][] normalize_matrix (float[][] matrix) {
   int m = matrix[0].length;   // columns
   float sum = 0;
   
-  for(int i=0; i<n; i++){
-    for(int j=0; j<m; j++){
+  for (int i=0; i<n; i++) {
+    for (int j=0; j<m; j++) {
       sum += matrix[i][j];
     }
   }
   
-  for(int i=0; i<n; i++){
-    for(int j=0; j<m; j++){
+  for (int i=0; i<n; i++) {
+    for (int j=0; j<m; j++) {
       matrix[i][j] = matrix[i][j] / abs(sum);
     }
   }
   
   return matrix;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+float [][] scale_matrix(float[][] matrix, int scale) {
+  int n = matrix.length;      // rows
+  int p = matrix[0].length;   // columns
+  float sum = 0;
+                         
+  float [][] nmatrix = new float[n*scale][p*scale];
+  
+  for (int i=0; i<n; i++){
+    for (int j=0; j<p; j++){
+      for (int si=0; si<scale; si++){
+        for (int sj=0; sj<scale; sj++){
+          //println(si, sj);
+          int a1 = (i*scale)+si;
+          int a2 = (j*scale)+sj;
+          float a3 = matrix[i][j];
+          //println( a1 + ", " + a2 + " = " + a3 );
+          //nmatrix[(i*scale)+si][(j*scale)+sj] = matrix[i][j];
+          nmatrix[a1][a2] = a3;
+        }
+      }
+    }
+    //println();
+  }
+  //println("scale_matrix: " + scale);
+  return nmatrix;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void print_matrix(float[][] matrix) {
+  int n = matrix.length;      // rows
+  int p = matrix[0].length;   // columns
+  float sum = 0;
+
+  for (int i=0; i<n; i++){
+    for (int j=0; j<p; j++){
+      sum += matrix[i][j];
+      System.out.printf("%10.5f ", matrix[i][j]);
+    }
+    println();
+  }
+  println("Sum: ", sum);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

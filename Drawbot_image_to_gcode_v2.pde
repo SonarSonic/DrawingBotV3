@@ -1,30 +1,27 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.72 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.73 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
 // Open creative GPL source commons with some BSD public GNU foundation stuff sprinkled in...
 // If anything here is remotely useable, please give me a shout.
 //
-// Useful math stuff:
-//      http://members.chello.at/~easyfilter/bresenham.html
-// GClip stuff:
-//      https://forum.processing.org/two/discussion/6179/why-does-not-it-run-clipboard
+// Useful math:    http://members.chello.at/~easyfilter/bresenham.html
+// GClip:          https://forum.processing.org/two/discussion/6179/why-does-not-it-run-clipboard
+// Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.util.Map;
 import processing.pdf.*;
 
-// Set path finding module to use
-Pfm_original  pfm;
-//Pfm_your_version  pfm;
 
-// Constants
+// Constants 
 final float   paper_size_x = 32 * 25.4;
 final float   paper_size_y = 40 * 25.4;
 final float   image_size_x = 28 * 25.4;
 final float   image_size_y = 36 * 25.4;
 final float   paper_top_to_origin = 285;      //mm, make smaller to move drawing down on paper
+final float   pen_width = 0.65;               //mm, determines image_scale, reduce, if solid black areas are speckled with white holes.
 final int     pen_count = 6;
 final char    gcode_decimal_seperator = '.';    
 final int     gcode_decimals = 2;             // Number of digits right of the decimal point in the gcode files.
@@ -32,6 +29,11 @@ final int     svg_decimals = 2;               // Number of digits right of the d
 
 
 // Every good program should have a shit pile of badly named globals.
+Class cl = null;
+pfm ocl;
+int current_pfm = 0;
+String[] pfms = {"PFM_original", "PFM_spiral", "PFM_squares"}; 
+
 int     state = 1;
 int     pen_selected = 0;
 int     current_copic_set = 0;
@@ -60,6 +62,7 @@ String  file_selected = "";
 String  basefile_selected = "";
 String  gcode_comments = "";
 int     startTime = 0;
+boolean ctrl_down = false;
 
 Limit   dx, dy;
 Copix   copic;
@@ -93,9 +96,10 @@ String[][] copic_sets = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
-  size(1415, 1100, P3D);
+  size(1415, 900, P3D);
+  frame.setLocation(200, 200);
   surface.setResizable(true);
-  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.72");
+  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.73");
   colorMode(RGB);
   frameRate(999);
   //randomSeed(millis());
@@ -104,9 +108,8 @@ void setup() {
   dx = new Limit(); 
   dy = new Limit(); 
   copic = new Copix();
-  pfm = new Pfm_original(); 
-  //pfm = new Pfm_your_version(); 
-    
+  loadInClass(pfms[current_pfm]);
+
   // If the clipboard contains a URL, try to download the picture instead of using local storage.
   String url = GClip.paste();
   if (match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
@@ -114,15 +117,13 @@ void setup() {
     path_selected = url;
     state++;
   } else {
-    println("Image URL not found on clipboard");
+    println("image URL not found on clipboard");
     selectInput("Select an image to process:", "fileSelected");
   }
-  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void draw() {
-  frame.setLocation(200, 200);
   if (state != 3) { background(255, 255, 255); }
   scale(screen_scale);
   translate(mx, my);
@@ -130,10 +131,11 @@ void draw() {
   
   switch(state) {
   case 1: 
-    // Waiting for filename selection
+    //println("State=1, Waiting for filename selection");
     break;
   case 2:
     //println("State=2, Setup squiggles");
+    loop();
     setup_squiggles();
     startTime = millis();
     break;
@@ -142,20 +144,31 @@ void draw() {
     if (display_line_count <= 1) {
       background(255);
     } 
-    pfm.find_path();
+    ocl.find_path();
     display_line_count = d1.line_count;
     break;
   case 4: 
-    pfm.post_processing();
-    println("Elapsed time:  ", millis() - startTime);
-    close_files_and_make_images();
+    println("State=4, pfm.post_processing");
+    ocl.post_processing();
+
+    set_even_distribution();
+    normalize_distribution();
+    d1.evenly_distribute_pen_changes(d1.get_line_count(), pen_count);
+    d1.distribute_pen_changes_according_to_percentages(display_line_count, pen_count);
+
+    println("elapsed time: " + (millis() - startTime) / 1000.0 + " seconds");
+    display_line_count = d1.line_count;
+  
+    gcode_comment ("extreams of X: " + dx.min + " thru " + dx.max);
+    gcode_comment ("extreams of Y: " + dy.min + " thru " + dy.max);
+    state++;
     break;
   case 5: 
     render_all();
     noLoop();
     break;
   default:
-    println("Invalid state: " + state);
+    println("invalid state: " + state);
     break;
   }
 }
@@ -163,16 +176,16 @@ void draw() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void fileSelected(File selection) {
   if (selection == null) {
-    println("No image file selected.  Exiting program.");
+    println("no image file selected, exiting program.");
     exit();
   } else {
     path_selected = selection.getAbsolutePath();
     file_selected = selection.getName();
     String[] fileparts = split(file_selected, '.');
     basefile_selected = fileparts[0];
-    println("User selected " + path_selected);
-    //println("User selected " + file_selected);
-    //println("User selected " + basefile_selected);
+    println("user selected: " + path_selected);
+    //println("user selected: " + file_selected);
+    //println("user selected: " + basefile_selected);
     state++;
   }
 }
@@ -184,17 +197,19 @@ void setup_squiggles() {
   float   screen_scale_x;
   float   screen_scale_y;
 
-  println("setup_squiggles running...");
+  //println("setup_squiggles...");
+
+  d1.line_count = 0;
   //randomSeed(millis());
   img = loadImage(path_selected, "jpeg");  // Load the image into the program  
-  gcode_comment("loadImage: " + path_selected);
+  gcode_comment("loaded image: " + path_selected);
 
   image_rotate();
 
   img_orginal = createImage(img.width, img.height, RGB);
   img_orginal.copy(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
 
-  pfm.pre_processing();
+  ocl.pre_processing();
   img.loadPixels();
   img_reference = createImage(img.width, img.height, RGB);
   img_reference.copy(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
@@ -210,19 +225,17 @@ void setup_squiggles() {
   screen_scale = min(screen_scale_x, screen_scale_y);
   screen_scale_org = screen_scale;
   
-  gcode_comment("Image dimensions: " + img.width + " by " + img.height);
-  gcode_comment("Paper size: " + nf(paper_size_x,0,2) + " by " + nf(paper_size_y,0,2) + "      " + nf(paper_size_x/25.4,0,2) + " by " + nf(paper_size_y/25.4,0,2));
-  gcode_comment("Max image size: " + nf(image_size_x,0,2) + " by " + nf(image_size_y,0,2) + "      " + nf(image_size_x/25.4,0,2) + " by " + nf(image_size_y/25.4,0,2));
-  gcode_comment("Calc image size " + nf(img.width * gcode_scale,0,2) + " by " + nf(img.height * gcode_scale,0,2) + "      " + nf(img.width * gcode_scale/25.4,0,2) + " by " + nf(img.height * gcode_scale/25.4,0,2));
-  //gcode_comment("Gcode scale X:  " + nf(gcode_scale_x,0,2));
-  //gcode_comment("Gcode scale Y:  " + nf(gcode_scale_y,0,2));
-  //gcode_comment("Gcode scale:    " + nf(gcode_scale,0,2));
-  //gcode_comment("Screen scale X: " + nf(screen_scale_x,0,2));
-  //gcode_comment("Screen scale Y: " + nf(screen_scale_y,0,2));
-  //gcode_comment("Screen scale:   " + nf(screen_scale,0,2));
-  gcode_comment("Gcode offset X: " + nf(gcode_offset_x,0,2));  
-  gcode_comment("Gcode offset Y: " + nf(gcode_offset_y,0,2));  
-  pfm.output_parameters();
+  gcode_comment("final dimensions: " + img.width + " by " + img.height);
+  gcode_comment("paper_size: " + nf(paper_size_x,0,2) + " by " + nf(paper_size_y,0,2) + "      " + nf(paper_size_x/25.4,0,2) + " by " + nf(paper_size_y/25.4,0,2));
+  gcode_comment("drawing size max: " + nf(image_size_x,0,2) + " by " + nf(image_size_y,0,2) + "      " + nf(image_size_x/25.4,0,2) + " by " + nf(image_size_y/25.4,0,2));
+  gcode_comment("drawing size calculated " + nf(img.width * gcode_scale,0,2) + " by " + nf(img.height * gcode_scale,0,2) + "      " + nf(img.width * gcode_scale/25.4,0,2) + " by " + nf(img.height * gcode_scale/25.4,0,2));
+  gcode_comment("gcode_scale X:  " + nf(gcode_scale_x,0,2));
+  gcode_comment("gcode_scale Y:  " + nf(gcode_scale_y,0,2));
+  gcode_comment("gcode_scale:    " + nf(gcode_scale,0,2));
+  //gcode_comment("screen_scale X: " + nf(screen_scale_x,0,2));
+  //gcode_comment("screen_scale Y: " + nf(screen_scale_y,0,2));
+  //gcode_comment("screen_scale:   " + nf(screen_scale,0,2));
+  ocl.output_parameters();
 
   state++;
 }
@@ -284,17 +297,11 @@ void grid() {
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-void close_files_and_make_images() {
-  display_line_count = d1.line_count;
-  
-  gcode_comment ("Extreams of X: " + dx.min + " thru " + dx.max);
-  gcode_comment ("Extreams of Y: " + dy.min + " thru " + dy.max);
-  state++;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void save_jpg() {
+  // Currently disabled.
+  // Must not be called from event handling functions such as keyPressed()
   PImage  img_drawing;
   PImage  img_drawing2;
 
@@ -307,7 +314,7 @@ void save_jpg() {
   img_drawing = loadImage("tmptif.tif");
   img_drawing2 = createImage(img.width, img.height, RGB);
   img_drawing2.copy(img_drawing, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
-  img_drawing2.save(sketchPath("") + "drawings\\" + basefile_selected + ".jpg");
+  img_drawing2.save("gcode\\gcode_" + basefile_selected + ".jpg");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -339,60 +346,97 @@ void render_all() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-void keyPressed() {
+void keyReleased() {
+  if (keyCode == CONTROL) { ctrl_down = false; }
+}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void keyPressed() {
+  if (keyCode == CONTROL) { ctrl_down = true; }
+
+  if (key == 'p') {
+    current_pfm ++;
+    if (current_pfm >= pfms.length) { current_pfm = 0; }
+    //display_line_count = 0;
+    loadInClass(pfms[current_pfm]); 
+    state = 2;
+  }
+  
   if (key == 'd') { display_mode = "drawing";   }
   if (key == 'O') { display_mode = "original";  }
   if (key == 'o') { display_mode = "reference";  }
   if (key == 'l') { display_mode = "lightened"; }
-  if (key == 'Q') { display_mode = "pen";  pen_selected = 0; }
-  if (key == 'W') { display_mode = "pen";  pen_selected = 1; }
-  if (key == 'E') { display_mode = "pen";  pen_selected = 2; }
-  if (key == 'R') { display_mode = "pen";  pen_selected = 3; }
-  if (key == 'T') { display_mode = "pen";  pen_selected = 4; }
-  if (key == 'Y') { display_mode = "pen";  pen_selected = 5; }
+  if (keyCode == 49 && ctrl_down && pen_count > 0) { display_mode = "pen";  pen_selected = 0; }  // ctrl 1
+  if (keyCode == 50 && ctrl_down && pen_count > 1) { display_mode = "pen";  pen_selected = 1; }  // ctrl 2
+  if (keyCode == 51 && ctrl_down && pen_count > 2) { display_mode = "pen";  pen_selected = 2; }  // ctrl 3
+  if (keyCode == 52 && ctrl_down && pen_count > 3) { display_mode = "pen";  pen_selected = 3; }  // ctrl 4
+  if (keyCode == 53 && ctrl_down && pen_count > 4) { display_mode = "pen";  pen_selected = 4; }  // ctrl 5
+  if (keyCode == 54 && ctrl_down && pen_count > 5) { display_mode = "pen";  pen_selected = 5; }  // ctrl 6
+  if (keyCode == 55 && ctrl_down && pen_count > 6) { display_mode = "pen";  pen_selected = 6; }  // ctrl 7
+  if (keyCode == 56 && ctrl_down && pen_count > 7) { display_mode = "pen";  pen_selected = 7; }  // ctrl 8
+  if (keyCode == 57 && ctrl_down && pen_count > 8) { display_mode = "pen";  pen_selected = 8; }  // ctrl 9
+  if (keyCode == 48 && ctrl_down && pen_count > 9) { display_mode = "pen";  pen_selected = 9; }  // ctrl 0
   if (key == 'G') { is_grid_on = ! is_grid_on; }
   if (key == ']') { screen_scale *= 1.05; }
   if (key == '[') { screen_scale *= 1 / 1.05; }
-  if (key == '1') { pen_distribution[0] *= 1.1; }
-  if (key == '2') { pen_distribution[1] *= 1.1; }
-  if (key == '3') { pen_distribution[2] *= 1.1; }
-  if (key == '4') { pen_distribution[3] *= 1.1; }
-  if (key == '5') { pen_distribution[4] *= 1.1; }
-  if (key == '6') { pen_distribution[5] *= 1.1; }
-  if (key == '!') { pen_distribution[0] *= 0.9; }
-  if (key == '@') { pen_distribution[1] *= 0.9; }
-  if (key == '#') { pen_distribution[2] *= 0.9; }
-  if (key == '$') { pen_distribution[3] *= 0.9; }
-  if (key == '%') { pen_distribution[4] *= 0.9; }
-  if (key == '^') { pen_distribution[5] *= 0.9; }
+  if (key == '1' && pen_count > 0) { pen_distribution[0] *= 1.1; }
+  if (key == '2' && pen_count > 1) { pen_distribution[1] *= 1.1; }
+  if (key == '3' && pen_count > 2) { pen_distribution[2] *= 1.1; }
+  if (key == '4' && pen_count > 3) { pen_distribution[3] *= 1.1; }
+  if (key == '5' && pen_count > 4) { pen_distribution[4] *= 1.1; }
+  if (key == '6' && pen_count > 5) { pen_distribution[5] *= 1.1; }
+  if (key == '7' && pen_count > 6) { pen_distribution[6] *= 1.1; }
+  if (key == '8' && pen_count > 7) { pen_distribution[7] *= 1.1; }
+  if (key == '9' && pen_count > 8) { pen_distribution[8] *= 1.1; }
+  if (key == '0' && pen_count > 9) { pen_distribution[9] *= 1.1; }
+  if (key == '!' && pen_count > 0) { pen_distribution[0] *= 0.9; }
+  if (key == '@' && pen_count > 1) { pen_distribution[1] *= 0.9; }
+  if (key == '#' && pen_count > 2) { pen_distribution[2] *= 0.9; }
+  if (key == '$' && pen_count > 3) { pen_distribution[3] *= 0.9; }
+  if (key == '%' && pen_count > 4) { pen_distribution[4] *= 0.9; }
+  if (key == '^' && pen_count > 5) { pen_distribution[5] *= 0.9; }
+  if (key == '&' && pen_count > 6) { pen_distribution[6] *= 0.9; }
+  if (key == '*' && pen_count > 7) { pen_distribution[7] *= 0.9; }
+  if (key == '(' && pen_count > 8) { pen_distribution[8] *= 0.9; }
+  if (key == ')' && pen_count > 9) { pen_distribution[9] *= 0.9; }
   if (key == 't') { set_even_distribution(); }
   if (key == 'y') { set_black_distribution(); }
   if (key == '}') { current_copic_set++; }
   if (key == '{') { current_copic_set--; } 
   if (key == 's') { if (state == 3) { state++; } }
+  if (keyCode == 65 && ctrl_down)  {
+    println("Holly freak, Ctrl-A was pressed!");
+  }
   if (key == '9') {
-    pen_distribution[0] *= 0.90;
-    pen_distribution[1] *= 0.95;
-    pen_distribution[2] *= 1.00;
-    pen_distribution[3] *= 1.05;
-    pen_distribution[4] *= 1.10;
-    pen_distribution[5] *= 1.15;
+    if (pen_count > 0) { pen_distribution[0] *= 1.00; }
+    if (pen_count > 1) { pen_distribution[1] *= 1.05; }
+    if (pen_count > 2) { pen_distribution[2] *= 1.10; }
+    if (pen_count > 3) { pen_distribution[3] *= 1.15; }
+    if (pen_count > 4) { pen_distribution[4] *= 1.20; }
+    if (pen_count > 5) { pen_distribution[5] *= 1.25; }
+    if (pen_count > 6) { pen_distribution[6] *= 1.30; }
+    if (pen_count > 7) { pen_distribution[7] *= 1.35; }
+    if (pen_count > 8) { pen_distribution[8] *= 1.40; }
+    if (pen_count > 9) { pen_distribution[9] *= 1.45; }
   }
   if (key == '0') {
-    pen_distribution[0] *= 1.10;
-    pen_distribution[1] *= 1.05;
-    pen_distribution[2] *= 1.00;
-    pen_distribution[3] *= 0.95;
-    pen_distribution[4] *= 0.90;
-    pen_distribution[5] *= 0.85;
-  }
+    if (pen_count > 0) { pen_distribution[0] *= 1.00; }
+    if (pen_count > 1) { pen_distribution[1] *= 0.95; }
+    if (pen_count > 2) { pen_distribution[2] *= 0.90; }
+    if (pen_count > 3) { pen_distribution[3] *= 0.85; }
+    if (pen_count > 4) { pen_distribution[4] *= 0.80; }
+    if (pen_count > 5) { pen_distribution[5] *= 0.75; }
+    if (pen_count > 6) { pen_distribution[6] *= 0.70; }
+    if (pen_count > 7) { pen_distribution[7] *= 0.65; }
+    if (pen_count > 8) { pen_distribution[8] *= 0.60; }
+    if (pen_count > 9) { pen_distribution[9] *= 0.55; }
+}
   if (key == 'g') { 
     create_gcode_files(display_line_count);
     create_gcode_test_file ();
     create_svg_file(display_line_count);
     d1.render_to_pdf(display_line_count);
-    //save_jpg();
+    d1.render_each_pen_to_pdf(display_line_count);
   }
 
   if (key == '\\') { screen_scale = screen_scale_org; screen_rotate=0; mx=0; my=0; }
@@ -445,10 +489,10 @@ void keyPressed() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void set_even_distribution() {
-  println();
+  println("set_even_distribution");
   for (int p = 0; p<pen_count; p++) {
     pen_distribution[p] = display_line_count / pen_count;
-    println("pen_distribution[" + p + "] = " + pen_distribution[p]);
+    //println("pen_distribution[" + p + "] = " + pen_distribution[p]);
   }
 }
 
@@ -465,16 +509,21 @@ void set_black_distribution() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void normalize_distribution() {
   float total = 0;
+
+  println();
+  //println("normalize_distribution");
+
   for (int p=0; p<pen_count; p++) {
     total = total + pen_distribution[p];
   }
   
-  println();
-  println("normalize_distribution");
   for (int p = 0; p<pen_count; p++) {
     pen_distribution[p] = display_line_count * pen_distribution[p] / total;
-    print("pen_distribution[" + p + "] =" );
-    System.out.printf("%7.0f  ", pen_distribution[p]);
+    print("Pen " + p + ", ");
+    System.out.printf("%-4s", copic_sets[current_copic_set][p]);
+    System.out.printf("%8.0f  ", pen_distribution[p]);
+    
+    // Display approximately one star for every percent of total
     for (int s = 0; s<int(pen_distribution[p]/total*100); s++) {
       print("*");
     }
@@ -483,10 +532,37 @@ void normalize_distribution() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+public void loadInClass(String pfm_name){
+  String className = this.getClass().getName() + "$" + pfm_name;
+  try {
+    cl = Class.forName(className);
+  } catch (ClassNotFoundException e) { 
+    println("\nError unknown PFM: " + className); 
+  }
+  
+  ocl = null;
+  if (cl != null) {
+    try {
+      // Get the constructor(s)
+      java.lang.reflect.Constructor[] ctors = cl.getDeclaredConstructors();
+      // Create an instance with the parent object as parameter (needed for inner classes)
+      ocl = (pfm) ctors[0].newInstance(new Object[] { this });
+    } catch (InstantiationException e) {
+      println("Cannot create an instance of " + className);
+    } catch (IllegalAccessException e) {
+      println("Cannot access " + className + ": " + e.getMessage());
+    } catch (Exception e) {
+       // Lot of stuff can go wrong...
+       e.printStackTrace();
+    }
+  }
+  println("\nloaded PFM: " + className); 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void mousePressed() {
   morgx = mouseX - mx; 
   morgy = mouseY - my; 
-  redraw();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -495,3 +571,16 @@ void mouseDragged() {
   my = mouseY-morgy; 
   redraw();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// This is the pfm interface, it contains the only methods the main code can call.
+// As well as any variables that all pfm modules must have.
+interface pfm {
+  //public int x=0;
+  public void pre_processing();
+  public void find_path();
+  public void post_processing();
+  public void output_parameters();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////

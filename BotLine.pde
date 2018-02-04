@@ -26,7 +26,7 @@ class botLine {
   }
 
   void render_with_copic() {
-    if(pen_down) {
+    if (pen_down) {
       color c = copic.get_original_color(copic_sets[current_copic_set][pen_number]);
       //stroke(c, 255-brightness(c));
       stroke(c);

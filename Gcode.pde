@@ -33,9 +33,9 @@ void pen_down() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-void move_abs(float x, float y) {
+void move_abs(int pen_number, float x, float y) {
   
-  d1.addline(is_pen_down, old_x, old_y, x, y);
+  d1.addline(pen_number, is_pen_down, old_x, old_y, x, y);
   if (is_pen_down) {
     d1.render_last();
   }
