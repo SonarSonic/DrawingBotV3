@@ -1,4 +1,6 @@
 # Drawbot_image_to_gcode_v2
+<img src="pics/github1.png" height="411" alt="Drawbot_image_to_gcode_v2 example output"/>
+
 This code is used to generate gcode for drawbots, polargraphs or other vertical drawing machines. \
 It takes an original image, manipulates it and generates a drawing path that kinda sorta looks like the original image. \
 This code was specifically written to work with multiple Copic markers. \
