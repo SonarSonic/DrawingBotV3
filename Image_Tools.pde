@@ -41,6 +41,25 @@ void image_dilate() {
 }
   
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+void save_jpg() {
+  // Currently disabled.
+  // Must not be called from event handling functions such as keyPressed()
+  PImage  img_drawing;
+  PImage  img_drawing2;
+
+  //img_drawing = createImage(img.width, img.height, RGB);
+  //img_drawing.copy(0, 0, img.width, img.height, 0, 0, img.width, img.height);
+  //img_drawing.save("what the duce.jpg");
+
+  // Save resuling image
+  save("tmptif.tif");
+  img_drawing = loadImage("tmptif.tif");
+  img_drawing2 = createImage(img.width, img.height, RGB);
+  img_drawing2.copy(img_drawing, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+  img_drawing2.save("gcode\\gcode_" + basefile_selected + ".jpg");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void image_rotate() {
   //image[y][x]                                     // assuming this is the original orientation
   //image[x][original_width - y]                    // rotated 90 degrees ccw
@@ -52,7 +71,7 @@ void image_rotate() {
     img.loadPixels();
     for (int x=1; x<img.width; x++) {
       for (int y=1; y<img.height; y++) {
-        int loc1  = x + y*img.width;
+        int loc1 = x + y*img.width;
         int loc2 = y + (img.width - x) * img2.width;
         img2.pixels[loc2] = img.pixels[loc1];
       }

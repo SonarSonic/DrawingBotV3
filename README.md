@@ -33,7 +33,8 @@ If your clipboard contains a URL to a web site, the code will crash and burn in 
 | Esc | Exit running program |
 | < | Decrease the total number of lines drawn |
 | > | Increase the total number of lines drawn |
-| G | Generate all gcode, SVGs, and PDFs with lines as displayed |
+| g | Generate all gcode, SVGs, and PDFs with lines as displayed |
+| G | Toggle grid |
 | t | Redistribute percentage of lines drawn by each pen evenly |
 | y | Redistribute 100% of lines drawn to pen 0 ( Black/White/Sharpie ) |
 | 9 | Change distribution of lines drawn (lighten) |

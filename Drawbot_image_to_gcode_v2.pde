@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.73 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.74 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
@@ -26,6 +26,7 @@ final int     pen_count = 6;
 final char    gcode_decimal_seperator = '.';    
 final int     gcode_decimals = 2;             // Number of digits right of the decimal point in the gcode files.
 final int     svg_decimals = 2;               // Number of digits right of the decimal point in the SVG file.
+final float   grid_scale = 25.4;              // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
 
 
 // Every good program should have a shit pile of badly named globals.
@@ -89,7 +90,7 @@ String[][] copic_sets = {
   {"100", "100", "B39", "G28", "B26", "G14"},   // Blue Green
   {"100", "100", "B39", "V09", "B02", "V04"},   // Purples
   {"100", "100", "R29", "R27", "R24", "R20"},   // Reds
-  {"100", "E29", "YG99", "Y17", "YG03", "Y11"}, // Yellow, green
+  {"100", "E29", "YG99", "Y17", "YG03", "Y11"} // Yellow, green
 };
 
 
@@ -99,7 +100,7 @@ void setup() {
   size(1415, 900, P3D);
   frame.setLocation(200, 200);
   surface.setResizable(true);
-  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.73");
+  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.74");
   colorMode(RGB);
   frameRate(999);
   //randomSeed(millis());
@@ -241,83 +242,6 @@ void setup_squiggles() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-void grid() {
-  // This will give you a rough idea of the size of the printed image, in inches.
-  // Some screen scales smaller than 1.0 will sometimes display every other line
-  // It looks like a big logic bug, but it just can't display a one pixel line scaled down well.
-  
-  blendMode(BLEND);
-  if (is_grid_on) {
-    int image_center_x = int(img.width / 2);
-    int image_center_y = int(img.height / 2);
-    int gridlines = 100;
-    
-    stroke(255, 64, 64, 70);
-    // Vertical lines
-    for (int x = -gridlines; x <= gridlines; x++) {
-      int x0 = int(x * 25.4 * (1 / gcode_scale));
-      line(x0 + image_center_x, -5000, x0 + image_center_x, 5000);
-    }
-  
-    // Horizontal lines
-    for (int y = -gridlines; y <= gridlines; y++) {
-      int y0 = int(y * 25.4 * (1 / gcode_scale));
-      line(-5000, y0 + image_center_y, 5000, y0 + image_center_y);
-    }
-    
-    // Screen center line
-    stroke(255, 64, 64, 70);
-    strokeWeight(2);
-    line(image_center_x, 0, image_center_x, 200000);
-    line(0, image_center_y, width, image_center_y);
-    strokeWeight(1);
-  
-    hint(DISABLE_DEPTH_TEST);      // Allow fills to be shown on top.
-    
-    // Faint red image rect
-    fill(255, 0, 0, 8);
-    rect(0,0,img.width, img.height);
-
-    // Green pen origin dot.
-    stroke(0, 255, 0, 255);
-    fill(0, 255, 0, 255);
-    ellipse(-gcode_offset_x / gcode_scale, -gcode_offset_y / gcode_scale, 10, 10);
-    
-    // Red center dot
-    stroke(255, 0, 0, 255);
-    fill(255, 0, 0, 255);
-    ellipse(image_center_x, image_center_y, 10, 10);
-    
-    // Blue dot at 0,0
-    stroke(0, 0, 255, 255);
-    fill(0, 0, 255, 255);
-    ellipse(0, 0, 10, 10);
-
-    hint(ENABLE_DEPTH_TEST);
-  }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-void save_jpg() {
-  // Currently disabled.
-  // Must not be called from event handling functions such as keyPressed()
-  PImage  img_drawing;
-  PImage  img_drawing2;
-
-  //img_drawing = createImage(img.width, img.height, RGB);
-  //img_drawing.copy(0, 0, img.width, img.height, 0, 0, img.width, img.height);
-  //img_drawing.save("what the duce.jpg");
-
-  // Save resuling image
-  save("tmptif.tif");
-  img_drawing = loadImage("tmptif.tif");
-  img_drawing2 = createImage(img.width, img.height, RGB);
-  img_drawing2.copy(img_drawing, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
-  img_drawing2.save("gcode\\gcode_" + basefile_selected + ".jpg");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 void render_all() {
   println("render_all: " + display_mode + ", " + display_line_count + " lines, with pen set " + current_copic_set);
   
@@ -403,6 +327,8 @@ void keyPressed() {
   if (key == 'y') { set_black_distribution(); }
   if (key == '}') { current_copic_set++; }
   if (key == '{') { current_copic_set--; } 
+  if (key == 'x') { mouse_point(); }  
+  
   if (key == 's') { if (state == 3) { state++; } }
   if (keyCode == 65 && ctrl_down)  {
     println("Holly freak, Ctrl-A was pressed!");
@@ -443,15 +369,14 @@ void keyPressed() {
   if (key == '<') {
     int delta = -10000;
     display_line_count = int(display_line_count + delta);
-    if (display_line_count < 0) { display_line_count = 0; }
     display_line_count = constrain(display_line_count, 0, d1.line_count);
-    println("display_line_count: " + display_line_count);
+    //println("display_line_count: " + display_line_count);
   }
   if (key == '>') {
     int delta = 10000;
     display_line_count = int(display_line_count + delta);
     display_line_count = constrain(display_line_count, 0, d1.line_count);
-    println("display_line_count: " + display_line_count);
+    //println("display_line_count: " + display_line_count);
   }
   if (key == CODED) {
     int delta = 15;
