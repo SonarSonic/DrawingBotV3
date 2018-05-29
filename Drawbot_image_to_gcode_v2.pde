@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.74 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.75 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
@@ -100,7 +100,7 @@ void setup() {
   size(1415, 900, P3D);
   frame.setLocation(200, 200);
   surface.setResizable(true);
-  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.74");
+  surface.setTitle("Drawbot_image_to_gcode_v2, version 3.75");
   colorMode(RGB);
   frameRate(999);
   //randomSeed(millis());
@@ -325,9 +325,9 @@ void keyPressed() {
   if (key == ')' && pen_count > 9) { pen_distribution[9] *= 0.9; }
   if (key == 't') { set_even_distribution(); }
   if (key == 'y') { set_black_distribution(); }
-  if (key == '}') { current_copic_set++; }
-  if (key == '{') { current_copic_set--; } 
   if (key == 'x') { mouse_point(); }  
+  if (key == '}' && current_copic_set < copic_sets.length -1) { current_copic_set++; }
+  if (key == '{' && current_copic_set >= 1)                   { current_copic_set--; }
   
   if (key == 's') { if (state == 3) { state++; } }
   if (keyCode == 65 && ctrl_down)  {
@@ -405,7 +405,6 @@ void keyPressed() {
      }
   }
   
-  current_copic_set = constrain(current_copic_set, 0, copic_sets.length - 1);
   normalize_distribution();
   d1.distribute_pen_changes_according_to_percentages(display_line_count, pen_count);
   //surface.setSize(img.width, img.height);

@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 
+## [3.75] - 2018-05-28
+### Changed
+- Fixed [Issue 11], Scrolling through Pen Sets
+
 ## [3.74] - 2018-05-28
 ### Added
 - mouse_point(), displays corrdinates of mouse location in console.  Useful for locating vanishing points
@@ -44,8 +48,11 @@ All notable changes to this project will be documented in this file.
 - Convolution kernels
 
 
-[3.74]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2
+[3.75]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2
+[3.74]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2/commit/84f89ac1054614d241441854ea3942132c8431d0
 [3.73]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2/commit/cea99bc4cd202536dc673f24f5344cc2b33f9265
 [3.72]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2/commit/7741fda62995b3497900286f0296238262a57900
 [3.71]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2/commit/a6339b3f1348de656c0e866cfe2e9a3ed121a58c
 [3.7]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2/commit/6361bc68d49ddc13d31e605b74a9163f98086a66
+
+[Issue 11]: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2/issues/11
