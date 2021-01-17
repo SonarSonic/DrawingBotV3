@@ -1,5 +1,8 @@
 package drawingbot.pfm;
 
+import drawingbot.PlottingTask;
+
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public enum PFMLoaders {
@@ -9,18 +12,23 @@ public enum PFMLoaders {
     SQUARES("Squares PFM", PFMSquares::new);
 
     private String name;
-    private Supplier<IPFM> create;
+    private Function<PlottingTask, IPFM> create;
 
-    PFMLoaders(String name, Supplier<IPFM> create) {
+    PFMLoaders(String name, Function<PlottingTask, IPFM> create) {
         this.name = name;
         this.create = create;
+    }
+
+    public IPFM createNewPFM(PlottingTask task){
+        return create.apply(task);
     }
 
     public String getName(){
         return name;
     }
-
-    public IPFM createNewPFM(){
-        return create.get();
+    @Override
+    public String toString() {
+        return getName();
     }
+
 }

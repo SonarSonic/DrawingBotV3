@@ -6,24 +6,25 @@ package drawingbot.pfm;/////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import drawingbot.DrawingBotV3;
+import drawingbot.PlottingTask;
 import drawingbot.helpers.ImageTools;
 import drawingbot.helpers.GCodeHelper;
 
 import static processing.core.PApplet.*;
 
-public class PFMSpiral implements IPFM {
+public class PFMSpiral extends PFM {
 
-    public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
-
-    public PFMSpiral(){}
+    public PFMSpiral(PlottingTask task){
+        super(task);
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void pre_processing() {
-        ImageTools.image_crop();
-        ImageTools.image_scale(1000);
-        ImageTools.image_unsharpen(app.img, 3);
-        ImageTools.image_boarder("b6.png", 0, 0);
-        ImageTools.image_desaturate();
+        ImageTools.image_crop(task);
+        ImageTools.image_scale(task, 1000);
+        ImageTools.image_unsharpen(task, task.getPlottingImage(), 3);
+        ImageTools.image_boarder(task, "b6.png", 0, 0);
+        ImageTools.image_desaturate(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,14 +49,14 @@ public class PFMSpiral implements IPFM {
 
         // When have we reached the far corner of the image?
         // TODO: this will have to change if not centered
-        endRadius = sqrt(pow((app.img.width/2F), 2)+pow((app.img.height/2F), 2));
+        endRadius = sqrt(pow((task.getPlottingImage().width/2F), 2)+pow((task.getPlottingImage().height/2F), 2));
 
         // Calculates the first point.  Currently just the center.
         // TODO: Allow for ajustable center
-        GCodeHelper.pen_up();
-        x =  radius*cos(radians(alpha))+app.img.width/2F;
-        y = -radius*sin(radians(alpha))+app.img.height/2F;
-        GCodeHelper.move_abs(0, x, y);
+        GCodeHelper.pen_up(task);
+        x =  radius*cos(radians(alpha))+task.getPlottingImage().width/2F;
+        y = -radius*sin(radians(alpha))+task.getPlottingImage().height/2F;
+        GCodeHelper.move_abs(task, 0, x, y);
         xa = 0;
         xb = 0;
         ya = 0;
@@ -66,49 +67,49 @@ public class PFMSpiral implements IPFM {
             k = (density/2)/radius;
             alpha += k;
             radius += dist/(360/k);
-            x =  radius*cos(radians(alpha))+app.img.width/2F;
-            y = -radius*sin(radians(alpha))+app.img.height/2F;
+            x =  radius*cos(radians(alpha))+task.getPlottingImage().width/2F;
+            y = -radius*sin(radians(alpha))+task.getPlottingImage().height/2F;
 
             // Are we within the the image?
             // If so check if the shape is open. If not, open it
-            if ((x>=0) && (x<app.img.width) && (y>0) && (y<app.img.height)) {
+            if ((x>=0) && (x<task.getPlottingImage().width) && (y>0) && (y<task.getPlottingImage().height)) {
 
                 // Get the color and brightness of the sampled pixel
-                c =app. img.get ((int)(x), (int)(y));
+                c =task.getPlottingImage().get((int)(x), (int)(y));
                 b = app.brightness(c);
                 b = map (b, 0, 255, dist*ampScale, 0);
 
                 // Move up according to sampled brightness
                 aradius = radius+(b/dist);
-                xa =  aradius*cos(radians(alpha))+app.img.width/2F;
-                ya = -aradius*sin(radians(alpha))+app.img.height/2F;
+                xa =  aradius*cos(radians(alpha))+task.getPlottingImage().width/2F;
+                ya = -aradius*sin(radians(alpha))+task.getPlottingImage().height/2F;
 
                 // Move down according to sampled brightness
                 k = (density/2)/radius;
                 alpha += k;
                 radius += dist/(360/k);
                 bradius = radius-(b/dist);
-                xb =  bradius*cos(radians(alpha))+app.img.width/2F;
-                yb = -bradius*sin(radians(alpha))+app.img.height/2F;
+                xb =  bradius*cos(radians(alpha))+task.getPlottingImage().width/2F;
+                yb = -bradius*sin(radians(alpha))+task.getPlottingImage().height/2F;
 
                 // If the sampled color is the mask color do not write to the shape
                 if (app.brightness(mask) <= app.brightness(c)) {
-                    GCodeHelper.pen_up();
+                    GCodeHelper.pen_up(task);
                 } else {
-                    GCodeHelper.pen_down();
+                    GCodeHelper.pen_down(task);
                 }
             } else {
                 // We are outside of the image
-                GCodeHelper.pen_up();
+                GCodeHelper.pen_up(task);
             }
 
             int pen_number = (int)(map(app.brightness(c), 0, 255, 0, app.pen_count-1)+0.5);
-            GCodeHelper.move_abs(pen_number, xa, ya);
-            GCodeHelper.move_abs(pen_number, xb, yb);
+            GCodeHelper.move_abs(task, pen_number, xa, ya);
+            GCodeHelper.move_abs(task, pen_number, xb, yb);
         }
 
-        GCodeHelper.pen_up();
-        app.state++;
+        GCodeHelper.pen_up(task);
+        finish();
     }
 
 

@@ -1,6 +1,7 @@
 package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.PlottingTask;
 import processing.core.PConstants;
 import processing.core.PImage;
 import static processing.core.PApplet.*;
@@ -10,153 +11,150 @@ public class ImageTools {
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_threshold() {
-        GCodeHelper.gcode_comment("image_threshold");
-        app.img.filter(PConstants.THRESHOLD); //THRESHOLD
+    public static void image_threshold(PlottingTask task) {
+        GCodeHelper.gcode_comment(task, "image_threshold");
+        task.getPlottingImage().filter(PConstants.THRESHOLD); //THRESHOLD
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_desaturate() {
-        GCodeHelper.gcode_comment("image_desaturate");
-        app.img.filter(PConstants.GRAY); //GRAY
+    public static void image_desaturate(PlottingTask task) {
+        GCodeHelper.gcode_comment(task,"image_desaturate");
+        task.getPlottingImage().filter(PConstants.GRAY); //GRAY
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_invert() {
-        GCodeHelper.gcode_comment("image_invert");
-        app.img.filter(PConstants.INVERT); //INVERT
+    public static void image_invert(PlottingTask task) {
+        GCodeHelper.gcode_comment(task,"image_invert");
+        task.getPlottingImage().filter(PConstants.INVERT); //INVERT
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_posterize(int amount) {
-        GCodeHelper.gcode_comment("image_posterize");
-        app.img.filter(PConstants.POSTERIZE, amount); //POSTERIZE
+    public static void image_posterize(PlottingTask task, int amount) {
+        GCodeHelper.gcode_comment(task,"image_posterize");
+        task.getPlottingImage().filter(PConstants.POSTERIZE, amount); //POSTERIZE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_blur(int amount) {
-        GCodeHelper.gcode_comment("image_blur");
-        app.img.filter(PConstants.BLUR, amount); //BLUR
+    public static void image_blur(PlottingTask task, int amount) {
+        GCodeHelper.gcode_comment(task,"image_blur");
+        task.getPlottingImage().filter(PConstants.BLUR, amount); //BLUR
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_erode() {
-        GCodeHelper.gcode_comment("image_erode");
-        app.img.filter(PConstants.ERODE); //ERODE
+    public static void image_erode(PlottingTask task) {
+        GCodeHelper.gcode_comment(task,"image_erode");
+        task.getPlottingImage().filter(PConstants.ERODE); //ERODE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_dilate() {
-        GCodeHelper.gcode_comment("image_dilate");
-        app.img.filter(PConstants.DILATE); //DILATE
+    public static void image_dilate(PlottingTask task) {
+        GCodeHelper.gcode_comment(task,"image_dilate");
+        task.getPlottingImage().filter(PConstants.DILATE); //DILATE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void save_jpg() {
+    public static void save_jpg(PlottingTask task) {
         // Currently disabled.
         // Must not be called from event handling functions such as keyPressed()
         PImage img_drawing;
         PImage  img_drawing2;
 
-        //app.img_drawing = createImage(app.img.width, app.img.height, RGB);
-        //app.img_drawing.copy(0, 0, app.img.width, app.img.height, 0, 0, app.img.width, app.img.height);
-        //app.img_drawing.save("what the duce.jpg");
+        //app.img.getPlottingImage()_drawing = createImage(app.img.getPlottingImage().width, app.img.getPlottingImage().height, RGB);
+        //app.img.getPlottingImage()_drawing.copy(0, 0, app.img.getPlottingImage().width, app.img.getPlottingImage().height, 0, 0, app.img.getPlottingImage().width, app.img.getPlottingImage().height);
+        //app.img.getPlottingImage()_drawing.save("what the duce.jpg");
 
         // Save resuling image
         app.save("tmptif.tif");
         img_drawing = app.loadImage("tmptif.tif");
-        img_drawing2 = app.createImage(app.img.width, app.img.height, PConstants.RGB);
-        img_drawing2.copy(img_drawing, 0, 0, app.img.width, app.img.height, 0, 0, app.img.width, app.img.height);
+        img_drawing2 = app.createImage(task.getPlottingImage().width, task.getPlottingImage().height, PConstants.RGB);
+        img_drawing2.copy(img_drawing, 0, 0, task.getPlottingImage().width, task.getPlottingImage().height, 0, 0, task.getPlottingImage().width, task.getPlottingImage().height);
         img_drawing2.save("drawingbot.gcode\\gcode_" + app.basefile_selected + ".jpg");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void image_rotate() {
-        //image[y][x]                                     // assuming this is the original orientation
-        //image[x][original_width - y]                    // rotated 90 degrees ccw
-        //image[original_height - x][y]                   // 90 degrees cw
-        //image[original_height - y][original_width - x]  // 180 degrees
-
-        if (app.img.width > app.img.height) {
-            PImage img2 = app.createImage(app.img.height, app.img.width, PConstants.RGB);
-            app.img.loadPixels();
-            for (int x=1; x<app.img.width; x++) {
-                for (int y=1; y<app.img.height; y++) {
-                    int loc1 = x + y*app.img.width;
-                    int loc2 = y + (app.img.width - x) * img2.width;
-                    img2.pixels[loc2] = app.img.pixels[loc1];
+        /*TODO FIXME
+        if (app.img.getPlottingImage().width > app.img.getPlottingImage().height) {
+            PImage img2 = app.createImage(app.img.getPlottingImage().height, app.img.getPlottingImage().width, PConstants.RGB);
+            app.img.getPlottingImage().loadPixels();
+            for (int x=1; x<app.img.getPlottingImage().width; x++) {
+                for (int y=1; y<app.img.getPlottingImage().height; y++) {
+                    int loc1 = x + y*app.img.getPlottingImage().width;
+                    int loc2 = y + (app.img.getPlottingImage().width - x) * img2.width;
+                    img2.pixels[loc2] = app.img.getPlottingImage().pixels[loc1];
                 }
             }
-            app.img = img2;
+            app.img.img_plotting = img2;
             app.updatePixels();
             GCodeHelper.gcode_comment("image_rotate: rotated 90 degrees to fit machines sweet spot");
         } else {
             GCodeHelper.gcode_comment("image_rotate: no rotation necessary");
         }
+        */
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void lighten_one_pixel(int adjustbrightness, int x, int y) {
-        int loc = (y)*app.img.width + x;
-        float r = app.brightness (app.img.pixels[loc]);
+    public static void lighten_one_pixel(PlottingTask task, int adjustbrightness, int x, int y) {
+        int loc = (y)*task.getPlottingImage().width + x;
+        float r = app.brightness (task.getPlottingImage().pixels[loc]);
         //r += adjustbrightness;
         r += adjustbrightness + app.random(0, 0.01F);
         r = app.constrain(r,0,255);
         int c = app.color(r);
-        app.img.pixels[loc] = c;
+        task.getPlottingImage().pixels[loc] = c;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_scale(int new_width) {
-        if (app.img.width != new_width) {
-            GCodeHelper.gcode_comment("image_scale, old size: " + app.img.width + " by " + app.img.height + "     ratio: " + (float)app.img.width / (float)app.img.height);
-            app.img.resize(new_width, 0);
-            GCodeHelper.gcode_comment("image_scale, new size: " + app.img.width + " by " + app.img.height + "     ratio: " + (float)app.img.width / (float)app.img.height);
+    public static void image_scale(PlottingTask task, int new_width) {
+        if (task.getPlottingImage().width != new_width) {
+            GCodeHelper.gcode_comment(task, "image_scale, old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+            task.getPlottingImage().resize(new_width, 0);
+            GCodeHelper.gcode_comment(task, "image_scale, new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static float avg_imgage_brightness() {
+    public static float avg_imgage_brightness(PlottingTask task) {
         float b = 0.0F;
 
-        for (int p=0; p < app.img.width * app.img.height; p++) {
-            b += app.brightness(app.img.pixels[p]);
+        for (int p = 0; p < task.getPlottingImage().width * task.getPlottingImage().height; p++) {
+            b += app.brightness(task.getPlottingImage().pixels[p]);
         }
 
-        return(b / (app.img.width * app.img.height));
+        return(b / (task.getPlottingImage().width * task.getPlottingImage().height));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_crop() {
+    public static void image_crop(PlottingTask task) {
         // This will center crop to the desired image size image_size_x and image_size_y
 
         PImage img2;
         float desired_ratio = app.image_size_x / app.image_size_y;
-        float current_ratio = (float)app.img.width / (float)app.img.height;
+        float current_ratio = (float)task.getPlottingImage().width / (float)task.getPlottingImage().height;
 
-        GCodeHelper.gcode_comment("image_crop desired ratio of " + desired_ratio);
-        GCodeHelper.gcode_comment("image_crop old size: " + app.img.width + " by " + app.img.height + "     ratio: " + current_ratio);
+        GCodeHelper.gcode_comment(task,"image_crop desired ratio of " + desired_ratio);
+        GCodeHelper.gcode_comment(task, "image_crop old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + current_ratio);
 
         if (current_ratio < desired_ratio) {
-            int desired_x = app.img.width;
-            int desired_y = (int)(app.img.width / desired_ratio);
-            int half_y = (app.img.height - desired_y) / 2;
+            int desired_x = task.getPlottingImage().width;
+            int desired_y = (int)(task.getPlottingImage().width / desired_ratio);
+            int half_y = (task.getPlottingImage().height - desired_y) / 2;
             img2 = app.createImage(desired_x, desired_y, 1);
-            img2.copy(app.img, 0, half_y, desired_x, desired_y, 0, 0, desired_x, desired_y);
+            img2.copy(task.getPlottingImage(), 0, half_y, desired_x, desired_y, 0, 0, desired_x, desired_y);
         } else {
-            int desired_x = (int)(app.img.height * desired_ratio);
-            int desired_y = app.img.height;
-            int half_x = (app.img.width - desired_x) / 2;
+            int desired_x = (int)(task.getPlottingImage().height * desired_ratio);
+            int desired_y = task.getPlottingImage().height;
+            int half_x = (task.getPlottingImage().width - desired_x) / 2;
             img2 = app.createImage(desired_x, desired_y, 1);
-            img2.copy(app.img, half_x, 0, desired_x, desired_y, 0, 0, desired_x, desired_y);
+            img2.copy(task.getPlottingImage(), half_x, 0, desired_x, desired_y, 0, 0, desired_x, desired_y);
         }
 
-        app.img = img2;
-        GCodeHelper.gcode_comment("image_crop new size: " + app.img.width + " by " + app.img.height + "     ratio: " + (float)app.img.width / (float)app.img.height);
+        task.img_plotting = img2;
+        GCodeHelper.gcode_comment(task, "image_crop new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_boarder(String fname, int shrink, int blur) {
+    public static void image_boarder(PlottingTask task, String fname, int shrink, int blur) {
         // A quick and dirty way of softening the edges of your drawing.
         // Look in the boarders directory for some examples.
         // Ideally, the boarder will have similar dimensions as the image to be drawn.
@@ -168,20 +166,20 @@ public class ImageTools {
         // shrink:  Number of pixels to pull the boarder away, 0 for no change.
         // blur:    Guassian blur the boarder, 0 for no blur, 10+ for a lot.
 
-        //PImage boarder = createImage(app.img.width+(shrink*2), app.img.height+(shrink*2), RGB);
+        //PImage boarder = createImage(app.img.getPlottingImage().width+(shrink*2), app.img.getPlottingImage().height+(shrink*2), RGB);
         PImage temp_boarder = app.loadImage("boarder/" + fname);
-        temp_boarder.resize(app.img.width, app.img.height);
+        temp_boarder.resize(task.getPlottingImage().width, task.getPlottingImage().height);
         temp_boarder.filter(PConstants.GRAY);
         temp_boarder.filter(PConstants.INVERT);
         temp_boarder.filter(PConstants.BLUR, blur);
 
         //boarder.copy(temp_boarder, 0, 0, temp_boarder.width, temp_boarder.height, 0, 0, boarder.width, boarder.height);
-        app.img.blend(temp_boarder, shrink, shrink, app.img.width, app.img.height,  0, 0, app.img.width, app.img.height, PConstants.ADD);
-        GCodeHelper.gcode_comment("image_boarder: " + fname + "   " + shrink + "   " + blur);
+        task.getPlottingImage().blend(temp_boarder, shrink, shrink, task.getPlottingImage().width, task.getPlottingImage().height,  0, 0, task.getPlottingImage().width, task.getPlottingImage().height, PConstants.ADD);
+        GCodeHelper.gcode_comment(task, "image_boarder: " + fname + "   " + shrink + "   " + blur);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_unsharpen(PImage img, int amount) {
+    public static void image_unsharpen(PlottingTask task, PImage img, int amount) {
         // Source:  https://www.taylorpetrick.com/blog/post/convolution-part3
         // Subtle unsharp matrix
         float[][] matrix = { { -0.00391F, -0.01563F, -0.02344F, -0.01563F, -0.00391F },
@@ -198,7 +196,7 @@ public class ImageTools {
         //print_matrix(matrix);
 
         image_convolution(img, matrix, 1.0F, 0.0F);
-        GCodeHelper.gcode_comment("image_unsharpen: " + amount);
+        GCodeHelper.gcode_comment(task,"image_unsharpen: " + amount);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

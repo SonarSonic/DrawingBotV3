@@ -21,7 +21,6 @@ dependencies {
     testImplementation 'junit:junit:4.13'
 
     // This dependency is used by the application.
-    compile 'com.google.guava:guava:29.0-jre'
     compile 'com.formdev:flatlaf:0.46'
     compile 'org.processing:core:3.3.7'
 
