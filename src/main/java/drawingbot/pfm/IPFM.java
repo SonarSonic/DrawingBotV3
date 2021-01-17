@@ -5,6 +5,8 @@ package drawingbot.pfm;
 // As well as any variables that all pfm modules must have.
 public interface IPFM {
 
+    boolean finished();
+
     void pre_processing();
 
     void find_path();

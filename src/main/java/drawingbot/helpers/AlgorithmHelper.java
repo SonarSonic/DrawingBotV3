@@ -1,5 +1,7 @@
 package drawingbot.helpers;
 
+import drawingbot.PlottingTask;
+
 import static processing.core.PApplet.*;
 
 import java.awt.*;
@@ -94,12 +96,12 @@ public class AlgorithmHelper {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void bresenham_lighten(int x0, int y0, int x1, int y1, int adjustbrightness) {
+    public static void bresenham_lighten(PlottingTask task, int x0, int y0, int x1, int y1, int adjustbrightness) {
         ArrayList<Point> pnts;
 
         pnts = bresenham(x0, y0, x1, y1);
         for (Point p : pnts) {
-            ImageTools.lighten_one_pixel(adjustbrightness * 5, p.x, p.y);
+            ImageTools.lighten_one_pixel(task, adjustbrightness * 5, p.x, p.y);
         }
     }
 

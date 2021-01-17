@@ -3,6 +3,7 @@ package drawingbot.pfm;/////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import drawingbot.DrawingBotV3;
+import drawingbot.PlottingTask;
 import drawingbot.helpers.ImageTools;
 import drawingbot.helpers.AlgorithmHelper;
 import drawingbot.helpers.GCodeHelper;
@@ -13,11 +14,11 @@ import java.util.ArrayList;
 
 import static processing.core.PApplet.*;
 
-public class PFMSquares implements IPFM {
+public class PFMSquares extends PFM {
 
-    public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
-
-    public PFMSquares(){}
+    public PFMSquares(PlottingTask task){
+        super(task);
+    }
 
     final int    squiggle_length = 1000;      // How often to lift the pen
     final int    adjustbrightness = 9;        // How fast it moves from dark to light, over-draw
@@ -34,18 +35,18 @@ public class PFMSquares implements IPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void pre_processing() {
-        ImageTools.image_crop();
-        ImageTools.image_scale(1000);
-        ImageTools.image_unsharpen(app.img, 3);
-        ImageTools.image_boarder("b6.png", 0, 0);
-        ImageTools.image_desaturate();
+        ImageTools.image_crop(task);
+        ImageTools.image_scale(task, 1000);
+        ImageTools.image_unsharpen(task, task.getPlottingImage(), 3);
+        ImageTools.image_boarder(task, "b6.png", 0, 0);
+        ImageTools.image_desaturate(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void find_path() {
         find_squiggle();
-        if (ImageTools.avg_imgage_brightness() > desired_brightness ) {
-            app.state++;
+        if (ImageTools.avg_imgage_brightness(task) > desired_brightness ) {
+            finish();
         }
     }
 
@@ -58,20 +59,19 @@ public class PFMSquares implements IPFM {
         x = darkest_x;
         y = darkest_y;
         squiggle_count++;
-        app.pen_color = 0;
 
         find_darkest_neighbor(x, y);
-        GCodeHelper.move_abs(0, darkest_x, darkest_y);
-        GCodeHelper.pen_down();
+        GCodeHelper.move_abs(task, 0, darkest_x, darkest_y);
+        GCodeHelper.pen_down(task);
 
         for (int s = 0; s < squiggle_length; s++) {
             find_darkest_neighbor(x, y);
-            AlgorithmHelper.bresenham_lighten(x, y, darkest_x, darkest_y, adjustbrightness);
-            GCodeHelper.move_abs(0, darkest_x, darkest_y);
+            AlgorithmHelper.bresenham_lighten(task, x, y, darkest_x, darkest_y, adjustbrightness);
+            GCodeHelper.move_abs(task, 0, darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
         }
-        GCodeHelper.pen_up();
+        GCodeHelper.pen_up(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,15 +79,15 @@ public class PFMSquares implements IPFM {
         darkest_value = 257;
         int darkest_loc = 0;
 
-        for (int loc=0; loc < app.img.width * app.img.height; loc++) {
-            float r = app.brightness(app.img.pixels[loc]);
+        for (int loc = 0; loc < task.getPlottingImage().width * task.getPlottingImage().height; loc++) {
+            float r = app.brightness(task.getPlottingImage().pixels[loc]);
             if (r < darkest_value) {
                 darkest_value = r + app.random(1);
                 darkest_loc = loc;
             }
         }
-        darkest_x = darkest_loc % app.img.width;
-        darkest_y = (darkest_loc-darkest_x) / app.img.width;
+        darkest_x = darkest_loc % task.getPlottingImage().width;
+        darkest_y = (darkest_loc-darkest_x) / task.getPlottingImage().width;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,8 +101,8 @@ public class PFMSquares implements IPFM {
         int darkest_loc = 1;
 
         PImage img2;
-        img2 = app.createImage(app.img.width / area_size, app.img.height / area_size, RGB);
-        img2.copy(app.img, 0, 0, app.img.width, app.img.height, 0, 0, img2.width, img2.height);
+        img2 = app.createImage(task.getPlottingImage().width / area_size, task.getPlottingImage().height / area_size, RGB);
+        img2.copy(task.getPlottingImage(), 0, 0, task.getPlottingImage().width, task.getPlottingImage().height, 0, 0, img2.width, img2.height);
 
         for (int loc=0; loc < img2.width * img2.height; loc++) {
             float r = app.brightness(img2.pixels[loc]);
@@ -141,15 +141,15 @@ public class PFMSquares implements IPFM {
 
         x1 = (int)(cos(radians(degree))*distance) + x0;
         y1 = (int)(sin(radians(degree))*distance) + y0;
-        x0 = constrain(x0, 0, app.img.width-1);
-        y0 = constrain(y0, 0, app.img.height-1);
-        x1 = constrain(x1, 0, app.img.width-1);
-        y1 = constrain(y1, 0, app.img.height-1);
+        x0 = constrain(x0, 0, task.getPlottingImage().width-1);
+        y0 = constrain(y0, 0, task.getPlottingImage().height-1);
+        x1 = constrain(x1, 0, task.getPlottingImage().width-1);
+        y1 = constrain(y1, 0, task.getPlottingImage().height-1);
 
         pnts = AlgorithmHelper.bresenham(x0, y0, x1, y1);
         for (Point p : pnts) {
-            int loc = p.x + p.y*app.img.width;
-            sum_brightness += app.brightness(app.img.pixels[loc]);
+            int loc = p.x + p.y*task.getPlottingImage().width;
+            sum_brightness += app.brightness(task.getPlottingImage().pixels[loc]);
             count_brightness++;
             if (sum_brightness / count_brightness < darkest_neighbor) {
                 darkest_x = p.x;
@@ -168,8 +168,8 @@ public class PFMSquares implements IPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void output_parameters() {
-        GCodeHelper.gcode_comment("adjustbrightness: " + adjustbrightness);
-        GCodeHelper.gcode_comment("squiggle_length: " + squiggle_length);
+        GCodeHelper.gcode_comment(task, "adjustbrightness: " + adjustbrightness);
+        GCodeHelper.gcode_comment(task, "squiggle_length: " + squiggle_length);
     }
 
 }

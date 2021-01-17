@@ -1,8 +1,8 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.PlottingTask;
 import drawingbot.helpers.CopicPenHelper;
-import drawingbot.utils.PlottedLine;
 import processing.core.PGraphics;
 import static processing.core.PApplet.*;
 
@@ -11,10 +11,16 @@ import static processing.core.PApplet.*;
 public class PlottedDrawing {
 
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
+    public PlottingTask task;
+
 
     public int line_count = 0;
     public PlottedLine[] lines = new PlottedLine[10000000];
     public String gcode_comment = "";
+
+    public PlottedDrawing(PlottingTask image){
+        this.task = image;
+    }
 
     public void render_last () {
         lines[line_count].render_with_copic();
@@ -45,7 +51,7 @@ public class PlottedDrawing {
 
     public void render_to_pdf (int line_count) {
         String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + ".pdf";
-        PGraphics pdf = app.createGraphics(app.img.width, app.img.height, app.PDF, pdfname);
+        PGraphics pdf = app.createGraphics(task.getPlottingImage().width, task.getPlottingImage().height, app.PDF, pdfname);
         pdf.beginDraw();
         pdf.background(255, 255, 255);
         for(int i=line_count; i>0; i--) {
@@ -63,7 +69,7 @@ public class PlottedDrawing {
     public void render_each_pen_to_pdf (int line_count) {
         for (int p=0; p<=app.pen_count-1; p++) {
             String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + "_pen" + p + "_" + CopicPenHelper.copic_sets[app.current_copic_set][p] + ".pdf";
-            PGraphics pdf = app.createGraphics(app.img.width, app.img.height, PDF, pdfname);
+            PGraphics pdf = app.createGraphics(task.getPlottingImage().width, task.getPlottingImage().height, PDF, pdfname);
             pdf.beginDraw();
             pdf.background(255, 255, 255);
             for (int i=line_count; i>0; i--) {
@@ -124,12 +130,12 @@ public class PlottedDrawing {
         float p_total = 0;
 
         for (int i=1; i<=line_count; i++) {
-            if (i > app.pen_distribution[p] + p_total) {
-                p_total = p_total + app.pen_distribution[p];
+            if (i > task.pen_distribution[p] + p_total) {
+                p_total = p_total + task.pen_distribution[p];
                 p++;
             }
             if (p > total_pens - 1) {
-                // Hacky fix for off by one error
+                // Hacky fix for off by one error FIXME
                 println("ERROR: distribute_pen_changes_according_to_percentages, p:  ", p);
                 p = total_pens - 1;
             }
