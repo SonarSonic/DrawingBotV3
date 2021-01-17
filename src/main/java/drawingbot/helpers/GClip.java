@@ -1,3 +1,5 @@
+package drawingbot.helpers;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
  
