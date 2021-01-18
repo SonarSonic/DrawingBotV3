@@ -1,7 +1,7 @@
 package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 
 public abstract class PFM implements IPFM {
 

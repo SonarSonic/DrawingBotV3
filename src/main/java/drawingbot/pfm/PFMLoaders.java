@@ -1,9 +1,8 @@
 package drawingbot.pfm;
 
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public enum PFMLoaders {
 

@@ -1,5 +1,6 @@
-package drawingbot;
+package drawingbot.tasks;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.helpers.DrawingTools;
 import drawingbot.helpers.GCodeHelper;
 import drawingbot.helpers.ImageTools;
@@ -21,7 +22,7 @@ public class PlottingTask {
     // IMAGE \\
     public PImage img_original;              // The original image
     public PImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
-    public PImage img_plotting;                       // Used during drawing for current brightness levels.  Gets damaged during drawing.
+    public PImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
     public Limit dx, dy;
     public PlottedDrawing plottedDrawing;
@@ -45,18 +46,17 @@ public class PlottingTask {
 
     public int display_line_count;
 
-    public PlottingTask(DrawingBotV3 app, PFMLoaders loader, PImage img){
+    public PlottingTask(DrawingBotV3 app, PFMLoaders loader, PImage loadedImg){
         pfm = loader.createNewPFM(this);
-        img_plotting = img;
-        ImageTools.image_rotate();
+        img_plotting = ImageTools.image_rotate(loadedImg);
 
-        img_original = app.createImage(img.width, img.height, PConstants.RGB);
-        img_original.copy(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+        img_original = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
+        img_original.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
 
-        pfm.pre_processing();
+        pfm.pre_processing(); //adjust the dimensions / crop of img_plotting
         img_plotting.loadPixels();
-        img_reference = app.createImage(img.width, img.height, PConstants.RGB);
-        img_reference.copy(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+        img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
+        img_reference.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
 
         plottedDrawing = new PlottedDrawing(this);
         dx = new Limit();
@@ -64,21 +64,21 @@ public class PlottingTask {
 
         float   gcode_scale_x, gcode_scale_y;
         float   screen_scale_x, screen_scale_y;
-        gcode_scale_x = DrawingBotV3.image_size_x / img.width;
-        gcode_scale_y = DrawingBotV3.image_size_y / img.height;
+        gcode_scale_x = DrawingBotV3.image_size_x / img_plotting.width;
+        gcode_scale_y = DrawingBotV3.image_size_y / img_plotting.height;
         gcode_scale = min(gcode_scale_x, gcode_scale_y);
-        gcode_offset_x = - (img.width* gcode_scale / 2.0F);
-        gcode_offset_y = - (DrawingBotV3.paper_top_to_origin - (DrawingBotV3.paper_size_y - (img.height * gcode_scale)) / 2.0F);
+        gcode_offset_x = - (img_plotting.width* gcode_scale / 2.0F);
+        gcode_offset_y = - (DrawingBotV3.paper_top_to_origin - (DrawingBotV3.paper_size_y - (img_plotting.height * gcode_scale)) / 2.0F);
 
-        screen_scale_x = app.width / (float)img.width;
-        screen_scale_y = app.height / (float)img.height;
+        screen_scale_x = app.width / (float)img_plotting.width;
+        screen_scale_y = app.height / (float)img_plotting.height;
         app.screen_scale = min(screen_scale_x, screen_scale_y);
         app.screen_scale_org = app.screen_scale;
 
-        GCodeHelper.gcode_comment(this, "final dimensions: " + img.width + " by " + img.height);
+        GCodeHelper.gcode_comment(this, "final dimensions: " + img_plotting.width + " by " + img_plotting.height);
         GCodeHelper.gcode_comment(this,"paper_size: " + nf(DrawingBotV3.paper_size_x,0,2) + " by " + nf(DrawingBotV3.paper_size_y,0,2) + "      " + nf(DrawingBotV3.paper_size_x/25.4F,0,2) + " by " + nf(DrawingBotV3.paper_size_y/25.4F,0,2));
         GCodeHelper.gcode_comment(this,"drawing size max: " + nf(DrawingBotV3.image_size_x,0,2) + " by " + nf(DrawingBotV3.image_size_y,0,2) + "      " + nf(DrawingBotV3.image_size_x/25.4F,0,2) + " by " + nf(DrawingBotV3.image_size_y/25.4F,0,2));
-        GCodeHelper.gcode_comment(this,"drawing size calculated " + nf(img.width * gcode_scale,0,2) + " by " + nf(img.height * gcode_scale,0,2) + "      " + nf(img.width * gcode_scale/25.4F,0,2) + " by " + nf(img.height * gcode_scale/25.4F,0,2));
+        GCodeHelper.gcode_comment(this,"drawing size calculated " + nf(img_plotting.width * gcode_scale,0,2) + " by " + nf(img_plotting.height * gcode_scale,0,2) + "      " + nf(img_plotting.width * gcode_scale/25.4F,0,2) + " by " + nf(img_plotting.height * gcode_scale/25.4F,0,2));
         GCodeHelper.gcode_comment(this,"gcode_scale X:  " + nf(gcode_scale_x,0,2));
         GCodeHelper.gcode_comment(this,"gcode_scale Y:  " + nf(gcode_scale_y,0,2));
         GCodeHelper.gcode_comment(this,"gcode_scale:    " + nf(gcode_scale,0,2));

@@ -1,4 +1,4 @@
-package drawingbot;
+package drawingbot.tasks;
 
 
 public class TaskQueue {
@@ -30,7 +30,7 @@ public class TaskQueue {
     }
 
     public static void plot() {
-        if(!activeTask.isTaskFinished()){
+        if(activeTask !=null && !activeTask.isTaskFinished()){
             activeTask.doTask();
         }
     }

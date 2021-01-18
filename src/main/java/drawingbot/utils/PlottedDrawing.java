@@ -1,7 +1,7 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 import drawingbot.helpers.CopicPenHelper;
 import processing.core.PGraphics;
 import static processing.core.PApplet.*;

@@ -2,8 +2,7 @@ package drawingbot.pfm;/////////////////////////////////////////////////////////
 // This path finding module makes some wavy squares
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import drawingbot.DrawingBotV3;
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 import drawingbot.helpers.ImageTools;
 import drawingbot.helpers.AlgorithmHelper;
 import drawingbot.helpers.GCodeHelper;

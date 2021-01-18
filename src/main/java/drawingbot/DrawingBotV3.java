@@ -12,48 +12,61 @@ package drawingbot;/////////////////////////////////////////////////////////////
 // Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import drawingbot.helpers.*;
+import drawingbot.javafx.FXController;
 import drawingbot.pfm.PFMLoaders;
+import drawingbot.tasks.PlottingTask;
+import drawingbot.tasks.TaskQueue;
 import drawingbot.utils.EnumDisplayMode;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.core.PSurface;
 
 //TODO FIX BUG WITH PFMOriginal moving when it is redrawn.
 public class DrawingBotV3 extends PApplet {
 
     public static DrawingBotV3 INSTANCE;
 
-    // GUI \\
-    DrawingBotV3Frame controlFrame;
-
     // CONSTANTS \\
+    public static final String appName = "DrawingBotV3";
     public static final String appVersion = "1.0.0";
     public static final float INCHES_TO_MILLIMETRES = 25.4F;
-    public static final float paper_size_x = 200; //mm, papers width
-    public static final float paper_size_y = 200; //mm, papers height
-    public static final float image_size_x = 180; //mm, final image width
-    public static final float image_size_y = 180; //mm, final image height
-    public static final float paper_top_to_origin = 0F; //mm, make smaller to move drawing down on paper
-    public static final float pen_width = 0.65F; //mm, determines image_scale, reduce, if solid black areas are speckled with white holes.
+    public static final float paper_size_x = 32 * INCHES_TO_MILLIMETRES; //mm, papers width
+    public static final float paper_size_y = 40 * INCHES_TO_MILLIMETRES; //mm, papers height
+    public static final float image_size_x = 28 * INCHES_TO_MILLIMETRES; //mm, final image width
+    public static final float image_size_y = 36 * INCHES_TO_MILLIMETRES; //mm, final image height
+    public static final float paper_top_to_origin = 285; //mm, make smaller to move drawing down on paper
+    public static final float pen_width = 0.5F; //mm, determines image_scale, reduce, if solid black areas are speckled with white holes.
     public static final int pen_count = 6;
     public static final char gcode_decimal_seperator = '.';
     public static final int gcode_decimals = 2;             // Number of digits right of the decimal point in the drawingbot.gcode files.
     public static final int svg_decimals = 2;               // Number of digits right of the decimal point in the SVG file.
-    public static final float grid_scale = 10.0F;           // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
-
-    // PROGRAM \\
+    public static final float grid_scale = 25.4F;           // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
+    // GUI \\
     //public int state = 1;
 
     // IMAGE \\
+    private PImage loading = null;
 
     //PATH FINDING \\
     public int current_pfm = 0;
 
     // PEN SETS \\
     public int pen_selected = 0;
-    public int current_copic_set = 14;
+    public int current_copic_set = 0;
 
     // DISPLAY \\
     public EnumDisplayMode display_mode = EnumDisplayMode.DRAWING;
@@ -84,18 +97,14 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void settings() {
-        size(1415, 900, P3D);
+        size(1415, 900, FX2D);
     }
 
     @Override
     public void setup() {
-        controlFrame = new DrawingBotV3Frame();
-
-
-
         frame.setLocation(200, 200);
         surface.setResizable(true);
-        surface.setTitle("DrawingBotV3, Version: " + appVersion);
+        surface.setTitle(appName + ", Version: " + appVersion);
 
         colorMode(RGB);
         frameRate(999);
@@ -103,37 +112,22 @@ public class DrawingBotV3 extends PApplet {
         randomSeed(3);
         copic = new CopicPenHelper();
 
-        //TODO REMOVE ME
-        path_selected = "E:\\04_Personal\\Processing Projects - GitHub\\Drawbot_image_to_gcode_v2\\src\\main\\resources\\pics\\weirdmnesss.jpg";
-
-        /*
-        // If the clipboard contains a URL, try to download the picture instead of using local storage.
-        String url = GClip.paste();
-        if (match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
-            println("Image URL found on clipboard: "+ url);
-            path_selected = url;
-            state++;
-        } else {
-            println("image URL not found on clipboard");
-            selectInput("Select an image to process:", "fileSelected");
-        }
-
-         */
-
-        PImage img_plotting = loadImage(path_selected, "jpeg");  // Load the image into the program
-        PlottingTask newTask = new PlottingTask(this, PFMLoaders.values()[current_pfm], img_plotting);
-        TaskQueue.addTask(newTask);
     }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void draw() {
+        if(loading != null && loading.width != 0){ //check the requested image has loaded properly
+            PlottingTask newTask = new PlottingTask(this, PFMLoaders.values()[current_pfm], loading);
+            TaskQueue.addTask(newTask);
+            loading = null;
+        }
 
-        //!= essential to see the drawing in action
-        background(255, 255, 255);
-
-
+        if(getActiveTask() == null || getActiveTask().state != 1){ //to show the drawing steps background rendering is disabled
+            background(255, 255, 255);
+        }
 
         scale(screen_scale);
         translate(mx, my);
@@ -143,30 +137,39 @@ public class DrawingBotV3 extends PApplet {
 
         if(getActiveTask() != null && getActiveTask().isTaskFinished()){
            render_all();
-           noLoop();
+           //noLoop();
         }
-
 
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    protected PSurface initSurface() {
+        surface = super.initSurface();
+        final Canvas canvas = (Canvas) surface.getNative();
+        final Scene oldScene = canvas.getScene();
+        final Stage stage = (Stage) oldScene.getWindow();
 
-    public void fileSelected(File selection) {
-        if (selection == null) {
-            println("no image file selected, exiting program.");
-            exit();
-        } else {
-            path_selected = selection.getAbsolutePath();
-            file_selected = selection.getName();
-            String[] fileparts = split(file_selected, '.');
-            basefile_selected = fileparts[0];
-            println("user selected: " + path_selected);
-            //println("user selected: " + file_selected);
-            //println("user selected: " + basefile_selected);
-            //state++; //TODO
+        try {
+            FXController controller = new FXController();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/userinterface.fxml")); // abs path to fxml file
+            loader.setController(controller);
+            final Parent sceneFromFXML = loader.load();
+            final Map<String, Object> namespace = loader.getNamespace();
+
+            final Scene newScene = new Scene(sceneFromFXML, stage.getWidth(), stage.getHeight(), false, SceneAntialiasing.BALANCED);
+            final AnchorPane pane = (AnchorPane)namespace.get("pdeView"); // get element by fx:id
+
+            pane.getChildren().add(canvas); // processing to stackPane
+            canvas.widthProperty().bind(pane.widthProperty()); // bind canvas dimensions to pane
+            canvas.heightProperty().bind(pane.heightProperty()); // bind canvas dimensions to pane
+            newScene.setUserAgentStylesheet(Application.STYLESHEET_MODENA);
+            Platform.runLater(() -> stage.setScene(newScene));
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return surface;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -321,6 +324,42 @@ public class DrawingBotV3 extends PApplet {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public void action_open(){
+        // If the clipboard contains a URL, try to download the picture instead of using local storage.
+        String url = GClip.paste();
+        if (match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
+            println("Image URL found on clipboard: "+ url);
+            loadImageTask(url);
+        } else {
+            println("image URL not found on clipboard");
+            selectInput("Select an image to process:", "fileSelected");
+        }
+    }
+
+    //called via callback from selectInput
+    public void fileSelected(File selection) {
+        if (selection != null) {
+            String url = selection.getAbsolutePath();
+            loadImageTask(url);
+            /*
+            path_selected = selection.getAbsolutePath();
+            file_selected = selection.getName();
+            String[] fileparts = split(file_selected, '.');
+            basefile_selected = fileparts[0];
+            println("user selected: " + path_selected);
+
+             */
+        }
+    }
+
+    public void loadImageTask(String url){
+        loading = requestImage(url, "jpeg");  // Load the image into the program
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     public void action_save(){
         GCodeHelper.create_gcode_files(getActiveTask(), getActiveTask().display_line_count);
         GCodeHelper.create_gcode_test_file(getActiveTask());
@@ -331,6 +370,11 @@ public class DrawingBotV3 extends PApplet {
 
     public void action_changePFM(PFMLoaders pfm){
         //TODO FIXME
+        if(getActiveTask() != null){
+            PlottingTask task = getActiveTask();
+            PlottingTask newTask = new PlottingTask(this, pfm, task.img_original);
+            TaskQueue.addTask(newTask);
+        }
         redraw();
     }
 
@@ -339,7 +383,7 @@ public class DrawingBotV3 extends PApplet {
         redraw();
     }
 
-    public void rotate(){
+    public void action_rotate(){
         screen_rotate ++;
         if (screen_rotate == 4) { screen_rotate = 0; }
 
