@@ -1,7 +1,7 @@
 package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 import processing.core.PConstants;
 import processing.core.PImage;
 import static processing.core.PApplet.*;
@@ -72,25 +72,24 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_rotate() {
-        /*TODO FIXME
-        if (app.img.getPlottingImage().width > app.img.getPlottingImage().height) {
-            PImage img2 = app.createImage(app.img.getPlottingImage().height, app.img.getPlottingImage().width, PConstants.RGB);
-            app.img.getPlottingImage().loadPixels();
-            for (int x=1; x<app.img.getPlottingImage().width; x++) {
-                for (int y=1; y<app.img.getPlottingImage().height; y++) {
-                    int loc1 = x + y*app.img.getPlottingImage().width;
-                    int loc2 = y + (app.img.getPlottingImage().width - x) * img2.width;
-                    img2.pixels[loc2] = app.img.getPlottingImage().pixels[loc1];
+    public static PImage image_rotate(PImage img) {
+        if (img.width > img.height) {
+            PImage img2 = app.createImage(img.height, img.width, PConstants.RGB);
+            img.loadPixels();
+            for (int x=1; x<img.width; x++) {
+                for (int y=1; y<img.height; y++) {
+                    int loc1 = x + y*img.width;
+                    int loc2 = y + (img.width - x) * img2.width;
+                    img2.pixels[loc2] = img.pixels[loc1];
                 }
             }
-            app.img.img_plotting = img2;
             app.updatePixels();
-            GCodeHelper.gcode_comment("image_rotate: rotated 90 degrees to fit machines sweet spot");
+            //GCodeHelper.gcode_comment("image_rotate: rotated 90 degrees to fit machines sweet spot");
+            return img2;
         } else {
-            GCodeHelper.gcode_comment("image_rotate: no rotation necessary");
+            //GCodeHelper.gcode_comment("image_rotate: no rotation necessary");
+            return img;
         }
-        */
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

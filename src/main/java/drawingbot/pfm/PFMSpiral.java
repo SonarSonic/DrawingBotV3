@@ -5,8 +5,7 @@ package drawingbot.pfm;/////////////////////////////////////////////////////////
 //    Transparencys currently do not work as a mask colour
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import drawingbot.DrawingBotV3;
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 import drawingbot.helpers.ImageTools;
 import drawingbot.helpers.GCodeHelper;
 

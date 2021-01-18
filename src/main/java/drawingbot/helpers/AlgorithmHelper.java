@@ -1,6 +1,6 @@
 package drawingbot.helpers;
 
-import drawingbot.PlottingTask;
+import drawingbot.tasks.PlottingTask;
 
 import static processing.core.PApplet.*;
 
