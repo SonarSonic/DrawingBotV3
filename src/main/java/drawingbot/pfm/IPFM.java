@@ -7,6 +7,8 @@ public interface IPFM {
 
     boolean finished();
 
+    float progress();
+
     void pre_processing();
 
     void find_path();

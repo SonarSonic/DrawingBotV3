@@ -32,8 +32,16 @@ public class PFMOriginal extends PFM {
     public float darkest_value;
     public float darkest_neighbor = 256;
 
+    private float initialProgress;
+    private float progress;
+
     public PFMOriginal(PlottingTask task){
         super(task);
+    }
+
+    @Override
+    public float progress() {
+        return progress;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +67,8 @@ public class PFMOriginal extends PFM {
         ImageTools.image_boarder(task, "b1.png", 0, 0);
         ImageTools.image_boarder(task, "b11.png", 0, 0);
         ImageTools.image_desaturate(task);
+
+        initialProgress = ImageTools.avg_imgage_brightness(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +94,9 @@ public class PFMOriginal extends PFM {
         }
         GCodeHelper.pen_up(task);
 
-        if(ImageTools.avg_imgage_brightness(task) > desired_brightness){
+        float avgBrightness = ImageTools.avg_imgage_brightness(task);
+        progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
+        if(avgBrightness > desired_brightness){
             finish();
         }
     }

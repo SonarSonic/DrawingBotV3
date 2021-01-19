@@ -38,6 +38,12 @@ public class PlottedDrawing {
         }
     }
 
+    public void render_between(int start, int end) {
+        for (int i=start; i<end; i++) {
+            lines[i].render_with_copic();
+        }
+    }
+
     public void render_one_pen(int line_count, int pen) {
         int c = app.color(255, 0, 0);
 
