@@ -11,6 +11,7 @@ import drawingbot.utils.PlottedDrawing;
 import processing.core.PConstants;
 import processing.core.PImage;
 
+import java.io.File;
 import java.io.PrintWriter;
 
 import static processing.core.PApplet.*;
@@ -23,6 +24,7 @@ public class PlottingTask {
     public PImage img_original;              // The original image
     public PImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public PImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
+    public PImage img_output_cache;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
     public Limit dx, dy;
     public PlottedDrawing plottedDrawing;
@@ -46,14 +48,38 @@ public class PlottingTask {
 
     public int display_line_count;
 
-    public PlottingTask(DrawingBotV3 app, PFMLoaders loader, PImage loadedImg){
+    private PFMLoaders loader;
+    private String imageURL;
+
+    public PlottingTask(PFMLoaders loader, String imageURL){
+        this.loader = loader;
+        this.imageURL = imageURL;
+    }
+
+    public boolean init(){
+        DrawingBotV3 app = DrawingBotV3.INSTANCE;
+        PlottingThread.setThreadStatus("Loading Image: " + imageURL);
+        PImage loadedImg = app.loadImage(imageURL);
+        PlottingThread.setThreadProgress(0.2);
+
+        if(loadedImg == null){
+            PlottingThread.setThreadStatus("Invalid Image: " + imageURL);
+            return false;
+        }
+
         pfm = loader.createNewPFM(this);
+
+        PlottingThread.setThreadStatus("Rotating Image");
         img_plotting = ImageTools.image_rotate(loadedImg);
+        PlottingThread.setThreadProgress(0.4);
 
         img_original = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
         img_original.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
 
+        PlottingThread.setThreadStatus("Pre-Processing Image");
         pfm.pre_processing(); //adjust the dimensions / crop of img_plotting
+        PlottingThread.setThreadProgress(0.8);
+
         img_plotting.loadPixels();
         img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
         img_reference.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
@@ -83,6 +109,9 @@ public class PlottingTask {
         GCodeHelper.gcode_comment(this,"gcode_scale Y:  " + nf(gcode_scale_y,0,2));
         GCodeHelper.gcode_comment(this,"gcode_scale:    " + nf(gcode_scale,0,2));
         pfm.output_parameters();
+
+        PlottingThread.setThreadProgress(1.0);
+        return true;
     }
 
     public void doTask(){
@@ -111,6 +140,8 @@ public class PlottingTask {
 
                 GCodeHelper.gcode_comment(this,"extreams of X: " + dx.min + " thru " + dx.max);
                 GCodeHelper.gcode_comment(this, "extreams of Y: " + dy.min + " thru " + dy.max);
+
+
                 finishTask();
                 state++;
                 break;

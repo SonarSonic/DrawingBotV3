@@ -13,8 +13,28 @@ import static processing.core.PApplet.*;
 
 public class PFMSpiral extends PFM {
 
+    public int c = 0;                                  // Sampled color
+    public float b;                                    // Sampled brightness
+    public float dist = 7;                             // Distance between rings
+    public float radius = dist/2;                      // Current radius
+    public float aradius = 1;                          // Radius with brighness applied up
+    public float bradius = 1;                          // Radius with brighness applied down
+    public float alpha;                                // Initial rotation
+    public float density = 75;                         // Density
+    public float ampScale = 4.5F;                      // Controls the amplitude
+    public float x, y, xa, ya, xb, yb;                 // Current X and Y + jittered X and Y
+    public float k;                                    // Current radius
+    public float endRadius;                            // Largest value the spiral needs to cover the image
+    public int mask = app.color(240, 240, 240);        // This color will not be drawn (WHITE)
+
     public PFMSpiral(PlottingTask task){
         super(task);
+    }
+
+    @Override
+    public float progress() {
+        float startRadius = dist/2;
+        return (radius-startRadius) / (endRadius-startRadius);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,19 +48,6 @@ public class PFMSpiral extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void find_path() {
-        int c = 0;                                  // Sampled color
-        float b;                                    // Sampled brightness
-        float dist = 7;                             // Distance between rings
-        float radius = dist/2;                      // Current radius
-        float aradius = 1;                          // Radius with brighness applied up
-        float bradius = 1;                          // Radius with brighness applied down
-        float alpha;                                // Initial rotation
-        float density = 75;                         // Density
-        float ampScale = 4.5F;                      // Controls the amplitude
-        float x, y, xa, ya, xb, yb;                 // Current X and Y + jittered X and Y
-        float k;                                    // Current radius
-        float endRadius;                            // Largest value the spiral needs to cover the image
-        int mask = app.color(240, 240, 240);        // This color will not be drawn (WHITE)
 
         k = density/radius;
         alpha = k;

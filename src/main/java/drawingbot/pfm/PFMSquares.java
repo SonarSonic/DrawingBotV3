@@ -15,22 +15,30 @@ import static processing.core.PApplet.*;
 
 public class PFMSquares extends PFM {
 
+    public final int squiggle_length = 1000;      // How often to lift the pen
+    public final int adjustbrightness = 9;        // How fast it moves from dark to light, over-draw
+    public final float desired_brightness = 250;  // How long to process.  You can always stop early with "s" key
+
+    public int tests = 4;                  // Reasonable values:  13 for development, 720 for final
+    public int line_length = 30;           // Reasonable values:  3 through 100
+
+    public int squiggle_count;
+    public int darkest_x;
+    public int darkest_y;
+    public float darkest_value;
+    public float darkest_neighbor = 256;
+
+    private float initialProgress;
+    private float progress;
+
     public PFMSquares(PlottingTask task){
         super(task);
     }
 
-    final int    squiggle_length = 1000;      // How often to lift the pen
-    final int    adjustbrightness = 9;        // How fast it moves from dark to light, over-draw
-    final float  desired_brightness = 250;    // How long to process.  You can always stop early with "s" key
-
-    int          tests = 4;                  // Reasonable values:  13 for development, 720 for final
-    int          line_length = 30;           // Reasonable values:  3 through 100
-
-    int          squiggle_count;
-    int          darkest_x;
-    int          darkest_y;
-    float        darkest_value;
-    float        darkest_neighbor = 256;
+    @Override
+    public float progress() {
+        return progress;
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void pre_processing() {
@@ -39,12 +47,17 @@ public class PFMSquares extends PFM {
         ImageTools.image_unsharpen(task, task.getPlottingImage(), 3);
         ImageTools.image_boarder(task, "b6.png", 0, 0);
         ImageTools.image_desaturate(task);
+
+        initialProgress = ImageTools.avg_imgage_brightness(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void find_path() {
         find_squiggle();
-        if (ImageTools.avg_imgage_brightness(task) > desired_brightness ) {
+
+        float avgBrightness = ImageTools.avg_imgage_brightness(task);
+        progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
+        if (avgBrightness > desired_brightness ) {
             finish();
         }
     }

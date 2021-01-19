@@ -35,7 +35,7 @@ public class GCodeHelper {
     public static void move_abs(PlottingTask task, int pen_number, float x, float y) {
         task.plottedDrawing.addline(pen_number, task.is_pen_down, task.old_x, task.old_y, x, y);
         if (task.is_pen_down) {
-            task.plottedDrawing.render_last();
+            //task.plottedDrawing.render_last(); TODO MAKE THREAD SAFE
         }
 
         task.old_x = x;
