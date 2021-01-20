@@ -11,6 +11,8 @@ import javafx.scene.control.MenuItem;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.StackPane;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.FileChooser;
 
 import java.awt.*;
@@ -36,6 +38,9 @@ public class FXController {
     public ProgressBar progressBarGeneral = null;
     public Label progressBarLabel = null;
 
+    //VIEWPORT
+    public ScrollPane viewportScrollPane = null;
+    public StackPane viewportStackPane = null;
 
     public void initialize(){
         println("Initialize JAVA FX");
@@ -61,10 +66,12 @@ public class FXController {
 
     public void changePathFinderModule(PFMLoaders pfm){
         DrawingBotV3.INSTANCE.pfmLoader = pfm;
+        //TODO MAKE "START DRAW" BUTTON IN GUI
     }
 
     public void changeDisplayMode(EnumDisplayMode mode){
         DrawingBotV3.INSTANCE.display_mode = mode;
+        DrawingBotV3.INSTANCE.reRender();
     }
 
     public void openURL(){
@@ -80,6 +87,7 @@ public class FXController {
             FileChooser d = new FileChooser();
             d.setTitle("Select an image file to sketch");
             File file = d.showOpenDialog(null);
+            d.setInitialDirectory(new File("/"));
             if(file != null){
                 PlottingThread.createImagePlottingTask(file.getAbsolutePath());
             }

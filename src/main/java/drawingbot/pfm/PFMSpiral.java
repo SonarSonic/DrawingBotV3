@@ -39,11 +39,11 @@ public class PFMSpiral extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void pre_processing() {
-        ImageTools.image_crop(task);
-        ImageTools.image_scale(task, 1000);
-        ImageTools.image_unsharpen(task, task.getPlottingImage(), 3);
-        ImageTools.image_boarder(task, "b6.png", 0, 0);
-        ImageTools.image_desaturate(task);
+        ImageTools.imageCrop(task);
+        ImageTools.imageScale(task, 1000);
+        ImageTools.imageUnsharpen(task, task.getPlottingImage(), 3);
+        ImageTools.addImageBorder(task, "b6.png", 0, 0);
+        ImageTools.imageDesaturate(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,10 +59,10 @@ public class PFMSpiral extends PFM {
 
         // Calculates the first point.  Currently just the center.
         // TODO: Allow for ajustable center
-        GCodeHelper.pen_up(task);
+        GCodeHelper.penUp(task);
         x =  radius*cos(radians(alpha))+task.getPlottingImage().width/2F;
         y = -radius*sin(radians(alpha))+task.getPlottingImage().height/2F;
-        GCodeHelper.move_abs(task, 0, x, y);
+        GCodeHelper.moveAbs(task, 0, x, y);
         xa = 0;
         xb = 0;
         ya = 0;
@@ -100,21 +100,21 @@ public class PFMSpiral extends PFM {
 
                 // If the sampled color is the mask color do not write to the shape
                 if (app.brightness(mask) <= app.brightness(c)) {
-                    GCodeHelper.pen_up(task);
+                    GCodeHelper.penUp(task);
                 } else {
-                    GCodeHelper.pen_down(task);
+                    GCodeHelper.penDown(task);
                 }
             } else {
                 // We are outside of the image
-                GCodeHelper.pen_up(task);
+                GCodeHelper.penUp(task);
             }
 
             int pen_number = (int)(map(app.brightness(c), 0, 255, 0, app.pen_count-1)+0.5);
-            GCodeHelper.move_abs(task, pen_number, xa, ya);
-            GCodeHelper.move_abs(task, pen_number, xb, yb);
+            GCodeHelper.moveAbs(task, pen_number, xa, ya);
+            GCodeHelper.moveAbs(task, pen_number, xb, yb);
         }
 
-        GCodeHelper.pen_up(task);
+        GCodeHelper.penUp(task);
         finish();
     }
 

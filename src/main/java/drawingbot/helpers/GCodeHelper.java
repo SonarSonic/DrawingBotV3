@@ -2,55 +2,52 @@ package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.tasks.PlottingTask;
+import drawingbot.utils.PlottedLine;
 
 import static processing.core.PApplet.*;
 
 public class GCodeHelper {
 
-    public static void gcode_header(PlottingTask task) {
+    public static void gcodeHeader(PlottingTask task) {
         task.output.println("G21");
         task.output.println("G90");
         task.output.println("G1 Z0");
     }
 
-    public static void gcode_trailer(PlottingTask task) {
+    public static void gcodeTrailer(PlottingTask task) {
         task.output.println("G1 Z0");
-        task.output.println("G1 X" + gcode_format(0.1F) + " Y" + gcode_format(0.1F));
+        task.output.println("G1 X" + gcodeFormat(0.1F) + " Y" + gcodeFormat(0.1F));
         task.output.println("G1 X0 y0");
     }
 
-    public static void gcode_comment(PlottingTask task, String comment) {
+    public static void gcodeComment(PlottingTask task, String comment) {
         task.gcode_comments += ("(" + comment + ")") + "\n";
         println(comment);
     }
 
-    public static void pen_up(PlottingTask task) {
+    public static void penUp(PlottingTask task) {
         task.is_pen_down = false;
     }
 
-    public static void pen_down(PlottingTask task) {
+    public static void penDown(PlottingTask task) {
         task.is_pen_down = true;
     }
 
-    public static void move_abs(PlottingTask task, int pen_number, float x, float y) {
+    public static void moveAbs(PlottingTask task, int pen_number, float x, float y) {
         task.plottedDrawing.addline(pen_number, task.is_pen_down, task.old_x, task.old_y, x, y);
-        if (task.is_pen_down) {
-            //task.plottedDrawing.render_last(); TODO MAKE THREAD SAFE
-        }
-
         task.old_x = x;
         task.old_y = y;
     }
 
 
-    public static String gcode_format (Float n) {
+    public static String gcodeFormat(Float n) {
         String s = nf(n, 0, DrawingBotV3.gcode_decimals);
         s = s.replace('.', DrawingBotV3.gcode_decimal_seperator);
         s = s.replace(',', DrawingBotV3.gcode_decimal_seperator);
         return s;
     }
 
-    public static void create_gcode_files(PlottingTask task, int line_count) {
+    public static void createGcodeFiles(PlottingTask task, int line_count) {
         boolean is_pen_down;
         int pen_lifts;
         float pen_movement;
@@ -72,15 +69,16 @@ public class GCodeHelper {
             String gname = "drawingbot.gcode\\gcode_" + DrawingBotV3.INSTANCE.basefile_selected + "_pen" + p + "_" + CopicPenHelper.copic_sets[DrawingBotV3.INSTANCE.current_copic_set][p] + ".txt";
             task.output = DrawingBotV3.INSTANCE.createWriter(DrawingBotV3.INSTANCE.sketchPath("") + gname);
             task.output.println(task.gcode_comments);
-            gcode_header(task);
+            gcodeHeader(task);
 
-            for (int i = 1 ; i < line_count; i ++) {
-                if (task.plottedDrawing.lines[i].pen_number == p) {
+            for (int i = 0 ; i < line_count; i ++) {
+                PlottedLine line = task.plottedDrawing.plottedLines.get(i);
+                if (line.pen_number == p) {
 
-                    float gcode_scaled_x1 = task.plottedDrawing.lines[i].x1 * task.gcode_scale + task.gcode_offset_x;
-                    float gcode_scaled_y1 = task.plottedDrawing.lines[i].y1 * task.gcode_scale + task.gcode_offset_y;
-                    float gcode_scaled_x2 = task.plottedDrawing.lines[i].x2 * task.gcode_scale + task.gcode_offset_x;
-                    float gcode_scaled_y2 = task.plottedDrawing.lines[i].y2 * task.gcode_scale + task.gcode_offset_y;
+                    float gcode_scaled_x1 = line.x1 * task.gcode_scale + task.gcode_offset_x;
+                    float gcode_scaled_y1 = line.y1 * task.gcode_scale + task.gcode_offset_y;
+                    float gcode_scaled_x2 = line.x2 * task.gcode_scale + task.gcode_offset_x;
+                    float gcode_scaled_y2 = line.y2 * task.gcode_scale + task.gcode_offset_y;
                     distance = sqrt( sq(abs(gcode_scaled_x1 - gcode_scaled_x2)) + sq(abs(gcode_scaled_y1 - gcode_scaled_y2)) );
 
                     if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
@@ -88,7 +86,7 @@ public class GCodeHelper {
                         task.output.println("G1 Z0");
                         is_pen_down = false;
                         distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-                        String buf = "G1 X" + gcode_format(gcode_scaled_x1) + " Y" + gcode_format(gcode_scaled_y1);
+                        String buf = "G1 X" + gcodeFormat(gcode_scaled_x1) + " Y" + gcodeFormat(gcode_scaled_y1);
                         task.output.println(buf);
                         x = gcode_scaled_x1;
                         y = gcode_scaled_y1;
@@ -96,7 +94,7 @@ public class GCodeHelper {
                         pen_lifts++;
                     }
 
-                    if (task.plottedDrawing.lines[i].pen_down) {
+                    if (line.pen_down) {
                         if (!is_pen_down) {
                             task.output.println("G1 Z1");
                             is_pen_down = true;
@@ -112,7 +110,7 @@ public class GCodeHelper {
                         }
                     }
 
-                    String buf = "G1 X" + gcode_format(gcode_scaled_x2) + " Y" + gcode_format(gcode_scaled_y2);
+                    String buf = "G1 X" + gcodeFormat(gcode_scaled_x2) + " Y" + gcodeFormat(gcode_scaled_y2);
                     task.output.println(buf);
                     x = gcode_scaled_x2;
                     y = gcode_scaled_y2;
@@ -121,7 +119,7 @@ public class GCodeHelper {
                 }
             }
 
-            gcode_trailer(task);
+            gcodeTrailer(task);
             task.output.println("(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet)");
             task.output.println("(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet)");
             task.output.println("(Extreams of X: " + task.dx.min + " thru " + task.dx.max + ")");
@@ -143,37 +141,37 @@ public class GCodeHelper {
         task.output.println("(WARNING:  pen will be down.)");
         task.output.println("(Extreams of X: " + task.dx.min + " thru " + task.dx.max + ")");
         task.output.println("(Extreams of Y: " + task.dy.min + " thru " + task.dy.max + ")");
-        gcode_header(task);
+        gcodeHeader(task);
 
         task.output.println("(Upper left)");
-        task.output.println("G1 X" + gcode_format(task.dx.min) + " Y" + gcode_format(task.dy.min + test_length));
+        task.output.println("G1 X" + gcodeFormat(task.dx.min) + " Y" + gcodeFormat(task.dy.min + test_length));
         task.output.println("G1 Z1");
-        task.output.println("G1 X" + gcode_format(task.dx.min) + " Y" + gcode_format(task.dy.min));
-        task.output.println("G1 X" + gcode_format(task.dx.min + test_length) + " Y" + gcode_format(task.dy.min));
+        task.output.println("G1 X" + gcodeFormat(task.dx.min) + " Y" + gcodeFormat(task.dy.min));
+        task.output.println("G1 X" + gcodeFormat(task.dx.min + test_length) + " Y" + gcodeFormat(task.dy.min));
         task.output.println("G1 Z0");
 
         task.output.println("(Upper right)");
-        task.output.println("G1 X" + gcode_format(task.dx.max - test_length) + " Y" + gcode_format(task.dy.min));
+        task.output.println("G1 X" + gcodeFormat(task.dx.max - test_length) + " Y" + gcodeFormat(task.dy.min));
         task.output.println("G1 Z1");
-        task.output.println("G1 X" + gcode_format(task.dx.max) + " Y" + gcode_format(task.dy.min));
-        task.output.println("G1 X" + gcode_format(task.dx.max) + " Y" + gcode_format(task.dy.min + test_length));
+        task.output.println("G1 X" + gcodeFormat(task.dx.max) + " Y" + gcodeFormat(task.dy.min));
+        task.output.println("G1 X" + gcodeFormat(task.dx.max) + " Y" + gcodeFormat(task.dy.min + test_length));
         task.output.println("G1 Z0");
 
         task.output.println("(Lower right)");
-        task.output.println("G1 X" + gcode_format(task.dx.max) + " Y" + gcode_format(task.dy.max - test_length));
+        task.output.println("G1 X" + gcodeFormat(task.dx.max) + " Y" + gcodeFormat(task.dy.max - test_length));
         task.output.println("G1 Z1");
-        task.output.println("G1 X" + gcode_format(task.dx.max) + " Y" + gcode_format(task.dy.max));
-        task.output.println("G1 X" + gcode_format(task.dx.max - test_length) + " Y" + gcode_format(task.dy.max));
+        task.output.println("G1 X" + gcodeFormat(task.dx.max) + " Y" + gcodeFormat(task.dy.max));
+        task.output.println("G1 X" + gcodeFormat(task.dx.max - test_length) + " Y" + gcodeFormat(task.dy.max));
         task.output.println("G1 Z0");
 
         task.output.println("(Lower left)");
-        task.output.println("G1 X" + gcode_format(task.dx.min + test_length) + " Y" + gcode_format(task.dy.max));
+        task.output.println("G1 X" + gcodeFormat(task.dx.min + test_length) + " Y" + gcodeFormat(task.dy.max));
         task.output.println("G1 Z1");
-        task.output.println("G1 X" + gcode_format(task.dx.min) + " Y" + gcode_format(task.dy.max));
-        task.output.println("G1 X" + gcode_format(task.dx.min) + " Y" + gcode_format(task.dy.max - test_length));
+        task.output.println("G1 X" + gcodeFormat(task.dx.min) + " Y" + gcodeFormat(task.dy.max));
+        task.output.println("G1 X" + gcodeFormat(task.dx.min) + " Y" + gcodeFormat(task.dy.max - test_length));
         task.output.println("G1 Z0");
 
-        gcode_trailer(task);
+        gcodeTrailer(task);
         task.output.flush();
         task.output.close();
         println("drawingbot.gcode test created:  " + gname);
@@ -202,33 +200,34 @@ public class GCodeHelper {
         task.output = DrawingBotV3.INSTANCE.createWriter(DrawingBotV3.INSTANCE.sketchPath("") + gname);
         task.output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
         task.output.println("<svg width=\"" + svg_format(task.width() * task.gcode_scale) + "mm\" height=\"" + svg_format(task.getPlottingImage().height * task.gcode_scale) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
-        task.plottedDrawing.set_pen_continuation_flags();
+        task.plottedDrawing.setPenContinuationFlagsForSVG();
 
         // Loop over pens backwards to display dark lines last.
         // Then loop over all displayed lines.
         for (int p=DrawingBotV3.pen_count-1; p>=0; p--) {
             task.output.println("<g id=\"" + CopicPenHelper.copic_sets[DrawingBotV3.INSTANCE.current_copic_set][p] + "\">");
-            for (int i=1; i<line_count; i++) {
-                if (task.plottedDrawing.lines[i].pen_number == p) {
+            for (int i=0; i<line_count; i++) {
+                PlottedLine line = task.plottedDrawing.plottedLines.get(i);
+                if (line.pen_number == p) {
 
-                    // Do we add gcode_offsets needed by my bot, or zero based?
+                    // TODO OFFSETS... Do we add gcode_offsets needed by my bot, or zero based?
                     //float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale * svgdpi + gcode_offset_x;
                     //float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale * svgdpi + gcode_offset_y;
                     //float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale * svgdpi + gcode_offset_x;
                     //float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale * svgdpi + gcode_offset_y;
 
-                    float gcode_scaled_x1 = task.plottedDrawing.lines[i].x1 * task.gcode_scale * svgdpi;
-                    float gcode_scaled_y1 = task.plottedDrawing.lines[i].y1 * task.gcode_scale * svgdpi;
-                    float gcode_scaled_x2 = task.plottedDrawing.lines[i].x2 * task.gcode_scale * svgdpi;
-                    float gcode_scaled_y2 = task.plottedDrawing.lines[i].y2 * task.gcode_scale * svgdpi;
+                    float gcode_scaled_x1 = line.x1 * task.gcode_scale * svgdpi;
+                    float gcode_scaled_y1 = line.y1 * task.gcode_scale * svgdpi;
+                    float gcode_scaled_x2 = line.x2 * task.gcode_scale * svgdpi;
+                    float gcode_scaled_y2 = line.y2 * task.gcode_scale * svgdpi;
 
-                    if (!task.plottedDrawing.lines[i].pen_continuation && drawing_polyline) {
+                    if (!line.pen_continuation && drawing_polyline) {
                         task.output.println("\" />");
                         drawing_polyline = false;
                     }
 
-                    if (task.plottedDrawing.lines[i].pen_down) {
-                        if (task.plottedDrawing.lines[i].pen_continuation) {
+                    if (line.pen_down) {
+                        if (line.pen_continuation) {
                             String buf = svg_format(gcode_scaled_x2) + "," + svg_format(gcode_scaled_y2);
                             task.output.println(buf);
                             drawing_polyline = true;

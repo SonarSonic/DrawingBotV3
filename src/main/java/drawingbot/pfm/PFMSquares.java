@@ -42,20 +42,20 @@ public class PFMSquares extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void pre_processing() {
-        ImageTools.image_crop(task);
-        ImageTools.image_scale(task, 1000);
-        ImageTools.image_unsharpen(task, task.getPlottingImage(), 3);
-        ImageTools.image_boarder(task, "b6.png", 0, 0);
-        ImageTools.image_desaturate(task);
+        ImageTools.imageCrop(task);
+        ImageTools.imageScale(task, 1000);
+        ImageTools.imageUnsharpen(task, task.getPlottingImage(), 3);
+        ImageTools.addImageBorder(task, "b6.png", 0, 0);
+        ImageTools.imageDesaturate(task);
 
-        initialProgress = ImageTools.avg_imgage_brightness(task);
+        initialProgress = ImageTools.avgImageBrightness(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void find_path() {
         find_squiggle();
 
-        float avgBrightness = ImageTools.avg_imgage_brightness(task);
+        float avgBrightness = ImageTools.avgImageBrightness(task);
         progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
         if (avgBrightness > desired_brightness ) {
             finish();
@@ -73,17 +73,17 @@ public class PFMSquares extends PFM {
         squiggle_count++;
 
         find_darkest_neighbor(x, y);
-        GCodeHelper.move_abs(task, 0, darkest_x, darkest_y);
-        GCodeHelper.pen_down(task);
+        GCodeHelper.moveAbs(task, 0, darkest_x, darkest_y);
+        GCodeHelper.penDown(task);
 
         for (int s = 0; s < squiggle_length; s++) {
             find_darkest_neighbor(x, y);
             AlgorithmHelper.bresenham_lighten(task, x, y, darkest_x, darkest_y, adjustbrightness);
-            GCodeHelper.move_abs(task, 0, darkest_x, darkest_y);
+            GCodeHelper.moveAbs(task, 0, darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
         }
-        GCodeHelper.pen_up(task);
+        GCodeHelper.penUp(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,8 +180,8 @@ public class PFMSquares extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void output_parameters() {
-        GCodeHelper.gcode_comment(task, "adjustbrightness: " + adjustbrightness);
-        GCodeHelper.gcode_comment(task, "squiggle_length: " + squiggle_length);
+        GCodeHelper.gcodeComment(task, "adjustbrightness: " + adjustbrightness);
+        GCodeHelper.gcodeComment(task, "squiggle_length: " + squiggle_length);
     }
 
 }
