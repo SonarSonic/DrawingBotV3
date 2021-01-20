@@ -3,7 +3,6 @@ package drawingbot.tasks;
 
 import drawingbot.DrawingBotV3;
 import javafx.application.Platform;
-import org.omg.PortableInterceptor.INACTIVE;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,6 +10,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class PlottingThread extends Thread {
 
     public static PlottingThread INSTANCE;
+
+    public static double progress;
+    public static String status;
 
     //TODO STORAGE FOR COMPLETED TASKS / OR ONE TASK AT A TIME?
     public Queue<PlottingTask> globalQueue = new ConcurrentLinkedQueue<>();
@@ -26,23 +28,18 @@ public class PlottingThread extends Thread {
     public void run() {
         while(true){
             if(activeTask == null && !globalQueue.isEmpty()){
-                PlottingTask nextTask = globalQueue.remove();
-                if(nextTask.init()){ //checks the image
-                    activeTask = nextTask;
-                }
+                activeTask = globalQueue.remove();
             }
 
             if(activeTask != null){
-                activeTask.doTask();
-                setThreadProgress(activeTask.pfm.progress());
-
-                if(activeTask.isTaskFinished()){
-                    setThreadStatus("Plotting Image: Lines: " + activeTask.plottedDrawing.line_count + " FINISHED");
-                    completedTask = activeTask;
-                    activeTask = null;
-                    //TODO REDRAW?
+                if(activeTask.doTask()){
+                    if(activeTask.isTaskFinished()){
+                        completedTask = activeTask;
+                        activeTask = null;
+                        //TODO REDRAW?
+                    }
                 }else{
-                    setThreadStatus("Plotting Image: Lines: " + activeTask.plottedDrawing.line_count);
+                    //TASK FAILED TODO
                 }
             }
         }
@@ -54,12 +51,12 @@ public class PlottingThread extends Thread {
         INSTANCE.globalQueue.add(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader, url));
     }
 
-    public static void setThreadProgress(double progress){
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.controller.progressBarGeneral.setProgress(progress));
+    public static void setThreadProgress(double p){
+        progress = p;
     }
 
-    public static void setThreadStatus(String status){
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.controller.progressBarLabel.setText(status));
+    public static void setThreadStatus(String s){
+        status = s;
     }
 
 }

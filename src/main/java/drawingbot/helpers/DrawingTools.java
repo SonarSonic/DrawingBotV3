@@ -42,20 +42,19 @@ public class DrawingTools {
         float total = 0;
 
         println();
-        //println("normalize_distribution");
 
-        for (int p=0; p<DrawingBotV3.pen_count; p++) {
+        for (int p = 0; p < DrawingBotV3.pen_count; p++) {
             total = total + task.pen_distribution[p];
         }
 
-        for (int p = 0; p<DrawingBotV3.pen_count; p++) {
+        for (int p = 0; p < DrawingBotV3.pen_count ; p++) {
             task.pen_distribution[p] = task.display_line_count * task.pen_distribution[p] / total;
             print("Pen " + p + ", ");
             System.out.printf("%-4s", CopicPenHelper.copic_sets[DrawingBotV3.INSTANCE.current_copic_set][p]);
             System.out.printf("%8.0f  ", task.pen_distribution[p]);
 
             // Display approximately one star for every percent of total
-            for (int s = 0; s<(int)(task.pen_distribution[p]/total*100); s++) {
+            for (int s = 0; s < (int)(task.pen_distribution[p]/total*100); s++) {
                 print("*");
             }
             println();

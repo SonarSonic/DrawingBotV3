@@ -6,7 +6,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="692.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -48,7 +48,7 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.2, 0.8" focusTraversable="true" prefHeight="616.0" prefWidth="870.0" VBox.vgrow="ALWAYS">
       <items>
         <AnchorPane>
           <children>
@@ -65,27 +65,23 @@
                   <ChoiceBox layoutX="14.0" layoutY="145.0" prefWidth="150.0" />
           </children>
         </AnchorPane>
-        <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
-          <content>
-            <AnchorPane id="Content" fx:id="pdeView" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
-              <children>
-                <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-              </children>
-            </AnchorPane>
-          </content>
-        </ScrollPane>
-        <AnchorPane>
+            <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+               <content>
+                  <StackPane fx:id="viewportStackPane" prefHeight="629.0" prefWidth="377.0" />
+               </content>
+            </ScrollPane>
+        <AnchorPane prefHeight="629.0" prefWidth="306.0">
           <children>
             <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" />
           </children>
         </AnchorPane>
       </items>
     </SplitPane>
-    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+    <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="870.0" spacing="5.0" VBox.vgrow="NEVER">
       <children>
-        <Pane prefHeight="41.0" prefWidth="894.0" HBox.hgrow="ALWAYS">
+        <Pane prefHeight="40.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
                <children>
-                  <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" prefHeight="25.0" prefWidth="894.0" progress="0.0" />
+                  <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="864.0" progress="0.0" />
                   <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="8.0" text="Label" />
                </children></Pane>
       </children>

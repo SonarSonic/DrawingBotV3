@@ -46,13 +46,13 @@ public class PFMOriginal extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void pre_processing() {
-        ImageTools.image_crop(task);
-        ImageTools.image_scale(task, (int)(app.image_size_x / app.pen_width));
+        ImageTools.imageCrop(task);
+        ImageTools.imageScale(task, (int)(app.image_size_x / app.pen_width));
         //image_sharpen(img);
         //image_blurr(img);
         //image_unsharpen(img, 5);
-        ImageTools.image_unsharpen(task, task.getPlottingImage(), 4);
-        ImageTools.image_unsharpen(task, task.getPlottingImage(), 3);
+        ImageTools.imageUnsharpen(task, task.getPlottingImage(), 4);
+        ImageTools.imageUnsharpen(task, task.getPlottingImage(), 3);
         //image_unsharpen(img, 2);
         //image_unsharpen(img, 1);
         //image_motion_blur(img);
@@ -64,11 +64,11 @@ public class PFMOriginal extends PFM {
         //image_dilate();
         //image_invert();
         //image_blur(2);
-        ImageTools.image_boarder(task, "b1.png", 0, 0);
-        ImageTools.image_boarder(task, "b11.png", 0, 0);
-        ImageTools.image_desaturate(task);
+        ImageTools.addImageBorder(task, "b1.png", 0, 0);
+        ImageTools.addImageBorder(task, "b11.png", 0, 0);
+        ImageTools.imageDesaturate(task);
 
-        initialProgress = ImageTools.avg_imgage_brightness(task);
+        initialProgress = ImageTools.avgImageBrightness(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,19 +82,19 @@ public class PFMOriginal extends PFM {
         squiggle_count++;
 
         find_darkest_neighbor(x, y);
-        GCodeHelper.move_abs(task, 0, darkest_x, darkest_y);
-        GCodeHelper.pen_down(task);
+        GCodeHelper.moveAbs(task, 0, darkest_x, darkest_y);
+        GCodeHelper.penDown(task);
 
         for (int s = 0; s < squiggle_length; s++) {
             find_darkest_neighbor(x, y);
             AlgorithmHelper.bresenham_lighten(task, x, y, darkest_x, darkest_y, adjustbrightness);
-            GCodeHelper.move_abs(task, 0, darkest_x, darkest_y);
+            GCodeHelper.moveAbs(task, 0, darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
         }
-        GCodeHelper.pen_up(task);
+        GCodeHelper.penUp(task);
 
-        float avgBrightness = ImageTools.avg_imgage_brightness(task);
+        float avgBrightness = ImageTools.avgImageBrightness(task);
         progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
         if(avgBrightness > desired_brightness){
             finish();
@@ -221,8 +221,8 @@ public class PFMOriginal extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void output_parameters() {
-        GCodeHelper.gcode_comment(task, "adjustbrightness: " + adjustbrightness);
-        GCodeHelper.gcode_comment(task, "squiggle_length: " + squiggle_length);
+        GCodeHelper.gcodeComment(task, "adjustbrightness: " + adjustbrightness);
+        GCodeHelper.gcodeComment(task, "squiggle_length: " + squiggle_length);
     }
 
 }

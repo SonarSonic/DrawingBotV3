@@ -101,7 +101,7 @@ public class AlgorithmHelper {
 
         pnts = bresenham(x0, y0, x1, y1);
         for (Point p : pnts) {
-            ImageTools.lighten_one_pixel(task, adjustbrightness * 5, p.x, p.y);
+            ImageTools.lightenOnePixel(task, adjustbrightness * 5, p.x, p.y);
         }
     }
 

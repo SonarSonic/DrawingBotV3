@@ -87,6 +87,7 @@ public class ScalingHelper {
     public static void mouse_point() {
 
         print("Mouse point: ");
+        /* TODO FIXME
         switch(app.screen_rotate) {
             case 0:
                 println(  (app.mouseX/app.screen_scale - app.mx) + ", " +  (app.mouseY/app.screen_scale - app.my) );
@@ -101,6 +102,8 @@ public class ScalingHelper {
                 println( -(app.mouseY/app.screen_scale - app.my) + ", " +  (app.mouseX/app.screen_scale - app.mx) );
                 break;
         }
+
+         */
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,50 +11,50 @@ public class ImageTools {
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_threshold(PlottingTask task) {
-        GCodeHelper.gcode_comment(task, "image_threshold");
+    public static void imageThreshold(PlottingTask task) {
+        GCodeHelper.gcodeComment(task, "image_threshold");
         task.getPlottingImage().filter(PConstants.THRESHOLD); //THRESHOLD
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_desaturate(PlottingTask task) {
-        GCodeHelper.gcode_comment(task,"image_desaturate");
+    public static void imageDesaturate(PlottingTask task) {
+        GCodeHelper.gcodeComment(task,"image_desaturate");
         task.getPlottingImage().filter(PConstants.GRAY); //GRAY
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_invert(PlottingTask task) {
-        GCodeHelper.gcode_comment(task,"image_invert");
+    public static void imageInvert(PlottingTask task) {
+        GCodeHelper.gcodeComment(task,"image_invert");
         task.getPlottingImage().filter(PConstants.INVERT); //INVERT
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_posterize(PlottingTask task, int amount) {
-        GCodeHelper.gcode_comment(task,"image_posterize");
+    public static void imagePosterize(PlottingTask task, int amount) {
+        GCodeHelper.gcodeComment(task,"image_posterize");
         task.getPlottingImage().filter(PConstants.POSTERIZE, amount); //POSTERIZE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_blur(PlottingTask task, int amount) {
-        GCodeHelper.gcode_comment(task,"image_blur");
+    public static void imageBlur(PlottingTask task, int amount) {
+        GCodeHelper.gcodeComment(task,"image_blur");
         task.getPlottingImage().filter(PConstants.BLUR, amount); //BLUR
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_erode(PlottingTask task) {
-        GCodeHelper.gcode_comment(task,"image_erode");
+    public static void imageErode(PlottingTask task) {
+        GCodeHelper.gcodeComment(task,"image_erode");
         task.getPlottingImage().filter(PConstants.ERODE); //ERODE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_dilate(PlottingTask task) {
-        GCodeHelper.gcode_comment(task,"image_dilate");
+    public static void imageDilate(PlottingTask task) {
+        GCodeHelper.gcodeComment(task,"image_dilate");
         task.getPlottingImage().filter(PConstants.DILATE); //DILATE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void save_jpg(PlottingTask task) {
-        // Currently disabled.
+    public static void saveJpg(PlottingTask task) {
+        // Currently disabled. //TODO FIXME
         // Must not be called from event handling functions such as keyPressed()
         PImage img_drawing;
         PImage  img_drawing2;
@@ -69,10 +69,11 @@ public class ImageTools {
         img_drawing2 = app.createImage(task.getPlottingImage().width, task.getPlottingImage().height, PConstants.RGB);
         img_drawing2.copy(img_drawing, 0, 0, task.getPlottingImage().width, task.getPlottingImage().height, 0, 0, task.getPlottingImage().width, task.getPlottingImage().height);
         img_drawing2.save("drawingbot.gcode\\gcode_" + app.basefile_selected + ".jpg");
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static PImage image_rotate(PImage img) {
+    public static PImage imageRotate(PImage img) {
         if (img.width > img.height) {
             PImage img2 = app.createImage(img.height, img.width, PConstants.RGB);
             img.loadPixels();
@@ -93,7 +94,7 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void lighten_one_pixel(PlottingTask task, int adjustbrightness, int x, int y) {
+    public static void lightenOnePixel(PlottingTask task, int adjustbrightness, int x, int y) {
         int loc = (y)*task.getPlottingImage().width + x;
         float r = app.brightness (task.getPlottingImage().pixels[loc]);
         //r += adjustbrightness;
@@ -104,16 +105,16 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_scale(PlottingTask task, int new_width) {
+    public static void imageScale(PlottingTask task, int new_width) {
         if (task.getPlottingImage().width != new_width) {
-            GCodeHelper.gcode_comment(task, "image_scale, old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+            GCodeHelper.gcodeComment(task, "image_scale, old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
             task.getPlottingImage().resize(new_width, 0);
-            GCodeHelper.gcode_comment(task, "image_scale, new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+            GCodeHelper.gcodeComment(task, "image_scale, new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static float avg_imgage_brightness(PlottingTask task) {
+    public static float avgImageBrightness(PlottingTask task) {
         float b = 0.0F;
 
         for (int p = 0; p < task.getPlottingImage().width * task.getPlottingImage().height; p++) {
@@ -124,15 +125,15 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_crop(PlottingTask task) {
+    public static void imageCrop(PlottingTask task) {
         // This will center crop to the desired image size image_size_x and image_size_y
 
         PImage img2;
         float desired_ratio = app.image_size_x / app.image_size_y;
         float current_ratio = (float)task.getPlottingImage().width / (float)task.getPlottingImage().height;
 
-        GCodeHelper.gcode_comment(task,"image_crop desired ratio of " + desired_ratio);
-        GCodeHelper.gcode_comment(task, "image_crop old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + current_ratio);
+        GCodeHelper.gcodeComment(task,"image_crop desired ratio of " + desired_ratio);
+        GCodeHelper.gcodeComment(task, "image_crop old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + current_ratio);
 
         if (current_ratio < desired_ratio) {
             int desired_x = task.getPlottingImage().width;
@@ -149,21 +150,23 @@ public class ImageTools {
         }
 
         task.img_plotting = img2;
-        GCodeHelper.gcode_comment(task, "image_crop new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+        GCodeHelper.gcodeComment(task, "image_crop new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_boarder(PlottingTask task, String fname, int shrink, int blur) {
-        // A quick and dirty way of softening the edges of your drawing.
-        // Look in the boarders directory for some examples.
-        // Ideally, the boarder will have similar dimensions as the image to be drawn.
-        // For far more control, just edit your input image directly.
-        // Most of the examples are pretty heavy handed so you can "shrink" them a few pixels as desired.
-        // It does not matter if you use a transparant background or just white.  JPEG or PNG, it's all good.
-        //
-        // fname:   Name of boarder file.
-        // shrink:  Number of pixels to pull the boarder away, 0 for no change.
-        // blur:    Guassian blur the boarder, 0 for no blur, 10+ for a lot.
+
+    /**A quick and dirty way of softening the edges of your drawing.
+     * Look in the boarders directory for some examples.
+     * Ideally, the boarder will have similar dimensions as the image to be drawn.
+     * For far more control, just edit your input image directly.
+     * Most of the examples are pretty heavy handed so you can "shrink" them a few pixels as desired.
+     * It does not matter if you use a transparant background or just white.  JPEG or PNG, it's all good.
+     * @param task currentPlotting Task
+     * @param fname Name of boarder file.
+     * @param shrink Number of pixels to pull the boarder away, 0 for no change.
+     * @param blur Guassian blur the boarder, 0 for no blur, 10+ for a lot.
+     */
+    public static void addImageBorder(PlottingTask task, String fname, int shrink, int blur) {
 
         //PImage boarder = createImage(app.img.getPlottingImage().width+(shrink*2), app.img.getPlottingImage().height+(shrink*2), RGB);
         PImage temp_boarder = app.loadImage("boarder/" + fname);
@@ -174,13 +177,20 @@ public class ImageTools {
 
         //boarder.copy(temp_boarder, 0, 0, temp_boarder.width, temp_boarder.height, 0, 0, boarder.width, boarder.height);
         task.getPlottingImage().blend(temp_boarder, shrink, shrink, task.getPlottingImage().width, task.getPlottingImage().height,  0, 0, task.getPlottingImage().width, task.getPlottingImage().height, PConstants.ADD);
-        GCodeHelper.gcode_comment(task, "image_boarder: " + fname + "   " + shrink + "   " + blur);
+        GCodeHelper.gcodeComment(task, "image_boarder: " + fname + "   " + shrink + "   " + blur);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_unsharpen(PlottingTask task, PImage img, int amount) {
-        // Source:  https://www.taylorpetrick.com/blog/post/convolution-part3
-        // Subtle unsharp matrix
+
+    /**
+     * Subtle unsharp matrix
+     // Source:  https://www.taylorpetrick.com/blog/post/convolution-part3
+     * @param task current task, to comment image changes to
+     * @param img the image to change
+     * @param amount scale unsharp matrix
+     */
+    public static void imageUnsharpen(PlottingTask task, PImage img, int amount) {
+        //
         float[][] matrix = { { -0.00391F, -0.01563F, -0.02344F, -0.01563F, -0.00391F },
                 { -0.01563F, -0.06250F, -0.09375F, -0.06250F, -0.01563F },
                 { -0.02344F, -0.09375F,  1.85980F, -0.09375F, -0.02344F },
@@ -188,30 +198,27 @@ public class ImageTools {
                 { -0.00391F, -0.01563F, -0.02344F, -0.01563F, -0.00391F } };
 
 
-        //print_matrix(matrix);
-        matrix = scale_matrix(matrix, amount);
-        //print_matrix(matrix);
-        matrix = normalize_matrix(matrix);
-        //print_matrix(matrix);
+        matrix = scaleMatrix(matrix, amount);
+        matrix = normalizeMatrix(matrix);
 
-        image_convolution(img, matrix, 1.0F, 0.0F);
-        GCodeHelper.gcode_comment(task,"image_unsharpen: " + amount);
+        imageConvolution(img, matrix, 1.0F, 0.0F);
+        GCodeHelper.gcodeComment(task,"image_unsharpen: " + amount);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_blurr(PImage img) {
+    public static void imageBlurr(PImage img) {
         // Basic blur matrix
 
         float[][] matrix = { { 1, 1, 1 },
                 { 1, 1, 1 },
                 { 1, 1, 1 } };
 
-        matrix = normalize_matrix(matrix);
-        image_convolution(img, matrix, 1, 0);
+        matrix = normalizeMatrix(matrix);
+        imageConvolution(img, matrix, 1, 0);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_sharpen(PImage img) {
+    public static void imageSharpen(PImage img) {
         // Simple sharpen matrix
 
         float[][] matrix = { {  0, -1,  0 },
@@ -219,30 +226,30 @@ public class ImageTools {
                 {  0, -1,  0 } };
 
         //print_matrix(matrix);
-        image_convolution(img, matrix, 1, 0);
+        imageConvolution(img, matrix, 1, 0);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_emboss(PImage img) {
+    public static void imageEmboss(PImage img) {
         float[][] matrix = { { -2, -1,  0 },
                 { -1,  1,  1 },
                 {  0,  1,  2 } };
 
-        image_convolution(img, matrix, 1, 0);
+        imageConvolution(img, matrix, 1, 0);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_edge_detect(PImage img) {
+    public static void imageEdgeDetect(PImage img) {
         // Edge detect
         float[][] matrix = { {  0,  1,  0 },
                 {  1, -4,  1 },
                 {  0,  1,  0 } };
 
-        image_convolution(img, matrix, 1, 0);
+        imageConvolution(img, matrix, 1, 0);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_motion_blur(PImage img) {
+    public static void imageMotionBlur(PImage img) {
         // Motion Blur
         // http://lodev.org/cgtutor/filtering.html
 
@@ -256,12 +263,12 @@ public class ImageTools {
                 {  0, 0, 0, 0, 0, 0, 0, 1, 0 },
                 {  0, 0, 0, 0, 0, 0, 0, 0, 1 } };
 
-        matrix = normalize_matrix(matrix);
-        image_convolution(img, matrix, 1, 0);
+        matrix = normalizeMatrix(matrix);
+        imageConvolution(img, matrix, 1, 0);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_outline(PImage img) {
+    public static void imageOutline(PImage img) {
         // Outline (5x5)
         // https://www.jmicrovision.com/help/v125/tools/classicfilterop.htm
 
@@ -272,11 +279,11 @@ public class ImageTools {
                 { 1,  1,   1,  1,  1 } };
 
         //matrix = normalize_matrix(matrix);
-        image_convolution(img, matrix, 1, 0);
+        imageConvolution(img, matrix, 1, 0);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_sobel(PImage img, float factor, float bias) {
+    public static void imageSobel(PImage img, float factor, float bias) {
 
         // Looks like some kind of inverting edge detection
         //float[][] matrix = { { -1, -1, -1 },
@@ -299,12 +306,12 @@ public class ImageTools {
                 {  0,  0,  0 },
                 {  1,  2,  1 } };
 
-        image_convolution(img, matrixX, factor, bias);
-        image_convolution(img, matrixY, factor, bias);
+        imageConvolution(img, matrixX, factor, bias);
+        imageConvolution(img, matrixY, factor, bias);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void image_convolution(PImage img, float[][] matrix, float factor, float bias) {
+    public static void imageConvolution(PImage img, float[][] matrix, float factor, float bias) {
         // What about edge pixels?  Ignoring (maxrixsize-1)/2 pixels on the edges?
 
         int n = matrix.length;      // matrix rows
@@ -327,10 +334,10 @@ public class ImageTools {
     }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Source:  https://py.processing.org/tutorials/pixels/
-// By: Daniel Shiffman
-// Factor & bias added by SCC
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Source:  https://py.processing.org/tutorials/pixels/
+    // By: Daniel Shiffman
+    // Factor & bias added by SCC
 
     public static int convolution(int x, int y, float[][] matrix, int matrixsize, PImage img, float factor, float bias) {
         float rtotal = 0.0F;
@@ -369,7 +376,7 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static float [][] multiply_matrix (float[][] matrixA, float[][] matrixB) {
+    public static float [][] multiplyMatrix(float[][] matrixA, float[][] matrixB) {
         // Source:  https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm
         // Test:    http://www.calcul.com/show/calculator/matrix-multiplication_;2;3;3;5
 
@@ -393,7 +400,7 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static float [][] normalize_matrix (float[][] matrix) {
+    public static float [][] normalizeMatrix(float[][] matrix) {
         // Source:  https://www.taylorpetrick.com/blog/post/convolution-part2
         // The resulting matrix is the same size as the original, but the output range will be constrained
         // between 0.0 and 1.0.  Useful for keeping brightness the same.
@@ -419,7 +426,7 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static float [][] scale_matrix(float[][] matrix, int scale) {
+    public static float [][] scaleMatrix(float[][] matrix, int scale) {
         int n = matrix.length;      // rows
         int p = matrix[0].length;   // columns
         float sum = 0;
@@ -447,7 +454,7 @@ public class ImageTools {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void print_matrix(float[][] matrix) {
+    public static void printMatrix(float[][] matrix) {
         int n = matrix.length;      // rows
         int p = matrix[0].length;   // columns
         float sum = 0;
