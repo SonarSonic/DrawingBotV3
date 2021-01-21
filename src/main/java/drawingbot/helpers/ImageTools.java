@@ -2,6 +2,7 @@ package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.tasks.PlottingTask;
+import javafx.scene.paint.Color;
 import processing.core.PConstants;
 import processing.core.PImage;
 import static processing.core.PApplet.*;
@@ -471,4 +472,17 @@ public class ImageTools {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**converts processing colors to java fx colors*/
+    public static Color getColorFromARGB(int argb){
+        int a = (argb>>24)&0xff;
+        int r = (argb>>16)&0xff;
+        int g = (argb>>8)&0xff;
+        int b = argb&0xff;
+        return new Color(r / 255F, g / 255F, b / 255F, a / 255F);
+    }
+
+    /**converts java fx to processing colors*/
+    public static int getARGBFromColor(Color color){
+        return app.color((float)color.getRed() * 255F, (float)color.getGreen() * 255F, (float)color.getBlue() * 255F, (float)color.getOpacity() * 255F);
+    }
 }

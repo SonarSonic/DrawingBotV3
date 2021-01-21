@@ -109,7 +109,7 @@ public class PFMSpiral extends PFM {
                 GCodeHelper.penUp(task);
             }
 
-            int pen_number = (int)(map(app.brightness(c), 0, 255, 0, app.pen_count-1)+0.5);
+            int pen_number = (int)(map(app.brightness(c), 0, 255, 0, task.plottedDrawing.getPenCount())+0.5);
             GCodeHelper.moveAbs(task, pen_number, xa, ya);
             GCodeHelper.moveAbs(task, pen_number, xb, yb);
         }

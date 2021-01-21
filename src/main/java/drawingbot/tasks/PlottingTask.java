@@ -1,9 +1,9 @@
 package drawingbot.tasks;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.helpers.DrawingTools;
+import drawingbot.drawing.IDrawingSet;
+import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.helpers.GCodeHelper;
-import drawingbot.helpers.ImageTools;
 import drawingbot.pfm.IPFM;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.utils.EnumTaskState;
@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 
 import static processing.core.PApplet.*;
 
-//TODO BATCH PROCESSING
+//TODO BATCH PROCESSING REORGANISE VARIABLES
 public class PlottingTask {
 
     public EnumTaskState state = EnumTaskState.QUEUED;
@@ -25,11 +25,9 @@ public class PlottingTask {
     public PImage img_original;              // The original image
     public PImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public PImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
-    public PImage img_output_cache;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
     public Limit dx, dy;
     public PlottedDrawing plottedDrawing;
-    public float[] pen_distribution = new float[DrawingBotV3.pen_count];
     public PrintWriter output;
 
     public String gcode_comments = "";
@@ -52,15 +50,14 @@ public class PlottingTask {
     //PATH FINDING \\
     public IPFM pfm;
 
-    public int display_line_count;
-
     private PFMLoaders loader;
     private String imageURL;
     private long startTime;
     public boolean finishedRenderingPaths = false;
 
-    public PlottingTask(PFMLoaders loader, String imageURL){
+    public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, String imageURL){
         this.loader = loader;
+        this.plottedDrawing = new PlottedDrawing(this, drawingPenSet);
         this.imageURL = imageURL;
     }
 
@@ -102,7 +99,6 @@ public class PlottingTask {
                 img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
                 img_reference.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
 
-                plottedDrawing = new PlottedDrawing(this);
                 dx = new Limit();
                 dy = new Limit();
 
@@ -141,30 +137,18 @@ public class PlottingTask {
                 }
 
                 pfm.find_path();
-                display_line_count = plottedDrawing.getPlottedLineCount();
                 PlottingThread.setThreadProgress(pfm.progress());
                 PlottingThread.setThreadStatus("Plotting Image: Lines: " + plottedDrawing.getPlottedLineCount());
                 break;
             case POST_PROCESSING:
                 pfm.post_processing();
 
-                DrawingTools.set_even_distribution(this);
-                DrawingTools.normalize_distribution(this);
+                plottedDrawing.setEvenDistribution();
+                plottedDrawing.normalizeDistribution();
 
 
-                long start = System.currentTimeMillis();
-                plottedDrawing.evenly_distribute_pen_changes(plottedDrawing.getPlottedLineCount()-1, DrawingBotV3.pen_count);
-                long evenly_distribute_pen_changes = (System.currentTimeMillis() - start);
-                println("evenly_distribute_pen_changes: " + evenly_distribute_pen_changes + " ms");
-
-                start = System.currentTimeMillis();
-                plottedDrawing.distribute_pen_changes_according_to_percentages(display_line_count, DrawingBotV3.pen_count);
-                long distribute_pen_changes_according_to_percentages = (System.currentTimeMillis() - start);
-                println("distribute_pen_changes_according_to_percentages: " + evenly_distribute_pen_changes + " ms");
-
-
-                //println("elapsed time: " + (millis() - startTime) / 1000.0 + " seconds");
-                display_line_count = plottedDrawing.getPlottedLineCount();
+                plottedDrawing.evenlyDistributePenChanges();
+                plottedDrawing.distributePenChangesAccordingToPercentages();
 
                 GCodeHelper.gcodeComment(this,"extremes of X: " + dx.min + " to " + dx.max);
                 GCodeHelper.gcodeComment(this, "extremes of Y: " + dy.min + " to " + dy.max);

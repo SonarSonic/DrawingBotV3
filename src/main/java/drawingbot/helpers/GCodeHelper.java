@@ -1,6 +1,9 @@
 package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.drawing.CopicPenPlugin;
+import drawingbot.drawing.DrawingPen;
+import drawingbot.drawing.IDrawingPen;
 import drawingbot.tasks.PlottingTask;
 import drawingbot.utils.PlottedLine;
 
@@ -47,7 +50,7 @@ public class GCodeHelper {
         return s;
     }
 
-    public static void createGcodeFiles(PlottingTask task, int line_count) {
+    public static void createGcodeFiles(PlottingTask task) {
         boolean is_pen_down;
         int pen_lifts;
         float pen_movement;
@@ -58,7 +61,7 @@ public class GCodeHelper {
         float distance;
 
         // Loop over all lines for every pen.
-        for (int p = 0; p < DrawingBotV3.pen_count; p ++) {
+        for (int p = 0; p < task.plottedDrawing.getPenCount(); p ++) {
             is_pen_down = false;
             pen_lifts = 2;
             pen_movement = 0;
@@ -66,12 +69,12 @@ public class GCodeHelper {
             lines_drawn = 0;
             x = 0;
             y = 0;
-            String gname = "drawingbot.gcode\\gcode_" + DrawingBotV3.INSTANCE.basefile_selected + "_pen" + p + "_" + CopicPenHelper.copic_sets[DrawingBotV3.INSTANCE.current_copic_set][p] + ".txt";
+            String gname = "drawingbot.gcode\\gcode_" + DrawingBotV3.INSTANCE.basefile_selected + "_pen" + p + "_" + task.plottedDrawing.getPen(p).getName() + ".txt";
             task.output = DrawingBotV3.INSTANCE.createWriter(DrawingBotV3.INSTANCE.sketchPath("") + gname);
             task.output.println(task.gcode_comments);
             gcodeHeader(task);
 
-            for (int i = 0 ; i < line_count; i ++) {
+            for (int i = 0 ; i < task.plottedDrawing.getDisplayedLineCount(); i ++) {
                 PlottedLine line = task.plottedDrawing.plottedLines.get(i);
                 if (line.pen_number == p) {
 
@@ -190,7 +193,7 @@ public class GCodeHelper {
 
 
     // Thanks to John Cliff for getting the SVG output moving forward.
-    public static void create_svg_file (PlottingTask task, int line_count) {
+    public static void create_svg_file (PlottingTask task) {
         boolean drawing_polyline = false;
 
         // Inkscape versions before 0.91 used 90dpi, Today most software assumes 96dpi.
@@ -204,9 +207,10 @@ public class GCodeHelper {
 
         // Loop over pens backwards to display dark lines last.
         // Then loop over all displayed lines.
-        for (int p=DrawingBotV3.pen_count-1; p>=0; p--) {
-            task.output.println("<g id=\"" + CopicPenHelper.copic_sets[DrawingBotV3.INSTANCE.current_copic_set][p] + "\">");
-            for (int i=0; i<line_count; i++) {
+        for (int p = task.plottedDrawing.getPenCount(); p >= 0; p--) {
+            IDrawingPen pen = task.plottedDrawing.getPen(p);
+            task.output.println("<g id=\"" + pen.getName() + "\">");
+            for (int i=0; i<task.plottedDrawing.getDisplayedLineCount(); i++) {
                 PlottedLine line = task.plottedDrawing.plottedLines.get(i);
                 if (line.pen_number == p) {
 
@@ -232,8 +236,7 @@ public class GCodeHelper {
                             task.output.println(buf);
                             drawing_polyline = true;
                         } else {
-                            int c = DrawingBotV3.INSTANCE.copic.get_original_color(CopicPenHelper.copic_sets[DrawingBotV3.INSTANCE.current_copic_set][p]);
-                            task.output.println("<polyline fill=\"none\" stroke=\"#" + hex(c, 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
+                            task.output.println("<polyline fill=\"none\" stroke=\"#" + hex(pen.getRGBColour(), 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
                             String buf = svg_format(gcode_scaled_x1) + "," + svg_format(gcode_scaled_y1);
                             task.output.println(buf);
                             drawing_polyline = true;

@@ -2,7 +2,6 @@ package drawingbot.tasks;
 
 
 import drawingbot.DrawingBotV3;
-import javafx.application.Platform;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -48,7 +47,7 @@ public class PlottingThread extends Thread {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void createImagePlottingTask(String url){
-        INSTANCE.globalQueue.add(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader, url));
+        INSTANCE.globalQueue.add(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader, DrawingBotV3.INSTANCE.observableDrawingSet, url));
     }
 
     public static void setThreadProgress(double p){
