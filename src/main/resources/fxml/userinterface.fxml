@@ -3,10 +3,9 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="692.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="692.0" prefWidth="1257.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -48,41 +47,58 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.2, 0.8" focusTraversable="true" prefHeight="616.0" prefWidth="870.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.30916334661354583" focusTraversable="true" prefHeight="616.0" prefWidth="870.0" VBox.vgrow="ALWAYS">
       <items>
-        <AnchorPane>
-          <children>
-            <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Drawing Controls" textAlignment="CENTER" wrapText="false">
-              <font>
-                <Font size="18.0" fx:id="x1" />
-              </font>
-              <textFill>
-                <Color red="0.624" green="0.624" blue="0.624" fx:id="x2" />
-              </textFill>
-            </Label>
-                  <ChoiceBox fx:id="choiceBoxPFM" layoutX="14.0" layoutY="50.0" prefWidth="150.0" />
-                  <ChoiceBox fx:id="choiceBoxDisplayMode" layoutX="14.0" layoutY="86.0" prefWidth="150.0" />
-                  <ChoiceBox layoutX="14.0" layoutY="145.0" prefWidth="150.0" />
-          </children>
-        </AnchorPane>
-            <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+            <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0">
                <content>
-                  <StackPane fx:id="viewportStackPane" prefHeight="629.0" prefWidth="377.0" />
+                  <VBox prefWidth="386.0">
+                     <children>
+                      <TitledPane text="Path Finding Controls">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="130.0" prefWidth="384.0">
+                                 <children>
+                                    <ChoiceBox fx:id="choiceBoxPFM" layoutX="14.0" layoutY="59.0" prefWidth="150.0" />
+                                    <ChoiceBox fx:id="choiceBoxDisplayMode" layoutX="14.0" layoutY="28.0" prefWidth="150.0" />
+                                 </children></AnchorPane>
+                        </content>
+                      </TitledPane>
+                      <TitledPane text="Pen Settings">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="380.0" prefWidth="384.0">
+                                 <children>
+                                    <Button fx:id="buttonAddPen" layoutX="296.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Add Pen" />
+                                    <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="54.0" prefHeight="274.0" prefWidth="385.0">
+                                       <columns>
+                                          <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="46.0" text="Enable" />
+                                          <TableColumn fx:id="penNameColumn" prefWidth="208.0" sortable="false" text="Pen" />
+                                          <TableColumn fx:id="penColourColumn" prefWidth="115.0" text="Colour" />
+                                       </columns>
+                                    </TableView>
+                                    <ComboBox fx:id="comboBoxDrawingPen" layoutX="14.0" layoutY="339.0" prefHeight="25.0" prefWidth="282.0" />
+                                    <ComboBox fx:id="comboBoxDrawingSet" layoutX="13.0" layoutY="14.0" prefHeight="25.0" prefWidth="348.0" />
+                                 </children></AnchorPane>
+                        </content>
+                      </TitledPane>
+                     </children>
+                  </VBox>
                </content>
             </ScrollPane>
-        <AnchorPane prefHeight="629.0" prefWidth="306.0">
-          <children>
-            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-          </children>
-        </AnchorPane>
+            <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="629.0" prefWidth="640.0">
+               <content>
+                  <StackPane fx:id="viewportStackPane" prefHeight="629.0" prefWidth="516.0" />
+               </content>
+            </ScrollPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="870.0" spacing="5.0" VBox.vgrow="NEVER">
       <children>
         <Pane prefHeight="40.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
                <children>
-                  <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="864.0" progress="0.0" />
-                  <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="8.0" text="Label" />
+                  <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" progress="0.0" />
+                  <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="4.0" text="Label">
+                     <font>
+                        <Font size="16.0" />
+                     </font></Label>
                </children></Pane>
       </children>
       <padding>

@@ -1,8 +1,9 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.drawing.*;
 import drawingbot.tasks.PlottingTask;
-import drawingbot.helpers.CopicPenHelper;
+import processing.core.PConstants;
 import processing.core.PGraphics;
 
 import java.util.ArrayList;
@@ -11,48 +12,81 @@ import java.util.List;
 
 import static processing.core.PApplet.*;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// A class to describe all the line segments
 public class PlottedDrawing {
 
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
-    public PlottingTask task;
-    public final List<PlottedLine> plottedLines = Collections.synchronizedList(new ArrayList<>());
+    public final PlottingTask task;
+    public final List<PlottedLine> plottedLines;
+    public ObservableDrawingSet drawingPenSet; //TODO CHECK - if we don't copy (this is observable) and we should add a listener for the drawing, or we "deep copy"
+    public float[] pen_distribution;
+    public int displayedLineCount = -1;
 
-    public PlottedDrawing(PlottingTask image){
-        this.task = image;
+    public PlottedDrawing(PlottingTask task, ObservableDrawingSet penSet){
+        this.task = task;
+        this.plottedLines = Collections.synchronizedList(new ArrayList<>());
+        this.drawingPenSet = penSet;
+        this.pen_distribution = new float[drawingPenSet.getPens().size()];
+    }
+
+    public int getPenCount(){
+        return drawingPenSet.getPens().size();
+    }
+
+    public int getDisplayedLineCount(){
+        if(displayedLineCount == -1){
+            return getPlottedLineCount();
+        }
+        return displayedLineCount;
     }
 
     public int getPlottedLineCount(){
         return plottedLines.size();
     }
 
+    public ObservableDrawingPen getPen(int penNumber){
+        return drawingPenSet.getPens().get(penNumber);
+    }
+
     public void renderLines(int start, int end) {
         for (int i = start; i < end; i++) {
-            plottedLines.get(i).render_with_copic();
+            renderLine(plottedLines.get(i));
         }
     }
 
-    public void renderLines(int start, int end, int pen) {
+    public void renderLinesForPen(int start, int end, int pen) {
         for (int i = start; i < end; i++) {
             PlottedLine line = plottedLines.get(i);
             if (line.pen_number == pen) {
-                line.render_with_copic();
+                renderLine(line);
             }
         }
     }
 
-    public void renderToPDF(int lineCount) {
+    public void renderLine(PlottedLine line) {
+        if (line.pen_down) {
+            ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);
+            if(pen.isEnabled()){
+                //stroke(c, 255-brightness(c));
+                app.stroke(pen.getRGBColour());
+                //strokeWeight(2);
+                //blendMode(BLEND);
+                app.blendMode(PConstants.MULTIPLY);
+                app.line(line.x1, line.y1, line.x2, line.y2);
+            }
+        }
+    }
+
+    public void renderToPDF() {
         String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + ".pdf";
         PGraphics pdf = app.createGraphics(task.getPlottingImage().width, task.getPlottingImage().height, app.PDF, pdfname);
         pdf.beginDraw();
         pdf.background(255, 255, 255);
-        for(int i = lineCount; i > 0; i--) {
+        for(int i = getDisplayedLineCount(); i > 0; i--) {
             PlottedLine line = plottedLines.get(i);
             if(line.pen_down) {
-                int c = app.copic.get_original_color(CopicPenHelper.copic_sets[app.current_copic_set][line.pen_number]);
-                pdf.stroke(c, 255);
+                int rgb = drawingPenSet.getPens().get(line.pen_number).getRGBColour();
+                pdf.stroke(rgb, 255);
                 pdf.line(line.x1, line.y1, line.x2, line.y2);
             }
         }
@@ -61,17 +95,17 @@ public class PlottedDrawing {
         println("PDF created:  " + pdfname);
     }
 
-    public void renderEachPenToPdf(int line_count) {
-        for (int p=0; p<=app.pen_count-1; p++) {
-            String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + "_pen" + p + "_" + CopicPenHelper.copic_sets[app.current_copic_set][p] + ".pdf";
+    public void renderEachPenToPdf() {
+        for (int p = 0; p < getPenCount(); p ++) {
+            IDrawingPen pen = drawingPenSet.getPens().get(p);
+            String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + "_pen" + p + "_" + pen.getName() + ".pdf";
             PGraphics pdf = app.createGraphics(task.getPlottingImage().width, task.getPlottingImage().height, PDF, pdfname);
             pdf.beginDraw();
             pdf.background(255, 255, 255);
-            for (int i = line_count; i >= 0; i--) {
+            for (int i = getDisplayedLineCount(); i >= 0; i--) {
                 PlottedLine line = plottedLines.get(i);
                 if (line.pen_down & line.pen_number == p) {
-                    int c = app.copic.get_original_color(CopicPenHelper.copic_sets[app.current_copic_set][line.pen_number]);
-                    pdf.stroke(c, 255);
+                    pdf.stroke(pen.getRGBColour(), 255);
                     pdf.line(line.x1, line.y1, line.x2, line.y2);
                 }
             }
@@ -96,31 +130,82 @@ public class PlottedDrawing {
         plottedLines.add(new PlottedLine(penDown, penNumber, x1, y1, x2, y2));
     }
 
-    public void evenly_distribute_pen_changes (int line_count, int total_pens) {
+    public void evenlyDistributePenChanges() {
         println("evenly_distribute_pen_changes");
-        for (int i=0; i < line_count; i++) {
+        for (int i = 0; i < getPlottedLineCount(); i++) {
             PlottedLine line = plottedLines.get(i);
-            line.pen_number = (int)map(i - 1, 0, line_count, 1, total_pens);
+            line.pen_number = (int)map(i, 0, getPlottedLineCount(), 0, drawingPenSet.getPens().size());
         }
     }
 
-    public void distribute_pen_changes_according_to_percentages (int line_count, int total_pens) {
+    public void distributePenChangesAccordingToPercentages() {
         int p = 0;
         float p_total = 0;
 
-        for (int i = 0; i < line_count; i ++) {
+        for (int i = 0; i < getPlottedLineCount(); i ++) {
             PlottedLine line = plottedLines.get(i);
-            if (i > task.pen_distribution[p] + p_total) {
-                p_total = p_total + task.pen_distribution[p];
+            if (i > pen_distribution[p] + p_total) {
+                p_total = p_total + pen_distribution[p];
                 p++;
-            }
-            if (p > total_pens - 1) {
-                // Hacky fix for off by one error FIXME
-                println("ERROR: distribute_pen_changes_according_to_percentages, p:  ", p);
-                p = total_pens - 1;
             }
             line.pen_number = p;
         }
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void adjustDistribution(int pen, double value){
+        if(getPenCount() > pen){
+            pen_distribution[pen] *= value;
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public void setEvenDistribution() {
+        println("set_even_distribution");
+        for (int p = 0; p < getPenCount(); p++) {
+            pen_distribution[p] = getDisplayedLineCount() / getPenCount();
+            //println("pen_distribution[" + p + "] = " + pen_distribution[p]);
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void setBlackDistribution() {
+        println("set_black_distribution");
+        for (int p = 0; p < getPenCount(); p++) {
+            pen_distribution[p] = 0;
+        }
+        pen_distribution[0] = getDisplayedLineCount();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void normalizeDistribution() {
+        float total = 0;
+
+        println();
+
+        for (int p = 0; p < getPenCount(); p++) {
+            total = total + pen_distribution[p];
+        }
+
+        for (int p = 0; p < getPenCount() ; p++) {
+            pen_distribution[p] = getDisplayedLineCount() * pen_distribution[p] / total;
+            print("Pen " + p + ", ");
+            System.out.printf("%-4s", getPen(p).getName());
+            System.out.printf("%8.0f  ", pen_distribution[p]);
+
+            // Display approximately one star for every percent of total
+            for (int s = 0; s < (int)(pen_distribution[p]/total*100); s++) {
+                print("*");
+            }
+            println();
+        }
+    }
+
 
 }

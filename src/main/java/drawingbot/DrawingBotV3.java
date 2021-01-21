@@ -14,6 +14,9 @@ package drawingbot;/////////////////////////////////////////////////////////////
 import java.io.IOException;
 import java.util.Map;
 
+import drawingbot.drawing.DrawingRegistry;
+import drawingbot.drawing.DrawingSet;
+import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.helpers.*;
 import drawingbot.javafx.FXController;
 import drawingbot.pfm.PFMLoaders;
@@ -47,11 +50,12 @@ public class DrawingBotV3 extends PApplet {
     public static final float image_size_y = 36 * INCHES_TO_MILLIMETRES; //mm, final image height
     public static final float paper_top_to_origin = 285; //mm, make smaller to move drawing down on paper
     public static final float pen_width = 0.5F; //mm, determines image_scale, reduce, if solid black areas are speckled with white holes.
-    public static final int pen_count = 6;
+    //public static final int pen_count = 6;
     public static final char gcode_decimal_seperator = '.';
     public static final int gcode_decimals = 2;             // Number of digits right of the decimal point in the drawingbot.gcode files.
     public static final int svg_decimals = 2;               // Number of digits right of the decimal point in the SVG file.
     public static final float grid_scale = 25.4F;           // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
+
 
     // THREADS \\
     public PlottingThread plottingThread;
@@ -64,8 +68,7 @@ public class DrawingBotV3 extends PApplet {
     public PFMLoaders pfmLoader = PFMLoaders.ORIGINAL;
 
     // PEN SETS \\
-    public int pen_selected = 0;
-    public int current_copic_set = 0;
+    public ObservableDrawingSet observableDrawingSet;
 
     // DISPLAY \\
     public EnumDisplayMode display_mode = EnumDisplayMode.DRAWING;
@@ -84,7 +87,6 @@ public class DrawingBotV3 extends PApplet {
     public String basefile_selected = ""; //TODO CHANGE ME
 
     // DRAWING \\\
-    public CopicPenHelper copic;
 
     public DrawingBotV3() {
         INSTANCE = this;
@@ -96,23 +98,6 @@ public class DrawingBotV3 extends PApplet {
         size(400, 400, FX2D);
     }
 
-    @Override
-    public void setup() {
-        frame.setLocation(200, 200);
-        surface.setResizable(true);
-        surface.setTitle(appName + ", Version: " + appVersion);
-
-        plottingThread = new PlottingThread();
-        plottingThread.start();
-
-
-        colorMode(RGB);
-        frameRate(1000);
-        //randomSeed(millis());
-        randomSeed(3);
-        copic = new CopicPenHelper();
-
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -142,6 +127,26 @@ public class DrawingBotV3 extends PApplet {
             e.printStackTrace();
         }
         return surface;
+    }
+
+    @Override
+    public void setup() {
+        frame.setLocation(200, 200);
+        surface.setResizable(true);
+        surface.setTitle(appName + ", Version: " + appVersion);
+
+        plottingThread = new PlottingThread();
+        plottingThread.start();
+
+        DrawingSet defaultSet = DrawingRegistry.INSTANCE.getDefaultSet().copy();
+        observableDrawingSet = new ObservableDrawingSet(defaultSet);
+        controller.penTableView.setItems(DrawingBotV3.INSTANCE.observableDrawingSet.pens);
+
+        colorMode(RGB);
+        frameRate(1000);
+        //randomSeed(millis());
+        randomSeed(3);
+
     }
 
     public void updateUI(){
@@ -295,7 +300,14 @@ public class DrawingBotV3 extends PApplet {
                         break;
                     case PEN:
                         if(shouldRedraw){
-                            // TODO RENDER CACHED IMAGE
+                            background(255, 255, 255);
+                            renderedLines = 1;
+                        }
+                        if(renderedTask.plottedDrawing.getPlottedLineCount() != 0 && renderedLines < renderedTask.plottedDrawing.getPlottedLineCount()){
+                            int pen = controller.penTableView.getSelectionModel().getSelectedIndex();
+                            int next = Math.min(renderedLines + 10000, renderedTask.plottedDrawing.getPlottedLineCount());
+                            renderedTask.plottedDrawing.renderLinesForPen(renderedLines, next, Math.max(pen, 0));
+                            renderedLines = next;
                         }
                         break;
                 }
@@ -339,33 +351,33 @@ public class DrawingBotV3 extends PApplet {
         if (key == ']') { renderedTask.screen_scale *= 1.05; }
         if (key == '[') { renderedTask.screen_scale *= 1 / 1.05; }
 
-        if (key == '1') { DrawingTools.adjustDistribution(getCompletedTask(), 0, 1.1); }
-        if (key == '2') { DrawingTools.adjustDistribution(getCompletedTask(),1, 1.1); }
-        if (key == '3') { DrawingTools.adjustDistribution(getCompletedTask(),2, 1.1); }
-        if (key == '4') { DrawingTools.adjustDistribution(getCompletedTask(),3, 1.1); }
-        if (key == '5') { DrawingTools.adjustDistribution(getCompletedTask(),4, 1.1); }
-        if (key == '6') { DrawingTools.adjustDistribution(getCompletedTask(),5, 1.1); }
-        if (key == '7') { DrawingTools.adjustDistribution(getCompletedTask(),6, 1.1); }
-        if (key == '8') { DrawingTools.adjustDistribution(getCompletedTask(),7, 1.1); }
-        if (key == '9') { DrawingTools.adjustDistribution(getCompletedTask(),8, 1.1); }
-        if (key == '0') { DrawingTools.adjustDistribution(getCompletedTask(),9, 1.1); }
+        if (key == '1') { getCompletedTask().plottedDrawing.adjustDistribution(0, 1.1); }
+        if (key == '2') { getCompletedTask().plottedDrawing.adjustDistribution(1, 1.1); }
+        if (key == '3') { getCompletedTask().plottedDrawing.adjustDistribution(2, 1.1); }
+        if (key == '4') { getCompletedTask().plottedDrawing.adjustDistribution(3, 1.1); }
+        if (key == '5') { getCompletedTask().plottedDrawing.adjustDistribution(4, 1.1); }
+        if (key == '6') { getCompletedTask().plottedDrawing.adjustDistribution(5, 1.1); }
+        if (key == '7') { getCompletedTask().plottedDrawing.adjustDistribution(6, 1.1); }
+        if (key == '8') { getCompletedTask().plottedDrawing.adjustDistribution(7, 1.1); }
+        if (key == '9') { getCompletedTask().plottedDrawing.adjustDistribution(8, 1.1); }
+        if (key == '0') { getCompletedTask().plottedDrawing.adjustDistribution(9, 1.1); }
 
-        if (key == '!') { DrawingTools.adjustDistribution(getCompletedTask(),0, 0.9); }
-        if (key == '@') { DrawingTools.adjustDistribution(getCompletedTask(),1, 0.9); }
-        if (key == '#') { DrawingTools.adjustDistribution(getCompletedTask(),2, 0.9); }
-        if (key == '$') { DrawingTools.adjustDistribution(getCompletedTask(),3, 0.9); }
-        if (key == '%') { DrawingTools.adjustDistribution(getCompletedTask(),4, 0.9); }
-        if (key == '^') { DrawingTools.adjustDistribution(getCompletedTask(),5, 0.9); }
-        if (key == '&') { DrawingTools.adjustDistribution(getCompletedTask(),6, 0.9); }
-        if (key == '*') { DrawingTools.adjustDistribution(getCompletedTask(),7, 0.9); }
-        if (key == '(') { DrawingTools.adjustDistribution(getCompletedTask(),8, 0.9); }
-        if (key == ')') { DrawingTools.adjustDistribution(getCompletedTask(),9, 0.9); }
+        if (key == '!') { getCompletedTask().plottedDrawing.adjustDistribution(0, 0.9); }
+        if (key == '@') { getCompletedTask().plottedDrawing.adjustDistribution(1, 0.9); }
+        if (key == '#') { getCompletedTask().plottedDrawing.adjustDistribution(2, 0.9); }
+        if (key == '$') { getCompletedTask().plottedDrawing.adjustDistribution(3, 0.9); }
+        if (key == '%') { getCompletedTask().plottedDrawing.adjustDistribution(4, 0.9); }
+        if (key == '^') { getCompletedTask().plottedDrawing.adjustDistribution(5, 0.9); }
+        if (key == '&') { getCompletedTask().plottedDrawing.adjustDistribution(6, 0.9); }
+        if (key == '*') { getCompletedTask().plottedDrawing.adjustDistribution(7, 0.9); }
+        if (key == '(') { getCompletedTask().plottedDrawing.adjustDistribution(8, 0.9); }
+        if (key == ')') { getCompletedTask().plottedDrawing.adjustDistribution(9, 0.9); }
 
-        if (key == 't') { DrawingTools.set_even_distribution(getCompletedTask()); }
-        if (key == 'y') { DrawingTools.set_black_distribution(getCompletedTask()); }
+        if (key == 't') { getCompletedTask().plottedDrawing.setEvenDistribution(); }
+        if (key == 'y') { getCompletedTask().plottedDrawing.setBlackDistribution(); }
         if (key == 'x') { ScalingHelper.mouse_point(); }
-        if (key == '}' && current_copic_set < CopicPenHelper.copic_sets.length -1) { current_copic_set++; }
-        if (key == '{' && current_copic_set >= 1)                   { current_copic_set--; }
+       // if (key == '}' && current_copic_set < CopicPenPlugin.copic_sets.length -1) { current_copic_set++; }//FIXME
+       // if (key == '{' && current_copic_set >= 1)                   { current_copic_set--; }//FIXME
 
         //if (key == 's') { if (state == 3) { state++; } }//FIXME - STOP!
 
@@ -373,31 +385,32 @@ public class DrawingBotV3 extends PApplet {
             println("Holly freak, Ctrl-A was pressed!");
         }
         if (key == '9') {
-            DrawingTools.adjustDistribution(getCompletedTask(),0, 1.00);
-            DrawingTools.adjustDistribution(getCompletedTask(),1, 1.05);
-            DrawingTools.adjustDistribution(getCompletedTask(),2, 1.10);
-            DrawingTools.adjustDistribution(getCompletedTask(),3, 1.15);
-            DrawingTools.adjustDistribution(getCompletedTask(),4, 1.20);
-            DrawingTools.adjustDistribution(getCompletedTask(),5, 1.25);
-            DrawingTools.adjustDistribution(getCompletedTask(),6, 1.30);
-            DrawingTools.adjustDistribution(getCompletedTask(),7, 1.35);
-            DrawingTools.adjustDistribution(getCompletedTask(),8, 1.40);
-            DrawingTools.adjustDistribution(getCompletedTask(),9, 1.45);
+            getCompletedTask().plottedDrawing.adjustDistribution(0, 1.00);
+            getCompletedTask().plottedDrawing.adjustDistribution(1, 1.05);
+            getCompletedTask().plottedDrawing.adjustDistribution(2, 1.10);
+            getCompletedTask().plottedDrawing.adjustDistribution(3, 1.15);
+            getCompletedTask().plottedDrawing.adjustDistribution(4, 1.20);
+            getCompletedTask().plottedDrawing.adjustDistribution(5, 1.25);
+            getCompletedTask().plottedDrawing.adjustDistribution(6, 1.30);
+            getCompletedTask().plottedDrawing.adjustDistribution(7, 1.35);
+            getCompletedTask().plottedDrawing.adjustDistribution(8, 1.40);
+            getCompletedTask().plottedDrawing.adjustDistribution(9, 1.45);
         }
         if (key == '0') {
-            DrawingTools.adjustDistribution(getCompletedTask(),0, 1.00);
-            DrawingTools.adjustDistribution(getCompletedTask(),1, 0.95);
-            DrawingTools.adjustDistribution(getCompletedTask(),2, 0.90);
-            DrawingTools.adjustDistribution(getCompletedTask(),3, 0.85);
-            DrawingTools.adjustDistribution(getCompletedTask(),4, 0.80);
-            DrawingTools.adjustDistribution(getCompletedTask(),5, 0.75);
-            DrawingTools.adjustDistribution(getCompletedTask(),6, 0.70);
-            DrawingTools.adjustDistribution(getCompletedTask(),7, 0.65);
-            DrawingTools.adjustDistribution(getCompletedTask(),8, 0.60);
-            DrawingTools.adjustDistribution(getCompletedTask(),9, 0.55);
+            getCompletedTask().plottedDrawing.adjustDistribution(0, 1.00);
+            getCompletedTask().plottedDrawing.adjustDistribution(1, 0.95);
+            getCompletedTask().plottedDrawing.adjustDistribution(2, 0.90);
+            getCompletedTask().plottedDrawing.adjustDistribution(3, 0.85);
+            getCompletedTask().plottedDrawing.adjustDistribution(4, 0.80);
+            getCompletedTask().plottedDrawing.adjustDistribution(5, 0.75);
+            getCompletedTask().plottedDrawing.adjustDistribution(6, 0.70);
+            getCompletedTask().plottedDrawing.adjustDistribution(7, 0.65);
+            getCompletedTask().plottedDrawing.adjustDistribution(8, 0.60);
+            getCompletedTask().plottedDrawing.adjustDistribution(9, 0.55);
         }
 
         if (key == '\\') { renderedTask.screen_scale = renderedTask.screen_scale_org; renderedTask.screen_rotate=0; mx=0; my=0; }
+        /*
         if (key == '<') {
             int delta = -10000;
             getCompletedTask().display_line_count = getCompletedTask().display_line_count + delta;
@@ -410,6 +423,8 @@ public class DrawingBotV3 extends PApplet {
             getCompletedTask().display_line_count = constrain(getCompletedTask().display_line_count, 0, getCompletedTask().plottedDrawing.getPlottedLineCount());
             println("display_line_count: " + getCompletedTask().display_line_count);
         }
+
+         */
         if (key == CODED) {
             int delta = 15;
             if (keyCode == UP)    { my+= delta; };
@@ -419,8 +434,8 @@ public class DrawingBotV3 extends PApplet {
         }
 
         //TODO MAKE POST PRECESSING TASKS FOR PLOTTING THREAD
-        DrawingTools.normalize_distribution(getCompletedTask());
-        getCompletedTask().plottedDrawing.distribute_pen_changes_according_to_percentages(getCompletedTask().display_line_count, pen_count);
+        getCompletedTask().plottedDrawing.normalizeDistribution();
+        getCompletedTask().plottedDrawing.distributePenChangesAccordingToPercentages();
         //surface.setSize(img.width, img.height);
         reRender();
     }
@@ -447,11 +462,11 @@ public class DrawingBotV3 extends PApplet {
 
 
     public void action_save(){
-        GCodeHelper.createGcodeFiles(getCompletedTask(), getCompletedTask().display_line_count);
+        GCodeHelper.createGcodeFiles(getCompletedTask());
         GCodeHelper.create_gcode_test_file(getCompletedTask());
-        GCodeHelper.create_svg_file(getCompletedTask(), getCompletedTask().display_line_count);
-        getCompletedTask().plottedDrawing.renderToPDF(getCompletedTask().display_line_count);
-        getCompletedTask().plottedDrawing.renderEachPenToPdf(getCompletedTask().display_line_count);
+        GCodeHelper.create_svg_file(getCompletedTask());
+        getCompletedTask().plottedDrawing.renderToPDF();
+        getCompletedTask().plottedDrawing.renderEachPenToPdf();
     }
 
     public void action_rotate(){
