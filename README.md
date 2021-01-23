@@ -1,10 +1,11 @@
 # DRAWBOT V3 W.I.P
-It is written in JAVA using Processing as a dependency.
 
 ## Planned Features
-- User Interface
-- Pen plugins (customisable colours)
+- Advanced User Interface
+- Pen settings (customisable colours)
+- Batch Processing
 - Support for multiple images / videos / image sequences
+- Support for image export
 - More Path Finding Modules
 - Support for generating gcode for more plotting machine styles / 3D printers
 - Precompiled binaries
