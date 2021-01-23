@@ -11,17 +11,23 @@ package drawingbot;/////////////////////////////////////////////////////////////
 // drawingbot.helpers.GClip:          https://forum.processing.org/two/discussion/6179/why-does-not-it-run-clipboard
 // Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
 
 import drawingbot.drawing.DrawingRegistry;
 import drawingbot.drawing.DrawingSet;
+import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.files.ExportFormats;
+import drawingbot.files.ExportTask;
 import drawingbot.helpers.*;
 import drawingbot.javafx.FXController;
 import drawingbot.pfm.PFMLoaders;
+import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
@@ -34,9 +40,11 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import processing.core.PApplet;
 import processing.core.PSurface;
+import processing.javafx.PGraphicsFX2D;
 
 //TODO FIX BUG WITH PFMOriginal moving when it is redrawn.
 public class DrawingBotV3 extends PApplet {
@@ -70,6 +78,7 @@ public class DrawingBotV3 extends PApplet {
         return t ;
     });
     private PlottingTask activeTask = null;
+    private ExportTask exportTask = null;
 
     // GUI \\
     public FXController controller;
@@ -188,6 +197,9 @@ public class DrawingBotV3 extends PApplet {
             controller.progressBarLabel.setText(getActiveTask().titleProperty().get() + ": " + getActiveTask().messageProperty().get());
             controller.labelPlottedLines.setText(NumberFormat.getNumberInstance().format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
+        }else if(exportTask != null && exportTask.isRunning()){
+            controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
+            controller.progressBarLabel.setText(exportTask.titleProperty().get() + ": " + exportTask.messageProperty().get());
         }else{
             if(localProgress != null){
                 controller.progressBarGeneral.setProgress(localProgress);
@@ -288,7 +300,7 @@ public class DrawingBotV3 extends PApplet {
             case PATH_FINDING:
                 if(changedTask || changedState){//MUST NOT ALLOW MOUSE MOVEMENT TO AFFECT TODO ?
                     background(255, 255, 255);
-                    renderedLines = 1;
+                    renderedLines = 0;
                 }
                 if(renderedTask.plottedDrawing.getPlottedLineCount() != 0){
                     renderedTask.plottedDrawing.renderLines(renderedLines, renderedTask.plottedDrawing.getPlottedLineCount());
@@ -309,17 +321,19 @@ public class DrawingBotV3 extends PApplet {
                     case DRAWING:
                         if(shouldRedraw){
                             background(255, 255, 255);
-                            renderedLines = 1;
+                            renderedLines = 0;
                             updateLocalMessage("Drawing");
                             updateLocalProgress(0);
                             drawingTime = System.currentTimeMillis();
                         }
+
                         if(renderedTask.plottedDrawing.getDisplayedLineCount() != 0 && renderedLines < renderedTask.plottedDrawing.getDisplayedLineCount()){
                             int next = Math.min(renderedLines + 1000, renderedTask.plottedDrawing.getDisplayedLineCount());
                             renderedTask.plottedDrawing.renderLines(renderedLines, next);
                             renderedLines = next;
                             System.out.println(next);
                             updateLocalProgress((double)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
+
                         }
                         if(renderedTask.plottedDrawing.getDisplayedLineCount()-1 == renderedLines){
                             long time = System.currentTimeMillis();
@@ -351,7 +365,7 @@ public class DrawingBotV3 extends PApplet {
                     case SELECTED_PEN:
                         if(shouldRedraw){
                             background(255, 255, 255);
-                            renderedLines = 1;
+                            renderedLines = 0;
                             updateLocalMessage("Drawing");
                         }
                         if(renderedTask.plottedDrawing.getDisplayedLineCount() != 0 && renderedLines < renderedTask.plottedDrawing.getDisplayedLineCount()){
@@ -528,12 +542,20 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // TASKS
 
-    public void createImagePlottingTask(String url){
+    public void createPlottingTask(String url){
         executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader, DrawingBotV3.INSTANCE.observableDrawingSet, url));
     }
 
     public void setActivePlottingTask(PlottingTask task){
         activeTask = task;
+    }
+
+    public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, FileChooser.ExtensionFilter extension, File saveLocation, boolean seperatePens){
+        executorService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens));
+    }
+
+    public void setActiveExportTask(ExportTask task){
+        exportTask = task;
     }
 
     public PlottingTask getCompletedTask(){
@@ -574,6 +596,10 @@ public class DrawingBotV3 extends PApplet {
         reRender();
 
          */
+    }
+
+    public PGraphicsFX2D getPGraphicsFX2D(){
+        return (PGraphicsFX2D) getGraphics();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
