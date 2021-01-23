@@ -7,6 +7,7 @@ import drawingbot.pfm.IPFM;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Limit;
+import javafx.concurrent.Task;
 import processing.core.PConstants;
 import processing.core.PImage;
 
@@ -15,7 +16,7 @@ import java.io.PrintWriter;
 import static processing.core.PApplet.*;
 
 //TODO BATCH PROCESSING TODO REORGANISE VARIABLES
-public class PlottingTask {
+public class PlottingTask extends Task<PlottingTask> {
 
     public EnumTaskStage stage = EnumTaskStage.QUEUED;
 
@@ -53,6 +54,7 @@ public class PlottingTask {
     public boolean finishedRenderingPaths = false;
 
     public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, String imageURL){
+        updateTitle("Processing Image");
         this.loader = loader;
         this.plottedDrawing = new PlottedDrawing(this, drawingPenSet);
         this.imageURL = imageURL;
@@ -67,17 +69,17 @@ public class PlottingTask {
                 finishStage();
                 break;
             case LOADING_IMAGE:
-                PlottingThread.setThreadStatus("Loading Image: " + imageURL);
+                updateMessage("Loading Image: " + imageURL);
                 PImage loadedImg = app.loadImage(imageURL);
 
                 if(loadedImg == null){
-                    PlottingThread.setThreadStatus("Invalid Image: " + imageURL);
+                    updateMessage("Invalid Image: " + imageURL);
                     return false; //SET THREAD ERROR?? TODO
                 }
 
                 pfm = loader.createNewPFM(this);
 
-                PlottingThread.setThreadStatus("Rotating Image");
+                updateMessage("Rotating Image");
                 img_plotting = loadedImg;//ImageTools.image_rotate(loadedImg);
 
                 img_original = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
@@ -86,7 +88,7 @@ public class PlottingTask {
                 finishStage();
                 break;
             case PRE_PROCESSING:
-                PlottingThread.setThreadStatus("Pre-Processing Image");
+                updateMessage("Pre-Processing Image");
                 pfm.pre_processing(); //adjust the dimensions / crop of img_plotting
 
                 img_plotting.loadPixels();
@@ -129,8 +131,8 @@ public class PlottingTask {
                 }
 
                 pfm.find_path();
-                PlottingThread.setThreadProgress(pfm.progress());
-                PlottingThread.setThreadStatus("Plotting Image: " + loader.getName());
+                updateProgress(pfm.progress(), 1.0);
+                updateMessage("Plotting Image: " + loader.getName());
                 break;
             case POST_PROCESSING:
                 pfm.post_processing();
@@ -150,7 +152,7 @@ public class PlottingTask {
             case LOGGING:
                 finishTime = (System.currentTimeMillis() - startTime);
                 //controller.progressBarLabel.setText("Draw: " + lastDrawTick + " milliseconds");
-                PlottingThread.setThreadStatus("Finished: " + finishTime/1000 + " s");
+                updateMessage("Finished: " + finishTime/1000 + " s");
                 finishStage();
                 break;
             case FINISHED:
@@ -209,4 +211,14 @@ public class PlottingTask {
         return getOriginalImage().height;
     }
 
+    @Override
+    protected PlottingTask call() throws Exception {
+        DrawingBotV3.INSTANCE.setActivePlottingTask(this);
+        while(!isTaskFinished() && !isCancelled()){
+            if(!doTask()){
+                cancel();
+            }
+        }
+        return this;
+    }
 }

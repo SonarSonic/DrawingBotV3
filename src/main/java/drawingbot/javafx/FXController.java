@@ -7,7 +7,6 @@ import drawingbot.files.FileUtils;
 import drawingbot.helpers.ImageTools;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.plotting.PlottingThread;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Units;
@@ -194,7 +193,7 @@ public class FXController {
 
         sliderDisplayedLines.setMax(1);
         sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getSelectedTask();
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
                 task.plottedDrawing.displayedLineCount.setValue(lines);
@@ -206,7 +205,7 @@ public class FXController {
         });
 
         textFieldDisplayedLines.setOnAction(e -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getSelectedTask();
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
                 int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
                 task.plottedDrawing.displayedLineCount.setValue(lines);
@@ -311,7 +310,7 @@ public class FXController {
         String url = getClipboardString();
         if (url != null && match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
             println("Image URL found on clipboard: " + url);
-            PlottingThread.createImagePlottingTask(url);
+            DrawingBotV3.INSTANCE.createImagePlottingTask(url);
         }
     }
 
@@ -323,14 +322,14 @@ public class FXController {
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showOpenDialog(null);
             if(file != null){
-                PlottingThread.createImagePlottingTask(file.getAbsolutePath());
+                DrawingBotV3.INSTANCE.createImagePlottingTask(file.getAbsolutePath());
             }
         });
     }
 
     //TODO FINISH PDF EXPORTING
     public void exportFile(ExportFormats format){
-        if(DrawingBotV3.INSTANCE.getSelectedTask() == null){
+        if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
         }
         Platform.runLater(() -> {
@@ -340,7 +339,7 @@ public class FXController {
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showSaveDialog(null);
             if(file != null){
-                format.exportOnWorkerThread(DrawingBotV3.INSTANCE.getSelectedTask(), file);
+                format.exportOnWorkerThread(DrawingBotV3.INSTANCE.getActiveTask(), file);
             }
         });
     }
