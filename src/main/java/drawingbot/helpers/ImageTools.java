@@ -1,7 +1,8 @@
 package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.tasks.PlottingTask;
+import drawingbot.files.GCodeExporter;
+import drawingbot.plotting.PlottingTask;
 import javafx.scene.paint.Color;
 import processing.core.PConstants;
 import processing.core.PImage;
@@ -13,65 +14,48 @@ public class ImageTools {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageThreshold(PlottingTask task) {
-        GCodeHelper.gcodeComment(task, "image_threshold");
+        GCodeExporter.gcodeComment(task, "image_threshold");
         task.getPlottingImage().filter(PConstants.THRESHOLD); //THRESHOLD
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageDesaturate(PlottingTask task) {
-        GCodeHelper.gcodeComment(task,"image_desaturate");
+        GCodeExporter.gcodeComment(task,"image_desaturate");
         task.getPlottingImage().filter(PConstants.GRAY); //GRAY
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageInvert(PlottingTask task) {
-        GCodeHelper.gcodeComment(task,"image_invert");
+        GCodeExporter.gcodeComment(task,"image_invert");
         task.getPlottingImage().filter(PConstants.INVERT); //INVERT
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imagePosterize(PlottingTask task, int amount) {
-        GCodeHelper.gcodeComment(task,"image_posterize");
+        GCodeExporter.gcodeComment(task,"image_posterize");
         task.getPlottingImage().filter(PConstants.POSTERIZE, amount); //POSTERIZE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageBlur(PlottingTask task, int amount) {
-        GCodeHelper.gcodeComment(task,"image_blur");
+        GCodeExporter.gcodeComment(task,"image_blur");
         task.getPlottingImage().filter(PConstants.BLUR, amount); //BLUR
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageErode(PlottingTask task) {
-        GCodeHelper.gcodeComment(task,"image_erode");
+        GCodeExporter.gcodeComment(task,"image_erode");
         task.getPlottingImage().filter(PConstants.ERODE); //ERODE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageDilate(PlottingTask task) {
-        GCodeHelper.gcodeComment(task,"image_dilate");
+        GCodeExporter.gcodeComment(task,"image_dilate");
         task.getPlottingImage().filter(PConstants.DILATE); //DILATE
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static void saveJpg(PlottingTask task) {
-        // Currently disabled. //TODO FIXME
-        // Must not be called from event handling functions such as keyPressed()
-        PImage img_drawing;
-        PImage  img_drawing2;
 
-        //app.img.getPlottingImage()_drawing = createImage(app.img.getPlottingImage().width, app.img.getPlottingImage().height, RGB);
-        //app.img.getPlottingImage()_drawing.copy(0, 0, app.img.getPlottingImage().width, app.img.getPlottingImage().height, 0, 0, app.img.getPlottingImage().width, app.img.getPlottingImage().height);
-        //app.img.getPlottingImage()_drawing.save("what the duce.jpg");
-
-        // Save resuling image
-        app.save("tmptif.tif");
-        img_drawing = app.loadImage("tmptif.tif");
-        img_drawing2 = app.createImage(task.getPlottingImage().width, task.getPlottingImage().height, PConstants.RGB);
-        img_drawing2.copy(img_drawing, 0, 0, task.getPlottingImage().width, task.getPlottingImage().height, 0, 0, task.getPlottingImage().width, task.getPlottingImage().height);
-        img_drawing2.save("drawingbot.gcode\\gcode_" + app.basefile_selected + ".jpg");
-
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static PImage imageRotate(PImage img) {
@@ -108,9 +92,9 @@ public class ImageTools {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void imageScale(PlottingTask task, int new_width) {
         if (task.getPlottingImage().width != new_width) {
-            GCodeHelper.gcodeComment(task, "image_scale, old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+            GCodeExporter.gcodeComment(task, "image_scale, old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
             task.getPlottingImage().resize(new_width, 0);
-            GCodeHelper.gcodeComment(task, "image_scale, new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+            GCodeExporter.gcodeComment(task, "image_scale, new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
         }
     }
 
@@ -129,29 +113,36 @@ public class ImageTools {
     public static void imageCrop(PlottingTask task) {
         // This will center crop to the desired image size image_size_x and image_size_y
 
-        PImage img2;
-        float desired_ratio = app.image_size_x / app.image_size_y;
+        float desired_ratio = app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM();
         float current_ratio = (float)task.getPlottingImage().width / (float)task.getPlottingImage().height;
 
-        GCodeHelper.gcodeComment(task,"image_crop desired ratio of " + desired_ratio);
-        GCodeHelper.gcodeComment(task, "image_crop old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + current_ratio);
+        if(desired_ratio == current_ratio){
+            GCodeExporter.gcodeComment(task,"image_crop image matches drawing area ratio " + desired_ratio);
+            return;
+        }
 
+        GCodeExporter.gcodeComment(task,"image_crop desired ratio of " + desired_ratio);
+        GCodeExporter.gcodeComment(task, "image_crop old size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + current_ratio);
+
+        PImage img2;
         if (current_ratio < desired_ratio) {
             int desired_x = task.getPlottingImage().width;
             int desired_y = (int)(task.getPlottingImage().width / desired_ratio);
+
             int half_y = (task.getPlottingImage().height - desired_y) / 2;
             img2 = app.createImage(desired_x, desired_y, 1);
             img2.copy(task.getPlottingImage(), 0, half_y, desired_x, desired_y, 0, 0, desired_x, desired_y);
         } else {
             int desired_x = (int)(task.getPlottingImage().height * desired_ratio);
             int desired_y = task.getPlottingImage().height;
+
             int half_x = (task.getPlottingImage().width - desired_x) / 2;
             img2 = app.createImage(desired_x, desired_y, 1);
             img2.copy(task.getPlottingImage(), half_x, 0, desired_x, desired_y, 0, 0, desired_x, desired_y);
         }
 
         task.img_plotting = img2;
-        GCodeHelper.gcodeComment(task, "image_crop new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
+        GCodeExporter.gcodeComment(task, "image_crop new size: " + task.getPlottingImage().width + " by " + task.getPlottingImage().height + "     ratio: " + (float)task.getPlottingImage().width / (float)task.getPlottingImage().height);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +169,7 @@ public class ImageTools {
 
         //boarder.copy(temp_boarder, 0, 0, temp_boarder.width, temp_boarder.height, 0, 0, boarder.width, boarder.height);
         task.getPlottingImage().blend(temp_boarder, shrink, shrink, task.getPlottingImage().width, task.getPlottingImage().height,  0, 0, task.getPlottingImage().width, task.getPlottingImage().height, PConstants.ADD);
-        GCodeHelper.gcodeComment(task, "image_boarder: " + fname + "   " + shrink + "   " + blur);
+        GCodeExporter.gcodeComment(task, "image_boarder: " + fname + "   " + shrink + "   " + blur);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +194,7 @@ public class ImageTools {
         matrix = normalizeMatrix(matrix);
 
         imageConvolution(img, matrix, 1.0F, 0.0F);
-        GCodeHelper.gcodeComment(task,"image_unsharpen: " + amount);
+        GCodeExporter.gcodeComment(task,"image_unsharpen: " + amount);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

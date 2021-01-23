@@ -1,6 +1,6 @@
 package drawingbot.pfm;
 
-import drawingbot.tasks.PlottingTask;
+import drawingbot.plotting.PlottingTask;
 
 import java.util.function.Function;
 

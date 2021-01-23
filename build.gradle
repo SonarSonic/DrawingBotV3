@@ -14,6 +14,9 @@ plugins {
 repositories {
     // Use JCenter for resolving dependencies.
     jcenter()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -21,7 +24,9 @@ dependencies {
     testImplementation 'junit:junit:4.13'
 
     // This dependency is used by the application.
-    compile 'org.processing:core:3.3.7'
+    implementation 'org.processing:core:3.3.7'
+    implementation 'org.processing:pdf:3.3.7'
+    implementation name: 'itext' //why does processing use such an old version?
 
 }
 

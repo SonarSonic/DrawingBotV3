@@ -5,7 +5,7 @@ public enum EnumDisplayMode {
     ORIGINAL,
     REFERENCE,
     LIGHTENED,
-    PEN;
+    SELECTED_PEN;
 
     @Override
     public String toString() {

@@ -1,4 +1,4 @@
-package drawingbot.tasks;
+package drawingbot.plotting;
 
 
 import drawingbot.DrawingBotV3;
