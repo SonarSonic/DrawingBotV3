@@ -5,9 +5,8 @@ package drawingbot.pfm;/////////////////////////////////////////////////////////
 //    Transparencys currently do not work as a mask colour
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import drawingbot.tasks.PlottingTask;
+import drawingbot.plotting.PlottingTask;
 import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.GCodeHelper;
 
 import static processing.core.PApplet.*;
 
@@ -59,10 +58,10 @@ public class PFMSpiral extends PFM {
 
         // Calculates the first point.  Currently just the center.
         // TODO: Allow for ajustable center
-        GCodeHelper.penUp(task);
+        task.penUp();
         x =  radius*cos(radians(alpha))+task.getPlottingImage().width/2F;
         y = -radius*sin(radians(alpha))+task.getPlottingImage().height/2F;
-        GCodeHelper.moveAbs(task, 0, x, y);
+        task.moveAbs(0, x, y);
         xa = 0;
         xb = 0;
         ya = 0;
@@ -100,21 +99,21 @@ public class PFMSpiral extends PFM {
 
                 // If the sampled color is the mask color do not write to the shape
                 if (app.brightness(mask) <= app.brightness(c)) {
-                    GCodeHelper.penUp(task);
+                    task.penUp();
                 } else {
-                    GCodeHelper.penDown(task);
+                    task.penDown();
                 }
             } else {
                 // We are outside of the image
-                GCodeHelper.penUp(task);
+                task.penUp();
             }
 
             int pen_number = (int)(map(app.brightness(c), 0, 255, 0, task.plottedDrawing.getPenCount())+0.5);
-            GCodeHelper.moveAbs(task, pen_number, xa, ya);
-            GCodeHelper.moveAbs(task, pen_number, xb, yb);
+            task.moveAbs(pen_number, xa, ya);
+            task.moveAbs(pen_number, xb, yb);
         }
 
-        GCodeHelper.penUp(task);
+        task.penUp();
         finish();
     }
 

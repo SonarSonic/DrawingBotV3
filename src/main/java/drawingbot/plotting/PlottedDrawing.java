@@ -1,10 +1,9 @@
-package drawingbot.utils;
+package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
-import drawingbot.tasks.PlottingTask;
+import javafx.beans.property.SimpleIntegerProperty;
 import processing.core.PConstants;
-import processing.core.PGraphics;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,9 +17,9 @@ public class PlottedDrawing {
 
     public final PlottingTask task;
     public final List<PlottedLine> plottedLines;
-    public ObservableDrawingSet drawingPenSet; //TODO CHECK - if we don't copy (this is observable) and we should add a listener for the drawing, or we "deep copy"
+    public ObservableDrawingSet drawingPenSet;
+    public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
     public float[] pen_distribution;
-    public int displayedLineCount = -1;
 
     public PlottedDrawing(PlottingTask task, ObservableDrawingSet penSet){
         this.task = task;
@@ -34,10 +33,10 @@ public class PlottedDrawing {
     }
 
     public int getDisplayedLineCount(){
-        if(displayedLineCount == -1){
+        if(displayedLineCount.get() == -1){
             return getPlottedLineCount();
         }
-        return displayedLineCount;
+        return displayedLineCount.get();
     }
 
     public int getPlottedLineCount(){
@@ -77,43 +76,6 @@ public class PlottedDrawing {
         }
     }
 
-    public void renderToPDF() {
-        String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + ".pdf";
-        PGraphics pdf = app.createGraphics(task.getPlottingImage().width, task.getPlottingImage().height, app.PDF, pdfname);
-        pdf.beginDraw();
-        pdf.background(255, 255, 255);
-        for(int i = getDisplayedLineCount(); i > 0; i--) {
-            PlottedLine line = plottedLines.get(i);
-            if(line.pen_down) {
-                int rgb = drawingPenSet.getPens().get(line.pen_number).getRGBColour();
-                pdf.stroke(rgb, 255);
-                pdf.line(line.x1, line.y1, line.x2, line.y2);
-            }
-        }
-        pdf.dispose();
-        pdf.endDraw();
-        println("PDF created:  " + pdfname);
-    }
-
-    public void renderEachPenToPdf() {
-        for (int p = 0; p < getPenCount(); p ++) {
-            IDrawingPen pen = drawingPenSet.getPens().get(p);
-            String pdfname = "drawingbot.gcode\\gcode_" + app.basefile_selected + "_pen" + p + "_" + pen.getName() + ".pdf";
-            PGraphics pdf = app.createGraphics(task.getPlottingImage().width, task.getPlottingImage().height, PDF, pdfname);
-            pdf.beginDraw();
-            pdf.background(255, 255, 255);
-            for (int i = getDisplayedLineCount(); i >= 0; i--) {
-                PlottedLine line = plottedLines.get(i);
-                if (line.pen_down & line.pen_number == p) {
-                    pdf.stroke(pen.getRGBColour(), 255);
-                    pdf.line(line.x1, line.y1, line.x2, line.y2);
-                }
-            }
-            pdf.dispose();
-            pdf.endDraw();
-            println("PDF created:  " + pdfname);
-        }
-    }
 
     public void setPenContinuationFlagsForSVG() {
         PlottedLine prevLine = null;
@@ -130,6 +92,7 @@ public class PlottedDrawing {
         plottedLines.add(new PlottedLine(penDown, penNumber, x1, y1, x2, y2));
     }
 
+    /**maps pens evenly in order of first to last*/
     public void evenlyDistributePenChanges() {
         println("evenly_distribute_pen_changes");
         for (int i = 0; i < getPlottedLineCount(); i++) {
@@ -138,6 +101,7 @@ public class PlottedDrawing {
         }
     }
 
+    /**maps pen colours based on the percentage in order from first to last*/
     public void distributePenChangesAccordingToPercentages() {
         int p = 0;
         float p_total = 0;
@@ -148,6 +112,11 @@ public class PlottedDrawing {
                 p_total = p_total + pen_distribution[p];
                 p++;
             }
+            if (p > getPlottedLineCount() - 1) {
+                // Hacky fix for off by one error FIXME
+                println("ERROR: distribute_pen_changes_according_to_percentages, p:  ", p);
+                p = getPlottedLineCount() - 1;
+            }
             line.pen_number = p;
         }
     }
@@ -155,6 +124,7 @@ public class PlottedDrawing {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**increases the distribution value of a specific pen*/
     public void adjustDistribution(int pen, double value){
         if(getPenCount() > pen){
             pen_distribution[pen] *= value;
@@ -164,16 +134,17 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    /**sets the pen distribution for each pen, this is the number of lines to display on this pen...*/
     public void setEvenDistribution() {
         println("set_even_distribution");
         for (int p = 0; p < getPenCount(); p++) {
             pen_distribution[p] = getDisplayedLineCount() / getPenCount();
-            //println("pen_distribution[" + p + "] = " + pen_distribution[p]);
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**set all lines to the first pen **/
     public void setBlackDistribution() {
         println("set_black_distribution");
         for (int p = 0; p < getPenCount(); p++) {
@@ -184,6 +155,7 @@ public class PlottedDrawing {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /** takes the current distribution as a percentage and multiples it by visible lines...    */
     public void normalizeDistribution() {
         float total = 0;
 

@@ -2,25 +2,31 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
+import drawingbot.files.ExportFormats;
+import drawingbot.files.FileUtils;
 import drawingbot.helpers.ImageTools;
 import drawingbot.pfm.PFMLoaders;
-import drawingbot.tasks.PlottingThread;
+import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PlottingThread;
 import drawingbot.utils.EnumDisplayMode;
+import drawingbot.utils.EnumTaskStage;
+import drawingbot.utils.Units;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
@@ -37,24 +43,44 @@ import static processing.core.PApplet.*;
 
 public class FXController {
 
-    public MenuItem menuOpenFile = null;
-    public MenuItem menuOpenURL = null;
+    ////MENU
+    //file
+    public MenuItem menuImport = null;
+    public MenuItem menuImportURL = null;
     public MenuItem menuExit = null;
-
+    public Menu menuExport = null;
+    //help
     public MenuItem menuHelpPage = null;
 
-    public ChoiceBox<PFMLoaders> choiceBoxPFM = null;
-    public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
+    ////SETTINGS WINDOW
+    public ScrollPane scrollPaneSettings = null;
+    public VBox vBoxSettings = null;
 
-    public ProgressBar progressBarGeneral = null;
-    public Label progressBarLabel = null;
-
-    //VIEWPORT
+    ////VIEWPORT WINDOW
+    public VBox vBoxViewportContainer = null;
     public ScrollPane viewportScrollPane = null;
     public StackPane viewportStackPane = null;
 
-    //PEN SETTINGS
-    public AnchorPane rightSidePane = null;
+    ////VIEWPORT SETTINGS
+    public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
+    public CheckBox checkBoxShowGrid = null;
+    public Button buttonZoomIn = null;
+    public Button buttonZoomOut = null;
+    public Button buttonResetView = null;
+
+    ////DRAWING AREA CONTROLS
+    public TextField textFieldDrawingWidth = null;
+    public TextField textFieldDrawingHeight = null;
+    public ChoiceBox<Units> choiceBoxDrawingUnits = null;
+
+    ////PATH FINDING CONTROLS
+    public ChoiceBox<PFMLoaders> choiceBoxPFM = null;
+    public Label labelElapsedTime = null;
+    public Label labelPlottedLines = null;
+    public Slider sliderDisplayedLines = null;
+    public TextField textFieldDisplayedLines = null;
+
+    ////PEN SETTINGS
     public ComboBox<DrawingSet> comboBoxDrawingSet = null;
 
     public TableView<ObservableDrawingPen> penTableView = null;
@@ -65,27 +91,136 @@ public class FXController {
     public ComboBox<DrawingPen> comboBoxDrawingPen = null;
     public Button buttonAddPen = null;
 
+    ////PROGRESS BAR PANE
+    public Pane paneProgressBar = null;
+    public ProgressBar progressBarGeneral = null;
+    public Label progressBarLabel = null;
+
     public void initialize(){
         println("Initialize JAVA FX");
-        //file menu
-        menuOpenFile.setOnAction(e -> openFile());
-        menuOpenURL.setOnAction(e -> openURL());
-        menuExit.setOnAction(e -> DrawingBotV3.INSTANCE.exit());
 
-        //help menu
+        ////MENU
+
+        //file
+        menuImport.setOnAction(e -> importFile());
+        menuImportURL.setOnAction(e -> importURL());
+        menuExit.setOnAction(e -> DrawingBotV3.INSTANCE.exit());
+        for(ExportFormats format : ExportFormats.values()){
+            MenuItem item = new MenuItem(format.displayName);
+            item.setOnAction(e -> exportFile(format));
+            menuExport.getItems().add(item);
+        }
+
+        //help
         menuHelpPage.setOnAction(e -> openHelpPage());
 
+        ////
 
-        //drawing tools
-        choiceBoxPFM.setItems(FXCollections.observableArrayList(PFMLoaders.values()));
-        choiceBoxPFM.setValue(DrawingBotV3.INSTANCE.pfmLoader);
-        choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
+        ////SETTINGS WINDOW
+        //vBoxSettings.prefWidthProperty().bind(scrollPaneSettings.widthProperty());
+        //vBoxSettings.prefHeightProperty().bind(scrollPaneSettings.heightProperty());
 
-        choiceBoxDisplayMode.setItems(FXCollections.observableArrayList(EnumDisplayMode.values()));
+        ////
+
+        ////VIEWPORT WINDOW
+        //viewportScrollPane.prefWidthProperty().bind(vBoxViewportContainer.widthProperty()); //TODO BIND WITHOUT MESSING UP IMAGE POSITION...
+        //viewportScrollPane.prefHeightProperty().bind(vBoxViewportContainer.heightProperty());
+        //viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.updateCanvasScaling());
+        ////
+
+        ////VIEWPORT SETTINGS
+        choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
         choiceBoxDisplayMode.setValue(EnumDisplayMode.DRAWING);
         choiceBoxDisplayMode.setOnAction(e -> changeDisplayMode(choiceBoxDisplayMode.getSelectionModel().getSelectedItem()));
 
-        //pen settings
+        DrawingBotV3.displayGrid.bind(checkBoxShowGrid.selectedProperty());
+        DrawingBotV3.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
+
+        buttonZoomIn.setOnAction(e -> {
+            DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() + 0.1);
+        });
+        buttonZoomOut.setOnAction(e -> {
+            if(DrawingBotV3.scaleMultiplier.getValue() > DrawingBotV3.minScale){
+                DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() - 0.1);
+            }
+        });
+        DrawingBotV3.scaleMultiplier.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.updateCanvasScaling());
+
+        buttonResetView.setOnAction(e -> {
+            viewportScrollPane.setHvalue(0.5);
+            viewportScrollPane.setVvalue(0.5);
+            DrawingBotV3.scaleMultiplier.set(1.0);
+        });
+
+        ////
+
+        ////DRAWING AREA CONTROLS
+        textFieldDrawingWidth.textProperty().addListener((observable, oldValue, newValue) -> {
+            /*
+            if (!newValue.matches("\\d*")) {
+                textFieldDrawingWidth.setText(newValue.replaceAll("[^\\d]", ""));
+                DrawingBotV3.drawingAreaWidth.setValue(Float.parseFloat(textFieldDrawingWidth.getText()));
+            }
+             */
+
+        });
+        DrawingBotV3.drawingAreaWidth.addListener((observable, oldValue, newValue) -> {
+            textFieldDrawingWidth.setText(newValue.toString());
+        });
+
+        textFieldDrawingHeight.textProperty().addListener((observable, oldValue, newValue) -> {
+            /*
+            if (!newValue.matches("\\d*")) {
+                textFieldDrawingHeight.setText(newValue.replaceAll("[^\\d]", ""));
+                DrawingBotV3.drawingAreaHeight.setValue(Float.parseFloat(textFieldDrawingHeight.getText()));
+            }
+             */
+        });
+        DrawingBotV3.drawingAreaHeight.addListener((observable, oldValue, newValue) -> textFieldDrawingHeight.setText(newValue.toString()));
+
+        choiceBoxDrawingUnits.getItems().addAll(Units.values());
+        choiceBoxDrawingUnits.setValue(Units.MILLIMETRES);
+        DrawingBotV3.drawingAreaUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
+
+        ////
+
+        ////PATH FINDING CONTROLS
+        choiceBoxPFM.getItems().addAll(PFMLoaders.values());
+        choiceBoxPFM.setValue(DrawingBotV3.INSTANCE.pfmLoader);
+        choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
+
+        labelElapsedTime.setText("0 s");
+        labelPlottedLines.setText("0 lines");
+
+        sliderDisplayedLines.setMax(1);
+        sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
+            PlottingTask task = DrawingBotV3.INSTANCE.getSelectedTask();
+            if(task != null){
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
+                task.plottedDrawing.displayedLineCount.setValue(lines);
+                textFieldDisplayedLines.setText(String.valueOf(lines));
+                if(DrawingBotV3.INSTANCE.renderedLines > lines){
+                    DrawingBotV3.INSTANCE.reRender(); //TODO REDISTRIBUTE?
+                }
+            }
+        });
+
+        textFieldDisplayedLines.setOnAction(e -> {
+            PlottingTask task = DrawingBotV3.INSTANCE.getSelectedTask();
+            if(task != null){
+                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
+                task.plottedDrawing.displayedLineCount.setValue(lines);
+                textFieldDisplayedLines.setText(String.valueOf(lines));
+                sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
+                if(DrawingBotV3.INSTANCE.renderedLines > lines){
+                    DrawingBotV3.INSTANCE.reRender();
+                }
+            }
+        });
+
+        ////
+
+        ////PEN SETTINGS
         comboBoxDrawingSet.setItems(FXCollections.observableArrayList(DrawingRegistry.INSTANCE.registeredSets.values()));
         comboBoxDrawingSet.setValue(DrawingRegistry.INSTANCE.getDefaultSet());
         comboBoxDrawingSet.setOnAction(e -> changeDrawingSet(comboBoxDrawingSet.getSelectionModel().getSelectedItem()));
@@ -104,7 +239,7 @@ public class FXController {
         });
 
         penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.display_mode == EnumDisplayMode.PEN){
+            if(DrawingBotV3.INSTANCE.display_mode == EnumDisplayMode.SELECTED_PEN){
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
@@ -123,7 +258,38 @@ public class FXController {
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen());
         buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.pens.add(new ObservableDrawingPen(comboBoxDrawingPen.getValue())));
 
+        ////
+
+        ////PROGRESS BAR PANE
+
+        progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
         progressBarLabel.setText("");
+    }
+
+    public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
+        switch (stage){
+            case QUEUED:
+                break;
+            case LOADING_IMAGE:
+                if(DrawingBotV3.drawingAreaWidth.get() <= 0 || DrawingBotV3.drawingAreaHeight.get() <= 0){
+                    DrawingBotV3.drawingAreaWidth.setValue(task.img_original.width);
+                    DrawingBotV3.drawingAreaHeight.setValue(task.img_original.height);
+                    DrawingBotV3.drawingAreaUnits.setValue(Units.MILLIMETRES);
+                }
+                break;
+            case PRE_PROCESSING:
+                break;
+            case PATH_FINDING:
+                sliderDisplayedLines.setValue(1.0F);
+                textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
+                break;
+            case POST_PROCESSING:
+                break;
+            case LOGGING:
+                break;
+            case FINISHED:
+                break;
+        }
     }
 
     public void changePathFinderModule(PFMLoaders pfm){
@@ -141,7 +307,7 @@ public class FXController {
         DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
     }
 
-    public void openURL(){
+    public void importURL(){
         String url = getClipboardString();
         if (url != null && match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
             println("Image URL found on clipboard: " + url);
@@ -149,20 +315,34 @@ public class FXController {
         }
     }
 
-    public void openFile(){
+    public void importFile(){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
+            d.getExtensionFilters().add(FileUtils.FILTER_IMAGES);
             d.setTitle("Select an image file to sketch");
+            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showOpenDialog(null);
-            d.setInitialDirectory(new File("/"));
             if(file != null){
                 PlottingThread.createImagePlottingTask(file.getAbsolutePath());
             }
         });
     }
 
-    public void openColourPicker(){
-
+    //TODO FINISH PDF EXPORTING
+    public void exportFile(ExportFormats format){
+        if(DrawingBotV3.INSTANCE.getSelectedTask() == null){
+            return;
+        }
+        Platform.runLater(() -> {
+            FileChooser d = new FileChooser();
+            d.getExtensionFilters().addAll(format.filters);
+            d.setTitle(format.getDialogTitle());
+            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            File file = d.showSaveDialog(null);
+            if(file != null){
+                format.exportOnWorkerThread(DrawingBotV3.INSTANCE.getSelectedTask(), file);
+            }
+        });
     }
 
     public void openHelpPage() {

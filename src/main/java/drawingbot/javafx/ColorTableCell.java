@@ -3,6 +3,7 @@ package drawingbot.javafx;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 
+/**embeds a usable color picker into a TableCell, used for pen colour selection*/
 public class ColorTableCell<T> extends TableCell<T, Color> {
     private final ColorPicker colorPicker;
 

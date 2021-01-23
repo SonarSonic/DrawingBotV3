@@ -1,6 +1,6 @@
 package drawingbot.utils;
 
-public enum EnumTaskState {
+public enum EnumTaskStage {
 
     QUEUED,
     LOADING_IMAGE,

@@ -2,10 +2,10 @@ package drawingbot.pfm;/////////////////////////////////////////////////////////
 // This path finding module makes some wavy squares
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import drawingbot.tasks.PlottingTask;
+import drawingbot.plotting.PlottingTask;
 import drawingbot.helpers.ImageTools;
 import drawingbot.helpers.AlgorithmHelper;
-import drawingbot.helpers.GCodeHelper;
+import drawingbot.files.GCodeExporter;
 import processing.core.PImage;
 
 import java.awt.*;
@@ -73,17 +73,17 @@ public class PFMSquares extends PFM {
         squiggle_count++;
 
         find_darkest_neighbor(x, y);
-        GCodeHelper.moveAbs(task, 0, darkest_x, darkest_y);
-        GCodeHelper.penDown(task);
+        task.moveAbs(0, darkest_x, darkest_y);
+        task.penDown();
 
         for (int s = 0; s < squiggle_length; s++) {
             find_darkest_neighbor(x, y);
             AlgorithmHelper.bresenham_lighten(task, x, y, darkest_x, darkest_y, adjustbrightness);
-            GCodeHelper.moveAbs(task, 0, darkest_x, darkest_y);
+            task.moveAbs(0, darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
         }
-        GCodeHelper.penUp(task);
+        task.penUp();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,8 +180,8 @@ public class PFMSquares extends PFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void output_parameters() {
-        GCodeHelper.gcodeComment(task, "adjustbrightness: " + adjustbrightness);
-        GCodeHelper.gcodeComment(task, "squiggle_length: " + squiggle_length);
+        GCodeExporter.gcodeComment(task, "adjustbrightness: " + adjustbrightness);
+        GCodeExporter.gcodeComment(task, "squiggle_length: " + squiggle_length);
     }
 
 }
