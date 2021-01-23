@@ -1,5 +1,7 @@
 # DRAWBOT V3 W.I.P
 
+![Screenshot](https://github.com/SonarSonic/Drawbot_image_to_gcode_v3/blob/master/src/main/resources/pics/ScreenshotV3.JPG?raw=true)
+
 ## Planned Features
 - Advanced User Interface
 - Pen settings (customisable colours)
