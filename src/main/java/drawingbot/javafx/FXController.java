@@ -48,6 +48,7 @@ public class FXController {
     public MenuItem menuImportURL = null;
     public MenuItem menuExit = null;
     public Menu menuExport = null;
+    public Menu menuExportPerPen = null;
     //help
     public MenuItem menuHelpPage = null;
 
@@ -106,10 +107,15 @@ public class FXController {
         menuExit.setOnAction(e -> DrawingBotV3.INSTANCE.exit());
         for(ExportFormats format : ExportFormats.values()){
             MenuItem item = new MenuItem(format.displayName);
-            item.setOnAction(e -> exportFile(format));
+            item.setOnAction(e -> exportFile(format, false));
             menuExport.getItems().add(item);
         }
 
+        for(ExportFormats format : ExportFormats.values()){
+            MenuItem item = new MenuItem(format.displayName);
+            item.setOnAction(e -> exportFile(format, true));
+            menuExportPerPen.getItems().add(item);
+        }
         //help
         menuHelpPage.setOnAction(e -> openHelpPage());
 
@@ -310,25 +316,25 @@ public class FXController {
         String url = getClipboardString();
         if (url != null && match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
             println("Image URL found on clipboard: " + url);
-            DrawingBotV3.INSTANCE.createImagePlottingTask(url);
+            DrawingBotV3.INSTANCE.createPlottingTask(url);
         }
     }
 
     public void importFile(){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().add(FileUtils.FILTER_IMAGES);
+            d.getExtensionFilters().add(FileUtils.IMPORT_IMAGES);
             d.setTitle("Select an image file to sketch");
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showOpenDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.createImagePlottingTask(file.getAbsolutePath());
+                DrawingBotV3.INSTANCE.createPlottingTask(file.getAbsolutePath());
             }
         });
     }
 
     //TODO FINISH PDF EXPORTING
-    public void exportFile(ExportFormats format){
+    public void exportFile(ExportFormats format, boolean seperatePens){
         if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
         }
@@ -339,7 +345,7 @@ public class FXController {
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showSaveDialog(null);
             if(file != null){
-                format.exportOnWorkerThread(DrawingBotV3.INSTANCE.getActiveTask(), file);
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), ExportFormats::defaultFilter, d.getSelectedExtensionFilter(), file, seperatePens);
             }
         });
     }

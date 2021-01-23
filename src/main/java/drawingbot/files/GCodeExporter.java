@@ -1,10 +1,13 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
+import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.function.BiFunction;
 
 import static processing.core.PApplet.*;
 
@@ -53,133 +56,144 @@ public class GCodeExporter {
         return s;
     }
 
-    public static void createGcodeFiles(PlottingTask task, File file) {
-        File path = FileUtils.removeExtension(file);
-        boolean is_pen_down;
-        int pen_lifts;
-        float pen_movement;
-        float pen_drawing;
-        int   lines_drawn;
-        float x;
-        float y;
-        float distance;
+    public static void exportGCode(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
+        plottingTask.output = createWriter(saveLocation);
+        plottingTask.output.println(plottingTask.gcode_comments);
+        gcodeHeader(plottingTask);
+
+        boolean is_pen_down = false;
+        int lines_drawn = 0;
+        int pen_lifts = 2;
+        float pen_movement = 0;
+        float pen_drawing = 0;
+        float x = 0, y = 0;
+
+        int completedLines = 0;
 
         // Loop over all lines for every pen.
-        for (int p = 0; p < task.plottedDrawing.getPenCount(); p ++) {
-            is_pen_down = false;
-            pen_lifts = 2;
-            pen_movement = 0;
-            pen_drawing = 0;
-            lines_drawn = 0;
-            x = 0;
-            y = 0;
-            String gname = path + "_pen" + p + "_" + task.plottedDrawing.getPen(p).getName() + ".txt";
-            task.output = DrawingBotV3.INSTANCE.createWriter(gname);
-            task.output.println(task.gcode_comments);
-            gcodeHeader(task);
+        for (int p = 0; p < plottingTask.plottedDrawing.getPenCount(); p ++) {
+            ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(p);
+            for (int i = 0 ; i < plottingTask.plottedDrawing.getDisplayedLineCount(); i ++) {
+                PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
+                if(line.pen_number == p){
+                    if (lineFilter.apply(line, drawingPen)) { // we apply the line filter also.
 
-            for (int i = 0 ; i < task.plottedDrawing.getDisplayedLineCount(); i ++) {
-                PlottedLine line = task.plottedDrawing.plottedLines.get(i);
-                if (line.pen_number == p) {
+                        float gcode_scaled_x1 = line.x1 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
+                        float gcode_scaled_y1 = line.y1 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
+                        float gcode_scaled_x2 = line.x2 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
+                        float gcode_scaled_y2 = line.y2 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
+                        float distance = sqrt( sq(abs(gcode_scaled_x1 - gcode_scaled_x2)) + sq(abs(gcode_scaled_y1 - gcode_scaled_y2)) );
 
-                    float gcode_scaled_x1 = line.x1 * task.gcode_scale + task.gcode_offset_x;
-                    float gcode_scaled_y1 = line.y1 * task.gcode_scale + task.gcode_offset_y;
-                    float gcode_scaled_x2 = line.x2 * task.gcode_scale + task.gcode_offset_x;
-                    float gcode_scaled_y2 = line.y2 * task.gcode_scale + task.gcode_offset_y;
-                    distance = sqrt( sq(abs(gcode_scaled_x1 - gcode_scaled_x2)) + sq(abs(gcode_scaled_y1 - gcode_scaled_y2)) );
-
-                    if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
-                        // Oh crap, where the line starts is not where I am, pick up the pen and move there.
-                        task.output.println(movePenUp());
-                        is_pen_down = false;
-                        distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-                        task.output.println(movePen(gcode_scaled_x1, gcode_scaled_y1));
-                        x = gcode_scaled_x1;
-                        y = gcode_scaled_y1;
-                        pen_movement += distance;
-                        pen_lifts++;
-                    }
-
-                    if (line.pen_down) {
-                        if (!is_pen_down) {
-                            task.output.println(movePenDown());
-                            is_pen_down = true;
-                        }
-                        pen_drawing += distance;
-                        lines_drawn++;
-                    } else {
-                        if (is_pen_down) {
-                            task.output.println(movePenUp());
+                        if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
+                            // Oh crap, where the line starts is not where I am, pick up the pen and move there.
+                            plottingTask.output.println(movePenUp());
                             is_pen_down = false;
+                            distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
+                            plottingTask.output.println(movePen(gcode_scaled_x1, gcode_scaled_y1));
+                            x = gcode_scaled_x1;
+                            y = gcode_scaled_y1;
                             pen_movement += distance;
                             pen_lifts++;
                         }
-                    }
-                    task.output.println(movePen(gcode_scaled_x2, gcode_scaled_y2));
-                    x = gcode_scaled_x2;
-                    y = gcode_scaled_y2;
-                    task.dx.update_limit(gcode_scaled_x2);
-                    task.dy.update_limit(gcode_scaled_y2);
-                }
-            }
 
-            gcodeTrailer(task);
-            task.output.println(addComment("Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet"));
-            task.output.println(addComment("Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet"));
-            task.output.println(addComment("Extremes of X: " + task.dx.min + " thru " + task.dx.max));
-            task.output.println(addComment("Extremes of Y: " + task.dy.min + " thru " + task.dy.max));
-            task.output.flush();
-            task.output.close();
-            println("GCode File Created:  " + gname);
+                        if (line.pen_down) {
+                            if (!is_pen_down) {
+                                plottingTask.output.println(movePenDown());
+                                is_pen_down = true;
+                            }
+                            pen_drawing += distance;
+                            lines_drawn++;
+                        } else {
+                            if (is_pen_down) {
+                                plottingTask.output.println(movePenUp());
+                                is_pen_down = false;
+                                pen_movement += distance;
+                                pen_lifts++;
+                            }
+                        }
+                        plottingTask.output.println(movePen(gcode_scaled_x2, gcode_scaled_y2));
+                        x = gcode_scaled_x2;
+                        y = gcode_scaled_y2;
+                        plottingTask.dx.update_limit(gcode_scaled_x2);
+                        plottingTask.dy.update_limit(gcode_scaled_y2);
+                    }
+                    completedLines++;
+                }
+                exportTask.updateProgress(completedLines, plottingTask.plottedDrawing.getDisplayedLineCount());
+            }
         }
+
+        gcodeTrailer(plottingTask);
+        plottingTask.output.println(addComment("Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet"));
+        plottingTask.output.println(addComment("Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet"));
+        plottingTask.output.println(addComment("Extremes of X: " + plottingTask.dx.min + " thru " + plottingTask.dx.max));
+        plottingTask.output.println(addComment("Extremes of Y: " + plottingTask.dy.min + " thru " + plottingTask.dy.max));
+        plottingTask.output.flush();
+        plottingTask.output.close();
+        println("GCode File Created:  " + saveLocation);
     }
 
-    //TODO CHECK - THIS RELIES ON THE LIMITS FROM THE GCODE ITSELF
-    public static void createGcodeTestFile(PlottingTask task, File file) {
-        // The dx.min are already scaled to drawingbot.gcode.
-        float test_length = 25.4F * 2F;
+    public static void createGcodeTestFile(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
 
-        String gname = file + "gcode_test.txt";
-        task.output = DrawingBotV3.INSTANCE.createWriter(DrawingBotV3.INSTANCE.sketchPath("") + gname);
-        task.output.println(addComment("This is a test file to draw the extremes of the drawing area."));
-        task.output.println(addComment("Draws a 2 inch mark on all four corners of the paper."));
-        task.output.println(addComment("WARNING:  pen will be down."));
-        task.output.println(addComment("Extremes of X: " + task.dx.min + " thru " + task.dx.max));
-        task.output.println(addComment("Extremes of Y: " + task.dy.min + " thru " + task.dy.max));
-        gcodeHeader(task);
+        for (PlottedLine line : plottingTask.plottedDrawing.plottedLines) { //to allow the export of the gcode test file seperately we must update the limits
+            float gcode_scaled_x1 = line.x1 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
+            float gcode_scaled_y1 = line.y1 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
+            float gcode_scaled_x2 = line.x2 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
+            float gcode_scaled_y2 = line.y2 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
 
-        task.output.println(addComment("Upper left"));
-        task.output.println(movePen(task.dx.min, task.dy.min + test_length));
-        task.output.println(movePenDown());
-        task.output.println(movePen(task.dx.min, task.dy.min));
-        task.output.println(movePen(task.dx.min + test_length, task.dy.min));
-        task.output.println(movePenUp());
+            plottingTask.dx.update_limit(gcode_scaled_x1);
+            plottingTask.dx.update_limit(gcode_scaled_x2);
 
-        task.output.println(addComment("Upper right"));
-        task.output.println(movePen(task.dx.max - test_length, task.dy.min));
-        task.output.println(movePenDown());
-        task.output.println(movePen(task.dx.max, task.dy.min));
-        task.output.println(movePen(task.dx.max, task.dy.min + test_length));
-        task.output.println(movePenUp());
+            plottingTask.dy.update_limit(gcode_scaled_y1);
+            plottingTask.dy.update_limit(gcode_scaled_y2);
+        }
 
-        task.output.println(addComment("Lower right"));
-        task.output.println(movePen(task.dx.max,task.dy.max - test_length));
-        task.output.println(movePenDown());
-        task.output.println(movePen(task.dx.max, task.dy.max));
-        task.output.println(movePen(task.dx.max - test_length, task.dy.max));
-        task.output.println(movePenUp());
 
-        task.output.println(addComment("Lower left"));
-        task.output.println(movePen(task.dx.min + test_length, task.dy.max));
-        task.output.println(movePenDown());
-        task.output.println(movePen(task.dx.min, task.dy.max));
-        task.output.println(movePen(task.dx.min, task.dy.max - test_length));
-        task.output.println(movePenUp());
+        float test_length = 25.4F * 2F; //TODO CHECK ME?
 
-        gcodeTrailer(task);
-        task.output.flush();
-        task.output.close();
+        String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + extension;
+        plottingTask.output = DrawingBotV3.INSTANCE.createWriter(DrawingBotV3.INSTANCE.sketchPath("") + gname);
+        plottingTask.output.println(addComment("This is a test file to draw the extremes of the drawing area."));
+        plottingTask.output.println(addComment("Draws a 2 inch mark on all four corners of the paper."));
+        plottingTask.output.println(addComment("WARNING:  pen will be down."));
+        plottingTask.output.println(addComment("Extremes of X: " + plottingTask.dx.min + " thru " + plottingTask.dx.max));
+        plottingTask.output.println(addComment("Extremes of Y: " + plottingTask.dy.min + " thru " + plottingTask.dy.max));
+        gcodeHeader(plottingTask);
+
+        plottingTask.output.println(addComment("Upper left"));
+        plottingTask.output.println(movePen(plottingTask.dx.min, plottingTask.dy.min + test_length));
+        plottingTask.output.println(movePenDown());
+        plottingTask.output.println(movePen(plottingTask.dx.min, plottingTask.dy.min));
+        plottingTask.output.println(movePen(plottingTask.dx.min + test_length, plottingTask.dy.min));
+        plottingTask.output.println(movePenUp());
+
+        plottingTask.output.println(addComment("Upper right"));
+        plottingTask.output.println(movePen(plottingTask.dx.max - test_length, plottingTask.dy.min));
+        plottingTask.output.println(movePenDown());
+        plottingTask.output.println(movePen(plottingTask.dx.max, plottingTask.dy.min));
+        plottingTask.output.println(movePen(plottingTask.dx.max, plottingTask.dy.min + test_length));
+        plottingTask.output.println(movePenUp());
+
+        plottingTask.output.println(addComment("Lower right"));
+        plottingTask.output.println(movePen(plottingTask.dx.max,plottingTask.dy.max - test_length));
+        plottingTask.output.println(movePenDown());
+        plottingTask.output.println(movePen(plottingTask.dx.max, plottingTask.dy.max));
+        plottingTask.output.println(movePen(plottingTask.dx.max - test_length, plottingTask.dy.max));
+        plottingTask.output.println(movePenUp());
+
+        plottingTask.output.println(addComment("Lower left"));
+        plottingTask.output.println(movePen(plottingTask.dx.min + test_length, plottingTask.dy.max));
+        plottingTask.output.println(movePenDown());
+        plottingTask.output.println(movePen(plottingTask.dx.min, plottingTask.dy.max));
+        plottingTask.output.println(movePen(plottingTask.dx.min, plottingTask.dy.max - test_length));
+        plottingTask.output.println(movePenUp());
+
+        gcodeTrailer(plottingTask);
+        plottingTask.output.flush();
+        plottingTask.output.close();
         println("GCode Test Created:  " + gname);
+
+        exportTask.updateProgress(1,1);
     }
 
 
