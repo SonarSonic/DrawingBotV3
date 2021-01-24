@@ -1,5 +1,6 @@
 package drawingbot.javafx;
 
+import drawingbot.files.BatchProcessing;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import drawingbot.files.ExportFormats;
@@ -69,6 +70,7 @@ public class FXController {
     public Button buttonResetView = null;
 
     ////DRAWING AREA CONTROLS
+    public CheckBox checkBoxOriginalSizing = null;
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
     public ChoiceBox<Units> choiceBoxDrawingUnits = null;
@@ -90,6 +92,13 @@ public class FXController {
 
     public ComboBox<DrawingPen> comboBoxDrawingPen = null;
     public Button buttonAddPen = null;
+
+    ////BATCH PROCESSING
+    public Button buttonSelectInputFolder = null;
+    public Button buttonSelectOutputFolder = null;
+    public Button buttonStartBatchProcessing = null;
+    public Label labelInputFolder = null;
+    public Label labelOutputFolder = null;
 
     ////PROGRESS BAR PANE
     public Pane paneProgressBar = null;
@@ -160,6 +169,11 @@ public class FXController {
         ////
 
         ////DRAWING AREA CONTROLS
+        DrawingBotV3.useOriginalSizing.bind(checkBoxOriginalSizing.selectedProperty());
+        textFieldDrawingWidth.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
+        textFieldDrawingHeight.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
+        choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
+
         textFieldDrawingWidth.textProperty().addListener((observable, oldValue, newValue) -> {
             /*
             if (!newValue.matches("\\d*")) {
@@ -263,7 +277,13 @@ public class FXController {
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen());
         buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.pens.add(new ObservableDrawingPen(comboBoxDrawingPen.getValue())));
 
-        ////
+        ////BATCH PROCESSING
+
+        labelInputFolder.textProperty().bindBidirectional(BatchProcessing.inputFolder);
+        labelOutputFolder.textProperty().bindBidirectional(BatchProcessing.outputFolder);
+        buttonSelectInputFolder.setOnAction(e -> BatchProcessing.selectFolder(true));
+        buttonSelectOutputFolder.setOnAction(e -> BatchProcessing.selectFolder(false));
+        buttonStartBatchProcessing.setOnAction(e -> BatchProcessing.startProcessing());
 
         ////PROGRESS BAR PANE
 
@@ -276,11 +296,6 @@ public class FXController {
             case QUEUED:
                 break;
             case LOADING_IMAGE:
-                if(DrawingBotV3.drawingAreaWidth.get() <= 0 || DrawingBotV3.drawingAreaHeight.get() <= 0){
-                    DrawingBotV3.drawingAreaWidth.setValue(task.img_original.width);
-                    DrawingBotV3.drawingAreaHeight.setValue(task.img_original.height);
-                    DrawingBotV3.drawingAreaUnits.setValue(Units.MILLIMETRES);
-                }
                 break;
             case PRE_PROCESSING:
                 break;
@@ -343,9 +358,10 @@ public class FXController {
             d.getExtensionFilters().addAll(format.filters);
             d.setTitle(format.getDialogTitle());
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            //TODO SET INITIAL FILENAME!!!
             File file = d.showSaveDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), ExportFormats::defaultFilter, d.getSelectedExtensionFilter(), file, seperatePens);
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), ExportFormats::defaultFilter, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
             }
         });
     }

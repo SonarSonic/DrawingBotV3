@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 public enum PFMLoaders {
 
-    ORIGINAL("Original PFM", PFMOriginal::new),
+    ORIGINAL("Scribble PFM (Original)", PFMOriginal::new),
     SPIRAL("Spiral PFM", PFMSpiral::new),
     SQUARES("Squares PFM", PFMSquares::new);
 

@@ -22,6 +22,7 @@ import drawingbot.drawing.DrawingRegistry;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
 import drawingbot.helpers.*;
@@ -72,19 +73,21 @@ public class DrawingBotV3 extends PApplet {
 
 
     // THREADS \\
-    private ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
+    public ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
         t.setDaemon(true);
         return t ;
     });
     private PlottingTask activeTask = null;
     private ExportTask exportTask = null;
+    private BatchProcessingTask batchProcessingTask = null;
 
     // GUI \\
     public FXController controller;
     public Canvas canvas;
 
     //DRAWING AREA
+    public static SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
     public static SimpleFloatProperty drawingAreaWidth = new SimpleFloatProperty(0);
     public static SimpleFloatProperty drawingAreaHeight = new SimpleFloatProperty(0);
     public static SimpleObjectProperty<Units> drawingAreaUnits = new SimpleObjectProperty<Units>(Units.MILLIMETRES);
@@ -101,17 +104,11 @@ public class DrawingBotV3 extends PApplet {
     // MOUSE / INPUT VALUES \\
     public boolean ctrl_down = false;
 
+    //VIEWPORT SETTINGS \\
     public static final float canvasScaling = 1.0F;
     public static final double minScale = 0.1;
     public static SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public static SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
-
-
-
-    // GENERAL \\
-    public String path_selected = "";
-    public String file_selected = "";
-    public String basefile_selected = ""; //TODO CHANGE ME
 
     // DRAWING \\\
 
@@ -120,17 +117,23 @@ public class DrawingBotV3 extends PApplet {
     }
 
     public float getDrawingAreaWidthMM(){
+        if(useOriginalSizing.get()){
+            return activeTask.img_original == null ? 0: activeTask.img_original.width;
+        }
         return drawingAreaWidth.getValue() * drawingAreaUnits.get().convertToMM;
     }
 
     public float getDrawingAreaHeightMM(){
+        if(useOriginalSizing.get()){
+            return activeTask.img_original == null ? 0: activeTask.img_original.height;
+        }
         return drawingAreaHeight.getValue() * drawingAreaUnits.get().convertToMM;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void settings() {
-        size(400, 400, FX2D);
+        size(1200, 1200, FX2D);
     }
 
 
@@ -195,7 +198,7 @@ public class DrawingBotV3 extends PApplet {
         if(getActiveTask() != null && getActiveTask().isRunning()){
             controller.progressBarGeneral.setProgress(getActiveTask().progressProperty().get());
             controller.progressBarLabel.setText(getActiveTask().titleProperty().get() + ": " + getActiveTask().messageProperty().get());
-            controller.labelPlottedLines.setText(NumberFormat.getNumberInstance().format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
+            controller.labelPlottedLines.setText(NumberFormat.getNumberInstance().format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines"); //TODO REMOVE NUMBER INSTANCE
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null && exportTask.isRunning()){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
@@ -331,9 +334,7 @@ public class DrawingBotV3 extends PApplet {
                             int next = Math.min(renderedLines + 1000, renderedTask.plottedDrawing.getDisplayedLineCount());
                             renderedTask.plottedDrawing.renderLines(renderedLines, next);
                             renderedLines = next;
-                            System.out.println(next);
                             updateLocalProgress((double)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
-
                         }
                         if(renderedTask.plottedDrawing.getDisplayedLineCount()-1 == renderedLines){
                             long time = System.currentTimeMillis();
@@ -543,6 +544,9 @@ public class DrawingBotV3 extends PApplet {
     // TASKS
 
     public void createPlottingTask(String url){
+        if(activeTask != null){
+            activeTask.cancel();
+        }
         executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader, DrawingBotV3.INSTANCE.observableDrawingSet, url));
     }
 
@@ -550,7 +554,7 @@ public class DrawingBotV3 extends PApplet {
         activeTask = task;
     }
 
-    public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, FileChooser.ExtensionFilter extension, File saveLocation, boolean seperatePens){
+    public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
         executorService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens));
     }
 

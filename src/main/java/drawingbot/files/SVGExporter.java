@@ -1,11 +1,9 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.drawing.IDrawingPen;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
-import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.function.BiFunction;

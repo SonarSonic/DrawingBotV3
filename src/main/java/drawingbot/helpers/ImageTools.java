@@ -3,9 +3,15 @@ package drawingbot.helpers;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.GCodeExporter;
 import drawingbot.plotting.PlottingTask;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import processing.core.PConstants;
 import processing.core.PImage;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+
 import static processing.core.PApplet.*;
 
 public class ImageTools {
@@ -462,6 +468,13 @@ public class ImageTools {
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static WritableImage getWritableImageFromPImage(PImage pImage){
+        WritableImage writableImage = new WritableImage(pImage.pixelWidth, pImage.pixelHeight);
+        pImage.loadPixels();
+        writableImage.getPixelWriter().setPixels(0, 0, pImage.pixelWidth, pImage.pixelHeight, PixelFormat.getIntArgbInstance(),pImage.pixels, 0, 0);
+        return writableImage;
+    }
 
     /**converts processing colors to java fx colors*/
     public static Color getColorFromARGB(int argb){

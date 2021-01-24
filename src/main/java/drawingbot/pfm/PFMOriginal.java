@@ -59,8 +59,8 @@ public class PFMOriginal extends PFM {
         //image_motion_blur(img);
         //image_outline(img);
         //image_edge_detect(img);
-        //image_sobel(img, 1.0, 0);
-        //image_posterize(6);
+        //ImageTools.imageSobel(task.getPlottingImage(), 1.0F, 0);
+        //ImageTools.imagePosterize(task, 6);
         //image_erode();
         //image_dilate();
         //image_invert();
@@ -129,7 +129,7 @@ public class PFMOriginal extends PFM {
         int darkest_loc = 1;
 
         PImage img2;
-        img2 = app.createImage(task.getPlottingImage().width / area_size, task.getPlottingImage().height / area_size, RGB);
+        img2 = app.createImage(task.getPlottingImage().width / area_size, task.getPlottingImage().height / area_size, RGB); //TODO REMOVE SCALING!!!
         img2.copy(task.getPlottingImage(), 0, 0, task.getPlottingImage().width, task.getPlottingImage().height, 0, 0, img2.width, img2.height);
 
         for (int loc=0; loc < img2.width * img2.height; loc++) {
@@ -217,8 +217,7 @@ public class PFMOriginal extends PFM {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void post_processing() {
-    }
+    public void post_processing() {}
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     public void output_parameters() {
