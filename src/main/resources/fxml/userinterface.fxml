@@ -15,7 +15,8 @@
                   <MenuItem fx:id="menuImport" mnemonicParsing="false" text="Import" />
                   <MenuItem fx:id="menuImportURL" mnemonicParsing="false" text="Import URL" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <Menu fx:id="menuExport" mnemonicParsing="false" text="Export" />
+                  <Menu fx:id="menuExport" mnemonicParsing="false" text="Export per/drawing" />
+                  <Menu fx:id="menuExportPerPen" mnemonicParsing="false" text="Export per/pen" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="menuExit" mnemonicParsing="false" text="Quit" />
           </items>
@@ -47,27 +48,27 @@
                <content>
                   <VBox fx:id="vBoxSettings">
                      <children>
-                        <TitledPane text="Drawing Area">
+                        <TitledPane expanded="false" text="Drawing Area">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="89.0" prefWidth="404.0">
                                  <children>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" text="Width:">
+                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="45.0" text="Width:">
                                        <graphic>
                                           <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="57.0" text="0" />
                                        </graphic></Label>
-                                    <Label contentDisplay="RIGHT" layoutX="133.0" layoutY="14.0" text="Height:">
+                                    <Label contentDisplay="RIGHT" layoutX="133.0" layoutY="45.0" text="Height:">
                                        <graphic>
                                           <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="58.0" text="0" />
                                        </graphic>
                                     </Label>
-                                    <Label contentDisplay="RIGHT" layoutX="268.0" layoutY="14.0" text="Units:">
+                                    <Label contentDisplay="RIGHT" layoutX="268.0" layoutY="45.0" text="Units:">
                                        <graphic>
                                           <ChoiceBox fx:id="choiceBoxDrawingUnits" prefHeight="25.0" prefWidth="64.0" />
                                        </graphic>
                                     </Label>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="48.0" text="Scaling Preference:">
+                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" text="Use Original Sizing">
                                        <graphic>
-                                          <ChoiceBox prefWidth="150.0" />
+                                          <CheckBox fx:id="checkBoxOriginalSizing" mnemonicParsing="false" selected="true" />
                                        </graphic>
                                     </Label>
                                  </children>
@@ -107,6 +108,27 @@
                                  </children></AnchorPane>
                         </content>
                       </TitledPane>
+                        <TitledPane animated="false" expanded="false" text="Batch Processing">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="186.0" prefWidth="404.0">
+                                 <children>
+                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="49.0" text="Input Folder:">
+                                       <graphic>
+                                          <Label fx:id="labelInputFolder" text="Label" />
+                                       </graphic>
+                                    </Label>
+                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="76.0" text="Output Folder:">
+                                       <graphic>
+                                          <Label fx:id="labelOutputFolder" text="Label" />
+                                       </graphic>
+                                    </Label>
+                                    <Button fx:id="buttonSelectInputFolder" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="187.0" text="Select Input Folder" />
+                                    <Button fx:id="buttonSelectOutputFolder" layoutX="202.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="189.0" text="Select Output Folder" />
+                                    <Button fx:id="buttonStartBatchProcessing" layoutX="14.0" layoutY="132.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="377.0" text="Start Batch Processing" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
                      </children>
                   </VBox>
                </content>

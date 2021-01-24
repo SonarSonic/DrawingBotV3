@@ -3,7 +3,9 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.canvas.GraphicsContext;
 import processing.core.PConstants;
+import processing.javafx.PGraphicsFX2D;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,12 +68,12 @@ public class PlottedDrawing {
         if (line.pen_down) {
             ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);
             if(pen.isEnabled()){
-                //stroke(c, 255-brightness(c));
+                //app.stroke(c, 255-brightness(c));
                 app.stroke(pen.getRGBColour());
                 //strokeWeight(2);
                 //blendMode(BLEND);
-                app.blendMode(PConstants.MULTIPLY);
-                app.line(line.x1, line.y1, line.x2, line.y2);
+                app.blendMode(PConstants.DARKEST); //TODO DECIDE ON BLEND MORE OR MAKE CONFIGURABLE???? - MULTIPLY = TOO DARK, BLEND = FAITHFUL BUT CARTOONY.
+                app.line(line.x1, line.y1, line.x2, line.y2); //render line dangerously.
             }
         }
     }
@@ -82,7 +84,7 @@ public class PlottedDrawing {
 
         for (int i = 0; i < plottedLines.size(); i++) {
             PlottedLine line = plottedLines.get(i);
-            line.pen_continuation = !(prevLine == null || prevLine.x1 != line.x1 || prevLine.y1 != line.y1 || prevLine.pen_down != line.pen_down  || prevLine.pen_number != line.pen_number);
+            line.pen_continuation = !(prevLine == null || prevLine.x2 != line.x1 || prevLine.y2 != line.y1 || prevLine.pen_down != line.pen_down  || prevLine.pen_number != line.pen_number);
             prevLine = line;
         }
         println("set_pen_continuation_flags");

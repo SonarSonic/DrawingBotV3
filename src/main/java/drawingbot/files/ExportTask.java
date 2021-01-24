@@ -19,11 +19,11 @@ public class ExportTask extends Task<Boolean> {
     public File saveLocation;
     public boolean seperatePens;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, FileChooser.ExtensionFilter extension, File saveLocation, boolean seperatePens){
+    public ExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
         this.format = format;
         this.plottingTask = plottingTask;
         this.lineFilter = lineFilter;
-        this.extension = extension.getExtensions().get(0).substring(1); //remove asterisk
+        this.extension = extension; //remove asterisk
         this.saveLocation = saveLocation;
         this.seperatePens = seperatePens;
     }

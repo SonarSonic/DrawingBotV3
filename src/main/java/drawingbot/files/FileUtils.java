@@ -3,6 +3,8 @@ package drawingbot.files;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
 
 public class FileUtils {
 
