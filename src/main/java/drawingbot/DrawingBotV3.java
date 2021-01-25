@@ -12,7 +12,6 @@ package drawingbot;/////////////////////////////////////////////////////////////
 // Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.io.File;
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,19 +34,13 @@ import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Units;
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import processing.core.PApplet;
 import processing.core.PSurface;
 import processing.javafx.PGraphicsFX2D;
 
-//TODO FIX BUG WITH PFMOriginal moving when it is redrawn.
+//TODO MAKE PROPER JAVAFX APPLICATION AND LAUNCH THE SKETCH FROM THERE INSTEAD.
 public class DrawingBotV3 extends PApplet {
 
     public static DrawingBotV3 INSTANCE;
@@ -55,6 +48,7 @@ public class DrawingBotV3 extends PApplet {
     ///constants
     public static final String appName = "DrawingBotV3";
     public static final String appVersion = "1.0.0";
+    public static final String PGraphicsFX9 = "drawingbot.javafx.PGraphicsFX9";
 
     ///plotting settings
     public static final float INCHES_TO_MILLIMETRES = 25.4F;
@@ -133,42 +127,23 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void settings() {
-        size(1200, 1200, FX2D);
+        size(1200, 1200, PGraphicsFX9);
     }
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     @Override
     protected PSurface initSurface() {
-        surface = super.initSurface();
-        canvas = (Canvas) surface.getNative();
-        Scene oldScene = canvas.getScene();
-        Stage stage = (Stage) oldScene.getWindow();
-        try {
-            controller = new FXController();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/userinterface.fxml")); // abs path to fxml file
-            loader.setController(controller);
-            final Parent sceneFromFXML = loader.load();
-
-            final Scene newScene = new Scene(sceneFromFXML, stage.getWidth(), stage.getHeight(), false, SceneAntialiasing.BALANCED);
-            //TODO ADD CANVAS, TO TAKE THE RENDERING FROM THE OTHER CANVAS...
-            controller.viewportStackPane.setOnMousePressed(this::mousePressedJavaFX);
-            controller.viewportStackPane.setOnMouseDragged(this::mouseDraggedJavaFX);
-            controller.viewportStackPane.getChildren().add(canvas);
-            canvas.widthProperty().unbind();
-            canvas.heightProperty().unbind();
-            Platform.runLater(() -> stage.setScene(newScene));
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        g = createPrimaryGraphics();
+        surface = g.createSurface();
+        FXApplication.setupSurface(this);
         return surface;
     }
 
     @Override
     public void setup() {
-        frame.setLocation(200, 200);
         surface.setResizable(true);
         surface.setTitle(appName + ", Version: " + appVersion);
 
@@ -232,8 +207,6 @@ public class DrawingBotV3 extends PApplet {
 
     @Override
     public final void draw() {
-
-
         long startTime = System.currentTimeMillis();
 
         renderTask();
@@ -633,6 +606,5 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void main(String[] passedArgs) {
-        PApplet.main(DrawingBotV3.class, passedArgs);
     }
 }

@@ -9,9 +9,6 @@ import javafx.scene.paint.Color;
 import processing.core.PConstants;
 import processing.core.PImage;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-
 import static processing.core.PApplet.*;
 
 public class ImageTools {
@@ -167,7 +164,7 @@ public class ImageTools {
     public static void addImageBorder(PlottingTask task, String fname, int shrink, int blur) {
 
         //PImage boarder = createImage(app.img.getPlottingImage().width+(shrink*2), app.img.getPlottingImage().height+(shrink*2), RGB);
-        PImage temp_boarder = app.loadImage("boarder/" + fname);
+        PImage temp_boarder = app.loadImage("border/" + fname);
         temp_boarder.resize(task.getPlottingImage().width, task.getPlottingImage().height);
         temp_boarder.filter(PConstants.GRAY);
         temp_boarder.filter(PConstants.INVERT);
@@ -175,7 +172,7 @@ public class ImageTools {
 
         //boarder.copy(temp_boarder, 0, 0, temp_boarder.width, temp_boarder.height, 0, 0, boarder.width, boarder.height);
         task.getPlottingImage().blend(temp_boarder, shrink, shrink, task.getPlottingImage().width, task.getPlottingImage().height,  0, 0, task.getPlottingImage().width, task.getPlottingImage().height, PConstants.ADD);
-        GCodeExporter.gcodeComment(task, "image_boarder: " + fname + "   " + shrink + "   " + blur);
+        GCodeExporter.gcodeComment(task, "image_border: " + fname + "   " + shrink + "   " + blur);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -476,17 +473,47 @@ public class ImageTools {
         return writableImage;
     }
 
-    /**converts processing colors to java fx colors*/
-    public static Color getColorFromARGB(int argb){
+    public static int[] getColourIntsFromARGB(int argb){
         int a = (argb>>24)&0xff;
         int r = (argb>>16)&0xff;
         int g = (argb>>8)&0xff;
         int b = argb&0xff;
-        return new Color(r / 255F, g / 255F, b / 255F, a / 255F);
+        return new int[]{a, r, g, b};
     }
 
-    /**converts java fx to processing colors*/
+    public static int getBrightness(int argb){
+        int[] values = getColourIntsFromARGB(argb);
+        return (int)(0.2126*values[1] + 0.7152*values[2] + 0.0722*values[3]);
+    }
+
+    /**converts processing colors to java fx colors*/
+    public static Color getColorFromARGB(int argb){
+        int[] values = getColourIntsFromARGB(argb);
+        return new Color(values[1] / 255F, values[2] / 255F, values[3] / 255F, values[0] / 255F);
+    }
+
     public static int getARGBFromColor(Color color){
         return app.color((float)color.getRed() * 255F, (float)color.getGreen() * 255F, (float)color.getBlue() * 255F, (float)color.getOpacity() * 255F);
+    }
+
+    public static int getARGB(int a, int r, int g, int b){
+        return a<<24 + r<<16 + g<<8 + b;
+    }
+
+    /**converts java fx to processing colors
+     public static int getARGBFromColor(Color color){
+     return app.color((float)color.getRed() * 255F, (float)color.getGreen() * 255F, (float)color.getBlue() * 255F, (float)color.getOpacity() * 255F);
+     }
+     */
+    //TODO CHECK ALL COLOUR THINGS!
+    public static String toHex(int argb){
+        int r = (argb>>16)&0xff;
+        int g = (argb>>8)&0xff;
+        int b = argb&0xff;
+        return String.format("#%02x%02x%02x", r, g, b);
+    }
+
+    public static String toHex(int r, int g, int b){
+        return String.format("#%02x%02x%02x", r, g, b);
     }
 }
