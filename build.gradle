@@ -9,6 +9,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'edu.sc.seis.launch4j' version '2.4.9';
 }
 
 repositories {
@@ -21,16 +22,44 @@ repositories {
 
 dependencies {
     // Use JUnit test framework.
-    testImplementation 'junit:junit:4.13'
+    testImplementation "junit:junit:${junit_version}"
 
     // This dependency is used by the application.
-    implementation 'org.processing:core:3.3.7'
-    implementation 'org.processing:pdf:3.3.7'
+    implementation "org.processing:core:${processing_core_version}"
+    implementation "org.processing:pdf:${processing_pdf_version}"
     implementation name: 'itext' //why does processing use such an old version?
 
 }
 
+project.setArchivesBaseName(app_name + "-" + app_version + "-" + app_state)
+project.setApplicationName(app_name);
+
 application {
     // Define the main class for the application.
-    mainClassName  = 'drawingbot.DrawingBotV3'
+    mainClassName  = 'drawingbot.FXApplication'
 }
+
+launch4j {
+    mainClassName = 'drawingbot.FXApplication'
+   // icon = "${projectDir}/icons/myApp.ico"
+    dontWrapJar = true;
+    bundledJrePath = 'jre'
+    bundledJre64Bit = true
+    jreMinVersion = '1.8.0_202' //RECOMMENDED PROCESSING VERSION
+    jreMaxVersion = '1.8.0_281' //LATEST JAVA 1.8.0
+}
+
+task packageExecutableDistribution(type: Zip) {
+    getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state}.zip")
+    getDestinationDirectory().set(file("$buildDir/distExecutable"));
+
+    from "$buildDir/launch4j"
+}
+
+task addJreToDistributable(type: Copy) {
+    //from zipTree("JRE")
+    destinationDir = file("$buildDir/launch4j")
+}
+
+packageExecutableDistribution.dependsOn createExe
+packageExecutableDistribution.dependsOn addJreToDistributable
