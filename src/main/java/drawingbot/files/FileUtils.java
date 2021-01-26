@@ -25,4 +25,9 @@ public class FileUtils {
         path = path.substring(0, path.lastIndexOf('.'));
         return new File(path);
     }
+
+    public static String removeExtension(String string){
+        string = string.substring(0, string.lastIndexOf('.'));
+        return string;
+    }
 }

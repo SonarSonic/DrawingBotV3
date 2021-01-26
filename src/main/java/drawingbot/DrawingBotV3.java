@@ -74,7 +74,7 @@ public class DrawingBotV3 extends PApplet {
     });
     private PlottingTask activeTask = null;
     private ExportTask exportTask = null;
-    private BatchProcessingTask batchProcessingTask = null;
+    public BatchProcessingTask batchProcessingTask = null;
 
     // GUI \\
     public FXController controller;
@@ -170,14 +170,15 @@ public class DrawingBotV3 extends PApplet {
     }
 
     public void updateUI(){
+        String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
         if(getActiveTask() != null && getActiveTask().isRunning()){
             controller.progressBarGeneral.setProgress(getActiveTask().progressProperty().get());
-            controller.progressBarLabel.setText(getActiveTask().titleProperty().get() + ": " + getActiveTask().messageProperty().get());
+            controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
             controller.labelPlottedLines.setText(NumberFormat.getNumberInstance().format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines"); //TODO REMOVE NUMBER INSTANCE
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null && exportTask.isRunning()){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
-            controller.progressBarLabel.setText(exportTask.titleProperty().get() + ": " + exportTask.messageProperty().get());
+            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get() + exportTask.extension + " - " + exportTask.messageProperty().get());
         }else{
             if(localProgress != null){
                 controller.progressBarGeneral.setProgress(localProgress);
@@ -275,6 +276,7 @@ public class DrawingBotV3 extends PApplet {
                 break;
             case PATH_FINDING:
                 if(changedTask || changedState){//MUST NOT ALLOW MOUSE MOVEMENT TO AFFECT TODO ?
+                    canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     background(255, 255, 255);
                     renderedLines = 0;
                 }
@@ -514,7 +516,8 @@ public class DrawingBotV3 extends PApplet {
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TASKS
+
+    //// PLOTTING TASKS
 
     public void createPlottingTask(String url){
         if(activeTask != null){
@@ -527,20 +530,22 @@ public class DrawingBotV3 extends PApplet {
         activeTask = task;
     }
 
-    public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
-        executorService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens));
-    }
-
-    public void setActiveExportTask(ExportTask task){
-        exportTask = task;
-    }
-
     public PlottingTask getCompletedTask(){
         return activeTask.isTaskFinished() ? activeTask : null;
     }
 
     public PlottingTask getActiveTask(){
         return activeTask;
+    }
+
+    //// EXPORT TASKS
+
+    public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
+        executorService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens, true));
+    }
+
+    public void setActiveExportTask(ExportTask task){
+        exportTask = task;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -605,6 +610,4 @@ public class DrawingBotV3 extends PApplet {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void main(String[] passedArgs) {
-    }
 }
