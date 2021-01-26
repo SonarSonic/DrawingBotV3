@@ -10,7 +10,7 @@ import drawingbot.helpers.ImageTools;
 
 import static processing.core.PApplet.*;
 
-public class PFMSpiral extends PFM {
+public class PFMSpiral extends AbstractPFM {
 
     public int c = 0;                                  // Sampled color
     public float b;                                    // Sampled brightness

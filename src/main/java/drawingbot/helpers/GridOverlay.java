@@ -15,6 +15,7 @@ public class GridOverlay {
         // Some screen scales smaller than 1.0 will sometimes display every other line
         // It looks like a big logic bug, but it just can't display a one pixel line scaled down well.
 
+        //TODO FIX GRID RENDERER!!!
         if (app.displayGrid.getValue() && app.getActiveTask() != null) {
             app.blendMode(BLEND);
             int image_center_x = (int)(app.getActiveTask().width() / 2);

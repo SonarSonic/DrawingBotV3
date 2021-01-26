@@ -193,7 +193,9 @@ public class DrawingBotV3 extends PApplet {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public int renderedLines = 1;
+    public int renderedLines = 0;
+    public int renderingPen = 0;
+    public int[] renderOrder;
 
     private boolean markRenderDirty = false;
     private PlottingTask lastDrawn = null;
@@ -242,11 +244,10 @@ public class DrawingBotV3 extends PApplet {
         }
 
         if(canvasNeedsUpdate && renderedTask.img_reference != null){
-
             canvas.widthProperty().setValue(renderedTask.img_reference.width*canvasScaling);
             canvas.heightProperty().setValue(renderedTask.img_reference.height*canvasScaling);
-            //controller.viewportStackPane.setMaxWidth(renderedTask.img_reference.width*canvasScaling);
-            //controller.viewportStackPane.setMaxHeight(renderedTask.img_reference.height*canvasScaling);
+            controller.viewportStackPane.setMaxWidth((renderedTask.img_reference.width*canvasScaling)*2);
+            controller.viewportStackPane.setMaxHeight((renderedTask.img_reference.height*canvasScaling)*2); //TODO MAKE SURE THIS IS BIG ENOUGH TO SCALE UP THE VIEWPORT!
 
             Platform.runLater(() -> {
                 controller.viewportScrollPane.setHvalue(0.5);
@@ -256,22 +257,22 @@ public class DrawingBotV3 extends PApplet {
 
             lastDrawn = renderedTask;
             lastState = renderedTask.stage;
+
+            background(255, 255, 255); //it's a fresh image, lets wipe the old one
+            markRenderDirty = true;
             return;
         }
+
+
         updateCanvasScaling();
         markRenderDirty = false;
 
         switch (renderedTask.stage){
             case QUEUED:
             case LOADING_IMAGE:
-                break;
             case PRE_PROCESSING:
-                //show the original image while the user is waiting
                 if(shouldRedraw){
                     background(255, 255, 255);
-                    if(renderedTask.img_reference != null){
-                        image(renderedTask.img_reference, 0, 0);
-                    }
                 }
                 break;
             case PATH_FINDING:
@@ -300,18 +301,19 @@ public class DrawingBotV3 extends PApplet {
                         if(shouldRedraw){
                             background(255, 255, 255);
                             renderedLines = 0;
+                            renderingPen = 0;
+                            renderOrder = renderedTask.plottedDrawing.drawingPenSet.getRenderOrder();
                             updateLocalMessage("Drawing");
                             updateLocalProgress(0);
                             drawingTime = System.currentTimeMillis();
                         }
 
-                        if(renderedTask.plottedDrawing.getDisplayedLineCount() != 0 && renderedLines < renderedTask.plottedDrawing.getDisplayedLineCount()){
-                            int next = Math.min(renderedLines + 1000, renderedTask.plottedDrawing.getDisplayedLineCount());
-                            renderedTask.plottedDrawing.renderLines(renderedLines, next);
-                            renderedLines = next;
-                            updateLocalProgress((double)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
+                        if(renderedTask.plottedDrawing.getDisplayedLineCount() != 0 && renderingPen < renderOrder.length){
+                            renderedTask.plottedDrawing.renderLinesForPen(0, renderedTask.plottedDrawing.getDisplayedLineCount(), renderOrder[renderingPen]);
+                            updateLocalProgress((double)renderingPen / (renderOrder.length-1));
+                            renderingPen++;
                         }
-                        if(renderedTask.plottedDrawing.getDisplayedLineCount()-1 == renderedLines){
+                        if(renderingPen == renderOrder.length-1){
                             long time = System.currentTimeMillis();
                             println("Drawing Took: " + (time-drawingTime) + " ms");
                         }
@@ -527,6 +529,9 @@ public class DrawingBotV3 extends PApplet {
     }
 
     public void setActivePlottingTask(PlottingTask task){
+        if(activeTask != null){
+            activeTask.reset(); //help GC by removing references to PlottedLines
+        }
         activeTask = task;
     }
 
