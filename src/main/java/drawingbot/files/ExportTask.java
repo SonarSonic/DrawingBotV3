@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.function.BiFunction;
 
 public class ExportTask extends Task<Boolean> {
@@ -18,14 +19,16 @@ public class ExportTask extends Task<Boolean> {
     public BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter;
     public File saveLocation;
     public boolean seperatePens;
+    public boolean overwrite;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
+    public ExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite){
         this.format = format;
         this.plottingTask = plottingTask;
         this.lineFilter = lineFilter;
         this.extension = extension; //remove asterisk
         this.saveLocation = saveLocation;
         this.seperatePens = seperatePens;
+        this.overwrite = overwrite;
     }
 
     @Override
@@ -33,15 +36,19 @@ public class ExportTask extends Task<Boolean> {
         DrawingBotV3.INSTANCE.setActiveExportTask(this);
         updateTitle(format.displayName);
         if(!seperatePens){
-            updateMessage(saveLocation + " " + "1 / 1");
-            format.exportMethod.export(this, plottingTask, lineFilter, extension, saveLocation);
+            updateMessage("1 / 1" + " - " + saveLocation);
+            if(overwrite || Files.notExists(saveLocation.toPath())){
+                format.exportMethod.export(this, plottingTask, lineFilter, extension, saveLocation);
+            }
         }else{
             File path = FileUtils.removeExtension(saveLocation);
             for (int p = 0; p < plottingTask.plottedDrawing.getPenCount(); p ++) {
-                updateMessage(saveLocation.toString() + " " +  + (p+1) + " / " + plottingTask.plottedDrawing.getPenCount());
+                updateMessage((p+1) + " / " + plottingTask.plottedDrawing.getPenCount() + " - " + saveLocation.toString());
                 ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(p);
-                String fileName = path.getPath() + "_pen" + p + "_" + drawingPen.getName() + extension;
-                format.exportMethod.export(this, plottingTask, (line, pen) -> lineFilter.apply(line, pen) && pen == drawingPen, extension, new File(fileName));
+                File fileName = new File(path.getPath() + "_pen" + p + "_" + drawingPen.getName() + extension);
+                if(drawingPen.isEnabled() || (overwrite || Files.notExists(fileName.toPath()))){
+                    format.exportMethod.export(this, plottingTask, (line, pen) -> lineFilter.apply(line, pen) && pen == drawingPen, extension, fileName);
+                }
             }
         }
         return true;

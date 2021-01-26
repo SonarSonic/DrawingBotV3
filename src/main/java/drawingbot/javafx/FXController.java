@@ -13,7 +13,10 @@ import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Units;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 
 import javafx.scene.control.Button;
@@ -94,11 +97,20 @@ public class FXController {
     public Button buttonAddPen = null;
 
     ////BATCH PROCESSING
+    public Label labelInputFolder = null;
+    public Label labelOutputFolder = null;
+
     public Button buttonSelectInputFolder = null;
     public Button buttonSelectOutputFolder = null;
     public Button buttonStartBatchProcessing = null;
-    public Label labelInputFolder = null;
-    public Label labelOutputFolder = null;
+    public Button buttonStopBatchProcessing = null;
+
+    public CheckBox checkBoxOverwrite = null;
+
+    public TableView<BatchProcessing.BatchExportTask> tableViewBatchExport = null;
+    public TableColumn<BatchProcessing.BatchExportTask, String> tableColumnFileFormat = null;
+    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerDrawing = null;
+    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerPen = null;
 
     ////PROGRESS BAR PANE
     public Pane paneProgressBar = null;
@@ -281,9 +293,32 @@ public class FXController {
 
         labelInputFolder.textProperty().bindBidirectional(BatchProcessing.inputFolder);
         labelOutputFolder.textProperty().bindBidirectional(BatchProcessing.outputFolder);
+
         buttonSelectInputFolder.setOnAction(e -> BatchProcessing.selectFolder(true));
+        buttonSelectInputFolder.disableProperty().bind(BatchProcessing.isBatchProcessing);
+
         buttonSelectOutputFolder.setOnAction(e -> BatchProcessing.selectFolder(false));
+        buttonSelectOutputFolder.disableProperty().bind(BatchProcessing.isBatchProcessing);
+
         buttonStartBatchProcessing.setOnAction(e -> BatchProcessing.startProcessing());
+        buttonStartBatchProcessing.disableProperty().bind(BatchProcessing.isBatchProcessing);
+
+        buttonStopBatchProcessing.setOnAction(e -> BatchProcessing.finishProcessing());
+        buttonStopBatchProcessing.disableProperty().bind(BatchProcessing.isBatchProcessing.not());
+
+        checkBoxOverwrite.selectedProperty().bindBidirectional(BatchProcessing.overwriteExistingFiles);
+        checkBoxOverwrite.disableProperty().bind(BatchProcessing.isBatchProcessing);
+
+        tableViewBatchExport.setItems(BatchProcessing.exportTasks);
+        tableViewBatchExport.disableProperty().bind(BatchProcessing.isBatchProcessing);
+
+        tableColumnFileFormat.setCellValueFactory(task -> new SimpleStringProperty(task.getValue().formatName()));
+
+        tableColumnPerDrawing.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerDrawing.getCellObservableValue(index)));
+        tableColumnPerDrawing.setCellValueFactory(param -> param.getValue().enablePerDrawing);
+
+        tableColumnPerPen.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerPen.getCellObservableValue(index)));
+        tableColumnPerPen.setCellValueFactory(param -> param.getValue().enablePerPen);
 
         ////PROGRESS BAR PANE
 

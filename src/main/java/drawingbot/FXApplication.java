@@ -43,7 +43,7 @@ public class FXApplication extends Application {
             app.canvas = surfaceFX9.canvas;
             app.controller = new FXController();
 
-            FXMLLoader loader = new FXMLLoader(app.getClass().getResource("/fxml/userinterface.fxml")); // abs path to fxml file
+            FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
             loader.setController(app.controller);
             final Parent sceneFromFXML = loader.load();
             final Scene newScene = new Scene(sceneFromFXML, primaryStage.getWidth(), primaryStage.getHeight(), false, getAntialiasing(app));

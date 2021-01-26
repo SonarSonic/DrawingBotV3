@@ -133,6 +133,7 @@ public class GCodeExporter {
         println("GCode File Created:  " + saveLocation);
     }
 
+    //TODO PREVENT GCODE TEST FILES BEING EXPORTED "PER PEN"
     public static void createGcodeTestFile(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
 
         for (PlottedLine line : plottingTask.plottedDrawing.plottedLines) { //to allow the export of the gcode test file seperately we must update the limits
@@ -152,7 +153,7 @@ public class GCodeExporter {
         float test_length = 25.4F * 2F; //TODO CHECK ME?
 
         String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + extension;
-        plottingTask.output = DrawingBotV3.INSTANCE.createWriter(DrawingBotV3.INSTANCE.sketchPath("") + gname);
+        plottingTask.output = DrawingBotV3.INSTANCE.createWriter(gname);
         plottingTask.output.println(addComment("This is a test file to draw the extremes of the drawing area."));
         plottingTask.output.println(addComment("Draws a 2 inch mark on all four corners of the paper."));
         plottingTask.output.println(addComment("WARNING:  pen will be down."));
