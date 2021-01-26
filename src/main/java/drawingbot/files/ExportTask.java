@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.stage.FileChooser;
 
@@ -33,7 +34,7 @@ public class ExportTask extends Task<Boolean> {
 
     @Override
     protected Boolean call() throws Exception {
-        DrawingBotV3.INSTANCE.setActiveExportTask(this);
+        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActiveExportTask(this)); //avoid clashing with render thread
         updateTitle(format.displayName);
         if(!seperatePens){
             updateMessage("1 / 1" + " - " + saveLocation);

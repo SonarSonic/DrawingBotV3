@@ -7,6 +7,7 @@ import drawingbot.pfm.IPFM;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Limit;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import processing.core.PConstants;
 import processing.core.PImage;
@@ -56,7 +57,7 @@ public class PlottingTask extends Task<PlottingTask> {
     public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, String imageURL){
         updateTitle("Processing Image");
         this.loader = loader;
-        this.plottedDrawing = new PlottedDrawing(this, drawingPenSet);
+        this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.imageURL = imageURL;
     }
 
@@ -120,6 +121,7 @@ public class PlottingTask extends Task<PlottingTask> {
                 pfm.output_parameters();
 
                 finishStage();
+                updateMessage("Plotting Image: " + loader.getName()); //here to avoid excessive task updates
                 break;
             case PATH_FINDING:
 
@@ -132,7 +134,6 @@ public class PlottingTask extends Task<PlottingTask> {
 
                 pfm.find_path();
                 updateProgress(pfm.progress(), 1.0);
-                updateMessage("Plotting Image: " + loader.getName());
                 break;
             case POST_PROCESSING:
                 pfm.post_processing();
@@ -213,12 +214,37 @@ public class PlottingTask extends Task<PlottingTask> {
 
     @Override
     protected PlottingTask call() throws Exception {
-        DrawingBotV3.INSTANCE.setActivePlottingTask(this);
+        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){
                 cancel();
             }
         }
         return this;
+    }
+
+    public void reset(){
+        img_original = null;
+        img_reference = null;
+        img_plotting = null;
+        dx = null;
+        dy = null;
+        plottedDrawing.reset();
+        plottedDrawing = null;
+        output = null;
+        gcode_comments = "";
+        old_x = 0;
+        old_y = 0;
+        is_pen_down = false;
+        gcode_offset_x = 0;
+        gcode_offset_y = 0;
+        gcode_scale = 0;
+        screen_scale = 0;
+        pfm = null;
+        loader = null;
+        imageURL = null;
+        startTime = 0;
+        finishTime = -1;
+        finishedRenderingPaths = false;
     }
 }

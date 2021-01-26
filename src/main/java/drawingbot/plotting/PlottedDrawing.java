@@ -13,18 +13,17 @@ import java.util.List;
 
 import static processing.core.PApplet.*;
 
+//TODO FIX MEMORY LEAKS / APPLICATION SLOWING UP
 public class PlottedDrawing {
 
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
-    public final PlottingTask task;
     public final List<PlottedLine> plottedLines;
     public ObservableDrawingSet drawingPenSet;
     public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
     public float[] pen_distribution;
 
-    public PlottedDrawing(PlottingTask task, ObservableDrawingSet penSet){
-        this.task = task;
+    public PlottedDrawing(ObservableDrawingSet penSet){
         this.plottedLines = Collections.synchronizedList(new ArrayList<>());
         this.drawingPenSet = penSet;
         this.pen_distribution = new float[drawingPenSet.getPens().size()];
@@ -72,7 +71,7 @@ public class PlottedDrawing {
                 app.stroke(pen.getRGBColour());
                 //strokeWeight(2);
                 //blendMode(BLEND);
-                app.blendMode(PConstants.DARKEST); //TODO DECIDE ON BLEND MORE OR MAKE CONFIGURABLE???? - MULTIPLY = TOO DARK, BLEND = FAITHFUL BUT CARTOONY.
+                //app.blendMode(PConstants.DARKEST); //TODO DECIDE ON BLEND MORE OR MAKE CONFIGURABLE???? - MULTIPLY = TOO DARK, BLEND = FAITHFUL BUT CARTOONY.
                 app.line(line.x1, line.y1, line.x2, line.y2); //render line dangerously.
             }
         }
@@ -179,6 +178,13 @@ public class PlottedDrawing {
             }
             println();
         }
+    }
+
+    public void reset(){
+        plottedLines.clear();
+        drawingPenSet = null;
+        displayedLineCount = null;
+        pen_distribution = null;
     }
 
 

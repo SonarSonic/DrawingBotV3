@@ -91,7 +91,7 @@
                                  </children></AnchorPane>
                         </content>
                       </TitledPane>
-                      <TitledPane expanded="false" text="Pen Settings">
+                      <TitledPane text="Pen Settings">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="380.0">
                                  <children>
@@ -108,7 +108,7 @@
                                  </children></AnchorPane>
                         </content>
                       </TitledPane>
-                        <TitledPane text="Batch Processing">
+                        <TitledPane expanded="false" text="Batch Processing">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
                                  <children>
