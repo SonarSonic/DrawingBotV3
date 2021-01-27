@@ -38,7 +38,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import processing.core.PApplet;
 import processing.core.PSurface;
-import processing.javafx.PGraphicsFX2D;
 
 public class DrawingBotV3 extends PApplet {
 
@@ -46,7 +45,7 @@ public class DrawingBotV3 extends PApplet {
 
     ///constants
     public static final String appName = "DrawingBotV3";
-    public static final String appVersion = "1.0.0";
+    public static final String appVersion = "1.0.1";
     public static final String PGraphicsFX9 = "drawingbot.javafx.PGraphicsFX9";
 
     ///plotting settings
@@ -67,10 +66,12 @@ public class DrawingBotV3 extends PApplet {
 
     // THREADS \\
     public ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r);
+        Thread t = new Thread(r, "DrawingBotV3 - Task Thread");
         t.setDaemon(true);
         return t ;
     });
+
+    // TASKS \\
     private PlottingTask activeTask = null;
     private ExportTask exportTask = null;
     public BatchProcessingTask batchProcessingTask = null;
@@ -86,7 +87,7 @@ public class DrawingBotV3 extends PApplet {
     public static SimpleObjectProperty<Units> drawingAreaUnits = new SimpleObjectProperty<Units>(Units.MILLIMETRES);
 
     //PATH FINDING \\
-    public PFMLoaders pfmLoader = PFMLoaders.ORIGINAL;
+    public PFMLoaders pfmLoader = PFMLoaders.SKETCH;
 
     // PEN SETS \\
     public ObservableDrawingSet observableDrawingSet;
@@ -103,10 +104,21 @@ public class DrawingBotV3 extends PApplet {
     public static SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public static SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
 
-    // DRAWING \\\
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public DrawingBotV3() {
         INSTANCE = this;
+    }
+
+    private Double localProgress = null;
+    private String localMessage = null;
+
+    public void updateLocalMessage(String message){
+        localMessage = message;
+    }
+
+    public void updateLocalProgress(double progress){
+        localProgress = progress;
     }
 
     public float getDrawingAreaWidthMM(){
@@ -125,13 +137,11 @@ public class DrawingBotV3 extends PApplet {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //// PROCESSING INIT
+
     public void settings() {
         size(1200, 1200, PGraphicsFX9);
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     @Override
     protected PSurface initSurface() {
@@ -156,40 +166,9 @@ public class DrawingBotV3 extends PApplet {
         frameRate(1000);
     }
 
-    private Double localProgress = null;
-    private String localMessage = null;
-
-    public void updateLocalMessage(String message){
-        localMessage = message;
-    }
-
-    public void updateLocalProgress(double progress){
-        localProgress = progress;
-    }
-
-    public void updateUI(){
-        String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
-        if(getActiveTask() != null && getActiveTask().isRunning()){
-            controller.progressBarGeneral.setProgress(getActiveTask().progressProperty().get());
-            controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
-            controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
-            controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
-        }else if(exportTask != null && exportTask.isRunning()){
-            controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
-            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get() + exportTask.extension + " - " + exportTask.messageProperty().get());
-        }else{
-            if(localProgress != null){
-                controller.progressBarGeneral.setProgress(localProgress);
-                localProgress = null;
-            }
-            if(localMessage != null){
-                controller.progressBarLabel.setText(localMessage);
-                localMessage = null;
-            }
-        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PROCESSING RENDERING
 
     public int renderedLines = 0;
 
@@ -243,9 +222,6 @@ public class DrawingBotV3 extends PApplet {
             canvas.widthProperty().setValue(renderedTask.img_reference.width*canvasScaling);
             canvas.heightProperty().setValue(renderedTask.img_reference.height*canvasScaling);
 
-            //controller.viewportStackPane.setMaxWidth((renderedTask.img_reference.width*canvasScaling)*2);
-            //controller.viewportStackPane.setMaxHeight((renderedTask.img_reference.height*canvasScaling)*2); //TODO MAKE SURE THIS IS BIG ENOUGH TO SCALE UP THE VIEWPORT!
-
             Platform.runLater(() -> {
                 controller.viewportScrollPane.setHvalue(0.5);
                 controller.viewportScrollPane.setVvalue(0.5);
@@ -290,6 +266,7 @@ public class DrawingBotV3 extends PApplet {
                 break;
             case FINISHED:
                 switch (display_mode){
+                    case SELECTED_PEN:
                     case DRAWING:
                         if(shouldRedraw){
                             if(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().additive){
@@ -302,13 +279,15 @@ public class DrawingBotV3 extends PApplet {
                             updateLocalProgress(0);
                             drawingTime = System.currentTimeMillis();
                         }
-
+                        int pen = display_mode == EnumDisplayMode.DRAWING ? -1 : controller.penTableView.getSelectionModel().getSelectedItem().penNumber.get();
                         int max = Math.min(renderedLines + 10000, renderedTask.plottedDrawing.getDisplayedLineCount());
                         blendMode(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().constant);
                         for(; renderedLines < max; renderedLines++){
                             int nextReversed = renderedTask.plottedDrawing.getDisplayedLineCount()-1-renderedLines;
                             PlottedLine line = renderedTask.plottedDrawing.plottedLines.get(nextReversed);
-                            renderedTask.plottedDrawing.renderLine(line);
+                            if(pen == -1 || line.pen_number == pen){
+                                renderedTask.plottedDrawing.renderLine(line);
+                            }
                         }
 
                         updateLocalProgress((float)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
@@ -340,20 +319,6 @@ public class DrawingBotV3 extends PApplet {
                             image(renderedTask.getPlottingImage(), 0, 0);
                         }
                         break;
-                    case SELECTED_PEN:
-                        if(shouldRedraw){
-                            background(255, 255, 255);
-                            renderedLines = 0;
-                            updateLocalMessage("Drawing");
-                        }
-                        if(renderedTask.plottedDrawing.getDisplayedLineCount() != 0 && renderedLines < renderedTask.plottedDrawing.getDisplayedLineCount()){
-                            int pen = controller.penTableView.getSelectionModel().getSelectedIndex();
-                            int next = Math.min(renderedLines + 1000, renderedTask.plottedDrawing.getDisplayedLineCount());
-                            renderedTask.plottedDrawing.renderLinesForPen(renderedLines, next, Math.max(pen, 0));
-                            renderedLines = next;
-                            updateLocalProgress((double)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
-                        }
-                        break;
                 }
                 break;
         }
@@ -378,48 +343,36 @@ public class DrawingBotV3 extends PApplet {
         }
     }
 
+    public void updateUI(){
+        String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
+        if(getActiveTask() != null && getActiveTask().isRunning()){
+            controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 :getActiveTask().pfm.progress());
+            controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
+            controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
+            controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
+        }else if(exportTask != null && exportTask.isRunning()){
+            controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
+            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get() + exportTask.extension + " - " + exportTask.messageProperty().get());
+        }else{
+            if(localProgress != null){
+                controller.progressBarGeneral.setProgress(localProgress);
+                localProgress = null;
+            }
+            if(localMessage != null){
+                controller.progressBarLabel.setText(localMessage);
+                localMessage = null;
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     ////// EVENTS
 
     public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
        controller.onTaskStageFinished(task, stage);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public void keyReleased() {
-        if (keyCode == CONTROL) { ctrl_down = false; }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public void keyPressed() {
-        PlottingTask renderedTask = getActiveTask();
-        if (keyCode == CONTROL) { ctrl_down = true; }
-        if (key == 'x') { GridOverlay.mouse_point(); }
-
-        //if (key == 's') { if (state == 3) { state++; } }//FIXME - ADD STOP & START BUTTON
-
-        if (keyCode == 65 && ctrl_down)  {
-            println("Holly freak, Ctrl-A was pressed!");
-        }
-        if (key == CODED) {
-            double delta = 0.01;
-            double currentH = controller.viewportScrollPane.getHvalue();
-            double currentV = controller.viewportScrollPane.getVvalue();
-            if (keyCode == UP)    {
-                controller.viewportScrollPane.setVvalue(currentV - delta);
-            }
-            if (keyCode == DOWN)  {
-                controller.viewportScrollPane.setVvalue(currentV + delta);
-            }
-            if (keyCode == RIGHT) {
-                controller.viewportScrollPane.setHvalue(currentH - delta);
-            }
-            if (keyCode == LEFT)  {
-                controller.viewportScrollPane.setHvalue(currentH + delta);
-            }
-        }
-    }
 
     public void onDrawingPenChanged(){
         updateWeightedDistribution();
@@ -463,6 +416,8 @@ public class DrawingBotV3 extends PApplet {
         return activeTask;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     //// EXPORT TASKS
 
     public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
@@ -475,41 +430,42 @@ public class DrawingBotV3 extends PApplet {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //// INTERACTION EVENTS
 
-    public void action_rotate(){
-        /* TODO IMAGE ROTATE?
-        if(getCompletedTask() == null){
-            return;
+    public void keyReleased() {
+        if (keyCode == CONTROL) { ctrl_down = false; }
+    }
+
+    public void keyPressed() {
+        PlottingTask renderedTask = getActiveTask();
+        if (keyCode == CONTROL) { ctrl_down = true; }
+        if (key == 'x') { GridOverlay.mouse_point(); }
+
+        //if (key == 's') { if (state == 3) { state++; } }//FIXME - ADD STOP & START BUTTON
+
+        if (keyCode == 65 && ctrl_down)  {
+            println("Holly freak, Ctrl-A was pressed!");
         }
-        PlottingTask renderedTask = getSelectedTask();
-
-        renderedTask.screen_rotate ++;
-        if (renderedTask.screen_rotate == 4) { renderedTask.screen_rotate = 0; }
-
-        switch(renderedTask.screen_rotate) {
-            case 0:
-                my -= getCompletedTask().height();
-                break;
-            case 1:
-                mx += getCompletedTask().height();
-                break;
-            case 2:
-                my += getCompletedTask().height();
-                break;
-            case 3:
-                mx -= getCompletedTask().height();
-                break;
+        if (key == CODED) {
+            double delta = 0.01;
+            double currentH = controller.viewportScrollPane.getHvalue();
+            double currentV = controller.viewportScrollPane.getVvalue();
+            if (keyCode == UP)    {
+                controller.viewportScrollPane.setVvalue(currentV - delta);
+            }
+            if (keyCode == DOWN)  {
+                controller.viewportScrollPane.setVvalue(currentV + delta);
+            }
+            if (keyCode == RIGHT) {
+                controller.viewportScrollPane.setHvalue(currentH - delta);
+            }
+            if (keyCode == LEFT)  {
+                controller.viewportScrollPane.setHvalue(currentH + delta);
+            }
         }
-        reRender();
-
-         */
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// INTERACTION EVENTS
-
-
 
     double pressX = 0;
     double pressY = 0;
@@ -522,8 +478,6 @@ public class DrawingBotV3 extends PApplet {
         locX = controller.viewportScrollPane.getHvalue();
         locY = controller.viewportScrollPane.getVvalue();
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void mouseDraggedJavaFX(MouseEvent event) {
         double relativeX = (pressX - event.getX()) / controller.viewportStackPane.getWidth();

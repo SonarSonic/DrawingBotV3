@@ -53,7 +53,7 @@ public class BatchProcessingTask extends Task<Boolean> {
         if(!files.isEmpty()){
 
             ExecutorService service = Executors.newSingleThreadExecutor(r -> {
-                Thread t = new Thread(r);
+                Thread t = new Thread(r, "DrawingBotV3 - Batch Processing Thread");
                 t.setDaemon(true);
                 return t ;
             });

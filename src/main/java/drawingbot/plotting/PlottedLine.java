@@ -1,10 +1,7 @@
-package drawingbot.plotting;///////////////////////////////////////////////////////////////////////////////////////////////////////
+package drawingbot.plotting;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 // A class to describe one line segment
-//
-// Because of a bug in processing.org the MULTIPLY blendMode does not take into account the alpha of
-// either source or destination.  If this gets corrected, tweaks to the stroke alpha might be more
-// representative of a Copic marker.  Right now it over emphasizes the darkening when overlaps
-// of the same pen occur.
 
 public class PlottedLine {
 

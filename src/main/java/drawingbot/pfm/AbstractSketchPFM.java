@@ -1,21 +1,19 @@
 package drawingbot.pfm;
 
 import drawingbot.helpers.AlgorithmHelper;
-import drawingbot.helpers.ImageTools;
+import drawingbot.helpers.RawBrightnessData;
 import drawingbot.plotting.PlottingTask;
-import processing.core.PImage;
 
 import static processing.core.PApplet.*;
-import static processing.core.PApplet.constrain;
 
 public abstract class AbstractSketchPFM extends AbstractPFM {
 
-    public int squiggle_length;      // How often to lift the pen
+    public int squiggle_length;         // How often to lift the pen
     public int adjustbrightness;        // How fast it moves from dark to light, over-draw
-    public float desired_brightness;  // How long to process.  You can always stop early with "s" key
+    public float desired_brightness;    // How long to process.  You can always stop early with "s" key
 
-    public int tests;                  // Reasonable values:  13 for development, 720 for final
-    public int line_length;           // Reasonable values:  3 through 100 - Impacts the amount of lines drawn
+    public int tests;                   // Reasonable values:  13 for development, 720 for final
+    public int line_length;             // Reasonable values:  3 through 100 - Impacts the amount of lines drawn
 
     public int squiggle_count;
     public int darkest_x;
@@ -30,6 +28,8 @@ public abstract class AbstractSketchPFM extends AbstractPFM {
     private int sum_brightness = 0;
     private int count_brightness = 0;
 
+    public RawBrightnessData rawBrightnessData;
+
     public AbstractSketchPFM(PlottingTask task) {
         super(task);
     }
@@ -41,90 +41,85 @@ public abstract class AbstractSketchPFM extends AbstractPFM {
         return progress;
     }
 
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void find_path() {
+    public void findPath() {
         int x, y;
+        findDarkestArea();
 
-        //find_darkest();
-        find_darkest_area();
         x = darkest_x;
         y = darkest_y;
         squiggle_count++;
 
-        find_darkest_neighbor(x, y);
+        findDarkestNeighbour(x, y);
+
         task.moveAbs(0, darkest_x, darkest_y);
         task.penDown();
 
         for (int s = 0; s < squiggle_length; s++) {
-            find_darkest_neighbor(x, y);
-            AlgorithmHelper.bresenham_lighten(task, x, y, darkest_x, darkest_y, adjustbrightness);
+            findDarkestNeighbour(x, y);
+            bresenhamLighten(x, y, darkest_x, darkest_y, adjustbrightness);
             task.moveAbs(0, darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
         }
         task.penUp();
 
-        float avgBrightness = ImageTools.avgImageBrightness(task);
+        float avgBrightness = rawBrightnessData.getAverageBrightness();
         progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
         if(avgBrightness > desired_brightness){
             finish();
         }
+
     }
 
-    protected abstract void find_darkest_neighbor(int x, int y);
+    protected abstract void findDarkestNeighbour(int x, int y);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void find_darkest_area() {
-        // Warning, Experimental:
-        // Finds the darkest square area by down sampling the img into a much smaller area then finding
-        // the darkest pixel within that.  It returns a random pixel within that darkest area.
+    protected void findDarkestArea() {
+        int sampleWidth = 10;
+        int sampleHeight = 10;
 
-        int area_size = 10;
-        darkest_value = 999;
-        int darkest_loc = 1;
+        int totalSamplesX = rawBrightnessData.getWidth()/sampleWidth;
+        int totalSamplesY = rawBrightnessData.getHeight()/sampleHeight;
 
-        PImage img2;
-        img2 = app.createImage(task.getPlottingImage().width / area_size, task.getPlottingImage().height / area_size, RGB); //TODO REMOVE SCALING!!!
-        img2.copy(task.getPlottingImage(), 0, 0, task.getPlottingImage().width, task.getPlottingImage().height, 0, 0, img2.width, img2.height);
+        int darkestSampleX = 0;
+        int darkestSampleY = 0;
 
-        for (int loc=0; loc < img2.width * img2.height; loc++) {
-            float r = app.brightness(img2.pixels[loc]);
+        darkest_value = 1000;
 
-            if (r < darkest_value) {
-                darkest_value = r + app.random(1);
-                darkest_loc = loc;
+        for(int sampleX = 0; sampleX < totalSamplesX; sampleX++){
+            for(int sampleY = 0; sampleY < totalSamplesY; sampleY++){
+                int startX = sampleX*sampleWidth;
+                int endX = startX + sampleWidth;
+
+                int startY = sampleY*sampleHeight;
+                int endY = startY + sampleHeight;
+                float sampleBrightness = 0;
+                for(int x = startX; x < endX; x++){
+                    for(int y = startY; y < endY; y++){
+                        sampleBrightness += rawBrightnessData.getBrightness(x, y);
+                    }
+                }
+                float avgBrightness = sampleBrightness / (sampleWidth*sampleHeight);
+                if (avgBrightness < darkest_value) {
+                    darkest_value = avgBrightness;
+                    darkestSampleX = startX;
+                    darkestSampleY = startY;
+                }
             }
         }
 
-        darkest_x = darkest_loc % img2.width;
-        darkest_y = (darkest_loc - darkest_x) / img2.width;
-        darkest_x = darkest_x * area_size + (int)(app.random(area_size));
-        darkest_y = darkest_y * area_size + (int)(app.random(area_size));
+        darkest_x = darkestSampleX + randomSeed.nextInt(sampleWidth);
+        darkest_y = darkestSampleY + randomSeed.nextInt(sampleHeight);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void find_darkest() {
-        darkest_value = 257;
-        int darkest_loc = 0;
-
-        for (int loc = 0; loc < task.getPlottingImage().width * task.getPlottingImage().height; loc++) {
-            float r = app.brightness(task.getPlottingImage().pixels[loc]);
-            if (r < darkest_value) {
-                darkest_value = r + app.random(1);
-                darkest_loc = loc;
-            }
-        }
-        darkest_x = darkest_loc % task.getPlottingImage().width;
-        darkest_y = (darkest_loc-darkest_x) / task.getPlottingImage().width;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    protected void bresenham_avg_brightness(int x0, int y0, float distance, float degree) {
+    protected void bresenhamAvgBrightness(int x0, int y0, float distance, float degree) {
         sum_brightness = 0;
         count_brightness = 0;
         int x1, y1;
@@ -142,13 +137,18 @@ public abstract class AbstractSketchPFM extends AbstractPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     protected void bresenhamTest(int x, int y){
-        int loc = x + y*task.getPlottingImage().width;
-        sum_brightness += app.brightness(task.getPlottingImage().pixels[loc]);
+        sum_brightness += rawBrightnessData.getBrightness(x, y);
         count_brightness++;
-        if (sum_brightness / count_brightness < darkest_neighbor) {
+        if ((float)sum_brightness / (float)count_brightness < darkest_neighbor) {
             darkest_x = x;
             darkest_y = y;
             darkest_neighbor = (float)sum_brightness / (float)count_brightness;
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void bresenhamLighten(int x0, int y0, int x1, int y1, int adjustbrightness) {
+        AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> rawBrightnessData.brightenPixel(x, y, adjustbrightness * 5));
     }
 }

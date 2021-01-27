@@ -2,7 +2,6 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
-import drawingbot.files.GCodeExporter;
 import drawingbot.pfm.IPFM;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.utils.EnumTaskStage;
@@ -72,7 +71,7 @@ public class PlottingTask extends Task<PlottingTask> {
                 pfm = loader.createNewPFM(this);
 
                 updateMessage("Rotating Image");
-                img_plotting = loadedImg;//ImageTools.image_rotate(loadedImg);
+                img_plotting = loadedImg;
 
                 img_original = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
                 img_original.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
@@ -81,7 +80,7 @@ public class PlottingTask extends Task<PlottingTask> {
                 break;
             case PRE_PROCESSING:
                 updateMessage("Pre-Processing Image");
-                pfm.pre_processing(); //adjust the dimensions / crop of img_plotting
+                pfm.preProcessing(); //adjust the dimensions / crop of img_plotting
 
                 img_plotting.loadPixels();
                 img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
@@ -101,7 +100,7 @@ public class PlottingTask extends Task<PlottingTask> {
                 comment("gcode_scale X:  " + nf(gcode_scale_x,0,2));
                 comment("gcode_scale Y:  " + nf(gcode_scale_y,0,2));
                 comment("gcode_scale:    " + nf(gcode_scale,0,2));
-                pfm.output_parameters();
+                pfm.outputParameters();
 
                 finishStage();
                 updateMessage("Plotting Image: " + loader.getName()); //here to avoid excessive task updates
@@ -115,11 +114,10 @@ public class PlottingTask extends Task<PlottingTask> {
                     break;
                 }
 
-                pfm.find_path();
-                updateProgress(pfm.progress(), 1.0);
+                pfm.findPath();
                 break;
             case POST_PROCESSING:
-                pfm.post_processing();
+                pfm.postProcessing();
 
                 plottedDrawing.updateWeightedDistribution();
 
@@ -127,7 +125,6 @@ public class PlottingTask extends Task<PlottingTask> {
                 break;
             case LOGGING:
                 finishTime = (System.currentTimeMillis() - startTime);
-                //controller.progressBarLabel.setText("Draw: " + lastDrawTick + " milliseconds");
                 updateMessage("Finished: " + finishTime/1000 + " s");
                 finishStage();
                 break;

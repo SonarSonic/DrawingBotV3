@@ -9,11 +9,11 @@ public interface IPFM {
 
     float progress();
 
-    void pre_processing();
+    void preProcessing();
 
-    void find_path();
+    void findPath();
 
-    void post_processing();
+    void postProcessing();
 
-    void output_parameters();
+    void outputParameters();
 }

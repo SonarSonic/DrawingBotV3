@@ -1,44 +1,40 @@
 package drawingbot.helpers;
 
-import drawingbot.plotting.PlottingTask;
-
-import static drawingbot.helpers.ImageTools.lightenOnePixel;
 import static processing.core.PApplet.*;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 public class AlgorithmHelper {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // Algorithm was developed by Jack Elton Bresenham in 1962
-    // http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+    // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
     // Traslated from pseudocode labled "Simplification" from the link above.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void bresenham(int x0, int y0, int x1, int y1, BiConsumer<Integer, Integer> func) {
         int sx, sy;
-        int err;
         int e2;
 
-        int dx = abs(x1-x0);
-        int dy = abs(y1-y0);
+        int deltaX = abs(x1-x0);
+        int deltaY = abs(y1-y0);
         if (x0 < x1) { sx = 1; } else { sx = -1; }
         if (y0 < y1) { sy = 1; } else { sy = -1; }
-        err = dx-dy;
+        int err = deltaX-deltaY;
+
         while (true) {
             func.accept(x0, y0);
             if ((x0 == x1) && (y0 == y1)) {
                 return;
             }
             e2 = 2*err;
-            if (e2 > -dy) {
-                err = err - dy;
+            if (e2 > -deltaY) {
+                err = err - deltaY;
                 x0 = x0 + sx;
             }
-            if (e2 < dx) {
-                err = err + dx;
+            if (e2 < deltaX) {
+                err = err + deltaX;
                 y0 = y0 + sy;
             }
         }
@@ -95,13 +91,6 @@ public class AlgorithmHelper {
         pnts.addAll(p8);
 
         return pnts;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static void bresenham_lighten(PlottingTask task, int x0, int y0, int x1, int y1, int adjustbrightness) {
-        bresenham(x0, y0, x1, y1, (x, y) -> lightenOnePixel(task, adjustbrightness * 5, x, y));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -363,7 +363,9 @@ public class FXController {
 
     public void changePathFinderModule(PFMLoaders pfm){
         DrawingBotV3.INSTANCE.pfmLoader = pfm;
-
+        if(DrawingBotV3.INSTANCE.getActiveTask() != null && DrawingBotV3.INSTANCE.getActiveTask().loader != pfm){
+            DrawingBotV3.INSTANCE.createPlottingTask(DrawingBotV3.INSTANCE.getActiveTask().imageURL);
+        }
         //TODO MAKE "START DRAW" BUTTON IN GUI
     }
 
@@ -436,6 +438,10 @@ public class FXController {
         }
         return null;
 
+    }
+
+    public void action_rotate(){
+        /* TODO IMAGE ROTATE?*/
     }
 
     public static class ComboCellDrawingSet extends ComboBoxListCell<DrawingSet> {
