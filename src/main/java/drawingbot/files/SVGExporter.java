@@ -11,6 +11,7 @@ import java.util.function.BiFunction;
 
 import static processing.core.PApplet.*;
 
+//TODO CHECK SVG COLOUR/OPACITY ACCURACY - ENSURE DPI is relative to actual size not inches.
 public class SVGExporter {
 
     // Thanks to Vladimir Bochkov for helping me debug the SVG international decimal separators problem.

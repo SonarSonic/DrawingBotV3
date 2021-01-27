@@ -7,18 +7,18 @@ import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
 
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 
-import static processing.core.PApplet.*;
+public class PFMSketch extends AbstractSketchPFM {
 
-public class PFMSquares extends AbstractSketchPFM {
+    public int squiggles_till_first_change = 190;
 
-    public PFMSquares(PlottingTask task){
+    public PFMSketch(PlottingTask task){
         super(task);
-        squiggle_length = 1000;
-        adjustbrightness = 9;
+        squiggle_length = 500;
+        adjustbrightness = 10;
         desired_brightness = 250;
-        tests = 4;
+        tests = 13;
         line_length = 30;
     }
 
@@ -33,9 +33,11 @@ public class PFMSquares extends AbstractSketchPFM {
         int targetHeight = (int)(app.getDrawingAreaHeightMM() * DrawingBotV3.image_scale);
         dst = Scalr.resize(dst, targetWidth, targetHeight);
 
+        dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 4, true);
         dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
 
-        dst = ImageTools.lazyImageBorder(dst, "border/b6.png", 0, 0);
+        dst = ImageTools.lazyImageBorder(dst, "border/b1.png", 0, 0);
+        dst = ImageTools.lazyImageBorder(dst, "border/b11.png", 0, 0);
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
 
         task.img_plotting = new PImage(dst);
@@ -48,11 +50,14 @@ public class PFMSquares extends AbstractSketchPFM {
     @Override
     public void findDarkestNeighbour(int start_x, int start_y) {
         darkest_neighbor = 257;
-        float start_angle;
         float delta_angle;
+        float start_angle = randomSeed(-72, -52);    // Spitfire;
 
-        start_angle = 36 + degrees((sin(radians(start_x/9F+46F)) + cos(radians(start_y/26F+26F))));
-        delta_angle = 360.0F / (float)tests;
+        if (squiggle_count < squiggles_till_first_change) {
+            delta_angle = 360.0F / (float)tests;
+        } else {
+            delta_angle = 180F + 7F / (float)tests;
+        }
 
         for (int d = 0; d < tests; d ++) {
             bresenhamAvgBrightness(start_x, start_y, line_length, (delta_angle * d) + start_angle);

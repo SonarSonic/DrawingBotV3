@@ -28,7 +28,7 @@ dependencies {
     implementation "org.processing:core:${processing_core_version}"
     implementation "org.processing:pdf:${processing_pdf_version}"
     implementation name: 'itext' //why does processing use such an old version?
-
+    implementation 'org.imgscalr:imgscalr-lib:4.2'
 }
 
 project.setArchivesBaseName(app_name + "-" + app_version + "-" + app_state)

@@ -1,19 +1,15 @@
-package drawingbot.pfm;
+package drawingbot.pfm.legacy;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.helpers.ImageTools;
-import drawingbot.files.GCodeExporter;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// This path finding module is the basis for nearly all my drawings.
-// Find the darkest average line away from my current location and move there.
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-public class PFMOriginal extends AbstractSketchPFM {
+
+/**Original PFMSketch Class*/
+class PFMSketchLegacy extends AbstractSketchPFMLegacy {
 
     public int squiggles_till_first_change = 190;
 
-    public PFMOriginal(PlottingTask task){
+    public PFMSketchLegacy(PlottingTask task){
         super(task);
         squiggle_length = 500;
         adjustbrightness = 10;
@@ -25,16 +21,16 @@ public class PFMOriginal extends AbstractSketchPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void pre_processing() {
-        ImageTools.imageCrop(task);
-        ImageTools.imageScale(task, (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale));
-        ImageTools.imageUnsharpen(task, task.getPlottingImage(), 4);
-        ImageTools.imageUnsharpen(task, task.getPlottingImage(), 3);
-        ImageTools.addImageBorder(task, "b1.png", 0, 0);
-        ImageTools.addImageBorder(task, "b11.png", 0, 0);
-        ImageTools.imageDesaturate(task);
+    public void preProcessing() {
+        ImageToolsLegacy.imageCrop(task);
+        ImageToolsLegacy.imageScale(task, (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale));
+        ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 4);
+        ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 3);
+        ImageToolsLegacy.addImageBorder(task, "b1.png", 0, 0);
+        ImageToolsLegacy.addImageBorder(task, "b11.png", 0, 0);
+        ImageToolsLegacy.imageDesaturate(task);
 
-        initialProgress = ImageTools.avgImageBrightness(task);
+        initialProgress = ImageToolsLegacy.avgImageBrightness(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,15 +39,15 @@ public class PFMOriginal extends AbstractSketchPFM {
     public void find_darkest_neighbor(int start_x, int start_y) {
         darkest_neighbor = 257;
         float delta_angle;
-        float start_angle;
+        float start_angle = randomSeed(-72, -52);    // Spitfire;
 
+        //TODO MAKE START ANGLE CONFIGURABLE / TEST COMMENTED OUT SETTINGS
         //start_angle = random(-35, -15) + cos(radians(start_x/4+(start_y/6)))*30;
         //start_angle = random(-95, -75) + cos(radians(start_y/15))*90;
         //start_angle = 36 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/26+26)) ));
         //start_angle = 34 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/-7+26)) ));
         //if (squiggle_count <220) { tests = 20; } else { tests = 2; }
         //start_angle = random(20, 1);       // Cuba 1
-        start_angle = randomSeed(-72, -52);    // Spitfire
         //start_angle = random(-120, -140);  // skier
         //start_angle = random(-360, -1);    // gradiant magic
         //start_angle = squiggle_count % 360;
@@ -80,12 +76,12 @@ public class PFMOriginal extends AbstractSketchPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void post_processing() {}
+    public void postProcessing() {}
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void output_parameters() {
+    public void outputParameters() {
         task.comment("adjustbrightness: " + adjustbrightness);
         task.comment("squiggle_length: " + squiggle_length);
     }

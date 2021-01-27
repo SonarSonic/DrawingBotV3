@@ -33,7 +33,9 @@ public class ImageExporter {
                 graphics.stroke(pen.getRGBColour());
                 graphics.line(line.x1, line.y1, line.x2, line.y2);
             }
-            exportTask.updateProgress(plottingTask.plottedDrawing.getDisplayedLineCount() - i, plottingTask.plottedDrawing.getDisplayedLineCount());
+            if (i % (plottingTask.plottedDrawing.getDisplayedLineCount() / 100) == 0) { //only update for every percent lines
+                exportTask.updateProgress(plottingTask.plottedDrawing.getDisplayedLineCount() - i, plottingTask.plottedDrawing.getDisplayedLineCount());
+            }
         }
         graphics.endDraw();
         graphics.save(saveLocation.getPath());
