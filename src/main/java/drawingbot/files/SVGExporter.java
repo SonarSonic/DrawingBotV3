@@ -6,6 +6,7 @@ import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.function.BiFunction;
 
 import static processing.core.PApplet.*;
@@ -27,9 +28,9 @@ public class SVGExporter {
         boolean  drawing_polyline = false;
         float  svgdpi = 96.0F / 25.4F; // Inkscape versions before 0.91 used 90dpi, Today most software assumes 96dpi.
 
-        plottingTask.output = DrawingBotV3.createWriter(saveLocation);
-        plottingTask.output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        plottingTask.output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.gcode_scale) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().height * plottingTask.gcode_scale) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+        PrintWriter output = DrawingBotV3.createWriter(saveLocation);
+        output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.gcode_scale) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().height * plottingTask.gcode_scale) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
         plottingTask.plottedDrawing.setPenContinuationFlagsForSVG();
 
         int completedLines = 0;
@@ -39,7 +40,7 @@ public class SVGExporter {
         for (int p = plottingTask.plottedDrawing.getPenCount()-1; p >= 0; p--) {
             ObservableDrawingPen pen = plottingTask.plottedDrawing.getPen(p);
 
-            plottingTask.output.println("<g id=\"" + pen.getName() + "\">");
+            output.println("<g id=\"" + pen.getName() + "\">");
             for (int i = 0; i < plottingTask.plottedDrawing.getDisplayedLineCount(); i++) {
                 PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
                 if (line.pen_number == p) {
@@ -56,19 +57,19 @@ public class SVGExporter {
                     float gcode_scaled_y2 = line.y2 * plottingTask.gcode_scale * svgdpi;
 
                     if (!line.pen_continuation && drawing_polyline) {
-                        plottingTask.output.println("\" />");
+                        output.println("\" />");
                         drawing_polyline = false;
                     }
 
                     if (lineFilter.apply(line, pen)) {
                         if (line.pen_continuation) {
                             String buf = svg_format(gcode_scaled_x2) + "," + svg_format(gcode_scaled_y2);
-                            plottingTask.output.println(buf);
+                            output.println(buf);
                             drawing_polyline = true;
                         } else {
-                            plottingTask.output.println("<polyline fill=\"none\" stroke=\"#" + hex(pen.getRGBColour(), 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
+                            output.println("<polyline fill=\"none\" stroke=\"#" + hex(pen.getRGBColour(), 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
                             String buf = svg_format(gcode_scaled_x1) + "," + svg_format(gcode_scaled_y1);
-                            plottingTask.output.println(buf);
+                            output.println(buf);
                             drawing_polyline = true;
                         }
                     }
@@ -77,14 +78,14 @@ public class SVGExporter {
                 exportTask.updateProgress(completedLines, plottingTask.plottedDrawing.getDisplayedLineCount());
             }
             if (drawing_polyline) {
-                plottingTask.output.println("\" />");
+                output.println("\" />");
                 drawing_polyline = false;
             }
-            plottingTask.output.println("</g>");
+            output.println("</g>");
         }
-        plottingTask.output.println("</svg>");
-        plottingTask.output.flush();
-        plottingTask.output.close();
+        output.println("</svg>");
+        output.flush();
+        output.close();
         println("SVG created:  " + saveLocation.getName());
     }
 }

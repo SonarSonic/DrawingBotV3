@@ -2,37 +2,39 @@ package drawingbot.drawing;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.helpers.ImageTools;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 
 public class ObservableDrawingPen implements IDrawingPen {
 
+    public SimpleIntegerProperty penNumber;
     public SimpleBooleanProperty enable; //if the pen should be enabled in renders / exports
     public SimpleStringProperty name; //manufacturers colour/pen name
     public SimpleObjectProperty<Color> javaFXColour; //rgb pen colour
+    public SimpleIntegerProperty distributionWeight; //weight
+    public SimpleStringProperty currentPercentage; //percentage
+    public SimpleIntegerProperty currentLines; //lines
 
-    public ObservableDrawingPen(IDrawingPen source){
-        this(source.getName(), source.getRGBColour());
+    public ObservableDrawingPen(int penNumber, IDrawingPen source){
+        this(penNumber, source.getName(), source.getRGBColour());
     }
 
-    public ObservableDrawingPen(String name, int colour){
+    public ObservableDrawingPen(int penNumber, String name, int colour){
+        this.penNumber = new SimpleIntegerProperty(penNumber);
         this.enable = new SimpleBooleanProperty(true);
         this.name = new SimpleStringProperty(name);
         this.javaFXColour = new SimpleObjectProperty<>(ImageTools.getColorFromARGB(colour));
+        this.distributionWeight = new SimpleIntegerProperty(100);
+        this.currentPercentage = new SimpleStringProperty("0.0");
+        this.currentLines = new SimpleIntegerProperty(0);
 
-        this.enable.addListener((observable, oldValue, newValue) -> onPropertiesChanged());
-        this.name.addListener((observable, oldValue, newValue) -> onPropertiesChanged());
-        this.javaFXColour.addListener((observable, oldValue, newValue) -> onPropertiesChanged());
+        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.javaFXColour.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
     }
 
-    public void onPropertiesChanged(){
-        DrawingBotV3.INSTANCE.reRender();
-        System.out.println("CHANGED PEN!");
-    }
-
-    public boolean isEnabled(){ //TODO MAKE THIS AFFECT EXPORTS (VIA PEN DISTRIBUTION = 0)
+    public boolean isEnabled(){
         return enable.get();
     }
 

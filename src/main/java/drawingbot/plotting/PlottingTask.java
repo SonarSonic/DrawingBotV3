@@ -6,33 +6,36 @@ import drawingbot.files.GCodeExporter;
 import drawingbot.pfm.IPFM;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.Limit;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import processing.core.PConstants;
 import processing.core.PImage;
 
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static processing.core.PApplet.*;
 
-//TODO BATCH PROCESSING TODO REORGANISE VARIABLES
 public class PlottingTask extends Task<PlottingTask> {
 
-    public EnumTaskStage stage = EnumTaskStage.QUEUED;
+    public PFMLoaders loader;
+    public PlottedDrawing plottedDrawing;
+    public String imageURL;
 
-    // IMAGE \\
+    // STATUS \\
+    public EnumTaskStage stage = EnumTaskStage.QUEUED;
+    public long startTime;
+    public long finishTime = -1;
+    public boolean finishedRenderingPaths = false;
+    public List<String> comments = new ArrayList<>();
+
+    // IMAGES \\
     public PImage img_original;              // The original image
     public PImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public PImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
-    public Limit dx, dy;
-    public PlottedDrawing plottedDrawing;
-    public PrintWriter output;
-
-    public String gcode_comments = "";
-
-    // PLOTTING \\
+    // PATH FINDING \\
+    public IPFM pfm;
     public float old_x = 0;
     public float old_y = 0;
     public boolean is_pen_down;
@@ -41,18 +44,6 @@ public class PlottingTask extends Task<PlottingTask> {
     public float gcode_offset_x;
     public float gcode_offset_y;
     public float gcode_scale;
-
-    // RENDERING \\
-    public float screen_scale;
-
-    //PATH FINDING \\
-    public IPFM pfm;
-
-    private PFMLoaders loader;
-    private String imageURL;
-    private long startTime;
-    public long finishTime = -1;
-    public boolean finishedRenderingPaths = false;
 
     public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, String imageURL){
         updateTitle("Processing Image");
@@ -96,28 +87,20 @@ public class PlottingTask extends Task<PlottingTask> {
                 img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
                 img_reference.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
 
-                dx = new Limit();
-                dy = new Limit();
-
                 float   gcode_scale_x, gcode_scale_y;
-                float   screen_scale_x, screen_scale_y;
                 gcode_scale_x = DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() / img_plotting.width;
                 gcode_scale_y = DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() / img_plotting.height;
                 gcode_scale = min(gcode_scale_x, gcode_scale_y);
                 gcode_offset_x = - (img_plotting.width* gcode_scale / 2.0F);
                 gcode_offset_y = - (DrawingBotV3.paper_top_to_origin - (DrawingBotV3.paper_size_y - (img_plotting.height * gcode_scale)) / 2.0F);
 
-                screen_scale_x = app.width / (float)img_plotting.width;
-                screen_scale_y = app.height / (float)img_plotting.height;
-                screen_scale = min(screen_scale_x, screen_scale_y);
-
-                GCodeExporter.gcodeComment(this, "final dimensions: " + img_plotting.width + " by " + img_plotting.height);
-                GCodeExporter.gcodeComment(this,"paper_size: " + nf(DrawingBotV3.paper_size_x,0,2) + " by " + nf(DrawingBotV3.paper_size_y,0,2) + "      " + nf(DrawingBotV3.paper_size_x/25.4F,0,2) + " by " + nf(DrawingBotV3.paper_size_y/25.4F,0,2));
-                GCodeExporter.gcodeComment(this,"drawing size max: " + nf(DrawingBotV3.INSTANCE.getDrawingAreaWidthMM(),0,2) + " by " + nf(DrawingBotV3.INSTANCE.getDrawingAreaHeightMM(),0,2) + "      " + nf(DrawingBotV3.INSTANCE.getDrawingAreaWidthMM()/25.4F,0,2) + " by " + nf(DrawingBotV3.INSTANCE.getDrawingAreaHeightMM()/25.4F,0,2));
-                GCodeExporter.gcodeComment(this,"drawing size calculated " + nf(img_plotting.width * gcode_scale,0,2) + " by " + nf(img_plotting.height * gcode_scale,0,2) + "      " + nf(img_plotting.width * gcode_scale/25.4F,0,2) + " by " + nf(img_plotting.height * gcode_scale/25.4F,0,2));
-                GCodeExporter.gcodeComment(this,"gcode_scale X:  " + nf(gcode_scale_x,0,2));
-                GCodeExporter.gcodeComment(this,"gcode_scale Y:  " + nf(gcode_scale_y,0,2));
-                GCodeExporter.gcodeComment(this,"gcode_scale:    " + nf(gcode_scale,0,2));
+                comment("final dimensions: " + img_plotting.width + " by " + img_plotting.height);
+                comment("paper_size: " + nf(DrawingBotV3.paper_size_x,0,2) + " by " + nf(DrawingBotV3.paper_size_y,0,2) + "      " + nf(DrawingBotV3.paper_size_x/25.4F,0,2) + " by " + nf(DrawingBotV3.paper_size_y/25.4F,0,2));
+                comment("drawing size max: " + nf(DrawingBotV3.INSTANCE.getDrawingAreaWidthMM(),0,2) + " by " + nf(DrawingBotV3.INSTANCE.getDrawingAreaHeightMM(),0,2) + "      " + nf(DrawingBotV3.INSTANCE.getDrawingAreaWidthMM()/25.4F,0,2) + " by " + nf(DrawingBotV3.INSTANCE.getDrawingAreaHeightMM()/25.4F,0,2));
+                comment("drawing size calculated " + nf(img_plotting.width * gcode_scale,0,2) + " by " + nf(img_plotting.height * gcode_scale,0,2) + "      " + nf(img_plotting.width * gcode_scale/25.4F,0,2) + " by " + nf(img_plotting.height * gcode_scale/25.4F,0,2));
+                comment("gcode_scale X:  " + nf(gcode_scale_x,0,2));
+                comment("gcode_scale Y:  " + nf(gcode_scale_y,0,2));
+                comment("gcode_scale:    " + nf(gcode_scale,0,2));
                 pfm.output_parameters();
 
                 finishStage();
@@ -138,15 +121,7 @@ public class PlottingTask extends Task<PlottingTask> {
             case POST_PROCESSING:
                 pfm.post_processing();
 
-                plottedDrawing.setEvenDistribution();
-                plottedDrawing.normalizeDistribution();
-
-
-                plottedDrawing.evenlyDistributePenChanges();
-                plottedDrawing.distributePenChangesAccordingToPercentages();
-
-                GCodeExporter.gcodeComment(this,"extremes of X: " + dx.min + " to " + dx.max);
-                GCodeExporter.gcodeComment(this, "extremes of Y: " + dy.min + " to " + dy.max);
+                plottedDrawing.updateWeightedDistribution();
 
                 finishStage();
                 break;
@@ -160,6 +135,11 @@ public class PlottingTask extends Task<PlottingTask> {
                 break;
         }
         return true;
+    }
+
+    public void comment(String comment){
+        comments.add(comment);
+        println(comment);
     }
 
     public void penUp() {
@@ -227,19 +207,15 @@ public class PlottingTask extends Task<PlottingTask> {
         img_original = null;
         img_reference = null;
         img_plotting = null;
-        dx = null;
-        dy = null;
         plottedDrawing.reset();
         plottedDrawing = null;
-        output = null;
-        gcode_comments = "";
+        comments.clear();
         old_x = 0;
         old_y = 0;
         is_pen_down = false;
         gcode_offset_x = 0;
         gcode_offset_y = 0;
         gcode_scale = 0;
-        screen_scale = 0;
         pfm = null;
         loader = null;
         imageURL = null;

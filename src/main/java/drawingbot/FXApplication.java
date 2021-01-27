@@ -54,8 +54,17 @@ public class FXApplication extends Application {
             app.controller.viewportStackPane.setOnMousePressed(app::mousePressedJavaFX);
             app.controller.viewportStackPane.setOnMouseDragged(app::mouseDraggedJavaFX);
             app.controller.viewportStackPane.getChildren().add(canvas);
-            canvas.setWidth(400);
-            canvas.setHeight(400);
+
+            app.controller.viewportStackPane.prefHeightProperty().bind(canvas.heightProperty().multiply(3));
+            app.controller.viewportStackPane.prefWidthProperty().bind(canvas.widthProperty().multiply(3));
+            //app.controller.viewportStackPane.minHeightProperty().bind(app.controller.viewportScrollPane.heightProperty().multiply(2));
+            //app.controller.viewportStackPane.minWidthProperty().bind(app.controller.viewportScrollPane.widthProperty().multiply(2));
+
+            app.controller.viewportScrollPane.setHvalue(0.5);
+            app.controller.viewportScrollPane.setVvalue(0.5);
+
+            canvas.setWidth(500);
+            canvas.setHeight(500);
             primaryStage.setScene(newScene);
 
             surfaceFX9.stage = primaryStage;

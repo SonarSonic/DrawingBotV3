@@ -383,7 +383,7 @@ public class CopicPenPlugin {
         registry.registerDrawingPen(new DrawingPen("Copic Original 110 Special Black", app.color(-16578808)));
         registry.registerDrawingPen(new DrawingPen("Copic Original B00 Frost Blue", app.color(-2232076)));
         registry.registerDrawingPen(new DrawingPen("Copic Original B01 Mint Blue", app.color(-2691342)));
-        registry.registerDrawingPen(new DrawingPen("Copic Original B02 Robin&#39;s Egg Blue", app.color(-4987919)));
+        registry.registerDrawingPen(new DrawingPen("Copic Original B02 Robin's Egg Blue", app.color(-4987919)));
         registry.registerDrawingPen(new DrawingPen("Copic Original B04 Tahitian Blue", app.color(-9187354)));
         registry.registerDrawingPen(new DrawingPen("Copic Original B05 Process Blue", app.color(-12532250)));
         registry.registerDrawingPen(new DrawingPen("Copic Original B06 Peacok Blue", app.color(-16731162)));

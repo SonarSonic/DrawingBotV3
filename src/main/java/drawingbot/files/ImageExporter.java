@@ -18,12 +18,19 @@ public class ImageExporter {
     public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
         PGraphics graphics = DrawingBotV3.INSTANCE.createGraphics(plottingTask.img_plotting.width, plottingTask.img_plotting.height, PConstants.JAVA2D);
         graphics.beginDraw();
+        if(!extension.equals(".png")){ //ALLOW PNG TRANSPARENCY
+            if(plottingTask.plottedDrawing.drawingPenSet.blendMode.get().additive){
+                graphics.background(0, 0, 0);
+            }else{
+                graphics.background(255, 255, 255);
+            }
+        }
+        graphics.blendMode(plottingTask.plottedDrawing.drawingPenSet.blendMode.get().constant);
         for (int i = plottingTask.plottedDrawing.getDisplayedLineCount()-1; i >= 0; i--) {
             PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
             ObservableDrawingPen pen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(line.pen_number);
             if (lineFilter.apply(line, pen)) {
                 graphics.stroke(pen.getRGBColour());
-                //graphics.blendMode(PConstants.MULTIPLY);
                 graphics.line(line.x1, line.y1, line.x2, line.y2);
             }
             exportTask.updateProgress(plottingTask.plottedDrawing.getDisplayedLineCount() - i, plottingTask.plottedDrawing.getDisplayedLineCount());

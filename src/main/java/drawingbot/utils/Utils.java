@@ -1,6 +1,11 @@
 package drawingbot.utils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 public class Utils {
+
+    public static NumberFormat defaultNF = NumberFormat.getNumberInstance();
 
     public static String capitalize(String name) {
         if (name != null && name.length() != 0) {
@@ -10,6 +15,7 @@ public class Utils {
         } else {
             return name;
         }
+
     }
 
     public static double mapDouble(double value, double istart, double istop, double ostart, double ostop) {

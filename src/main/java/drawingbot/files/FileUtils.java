@@ -8,7 +8,7 @@ import java.nio.file.PathMatcher;
 
 public class FileUtils {
 
-    public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.gif", "*.bmp", "*.jpeg"); //TODO CHECK GIF + BMP
+    public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.gif", "*.bmp", "*.jpeg");
 
     public static final FileChooser.ExtensionFilter FILTER_TIF = new FileChooser.ExtensionFilter("TIF - Tagged Image File", "*.tif");
     public static final FileChooser.ExtensionFilter FILTER_TGA = new FileChooser.ExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");
