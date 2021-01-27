@@ -12,7 +12,6 @@ package drawingbot;/////////////////////////////////////////////////////////////
 // Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 import java.io.File;
-import java.text.NumberFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
@@ -32,6 +31,7 @@ import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Units;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.scene.canvas.Canvas;
@@ -40,7 +40,6 @@ import processing.core.PApplet;
 import processing.core.PSurface;
 import processing.javafx.PGraphicsFX2D;
 
-//TODO MAKE PROPER JAVAFX APPLICATION AND LAUNCH THE SKETCH FROM THERE INSTEAD.
 public class DrawingBotV3 extends PApplet {
 
     public static DrawingBotV3 INSTANCE;
@@ -149,13 +148,12 @@ public class DrawingBotV3 extends PApplet {
 
         DrawingSet defaultSet = DrawingRegistry.INSTANCE.getDefaultSet().copy();
         observableDrawingSet = new ObservableDrawingSet(defaultSet);
-        controller.penTableView.setItems(DrawingBotV3.INSTANCE.observableDrawingSet.pens);
+        controller.penTableView.setItems(observableDrawingSet.pens);
+        controller.renderOrderComboBox.valueProperty().bindBidirectional(observableDrawingSet.renderOrder);
+        controller.blendModeComboBox.valueProperty().bindBidirectional(observableDrawingSet.blendMode);
 
         colorMode(RGB);
         frameRate(1000);
-        //randomSeed(millis());
-        randomSeed(3);
-
     }
 
     private Double localProgress = null;
@@ -174,7 +172,7 @@ public class DrawingBotV3 extends PApplet {
         if(getActiveTask() != null && getActiveTask().isRunning()){
             controller.progressBarGeneral.setProgress(getActiveTask().progressProperty().get());
             controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
-            controller.labelPlottedLines.setText(NumberFormat.getNumberInstance().format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines"); //TODO REMOVE NUMBER INSTANCE
+            controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null && exportTask.isRunning()){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
@@ -194,8 +192,6 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public int renderedLines = 0;
-    public int renderingPen = 0;
-    public int[] renderOrder;
 
     private boolean markRenderDirty = false;
     private PlottingTask lastDrawn = null;
@@ -246,8 +242,9 @@ public class DrawingBotV3 extends PApplet {
         if(canvasNeedsUpdate && renderedTask.img_reference != null){
             canvas.widthProperty().setValue(renderedTask.img_reference.width*canvasScaling);
             canvas.heightProperty().setValue(renderedTask.img_reference.height*canvasScaling);
-            controller.viewportStackPane.setMaxWidth((renderedTask.img_reference.width*canvasScaling)*2);
-            controller.viewportStackPane.setMaxHeight((renderedTask.img_reference.height*canvasScaling)*2); //TODO MAKE SURE THIS IS BIG ENOUGH TO SCALE UP THE VIEWPORT!
+
+            //controller.viewportStackPane.setMaxWidth((renderedTask.img_reference.width*canvasScaling)*2);
+            //controller.viewportStackPane.setMaxHeight((renderedTask.img_reference.height*canvasScaling)*2); //TODO MAKE SURE THIS IS BIG ENOUGH TO SCALE UP THE VIEWPORT!
 
             Platform.runLater(() -> {
                 controller.viewportScrollPane.setHvalue(0.5);
@@ -263,7 +260,6 @@ public class DrawingBotV3 extends PApplet {
             return;
         }
 
-
         updateCanvasScaling();
         markRenderDirty = false;
 
@@ -271,13 +267,10 @@ public class DrawingBotV3 extends PApplet {
             case QUEUED:
             case LOADING_IMAGE:
             case PRE_PROCESSING:
-                if(shouldRedraw){
-                    background(255, 255, 255);
-                }
+                background(255, 255, 255);
                 break;
             case PATH_FINDING:
-                if(changedTask || changedState){//MUST NOT ALLOW MOUSE MOVEMENT TO AFFECT TODO ?
-                    canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                if(changedTask || changedState){ //avoids redrawing in some instances
                     background(255, 255, 255);
                     renderedLines = 0;
                 }
@@ -290,32 +283,39 @@ public class DrawingBotV3 extends PApplet {
                 }
                 break;
             case POST_PROCESSING:
-                //TODO ?
+                // NOP - continue displaying the path finding result
                 break;
             case LOGGING:
-                // NULL
+                // NOP - continue displaying the path finding result
                 break;
             case FINISHED:
                 switch (display_mode){
                     case DRAWING:
                         if(shouldRedraw){
-                            background(255, 255, 255);
+                            if(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().additive){
+                                background(0, 0, 0);
+                            }else{
+                                background(255, 255, 255);
+                            }
                             renderedLines = 0;
-                            renderingPen = 0;
-                            renderOrder = renderedTask.plottedDrawing.drawingPenSet.getRenderOrder();
                             updateLocalMessage("Drawing");
                             updateLocalProgress(0);
                             drawingTime = System.currentTimeMillis();
                         }
 
-                        if(renderedTask.plottedDrawing.getDisplayedLineCount() != 0 && renderingPen < renderOrder.length){
-                            renderedTask.plottedDrawing.renderLinesForPen(0, renderedTask.plottedDrawing.getDisplayedLineCount(), renderOrder[renderingPen]);
-                            updateLocalProgress((double)renderingPen / (renderOrder.length-1));
-                            renderingPen++;
+                        int max = Math.min(renderedLines + 10000, renderedTask.plottedDrawing.getDisplayedLineCount());
+                        blendMode(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().constant);
+                        for(; renderedLines < max; renderedLines++){
+                            int nextReversed = renderedTask.plottedDrawing.getDisplayedLineCount()-1-renderedLines;
+                            PlottedLine line = renderedTask.plottedDrawing.plottedLines.get(nextReversed);
+                            renderedTask.plottedDrawing.renderLine(line);
                         }
-                        if(renderingPen == renderOrder.length-1){
+
+                        updateLocalProgress((float)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
+                        if(renderedLines == renderedTask.plottedDrawing.getDisplayedLineCount()-1){
                             long time = System.currentTimeMillis();
                             println("Drawing Took: " + (time-drawingTime) + " ms");
+                            renderedLines = 0;
                         }
                         break;
                     case ORIGINAL:
@@ -393,129 +393,49 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void keyPressed() {
-        if(true){ //MOVE MAJORITY TO BUTTONS
-            return;
-        }
         PlottingTask renderedTask = getActiveTask();
-
         if (keyCode == CONTROL) { ctrl_down = true; }
-
-        /*
-        if (keyCode == 49 && ctrl_down && pen_count > 0) { display_mode = "pen";  pen_selected = 0; }  // ctrl 1
-        if (keyCode == 50 && ctrl_down && pen_count > 1) { display_mode = "pen";  pen_selected = 1; }  // ctrl 2
-        if (keyCode == 51 && ctrl_down && pen_count > 2) { display_mode = "pen";  pen_selected = 2; }  // ctrl 3
-        if (keyCode == 52 && ctrl_down && pen_count > 3) { display_mode = "pen";  pen_selected = 3; }  // ctrl 4
-        if (keyCode == 53 && ctrl_down && pen_count > 4) { display_mode = "pen";  pen_selected = 4; }  // ctrl 5
-        if (keyCode == 54 && ctrl_down && pen_count > 5) { display_mode = "pen";  pen_selected = 5; }  // ctrl 6
-        if (keyCode == 55 && ctrl_down && pen_count > 6) { display_mode = "pen";  pen_selected = 6; }  // ctrl 7
-        if (keyCode == 56 && ctrl_down && pen_count > 7) { display_mode = "pen";  pen_selected = 7; }  // ctrl 8
-        if (keyCode == 57 && ctrl_down && pen_count > 8) { display_mode = "pen";  pen_selected = 8; }  // ctrl 9
-        if (keyCode == 48 && ctrl_down && pen_count > 9) { display_mode = "pen";  pen_selected = 9; }  // ctrl 0
-        */
-        if (key == ']') { renderedTask.screen_scale *= 1.05; }
-        if (key == '[') { renderedTask.screen_scale *= 1 / 1.05; }
-
-        //increase percentage of lines drawn with given line
-        if (key == '1') { getCompletedTask().plottedDrawing.adjustDistribution(0, 1.1); }
-        if (key == '2') { getCompletedTask().plottedDrawing.adjustDistribution(1, 1.1); }
-        if (key == '3') { getCompletedTask().plottedDrawing.adjustDistribution(2, 1.1); }
-        if (key == '4') { getCompletedTask().plottedDrawing.adjustDistribution(3, 1.1); }
-        if (key == '5') { getCompletedTask().plottedDrawing.adjustDistribution(4, 1.1); }
-        if (key == '6') { getCompletedTask().plottedDrawing.adjustDistribution(5, 1.1); }
-        if (key == '7') { getCompletedTask().plottedDrawing.adjustDistribution(6, 1.1); }
-        if (key == '8') { getCompletedTask().plottedDrawing.adjustDistribution(7, 1.1); }
-        if (key == '9') { getCompletedTask().plottedDrawing.adjustDistribution(8, 1.1); }
-        if (key == '0') { getCompletedTask().plottedDrawing.adjustDistribution(9, 1.1); }
-
-        //decrease the percentage of lines drawn by a specific line
-        if (key == '!') { getCompletedTask().plottedDrawing.adjustDistribution(0, 0.9); }
-        if (key == '@') { getCompletedTask().plottedDrawing.adjustDistribution(1, 0.9); }
-        if (key == '#') { getCompletedTask().plottedDrawing.adjustDistribution(2, 0.9); }
-        if (key == '$') { getCompletedTask().plottedDrawing.adjustDistribution(3, 0.9); }
-        if (key == '%') { getCompletedTask().plottedDrawing.adjustDistribution(4, 0.9); }
-        if (key == '^') { getCompletedTask().plottedDrawing.adjustDistribution(5, 0.9); }
-        if (key == '&') { getCompletedTask().plottedDrawing.adjustDistribution(6, 0.9); }
-        if (key == '*') { getCompletedTask().plottedDrawing.adjustDistribution(7, 0.9); }
-        if (key == '(') { getCompletedTask().plottedDrawing.adjustDistribution(8, 0.9); }
-        if (key == ')') { getCompletedTask().plottedDrawing.adjustDistribution(9, 0.9); }
-
-        if (key == 't') { getCompletedTask().plottedDrawing.setEvenDistribution(); }
-
-        if (key == 'y') { getCompletedTask().plottedDrawing.setBlackDistribution(); }
         if (key == 'x') { GridOverlay.mouse_point(); }
-       // if (key == '}' && current_copic_set < CopicPenPlugin.copic_sets.length -1) { current_copic_set++; }//FIXME
-       // if (key == '{' && current_copic_set >= 1)                   { current_copic_set--; }//FIXME
 
-        //if (key == 's') { if (state == 3) { state++; } }//FIXME - STOP!
+        //if (key == 's') { if (state == 3) { state++; } }//FIXME - ADD STOP & START BUTTON
 
         if (keyCode == 65 && ctrl_down)  {
             println("Holly freak, Ctrl-A was pressed!");
         }
-        if (key == '9') {
-            getCompletedTask().plottedDrawing.adjustDistribution(0, 1.00);
-            getCompletedTask().plottedDrawing.adjustDistribution(1, 1.05);
-            getCompletedTask().plottedDrawing.adjustDistribution(2, 1.10);
-            getCompletedTask().plottedDrawing.adjustDistribution(3, 1.15);
-            getCompletedTask().plottedDrawing.adjustDistribution(4, 1.20);
-            getCompletedTask().plottedDrawing.adjustDistribution(5, 1.25);
-            getCompletedTask().plottedDrawing.adjustDistribution(6, 1.30);
-            getCompletedTask().plottedDrawing.adjustDistribution(7, 1.35);
-            getCompletedTask().plottedDrawing.adjustDistribution(8, 1.40);
-            getCompletedTask().plottedDrawing.adjustDistribution(9, 1.45);
-        }
-        if (key == '0') {
-            getCompletedTask().plottedDrawing.adjustDistribution(0, 1.00);
-            getCompletedTask().plottedDrawing.adjustDistribution(1, 0.95);
-            getCompletedTask().plottedDrawing.adjustDistribution(2, 0.90);
-            getCompletedTask().plottedDrawing.adjustDistribution(3, 0.85);
-            getCompletedTask().plottedDrawing.adjustDistribution(4, 0.80);
-            getCompletedTask().plottedDrawing.adjustDistribution(5, 0.75);
-            getCompletedTask().plottedDrawing.adjustDistribution(6, 0.70);
-            getCompletedTask().plottedDrawing.adjustDistribution(7, 0.65);
-            getCompletedTask().plottedDrawing.adjustDistribution(8, 0.60);
-            getCompletedTask().plottedDrawing.adjustDistribution(9, 0.55);
-        }
-
-        /*
-        if (key == '<') {
-            int delta = -10000;
-            getCompletedTask().display_line_count = getCompletedTask().display_line_count + delta;
-            getCompletedTask().display_line_count = constrain(getCompletedTask().display_line_count, 0, getCompletedTask().plottedDrawing.getPlottedLineCount());
-            println("display_line_count: " + getCompletedTask().display_line_count);
-        }
-        if (key == '>') {
-            int delta = 10000;
-            getCompletedTask().display_line_count = (int)(getCompletedTask().display_line_count + delta);
-            getCompletedTask().display_line_count = constrain(getCompletedTask().display_line_count, 0, getCompletedTask().plottedDrawing.getPlottedLineCount());
-            println("display_line_count: " + getCompletedTask().display_line_count);
-        }
-
-         */
         if (key == CODED) {
             double delta = 0.01;
             double currentH = controller.viewportScrollPane.getHvalue();
             double currentV = controller.viewportScrollPane.getVvalue();
             if (keyCode == UP)    {
-                controller.viewportScrollPane.setVvalue(currentV + delta);
-            }
-            if (keyCode == DOWN)  {
                 controller.viewportScrollPane.setVvalue(currentV - delta);
             }
-            if (keyCode == RIGHT) {
-                controller.viewportScrollPane.setHvalue(currentH + delta);
+            if (keyCode == DOWN)  {
+                controller.viewportScrollPane.setVvalue(currentV + delta);
             }
-            if (keyCode == LEFT)  {
+            if (keyCode == RIGHT) {
                 controller.viewportScrollPane.setHvalue(currentH - delta);
             }
+            if (keyCode == LEFT)  {
+                controller.viewportScrollPane.setHvalue(currentH + delta);
+            }
         }
-
-        //TODO MAKE POST PRECESSING TASKS FOR PLOTTING THREAD
-        getCompletedTask().plottedDrawing.normalizeDistribution();
-        getCompletedTask().plottedDrawing.distributePenChangesAccordingToPercentages();
-        //surface.setSize(img.width, img.height);
-        reRender();
     }
 
+    public void onDrawingPenChanged(){
+        updateWeightedDistribution();
+    }
+
+
+    public void onDrawingSetChanged(){
+        updateWeightedDistribution();
+    }
+
+    public void updateWeightedDistribution(){
+        if(activeTask != null && activeTask.isTaskFinished()){
+            activeTask.plottedDrawing.updateWeightedDistribution();
+            reRender();
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -585,11 +505,11 @@ public class DrawingBotV3 extends PApplet {
          */
     }
 
-    public PGraphicsFX2D getPGraphicsFX2D(){
-        return (PGraphicsFX2D) getGraphics();
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// INTERACTION EVENTS
+
+
 
     double pressX = 0;
     double pressY = 0;
@@ -606,8 +526,8 @@ public class DrawingBotV3 extends PApplet {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void mouseDraggedJavaFX(MouseEvent event) {
-        double relativeX = (pressX - event.getX()) / canvas.getWidth();
-        double relativeY = (pressY - event.getY()) / canvas.getHeight();
+        double relativeX = (pressX - event.getX()) / controller.viewportStackPane.getWidth();
+        double relativeY = (pressY - event.getY()) / controller.viewportStackPane.getHeight();
 
         controller.viewportScrollPane.setHvalue(locX + relativeX);
         controller.viewportScrollPane.setVvalue(locY + relativeY);

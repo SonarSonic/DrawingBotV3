@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="692.0" prefWidth="1257.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="692.0" prefWidth="1257.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -21,20 +20,7 @@
             <MenuItem fx:id="menuExit" mnemonicParsing="false" text="Quit" />
           </items>
         </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
-          <items>
-            <MenuItem mnemonicParsing="false" text="Undo" />
-            <MenuItem mnemonicParsing="false" text="Redo" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Cut" />
-            <MenuItem mnemonicParsing="false" text="Copy" />
-            <MenuItem mnemonicParsing="false" text="Paste" />
-            <MenuItem mnemonicParsing="false" text="Delete" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Select All" />
-            <MenuItem mnemonicParsing="false" text="Unselect All" />
-          </items>
-        </Menu>
+        <Menu fx:id="menuView" mnemonicParsing="false" text="View" />
         <Menu mnemonicParsing="false" text="Help">
           <items>
             <MenuItem fx:id="menuHelpPage" mnemonicParsing="false" text="About DrawingBotV3" />
@@ -42,11 +28,11 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.3258964143426295" focusTraversable="true" prefHeight="616.0" prefWidth="870.0" VBox.vgrow="ALWAYS">
-      <items>
-            <ScrollPane fx:id="scrollPaneSettings" prefHeight="629.0" prefWidth="481.0">
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="637.0" prefWidth="419.0" vbarPolicy="ALWAYS">
                <content>
-                  <VBox fx:id="vBoxSettings">
+                  <VBox fx:id="vBoxSettings" prefWidth="402.0">
                      <children>
                         <TitledPane expanded="false" text="Drawing Area">
                           <content>
@@ -55,7 +41,8 @@
                                     <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="45.0" text="Width:">
                                        <graphic>
                                           <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="57.0" text="0" />
-                                       </graphic></Label>
+                                       </graphic>
+                                    </Label>
                                     <Label contentDisplay="RIGHT" layoutX="133.0" layoutY="45.0" text="Height:">
                                        <graphic>
                                           <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="58.0" text="0" />
@@ -75,11 +62,11 @@
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                      <TitledPane text="Path Finding Controls">
+                      <TitledPane expanded="false" text="Path Finding Controls">
                         <content>
                           <AnchorPane>
                                  <children>
-                                    <ChoiceBox fx:id="choiceBoxPFM" layoutX="141.0" layoutY="14.0" prefHeight="25.0" prefWidth="235.0" />
+                                      <ChoiceBox fx:id="choiceBoxPFM" layoutX="141.0" layoutY="14.0" prefHeight="25.0" prefWidth="235.0" />
                                     <Label layoutX="14.0" layoutY="18.0" text="Path Finding Module: " />
                                     <Label layoutX="14.0" layoutY="69.0" prefHeight="17.0" prefWidth="108.0" text="Plotted Lines:" />
                                     <Label fx:id="labelPlottedLines" layoutX="141.0" layoutY="69.0" prefHeight="17.0" prefWidth="90.0" text="Label" />
@@ -88,24 +75,31 @@
                                     <Slider fx:id="sliderDisplayedLines" layoutX="19.0" layoutY="131.0" prefHeight="14.0" prefWidth="196.0" />
                                     <Label layoutX="14.0" layoutY="98.0" text="Displayed Lines:" />
                                     <TextField fx:id="textFieldDisplayedLines" layoutX="231.0" layoutY="126.0" />
-                                 </children></AnchorPane>
+                                 </children>
+                              </AnchorPane>
                         </content>
                       </TitledPane>
-                      <TitledPane text="Pen Settings">
+                      <TitledPane prefWidth="428.0" text="Pen Settings">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="380.0">
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="404.0">
                                  <children>
                                     <Button fx:id="buttonAddPen" layoutX="296.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Add Pen" />
-                                    <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="54.0" prefHeight="274.0" prefWidth="385.0">
+                                    <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="54.0" prefHeight="274.0" prefWidth="403.0" tableMenuButtonVisible="true">
                                        <columns>
-                                          <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="46.0" text="Enable" />
-                                          <TableColumn fx:id="penNameColumn" prefWidth="208.0" sortable="false" text="Pen" />
-                                          <TableColumn fx:id="penColourColumn" prefWidth="115.0" text="Colour" />
+                                          <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="45.0" text="Enable" />
+                                          <TableColumn fx:id="penNameColumn" prefWidth="182.0" sortable="false" text="Pen" />
+                                          <TableColumn fx:id="penColourColumn" prefWidth="118.0" text="Colour" />
+                                          <TableColumn fx:id="penPercentageColumn" editable="false" prefWidth="60.0" sortable="false" text="\%" />
+                                          <TableColumn fx:id="penWeightColumn" prefWidth="51.0" sortable="false" text="Weight" />
+                                          <TableColumn fx:id="penLinesColumn" editable="false" prefWidth="65.0" sortable="false" text="Lines" />
                                        </columns>
                                     </TableView>
                                     <ComboBox fx:id="comboBoxDrawingPen" layoutX="14.0" layoutY="339.0" prefHeight="25.0" prefWidth="282.0" />
                                     <ComboBox fx:id="comboBoxDrawingSet" layoutX="13.0" layoutY="14.0" prefHeight="25.0" prefWidth="348.0" promptText="Select a drawing set!" />
-                                 </children></AnchorPane>
+                                    <ComboBox fx:id="blendModeComboBox" layoutX="13.0" layoutY="414.0" prefHeight="25.0" prefWidth="348.0" promptText="Blend Order: Hard Light" />
+                                    <ComboBox fx:id="renderOrderComboBox" layoutX="13.0" layoutY="379.0" prefHeight="25.0" prefWidth="348.0" promptText="Render Order: Lightest first" />
+                                 </children>
+                              </AnchorPane>
                         </content>
                       </TitledPane>
                         <TitledPane expanded="false" text="Batch Processing">
@@ -148,7 +142,7 @@
                   </VBox>
                </content>
             </ScrollPane>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+            <VBox HBox.hgrow="ALWAYS">
                <children>
                   <ToolBar prefHeight="40.0">
                      <items>
@@ -170,32 +164,27 @@
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                      </items>
                   </ToolBar>
-                  <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true">
+                  <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" hvalue="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vvalue="0.5" VBox.vgrow="ALWAYS">
                      <content>
                         <StackPane fx:id="viewportStackPane" prefHeight="742.0" prefWidth="1003.0" />
                      </content>
                   </ScrollPane>
                </children>
             </VBox>
-      </items>
-    </SplitPane>
-    <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="870.0" spacing="5.0" VBox.vgrow="NEVER">
-      <children>
-        <Pane fx:id="paneProgressBar" prefHeight="40.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1251.0" progress="0.0" />
-                  <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                     <effect>
-                        <Blend mode="DIFFERENCE" />
-                     </effect></Label>
-               </children></Pane>
-      </children>
-      <padding>
-        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-      </padding>
-    </HBox>
+         </children>
+      </HBox>
+  <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
+         <children>
+            <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1251.0" progress="0.0" />
+            <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <effect>
+                  <Blend mode="DIFFERENCE" />
+               </effect>
+            </Label>
+         </children>
+      </Pane>
   </children>
 </VBox>

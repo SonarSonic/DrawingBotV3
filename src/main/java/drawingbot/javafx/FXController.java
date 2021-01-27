@@ -8,15 +8,11 @@ import drawingbot.files.FileUtils;
 import drawingbot.helpers.ImageTools;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.utils.EnumDisplayMode;
-import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.Units;
-import drawingbot.utils.Utils;
+import drawingbot.utils.*;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 
 import javafx.scene.control.Button;
@@ -34,6 +30,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.util.converter.DefaultStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -41,6 +38,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 
 import static processing.core.PApplet.*;
 
@@ -53,6 +51,8 @@ public class FXController {
     public MenuItem menuExit = null;
     public Menu menuExport = null;
     public Menu menuExportPerPen = null;
+    //view
+    public Menu menuView = null;
     //help
     public MenuItem menuHelpPage = null;
 
@@ -92,9 +92,15 @@ public class FXController {
     public TableColumn<ObservableDrawingPen, Boolean> penEnableColumn = null;
     public TableColumn<ObservableDrawingPen, String> penNameColumn = null;
     public TableColumn<ObservableDrawingPen, Color> penColourColumn = null;
+    public TableColumn<ObservableDrawingPen, String> penPercentageColumn = null;
+    public TableColumn<ObservableDrawingPen, Integer> penWeightColumn = null;
+    public TableColumn<ObservableDrawingPen, Integer> penLinesColumn = null;
 
     public ComboBox<DrawingPen> comboBoxDrawingPen = null;
     public Button buttonAddPen = null;
+
+    public ComboBox<EnumDistributionOrder> renderOrderComboBox = null;
+    public ComboBox<EnumBlendMode> blendModeComboBox = null;
 
     ////BATCH PROCESSING
     public Label labelInputFolder = null;
@@ -119,7 +125,6 @@ public class FXController {
 
     public void initialize(){
         println("Initialize JAVA FX");
-
         ////MENU
 
         //file
@@ -137,22 +142,24 @@ public class FXController {
             item.setOnAction(e -> exportFile(format, true));
             menuExportPerPen.getItems().add(item);
         }
+
+        //view
+        ArrayList<TitledPane> allPanes = new ArrayList<>();
+        for(Node node : vBoxSettings.getChildren()){
+            if(node instanceof TitledPane){
+                allPanes.add((TitledPane) node);
+            }
+        }
+        for(TitledPane pane : allPanes){
+            MenuItem viewButton = new MenuItem(pane.getText());
+            viewButton.setOnAction(e -> {
+                allPanes.forEach(p -> p.expandedProperty().setValue(p == pane));
+            });
+            menuView.getItems().add(viewButton);
+        }
+
         //help
         menuHelpPage.setOnAction(e -> openHelpPage());
-
-        ////
-
-        ////SETTINGS WINDOW
-        //vBoxSettings.prefWidthProperty().bind(scrollPaneSettings.widthProperty());
-        //vBoxSettings.prefHeightProperty().bind(scrollPaneSettings.heightProperty());
-
-        ////
-
-        ////VIEWPORT WINDOW
-        //viewportScrollPane.prefWidthProperty().bind(vBoxViewportContainer.widthProperty()); //TODO BIND WITHOUT MESSING UP IMAGE POSITION...
-        //viewportScrollPane.prefHeightProperty().bind(vBoxViewportContainer.heightProperty());
-        //viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.updateCanvasScaling());
-        ////
 
         ////VIEWPORT SETTINGS
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
@@ -230,9 +237,7 @@ public class FXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
-                if(DrawingBotV3.INSTANCE.renderedLines > lines){
-                    DrawingBotV3.INSTANCE.reRender(); //TODO REDISTRIBUTE?
-                }
+                DrawingBotV3.INSTANCE.reRender();
             }
         });
 
@@ -243,9 +248,7 @@ public class FXController {
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
                 sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
-                if(DrawingBotV3.INSTANCE.renderedLines > lines){
-                    DrawingBotV3.INSTANCE.reRender();
-                }
+                DrawingBotV3.INSTANCE.reRender();
             }
         });
 
@@ -283,11 +286,22 @@ public class FXController {
         penEnableColumn.setCellFactory(param -> new CheckBoxTableCell<>(index -> penEnableColumn.getCellObservableValue(index)));
         penEnableColumn.setCellValueFactory(param -> param.getValue().enable);
 
+        penPercentageColumn.setCellValueFactory(param -> param.getValue().currentPercentage);
+
+        penWeightColumn.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
+        penWeightColumn.setCellValueFactory(param -> param.getValue().distributionWeight.asObject());
+
+        penLinesColumn.setCellValueFactory(param -> param.getValue().currentLines.asObject());
+
         comboBoxDrawingPen.setItems(FXCollections.observableArrayList(DrawingRegistry.INSTANCE.registeredPens.values()));
         comboBoxDrawingPen.setValue(DrawingRegistry.INSTANCE.getDefaultPen());
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen());
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen());
-        buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.pens.add(new ObservableDrawingPen(comboBoxDrawingPen.getValue())));
+        buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(comboBoxDrawingPen.getValue()));
+
+        renderOrderComboBox.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
+
+        blendModeComboBox.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
 
         ////BATCH PROCESSING
 
@@ -477,14 +491,52 @@ public class FXController {
 
         public ObservablePenContextMenu(TableRow<ObservableDrawingPen> row){
             super();
+
+            MenuItem increaseWeight = new MenuItem("Increase Weight");
+            increaseWeight.setOnAction(e -> {
+                row.getItem().distributionWeight.set(row.getItem().distributionWeight.get() + 10);
+            });
+            getItems().add(increaseWeight);
+
+            MenuItem decreaseWeight = new MenuItem("Decrease Weight");
+            decreaseWeight.setOnAction(e -> row.getItem().distributionWeight.set(Math.max(0, row.getItem().distributionWeight.get() - 10)));
+            getItems().add(decreaseWeight);
+
+            MenuItem resetWeight = new MenuItem("Reset Weight");
+            resetWeight.setOnAction(e -> row.getItem().distributionWeight.set(100));
+            getItems().add(resetWeight);
+
+            getItems().add(new SeparatorMenuItem());
+
+            MenuItem moveUp = new MenuItem("Move Up");
+            moveUp.setOnAction(e -> {
+                int index = DrawingBotV3.INSTANCE.observableDrawingSet.getPens().indexOf(row.getItem());
+                if(index != 0){
+                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().remove(index);
+                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().add(index-1, row.getItem());
+                }
+            });
+            getItems().add(moveUp);
+
+            MenuItem moveDown = new MenuItem("Move Down");
+            moveDown.setOnAction(e -> {
+                int index = DrawingBotV3.INSTANCE.observableDrawingSet.getPens().indexOf(row.getItem());
+                if(index != DrawingBotV3.INSTANCE.observableDrawingSet.getPens().size()-1){
+                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().remove(index);
+                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().add(index+1, row.getItem());
+                }
+            });
+            getItems().add(moveDown);
+
+            getItems().add(new SeparatorMenuItem());
+
             MenuItem delete = new MenuItem("Delete");
             delete.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.pens.remove(row.getItem()));
             getItems().add(delete);
 
             MenuItem duplicate = new MenuItem("Duplicate");
-            duplicate.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.pens.add(row.getItem()));
+            duplicate.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(row.getItem()));
             getItems().add(duplicate);
-
         }
 
     }

@@ -58,8 +58,8 @@ public class PFMSquares extends AbstractSketchPFM {
 
     @Override
     public void output_parameters() {
-        GCodeExporter.gcodeComment(task, "adjustbrightness: " + adjustbrightness);
-        GCodeExporter.gcodeComment(task, "squiggle_length: " + squiggle_length);
+        task.comment("adjustbrightness: " + adjustbrightness);
+        task.comment("squiggle_length: " + squiggle_length);
     }
 
 }

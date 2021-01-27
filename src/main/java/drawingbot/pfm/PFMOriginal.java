@@ -51,7 +51,7 @@ public class PFMOriginal extends AbstractSketchPFM {
         //start_angle = 34 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/-7+26)) ));
         //if (squiggle_count <220) { tests = 20; } else { tests = 2; }
         //start_angle = random(20, 1);       // Cuba 1
-        start_angle = app.random(-72, -52);    // Spitfire
+        start_angle = randomSeed(-72, -52);    // Spitfire
         //start_angle = random(-120, -140);  // skier
         //start_angle = random(-360, -1);    // gradiant magic
         //start_angle = squiggle_count % 360;
@@ -86,8 +86,8 @@ public class PFMOriginal extends AbstractSketchPFM {
 
     @Override
     public void output_parameters() {
-        GCodeExporter.gcodeComment(task, "adjustbrightness: " + adjustbrightness);
-        GCodeExporter.gcodeComment(task, "squiggle_length: " + squiggle_length);
+        task.comment("adjustbrightness: " + adjustbrightness);
+        task.comment("squiggle_length: " + squiggle_length);
     }
 
 }
