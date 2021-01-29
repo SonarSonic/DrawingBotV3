@@ -19,7 +19,8 @@ public class PFMSquares extends AbstractSketchPFM {
         adjustbrightness = 9;
         desired_brightness = 250;
         tests = 4;
-        line_length = 30;
+        minLineLength = 30;
+        maxLineLength = 30;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,8 +55,9 @@ public class PFMSquares extends AbstractSketchPFM {
         start_angle = 36 + degrees((sin(radians(start_x/9F+46F)) + cos(radians(start_y/26F+26F))));
         delta_angle = 360.0F / (float)tests;
 
+        int nextLineLength = randomSeed(minLineLength, maxLineLength);
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgBrightness(start_x, start_y, line_length, (delta_angle * d) + start_angle);
+            bresenhamAvgBrightness(start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 

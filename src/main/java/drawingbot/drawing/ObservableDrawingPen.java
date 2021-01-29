@@ -2,7 +2,10 @@ package drawingbot.drawing;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.helpers.ImageTools;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.paint.Color;
 
 public class ObservableDrawingPen implements IDrawingPen {

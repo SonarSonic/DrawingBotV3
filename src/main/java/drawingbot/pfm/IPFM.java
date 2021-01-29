@@ -9,6 +9,8 @@ public interface IPFM {
 
     float progress();
 
+    void init();
+
     void preProcessing();
 
     void findPath();

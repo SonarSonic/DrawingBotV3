@@ -87,7 +87,7 @@ public class DrawingBotV3 extends PApplet {
     public static SimpleObjectProperty<Units> drawingAreaUnits = new SimpleObjectProperty<Units>(Units.MILLIMETRES);
 
     //PATH FINDING \\
-    public PFMLoaders pfmLoader = PFMLoaders.SKETCH;
+    public SimpleObjectProperty<PFMLoaders> pfmLoader = new SimpleObjectProperty<>(PFMLoaders.SKETCH);
 
     // PEN SETS \\
     public ObservableDrawingSet observableDrawingSet;
@@ -279,22 +279,24 @@ public class DrawingBotV3 extends PApplet {
                             updateLocalProgress(0);
                             drawingTime = System.currentTimeMillis();
                         }
-                        int pen = display_mode == EnumDisplayMode.DRAWING ? -1 : controller.penTableView.getSelectionModel().getSelectedItem().penNumber.get();
-                        int max = Math.min(renderedLines + 10000, renderedTask.plottedDrawing.getDisplayedLineCount());
-                        blendMode(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().constant);
-                        for(; renderedLines < max; renderedLines++){
-                            int nextReversed = renderedTask.plottedDrawing.getDisplayedLineCount()-1-renderedLines;
-                            PlottedLine line = renderedTask.plottedDrawing.plottedLines.get(nextReversed);
-                            if(pen == -1 || line.pen_number == pen){
-                                renderedTask.plottedDrawing.renderLine(line);
+                        if(renderedLines != -1){
+                            int pen = display_mode == EnumDisplayMode.DRAWING ? -1 : controller.penTableView.getSelectionModel().getSelectedItem().penNumber.get();
+                            int max = Math.min(renderedLines + 10000, renderedTask.plottedDrawing.getDisplayedLineCount());
+                            blendMode(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().constant);
+                            for(; renderedLines < max; renderedLines++){
+                                int nextReversed = renderedTask.plottedDrawing.getDisplayedLineCount()-1-renderedLines;
+                                PlottedLine line = renderedTask.plottedDrawing.plottedLines.get(nextReversed);
+                                if(pen == -1 || line.pen_number == pen){
+                                    renderedTask.plottedDrawing.renderLine(line);
+                                }
                             }
-                        }
 
-                        updateLocalProgress((float)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
-                        if(renderedLines == renderedTask.plottedDrawing.getDisplayedLineCount()-1){
-                            long time = System.currentTimeMillis();
-                            println("Drawing Took: " + (time-drawingTime) + " ms");
-                            renderedLines = 0;
+                            updateLocalProgress((float)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
+                            if(renderedLines == renderedTask.plottedDrawing.getDisplayedLineCount()-1){
+                                long time = System.currentTimeMillis();
+                                println("Drawing Took: " + (time-drawingTime) + " ms");
+                                renderedLines = -1;
+                            }
                         }
                         break;
                     case ORIGINAL:
@@ -398,7 +400,7 @@ public class DrawingBotV3 extends PApplet {
         if(activeTask != null){
             activeTask.cancel();
         }
-        executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader, DrawingBotV3.INSTANCE.observableDrawingSet, url));
+        executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader.get(), DrawingBotV3.INSTANCE.observableDrawingSet, url));
     }
 
     public void setActivePlottingTask(PlottingTask task){

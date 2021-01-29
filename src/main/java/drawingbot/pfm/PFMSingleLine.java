@@ -7,14 +7,20 @@ import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
 
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
-public class PFMSketch extends AbstractSketchPFM {
+public class PFMSingleLine extends AbstractSketchPFM {
 
-    public int squiggles_till_first_change;
+    public int squiggles_till_first_change = 190;
 
-    public PFMSketch(PlottingTask task){
+    public PFMSingleLine(PlottingTask task){
         super(task);
+        squiggle_length = 10000;
+        adjustbrightness = 20;
+        desired_brightness = 200;
+        tests = 360;
+        minLineLength = 50;
+        maxLineLength = 50;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +44,35 @@ public class PFMSketch extends AbstractSketchPFM {
         task.img_plotting = new PImage(dst);
         rawBrightnessData = new RawBrightnessData(dst);
         initialProgress = rawBrightnessData.getAverageBrightness();
+    }
+
+    @Override
+    public void findPath() {
+        int x, y;
+        findDarkestArea();
+
+        x = darkest_x;
+        y = darkest_y;
+        squiggle_count++;
+
+        findDarkestNeighbour(x, y);
+
+        task.moveAbs(0, darkest_x, darkest_y);
+        task.penDown();
+
+        for (int s = 0; s < 500; s++) {
+            findDarkestNeighbour(x, y);
+            bresenhamLighten(x, y, darkest_x, darkest_y, adjustbrightness);
+            task.moveAbs(0, darkest_x, darkest_y);
+            x = darkest_x;
+            y = darkest_y;
+        }
+
+        float avgBrightness = rawBrightnessData.getAverageBrightness();
+        progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
+        if(avgBrightness > desired_brightness){
+            finish();
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
