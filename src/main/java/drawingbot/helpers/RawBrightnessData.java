@@ -2,7 +2,6 @@ package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
 
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 
 import static processing.core.PApplet.constrain;

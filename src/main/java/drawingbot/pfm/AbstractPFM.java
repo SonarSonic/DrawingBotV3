@@ -11,12 +11,16 @@ public abstract class AbstractPFM implements IPFM {
     public final PlottingTask task;
     public boolean finished = false;
 
-    protected int seed = 0;
+    protected long seed = 0;
     protected Random randomSeed;
 
     public AbstractPFM(PlottingTask task){
         this.task = task;
-        this.randomSeed = new Random(seed);
+    }
+
+    @Override
+    public void init() {
+        randomSeed = new Random(seed);
     }
 
     /**produces random results which will be consistent every time the PFM is run*/

@@ -13,28 +13,40 @@ public abstract class AbstractSketchPFM extends AbstractPFM {
     public float desired_brightness;    // How long to process.  You can always stop early with "s" key
 
     public int tests;                   // Reasonable values:  13 for development, 720 for final
-    public int line_length;             // Reasonable values:  3 through 100 - Impacts the amount of lines drawn
+    public int minLineLength;
+    public int maxLineLength;
 
-    public int squiggle_count;
-    public int darkest_x;
-    public int darkest_y;
-    public float darkest_value;
-    public float darkest_neighbor;
+    protected int squiggle_count;
+    protected int darkest_x;
+    protected int darkest_y;
+    protected float darkest_value;
+    protected float darkest_neighbor;
 
     protected float initialProgress;
     protected float progress;
 
     ///bresenham calculations
-    private int sum_brightness = 0;
-    private int count_brightness = 0;
+    protected int sum_brightness = 0;
+    protected int count_brightness = 0;
 
-    public RawBrightnessData rawBrightnessData;
+    protected RawBrightnessData rawBrightnessData;
 
     public AbstractSketchPFM(PlottingTask task) {
         super(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public void init() {
+        super.init();
+        if(maxLineLength < minLineLength){
+            int value = minLineLength;
+            minLineLength = maxLineLength;
+            maxLineLength = value;
+        }
+    }
 
     @Override
     public float progress() {
@@ -64,14 +76,17 @@ public abstract class AbstractSketchPFM extends AbstractPFM {
             task.moveAbs(0, darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
+
+
+            float avgBrightness = rawBrightnessData.getAverageBrightness();
+            progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
+            if(avgBrightness > desired_brightness || task.isCancelled()){
+                finish();
+                break;
+            }
+
         }
         task.penUp();
-
-        float avgBrightness = rawBrightnessData.getAverageBrightness();
-        progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
-        if(avgBrightness > desired_brightness){
-            finish();
-        }
 
     }
 

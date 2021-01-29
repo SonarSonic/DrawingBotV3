@@ -34,7 +34,7 @@
                <content>
                   <VBox fx:id="vBoxSettings" prefWidth="402.0">
                      <children>
-                        <TitledPane expanded="false" text="Drawing Area">
+                        <TitledPane text="Drawing Area">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="89.0" prefWidth="404.0">
                                  <children>
@@ -62,7 +62,7 @@
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                      <TitledPane expanded="false" text="Path Finding Controls">
+                      <TitledPane text="Path Finding Controls - Basic">
                         <content>
                           <AnchorPane>
                                  <children>
@@ -79,7 +79,25 @@
                               </AnchorPane>
                         </content>
                       </TitledPane>
-                      <TitledPane prefWidth="428.0" text="Pen Settings">
+                        <TitledPane expanded="false" text="Path Finding Controls - Advanced">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
+                                 <children>
+                                    <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="199.0" prefWidth="404.0" tableMenuButtonVisible="true">
+                                      <columns>
+                                        <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="188.0" text="Setting" />
+                                        <TableColumn fx:id="tableColumnValue" prefWidth="139.0" text="Value" />
+                                      </columns>
+                                    </TableView>
+                                    <ComboBox fx:id="comboBoxPFMPreset" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="371.0" />
+                                    <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
+                                    <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
+                                    <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
+                      <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="404.0">
                                  <children>

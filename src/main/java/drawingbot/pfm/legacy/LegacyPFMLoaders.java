@@ -12,4 +12,9 @@ public class LegacyPFMLoaders {
     public static final Function<PlottingTask, IPFM> pfmSquaresLegacy = PFMSquaresLegacy::new;
     public static final Function<PlottingTask, IPFM> pfmSpiralLegacy = PFMSpiralLegacy::new;
 
+
+    public static final Class<? extends IPFM> pfmSketchLegacyClass = PFMSketchLegacy.class;
+    public static final Class<? extends IPFM> pfmSquaresLegacyClass = PFMSquaresLegacy.class;
+    public static final Class<? extends IPFM> pfmSpiralLegacyClass = PFMSpiralLegacy.class;
+
 }

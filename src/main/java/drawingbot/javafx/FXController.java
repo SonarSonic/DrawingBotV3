@@ -6,11 +6,14 @@ import drawingbot.drawing.*;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.FileUtils;
 import drawingbot.helpers.ImageTools;
+import drawingbot.pfm.PFMSetting;
 import drawingbot.pfm.PFMLoaders;
+import drawingbot.pfm.PFMSettingsRegistry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -29,6 +32,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -84,6 +88,16 @@ public class FXController {
     public Label labelPlottedLines = null;
     public Slider sliderDisplayedLines = null;
     public TextField textFieldDisplayedLines = null;
+
+    ////PATH FINDING CONTROLS - ADVANCED
+    public ComboBox comboBoxPFMPreset = null;
+    public TableView<PFMSetting<?,?>> tableViewAdvancedPFMSettings = null;
+    public TableColumn<PFMSetting<?, ?>, String> tableColumnSetting = null;
+    public TableColumn<PFMSetting<?, ?>, Object> tableColumnValue = null;
+
+    public Button buttonPFMSettingReset = null;
+    public Button buttonPFMSettingRandom = null;
+    public Button buttonPFMSettingHelp = null;
 
     ////PEN SETTINGS
     public ComboBox<DrawingSet> comboBoxDrawingSet = null;
@@ -159,7 +173,7 @@ public class FXController {
         }
 
         //help
-        menuHelpPage.setOnAction(e -> openHelpPage());
+        menuHelpPage.setOnAction(e -> openURL(Utils.URL_GITHUB_REPO));
 
         ////VIEWPORT SETTINGS
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
@@ -224,8 +238,10 @@ public class FXController {
 
         ////PATH FINDING CONTROLS
         choiceBoxPFM.getItems().addAll(PFMLoaders.values());
-        choiceBoxPFM.setValue(DrawingBotV3.INSTANCE.pfmLoader);
+        choiceBoxPFM.setValue(PFMLoaders.SKETCH);
         choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
+        DrawingBotV3.INSTANCE.pfmLoader.bindBidirectional(choiceBoxPFM.valueProperty());
+
 
         labelElapsedTime.setText("0 s");
         labelPlottedLines.setText("0 lines");
@@ -253,6 +269,24 @@ public class FXController {
         });
 
         ////
+
+        ////ADVANCED PATH FINDING CONTROLS
+
+        tableViewAdvancedPFMSettings.setItems(PFMSettingsRegistry.getSettingsFromLoader(DrawingBotV3.INSTANCE.pfmLoader.get()));
+        DrawingBotV3.INSTANCE.pfmLoader.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMSettingsRegistry.getSettingsFromLoader(newValue)));
+
+        tableColumnSetting.setCellValueFactory(param -> param.getValue().settingName);
+
+        tableColumnValue.setCellFactory(param -> {
+            TextFieldTableCell<PFMSetting<?, ?>, Object> cell = new TextFieldTableCell<>();
+            cell.setConverter(new PFMSettingStringConverter(cell));
+            return cell;
+        });
+        tableColumnValue.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
+
+        buttonPFMSettingReset.setOnAction(e -> PFMSettingsRegistry.resetSettings(tableViewAdvancedPFMSettings.getItems()));
+        buttonPFMSettingRandom.setOnAction(e -> PFMSettingsRegistry.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
+        buttonPFMSettingHelp.setOnAction(e -> openURL(Utils.URL_GITHUB_PFM_DOCS));
 
         ////PEN SETTINGS
         comboBoxDrawingSet.setItems(FXCollections.observableArrayList(DrawingRegistry.INSTANCE.registeredSets.values()));
@@ -362,7 +396,7 @@ public class FXController {
     }
 
     public void changePathFinderModule(PFMLoaders pfm){
-        DrawingBotV3.INSTANCE.pfmLoader = pfm;
+        DrawingBotV3.INSTANCE.pfmLoader.set(pfm);
         if(DrawingBotV3.INSTANCE.getActiveTask() != null && DrawingBotV3.INSTANCE.getActiveTask().loader != pfm){
             DrawingBotV3.INSTANCE.createPlottingTask(DrawingBotV3.INSTANCE.getActiveTask().imageURL);
         }
@@ -417,10 +451,10 @@ public class FXController {
         });
     }
 
-    public void openHelpPage() {
+    public void openURL(String url) {
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(URI.create("https://github.com/SonarSonic/Drawbot_image_to_gcode_v3"));
+                Desktop.getDesktop().browse(URI.create(url));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -442,6 +476,31 @@ public class FXController {
 
     public void action_rotate(){
         /* TODO IMAGE ROTATE?*/
+    }
+
+    public static class PFMSettingStringConverter<V> extends StringConverter<V>{
+
+        public TableCell<PFMSetting<?, V>, V> cell;
+
+        public PFMSettingStringConverter(TableCell<PFMSetting<?, V>, V> cell){
+            this.cell = cell;
+        }
+
+        public String toString(V object){
+            PFMSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
+            return setting.stringConverter.toString(object);
+        }
+
+        public V fromString(String string){
+            PFMSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
+            try {
+                V value = setting.stringConverter.fromString(string);
+                return setting.validator.apply(value);
+            } catch (Exception e) {
+                System.out.println("Invalid input: " + string + " for setting " + setting.settingName.getName());
+            }
+            return setting.value.get();
+        }
     }
 
     public static class ComboCellDrawingSet extends ComboBoxListCell<DrawingSet> {

@@ -69,7 +69,7 @@ public class PlottingTask extends Task<PlottingTask> {
                 }
 
                 pfm = loader.createNewPFM(this);
-
+                pfm.init();
                 updateMessage("Rotating Image");
                 img_plotting = loadedImg;
 
