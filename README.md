@@ -1,4 +1,4 @@
-# DRAWBOT V3 W.I.P
+# DRAWING BOT V3 W.I.P
 
 ![Screenshot](https://github.com/SonarSonic/Drawbot_image_to_gcode_v3/blob/master/images/ScreenshotV3.JPG?raw=true)
 
