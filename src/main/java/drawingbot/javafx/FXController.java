@@ -12,6 +12,7 @@ import drawingbot.pfm.PFMSettingsRegistry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -34,6 +35,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
+import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.awt.*;
@@ -81,6 +83,13 @@ public class FXController {
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
     public ChoiceBox<Units> choiceBoxDrawingUnits = null;
+
+    ////GCODE SETTINGS
+    public TextField textFieldOffsetX = null;
+    public TextField textFieldOffsetY = null;
+    public TextField textFieldPenUpZ = null;
+    public TextField textFieldPenDownZ = null;
+    public CheckBox checkBoxAutoHome = null;
 
     ////PATH FINDING CONTROLS
     public ChoiceBox<PFMLoaders> choiceBoxPFM = null;
@@ -131,6 +140,10 @@ public class FXController {
     public TableColumn<BatchProcessing.BatchExportTask, String> tableColumnFileFormat = null;
     public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerDrawing = null;
     public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerPen = null;
+
+    public Button buttonStartPlotting = null;
+    public Button buttonStopPlotting = null;
+    public Button buttonResetPlotting = null;
 
     ////PROGRESS BAR PANE
     public Pane paneProgressBar = null;
@@ -191,7 +204,7 @@ public class FXController {
                 DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() - 0.1);
             }
         });
-        DrawingBotV3.scaleMultiplier.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.updateCanvasScaling());
+        DrawingBotV3.scaleMultiplier.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.canvasNeedsUpdate = true);
 
         buttonResetView.setOnAction(e -> {
             viewportScrollPane.setHvalue(0.5);
@@ -205,36 +218,35 @@ public class FXController {
         DrawingBotV3.useOriginalSizing.bind(checkBoxOriginalSizing.selectedProperty());
         textFieldDrawingWidth.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         textFieldDrawingHeight.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
-        choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
 
-        textFieldDrawingWidth.textProperty().addListener((observable, oldValue, newValue) -> {
-            /*
-            if (!newValue.matches("\\d*")) {
-                textFieldDrawingWidth.setText(newValue.replaceAll("[^\\d]", ""));
-                DrawingBotV3.drawingAreaWidth.setValue(Float.parseFloat(textFieldDrawingWidth.getText()));
-            }
-             */
+        DrawingBotV3.drawingAreaWidth.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldDrawingWidth.textProperty().get()), textFieldDrawingWidth.textProperty()));
+        textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        });
-        DrawingBotV3.drawingAreaWidth.addListener((observable, oldValue, newValue) -> {
-            textFieldDrawingWidth.setText(newValue.toString());
-        });
+        DrawingBotV3.drawingAreaHeight.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldDrawingHeight.textProperty().get()), textFieldDrawingHeight.textProperty()));
+        textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        textFieldDrawingHeight.textProperty().addListener((observable, oldValue, newValue) -> {
-            /*
-            if (!newValue.matches("\\d*")) {
-                textFieldDrawingHeight.setText(newValue.replaceAll("[^\\d]", ""));
-                DrawingBotV3.drawingAreaHeight.setValue(Float.parseFloat(textFieldDrawingHeight.getText()));
-            }
-             */
-        });
-        DrawingBotV3.drawingAreaHeight.addListener((observable, oldValue, newValue) -> textFieldDrawingHeight.setText(newValue.toString()));
-
+        //choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         choiceBoxDrawingUnits.getItems().addAll(Units.values());
         choiceBoxDrawingUnits.setValue(Units.MILLIMETRES);
-        DrawingBotV3.drawingAreaUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
+        DrawingBotV3.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
 
         ////
+
+        ////GCODE SETTINGS
+        checkBoxAutoHome.setSelected(true);
+        DrawingBotV3.enableAutoHome.bind(checkBoxAutoHome.selectedProperty());
+
+        DrawingBotV3.gcodeOffsetX.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetX.textProperty().get()), textFieldOffsetX.textProperty()));
+        textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+
+        DrawingBotV3.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
+        textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+
+        DrawingBotV3.penUpZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenUpZ.textProperty().get()), textFieldPenUpZ.textProperty()));
+        textFieldPenUpZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 5F));
+
+        DrawingBotV3.penDownZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenDownZ.textProperty().get()), textFieldPenDownZ.textProperty()));
+        textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
         ////PATH FINDING CONTROLS
         choiceBoxPFM.getItems().addAll(PFMLoaders.values());
@@ -368,6 +380,12 @@ public class FXController {
         tableColumnPerPen.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerPen.getCellObservableValue(index)));
         tableColumnPerPen.setCellValueFactory(param -> param.getValue().enablePerPen);
 
+        ////PLOTTING BUTTONS
+        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
+        buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting);
+        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
+        buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting.not());
+        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
         ////PROGRESS BAR PANE
 
         progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
@@ -388,7 +406,7 @@ public class FXController {
                 break;
             case POST_PROCESSING:
                 break;
-            case LOGGING:
+            case FINISHING:
                 break;
             case FINISHED:
                 break;
@@ -397,10 +415,13 @@ public class FXController {
 
     public void changePathFinderModule(PFMLoaders pfm){
         DrawingBotV3.INSTANCE.pfmLoader.set(pfm);
+        /*
         if(DrawingBotV3.INSTANCE.getActiveTask() != null && DrawingBotV3.INSTANCE.getActiveTask().loader != pfm){
             DrawingBotV3.INSTANCE.createPlottingTask(DrawingBotV3.INSTANCE.getActiveTask().imageURL);
         }
+
         //TODO MAKE "START DRAW" BUTTON IN GUI
+         */
     }
 
     public void changeDisplayMode(EnumDisplayMode mode){
@@ -416,7 +437,7 @@ public class FXController {
         String url = getClipboardString();
         if (url != null && match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
             println("Image URL found on clipboard: " + url);
-            DrawingBotV3.INSTANCE.createPlottingTask(url);
+            DrawingBotV3.INSTANCE.openImage(url);
         }
     }
 
@@ -428,7 +449,7 @@ public class FXController {
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showOpenDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.createPlottingTask(file.getAbsolutePath());
+                DrawingBotV3.INSTANCE.openImage(file.getAbsolutePath());
             }
         });
     }

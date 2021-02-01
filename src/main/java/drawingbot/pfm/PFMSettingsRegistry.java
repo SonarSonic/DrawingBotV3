@@ -19,15 +19,17 @@ public class PFMSettingsRegistry<P> {
 
     static{
         ////GENERAL
-        registerSetting(new PFMSetting<>(AbstractPFM.class, "Random Seed", 0L, new LongStringConverter(), ThreadLocalRandom::nextLong, value -> value, (pfmSketch, value) -> pfmSketch.seed = value));
+        registerSetting(PFMSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1F, 0.1F, 100F, (pfmSketch, value) -> pfmSketch.plottingResolution = value));
+        registerSetting(PFMSetting.createRangedLongSetting(AbstractPFM.class, "Random Seed", 0L, Long.MIN_VALUE, Long.MAX_VALUE, (pfmSketch, value) -> pfmSketch.seed = value));
 
         ////ABSTRACT SKETCH PFM
         registerSetting(PFMSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Desired Brightness", 250F, 0F, 255F, (pfmSketch, value) -> pfmSketch.desired_brightness = value));
         registerSetting(PFMSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Integer.MAX_VALUE, (pfmSketch, value) -> pfmSketch.squiggle_length = value));
-        registerSetting(PFMSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 10, 1, 255, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
+        registerSetting(PFMSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 50, 1, 255, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
         registerSetting(PFMSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 720, (pfmSketch, value) -> pfmSketch.tests = value));
         registerSetting(PFMSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 20, 1, Integer.MAX_VALUE, (pfmSketch, value) -> pfmSketch.minLineLength = value));
         registerSetting(PFMSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 1, Integer.MAX_VALUE, (pfmSketch, value) -> pfmSketch.maxLineLength = value));
+        registerSetting(PFMSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
         ////SKETCH PFM
         registerSetting(PFMSetting.createRangedIntSetting(PFMSketch.class, "Squiggles till first change", 190, 1, Integer.MAX_VALUE, (pfmSketch, value) -> pfmSketch.squiggles_till_first_change = value));

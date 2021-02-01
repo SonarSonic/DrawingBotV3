@@ -1,7 +1,9 @@
-package drawingbot.files;
+package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.files.ExportTask;
+import drawingbot.files.FileUtils;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.utils.Limit;
@@ -19,7 +21,10 @@ public class GCodeExporter {
     private static void gcodeHeader(PlottingTask task) {
         output.println("G21"); //programming in millimeters, mm
         output.println("G90"); //programming in absolute positioning
-        //output.println("G28"); //auto home
+        if(DrawingBotV3.enableAutoHome.get()){
+            output.println("G28");
+        }
+        output.println("G1 F8000"); //SET SPEED
         output.println(movePenUp());
     }
 
@@ -35,11 +40,11 @@ public class GCodeExporter {
     }
 
     private static String movePenUp(){
-        return "G1 Z0"; //TODO MAKE THIS NUMBER CHANGEABLE!!
+        return "G1 Z" + gcodeFormat(DrawingBotV3.penUpZ.get());
     }
 
     private static String movePenDown(){
-        return "G1 Z1"; //TODO MAKE THIS NUMBER CHANGEABLE!!
+        return "G1 Z" + gcodeFormat(DrawingBotV3.penDownZ.get());
     }
 
     private static String comment(String comment){
@@ -82,10 +87,10 @@ public class GCodeExporter {
                 if(line.pen_number == p){
                     if (lineFilter.apply(line, drawingPen)) { // we apply the line filter also.
 
-                        float gcode_scaled_x1 = line.x1 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
-                        float gcode_scaled_y1 = line.y1 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
-                        float gcode_scaled_x2 = line.x2 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
-                        float gcode_scaled_y2 = line.y2 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
+                        float gcode_scaled_x1 = line.x1 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
+                        float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
+                        float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
+                        float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
                         float distance = sqrt( sq(abs(gcode_scaled_x1 - gcode_scaled_x2)) + sq(abs(gcode_scaled_y1 - gcode_scaled_y2)) );
 
                         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
@@ -143,10 +148,10 @@ public class GCodeExporter {
 
         Limit dx = new Limit(), dy = new Limit();
         for (PlottedLine line : plottingTask.plottedDrawing.plottedLines) { //to allow the export of the gcode test file seperately we must update the limits
-            float gcode_scaled_x1 = line.x1 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
-            float gcode_scaled_y1 = line.y1 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
-            float gcode_scaled_x2 = line.x2 * plottingTask.gcode_scale + plottingTask.gcode_offset_x;
-            float gcode_scaled_y2 = line.y2 * plottingTask.gcode_scale + plottingTask.gcode_offset_y;
+            float gcode_scaled_x1 = line.x1 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
+            float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
+            float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
+            float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
 
             dx.update_limit(gcode_scaled_x1);
             dx.update_limit(gcode_scaled_x2);
@@ -156,12 +161,12 @@ public class GCodeExporter {
         }
 
 
-        float test_length = 25.4F * 2F; //TODO CHECK ME?
+        float test_length = 10;
 
         String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + extension;
         output = DrawingBotV3.INSTANCE.createWriter(gname);
         output.println(comment("This is a test file to draw the extremes of the drawing area."));
-        output.println(comment("Draws a 2 inch mark on all four corners of the paper."));
+        output.println(comment("Draws a 1cm mark on all four corners of the paper."));
         output.println(comment("WARNING:  pen will be down."));
         output.println(comment("Extremes of X: " + dx.min + " thru " + dx.max));
         output.println(comment("Extremes of Y: " + dy.min + " thru " + dy.max));

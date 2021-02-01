@@ -8,6 +8,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.concurrent.Task;
+import processing.core.PImage;
 
 import java.io.File;
 import java.nio.file.FileSystems;
@@ -47,7 +48,7 @@ public class BatchProcessingTask extends Task<Boolean> {
     @Override
     protected Boolean call() throws Exception {
         PathMatcher imageMatcher = FileSystems.getDefault().getPathMatcher("glob:*.{tif,tga,png,jpg,gif,bmp,jpeg}");
-        List<Path> files = Files.walk(new File(inputFolder).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> imageMatcher.matches(p.getFileName())).collect(Collectors.toList());
+        List<Path> files = Files.list(new File(inputFolder).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> imageMatcher.matches(p.getFileName())).collect(Collectors.toList());
         DrawingBotV3.println("Batch Processing: Found " + files.size());
 
         if(!files.isEmpty()){
@@ -64,7 +65,8 @@ public class BatchProcessingTask extends Task<Boolean> {
                 updateTitle("Batch Processing " + (imagesDone+1) + " / " + imageCount);
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
-                    PlottingTask internalTask = new PlottingTask(loader, drawingPenSet, path.toString());
+                    PImage image = DrawingBotV3.INSTANCE.loadImage(path.toString());
+                    PlottingTask internalTask = new PlottingTask(loader, drawingPenSet, image);
                     Future<?> futurePlottingTask = service.submit(internalTask);
                     while(!futurePlottingTask.isDone()){
                         ///wait

@@ -1,16 +1,8 @@
-package drawingbot;///////////////////////////////////////////////////////////////////////////////////////////////////////
-// My Drawbot, "Death to Sharpie"
-// Jpeg to drawingbot.gcode simplified (kinda sorta works version, v3.75 (beta))
-//
-// Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
-//
-// Open creative GPL source commons with some BSD public GNU foundation stuff sprinkled in...
-// If anything here is remotely useable, please give me a shout.
-//
-// Useful math:    http://members.chello.at/~easyfilter/bresenham.html
-// drawingbot.helpers.GClip:          https://forum.processing.org/two/discussion/6179/why-does-not-it-run-clipboard
-// Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
-///////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+  DrawingBotV3 by Ollie lansdell <ollielansdell@hotmail.co.uk
+  Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
+ */
+package drawingbot;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +29,7 @@ import javafx.beans.property.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PSurface;
 
 public class DrawingBotV3 extends PApplet {
@@ -45,7 +38,10 @@ public class DrawingBotV3 extends PApplet {
 
     ///constants
     public static final String appName = "DrawingBotV3";
-    public static final String appVersion = "1.0.1";
+    public static final String majorVersion = "1";
+    public static final String minorVersion = "0";
+    public static final String patchVersion = "1";
+    public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
     public static final String PGraphicsFX9 = "drawingbot.javafx.PGraphicsFX9";
 
     ///plotting settings
@@ -76,17 +72,29 @@ public class DrawingBotV3 extends PApplet {
     private ExportTask exportTask = null;
     public BatchProcessingTask batchProcessingTask = null;
 
+    public PImage loadingImage = null;
+    public PImage openImage = null;
+
     // GUI \\
     public FXController controller;
     public Canvas canvas;
 
     //DRAWING AREA
     public static SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
+    public static SimpleObjectProperty<Units> inputUnits = new SimpleObjectProperty<Units>(Units.MILLIMETRES);
+
     public static SimpleFloatProperty drawingAreaWidth = new SimpleFloatProperty(0);
     public static SimpleFloatProperty drawingAreaHeight = new SimpleFloatProperty(0);
-    public static SimpleObjectProperty<Units> drawingAreaUnits = new SimpleObjectProperty<Units>(Units.MILLIMETRES);
+
+    //GCODE SETTINGS
+    public static SimpleBooleanProperty enableAutoHome = new SimpleBooleanProperty(true);
+    public static SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
+    public static SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
+    public static SimpleFloatProperty penDownZ = new SimpleFloatProperty(0);
+    public static SimpleFloatProperty penUpZ = new SimpleFloatProperty(5);
 
     //PATH FINDING \\
+    public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
     public SimpleObjectProperty<PFMLoaders> pfmLoader = new SimpleObjectProperty<>(PFMLoaders.SKETCH);
 
     // PEN SETS \\
@@ -125,14 +133,14 @@ public class DrawingBotV3 extends PApplet {
         if(useOriginalSizing.get()){
             return activeTask.img_original == null ? 0: activeTask.img_original.width;
         }
-        return drawingAreaWidth.getValue() * drawingAreaUnits.get().convertToMM;
+        return drawingAreaWidth.getValue() * inputUnits.get().convertToMM;
     }
 
     public float getDrawingAreaHeightMM(){
         if(useOriginalSizing.get()){
             return activeTask.img_original == null ? 0: activeTask.img_original.height;
         }
-        return drawingAreaHeight.getValue() * drawingAreaUnits.get().convertToMM;
+        return drawingAreaHeight.getValue() * inputUnits.get().convertToMM;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +183,7 @@ public class DrawingBotV3 extends PApplet {
     private boolean markRenderDirty = false;
     private PlottingTask lastDrawn = null;
     private EnumTaskStage lastState = null;
-    private boolean canvasNeedsUpdate = false;
+    public boolean canvasNeedsUpdate = false;
 
     private long drawingTime = 0;
 
@@ -199,44 +207,54 @@ public class DrawingBotV3 extends PApplet {
     private void renderTask() {
         PlottingTask renderedTask = getActiveTask();
 
+        boolean changedTask = lastDrawn != renderedTask;
+        boolean changedState = renderedTask != null && lastState != renderedTask.stage;
+        boolean shouldRedraw = markRenderDirty || changedTask || changedState;
+
         if(renderedTask == null){
-            background(255, 255, 255);
+            if(loadingImage != null){
+                if(loadingImage.width > 0){
+                    openImage = loadingImage;
+                    shouldRedraw = true;
+                    canvasNeedsUpdate = true;
+                    loadingImage = null;
+                }else if(loadingImage.width == -1){
+                    println("INVALID IMAGE FILE");
+                    loadingImage = null;
+                }
+            }
+            if(openImage != null){
+                if(canvasNeedsUpdate){
+                    updateCanvasSize(openImage);
+                    updateCanvasScaling(openImage);
+                    canvasNeedsUpdate = false;
+                    return;
+                }
+                if(shouldRedraw){
+                    background(255, 255, 255);
+                    image(openImage, 0, 0);
+                }
+            }else{
+                background(255, 255, 255);
+            }
             return;
         }
-
-        /// GENERAL SCALING \\\\
-        scale(canvasScaling);
-        //translate(mx, my);
-        //rotate(HALF_PI*renderedTask.screen_rotate);
-
-
-        boolean changedTask = lastDrawn != renderedTask;
-        boolean changedState = lastState != renderedTask.stage;
-        boolean shouldRedraw = markRenderDirty || changedTask || changedState;
 
         if(changedTask){
             canvasNeedsUpdate = true;
         }
 
-        if(canvasNeedsUpdate && renderedTask.img_reference != null){
-            canvas.widthProperty().setValue(renderedTask.img_reference.width*canvasScaling);
-            canvas.heightProperty().setValue(renderedTask.img_reference.height*canvasScaling);
-
-            Platform.runLater(() -> {
-                controller.viewportScrollPane.setHvalue(0.5);
-                controller.viewportScrollPane.setVvalue(0.5);
-            });
-            canvasNeedsUpdate = false;
-
-            lastDrawn = renderedTask;
-            lastState = renderedTask.stage;
-
-            background(255, 255, 255); //it's a fresh image, lets wipe the old one
-            markRenderDirty = true;
-            return;
+        if(renderedTask.img_reference != null){
+            if(canvasNeedsUpdate){
+                updateCanvasSize(renderedTask.img_reference);
+                lastDrawn = renderedTask;
+                lastState = renderedTask.stage;
+                canvasNeedsUpdate = false;
+                return;
+            }
+            updateCanvasScaling(renderedTask.img_reference);
         }
 
-        updateCanvasScaling();
         markRenderDirty = false;
 
         switch (renderedTask.stage){
@@ -261,7 +279,7 @@ public class DrawingBotV3 extends PApplet {
             case POST_PROCESSING:
                 // NOP - continue displaying the path finding result
                 break;
-            case LOGGING:
+            case FINISHING:
                 // NOP - continue displaying the path finding result
                 break;
             case FINISHED:
@@ -280,8 +298,8 @@ public class DrawingBotV3 extends PApplet {
                             drawingTime = System.currentTimeMillis();
                         }
                         if(renderedLines != -1){
-                            int pen = display_mode == EnumDisplayMode.DRAWING ? -1 : controller.penTableView.getSelectionModel().getSelectedItem().penNumber.get();
-                            int max = Math.min(renderedLines + 10000, renderedTask.plottedDrawing.getDisplayedLineCount());
+                            int pen = display_mode == EnumDisplayMode.DRAWING || controller.penTableView.getSelectionModel().isEmpty() ? -1 : controller.penTableView.getSelectionModel().getSelectedItem().penNumber.get();
+                            int max = Math.min(renderedLines + 20000, renderedTask.plottedDrawing.getDisplayedLineCount());
                             blendMode(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().constant);
                             for(; renderedLines < max; renderedLines++){
                                 int nextReversed = renderedTask.plottedDrawing.getDisplayedLineCount()-1-renderedLines;
@@ -335,14 +353,29 @@ public class DrawingBotV3 extends PApplet {
 
     }
 
-    public void updateCanvasScaling(){
-        if(getActiveTask() != null && getActiveTask().img_reference != null){
-            double screen_scale_x = controller.viewportScrollPane.getWidth() / ((float) getActiveTask().img_reference.width*canvasScaling);
-            double screen_scale_y = controller.viewportScrollPane.getHeight() / ((float) getActiveTask().img_reference.height*canvasScaling);
-            double screen_scale = Math.min(screen_scale_x, screen_scale_y) * scaleMultiplier.doubleValue();
-            canvas.setScaleX(screen_scale);
-            canvas.setScaleY(screen_scale);
+    public void updateCanvasSize(PImage targetSize){
+        double newWidth = targetSize.width*canvasScaling;
+        double newHeight = targetSize.height*canvasScaling;
+        if(canvas.getWidth() == newWidth && canvas.getHeight() == newHeight){
+            return;
         }
+        canvas.widthProperty().setValue(newWidth);
+        canvas.heightProperty().setValue(newHeight);
+
+        Platform.runLater(() -> {
+            controller.viewportScrollPane.setHvalue(0.5);
+            controller.viewportScrollPane.setVvalue(0.5);
+        });
+        markRenderDirty = true;
+        background(255, 255, 255);//wipe the canvas
+    }
+
+    public void updateCanvasScaling(PImage targetSize){
+        double screen_scale_x = controller.viewportScrollPane.getWidth() / ((float) targetSize.width*canvasScaling);
+        double screen_scale_y = controller.viewportScrollPane.getHeight() / ((float) targetSize.height*canvasScaling);
+        double screen_scale = Math.min(screen_scale_x, screen_scale_y) * scaleMultiplier.doubleValue();
+        canvas.setScaleX(screen_scale);
+        canvas.setScaleY(screen_scale);
     }
 
     public void updateUI(){
@@ -373,8 +406,14 @@ public class DrawingBotV3 extends PApplet {
 
     public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
        controller.onTaskStageFinished(task, stage);
+       if(stage == EnumTaskStage.FINISHING && batchProcessingTask == null){
+           isPlotting.setValue(false);
+       }
     }
 
+    public void onTaskCancelled(){
+        isPlotting.setValue(false);
+    }
 
     public void onDrawingPenChanged(){
         updateWeightedDistribution();
@@ -394,13 +433,37 @@ public class DrawingBotV3 extends PApplet {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public void openImage(String url){
+        if(activeTask != null){
+            activeTask.cancel();
+            activeTask = null;
+            openImage = null;
+            loadingImage = null;
+        }
+        loadingImage = requestImage(url);
+    }
+
     //// PLOTTING TASKS
 
-    public void createPlottingTask(String url){
+    public void startPlotting(){
         if(activeTask != null){
             activeTask.cancel();
         }
-        executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader.get(), DrawingBotV3.INSTANCE.observableDrawingSet, url));
+        if(openImage != null){
+            executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader.get(), DrawingBotV3.INSTANCE.observableDrawingSet, openImage));
+            isPlotting.setValue(true);
+        }
+    }
+
+    public void stopPlotting(){
+        if(activeTask != null){
+            activeTask.stopElegantly();
+            isPlotting.setValue(false);
+        }
+    }
+
+    public void resetPlotting(){
+
     }
 
     public void setActivePlottingTask(PlottingTask task){
@@ -443,8 +506,6 @@ public class DrawingBotV3 extends PApplet {
         if (keyCode == CONTROL) { ctrl_down = true; }
         if (key == 'x') { GridOverlay.mouse_point(); }
 
-        //if (key == 's') { if (state == 3) { state++; } }//FIXME - ADD STOP & START BUTTON
-
         if (keyCode == 65 && ctrl_down)  {
             println("Holly freak, Ctrl-A was pressed!");
         }
@@ -484,7 +545,6 @@ public class DrawingBotV3 extends PApplet {
     public void mouseDraggedJavaFX(MouseEvent event) {
         double relativeX = (pressX - event.getX()) / controller.viewportStackPane.getWidth();
         double relativeY = (pressY - event.getY()) / controller.viewportStackPane.getHeight();
-
         controller.viewportScrollPane.setHvalue(locX + relativeX);
         controller.viewportScrollPane.setVvalue(locY + relativeY);
     }

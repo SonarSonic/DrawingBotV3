@@ -11,6 +11,8 @@ public abstract class AbstractPFM implements IPFM {
     public final PlottingTask task;
     public boolean finished = false;
 
+    protected float plottingResolution = 1;
+
     protected long seed = 0;
     protected Random randomSeed;
 
@@ -28,7 +30,8 @@ public abstract class AbstractPFM implements IPFM {
         return randomSeed.nextInt(high-low) + low;
     }
 
-    protected void finish(){
+    @Override
+    public void finish(){
         finished = true;
     }
 

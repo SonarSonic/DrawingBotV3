@@ -81,7 +81,7 @@ public class PlottedDrawing {
         if (line.pen_down) {
             ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);
             if(pen.isEnabled()){
-                app.stroke(pen.getRGBColour());
+                app.stroke(line.rgba != -1 ? line.rgba : pen.getRGBColour());
                 app.line(line.x1, line.y1, line.x2, line.y2); //render line dangerously.
             }
         }

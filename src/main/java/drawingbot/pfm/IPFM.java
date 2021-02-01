@@ -7,6 +7,8 @@ public interface IPFM {
 
     boolean finished();
 
+    void finish();
+
     float progress();
 
     void init();

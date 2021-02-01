@@ -8,9 +8,10 @@ import java.util.function.Function;
 public enum PFMLoaders {
 
     SKETCH("Sketch PFM", PFMSketch.class, PFMSketch::new),
-    SINGLE_LINE("Single Line PFM", PFMSingleLine.class, PFMSingleLine::new),
     SQUARES("Squares PFM", PFMSquares.class, PFMSquares::new),
     SPIRAL("Spiral PFM", PFMSpiral.class, PFMSpiral::new),
+    SINGLE_LINE("Single Line PFM (Experimental)", PFMSingleLine.class, PFMSingleLine::new),
+    LINES("Lines PFM (Experimental)", PFMLines.class, PFMLines::new),
     SKETCH_LEGACY("Sketch PFM (Legacy)", LegacyPFMLoaders.pfmSketchLegacyClass, LegacyPFMLoaders.pfmSketchLegacy),
     SQUARES_LEGACY("Squares PFM (Legacy)", LegacyPFMLoaders.pfmSquaresLegacyClass, LegacyPFMLoaders.pfmSquaresLegacy),
     SPIRAL_LEGACY("Spiral PFM (Legacy)", LegacyPFMLoaders.pfmSpiralLegacyClass, LegacyPFMLoaders.pfmSpiralLegacy);
