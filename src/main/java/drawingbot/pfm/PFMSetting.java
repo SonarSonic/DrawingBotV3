@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
+import javafx.util.converter.BooleanStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
@@ -25,8 +26,7 @@ public class PFMSetting<P extends IPFM, V> {
     public SimpleObjectProperty<V> value;
     public StringConverter<V> stringConverter;
 
-
-    public PFMSetting(Class<P> pfmClass, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, Function<V, V> validator, BiConsumer<P, V> setter) {
+    private PFMSetting(Class<P> pfmClass, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, Function<V, V> validator, BiConsumer<P, V> setter) {
         this.pfmClass = pfmClass;
         this.settingName = new SimpleStringProperty(settingName);
         this.defaultValue = defaultValue;
@@ -37,16 +37,20 @@ public class PFMSetting<P extends IPFM, V> {
         this.setter = setter;
     }
 
-    public static <P extends IPFM> PFMSetting<P, Long> createRangedLongSetting(Class<P> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, BiConsumer<P, Long> setter){
-        return new PFMSetting<>(pfmClass, settingName, defaultValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> (value < minValue) ? minValue : ((value > maxValue) ? maxValue : defaultValue), setter);
+    public static <P extends IPFM> PFMSetting<P, Boolean> createBooleanSetting(Class<P> pfmClass, String settingName, Boolean defaultValue, BiConsumer<P, Boolean> setter){
+        return new PFMSetting<>(pfmClass, settingName, defaultValue, new BooleanStringConverter(), ThreadLocalRandom::nextBoolean, value -> value, setter);
+    }
+
+    public static <P extends IPFM> PFMSetting<P, Integer> createRangedIntSetting(Class<P> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, BiConsumer<P, Integer> setter){
+        return new PFMSetting<>(pfmClass, settingName, defaultValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), value -> PApplet.constrain(value, minValue, maxValue), setter);
     }
 
     public static <P extends IPFM> PFMSetting<P, Float> createRangedFloatSetting(Class<P> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, BiConsumer<P, Float> setter){
         return new PFMSetting<>(pfmClass, settingName, defaultValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), value -> PApplet.constrain(value, minValue, maxValue), setter);
     }
 
-    public static <P extends IPFM> PFMSetting<P, Integer> createRangedIntSetting(Class<P> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, BiConsumer<P, Integer> setter){
-        return new PFMSetting<>(pfmClass, settingName, defaultValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), value -> PApplet.constrain(value, minValue, maxValue), setter);
+    public static <P extends IPFM> PFMSetting<P, Long> createRangedLongSetting(Class<P> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, BiConsumer<P, Long> setter){
+        return new PFMSetting<>(pfmClass, settingName, defaultValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> (value < minValue) ? minValue : ((value > maxValue) ? maxValue : defaultValue), setter);
     }
 
     public void registerSetting(){

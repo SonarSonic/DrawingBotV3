@@ -1,8 +1,11 @@
 package drawingbot.files;
 
+import drawingbot.DrawingBotV3;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 
@@ -29,5 +32,9 @@ public class FileUtils {
     public static String removeExtension(String string){
         string = string.substring(0, string.lastIndexOf('.'));
         return string;
+    }
+
+    public static String getUserDataDirectory() {
+        return System.getProperty("user.home") + File.separator + "." + DrawingBotV3.appName + File.separator;
     }
 }

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="692.0" prefWidth="1257.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="820.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -30,136 +30,174 @@
     </MenuBar>
       <HBox VBox.vgrow="ALWAYS">
          <children>
-            <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="637.0" prefWidth="419.0" vbarPolicy="ALWAYS">
-               <content>
-                  <VBox fx:id="vBoxSettings" prefWidth="402.0">
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="637.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                     <content>
+                        <VBox fx:id="vBoxSettings" prefWidth="402.0">
+                           <children>
+                              <TitledPane text="Drawing Area">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="224.0" prefWidth="402.0">
+                                       <children>
+                                          <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="15.0" layoutY="49.0" text="Width">
+                                             <graphic>
+                                                <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="123.0" text="0" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="49.0" text="Height:">
+                                             <graphic>
+                                                <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="128.0" text="0" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="245.0" layoutY="10.0" text="Input Units:">
+                                             <graphic>
+                                                <ChoiceBox fx:id="choiceBoxDrawingUnits" prefHeight="25.0" prefWidth="64.0" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" text="Use Original Sizing">
+                                             <graphic>
+                                                <CheckBox fx:id="checkBoxOriginalSizing" mnemonicParsing="false" selected="true" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="15.0" layoutY="126.0" text="X Offset:">
+                                             <graphic>
+                                                <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="116.0" text="0" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="206.0" layoutY="126.0" text="Y Offset:">
+                                             <graphic>
+                                                <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="121.0" text="0" />
+                                             </graphic>
+                                          </Label>
+                                          <Separator layoutX="10.0" layoutY="86.0" prefHeight="3.0" prefWidth="373.0" />
+                                          <Label layoutX="13.0" layoutY="96.0" text="GCode Settings / Plotter Settings" />
+                                          <Label contentDisplay="RIGHT" layoutX="15.0" layoutY="157.0" text="Pen Up (Z):">
+                                             <graphic>
+                                                <TextField fx:id="textFieldPenUpZ" prefHeight="25.0" prefWidth="102.0" text="0" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="206.0" layoutY="157.0" text="Pen Down (Z)">
+                                             <graphic>
+                                                <TextField fx:id="textFieldPenDownZ" prefHeight="25.0" prefWidth="94.0" text="0" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="15.0" layoutY="192.0" text="Enable Auto Home:">
+                                             <graphic>
+                                                <CheckBox fx:id="checkBoxAutoHome" mnemonicParsing="false" />
+                                             </graphic>
+                                          </Label>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </TitledPane>
+                            <TitledPane text="Path Finding Controls - Basic">
+                              <content>
+                                <AnchorPane>
+                                       <children>
+                                            <ChoiceBox fx:id="choiceBoxPFM" layoutX="141.0" layoutY="14.0" prefHeight="25.0" prefWidth="235.0" />
+                                          <Label layoutX="14.0" layoutY="18.0" text="Path Finding Module: " />
+                                          <Label layoutX="14.0" layoutY="69.0" prefHeight="17.0" prefWidth="108.0" text="Plotted Lines:" />
+                                          <Label fx:id="labelPlottedLines" layoutX="141.0" layoutY="69.0" prefHeight="17.0" prefWidth="90.0" text="Label" />
+                                          <Label layoutX="14.0" layoutY="48.0" prefHeight="17.0" prefWidth="114.0" text="Elapsed Time:" />
+                                          <Label fx:id="labelElapsedTime" layoutX="141.0" layoutY="48.0" text="Label" />
+                                          <Slider fx:id="sliderDisplayedLines" layoutX="19.0" layoutY="131.0" prefHeight="14.0" prefWidth="196.0" />
+                                          <Label layoutX="14.0" layoutY="98.0" text="Displayed Lines:" />
+                                          <TextField fx:id="textFieldDisplayedLines" layoutX="231.0" layoutY="126.0" />
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </TitledPane>
+                              <TitledPane expanded="false" text="Path Finding Controls - Advanced">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
+                                       <children>
+                                          <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="199.0" prefWidth="404.0" tableMenuButtonVisible="true">
+                                            <columns>
+                                              <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="188.0" text="Setting" />
+                                              <TableColumn fx:id="tableColumnValue" prefWidth="139.0" text="Value" />
+                                            </columns>
+                                          </TableView>
+                                          <ComboBox fx:id="comboBoxPFMPreset" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="371.0" />
+                                          <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
+                                          <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
+                                          <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </TitledPane>
+                            <TitledPane prefWidth="428.0" text="Pen Settings">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="404.0">
+                                       <children>
+                                          <Button fx:id="buttonAddPen" layoutX="296.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Add Pen" />
+                                          <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="54.0" prefHeight="274.0" prefWidth="403.0" tableMenuButtonVisible="true">
+                                             <columns>
+                                                <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="45.0" text="Enable" />
+                                                <TableColumn fx:id="penNameColumn" prefWidth="182.0" sortable="false" text="Pen" />
+                                                <TableColumn fx:id="penColourColumn" prefWidth="118.0" text="Colour" />
+                                                <TableColumn fx:id="penPercentageColumn" editable="false" prefWidth="60.0" sortable="false" text="\%" />
+                                                <TableColumn fx:id="penWeightColumn" prefWidth="51.0" sortable="false" text="Weight" />
+                                                <TableColumn fx:id="penLinesColumn" editable="false" prefWidth="65.0" sortable="false" text="Lines" />
+                                             </columns>
+                                          </TableView>
+                                          <ComboBox fx:id="comboBoxDrawingPen" layoutX="14.0" layoutY="339.0" prefHeight="25.0" prefWidth="282.0" />
+                                          <ComboBox fx:id="comboBoxDrawingSet" layoutX="13.0" layoutY="14.0" prefHeight="25.0" prefWidth="348.0" promptText="Select a drawing set!" />
+                                          <ComboBox fx:id="blendModeComboBox" layoutX="13.0" layoutY="414.0" prefHeight="25.0" prefWidth="348.0" promptText="Blend Order: Hard Light" />
+                                          <ComboBox fx:id="renderOrderComboBox" layoutX="13.0" layoutY="379.0" prefHeight="25.0" prefWidth="348.0" promptText="Render Order: Lightest first" />
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </TitledPane>
+                              <TitledPane expanded="false" text="Batch Processing">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
+                                       <children>
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="49.0" text="Input Folder:">
+                                             <graphic>
+                                                <Label fx:id="labelInputFolder" text="Label" />
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="76.0" text="Output Folder:">
+                                             <graphic>
+                                                <Label fx:id="labelOutputFolder" text="Label" />
+                                             </graphic>
+                                          </Label>
+                                          <Button fx:id="buttonSelectInputFolder" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
+                                          <Button fx:id="buttonSelectOutputFolder" layoutX="202.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Output Folder" />
+                                          <Button fx:id="buttonStartBatchProcessing" layoutX="14.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Start Batch Processing" />
+                                          <Button fx:id="buttonStopBatchProcessing" cancelButton="true" disable="true" layoutX="202.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Stop Batch Processing" />
+                                          <Separator layoutX="14.0" layoutY="105.0" prefHeight="0.0" prefWidth="376.0" />
+                                          <Label layoutX="14.0" layoutY="117.0" text="Export Options:" />
+                                          <TableView fx:id="tableViewBatchExport" editable="true" layoutX="14.0" layoutY="144.0" prefHeight="189.0" prefWidth="374.0">
+                                            <columns>
+                                              <TableColumn fx:id="tableColumnFileFormat" prefWidth="204.0" text="File Format" />
+                                              <TableColumn fx:id="tableColumnPerDrawing" minWidth="3.000030517578125" text="per/drawing" />
+                                                <TableColumn fx:id="tableColumnPerPen" minWidth="3.000030517578125" prefWidth="68.0" text="per/pen" />
+                                            </columns>
+                                          </TableView>
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="344.0" text="Overwrite Existing Files">
+                                             <graphic>
+                                                <CheckBox fx:id="checkBoxOverwrite" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                             </graphic>
+                                          </Label>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </TitledPane>
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+                  <Pane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" VBox.vgrow="NEVER">
                      <children>
-                        <TitledPane text="Drawing Area">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="89.0" prefWidth="404.0">
-                                 <children>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="45.0" text="Width:">
-                                       <graphic>
-                                          <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="57.0" text="0" />
-                                       </graphic>
-                                    </Label>
-                                    <Label contentDisplay="RIGHT" layoutX="133.0" layoutY="45.0" text="Height:">
-                                       <graphic>
-                                          <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="58.0" text="0" />
-                                       </graphic>
-                                    </Label>
-                                    <Label contentDisplay="RIGHT" layoutX="268.0" layoutY="45.0" text="Units:">
-                                       <graphic>
-                                          <ChoiceBox fx:id="choiceBoxDrawingUnits" prefHeight="25.0" prefWidth="64.0" />
-                                       </graphic>
-                                    </Label>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" text="Use Original Sizing">
-                                       <graphic>
-                                          <CheckBox fx:id="checkBoxOriginalSizing" mnemonicParsing="false" selected="true" />
-                                       </graphic>
-                                    </Label>
-                                 </children>
-                              </AnchorPane>
-                          </content>
-                        </TitledPane>
-                      <TitledPane text="Path Finding Controls - Basic">
-                        <content>
-                          <AnchorPane>
-                                 <children>
-                                      <ChoiceBox fx:id="choiceBoxPFM" layoutX="141.0" layoutY="14.0" prefHeight="25.0" prefWidth="235.0" />
-                                    <Label layoutX="14.0" layoutY="18.0" text="Path Finding Module: " />
-                                    <Label layoutX="14.0" layoutY="69.0" prefHeight="17.0" prefWidth="108.0" text="Plotted Lines:" />
-                                    <Label fx:id="labelPlottedLines" layoutX="141.0" layoutY="69.0" prefHeight="17.0" prefWidth="90.0" text="Label" />
-                                    <Label layoutX="14.0" layoutY="48.0" prefHeight="17.0" prefWidth="114.0" text="Elapsed Time:" />
-                                    <Label fx:id="labelElapsedTime" layoutX="141.0" layoutY="48.0" text="Label" />
-                                    <Slider fx:id="sliderDisplayedLines" layoutX="19.0" layoutY="131.0" prefHeight="14.0" prefWidth="196.0" />
-                                    <Label layoutX="14.0" layoutY="98.0" text="Displayed Lines:" />
-                                    <TextField fx:id="textFieldDisplayedLines" layoutX="231.0" layoutY="126.0" />
-                                 </children>
-                              </AnchorPane>
-                        </content>
-                      </TitledPane>
-                        <TitledPane expanded="false" text="Path Finding Controls - Advanced">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
-                                 <children>
-                                    <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="199.0" prefWidth="404.0" tableMenuButtonVisible="true">
-                                      <columns>
-                                        <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="188.0" text="Setting" />
-                                        <TableColumn fx:id="tableColumnValue" prefWidth="139.0" text="Value" />
-                                      </columns>
-                                    </TableView>
-                                    <ComboBox fx:id="comboBoxPFMPreset" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="371.0" />
-                                    <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
-                                    <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
-                                    <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
-                                 </children>
-                              </AnchorPane>
-                          </content>
-                        </TitledPane>
-                      <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="404.0">
-                                 <children>
-                                    <Button fx:id="buttonAddPen" layoutX="296.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Add Pen" />
-                                    <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="54.0" prefHeight="274.0" prefWidth="403.0" tableMenuButtonVisible="true">
-                                       <columns>
-                                          <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="45.0" text="Enable" />
-                                          <TableColumn fx:id="penNameColumn" prefWidth="182.0" sortable="false" text="Pen" />
-                                          <TableColumn fx:id="penColourColumn" prefWidth="118.0" text="Colour" />
-                                          <TableColumn fx:id="penPercentageColumn" editable="false" prefWidth="60.0" sortable="false" text="\%" />
-                                          <TableColumn fx:id="penWeightColumn" prefWidth="51.0" sortable="false" text="Weight" />
-                                          <TableColumn fx:id="penLinesColumn" editable="false" prefWidth="65.0" sortable="false" text="Lines" />
-                                       </columns>
-                                    </TableView>
-                                    <ComboBox fx:id="comboBoxDrawingPen" layoutX="14.0" layoutY="339.0" prefHeight="25.0" prefWidth="282.0" />
-                                    <ComboBox fx:id="comboBoxDrawingSet" layoutX="13.0" layoutY="14.0" prefHeight="25.0" prefWidth="348.0" promptText="Select a drawing set!" />
-                                    <ComboBox fx:id="blendModeComboBox" layoutX="13.0" layoutY="414.0" prefHeight="25.0" prefWidth="348.0" promptText="Blend Order: Hard Light" />
-                                    <ComboBox fx:id="renderOrderComboBox" layoutX="13.0" layoutY="379.0" prefHeight="25.0" prefWidth="348.0" promptText="Render Order: Lightest first" />
-                                 </children>
-                              </AnchorPane>
-                        </content>
-                      </TitledPane>
-                        <TitledPane expanded="false" text="Batch Processing">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
-                                 <children>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="49.0" text="Input Folder:">
-                                       <graphic>
-                                          <Label fx:id="labelInputFolder" text="Label" />
-                                       </graphic>
-                                    </Label>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="76.0" text="Output Folder:">
-                                       <graphic>
-                                          <Label fx:id="labelOutputFolder" text="Label" />
-                                       </graphic>
-                                    </Label>
-                                    <Button fx:id="buttonSelectInputFolder" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
-                                    <Button fx:id="buttonSelectOutputFolder" layoutX="202.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Output Folder" />
-                                    <Button fx:id="buttonStartBatchProcessing" layoutX="14.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Start Batch Processing" />
-                                    <Button fx:id="buttonStopBatchProcessing" cancelButton="true" disable="true" layoutX="202.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Stop Batch Processing" />
-                                    <Separator layoutX="14.0" layoutY="105.0" prefHeight="0.0" prefWidth="376.0" />
-                                    <Label layoutX="14.0" layoutY="117.0" text="Export Options:" />
-                                    <TableView fx:id="tableViewBatchExport" editable="true" layoutX="14.0" layoutY="144.0" prefHeight="189.0" prefWidth="374.0">
-                                      <columns>
-                                        <TableColumn fx:id="tableColumnFileFormat" prefWidth="204.0" text="File Format" />
-                                        <TableColumn fx:id="tableColumnPerDrawing" minWidth="3.000030517578125" text="per/drawing" />
-                                          <TableColumn fx:id="tableColumnPerPen" minWidth="3.000030517578125" prefWidth="68.0" text="per/pen" />
-                                      </columns>
-                                    </TableView>
-                                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="344.0" text="Overwrite Existing Files">
-                                       <graphic>
-                                          <CheckBox fx:id="checkBoxOverwrite" contentDisplay="RIGHT" mnemonicParsing="false" />
-                                       </graphic>
-                                    </Label>
-                                 </children>
-                              </AnchorPane>
-                          </content>
-                        </TitledPane>
+                        <Button fx:id="buttonStartPlotting" defaultButton="true" layoutX="9.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="134.0" text="Start Plotting" />
+                        <Button fx:id="buttonStopPlotting" cancelButton="true" layoutX="143.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="134.0" text="Stop Plotting" />
+                        <Button fx:id="buttonResetPlotting" cancelButton="true" layoutX="277.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="134.0" text="Reset Plotting" />
                      </children>
-                  </VBox>
-               </content>
-            </ScrollPane>
+                  </Pane>
+               </children>
+            </VBox>
             <VBox HBox.hgrow="ALWAYS">
                <children>
                   <ToolBar prefHeight="40.0">
@@ -193,7 +231,7 @@
       </HBox>
   <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
          <children>
-            <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1251.0" progress="0.0" />
+            <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="0.0" />
             <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
                <font>
                   <Font size="14.0" />

@@ -7,7 +7,7 @@ public enum EnumTaskStage {
     PRE_PROCESSING,
     PATH_FINDING,
     POST_PROCESSING,
-    LOGGING,
+    FINISHING,
     FINISHED;
 
 }

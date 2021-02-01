@@ -1,7 +1,8 @@
-package drawingbot.files;
+package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
 
@@ -31,7 +32,7 @@ public class SVGExporter {
 
         PrintWriter output = DrawingBotV3.createWriter(saveLocation);
         output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.gcode_scale) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().height * plottingTask.gcode_scale) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+        output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.getGCodeScale()) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().height * plottingTask.getGCodeScale()) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
         plottingTask.plottedDrawing.setPenContinuationFlagsForSVG();
 
         int completedLines = 0;
@@ -46,16 +47,10 @@ public class SVGExporter {
                 PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
                 if (line.pen_number == p) {
 
-                    // TODO OFFSETS... Do we add gcode_offsets needed by my bot, or zero based?
-                    //float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale * svgdpi + gcode_offset_x;
-                    //float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale * svgdpi + gcode_offset_y;
-                    //float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale * svgdpi + gcode_offset_x;
-                    //float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale * svgdpi + gcode_offset_y;
-
-                    float gcode_scaled_x1 = line.x1 * plottingTask.gcode_scale * svgdpi;
-                    float gcode_scaled_y1 = line.y1 * plottingTask.gcode_scale * svgdpi;
-                    float gcode_scaled_x2 = line.x2 * plottingTask.gcode_scale * svgdpi;
-                    float gcode_scaled_y2 = line.y2 * plottingTask.gcode_scale * svgdpi;
+                    float gcode_scaled_x1 = line.x1 * plottingTask.getGCodeScale() * svgdpi;
+                    float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() * svgdpi;
+                    float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() * svgdpi;
+                    float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() * svgdpi;
 
                     if (!line.pen_continuation && drawing_polyline) {
                         output.println("\" />");

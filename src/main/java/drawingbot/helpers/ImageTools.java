@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
 import java.awt.image.*;
+import java.nio.Buffer;
 import java.util.function.Function;
 
 import static processing.core.PApplet.*;
@@ -273,6 +274,27 @@ public class ImageTools {
         return image;
     }
 
+    public static BufferedImage cropToAspectRatio(BufferedImage image, float targetRatio){
+        float currentRatio = (float)image.getWidth() / image.getHeight();
+        if(targetRatio == currentRatio){
+            return image;
+        }
+        if (currentRatio < targetRatio) {
+            int desired_x = image.getWidth();
+            int desired_y = (int)(image.getWidth() / targetRatio);
+
+            int half_y = (image.getHeight() - desired_y) / 2;
+            image = Scalr.crop(image, 0, half_y, desired_x, desired_y);
+        } else {
+            int desired_x = (int)(image.getHeight() * targetRatio);
+            int desired_y = image.getHeight();
+
+            int half_x = (image.getWidth() - desired_x) / 2;
+            image = Scalr.crop(image, half_x, 0, desired_x, desired_y);
+        }
+        return image;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// RGB FILTERS
@@ -332,12 +354,6 @@ public class ImageTools {
         return a<<24 + r<<16 + g<<8 + b;
     }
 
-    /**converts java fx to processing colors
-     public static int getARGBFromColor(Color color){
-     return app.color((float)color.getRed() * 255F, (float)color.getGreen() * 255F, (float)color.getBlue() * 255F, (float)color.getOpacity() * 255F);
-     }
-     */
-    //TODO CHECK ALL COLOUR THINGS!
     public static String toHex(int argb){
         int r = (argb>>16)&0xff;
         int g = (argb>>8)&0xff;

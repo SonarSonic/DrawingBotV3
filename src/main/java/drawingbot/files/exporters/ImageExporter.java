@@ -1,10 +1,10 @@
-package drawingbot.files;
+package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
-import javafx.stage.FileChooser;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 

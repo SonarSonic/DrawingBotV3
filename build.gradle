@@ -29,6 +29,7 @@ dependencies {
     implementation "org.processing:pdf:${processing_pdf_version}"
     implementation name: 'itext' //why does processing use such an old version?
     implementation 'org.imgscalr:imgscalr-lib:4.2'
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
 
 project.setArchivesBaseName(app_name + "-" + app_version + "-" + app_state)
@@ -42,7 +43,7 @@ application {
 launch4j {
     mainClassName = 'drawingbot.FXApplication'
    // icon = "${projectDir}/icons/myApp.ico"
-    dontWrapJar = true;
+    //dontWrapJar = true;
     bundledJrePath = 'jre'
     bundledJre64Bit = true
     jreMinVersion = '1.8.0_202' //RECOMMENDED PROCESSING VERSION

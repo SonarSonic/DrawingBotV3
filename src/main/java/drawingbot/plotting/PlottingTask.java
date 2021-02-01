@@ -19,7 +19,6 @@ public class PlottingTask extends Task<PlottingTask> {
 
     public PFMLoaders loader;
     public PlottedDrawing plottedDrawing;
-    public String imageURL;
 
     // STATUS \\
     public EnumTaskStage stage = EnumTaskStage.QUEUED;
@@ -40,15 +39,15 @@ public class PlottingTask extends Task<PlottingTask> {
     public boolean is_pen_down;
 
     // GCODE \\
-    public float gcode_offset_x;
-    public float gcode_offset_y;
-    public float gcode_scale;
+    private float gcode_offset_x;
+    private float gcode_offset_y;
+    private float gcode_scale;
 
-    public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, String imageURL){
+    public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, PImage image){
         updateTitle("Processing Image");
         this.loader = loader;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
-        this.imageURL = imageURL;
+        this.img_original = image;
     }
 
     public boolean doTask(){
@@ -60,21 +59,12 @@ public class PlottingTask extends Task<PlottingTask> {
                 finishStage();
                 break;
             case LOADING_IMAGE:
-                updateMessage("Loading Image: " + imageURL);
-                PImage loadedImg = app.loadImage(imageURL);
-
-                if(loadedImg == null){
-                    updateMessage("Invalid Image: " + imageURL);
-                    return false; //SET THREAD ERROR?? TODO
-                }
 
                 pfm = loader.createNewPFM(this);
                 pfm.init();
-                updateMessage("Rotating Image");
-                img_plotting = loadedImg;
 
-                img_original = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
-                img_original.copy(img_plotting, 0, 0, img_plotting.width, img_plotting.height, 0, 0, img_plotting.width, img_plotting.height);
+                img_plotting = app.createImage(img_original.width, img_original.height, PConstants.RGB);
+                img_plotting.copy(img_original, 0, 0, img_original.width, img_original.height, 0, 0, img_original.width, img_original.height);
 
                 finishStage();
                 break;
@@ -90,8 +80,8 @@ public class PlottingTask extends Task<PlottingTask> {
                 gcode_scale_x = DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() / img_plotting.width;
                 gcode_scale_y = DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() / img_plotting.height;
                 gcode_scale = min(gcode_scale_x, gcode_scale_y);
-                gcode_offset_x = - (img_plotting.width* gcode_scale / 2.0F);
-                gcode_offset_y = - (DrawingBotV3.paper_top_to_origin - (DrawingBotV3.paper_size_y - (img_plotting.height * gcode_scale)) / 2.0F);
+                //gcode_offset_x = - (img_plotting.width* gcode_scale / 2.0F); //TODO FIX GCODE OFFSETS
+                //gcode_offset_y = - (DrawingBotV3.paper_top_to_origin - (DrawingBotV3.paper_size_y - (img_plotting.height * gcode_scale)) / 2.0F);
 
                 comment("final dimensions: " + img_plotting.width + " by " + img_plotting.height);
                 comment("paper_size: " + nf(DrawingBotV3.paper_size_x,0,2) + " by " + nf(DrawingBotV3.paper_size_y,0,2) + "      " + nf(DrawingBotV3.paper_size_x/25.4F,0,2) + " by " + nf(DrawingBotV3.paper_size_y/25.4F,0,2));
@@ -123,12 +113,13 @@ public class PlottingTask extends Task<PlottingTask> {
 
                 finishStage();
                 break;
-            case LOGGING:
+            case FINISHING:
                 finishTime = (System.currentTimeMillis() - startTime);
                 updateMessage("Finished: " + finishTime/1000 + " s");
                 finishStage();
                 break;
             case FINISHED:
+                finishStage();
                 break;
         }
         return true;
@@ -189,6 +180,33 @@ public class PlottingTask extends Task<PlottingTask> {
         return getOriginalImage().height;
     }
 
+    public void stopElegantly(){
+        if(stage.ordinal() < EnumTaskStage.PATH_FINDING.ordinal()){
+            cancel();
+        }else if(stage == EnumTaskStage.PATH_FINDING){
+            pfm.finish();
+            finishStage();
+        }
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        DrawingBotV3.INSTANCE.onTaskCancelled();
+        return super.cancel(mayInterruptIfRunning);
+    }
+
+    public float getGCodeScale(){
+        return gcode_scale;
+    }
+
+    public float getGCodeXOffset(){
+        return gcode_offset_x + DrawingBotV3.gcodeOffsetX.get();
+    }
+
+    public float getGCodeYOffset(){
+        return gcode_offset_y + DrawingBotV3.gcodeOffsetY.get();
+    }
+
     @Override
     protected PlottingTask call() throws Exception {
         Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
@@ -215,7 +233,6 @@ public class PlottingTask extends Task<PlottingTask> {
         gcode_scale = 0;
         pfm = null;
         loader = null;
-        imageURL = null;
         startTime = 0;
         finishTime = -1;
         finishedRenderingPaths = false;

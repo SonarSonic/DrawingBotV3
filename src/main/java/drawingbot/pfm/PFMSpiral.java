@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawBrightnessData;
+import drawingbot.helpers.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -27,7 +27,7 @@ public class PFMSpiral extends AbstractPFM {
     public float endRadius;                            // Largest value the spiral needs to cover the image
     public int mask = app.color(240, 240, 240);        // This color will not be drawn (WHITE)
 
-    public RawBrightnessData rawBrightnessData;
+    public RawLuminanceData rawBrightnessData;
 
     public PFMSpiral(PlottingTask task){
         super(task);
@@ -54,7 +54,7 @@ public class PFMSpiral extends AbstractPFM {
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
 
         task.img_plotting = new PImage(dst);
-        rawBrightnessData = new RawBrightnessData(dst);
+        rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////

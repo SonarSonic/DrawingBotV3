@@ -17,7 +17,7 @@ public class GridOverlay {
 
         //TODO FIX GRID RENDERER!!!
         if (app.displayGrid.getValue() && app.getActiveTask() != null) {
-            app.blendMode(BLEND);
+            app.hint(DISABLE_DEPTH_TEST);      // Allow fills to be shown on top.
             int image_center_x = (int)(app.getActiveTask().width() / 2);
             int image_center_y = (int)(app.getActiveTask().height() / 2);
             int gridlines = 100;
@@ -27,23 +27,23 @@ public class GridOverlay {
             app.fill(0, 0, 0, 32);
             float border_x = (app.paper_size_x - app.getDrawingAreaWidthMM()) / 2;
             float border_y = (app.paper_size_y - app.getDrawingAreaHeightMM()) / 2;
-            app.rect(-border_x/app.getActiveTask().gcode_scale, -border_y/app.getActiveTask().gcode_scale, 999999, -999999);
-            app.rect((app.getDrawingAreaWidthMM()+border_x)/app.getActiveTask().gcode_scale, -border_y/app.getActiveTask().gcode_scale, 999999, 999999);
-            app.rect((app.getDrawingAreaWidthMM()+border_x)/app.getActiveTask().gcode_scale, (app.getDrawingAreaHeightMM()+border_y)/app.getActiveTask().gcode_scale, -999999, 999999);
-            app.rect(-border_x/app.getActiveTask().gcode_scale, (app.getDrawingAreaHeightMM()+border_y)/app.getActiveTask().gcode_scale, -999999, -999999);
+            app.rect(-border_x/app.getActiveTask().getGCodeScale(), -border_y/app.getActiveTask().getGCodeScale(), 999999, -999999);
+            app.rect((app.getDrawingAreaWidthMM()+border_x)/app.getActiveTask().getGCodeScale(), -border_y/app.getActiveTask().getGCodeScale(), 999999, 999999);
+            app.rect((app.getDrawingAreaWidthMM()+border_x)/app.getActiveTask().getGCodeScale(), (app.getDrawingAreaHeightMM()+border_y)/app.getActiveTask().getGCodeScale(), -999999, 999999);
+            app.rect(-border_x/app.getActiveTask().getGCodeScale(), (app.getDrawingAreaHeightMM()+border_y)/app.getActiveTask().getGCodeScale(), -999999, -999999);
 
             // Vertical lines
             app.strokeWeight(1);
             app.stroke(255, 64, 64, 80);
             app.noFill();
             for (int x = -gridlines; x <= gridlines; x++) {
-                int x0 = (int)(x * app.grid_scale / app.getActiveTask().gcode_scale);
+                int x0 = (int)(x * app.grid_scale / app.getActiveTask().getGCodeScale());
                 app.line(x0 + image_center_x, -999999, x0 + image_center_x, 999999);
             }
 
             // Horizontal lines
             for (int y = -gridlines; y <= gridlines; y++) {
-                int y0 = (int)(y * app.grid_scale / app.getActiveTask().gcode_scale);
+                int y0 = (int)(y * app.grid_scale / app.getActiveTask().getGCodeScale());
                 app.line(-999999, y0 + image_center_y, 999999, y0 + image_center_y);
             }
 
@@ -54,8 +54,6 @@ public class GridOverlay {
             app.line(-999999, image_center_y, 999999, image_center_y);
             app.strokeWeight(1);
 
-            app.hint(DISABLE_DEPTH_TEST);      // Allow fills to be shown on top.
-
             // Mark the edge of the drawing/image area in blue
             app.stroke(64, 64, 255, 92);
             app.noFill();
@@ -65,7 +63,7 @@ public class GridOverlay {
             // Green pen origin (home position) dot.
             app.stroke(0, 255, 0, 255);
             app.fill(0, 255, 0, 255);
-            app.ellipse(-app.getActiveTask().gcode_offset_x / app.getActiveTask().gcode_scale, -app.getActiveTask().gcode_offset_y / app.getActiveTask().gcode_scale, 10, 10);
+            app.ellipse(-app.getActiveTask().getGCodeXOffset() / app.getActiveTask().getGCodeScale(), -app.getActiveTask().getGCodeYOffset() / app.getActiveTask().getGCodeScale(), 10, 10);
 
             // Red center of image dot
             app.stroke(255, 0, 0, 255);

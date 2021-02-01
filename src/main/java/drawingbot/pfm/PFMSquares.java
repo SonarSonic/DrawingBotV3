@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawBrightnessData;
+import drawingbot.helpers.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -40,7 +40,7 @@ public class PFMSquares extends AbstractSketchPFM {
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
 
         task.img_plotting = new PImage(dst);
-        rawBrightnessData = new RawBrightnessData(dst);
+        rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
         initialProgress = rawBrightnessData.getAverageBrightness();
     }
 
@@ -57,7 +57,7 @@ public class PFMSquares extends AbstractSketchPFM {
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgBrightness(start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            bresenhamAvgBrightness(rawBrightnessData, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 

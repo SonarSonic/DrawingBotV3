@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawBrightnessData;
+import drawingbot.helpers.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -21,12 +21,12 @@ public class PFMSketch extends AbstractSketchPFM {
 
     @Override
     public void preProcessing() {
+
         BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
 
-        //ImageTools.imageCrop(task); //TODO USE SCALR
-        int targetWidth = (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale);
-        int targetHeight = (int)(app.getDrawingAreaHeightMM() * DrawingBotV3.image_scale);
-        dst = Scalr.resize(dst, targetWidth, targetHeight);
+        dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
+
+        dst = Scalr.resize(dst, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution)); //TODO SCALING
 
         dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 4, true);
         dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
@@ -36,7 +36,7 @@ public class PFMSketch extends AbstractSketchPFM {
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
 
         task.img_plotting = new PImage(dst);
-        rawBrightnessData = new RawBrightnessData(dst);
+        rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
         initialProgress = rawBrightnessData.getAverageBrightness();
     }
 
@@ -56,7 +56,7 @@ public class PFMSketch extends AbstractSketchPFM {
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgBrightness(start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            bresenhamAvgBrightness(rawBrightnessData, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 
@@ -71,7 +71,7 @@ public class PFMSketch extends AbstractSketchPFM {
 
     @Override
     public void outputParameters() {
-        task.comment("adjustbrightness: " + adjustbrightness);
+        task.comment("adjust_brightness: " + adjustbrightness);
         task.comment("squiggle_length: " + squiggle_length);
     }
 
