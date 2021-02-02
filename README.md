@@ -29,6 +29,12 @@ Export Formats:
     Images: [.tif, .tga, .png, .jpg, .jpeg]
 ```
 
+##### Installation
+Windows users only for now.
+- Install [JAVA 8](https://www.java.com/en/download/) - (Newer versions will not work)
+- Download the [latest release](https://github.com/SonarSonic/DrawingBotV3/releases)
+- Unzip and run the .exe
+
 ##### Dependencies
 
 - [Processing](https://github.com/processing/processing) - for Rendering/Exporting
