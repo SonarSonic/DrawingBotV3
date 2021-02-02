@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.drawing.*;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;
@@ -148,7 +149,7 @@ public class PlottedDrawing {
             line.pen_continuation = !(prevLine == null || prevLine.x2 != line.x1 || prevLine.y2 != line.y1 || prevLine.pen_down != line.pen_down  || prevLine.pen_number != line.pen_number);
             prevLine = line;
         }
-        println("set_pen_continuation_flags");
+        DrawingBotV3.println("set_pen_continuation_flags");
     }
 
     public void addline(int penNumber, boolean penDown, float x1, float y1, float x2, float y2) {

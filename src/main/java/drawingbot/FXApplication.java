@@ -15,15 +15,13 @@ import javafx.stage.Stage;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.URISyntaxException;
+import java.io.*;
 
 //TODO - FIX NULL POINTER EXCEPTION WHEN PROGRAM HAS BEEN RUNNING FOR A WHILE
 public class FXApplication extends Application {
 
     public static Stage primaryStage;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -31,16 +29,9 @@ public class FXApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        //TODO CONSOLE OUTPUT
-       // PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
-       // System.setOut(out);
-
+        Configuration.init();
         FXApplication.primaryStage = primaryStage;
         PApplet.main(DrawingBotV3.class);
-    }
-
-    public static void setupConsoleOutput(){
-
     }
 
     public static void setupSurface(DrawingBotV3 app){
@@ -84,8 +75,6 @@ public class FXApplication extends Application {
             surfaceFX9.setProcessingIcon(primaryStage);
 
             surfaceFX9.startExceptionHandlerThread();
-            Configuration.init();
-
 
         } catch (IOException e) {
             e.printStackTrace();

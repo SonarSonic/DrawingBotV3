@@ -1,6 +1,7 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottedLine;
@@ -39,6 +40,6 @@ public class ImageExporter {
         }
         graphics.endDraw();
         graphics.save(saveLocation.getPath());
-        println("Image created:  " + saveLocation.getPath());
+        DrawingBotV3.println("Image created:  " + saveLocation.getPath());
     }
 }

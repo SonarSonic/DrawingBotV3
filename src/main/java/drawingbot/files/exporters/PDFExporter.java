@@ -1,6 +1,7 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
@@ -10,7 +11,6 @@ import processing.core.PGraphics;
 import java.io.File;
 import java.util.function.BiFunction;
 
-import static processing.core.PApplet.println;
 import static processing.core.PConstants.PDF;
 
 public class PDFExporter {
@@ -31,6 +31,6 @@ public class PDFExporter {
         }
         pdf.dispose();
         pdf.endDraw();
-        println("PDF created:  " + saveLocation.getName());
+        DrawingBotV3.println("PDF created:  " + saveLocation.getName());
     }
 }

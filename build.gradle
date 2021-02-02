@@ -45,7 +45,7 @@ launch4j {
    // icon = "${projectDir}/icons/myApp.ico"
     //dontWrapJar = true;
     bundledJrePath = 'jre'
-    bundledJre64Bit = true
+    bundledJre64Bit = false
     jreMinVersion = '1.8.0_202' //RECOMMENDED PROCESSING VERSION
     jreMaxVersion = '1.8.0_281' //LATEST JAVA 1.8.0
 }
@@ -58,8 +58,8 @@ task packageExecutableDistribution(type: Zip) {
 }
 
 task addJreToDistributable(type: Copy) {
-    //from zipTree("JRE")
-    destinationDir = file("$buildDir/launch4j")
+    //from zipTree("C:\\Program Files\\Java\\jre1.8.0_281")
+    //destinationDir = file("$buildDir/launch4j")
 }
 
 packageExecutableDistribution.dependsOn createExe

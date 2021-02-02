@@ -21,7 +21,7 @@ class PFMSketchLegacy extends AbstractSketchPFMLegacy {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void preProcessing() {
+    public void preProcess() {
         ImageToolsLegacy.imageCrop(task);
         ImageToolsLegacy.imageScale(task, (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale));
         ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 4);
@@ -76,14 +76,8 @@ class PFMSketchLegacy extends AbstractSketchPFMLegacy {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void postProcessing() {}
+    public void postProcess() {}
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void outputParameters() {
-        task.comment("adjustbrightness: " + adjustbrightness);
-        task.comment("squiggle_length: " + squiggle_length);
-    }
 
 }

@@ -46,7 +46,7 @@ abstract class AbstractSketchPFMLegacy extends AbstractPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void findPath() {
+    public void doProcess() {
         int x, y;
 
         //find_darkest();

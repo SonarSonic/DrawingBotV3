@@ -1,19 +1,15 @@
 package drawingbot.helpers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.plotting.PlottingTask;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
 import java.awt.image.*;
-import java.nio.Buffer;
 import java.util.function.Function;
 
 import static processing.core.PApplet.*;
-import static processing.core.PApplet.println;
-import static processing.core.PConstants.RGB;
 
 public class ImageTools {
 

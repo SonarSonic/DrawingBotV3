@@ -57,7 +57,6 @@ public class DrawingRegistry {
             }else{
                 System.out.println("Couldn't find a pen with the code: " + code);
             }
-
         }
         return pens;
     }

@@ -3,10 +3,6 @@ package drawingbot.pfm;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.util.converter.FloatStringConverter;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.LongStringConverter;
-import processing.core.PApplet;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +15,7 @@ public class PFMSettingsRegistry<P> {
 
     static{
         ////GENERAL
-        registerSetting(PFMSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1F, 0.1F, 100F, (pfmSketch, value) -> pfmSketch.plottingResolution = value));
+        registerSetting(PFMSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 10F, (pfmSketch, value) -> pfmSketch.plottingResolution = value));
         registerSetting(PFMSetting.createRangedLongSetting(AbstractPFM.class, "Random Seed", 0L, Long.MIN_VALUE, Long.MAX_VALUE, (pfmSketch, value) -> pfmSketch.seed = value));
 
         ////ABSTRACT SKETCH PFM
@@ -32,9 +28,20 @@ public class PFMSettingsRegistry<P> {
         registerSetting(PFMSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
         ////SKETCH PFM
-        registerSetting(PFMSetting.createRangedIntSetting(PFMSketch.class, "Squiggles till first change", 190, 1, Integer.MAX_VALUE, (pfmSketch, value) -> pfmSketch.squiggles_till_first_change = value));
+        registerSetting(PFMSetting.createRangedIntSetting(PFMSketch.class, "Start Angle Min", -72, -360, 360, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
+        registerSetting(PFMSetting.createRangedIntSetting(PFMSketch.class, "Start Angle Max", -52, -360, 360, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
+        registerSetting(PFMSetting.createRangedFloatSetting(PFMSketch.class, "Drawing Delta Angle", 360F, -360F, 360F, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
+        registerSetting(PFMSetting.createRangedFloatSetting(PFMSketch.class, "Shading Delta Angle", 180F, -360F, 360F, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
+        registerSetting(PFMSetting.createBooleanSetting(PFMSketch.class, "Enable Shading", true, (pfmSketch, value) -> pfmSketch.enableShading = value));
+        registerSetting(PFMSetting.createRangedIntSetting(PFMSketch.class, "Squiggles till shading", 190, 1, Integer.MAX_VALUE, (pfmSketch, value) -> pfmSketch.squigglesTillShading = value));
 
         ////SQUARES PFM
+
+        ////SPIRAL PFM
+        registerSetting(PFMSetting.createRangedFloatSetting(PFMSpiral.class, "Distance between rings", 7F, 0F, Short.MAX_VALUE, (pfmSketch, value) -> pfmSketch.distBetweenRings = value));
+        registerSetting(PFMSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, Short.MAX_VALUE, (pfmSketch, value) -> pfmSketch.density = value));
+        registerSetting(PFMSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, Short.MAX_VALUE, (pfmSketch, value) -> pfmSketch.ampScale = value));
+
 
     }
 

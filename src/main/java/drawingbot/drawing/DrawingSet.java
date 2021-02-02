@@ -5,8 +5,8 @@ import java.util.List;
 
 public class DrawingSet implements IDrawingSet {
 
-    private String name;
-    private List<IDrawingPen> pens;
+    private final String name;
+    private final List<IDrawingPen> pens;
 
     public DrawingSet(String name, List<IDrawingPen> pens) {
         this.name = name;

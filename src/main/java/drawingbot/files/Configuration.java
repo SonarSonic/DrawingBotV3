@@ -3,54 +3,58 @@ package drawingbot.files;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import drawingbot.DrawingBotV3;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Configuration {
 
+    public static DBSettings settings;
+
     public static void init() {
-        Gson gson = new Gson();
         try {
-            //TODO
             File userDir = new File(FileUtils.getUserDataDirectory());
             userDir.mkdirs();
-            File configFile = new File(userDir,"config.json");
+            File configFile = new File(userDir,"settings.json");
+            boolean createSettingsFile = true;
+
             if(Files.exists(configFile.toPath())){
+                Gson gson = new Gson();
                 JsonReader reader = gson.newJsonReader(new FileReader(configFile));
-                TestFile test = gson.fromJson(reader, TestFile.class);
-                System.out.println("loaded test: " + test);
+                settings = gson.fromJson(reader, DBSettings.class);
                 reader.close();
-            }else{
+                if(settings != null){
+                    createSettingsFile = false;
+                }
+            }
+
+            if(createSettingsFile){
+                Gson gson = new Gson();
                 JsonWriter writer = gson.newJsonWriter(new FileWriter(configFile));
-                gson.toJson(new TestFile(1, "big cat 1"), TestFile.class, writer);
-                System.out.println("Saved Config oo: " + configFile.getAbsolutePath());
+                gson.toJson(settings = new DBSettings(), DBSettings.class, writer);
                 writer.flush();
                 writer.close();
+
             }
+            Configuration.setupConsoleOutputFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        if(settings == null){ //probably unnecessary
+            settings = new DBSettings();
+        }
     }
 
-    public static class TestFile{
-        public int num;
-        public String cats;
+    public static void setupConsoleOutputFile() throws FileNotFoundException {
+        System.setOut(new PrintStream(new FileOutputStream(new File(FileUtils.getUserDataDirectory(), "output.txt"))));
+    }
 
-        public TestFile(){}
+    /**general settings*/
+    public static class DBSettings {
+        public boolean isDeveloperMode;
 
-        public TestFile(int num, String cats){
-            this.num = num;
-            this.cats = cats;
-        }
-
-        @Override
-        public String toString() {
-            return "Num: " + num + " Cats: " + cats;
-        }
     }
 
 }
+

@@ -39,7 +39,7 @@ public class PFMLines extends AbstractDarkestPFM{
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void preProcessing() {
+    public void preProcess() {
         BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
 
         //ImageTools.imageCrop(task); //TODO USE SCALR
@@ -71,7 +71,7 @@ public class PFMLines extends AbstractDarkestPFM{
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void findPath() {
+    public void doProcess() {
         for(int i = 0; i < maxLines; i ++){
             for(RawLuminanceData channel : channels){
                 findDarkestPixel(channel);
@@ -160,12 +160,8 @@ public class PFMLines extends AbstractDarkestPFM{
     }
 
     @Override
-    public void postProcessing() {
+    public void postProcess() {
         //task.img_plotting = new PImage(red.asBufferedImage());
     }
 
-    @Override
-    public void outputParameters() {
-
-    }
 }

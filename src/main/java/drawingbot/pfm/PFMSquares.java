@@ -26,7 +26,7 @@ public class PFMSquares extends AbstractSketchPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void preProcessing() {
+    public void preProcess() {
         BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
 
         //ImageTools.imageCrop(task); //TODO USE SCALR
@@ -64,16 +64,10 @@ public class PFMSquares extends AbstractSketchPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void postProcessing() {
+    public void postProcess() {
         task.img_plotting = new PImage(rawBrightnessData.asBufferedImage());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void outputParameters() {
-        task.comment("adjustbrightness: " + adjustbrightness);
-        task.comment("squiggle_length: " + squiggle_length);
-    }
 
 }

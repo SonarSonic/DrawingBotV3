@@ -70,7 +70,7 @@ public class PlottingTask extends Task<PlottingTask> {
                 break;
             case PRE_PROCESSING:
                 updateMessage("Pre-Processing Image");
-                pfm.preProcessing(); //adjust the dimensions / crop of img_plotting
+                pfm.preProcess(); //adjust the dimensions / crop of img_plotting
 
                 img_plotting.loadPixels();
                 img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
@@ -90,7 +90,6 @@ public class PlottingTask extends Task<PlottingTask> {
                 comment("gcode_scale X:  " + nf(gcode_scale_x,0,2));
                 comment("gcode_scale Y:  " + nf(gcode_scale_y,0,2));
                 comment("gcode_scale:    " + nf(gcode_scale,0,2));
-                pfm.outputParameters();
 
                 finishStage();
                 updateMessage("Plotting Image: " + loader.getName()); //here to avoid excessive task updates
@@ -104,10 +103,10 @@ public class PlottingTask extends Task<PlottingTask> {
                     break;
                 }
 
-                pfm.findPath();
+                pfm.doProcess();
                 break;
             case POST_PROCESSING:
-                pfm.postProcessing();
+                pfm.postProcess();
 
                 plottedDrawing.updateWeightedDistribution();
 
@@ -127,7 +126,7 @@ public class PlottingTask extends Task<PlottingTask> {
 
     public void comment(String comment){
         comments.add(comment);
-        println(comment);
+        print(comment);
     }
 
     public void penUp() {
