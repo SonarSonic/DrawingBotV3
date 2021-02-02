@@ -8,6 +8,6 @@ public enum EnumTaskStage {
     PATH_FINDING,
     POST_PROCESSING,
     FINISHING,
-    FINISHED;
+    FINISHED
 
 }

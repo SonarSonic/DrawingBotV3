@@ -2,8 +2,8 @@ package drawingbot.drawing;
 
 public class DrawingPen implements IDrawingPen {
 
-    private String name; //pens name
-    private int rgbColour; //rgb pen colour
+    private final String name; //pens name
+    private final int rgbColour; //rgb pen colour
 
     public DrawingPen(IDrawingPen source){
         this(source.getName(), source.getRGBColour());

@@ -1,6 +1,7 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.pfm.PFMLoaders;
 import drawingbot.plotting.PlottingTask;
@@ -29,9 +30,6 @@ public class BatchProcessingTask extends Task<Boolean> {
     public PFMLoaders loader;
     public ObservableDrawingSet drawingPenSet;
 
-    private int imageCount;
-    private int imagesDone;
-
     public BatchProcessingTask(String inputFolder, String outputFolder){
         this.inputFolder = inputFolder;
         this.outputFolder = outputFolder;
@@ -59,10 +57,11 @@ public class BatchProcessingTask extends Task<Boolean> {
                 return t ;
             });
 
-            imageCount = files.size();
-            imagesDone = 0;
+            int imageCount = files.size();
+            int imagesDone = 0;
+
             loop: for(Path path : files){
-                updateTitle("Batch Processing " + (imagesDone+1) + " / " + imageCount);
+                updateTitle("Batch Processing " + (imagesDone +1) + " / " + imageCount);
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
                     PImage image = DrawingBotV3.INSTANCE.loadImage(path.toString());

@@ -14,18 +14,19 @@ import static processing.core.PApplet.*;
 /**Original PFMSpiral Class*/
 public class PFMSpiral extends AbstractPFM {
 
-    public float b;                                    // Sampled brightness
-    public float dist = 7;                             // Distance between rings
-    public float radius = dist/2;                      // Current radius
-    public float aradius = 1;                          // Radius with brighness applied up
-    public float bradius = 1;                          // Radius with brighness applied down
-    public float alpha;                                // Initial rotation
-    public float density = 75;                         // Density
-    public float ampScale = 4.5F;                      // Controls the amplitude
-    public float x, y, xa, ya, xb, yb;                 // Current X and Y + jittered X and Y
-    public float k;                                    // Current radius
-    public float endRadius;                            // Largest value the spiral needs to cover the image
-    public int mask = app.color(240, 240, 240);        // This color will not be drawn (WHITE)
+    public float distBetweenRings = 7;                  // Distance between rings
+    public float density = 75;                          // Density
+    public float ampScale = 4.5F;                       // Controls the amplitude
+
+    protected float alpha;                              // Initial rotation
+    protected float radius;                             // Current radius
+    protected float aradius = 1;                        // Radius with brightness applied up
+    protected float bradius = 1;                        // Radius with brightness applied down
+    protected float b;                                  // Sampled brightness
+    protected float x, y, xa, ya, xb, yb;               // Current X and Y + jittered X and Y
+    protected float k;                                  // Current radius
+    protected float endRadius;                          // Largest value the spiral needs to cover the image
+    protected int mask = app.color(240, 240, 240);      // This color will not be drawn (WHITE)
 
     public RawLuminanceData rawBrightnessData;
 
@@ -35,34 +36,35 @@ public class PFMSpiral extends AbstractPFM {
 
     @Override
     public float progress() {
-        float startRadius = dist/2;
+        float startRadius = distBetweenRings /2;
         return (radius-startRadius) / (endRadius-startRadius);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void preProcessing() {
+
+    public void preProcess() {
         BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
 
-        //ImageTools.imageCrop(task); //TODO USE SCALR
-        int targetWidth = (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale);
-        int targetHeight = (int)(app.getDrawingAreaHeightMM() * DrawingBotV3.image_scale);
-        dst = Scalr.resize(dst, targetWidth, targetHeight);
+        dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
 
         dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
 
         dst = ImageTools.lazyImageBorder(dst, "border/b6.png", 0, 0);
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
 
+        dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
+
         task.img_plotting = new PImage(dst);
         rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void findPath() {
 
+    public void doProcess() {
+        radius = distBetweenRings /2;
         k = density/radius;
         alpha = k;
-        radius += dist/(360/k);
+        radius += distBetweenRings /(360/k);
 
         // When have we reached the far corner of the image?
         // TODO: this will have to change if not centered
@@ -83,7 +85,7 @@ public class PFMSpiral extends AbstractPFM {
         while (radius < endRadius) {
             k = (density/2)/radius;
             alpha += k;
-            radius += dist/(360/k);
+            radius += distBetweenRings /(360/k);
             x =  radius*cos(radians(alpha))+rawBrightnessData.width/2F;
             y = -radius*sin(radians(alpha))+rawBrightnessData.height/2F;
 
@@ -93,18 +95,18 @@ public class PFMSpiral extends AbstractPFM {
 
                 // Get the color and brightness of the sampled pixel
                 b = rawBrightnessData.getBrightness((int)x, (int)y);
-                b = map (b, 0, 255, dist*ampScale, 0);
+                b = map (b, 0, 255, distBetweenRings *ampScale, 0);
 
                 // Move up according to sampled brightness
-                aradius = radius+(b/dist);
+                aradius = radius+(b/ distBetweenRings);
                 xa =  aradius*cos(radians(alpha))+rawBrightnessData.width/2F;
                 ya = -aradius*sin(radians(alpha))+rawBrightnessData.height/2F;
 
                 // Move down according to sampled brightness
                 k = (density/2)/radius;
                 alpha += k;
-                radius += dist/(360/k);
-                bradius = radius-(b/dist);
+                radius += distBetweenRings /(360/k);
+                bradius = radius-(b/ distBetweenRings);
                 xb =  bradius*cos(radians(alpha))+rawBrightnessData.width/2F;
                 yb = -bradius*sin(radians(alpha))+rawBrightnessData.height/2F;
 
@@ -130,12 +132,6 @@ public class PFMSpiral extends AbstractPFM {
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void postProcessing() {}
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void outputParameters() {
-        //gcode_comment("dist: " + dist);
-        //gcode_comment("ampScale: " + ampScale);
-    }
+    public void postProcess() {}
 
 }

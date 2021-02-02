@@ -1,8 +1,5 @@
 package drawingbot.pfm;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// This is the pfm interface, it contains the only methods the main code can call.
-// As well as any variables that all pfm modules must have.
 public interface IPFM {
 
     boolean finished();
@@ -13,11 +10,10 @@ public interface IPFM {
 
     void init();
 
-    void preProcessing();
+    void preProcess();
 
-    void findPath();
+    void doProcess();
 
-    void postProcessing();
+    void postProcess();
 
-    void outputParameters();
 }

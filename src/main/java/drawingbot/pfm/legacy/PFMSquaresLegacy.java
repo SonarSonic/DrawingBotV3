@@ -21,7 +21,7 @@ class PFMSquaresLegacy extends AbstractSketchPFMLegacy {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void preProcessing() {
+    public void preProcess() {
         ImageToolsLegacy.imageCrop(task);
         ImageToolsLegacy.imageScale(task, 1000);
         ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 3);
@@ -50,14 +50,8 @@ class PFMSquaresLegacy extends AbstractSketchPFMLegacy {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void postProcessing() {}
+    public void postProcess() {}
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void outputParameters() {
-        task.comment("adjustbrightness: " + adjustbrightness);
-        task.comment("squiggle_length: " + squiggle_length);
-    }
 
 }

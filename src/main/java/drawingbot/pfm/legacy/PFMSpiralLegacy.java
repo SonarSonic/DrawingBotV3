@@ -2,7 +2,6 @@ package drawingbot.pfm.legacy;
 
 import drawingbot.pfm.AbstractPFM;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.pfm.legacy.ImageToolsLegacy;
 
 import static processing.core.PApplet.*;
 
@@ -34,7 +33,7 @@ class PFMSpiralLegacy extends AbstractPFM {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void preProcessing() {
+    public void preProcess() {
         ImageToolsLegacy.imageCrop(task);
         ImageToolsLegacy.imageScale(task, 1000);
         ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 3);
@@ -43,7 +42,7 @@ class PFMSpiralLegacy extends AbstractPFM {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void findPath() {
+    public void doProcess() {
 
         k = density/radius;
         alpha = k;
@@ -116,12 +115,6 @@ class PFMSpiralLegacy extends AbstractPFM {
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void postProcessing() {}
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void outputParameters() {
-        //gcode_comment("dist: " + dist);
-        //gcode_comment("ampScale: " + ampScale);
-    }
+    public void postProcess() {}
 
 }

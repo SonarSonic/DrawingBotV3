@@ -1,6 +1,5 @@
 package drawingbot.pfm;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.helpers.ImageTools;
 import drawingbot.helpers.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
@@ -11,22 +10,35 @@ import java.awt.image.*;
 
 public class PFMSketch extends AbstractSketchPFM {
 
-    public int squiggles_till_first_change;
+    public boolean enableShading;
+    public int squigglesTillShading;
+    public int startAngleMin;
+    public int startAngleMax;
+    public float drawingDeltaAngle;
+    public float shadingDeltaAngle;
 
     public PFMSketch(PlottingTask task){
         super(task);
     }
 
+    @Override
+    public void init() {
+        super.init();
+        if(startAngleMax < startAngleMin){
+            int value = startAngleMin;
+            startAngleMin = startAngleMax;
+            startAngleMax = value;
+        }
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void preProcessing() {
+    public void preProcess() {
 
         BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
 
         dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
-
-        dst = Scalr.resize(dst, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution)); //TODO SCALING
 
         dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 4, true);
         dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
@@ -34,6 +46,8 @@ public class PFMSketch extends AbstractSketchPFM {
         dst = ImageTools.lazyImageBorder(dst, "border/b1.png", 0, 0);
         dst = ImageTools.lazyImageBorder(dst, "border/b11.png", 0, 0);
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
+
+        dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
 
         task.img_plotting = new PImage(dst);
         rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
@@ -44,14 +58,14 @@ public class PFMSketch extends AbstractSketchPFM {
 
     @Override
     public void findDarkestNeighbour(int start_x, int start_y) {
-        darkest_neighbor = 257;
+        darkest_neighbor = 1000;
         float delta_angle;
-        float start_angle = randomSeed(-72, -52);    // Spitfire;
+        float start_angle = randomSeed(startAngleMin, startAngleMax);    // Spitfire;
 
-        if (squiggle_count < squiggles_till_first_change) {
-            delta_angle = 360.0F / (float)tests;
+        if (!enableShading || squiggle_count < squigglesTillShading) {
+            delta_angle = drawingDeltaAngle / (float)tests;
         } else {
-            delta_angle = 180F + 7F / (float)tests;
+            delta_angle = shadingDeltaAngle;
         }
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
@@ -63,16 +77,10 @@ public class PFMSketch extends AbstractSketchPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void postProcessing() {
+    public void postProcess() {
         task.img_plotting = new PImage(rawBrightnessData.asBufferedImage());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void outputParameters() {
-        task.comment("adjust_brightness: " + adjustbrightness);
-        task.comment("squiggle_length: " + squiggle_length);
-    }
 
 }

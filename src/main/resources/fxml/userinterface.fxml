@@ -36,7 +36,7 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane text="Drawing Area">
+                              <TitledPane expanded="false" text="Drawing Area">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="224.0" prefWidth="402.0">
                                        <children>
@@ -118,7 +118,7 @@
                                               <TableColumn fx:id="tableColumnValue" prefWidth="139.0" text="Value" />
                                             </columns>
                                           </TableView>
-                                          <ComboBox fx:id="comboBoxPFMPreset" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="371.0" />
+                                          <ComboBox fx:id="comboBoxPFMPreset" disable="true" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="371.0" promptText="Presets - W.I.P" />
                                           <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
                                           <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
                                           <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />

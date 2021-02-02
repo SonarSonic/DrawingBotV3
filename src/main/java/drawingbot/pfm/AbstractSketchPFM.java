@@ -47,7 +47,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void findPath() {
+    public void doProcess() {
         int x, y;
         findDarkestArea(rawBrightnessData);
 

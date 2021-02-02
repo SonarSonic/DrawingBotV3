@@ -1,6 +1,7 @@
 package drawingbot.pfm.legacy;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.plotting.PlottingTask;
 import processing.core.PConstants;
 import processing.core.PImage;
@@ -454,7 +455,7 @@ class ImageToolsLegacy {
         for (int i=0; i<n; i++){
             for (int j=0; j<p; j++){
                 sum += matrix[i][j];
-                System.out.printf("%10.5f ", matrix[i][j]);
+                println("%10.5f ",  matrix[i][j]);
             }
             println();
         }

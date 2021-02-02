@@ -1,8 +1,10 @@
 package drawingbot.javafx;
 
+import drawingbot.FXApplication;
 import drawingbot.files.BatchProcessing;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
+import drawingbot.files.Configuration;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.FileUtils;
 import drawingbot.helpers.ImageTools;
@@ -45,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static processing.core.PApplet.*;
 
@@ -249,7 +252,7 @@ public class FXController {
         textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
         ////PATH FINDING CONTROLS
-        choiceBoxPFM.getItems().addAll(PFMLoaders.values());
+        Arrays.stream(PFMLoaders.values()).filter(loader -> Configuration.settings.isDeveloperMode || !loader.isHidden()).forEach(l -> choiceBoxPFM.getItems().add(l));
         choiceBoxPFM.setValue(PFMLoaders.SKETCH);
         choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
         DrawingBotV3.INSTANCE.pfmLoader.bindBidirectional(choiceBoxPFM.valueProperty());
