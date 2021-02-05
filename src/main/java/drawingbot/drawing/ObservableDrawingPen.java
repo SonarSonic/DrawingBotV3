@@ -1,7 +1,7 @@
 package drawingbot.drawing;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.helpers.ImageTools;
+import drawingbot.image.ImageTools;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;

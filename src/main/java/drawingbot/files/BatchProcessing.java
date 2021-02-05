@@ -13,8 +13,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +57,7 @@ public class BatchProcessing {
             return;
         }
         DrawingBotV3.INSTANCE.batchProcessingTask = new BatchProcessingTask(inputFolder.get(), outputFolder.get());
-        DrawingBotV3.INSTANCE.executorService.submit(DrawingBotV3.INSTANCE.batchProcessingTask);
+        DrawingBotV3.INSTANCE.taskService.submit(DrawingBotV3.INSTANCE.batchProcessingTask);
         isBatchProcessing.setValue(true);
     }
 

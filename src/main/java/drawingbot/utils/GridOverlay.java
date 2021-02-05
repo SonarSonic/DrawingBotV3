@@ -1,10 +1,18 @@
-package drawingbot.helpers;
+package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
 
 import static processing.core.PApplet.*;
 
+//TODO FIXME
 public class GridOverlay {
+
+    ///grid rendering
+    public static final float INCHES_TO_MILLIMETRES = 25.4F;
+    public static final float paper_top_to_origin = 285; //mm, make smaller to move drawing down on paper
+    public static final float paper_size_x = 32 * INCHES_TO_MILLIMETRES; //mm, papers width
+    public static final float paper_size_y = 40 * INCHES_TO_MILLIMETRES; //mm, papers height
+    public static final float grid_scale = 25.4F; // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
 
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
@@ -25,8 +33,8 @@ public class GridOverlay {
             // Give everything outside the paper area a light grey color
             app.noStroke();
             app.fill(0, 0, 0, 32);
-            float border_x = (app.paper_size_x - app.getDrawingAreaWidthMM()) / 2;
-            float border_y = (app.paper_size_y - app.getDrawingAreaHeightMM()) / 2;
+            float border_x = (paper_size_x - app.getDrawingAreaWidthMM()) / 2;
+            float border_y = (paper_size_y - app.getDrawingAreaHeightMM()) / 2;
             app.rect(-border_x/app.getActiveTask().getGCodeScale(), -border_y/app.getActiveTask().getGCodeScale(), 999999, -999999);
             app.rect((app.getDrawingAreaWidthMM()+border_x)/app.getActiveTask().getGCodeScale(), -border_y/app.getActiveTask().getGCodeScale(), 999999, 999999);
             app.rect((app.getDrawingAreaWidthMM()+border_x)/app.getActiveTask().getGCodeScale(), (app.getDrawingAreaHeightMM()+border_y)/app.getActiveTask().getGCodeScale(), -999999, 999999);
@@ -37,13 +45,13 @@ public class GridOverlay {
             app.stroke(255, 64, 64, 80);
             app.noFill();
             for (int x = -gridlines; x <= gridlines; x++) {
-                int x0 = (int)(x * app.grid_scale / app.getActiveTask().getGCodeScale());
+                int x0 = (int)(x * grid_scale / app.getActiveTask().getGCodeScale());
                 app.line(x0 + image_center_x, -999999, x0 + image_center_x, 999999);
             }
 
             // Horizontal lines
             for (int y = -gridlines; y <= gridlines; y++) {
-                int y0 = (int)(y * app.grid_scale / app.getActiveTask().getGCodeScale());
+                int y0 = (int)(y * grid_scale / app.getActiveTask().getGCodeScale());
                 app.line(-999999, y0 + image_center_y, 999999, y0 + image_center_y);
             }
 
@@ -85,20 +93,20 @@ public class GridOverlay {
 // Currently works correctly with screen_scale, translation and rotation.
     public static void mouse_point() {
 
-        print("Mouse point: ");
+        DrawingBotV3.logger.info("Mouse point: ");
         /* TODO FIXME ADD REPLACEMENT!!!!
         switch(app.screen_rotate) {
             case 0:
-                println(  (app.mouseX/app.screen_scale - app.mx) + ", " +  (app.mouseY/app.screen_scale - app.my) );
+                DrawingBotV3.logger.info(  (app.mouseX/app.screen_scale - app.mx) + ", " +  (app.mouseY/app.screen_scale - app.my) );
                 break;
             case 1:
-                println(  (app.mouseY/app.screen_scale - app.my) + ", " + -(app.mouseX/app.screen_scale - app.mx) );
+                DrawingBotV3.logger.info(  (app.mouseY/app.screen_scale - app.my) + ", " + -(app.mouseX/app.screen_scale - app.mx) );
                 break;
             case 2:
-                println( -(app.mouseX/app.screen_scale - app.mx) + ", " + -(app.mouseY/app.screen_scale - app.my) );
+                DrawingBotV3.logger.info( -(app.mouseX/app.screen_scale - app.mx) + ", " + -(app.mouseY/app.screen_scale - app.my) );
                 break;
             case 3:
-                println( -(app.mouseY/app.screen_scale - app.my) + ", " +  (app.mouseX/app.screen_scale - app.mx) );
+                DrawingBotV3.logger.info( -(app.mouseY/app.screen_scale - app.my) + ", " +  (app.mouseX/app.screen_scale - app.mx) );
                 break;
         }
 

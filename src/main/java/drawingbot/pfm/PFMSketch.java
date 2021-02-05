@@ -1,7 +1,8 @@
 package drawingbot.pfm;
 
-import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawLuminanceData;
+import drawingbot.image.ConvolutionMatrices;
+import drawingbot.image.ImageTools;
+import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -17,13 +18,9 @@ public class PFMSketch extends AbstractSketchPFM {
     public float drawingDeltaAngle;
     public float shadingDeltaAngle;
 
-    public PFMSketch(PlottingTask task){
-        super(task);
-    }
-
     @Override
-    public void init() {
-        super.init();
+    public void init(PlottingTask task) {
+        super.init(task);
         if(startAngleMax < startAngleMin){
             int value = startAngleMin;
             startAngleMin = startAngleMax;
@@ -40,8 +37,8 @@ public class PFMSketch extends AbstractSketchPFM {
 
         dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
 
-        dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 4, true);
-        dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
+        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 4, true);
+        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 3, true);
 
         dst = ImageTools.lazyImageBorder(dst, "border/b1.png", 0, 0);
         dst = ImageTools.lazyImageBorder(dst, "border/b11.png", 0, 0);

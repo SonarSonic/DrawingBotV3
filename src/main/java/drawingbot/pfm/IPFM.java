@@ -1,5 +1,7 @@
 package drawingbot.pfm;
 
+import drawingbot.plotting.PlottingTask;
+
 public interface IPFM {
 
     boolean finished();
@@ -8,7 +10,7 @@ public interface IPFM {
 
     float progress();
 
-    void init();
+    void init(PlottingTask task);
 
     void preProcess();
 

@@ -1,16 +1,17 @@
 package drawingbot.javafx;
 
-import drawingbot.FXApplication;
 import drawingbot.files.BatchProcessing;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
-import drawingbot.files.Configuration;
+import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.FileUtils;
-import drawingbot.helpers.ImageTools;
-import drawingbot.pfm.PFMSetting;
-import drawingbot.pfm.PFMLoaders;
-import drawingbot.pfm.PFMSettingsRegistry;
+import drawingbot.image.ImageTools;
+import drawingbot.pfm.IPFM;
+import drawingbot.pfm.PFMPreset;
+import drawingbot.utils.GenericSetting;
+import drawingbot.utils.GenericFactory;
+import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
 import javafx.application.Platform;
@@ -22,6 +23,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -47,7 +49,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Optional;
+import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
 
@@ -95,17 +98,26 @@ public class FXController {
     public CheckBox checkBoxAutoHome = null;
 
     ////PATH FINDING CONTROLS
-    public ChoiceBox<PFMLoaders> choiceBoxPFM = null;
+    public ChoiceBox<GenericFactory<IPFM>> choiceBoxPFM = null;
     public Label labelElapsedTime = null;
     public Label labelPlottedLines = null;
     public Slider sliderDisplayedLines = null;
     public TextField textFieldDisplayedLines = null;
 
     ////PATH FINDING CONTROLS - ADVANCED
-    public ComboBox comboBoxPFMPreset = null;
-    public TableView<PFMSetting<?,?>> tableViewAdvancedPFMSettings = null;
-    public TableColumn<PFMSetting<?, ?>, String> tableColumnSetting = null;
-    public TableColumn<PFMSetting<?, ?>, Object> tableColumnValue = null;
+    public PresetEditorDialog presetEditorDialog = null;
+    public ComboBox<PFMPreset> comboBoxPFMPreset = null;
+    public MenuItem menuNewPreset = null;
+    public MenuItem menuUpdatePreset = null;
+    public MenuItem menuDeletePreset = null;
+    public MenuItem menuImportPreset = null;
+    public MenuItem menuExportPreset = null;
+
+    public static PFMPreset editingPFMPreset = null;
+
+    public TableView<GenericSetting<?,?>> tableViewAdvancedPFMSettings = null;
+    public TableColumn<GenericSetting<?, ?>, String> tableColumnSetting = null;
+    public TableColumn<GenericSetting<?, ?>, Object> tableColumnValue = null;
 
     public Button buttonPFMSettingReset = null;
     public Button buttonPFMSettingRandom = null;
@@ -154,7 +166,7 @@ public class FXController {
     public Label progressBarLabel = null;
 
     public void initialize(){
-        println("Initialize JAVA FX");
+        DrawingBotV3.logger.entering("FX Controller", "initialize");
         ////MENU
 
         //file
@@ -252,8 +264,8 @@ public class FXController {
         textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
         ////PATH FINDING CONTROLS
-        Arrays.stream(PFMLoaders.values()).filter(loader -> Configuration.settings.isDeveloperMode || !loader.isHidden()).forEach(l -> choiceBoxPFM.getItems().add(l));
-        choiceBoxPFM.setValue(PFMLoaders.SKETCH);
+        choiceBoxPFM.setItems(PFMMasterRegistry.getObservablePFMLoaderList());
+        choiceBoxPFM.setValue(PFMMasterRegistry.getDefaultPFMFactory());
         choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
         DrawingBotV3.INSTANCE.pfmLoader.bindBidirectional(choiceBoxPFM.valueProperty());
 
@@ -284,23 +296,78 @@ public class FXController {
         });
 
         ////
-
         ////ADVANCED PATH FINDING CONTROLS
+        presetEditorDialog = new PresetEditorDialog();
 
-        tableViewAdvancedPFMSettings.setItems(PFMSettingsRegistry.getSettingsFromLoader(DrawingBotV3.INSTANCE.pfmLoader.get()));
-        DrawingBotV3.INSTANCE.pfmLoader.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMSettingsRegistry.getSettingsFromLoader(newValue)));
+        comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList());
+        comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset());
+
+        DrawingBotV3.INSTANCE.pfmLoader.addListener((observable, oldValue, newValue) -> {
+            comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList(newValue));
+            comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset(newValue));
+        });
+
+
+        comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                newValue.loadPreset(PFMMasterRegistry.getObservablePFMSettingsList());
+            }
+        });
+
+        //TODO FIX PRESETS!!!!!
+        menuNewPreset.setOnAction(e -> {
+            editingPFMPreset = new PFMPreset(DrawingBotV3.INSTANCE.pfmLoader.get().getName(), "New Preset", true);
+            editingPFMPreset.savePreset(PFMMasterRegistry.getObservablePFMSettingsList());
+            presetEditorDialog.updateFromEditingPFM();
+            presetEditorDialog.setTitle("Save new preset");
+            Optional<PFMPreset> result = presetEditorDialog.showAndWait();
+            if(result.isPresent()){
+                PFMMasterRegistry.savePreset(editingPFMPreset);
+                comboBoxPFMPreset.setValue(editingPFMPreset);
+            }
+        });
+
+        menuUpdatePreset.setOnAction(e -> {
+            PFMPreset preset = comboBoxPFMPreset.getValue();
+            if(preset.userCreated){
+                ///save over the presets current settings
+                preset.settings.clear();
+                preset.savePreset(PFMMasterRegistry.getObservablePFMSettingsList());
+
+                PFMMasterRegistry.updatePreset(preset);
+                comboBoxPFMPreset.setValue(preset);
+                comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList());
+            }
+        });
+
+        menuDeletePreset.setOnAction(e -> {
+            PFMPreset preset = comboBoxPFMPreset.getValue();
+            if(preset.userCreated){
+                PFMMasterRegistry.deletePreset(preset);
+                comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset());
+            }
+        });
+
+        menuImportPreset.setOnAction(e -> importPFMPreset());
+        menuExportPreset.setOnAction(e -> exportPFMPreset());
+
+        tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList());
+        DrawingBotV3.INSTANCE.pfmLoader.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList()));
 
         tableColumnSetting.setCellValueFactory(param -> param.getValue().settingName);
 
         tableColumnValue.setCellFactory(param -> {
-            TextFieldTableCell<PFMSetting<?, ?>, Object> cell = new TextFieldTableCell<>();
+            TextFieldTableCell<GenericSetting<?, ?>, Object> cell = new TextFieldTableCell<>();
             cell.setConverter(new PFMSettingStringConverter(cell));
             return cell;
         });
         tableColumnValue.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> PFMSettingsRegistry.resetSettings(tableViewAdvancedPFMSettings.getItems()));
-        buttonPFMSettingRandom.setOnAction(e -> PFMSettingsRegistry.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
+        buttonPFMSettingReset.setOnAction(e -> {
+            comboBoxPFMPreset.getValue().loadPreset(PFMMasterRegistry.getObservablePFMSettingsList());
+        });
+
+        buttonPFMSettingRandom.setOnAction(e -> PFMMasterRegistry.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> openURL(Utils.URL_GITHUB_PFM_DOCS));
 
         ////PEN SETTINGS
@@ -393,7 +460,10 @@ public class FXController {
 
         progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
         progressBarLabel.setText("");
+
+        DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
+
 
     public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
         switch (stage){
@@ -403,7 +473,7 @@ public class FXController {
                 break;
             case PRE_PROCESSING:
                 break;
-            case PATH_FINDING:
+            case DO_PROCESS:
                 sliderDisplayedLines.setValue(1.0F);
                 textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
                 break;
@@ -416,7 +486,7 @@ public class FXController {
         }
     }
 
-    public void changePathFinderModule(PFMLoaders pfm){
+    public void changePathFinderModule(GenericFactory pfm){
         DrawingBotV3.INSTANCE.pfmLoader.set(pfm);
         /*
         if(DrawingBotV3.INSTANCE.getActiveTask() != null && DrawingBotV3.INSTANCE.getActiveTask().loader != pfm){
@@ -439,7 +509,7 @@ public class FXController {
     public void importURL(){
         String url = getClipboardString();
         if (url != null && match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
-            println("Image URL found on clipboard: " + url);
+            DrawingBotV3.logger.info("Image URL found on clipboard: " + url);
             DrawingBotV3.INSTANCE.openImage(url);
         }
     }
@@ -457,7 +527,6 @@ public class FXController {
         });
     }
 
-    //TODO FINISH PDF EXPORTING
     public void exportFile(ExportFormats format, boolean seperatePens){
         if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
@@ -481,7 +550,7 @@ public class FXController {
                 Desktop.getDesktop().browse(URI.create(url));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening webpage: " + url);
         }
     }
 
@@ -498,30 +567,91 @@ public class FXController {
 
     }
 
-    public void action_rotate(){
-        /* TODO IMAGE ROTATE?*/
+    public void importPFMPreset(){
+        Platform.runLater(() -> {
+            FileChooser d = new FileChooser();
+            d.getExtensionFilters().add(FileUtils.IMPORT_PRESETS);
+            d.setTitle("Select a PFM Preset to import");
+            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            File file = d.showOpenDialog(null);
+            if(file != null){
+                ConfigFileHandler.importPFMPresetFile(file);
+            }
+        });
+    }
+
+    public void exportPFMPreset(){
+        Platform.runLater(() -> {
+            FileChooser d = new FileChooser();
+            d.getExtensionFilters().addAll(FileUtils.FILTER_PFM_PRESET);
+            d.getExtensionFilters().addAll(FileUtils.FILTER_PFM_PRESET_JSON);
+            d.setTitle("Save PFM Preset");
+            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            File file = d.showSaveDialog(null);
+            if(file != null){
+                ConfigFileHandler.exportPFMPresetFile(file, comboBoxPFMPreset.getValue());
+            }
+        });
+    }
+
+    public static class PresetEditorDialog extends Dialog<PFMPreset>{
+
+        public Label labelTargetPFM = null;
+        public Label labelTotalSettings = null;
+        public TextField nameField = null;
+
+        public PresetEditorDialog() {
+            super();
+            VBox vBox = new VBox();
+
+            labelTargetPFM = new Label("Target PFM: ");
+            //vBox.getChildren().add(labelTargetPFM);
+
+            labelTotalSettings = new Label("Unique Settings: ");
+            //vBox.getChildren().add(labelTotalSettings);
+
+            Label nameFieldLabel = new Label("Preset Name: ");
+            nameField = new TextField();
+            nameField.textProperty().addListener((observable, oldValue, newValue) -> FXController.editingPFMPreset.presetName = newValue);
+            nameFieldLabel.setGraphic(nameField);
+            nameFieldLabel.setContentDisplay(ContentDisplay.RIGHT);
+            vBox.getChildren().add(nameFieldLabel);
+
+            setGraphic(vBox);
+            setResultConverter(param -> param == ButtonType.APPLY ? editingPFMPreset : null);
+            getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+            getDialogPane().getButtonTypes().add(ButtonType.APPLY);
+        }
+
+        public void updateFromEditingPFM(){
+            labelTargetPFM.setText("Target PFM: " + FXController.editingPFMPreset.pfmName);
+            labelTotalSettings.setText("Unique Settings: " + FXController.editingPFMPreset.settings.size());
+            nameField.setText(FXController.editingPFMPreset.presetName);
+        }
+
+
     }
 
     public static class PFMSettingStringConverter<V> extends StringConverter<V>{
 
-        public TableCell<PFMSetting<?, V>, V> cell;
+        public TableCell<GenericSetting<?, V>, V> cell;
 
-        public PFMSettingStringConverter(TableCell<PFMSetting<?, V>, V> cell){
+        public PFMSettingStringConverter(TableCell<GenericSetting<?, V>, V> cell){
             this.cell = cell;
         }
 
         public String toString(V object){
-            PFMSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
+            GenericSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
             return setting.stringConverter.toString(object);
         }
 
         public V fromString(String string){
-            PFMSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
+            GenericSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
             try {
                 V value = setting.stringConverter.fromString(string);
                 return setting.validator.apply(value);
             } catch (Exception e) {
-                System.out.println("Invalid input: " + string + " for setting " + setting.settingName.getName());
+                DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.settingName.getName());
             }
             return setting.value.get();
         }

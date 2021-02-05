@@ -1,4 +1,4 @@
-package drawingbot.helpers;
+package drawingbot.utils;
 
 import static processing.core.PApplet.*;
 

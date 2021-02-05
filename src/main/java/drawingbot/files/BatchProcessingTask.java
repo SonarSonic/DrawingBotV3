@@ -1,13 +1,9 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingSet;
-import drawingbot.pfm.PFMLoaders;
+import drawingbot.utils.GenericFactory;
 import drawingbot.plotting.PlottingTask;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.concurrent.Task;
 import processing.core.PImage;
 
@@ -27,7 +23,7 @@ public class BatchProcessingTask extends Task<Boolean> {
 
     public String inputFolder;
     public String outputFolder;
-    public PFMLoaders loader;
+    public GenericFactory loader;
     public ObservableDrawingSet drawingPenSet;
 
     public BatchProcessingTask(String inputFolder, String outputFolder){
@@ -47,7 +43,7 @@ public class BatchProcessingTask extends Task<Boolean> {
     protected Boolean call() throws Exception {
         PathMatcher imageMatcher = FileSystems.getDefault().getPathMatcher("glob:*.{tif,tga,png,jpg,gif,bmp,jpeg}");
         List<Path> files = Files.list(new File(inputFolder).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> imageMatcher.matches(p.getFileName())).collect(Collectors.toList());
-        DrawingBotV3.println("Batch Processing: Found " + files.size());
+        DrawingBotV3.logger.fine("Batch Processing: Found " + files.size());
 
         if(!files.isEmpty()){
 

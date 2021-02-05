@@ -1,8 +1,8 @@
 package drawingbot.pfm;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawLuminanceData;
+import drawingbot.image.ConvolutionMatrices;
+import drawingbot.image.ImageTools;
+import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -13,8 +13,8 @@ import static processing.core.PApplet.*;
 
 public class PFMSquares extends AbstractSketchPFM {
 
-    public PFMSquares(PlottingTask task){
-        super(task);
+    public PFMSquares(){
+        super();
         squiggle_length = 1000;
         adjustbrightness = 9;
         desired_brightness = 250;
@@ -29,15 +29,14 @@ public class PFMSquares extends AbstractSketchPFM {
     public void preProcess() {
         BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
 
-        //ImageTools.imageCrop(task); //TODO USE SCALR
-        int targetWidth = (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale);
-        int targetHeight = (int)(app.getDrawingAreaHeightMM() * DrawingBotV3.image_scale);
-        dst = Scalr.resize(dst, targetWidth, targetHeight);
+        dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
 
-        dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
+        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 3, true);
 
         dst = ImageTools.lazyImageBorder(dst, "border/b6.png", 0, 0);
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
+
+        dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
 
         task.img_plotting = new PImage(dst);
         rawBrightnessData = RawLuminanceData.createBrightnessData(dst);

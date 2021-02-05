@@ -1,5 +1,7 @@
 package drawingbot.drawing;
 
+import drawingbot.DrawingBotV3;
+
 import java.util.*;
 
 public class DrawingRegistry {
@@ -26,7 +28,7 @@ public class DrawingRegistry {
 
     public void registerDrawingPen(DrawingPen pen){
         if(registeredPens.get(pen.getName()) != null){
-            System.out.println("DUPLICATE PEN UNIQUE ID: " + pen.getName());
+            DrawingBotV3.logger.warning("DUPLICATE PEN UNIQUE ID: " + pen.getName());
             return;
         }
         registeredPens.put(pen.getName(), pen);
@@ -34,7 +36,7 @@ public class DrawingRegistry {
 
     public void registerDrawingSet(DrawingSet penSet){
         if(registeredSets.get(penSet.getName()) != null){
-            System.out.println("DUPLICATE DRAWING SET NAME: " + penSet.getName());
+            DrawingBotV3.logger.warning("DUPLICATE DRAWING SET NAME: " + penSet.getName());
             return;
         }
         registeredSets.put(penSet.getName(), penSet);
@@ -55,7 +57,7 @@ public class DrawingRegistry {
             if(pen.isPresent()){
                 pens.add(pen.get());
             }else{
-                System.out.println("Couldn't find a pen with the code: " + code);
+                DrawingBotV3.logger.warning("Couldn't find a pen with the code: " + code);
             }
         }
         return pens;

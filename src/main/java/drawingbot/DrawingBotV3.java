@@ -16,15 +16,12 @@ import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
-import drawingbot.helpers.*;
 import drawingbot.javafx.FXController;
-import drawingbot.pfm.PFMLoaders;
+import drawingbot.pfm.IPFM;
+import drawingbot.utils.*;
+import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.utils.EnumDisplayMode;
-import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.Units;
-import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.scene.canvas.Canvas;
@@ -36,6 +33,7 @@ import processing.core.PSurface;
 public class DrawingBotV3 extends PApplet {
 
     public static DrawingBotV3 INSTANCE;
+    public static final Logger logger = Logger.getLogger("DrawingBotV3");
 
     ///constants
     public static final String appName = "DrawingBotV3";
@@ -46,8 +44,6 @@ public class DrawingBotV3 extends PApplet {
     public static final String PGraphicsFX9 = "drawingbot.javafx.PGraphicsFX9";
 
     ///plotting settings
-    public static final float INCHES_TO_MILLIMETRES = 25.4F;
-    public static final float paper_top_to_origin = 285; //mm, make smaller to move drawing down on paper
     public static final float image_scale = 1F; //determines image scale / plotting quality
 
     ///exports
@@ -55,18 +51,10 @@ public class DrawingBotV3 extends PApplet {
     public static final int gcode_decimals = 2; // Number of digits right of the decimal point in the drawingbot.gcode files.
     public static final int svg_decimals = 2; // Number of digits right of the decimal point in the SVG file.
 
-    ///grid rendering
-    public static final float paper_size_x = 32 * INCHES_TO_MILLIMETRES; //mm, papers width
-    public static final float paper_size_y = 40 * INCHES_TO_MILLIMETRES; //mm, papers height
-    public static final float grid_scale = 25.4F; // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
-
 
     // THREADS \\
-    public ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "DrawingBotV3 - Task Thread");
-        t.setDaemon(true);
-        return t ;
-    });
+    public ExecutorService taskService = initTaskService();
+    public ExecutorService backgroundService = initBackgroundService();
 
     // TASKS \\
     private PlottingTask activeTask = null;
@@ -96,7 +84,7 @@ public class DrawingBotV3 extends PApplet {
 
     //PATH FINDING \\
     public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
-    public SimpleObjectProperty<PFMLoaders> pfmLoader = new SimpleObjectProperty<>(PFMLoaders.SKETCH);
+    public SimpleObjectProperty<GenericFactory<IPFM>> pfmLoader = new SimpleObjectProperty<>(PFMMasterRegistry.getDefaultPFMFactory());
 
     // PEN SETS \\
     public ObservableDrawingSet observableDrawingSet;
@@ -149,7 +137,9 @@ public class DrawingBotV3 extends PApplet {
     //// PROCESSING INIT
 
     public void settings() {
+        DrawingBotV3.logger.entering("DrawingBotV3", "settings");
         size(1200, 1200, PGraphicsFX9);
+        DrawingBotV3.logger.exiting("DrawingBotV3", "settings");
     }
 
     @Override
@@ -162,9 +152,7 @@ public class DrawingBotV3 extends PApplet {
 
     @Override
     public void setup() {
-        surface.setResizable(true);
-        surface.setTitle(appName + ", Version: " + appVersion);
-
+        DrawingBotV3.logger.entering("DrawingBotV3", "setup");
         DrawingSet defaultSet = DrawingRegistry.INSTANCE.getDefaultSet().copy();
         observableDrawingSet = new ObservableDrawingSet(defaultSet);
         controller.penTableView.setItems(observableDrawingSet.pens);
@@ -173,6 +161,7 @@ public class DrawingBotV3 extends PApplet {
 
         colorMode(RGB);
         frameRate(1000);
+        DrawingBotV3.logger.exiting("DrawingBotV3", "setup");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,8 +190,7 @@ public class DrawingBotV3 extends PApplet {
         long endTime = System.currentTimeMillis();
         long lastDrawTick = (endTime - startTime);
         if(lastDrawTick > 1000/60){
-
-            println("DRAWING PHASE TOOK TOO LONG: " + lastDrawTick + " milliseconds" + " expected " + 1000/60);
+            DrawingBotV3.logger.finest("DRAWING PHASE TOOK TOO LONG: " + lastDrawTick + " milliseconds" + " expected " + 1000/60);
         }
     }
 
@@ -221,7 +209,7 @@ public class DrawingBotV3 extends PApplet {
                     canvasNeedsUpdate = true;
                     loadingImage = null;
                 }else if(loadingImage.width == -1){
-                    println("Invalid Image File");
+                    DrawingBotV3.logger.warning("Invalid Image File");
                     loadingImage = null;
                 }
             }
@@ -267,7 +255,7 @@ public class DrawingBotV3 extends PApplet {
             case PRE_PROCESSING:
                 background(255, 255, 255);
                 break;
-            case PATH_FINDING:
+            case DO_PROCESS:
                 if(changedTask || changedState){ //avoids redrawing in some instances
                     background(255, 255, 255);
                     renderedLines = 0;
@@ -411,6 +399,7 @@ public class DrawingBotV3 extends PApplet {
        if(stage == EnumTaskStage.FINISHING && batchProcessingTask == null){
            isPlotting.setValue(false);
        }
+       logger.info("Plotting Task: Finished Stage " + stage.name());
     }
 
     public void onTaskCancelled(){
@@ -452,7 +441,7 @@ public class DrawingBotV3 extends PApplet {
             activeTask.cancel();
         }
         if(openImage != null){
-            executorService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader.get(), DrawingBotV3.INSTANCE.observableDrawingSet, openImage));
+            taskService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader.get(), DrawingBotV3.INSTANCE.observableDrawingSet, openImage));
             isPlotting.setValue(true);
         }
     }
@@ -465,7 +454,26 @@ public class DrawingBotV3 extends PApplet {
     }
 
     public void resetPlotting(){
+        taskService.shutdownNow();
+        isPlotting.setValue(false);
+        activeTask = null;
+        taskService = initTaskService();
+    }
 
+    public ExecutorService initTaskService(){
+        return Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "DrawingBotV3 - Task Thread");
+            t.setDaemon(true);
+            return t ;
+        });
+    }
+
+    public ExecutorService initBackgroundService(){
+        return Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
+            t.setDaemon(true);
+            return t ;
+        });
     }
 
     public void setActivePlottingTask(PlottingTask task){
@@ -488,7 +496,7 @@ public class DrawingBotV3 extends PApplet {
     //// EXPORT TASKS
 
     public void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
-        executorService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens, true));
+        taskService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens, true));
     }
 
     public void setActiveExportTask(ExportTask task){

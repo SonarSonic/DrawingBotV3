@@ -9,8 +9,8 @@ import static processing.core.PApplet.*;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 class PFMSquaresLegacy extends AbstractSketchPFMLegacy {
 
-    public PFMSquaresLegacy(PlottingTask task){
-        super(task);
+    public PFMSquaresLegacy(){
+        super();
         squiggle_length = 1000;
         adjustbrightness = 9;
         desired_brightness = 250;

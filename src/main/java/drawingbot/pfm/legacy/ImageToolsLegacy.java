@@ -218,7 +218,6 @@ class ImageToolsLegacy {
                 { -1,  5, -1 },
                 {  0, -1,  0 } };
 
-        //print_matrix(matrix);
         imageConvolution(img, matrix, 1, 0);
     }
 
@@ -310,8 +309,6 @@ class ImageToolsLegacy {
         int n = matrix.length;      // matrix rows
         int m = matrix[0].length;   // matrix columns
 
-        //print_matrix(matrix);
-
         PImage simg = app.createImage(img.width, img.height, RGB);
         simg.copy(img, 0, 0, img.width, img.height, 0, 0, simg.width, simg.height);
         int matrixsize = matrix.length;
@@ -388,7 +385,6 @@ class ImageToolsLegacy {
             }
         }
 
-        //print_matrix(matrix);
         return matrixC;
     }
 
@@ -430,19 +426,14 @@ class ImageToolsLegacy {
             for (int j=0; j<p; j++){
                 for (int si=0; si<scale; si++){
                     for (int sj=0; sj<scale; sj++){
-                        //println(si, sj);
                         int a1 = (i*scale)+si;
                         int a2 = (j*scale)+sj;
                         float a3 = matrix[i][j];
-                        //println( a1 + ", " + a2 + " = " + a3 );
-                        //nmatrix[(i*scale)+si][(j*scale)+sj] = matrix[i][j];
                         nmatrix[a1][a2] = a3;
                     }
                 }
             }
-            //println();
         }
-        //println("scale_matrix: " + scale);
         return nmatrix;
     }
 
@@ -455,10 +446,9 @@ class ImageToolsLegacy {
         for (int i=0; i<n; i++){
             for (int j=0; j<p; j++){
                 sum += matrix[i][j];
-                println("%10.5f ",  matrix[i][j]);
+                DrawingBotV3.logger.fine("%10.5f " +  matrix[i][j]);
             }
-            println();
         }
-        println("Sum: ", sum);
+        DrawingBotV3.logger.fine("Sum: " +  sum);
     }
 }

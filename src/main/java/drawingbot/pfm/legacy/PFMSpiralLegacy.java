@@ -22,10 +22,6 @@ class PFMSpiralLegacy extends AbstractPFM {
     public float endRadius;                            // Largest value the spiral needs to cover the image
     public int mask = app.color(240, 240, 240);        // This color will not be drawn (WHITE)
 
-    public PFMSpiralLegacy(PlottingTask task){
-        super(task);
-    }
-
     @Override
     public float progress() {
         float startRadius = dist/2;
