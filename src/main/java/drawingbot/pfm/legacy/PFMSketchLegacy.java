@@ -9,8 +9,8 @@ class PFMSketchLegacy extends AbstractSketchPFMLegacy {
 
     public int squiggles_till_first_change = 190;
 
-    public PFMSketchLegacy(PlottingTask task){
-        super(task);
+    public PFMSketchLegacy(){
+        super();
         squiggle_length = 500;
         adjustbrightness = 10;
         desired_brightness = 250;

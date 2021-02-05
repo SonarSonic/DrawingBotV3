@@ -1,7 +1,6 @@
 package drawingbot.utils;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// A class to check the upper and lower limits of a value
+/**a class to check the upper and lower limits of a value */
 public class Limit {
     public float min = Integer.MAX_VALUE;
     public float max = Integer.MIN_VALUE;

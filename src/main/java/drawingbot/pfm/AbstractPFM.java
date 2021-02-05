@@ -8,7 +8,7 @@ import java.util.Random;
 public abstract class AbstractPFM implements IPFM {
 
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
-    public final PlottingTask task;
+    public PlottingTask task;
     public boolean finished = false;
 
     protected float plottingResolution = 1;
@@ -16,12 +16,9 @@ public abstract class AbstractPFM implements IPFM {
     protected long seed = 0;
     protected Random randomSeed;
 
-    public AbstractPFM(PlottingTask task){
-        this.task = task;
-    }
-
     @Override
-    public void init() {
+    public void init(PlottingTask task) {
+        this.task = task;
         randomSeed = new Random(seed);
     }
 

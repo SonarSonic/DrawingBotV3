@@ -1,4 +1,4 @@
-package drawingbot.helpers;
+package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 

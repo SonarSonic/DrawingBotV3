@@ -12,8 +12,6 @@ import processing.core.PGraphics;
 import java.io.File;
 import java.util.function.BiFunction;
 
-import static processing.core.PApplet.println;
-
 public class ImageExporter {
 
     public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
@@ -40,6 +38,6 @@ public class ImageExporter {
         }
         graphics.endDraw();
         graphics.save(saveLocation.getPath());
-        DrawingBotV3.println("Image created:  " + saveLocation.getPath());
+        DrawingBotV3.logger.info("Image created:  " + saveLocation.getPath());
     }
 }

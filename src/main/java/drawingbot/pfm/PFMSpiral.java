@@ -1,8 +1,8 @@
 package drawingbot.pfm;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawLuminanceData;
+import drawingbot.image.ConvolutionMatrices;
+import drawingbot.image.ImageTools;
+import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -30,10 +30,6 @@ public class PFMSpiral extends AbstractPFM {
 
     public RawLuminanceData rawBrightnessData;
 
-    public PFMSpiral(PlottingTask task){
-        super(task);
-    }
-
     @Override
     public float progress() {
         float startRadius = distBetweenRings /2;
@@ -47,7 +43,7 @@ public class PFMSpiral extends AbstractPFM {
 
         dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
 
-        dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
+        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 3, true);
 
         dst = ImageTools.lazyImageBorder(dst, "border/b6.png", 0, 0);
         dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);

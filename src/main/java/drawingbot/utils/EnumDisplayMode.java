@@ -1,6 +1,7 @@
 package drawingbot.utils;
 
 public enum EnumDisplayMode {
+
     DRAWING,
     ORIGINAL,
     REFERENCE,

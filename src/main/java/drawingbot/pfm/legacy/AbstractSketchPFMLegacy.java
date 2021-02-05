@@ -1,6 +1,6 @@
 package drawingbot.pfm.legacy;
 
-import drawingbot.helpers.AlgorithmHelper;
+import drawingbot.utils.AlgorithmHelper;
 import drawingbot.pfm.AbstractPFM;
 import drawingbot.plotting.PlottingTask;
 import processing.core.PImage;
@@ -30,10 +30,6 @@ abstract class AbstractSketchPFMLegacy extends AbstractPFM {
     ///bresenham calculations
     private int sum_brightness = 0;
     private int count_brightness = 0;
-
-    public AbstractSketchPFMLegacy(PlottingTask task) {
-        super(task);
-    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 

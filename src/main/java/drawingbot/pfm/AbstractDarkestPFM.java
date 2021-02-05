@@ -1,7 +1,7 @@
 package drawingbot.pfm;
 
-import drawingbot.helpers.AlgorithmHelper;
-import drawingbot.helpers.RawLuminanceData;
+import drawingbot.utils.AlgorithmHelper;
+import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 
 import java.util.ArrayList;
@@ -23,10 +23,6 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     ///bresenham calculations
     protected int sum_brightness = 0;
     protected int count_brightness = 0;
-
-    public AbstractDarkestPFM(PlottingTask task) {
-        super(task);
-    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 

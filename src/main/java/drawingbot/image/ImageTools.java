@@ -1,4 +1,4 @@
-package drawingbot.helpers;
+package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import javafx.scene.image.PixelFormat;
@@ -14,80 +14,6 @@ import static processing.core.PApplet.*;
 public class ImageTools {
 
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static final float[][] MATRIX_GAUSSIAN_BLUR = new float[][]{
-            {1, 4, 6, 4, 1},//
-            {4, 16, 24, 16, 4},//
-            {6, 24, 36, 24, 6},//
-            {4, 16, 24, 16, 4},//
-            {1, 4, 6, 4, 1}};
-
-
-    public static final float[][] MATRIX_UNSHARP_MASK = new float[][] {
-            {-1/256F, -4/256F, -6/256F, -4/256F, -1/256F},//
-            {-4/256F, -16/256F, -24/256F, -16/256F, -4/256F},//
-            {-6/256F, -24/256F,  476/256F, -24/256F, -6/256F},//
-            {-4/256F, -16/256F, -24/256F, -16/256F, -4/256F},//
-            {-1/256F, -4/256F, -6/256F, -4/256F, -1/256F}};
-
-    public static final float[][] MATRIX_UNSHARP_MASK_NORMALISED = new float[][]{
-            {1, 4, 6, 4, 1},//
-            {4, 16, 24, 16, 4},//
-            {6, 24, -476, 24, 6},//
-            {4, 16, 24, 16, 4},//
-            {1, 4, 6, 4, 1}};
-
-    public static final float[][] MATRIX_MOTION_BLUR = new float[][]{
-            {1, 0, 0, 0, 0, 0, 0, 0, 0},//
-            {0, 1, 0, 0, 0, 0, 0, 0, 0},//
-            {0, 0, 1, 0, 0, 0, 0, 0, 0},//
-            {0, 0, 0, 1, 0, 0, 0, 0, 0},//
-            {0, 0, 0, 0, 1, 0, 0, 0, 0},//
-            {0, 0, 0, 0, 0, 1, 0, 0, 0},//
-            {0, 0, 0, 0, 0, 0, 1, 0, 0},//
-            {0, 0, 0, 0, 0, 0, 0, 1, 0},//
-            {0, 0, 0, 0, 0, 0, 0, 0, 1}};
-
-    public static final float[][] MATRIX_OUTLINE = new float[][]{
-            {1,  1,  1,  1,  1},//
-            {1,  0,  0,  0,  1},//
-            {1,  0, -16, 0,  1},//
-            {1,  0,   0,  0,  1},//
-            {1,  1,   1,  1,  1 }};
-
-    public static final float[][] MATRIX_EDGE_DETECT = new float[][]{
-            {0,  1,  0},//
-            {1, -4,  1},//
-            {0,  1,  0}};
-
-    public static final float[][] MATRIX_EMBOSS = new float[][]{
-            {-2, -1, 0},//
-            {-1, 1, 1},//
-            {0, 1, 2}};
-
-    public static final float[][] MATRIX_SHARPEN = new float[][]{
-            {0, -1,  0},//
-            {-1,  5, -1},//
-            {0, -1,  0 }};
-
-    public static final float[][] MATRIX_BLUR = new float[][]{
-            {1, 1, 1},//
-            {1, 1, 1},//
-            {1, 1, 1 }};
-
-    public static final float[][] MATRIX_SOBEL_X = new float[][]{
-            {-1, 0, 1},//
-            {-2, 0, 2},//
-            {-1, 0, 1 }};
-
-    public static final float[][] MATRIX_SOBEL_Y = new float[][]{
-            {-1, -2, -1},//
-            {0,  0,  0},//
-            {1,  2,  1 }};
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// MATRIX OPERATIONS
 
@@ -192,11 +118,10 @@ public class ImageTools {
         for (int i=0; i<n; i++){
             for (int j=0; j<p; j++){
                 sum += matrix[i][j];
-                System.out.printf("%10.5f ", matrix[i][j]);
+                DrawingBotV3.logger.fine("%10.5f " + matrix[i][j]);
             }
-            println();
         }
-        println("Sum: ", sum);
+        DrawingBotV3.logger.fine("Sum: " + sum);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,6 +140,7 @@ public class ImageTools {
      * @param blur Guassian blur the boarder, 0 for no blur, 10+ for a lot.
      */
     public static BufferedImage lazyImageBorder(BufferedImage dst, String fname, int shrink, int blur) {
+        DrawingBotV3.logger.entering("ImageTools", "lazyImageBorder: " + fname);
         PImage border_1 = app.loadImage(fname);
 
         BufferedImage bufferedBorder1 = (BufferedImage) border_1.getNative();
@@ -230,6 +156,7 @@ public class ImageTools {
     }
 
     public static BufferedImage lazyConvolutionFilter(BufferedImage image, float[][] matrix, int scale, boolean normalize){
+        DrawingBotV3.logger.entering("ImageTools", "lazyConvolutionFilter: " + scale);
         if(scale != 1){
             matrix = ImageTools.scaleMatrix(matrix, scale);
         }
@@ -241,6 +168,7 @@ public class ImageTools {
 
     /**a lazy/very fast way to filter an image,*/
     public static BufferedImage lazyRGBFilters(BufferedImage image, Function<Integer, Integer> ...filters){
+        DrawingBotV3.logger.entering("ImageTools", "lazyRGBFilters");
         lazyRGBFilter(image, integer -> {
             for(Function<Integer, Integer> filter : filters){
                 integer = filter.apply(integer);
@@ -252,6 +180,7 @@ public class ImageTools {
 
     /**a lazy/very fast way to filter an image,*/
     public static BufferedImage lazyRGBFilter(BufferedImage image, Function<Integer, Integer> filter){
+        DrawingBotV3.logger.entering("ImageTools", "lazyRGBFilter");
         for(int x = 0; x < image.getWidth(); x++){
             for(int y = 0; y < image.getHeight(); y++){
                 image.setRGB(x, y, filter.apply(image.getRGB(x, y)));
@@ -262,6 +191,7 @@ public class ImageTools {
 
     /**a lazy/very fast way to blend too images which are exactly the same size only, can be used in conjunction with PImage.blendColor*/
     public static BufferedImage lazyBlend(BufferedImage image, BufferedImage src, int blendMode){
+        DrawingBotV3.logger.entering("ImageTools", "lazyBlend: " + blendMode);
         for(int x = 0; x < image.getWidth(); x++){
             for(int y = 0; y < image.getHeight(); y++){
                 image.setRGB(x, y, PImage.blendColor(image.getRGB(x, y), src.getRGB(x, y), blendMode));
@@ -271,6 +201,7 @@ public class ImageTools {
     }
 
     public static BufferedImage cropToAspectRatio(BufferedImage image, float targetRatio){
+        DrawingBotV3.logger.entering("ImageTools", "cropToAspectRatio");
         float currentRatio = (float)image.getWidth() / image.getHeight();
         if(targetRatio == currentRatio){
             return image;

@@ -5,7 +5,7 @@ public enum EnumTaskStage {
     QUEUED,
     LOADING_IMAGE,
     PRE_PROCESSING,
-    PATH_FINDING,
+    DO_PROCESS,
     POST_PROCESSING,
     FINISHING,
     FINISHED

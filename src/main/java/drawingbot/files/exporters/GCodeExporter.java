@@ -12,6 +12,7 @@ import drawingbot.utils.Limit;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.function.BiFunction;
+import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
 
@@ -141,7 +142,7 @@ public class GCodeExporter {
         output.flush();
         output.close();
         output = null;
-        println("GCode File Created:  " + saveLocation);
+        DrawingBotV3.logger.info("GCode File Created:  " +  saveLocation);
     }
 
     //TODO PREVENT GCODE TEST FILES BEING EXPORTED "PER PEN"
@@ -205,7 +206,7 @@ public class GCodeExporter {
         output.flush();
         output.close();
         output = null;
-        println("GCode Test Created:  " + gname);
+        DrawingBotV3.logger.info("GCode Test Created:  " + gname);
 
         exportTask.updateProgress(1,1);
     }

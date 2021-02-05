@@ -31,6 +31,6 @@ public class PDFExporter {
         }
         pdf.dispose();
         pdf.endDraw();
-        DrawingBotV3.println("PDF created:  " + saveLocation.getName());
+        DrawingBotV3.logger.info("PDF created:  " + saveLocation.getName());
     }
 }

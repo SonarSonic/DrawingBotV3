@@ -1,9 +1,9 @@
 package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.helpers.AlgorithmHelper;
-import drawingbot.helpers.ImageTools;
-import drawingbot.helpers.RawLuminanceData;
+import drawingbot.utils.AlgorithmHelper;
+import drawingbot.image.ImageTools;
+import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
@@ -27,8 +27,8 @@ public class PFMLines extends AbstractDarkestPFM{
     protected RawLuminanceData grayData;
     protected RawLuminanceData[] channels;
 
-    public PFMLines(PlottingTask task) {
-        super(task);
+    public PFMLines() {
+        super();
         tests = 360;
         adjustbrightness = 30;
         sampleHeight = 1;

@@ -82,6 +82,6 @@ public class SVGExporter {
         output.println("</svg>");
         output.flush();
         output.close();
-        DrawingBotV3.println("SVG created:  " + saveLocation.getName());
+        DrawingBotV3.logger.info("SVG created:  " + saveLocation.getName());
     }
 }

@@ -3,7 +3,8 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.pfm.IPFM;
-import drawingbot.pfm.PFMLoaders;
+import drawingbot.pfm.PFMMasterRegistry;
+import drawingbot.utils.GenericFactory;
 import drawingbot.utils.EnumTaskStage;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -17,7 +18,7 @@ import static processing.core.PApplet.*;
 
 public class PlottingTask extends Task<PlottingTask> {
 
-    public PFMLoaders loader;
+    public GenericFactory<IPFM> loader;
     public PlottedDrawing plottedDrawing;
 
     // STATUS \\
@@ -43,7 +44,7 @@ public class PlottingTask extends Task<PlottingTask> {
     private float gcode_offset_y;
     private float gcode_scale;
 
-    public PlottingTask(PFMLoaders loader, ObservableDrawingSet drawingPenSet, PImage image){
+    public PlottingTask(GenericFactory loader, ObservableDrawingSet drawingPenSet, PImage image){
         updateTitle("Processing Image");
         this.loader = loader;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
@@ -54,23 +55,31 @@ public class PlottingTask extends Task<PlottingTask> {
         DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
         switch (stage){
+
             case QUEUED:
                 startTime = System.currentTimeMillis();
                 finishStage();
                 break;
+
             case LOADING_IMAGE:
+                DrawingBotV3.logger.fine("Creating PFM Instance");
+                pfm = loader.instance();
+                PFMMasterRegistry.applySettings(pfm);
+                pfm.init(this);
 
-                pfm = loader.createNewPFM(this);
-                pfm.init();
-
+                DrawingBotV3.logger.fine("Creating Plotting Image");
                 img_plotting = app.createImage(img_original.width, img_original.height, PConstants.RGB);
                 img_plotting.copy(img_original, 0, 0, img_original.width, img_original.height, 0, 0, img_original.width, img_original.height);
 
                 finishStage();
                 break;
+
             case PRE_PROCESSING:
                 updateMessage("Pre-Processing Image");
-                pfm.preProcess(); //adjust the dimensions / crop of img_plotting
+
+                DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
+                pfm.preProcess();
+                DrawingBotV3.logger.fine("PFM - Pre-Processing - Finished");
 
                 img_plotting.loadPixels();
                 img_reference = app.createImage(img_plotting.width, img_plotting.height, PConstants.RGB);
@@ -80,21 +89,12 @@ public class PlottingTask extends Task<PlottingTask> {
                 gcode_scale_x = DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() / img_plotting.width;
                 gcode_scale_y = DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() / img_plotting.height;
                 gcode_scale = min(gcode_scale_x, gcode_scale_y);
-                //gcode_offset_x = - (img_plotting.width* gcode_scale / 2.0F); //TODO FIX GCODE OFFSETS
-                //gcode_offset_y = - (DrawingBotV3.paper_top_to_origin - (DrawingBotV3.paper_size_y - (img_plotting.height * gcode_scale)) / 2.0F);
-
-                comment("final dimensions: " + img_plotting.width + " by " + img_plotting.height);
-                comment("paper_size: " + nf(DrawingBotV3.paper_size_x,0,2) + " by " + nf(DrawingBotV3.paper_size_y,0,2) + "      " + nf(DrawingBotV3.paper_size_x/25.4F,0,2) + " by " + nf(DrawingBotV3.paper_size_y/25.4F,0,2));
-                comment("drawing size max: " + nf(DrawingBotV3.INSTANCE.getDrawingAreaWidthMM(),0,2) + " by " + nf(DrawingBotV3.INSTANCE.getDrawingAreaHeightMM(),0,2) + "      " + nf(DrawingBotV3.INSTANCE.getDrawingAreaWidthMM()/25.4F,0,2) + " by " + nf(DrawingBotV3.INSTANCE.getDrawingAreaHeightMM()/25.4F,0,2));
-                comment("drawing size calculated " + nf(img_plotting.width * gcode_scale,0,2) + " by " + nf(img_plotting.height * gcode_scale,0,2) + "      " + nf(img_plotting.width * gcode_scale/25.4F,0,2) + " by " + nf(img_plotting.height * gcode_scale/25.4F,0,2));
-                comment("gcode_scale X:  " + nf(gcode_scale_x,0,2));
-                comment("gcode_scale Y:  " + nf(gcode_scale_y,0,2));
-                comment("gcode_scale:    " + nf(gcode_scale,0,2));
 
                 finishStage();
                 updateMessage("Plotting Image: " + loader.getName()); //here to avoid excessive task updates
                 break;
-            case PATH_FINDING:
+
+            case DO_PROCESS:
 
                 if(pfm.finished()){
                     if(finishedRenderingPaths){ //PAUSE FOR THE DRAW THREAD TO FINISH.
@@ -105,18 +105,26 @@ public class PlottingTask extends Task<PlottingTask> {
 
                 pfm.doProcess();
                 break;
-            case POST_PROCESSING:
-                pfm.postProcess();
 
+            case POST_PROCESSING:
+
+                DrawingBotV3.logger.fine("PFM - Post-Processing - Started");
+                pfm.postProcess();
+                DrawingBotV3.logger.fine("PFM - Post-Processing - Finished");
+
+                DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Started");
                 plottedDrawing.updateWeightedDistribution();
+                DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
 
                 finishStage();
                 break;
+
             case FINISHING:
                 finishTime = (System.currentTimeMillis() - startTime);
                 updateMessage("Finished: " + finishTime/1000 + " s");
                 finishStage();
                 break;
+
             case FINISHED:
                 finishStage();
                 break;
@@ -126,7 +134,7 @@ public class PlottingTask extends Task<PlottingTask> {
 
     public void comment(String comment){
         comments.add(comment);
-        print(comment);
+        DrawingBotV3.logger.info("Task Comment: " + comment);
     }
 
     public void penUp() {
@@ -180,9 +188,9 @@ public class PlottingTask extends Task<PlottingTask> {
     }
 
     public void stopElegantly(){
-        if(stage.ordinal() < EnumTaskStage.PATH_FINDING.ordinal()){
+        if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
-        }else if(stage == EnumTaskStage.PATH_FINDING){
+        }else if(stage == EnumTaskStage.DO_PROCESS){
             pfm.finish();
             finishStage();
         }

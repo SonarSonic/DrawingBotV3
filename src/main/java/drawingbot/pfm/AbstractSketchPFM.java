@@ -1,6 +1,6 @@
 package drawingbot.pfm;
 
-import drawingbot.helpers.RawLuminanceData;
+import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
@@ -21,16 +21,12 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     protected float progress;
     protected RawLuminanceData rawBrightnessData;
 
-    public AbstractSketchPFM(PlottingTask task) {
-        super(task);
-    }
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     @Override
-    public void init() {
-        super.init();
+    public void init(PlottingTask task) {
+        super.init(task);
         if(maxLineLength < minLineLength){
             int value = minLineLength;
             minLineLength = maxLineLength;
