@@ -4,9 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
+import drawingbot.image.ImageFilterRegistry;
 import drawingbot.pfm.PFMMasterRegistry;
-import drawingbot.pfm.PFMPreset;
-import javafx.collections.ObservableList;
+import drawingbot.utils.EnumPresetType;
+import drawingbot.utils.GenericPreset;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -18,15 +19,14 @@ import java.util.logging.Formatter;
 public class ConfigFileHandler {
 
     public static DBSettings settings;
-    public static UserPFMPresets presets;
 
     public static void init() {
-        ConfigFileHandler.setupConsoleOutputFile();
         File userDir = new File(FileUtils.getUserDataDirectory());
         userDir.mkdirs();
         settings = getOrCreateJSONFile(DBSettings.class, new File(userDir,"settings.json"), c -> new DBSettings());
-        presets = getOrCreateJSONFile(UserPFMPresets.class, new File(userDir,"user_presets.json"), c -> new UserPFMPresets());
-        PFMMasterRegistry.loadUserCreatedPresets(presets.presetMap);
+        ConfigFileHandler.setupConsoleOutputFile();
+
+        PresetManager.loadJSONFiles();
     }
 
     public static <I> I getOrCreateJSONFile(Class<I> clazz, File file, Function<Class<I>, I> iProvider) {
@@ -58,30 +58,6 @@ public class ConfigFileHandler {
         return loaded;
     }
 
-    public static void updatePresetJSON(){
-        try {
-            Gson gson = new Gson();
-            UserPFMPresets userPFMPresets = new UserPFMPresets();
-            for(Map.Entry<String, ObservableList<PFMPreset>> entry : PFMMasterRegistry.pfmPresets.entrySet()){
-                List<PFMPreset> userCreated = new ArrayList<>();
-                for(PFMPreset preset : entry.getValue()){
-                    if(preset.userCreated){
-                        userCreated.add(preset);
-                    }
-                }
-                if(!userCreated.isEmpty())
-                    userPFMPresets.presetMap.put(entry.getKey(), userCreated);
-            }
-
-            JsonWriter writer = gson.newJsonWriter(new FileWriter(new File(FileUtils.getUserDataDirectory(),"user_presets.json")));
-            gson.toJson(presets = userPFMPresets, UserPFMPresets.class, writer);
-            writer.flush();
-            writer.close();
-        }catch (Exception e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error updating preset json");
-        }
-    }
-
     public static void setupConsoleOutputFile(){
         try {
             if(!ConfigFileHandler.settings.isDeveloperMode){
@@ -102,33 +78,6 @@ public class ConfigFileHandler {
             DrawingBotV3.logger.addHandler(fileHandler);
         } catch (Exception e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error setting up console output");
-        }
-    }
-
-    public static void importPFMPresetFile(File file){
-        PFMPreset preset = null;
-        try {
-            Gson gson = new Gson();
-            JsonReader reader = gson.newJsonReader(new FileReader(file));
-            preset = gson.fromJson(reader, PFMPreset.class);
-            reader.close();
-        } catch (IOException e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error importing preset file");
-        }
-        if(preset != null){
-            PFMMasterRegistry.registerPreset(preset);
-        }
-    }
-
-    public static void exportPFMPresetFile(File file, PFMPreset selected){
-        try {
-            Gson gson = new Gson();
-            JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
-            gson.toJson(selected, PFMPreset.class, writer);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error exporting preset file");
         }
     }
 
@@ -167,15 +116,6 @@ public class ConfigFileHandler {
     /**general settings*/
     public static class DBSettings {
         public boolean isDeveloperMode;
-
-    }
-
-    public static class UserPFMPresets {
-        public HashMap<String, List<PFMPreset>> presetMap;
-
-        public UserPFMPresets(){
-            presetMap = new LinkedHashMap<>();
-        }
 
     }
 

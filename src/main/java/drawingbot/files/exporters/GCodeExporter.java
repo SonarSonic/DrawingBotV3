@@ -19,6 +19,8 @@ import static processing.core.PApplet.*;
 public class GCodeExporter {
 
     private static PrintWriter output;
+    public static final int gcode_decimals = 3; // numbers of decimal places used on gcode exports
+    public static final char gcode_decimal_seperator = '.';
 
     private static void gcodeHeader(PlottingTask task) {
         output.println("G21"); //programming in millimeters, mm
@@ -59,9 +61,9 @@ public class GCodeExporter {
 
     /**formats the value into GCODE Number Format*/
     private static String gcodeFormat(Float value) {
-        String s = nf(value, 0, DrawingBotV3.gcode_decimals);
-        s = s.replace('.', DrawingBotV3.gcode_decimal_seperator);
-        s = s.replace(',', DrawingBotV3.gcode_decimal_seperator);
+        String s = nf(value, 0, gcode_decimals);
+        s = s.replace('.', gcode_decimal_seperator);
+        s = s.replace(',', gcode_decimal_seperator);
         return s;
     }
 

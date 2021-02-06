@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="820.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -91,6 +91,34 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
+                              <TitledPane expanded="false" text="Pre-Processing">
+                                <content>
+                                  <AnchorPane>
+                                       <children>
+                                          <TableView fx:id="tableViewImageFilters" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="205.0" prefWidth="404.0" tableMenuButtonVisible="true">
+                                             <columns>
+                                                <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false" text="Enable" />
+                                                <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false" text="Filter Type" />
+                                                <TableColumn fx:id="columnImageFilterSettings" prefWidth="218.0" sortable="false" text="Settings" />
+                                             </columns>
+                                          </TableView>
+                                          <ComboBox fx:id="comboBoxImageFilterPreset" layoutX="12.0" layoutY="14.0" prefHeight="25.0" prefWidth="265.0" promptText="New Preset Name" />
+                                          <MenuButton layoutX="280.0" layoutY="14.0" mnemonicParsing="false" text="Preset Options">
+                                             <items>
+                                                <MenuItem fx:id="menuNewFilterPreset" mnemonicParsing="false" text="New Preset" />
+                                                <MenuItem fx:id="menuUpdateFilterPreset" mnemonicParsing="false" text="Update Preset" />
+                                                <MenuItem fx:id="menuDeleteFilterPreset" mnemonicParsing="false" text="Delete Preset" />
+                                                <SeparatorMenuItem mnemonicParsing="false" />
+                                                <MenuItem fx:id="menuImportFilterPreset" mnemonicParsing="false" text="Import Preset" />
+                                                <MenuItem fx:id="menuExportFilterPreset" mnemonicParsing="false" text="Export Preset" />
+                                             </items>
+                                          </MenuButton>
+                                          <ComboBox fx:id="comboBoxImageFilter" layoutX="14.0" layoutY="269.0" prefHeight="25.0" prefWidth="282.0" />
+                                          <Button fx:id="buttonAddFilter" layoutX="303.0" layoutY="269.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Add Filter" />
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </TitledPane>
                             <TitledPane text="Path Finding Controls - Basic">
                               <content>
                                 <AnchorPane>
@@ -108,7 +136,7 @@
                                     </AnchorPane>
                               </content>
                             </TitledPane>
-                              <TitledPane text="Path Finding Controls - Advanced">
+                              <TitledPane expanded="false" text="Path Finding Controls - Advanced">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
                                        <children>

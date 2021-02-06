@@ -1,12 +1,14 @@
 package drawingbot.pfm;
 
 import drawingbot.image.ConvolutionMatrices;
+import drawingbot.image.ImageFilterRegistry;
 import drawingbot.image.ImageTools;
 import drawingbot.image.RawLuminanceData;
 import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
 
+import java.awt.*;
 import java.awt.image.*;
 
 public class PFMSketch extends AbstractSketchPFM {
@@ -37,12 +39,9 @@ public class PFMSketch extends AbstractSketchPFM {
 
         dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
 
-        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 4, true);
-        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 3, true);
-
-        dst = ImageTools.lazyImageBorder(dst, "border/b1.png", 0, 0);
-        dst = ImageTools.lazyImageBorder(dst, "border/b11.png", 0, 0);
-        dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
+        for(ImageFilterRegistry.IImageFilter filter : ImageFilterRegistry.createFilters()){
+            dst = filter.filter(dst);
+        }
 
         dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
 

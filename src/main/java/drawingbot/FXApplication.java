@@ -57,8 +57,8 @@ public class FXApplication extends Application {
             graphicsFX9.context = canvas.getGraphicsContext2D();
             surfaceFX9.sketch = app;
 
-            app.canvas = surfaceFX9.canvas;
             app.controller = new FXController();
+            app.canvas = surfaceFX9.canvas;
 
             FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
             loader.setController(app.controller);

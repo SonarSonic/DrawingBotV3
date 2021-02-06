@@ -2,6 +2,7 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.pfm.IPFM;
 import drawingbot.utils.GenericFactory;
 import drawingbot.plotting.PlottingTask;
 import javafx.concurrent.Task;
@@ -23,14 +24,14 @@ public class BatchProcessingTask extends Task<Boolean> {
 
     public String inputFolder;
     public String outputFolder;
-    public GenericFactory loader;
+    public GenericFactory<IPFM> pfmFactory;
     public ObservableDrawingSet drawingPenSet;
 
     public BatchProcessingTask(String inputFolder, String outputFolder){
         this.inputFolder = inputFolder;
         this.outputFolder = outputFolder;
-        this.loader = DrawingBotV3.INSTANCE.pfmLoader.get();
-        this.drawingPenSet = new ObservableDrawingSet(DrawingBotV3.INSTANCE.observableDrawingSet);
+        this.pfmFactory = DrawingBotV3.pfmFactory.get();
+        this.drawingPenSet = new ObservableDrawingSet(DrawingBotV3.observableDrawingSet);
     }
 
     @Override
@@ -61,7 +62,7 @@ public class BatchProcessingTask extends Task<Boolean> {
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
                     PImage image = DrawingBotV3.INSTANCE.loadImage(path.toString());
-                    PlottingTask internalTask = new PlottingTask(loader, drawingPenSet, image);
+                    PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, image);
                     Future<?> futurePlottingTask = service.submit(internalTask);
                     while(!futurePlottingTask.isDone()){
                         ///wait

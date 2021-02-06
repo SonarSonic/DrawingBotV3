@@ -1,5 +1,5 @@
 /*
-  DrawingBotV3 by Ollie lansdell <ollielansdell@hotmail.co.uk
+  DrawingBotV3 by Ollie Lansdell <ollielansdell@hotmail.co.uk
   Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
  */
 package drawingbot;
@@ -35,7 +35,7 @@ public class DrawingBotV3 extends PApplet {
     public static DrawingBotV3 INSTANCE;
     public static final Logger logger = Logger.getLogger("DrawingBotV3");
 
-    ///constants
+    // CONSTANTS \\\
     public static final String appName = "DrawingBotV3";
     public static final String majorVersion = "1";
     public static final String minorVersion = "0";
@@ -43,34 +43,9 @@ public class DrawingBotV3 extends PApplet {
     public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
     public static final String PGraphicsFX9 = "drawingbot.javafx.PGraphicsFX9";
 
-    ///plotting settings
-    public static final float image_scale = 1F; //determines image scale / plotting quality
-
-    ///exports
-    public static final char gcode_decimal_seperator = '.';
-    public static final int gcode_decimals = 2; // Number of digits right of the decimal point in the drawingbot.gcode files.
-    public static final int svg_decimals = 2; // Number of digits right of the decimal point in the SVG file.
-
-
-    // THREADS \\
-    public ExecutorService taskService = initTaskService();
-    public ExecutorService backgroundService = initBackgroundService();
-
-    // TASKS \\
-    private PlottingTask activeTask = null;
-    private ExportTask exportTask = null;
-    public BatchProcessingTask batchProcessingTask = null;
-
-    public PImage loadingImage = null;
-    public PImage openImage = null;
-
-    // GUI \\
-    public FXController controller;
-    public Canvas canvas;
-
     //DRAWING AREA
     public static SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
-    public static SimpleObjectProperty<Units> inputUnits = new SimpleObjectProperty<Units>(Units.MILLIMETRES);
+    public static SimpleObjectProperty<Units> inputUnits = new SimpleObjectProperty<>(Units.MILLIMETRES);
 
     public static SimpleFloatProperty drawingAreaWidth = new SimpleFloatProperty(0);
     public static SimpleFloatProperty drawingAreaHeight = new SimpleFloatProperty(0);
@@ -83,23 +58,37 @@ public class DrawingBotV3 extends PApplet {
     public static SimpleFloatProperty penUpZ = new SimpleFloatProperty(5);
 
     //PATH FINDING \\
-    public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
-    public SimpleObjectProperty<GenericFactory<IPFM>> pfmLoader = new SimpleObjectProperty<>(PFMMasterRegistry.getDefaultPFMFactory());
+    public static SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
+    public static SimpleObjectProperty<GenericFactory<IPFM>> pfmFactory = new SimpleObjectProperty<>(PFMMasterRegistry.getDefaultPFMFactory());
 
     // PEN SETS \\
-    public ObservableDrawingSet observableDrawingSet;
+    public static ObservableDrawingSet observableDrawingSet;
 
     // DISPLAY \\
     public EnumDisplayMode display_mode = EnumDisplayMode.DRAWING;
 
-    // MOUSE / INPUT VALUES \\
-    public boolean ctrl_down = false;
-
     //VIEWPORT SETTINGS \\
-    //public static float canvasScaling = 1.0F;
     public static double minScale = 0.1;
     public static SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public static SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
+
+    //// VARIABLES \\\\
+
+    // THREADS \\
+    public ExecutorService taskService = initTaskService();
+    public ExecutorService backgroundService = initBackgroundService();
+
+    // TASKS \\
+    private PlottingTask activeTask = null;
+    private ExportTask exportTask = null;
+    public BatchProcessingTask batchProcessingTask = null;
+
+    private PImage loadingImage = null;
+    private PImage openImage = null;
+
+    // GUI \\
+    public FXController controller;
+    public Canvas canvas;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -269,8 +258,6 @@ public class DrawingBotV3 extends PApplet {
                 }
                 break;
             case POST_PROCESSING:
-                // NOP - continue displaying the path finding result
-                break;
             case FINISHING:
                 // NOP - continue displaying the path finding result
                 break;
@@ -441,7 +428,7 @@ public class DrawingBotV3 extends PApplet {
             activeTask.cancel();
         }
         if(openImage != null){
-            taskService.submit(new PlottingTask(DrawingBotV3.INSTANCE.pfmLoader.get(), DrawingBotV3.INSTANCE.observableDrawingSet, openImage));
+            taskService.submit(new PlottingTask(DrawingBotV3.pfmFactory.get(), DrawingBotV3.observableDrawingSet, openImage));
             isPlotting.setValue(true);
         }
     }
@@ -483,10 +470,6 @@ public class DrawingBotV3 extends PApplet {
         activeTask = task;
     }
 
-    public PlottingTask getCompletedTask(){
-        return activeTask.isTaskFinished() ? activeTask : null;
-    }
-
     public PlottingTask getActiveTask(){
         return activeTask;
     }
@@ -507,12 +490,13 @@ public class DrawingBotV3 extends PApplet {
 
     //// INTERACTION EVENTS
 
+    private boolean ctrl_down = false;
+
     public void keyReleased() {
         if (keyCode == CONTROL) { ctrl_down = false; }
     }
 
     public void keyPressed() {
-        PlottingTask renderedTask = getActiveTask();
         if (keyCode == CONTROL) { ctrl_down = true; }
         if (key == 'x') { GridOverlay.mouse_point(); }
 

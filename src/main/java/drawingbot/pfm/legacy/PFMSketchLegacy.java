@@ -23,7 +23,7 @@ class PFMSketchLegacy extends AbstractSketchPFMLegacy {
     @Override
     public void preProcess() {
         ImageToolsLegacy.imageCrop(task);
-        ImageToolsLegacy.imageScale(task, (int)(app.getDrawingAreaWidthMM() * DrawingBotV3.image_scale));
+        ImageToolsLegacy.imageScale(task, 1000);
         ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 4);
         ImageToolsLegacy.imageUnsharpen(task, task.getPlottingImage(), 3);
         ImageToolsLegacy.addImageBorder(task, "b1.png", 0, 0);

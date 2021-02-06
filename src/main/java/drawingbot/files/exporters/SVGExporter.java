@@ -16,12 +16,14 @@ import static processing.core.PApplet.*;
 //TODO CHECK SVG COLOUR/OPACITY ACCURACY - ENSURE DPI is relative to actual size not inches.
 public class SVGExporter {
 
+    public static final int svg_decimals = 3; // numbers of decimal places used on svg exports
+
     // Thanks to Vladimir Bochkov for helping me debug the SVG international decimal separators problem.
     public static String svg_format (Float n) {
         final char regional_decimal_separator = ',';
         final char svg_decimal_seperator = '.';
 
-        String s = nf(n, 0, DrawingBotV3.svg_decimals);
+        String s = nf(n, 0, svg_decimals);
         s = s.replace(regional_decimal_separator, svg_decimal_seperator);
         return s;
     }
