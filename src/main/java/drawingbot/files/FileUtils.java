@@ -11,12 +11,9 @@ import java.nio.file.PathMatcher;
 
 public class FileUtils {
 
-    public static final FileChooser.ExtensionFilter IMPORT_PRESETS = new FileChooser.ExtensionFilter("PFM Preset", "*.pfmpreset", "*.json");
     public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.gif", "*.bmp", "*.jpeg");
 
-    public static final FileChooser.ExtensionFilter FILTER_PFM_PRESET = new FileChooser.ExtensionFilter("PFM Preset", "*.pfmpreset");
-    public static final FileChooser.ExtensionFilter FILTER_PFM_PRESET_JSON = new FileChooser.ExtensionFilter("PFM Preset", "*.json");
-
+    public static final FileChooser.ExtensionFilter FILTER_JSON = new FileChooser.ExtensionFilter("JSON - JavaScript Object Notation", "*.json");
 
     public static final FileChooser.ExtensionFilter FILTER_TIF = new FileChooser.ExtensionFilter("TIF - Tagged Image File", "*.tif");
     public static final FileChooser.ExtensionFilter FILTER_TGA = new FileChooser.ExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");

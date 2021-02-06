@@ -1,14 +1,12 @@
 package drawingbot.javafx;
 
-import drawingbot.files.BatchProcessing;
+import drawingbot.files.*;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
-import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.ExportFormats;
-import drawingbot.files.FileUtils;
+import drawingbot.image.ImageFilterRegistry;
 import drawingbot.image.ImageTools;
 import drawingbot.pfm.IPFM;
-import drawingbot.pfm.PFMPreset;
+import drawingbot.utils.GenericPreset;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
 import drawingbot.pfm.PFMMasterRegistry;
@@ -16,9 +14,11 @@ import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 
@@ -50,13 +50,43 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import static processing.core.PApplet.*;
 
 public class FXController {
 
-    ////MENU
+    public void initialize(){
+        DrawingBotV3.logger.entering("FX Controller", "initialize");
+
+        initToolbar();
+        initViewport();
+        initPlottingControls();
+        initProgressBar();
+        initDrawingAreaPane();
+        initPreProcessingPane();
+        initPFMPaneBasic();
+        initPFMPenAdvanced();
+        initPenSettingsPane();
+        initBatchProcessingPane();
+
+        DrawingBotV3.logger.exiting("FX Controller", "initialize");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////GLOBAL CONTAINERS
+    public ScrollPane scrollPaneSettings = null;
+    public VBox vBoxSettings = null;
+
+    public PresetRenameDialog presetEditorDialog = new PresetRenameDialog();
+    public static GenericPreset editingPreset = null;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    //// TOOL BAR
+
     //file
     public MenuItem menuImport = null;
     public MenuItem menuImportURL = null;
@@ -68,107 +98,7 @@ public class FXController {
     //help
     public MenuItem menuHelpPage = null;
 
-    ////SETTINGS WINDOW
-    public ScrollPane scrollPaneSettings = null;
-    public VBox vBoxSettings = null;
-
-    ////VIEWPORT WINDOW
-    public VBox vBoxViewportContainer = null;
-    public ScrollPane viewportScrollPane = null;
-    public StackPane viewportStackPane = null;
-
-    ////VIEWPORT SETTINGS
-    public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
-    public CheckBox checkBoxShowGrid = null;
-    public Button buttonZoomIn = null;
-    public Button buttonZoomOut = null;
-    public Button buttonResetView = null;
-
-    ////DRAWING AREA CONTROLS
-    public CheckBox checkBoxOriginalSizing = null;
-    public TextField textFieldDrawingWidth = null;
-    public TextField textFieldDrawingHeight = null;
-    public ChoiceBox<Units> choiceBoxDrawingUnits = null;
-
-    ////GCODE SETTINGS
-    public TextField textFieldOffsetX = null;
-    public TextField textFieldOffsetY = null;
-    public TextField textFieldPenUpZ = null;
-    public TextField textFieldPenDownZ = null;
-    public CheckBox checkBoxAutoHome = null;
-
-    ////PATH FINDING CONTROLS
-    public ChoiceBox<GenericFactory<IPFM>> choiceBoxPFM = null;
-    public Label labelElapsedTime = null;
-    public Label labelPlottedLines = null;
-    public Slider sliderDisplayedLines = null;
-    public TextField textFieldDisplayedLines = null;
-
-    ////PATH FINDING CONTROLS - ADVANCED
-    public PresetEditorDialog presetEditorDialog = null;
-    public ComboBox<PFMPreset> comboBoxPFMPreset = null;
-    public MenuItem menuNewPreset = null;
-    public MenuItem menuUpdatePreset = null;
-    public MenuItem menuDeletePreset = null;
-    public MenuItem menuImportPreset = null;
-    public MenuItem menuExportPreset = null;
-
-    public static PFMPreset editingPFMPreset = null;
-
-    public TableView<GenericSetting<?,?>> tableViewAdvancedPFMSettings = null;
-    public TableColumn<GenericSetting<?, ?>, String> tableColumnSetting = null;
-    public TableColumn<GenericSetting<?, ?>, Object> tableColumnValue = null;
-
-    public Button buttonPFMSettingReset = null;
-    public Button buttonPFMSettingRandom = null;
-    public Button buttonPFMSettingHelp = null;
-
-    ////PEN SETTINGS
-    public ComboBox<DrawingSet> comboBoxDrawingSet = null;
-
-    public TableView<ObservableDrawingPen> penTableView = null;
-    public TableColumn<ObservableDrawingPen, Boolean> penEnableColumn = null;
-    public TableColumn<ObservableDrawingPen, String> penNameColumn = null;
-    public TableColumn<ObservableDrawingPen, Color> penColourColumn = null;
-    public TableColumn<ObservableDrawingPen, String> penPercentageColumn = null;
-    public TableColumn<ObservableDrawingPen, Integer> penWeightColumn = null;
-    public TableColumn<ObservableDrawingPen, Integer> penLinesColumn = null;
-
-    public ComboBox<DrawingPen> comboBoxDrawingPen = null;
-    public Button buttonAddPen = null;
-
-    public ComboBox<EnumDistributionOrder> renderOrderComboBox = null;
-    public ComboBox<EnumBlendMode> blendModeComboBox = null;
-
-    ////BATCH PROCESSING
-    public Label labelInputFolder = null;
-    public Label labelOutputFolder = null;
-
-    public Button buttonSelectInputFolder = null;
-    public Button buttonSelectOutputFolder = null;
-    public Button buttonStartBatchProcessing = null;
-    public Button buttonStopBatchProcessing = null;
-
-    public CheckBox checkBoxOverwrite = null;
-
-    public TableView<BatchProcessing.BatchExportTask> tableViewBatchExport = null;
-    public TableColumn<BatchProcessing.BatchExportTask, String> tableColumnFileFormat = null;
-    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerDrawing = null;
-    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerPen = null;
-
-    public Button buttonStartPlotting = null;
-    public Button buttonStopPlotting = null;
-    public Button buttonResetPlotting = null;
-
-    ////PROGRESS BAR PANE
-    public Pane paneProgressBar = null;
-    public ProgressBar progressBarGeneral = null;
-    public Label progressBarLabel = null;
-
-    public void initialize(){
-        DrawingBotV3.logger.entering("FX Controller", "initialize");
-        ////MENU
-
+    public void initToolbar(){
         //file
         menuImport.setOnAction(e -> importFile());
         menuImportURL.setOnAction(e -> importURL());
@@ -202,6 +132,24 @@ public class FXController {
 
         //help
         menuHelpPage.setOnAction(e -> openURL(Utils.URL_GITHUB_REPO));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    //// VIEWPORT PANE
+
+    ////VIEWPORT WINDOW
+    public VBox vBoxViewportContainer = null;
+    public ScrollPane viewportScrollPane = null;
+    public StackPane viewportStackPane = null;
+
+    ////VIEWPORT SETTINGS
+    public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
+    public CheckBox checkBoxShowGrid = null;
+    public Button buttonZoomIn = null;
+    public Button buttonZoomOut = null;
+    public Button buttonResetView = null;
+
+    public void initViewport(){
 
         ////VIEWPORT SETTINGS
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
@@ -226,10 +174,56 @@ public class FXController {
             viewportScrollPane.setVvalue(0.5);
             DrawingBotV3.scaleMultiplier.set(1.0);
         });
+    }
 
-        ////
 
-        ////DRAWING AREA CONTROLS
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    //// PLOTTING CONTROLS
+
+    public Button buttonStartPlotting = null;
+    public Button buttonStopPlotting = null;
+    public Button buttonResetPlotting = null;
+
+    public void initPlottingControls(){
+        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
+        buttonStartPlotting.disableProperty().bind(DrawingBotV3.isPlotting);
+        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
+        buttonStopPlotting.disableProperty().bind(DrawingBotV3.isPlotting.not());
+        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////PROGRESS BAR PANE
+
+    public Pane paneProgressBar = null;
+    public ProgressBar progressBarGeneral = null;
+    public Label progressBarLabel = null;
+
+    public void initProgressBar(){
+        progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
+        progressBarLabel.setText("");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////DRAWING AREA PANE
+
+    /////SIZING OPTIONS
+    public CheckBox checkBoxOriginalSizing = null;
+    public TextField textFieldDrawingWidth = null;
+    public TextField textFieldDrawingHeight = null;
+    public ChoiceBox<Units> choiceBoxDrawingUnits = null;
+
+    ////GCODE SETTINGS
+    public TextField textFieldOffsetX = null;
+    public TextField textFieldOffsetY = null;
+    public TextField textFieldPenUpZ = null;
+    public TextField textFieldPenDownZ = null;
+    public CheckBox checkBoxAutoHome = null;
+
+    public void initDrawingAreaPane(){
+
+        /////SIZING OPTIONS
         DrawingBotV3.useOriginalSizing.bind(checkBoxOriginalSizing.selectedProperty());
         textFieldDrawingWidth.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         textFieldDrawingHeight.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
@@ -244,8 +238,6 @@ public class FXController {
         choiceBoxDrawingUnits.getItems().addAll(Units.values());
         choiceBoxDrawingUnits.setValue(Units.MILLIMETRES);
         DrawingBotV3.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
-
-        ////
 
         ////GCODE SETTINGS
         checkBoxAutoHome.setSelected(true);
@@ -262,12 +254,161 @@ public class FXController {
 
         DrawingBotV3.penDownZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenDownZ.textProperty().get()), textFieldPenDownZ.textProperty()));
         textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////PRE PROCESSING PANE
+
+    public ComboBox<GenericPreset> comboBoxImageFilterPreset = null; //TODO PRESETS
+
+    public MenuItem menuNewFilterPreset = null; //TODO MAKE DEFAULT FILTER MENU
+    public MenuItem menuUpdateFilterPreset = null;
+    public MenuItem menuDeleteFilterPreset = null;
+    public MenuItem menuImportFilterPreset = null;
+    public MenuItem menuExportFilterPreset = null;
+
+    public TableView<ImageFilterRegistry.ObservableImageFilter> tableViewImageFilters = null;
+    public TableColumn<ImageFilterRegistry.ObservableImageFilter, Boolean> columnEnableImageFilter = null;
+    public TableColumn<ImageFilterRegistry.ObservableImageFilter, String> columnImageFilterType = null;
+    public TableColumn<ImageFilterRegistry.ObservableImageFilter, ObservableList<GenericSetting<?, ?>>> columnImageFilterSettings = null;
+
+    public ComboBox<GenericFactory<ImageFilterRegistry.IImageFilter>> comboBoxImageFilter = null;
+    public Button buttonAddFilter = null;
+
+    public void initPreProcessingPane(){
+        comboBoxImageFilterPreset.setItems(ImageFilterRegistry.imagePresets);
+        comboBoxImageFilterPreset.setValue(ImageFilterRegistry.getDefaultImageFilterPreset());
+        comboBoxImageFilterPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                PresetManager.FILTERS.loadSettings(newValue);
+            }
+        });
+
+        tableViewImageFilters.setItems(ImageFilterRegistry.currentFilters);
+        tableViewImageFilters.setRowFactory(param -> {
+            TableRow<ImageFilterRegistry.ObservableImageFilter> row = new TableRow<>();
+            row.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
+                if(row.getItem() == null){
+                    event.consume();
+                }
+            });
+            row.setContextMenu(new ObservableFilterContextMenu(row));
+            row.setPrefHeight(30);
+            return row;
+        });
+
+        columnEnableImageFilter.setCellFactory(param -> new CheckBoxTableCell<>(index -> columnEnableImageFilter.getCellObservableValue(index)));
+        columnEnableImageFilter.setCellValueFactory(param -> param.getValue().enable);
+
+        columnImageFilterType.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        columnImageFilterType.setCellValueFactory(param -> param.getValue().name);
+
+        columnImageFilterSettings.setCellFactory(param -> new ImageFilterSettingsTableCell());
+        columnImageFilterSettings.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().filterSettings));
+
+        comboBoxImageFilter.setItems(ImageFilterRegistry.filterFactories);
+        comboBoxImageFilter.setValue(ImageFilterRegistry.filterFactories.get(0));
+        buttonAddFilter.setOnAction(e -> {
+            if(comboBoxImageFilter.getValue() != null){
+                ImageFilterRegistry.currentFilters.add(new ImageFilterRegistry.ObservableImageFilter(comboBoxImageFilter.getValue()));
+            }
+        });
+
+        menuNewFilterPreset.setOnAction(e -> {
+            editingPreset = PresetManager.FILTERS.createNewPreset("", "New Preset", true);
+            PresetManager.FILTERS.saveSettings(editingPreset);
+
+            presetEditorDialog.updateDialog();
+            presetEditorDialog.setTitle("Save new preset");
+            Optional<GenericPreset> result = presetEditorDialog.showAndWait();
+            if(result.isPresent()){
+                PresetManager.FILTERS.savePreset(editingPreset);
+                comboBoxImageFilterPreset.setValue(editingPreset);
+            }
+        });
+
+        menuUpdateFilterPreset.setOnAction(e -> {
+            GenericPreset preset = PresetManager.FILTERS.updatePreset(comboBoxImageFilterPreset.getValue());
+            if(preset != null){
+                comboBoxImageFilterPreset.setValue(preset);
+                comboBoxImageFilterPreset.setItems(ImageFilterRegistry.imagePresets);
+            }
+        });
+
+        menuDeleteFilterPreset.setOnAction(e -> {
+            if(PresetManager.FILTERS.deletePreset(comboBoxImageFilterPreset.getValue())){
+                comboBoxImageFilterPreset.setValue(ImageFilterRegistry.getDefaultImageFilterPreset());
+            }
+        });
+
+        menuImportFilterPreset.setOnAction(e -> importPFMPreset(EnumPresetType.IMAGE_FILTER_PRESET));
+        menuExportFilterPreset.setOnAction(e -> exportPFMPreset(comboBoxImageFilterPreset.getValue()));
+    }
+
+    public static class ImageFilterSettingsTableCell extends TableCell<ImageFilterRegistry.ObservableImageFilter, ObservableList<GenericSetting<?, ?>>>{
+
+        public ImageFilterSettingsTableCell(){
+            super();
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        }
+
+        protected void updateItem(ObservableList<GenericSetting<?, ?>> item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                setText(item.toString());
+                if(item.isEmpty()){
+                    setGraphic(null);
+                }else{
+                    HBox hBox = new HBox();
+                    hBox.maxWidth(getWidth());
+                    hBox.maxHeight(getHeight());
+                    for(GenericSetting<?, ?> setting : item){
+                        TextField field = new TextField();
+                        GenericSettingStringConverter<?> stringConverter = new GenericSettingStringConverter<>(() -> setting);
+                        field.setText(setting.getValueAsString());
+                        field.setOnAction(e -> {
+                            Object obj = stringConverter.fromString(field.getText());
+                            setting.setValue(obj);
+                            if(!field.getText().equals(setting.getValueAsString())){
+                                field.setText(setting.getValueAsString());
+                            }
+                        });
+                        field.setMaxWidth(80);
+                        field.maxHeight(getHeight());
+                        Label label = new Label(setting.settingName.getValue() + ": ");
+                        label.setGraphic(field);
+                        label.setContentDisplay(ContentDisplay.RIGHT);
+                        hBox.getChildren().add(label);
+                    }
+                    setGraphic(hBox);
+                }
+
+            }
+        }
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////PATH FINDING CONTROLS BASIC
+
+    ////PATH FINDING CONTROLS
+    public ChoiceBox<GenericFactory<IPFM>> choiceBoxPFM = null;
+    public Label labelElapsedTime = null;
+    public Label labelPlottedLines = null;
+    public Slider sliderDisplayedLines = null;
+    public TextField textFieldDisplayedLines = null;
+
+    public void initPFMPaneBasic(){
 
         ////PATH FINDING CONTROLS
         choiceBoxPFM.setItems(PFMMasterRegistry.getObservablePFMLoaderList());
         choiceBoxPFM.setValue(PFMMasterRegistry.getDefaultPFMFactory());
         choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
-        DrawingBotV3.INSTANCE.pfmLoader.bindBidirectional(choiceBoxPFM.valueProperty());
+        DrawingBotV3.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
 
 
         labelElapsedTime.setText("0 s");
@@ -294,83 +435,115 @@ public class FXController {
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
+    }
 
-        ////
-        ////ADVANCED PATH FINDING CONTROLS
-        presetEditorDialog = new PresetEditorDialog();
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////PATH FINDING CONTROLS - ADVANCED
+
+    public ComboBox<GenericPreset> comboBoxPFMPreset = null;
+    public MenuItem menuNewPreset = null;
+    public MenuItem menuUpdatePreset = null;
+    public MenuItem menuDeletePreset = null;
+    public MenuItem menuImportPreset = null;
+    public MenuItem menuExportPreset = null;
+
+
+    public TableView<GenericSetting<?,?>> tableViewAdvancedPFMSettings = null;
+    public TableColumn<GenericSetting<?, ?>, String> tableColumnSetting = null;
+    public TableColumn<GenericSetting<?, ?>, Object> tableColumnValue = null;
+
+    public Button buttonPFMSettingReset = null;
+    public Button buttonPFMSettingRandom = null;
+    public Button buttonPFMSettingHelp = null;
+
+    public void initPFMPenAdvanced(){
 
         comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList());
         comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset());
+        comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                PresetManager.PFM.loadSettings(newValue);
+            }
+        });
 
-        DrawingBotV3.INSTANCE.pfmLoader.addListener((observable, oldValue, newValue) -> {
+        DrawingBotV3.pfmFactory.addListener((observable, oldValue, newValue) -> {
             comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList(newValue));
             comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset(newValue));
         });
 
-
-        comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                newValue.loadPreset(PFMMasterRegistry.getObservablePFMSettingsList());
-            }
-        });
-
-        //TODO FIX PRESETS!!!!!
         menuNewPreset.setOnAction(e -> {
-            editingPFMPreset = new PFMPreset(DrawingBotV3.INSTANCE.pfmLoader.get().getName(), "New Preset", true);
-            editingPFMPreset.savePreset(PFMMasterRegistry.getObservablePFMSettingsList());
-            presetEditorDialog.updateFromEditingPFM();
+            editingPreset = PresetManager.PFM.createNewPreset(DrawingBotV3.pfmFactory.get().getName(), "New Preset", true);
+            PresetManager.PFM.saveSettings(editingPreset);
+
+            presetEditorDialog.updateDialog();
             presetEditorDialog.setTitle("Save new preset");
-            Optional<PFMPreset> result = presetEditorDialog.showAndWait();
+            Optional<GenericPreset> result = presetEditorDialog.showAndWait();
             if(result.isPresent()){
-                PFMMasterRegistry.savePreset(editingPFMPreset);
-                comboBoxPFMPreset.setValue(editingPFMPreset);
+                PresetManager.PFM.savePreset(editingPreset);
+                comboBoxPFMPreset.setValue(editingPreset);
             }
         });
 
         menuUpdatePreset.setOnAction(e -> {
-            PFMPreset preset = comboBoxPFMPreset.getValue();
-            if(preset.userCreated){
-                ///save over the presets current settings
-                preset.settings.clear();
-                preset.savePreset(PFMMasterRegistry.getObservablePFMSettingsList());
-
-                PFMMasterRegistry.updatePreset(preset);
+            GenericPreset preset = PresetManager.PFM.updatePreset(comboBoxPFMPreset.getValue());
+            if(preset != null){
                 comboBoxPFMPreset.setValue(preset);
                 comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList());
             }
         });
 
         menuDeletePreset.setOnAction(e -> {
-            PFMPreset preset = comboBoxPFMPreset.getValue();
-            if(preset.userCreated){
-                PFMMasterRegistry.deletePreset(preset);
+            if(PresetManager.PFM.deletePreset(comboBoxPFMPreset.getValue())){
                 comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset());
             }
         });
 
-        menuImportPreset.setOnAction(e -> importPFMPreset());
-        menuExportPreset.setOnAction(e -> exportPFMPreset());
+        menuImportPreset.setOnAction(e -> importPFMPreset(EnumPresetType.PFM_PRESET));
+        menuExportPreset.setOnAction(e -> exportPFMPreset(comboBoxPFMPreset.getValue()));
 
         tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList());
-        DrawingBotV3.INSTANCE.pfmLoader.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList()));
+        DrawingBotV3.pfmFactory.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList()));
 
         tableColumnSetting.setCellValueFactory(param -> param.getValue().settingName);
 
         tableColumnValue.setCellFactory(param -> {
             TextFieldTableCell<GenericSetting<?, ?>, Object> cell = new TextFieldTableCell<>();
-            cell.setConverter(new PFMSettingStringConverter(cell));
+            cell.setConverter(new GenericSettingStringConverter(() -> cell.tableViewProperty().get().getItems().get(cell.getIndex())));
             return cell;
         });
         tableColumnValue.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
         buttonPFMSettingReset.setOnAction(e -> {
-            comboBoxPFMPreset.getValue().loadPreset(PFMMasterRegistry.getObservablePFMSettingsList());
+            PresetManager.PFM.loadSettings(comboBoxPFMPreset.getValue());
         });
 
         buttonPFMSettingRandom.setOnAction(e -> PFMMasterRegistry.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> openURL(Utils.URL_GITHUB_PFM_DOCS));
 
-        ////PEN SETTINGS
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////PEN SETTINGS
+
+    public ComboBox<DrawingSet> comboBoxDrawingSet = null;
+
+    public TableView<ObservableDrawingPen> penTableView = null;
+    public TableColumn<ObservableDrawingPen, Boolean> penEnableColumn = null;
+    public TableColumn<ObservableDrawingPen, String> penNameColumn = null;
+    public TableColumn<ObservableDrawingPen, Color> penColourColumn = null;
+    public TableColumn<ObservableDrawingPen, String> penPercentageColumn = null;
+    public TableColumn<ObservableDrawingPen, Integer> penWeightColumn = null;
+    public TableColumn<ObservableDrawingPen, Integer> penLinesColumn = null;
+
+    public ComboBox<DrawingPen> comboBoxDrawingPen = null;
+    public Button buttonAddPen = null;
+
+    public ComboBox<EnumDistributionOrder> renderOrderComboBox = null;
+    public ComboBox<EnumBlendMode> blendModeComboBox = null;
+
+    public void initPenSettingsPane(){
+
         comboBoxDrawingSet.setItems(FXCollections.observableArrayList(DrawingRegistry.INSTANCE.registeredSets.values()));
         comboBoxDrawingSet.setValue(DrawingRegistry.INSTANCE.getDefaultSet());
         comboBoxDrawingSet.setOnAction(e -> changeDrawingSet(comboBoxDrawingSet.getSelectionModel().getSelectedItem()));
@@ -387,6 +560,7 @@ public class FXController {
             row.setContextMenu(new ObservablePenContextMenu(row));
             return row;
         });
+
 
         penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if(DrawingBotV3.INSTANCE.display_mode == EnumDisplayMode.SELECTED_PEN){
@@ -413,13 +587,32 @@ public class FXController {
         comboBoxDrawingPen.setValue(DrawingRegistry.INSTANCE.getDefaultPen());
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen());
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen());
-        buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(comboBoxDrawingPen.getValue()));
+        buttonAddPen.setOnAction(e -> DrawingBotV3.observableDrawingSet.addNewPen(comboBoxDrawingPen.getValue()));
 
         renderOrderComboBox.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
 
         blendModeComboBox.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
+    }
 
-        ////BATCH PROCESSING
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////BATCH PROCESSING
+
+    public Label labelInputFolder = null;
+    public Label labelOutputFolder = null;
+
+    public Button buttonSelectInputFolder = null;
+    public Button buttonSelectOutputFolder = null;
+    public Button buttonStartBatchProcessing = null;
+    public Button buttonStopBatchProcessing = null;
+
+    public CheckBox checkBoxOverwrite = null;
+
+    public TableView<BatchProcessing.BatchExportTask> tableViewBatchExport = null;
+    public TableColumn<BatchProcessing.BatchExportTask, String> tableColumnFileFormat = null;
+    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerDrawing = null;
+    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerPen = null;
+
+    public void initBatchProcessingPane(){
 
         labelInputFolder.textProperty().bindBidirectional(BatchProcessing.inputFolder);
         labelOutputFolder.textProperty().bindBidirectional(BatchProcessing.outputFolder);
@@ -449,52 +642,10 @@ public class FXController {
 
         tableColumnPerPen.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerPen.getCellObservableValue(index)));
         tableColumnPerPen.setCellValueFactory(param -> param.getValue().enablePerPen);
-
-        ////PLOTTING BUTTONS
-        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
-        buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting);
-        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
-        buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting.not());
-        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
-        ////PROGRESS BAR PANE
-
-        progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
-        progressBarLabel.setText("");
-
-        DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
 
-
-    public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
-        switch (stage){
-            case QUEUED:
-                break;
-            case LOADING_IMAGE:
-                break;
-            case PRE_PROCESSING:
-                break;
-            case DO_PROCESS:
-                sliderDisplayedLines.setValue(1.0F);
-                textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
-                break;
-            case POST_PROCESSING:
-                break;
-            case FINISHING:
-                break;
-            case FINISHED:
-                break;
-        }
-    }
-
-    public void changePathFinderModule(GenericFactory pfm){
-        DrawingBotV3.INSTANCE.pfmLoader.set(pfm);
-        /*
-        if(DrawingBotV3.INSTANCE.getActiveTask() != null && DrawingBotV3.INSTANCE.getActiveTask().loader != pfm){
-            DrawingBotV3.INSTANCE.createPlottingTask(DrawingBotV3.INSTANCE.getActiveTask().imageURL);
-        }
-
-        //TODO MAKE "START DRAW" BUTTON IN GUI
-         */
+    public void changePathFinderModule(GenericFactory<IPFM> pfm){
+        DrawingBotV3.pfmFactory.set(pfm);
     }
 
     public void changeDisplayMode(EnumDisplayMode mode){
@@ -503,7 +654,7 @@ public class FXController {
     }
 
     public void changeDrawingSet(DrawingSet set){
-        DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
+        DrawingBotV3.observableDrawingSet.loadDrawingSet(set);
     }
 
     public void importURL(){
@@ -567,86 +718,108 @@ public class FXController {
 
     }
 
-    public void importPFMPreset(){
+    public void importPFMPreset(EnumPresetType presetType){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().add(FileUtils.IMPORT_PRESETS);
-            d.setTitle("Select a PFM Preset to import");
+            d.getExtensionFilters().add(FileUtils.FILTER_JSON);
+            d.setTitle("Select a preset to import");
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
             File file = d.showOpenDialog(null);
             if(file != null){
-                ConfigFileHandler.importPFMPresetFile(file);
+                PresetManager.importPresetFile(file, presetType);
             }
         });
     }
 
-    public void exportPFMPreset(){
+    public void exportPFMPreset(GenericPreset preset){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(FileUtils.FILTER_PFM_PRESET);
-            d.getExtensionFilters().addAll(FileUtils.FILTER_PFM_PRESET_JSON);
-            d.setTitle("Save PFM Preset");
+            d.getExtensionFilters().addAll(FileUtils.FILTER_JSON);
+            d.setTitle("Save preset");
             d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            d.setInitialFileName(preset.presetName + " - Preset");
             File file = d.showSaveDialog(null);
             if(file != null){
-                ConfigFileHandler.exportPFMPresetFile(file, comboBoxPFMPreset.getValue());
+                PresetManager.exportPresetFile(file, preset);
             }
         });
     }
 
-    public static class PresetEditorDialog extends Dialog<PFMPreset>{
+    //// EXTERNALLY TRIGGERED EVENTS / UI UPDATES
 
-        public Label labelTargetPFM = null;
-        public Label labelTotalSettings = null;
-        public TextField nameField = null;
+    public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
+        switch (stage){
+            case QUEUED:
+                break;
+            case LOADING_IMAGE:
+                break;
+            case PRE_PROCESSING:
+                break;
+            case DO_PROCESS:
+                sliderDisplayedLines.setValue(1.0F);
+                textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
+                break;
+            case POST_PROCESSING:
+                break;
+            case FINISHING:
+                break;
+            case FINISHED:
+                break;
+        }
+    }
 
-        public PresetEditorDialog() {
+    public static class PresetRenameDialog extends Dialog<GenericPreset>{
+
+        public Label labelPresetSubType;
+        public Label labelPresetType;
+        public TextField nameField;
+
+        public PresetRenameDialog() {
             super();
             VBox vBox = new VBox();
 
-            labelTargetPFM = new Label("Target PFM: ");
+            labelPresetSubType = new Label("Preset Subtype: "); //TODO REMOVE???
             //vBox.getChildren().add(labelTargetPFM);
 
-            labelTotalSettings = new Label("Unique Settings: ");
+            labelPresetType = new Label("Preset Type: ");
             //vBox.getChildren().add(labelTotalSettings);
 
             Label nameFieldLabel = new Label("Preset Name: ");
             nameField = new TextField();
-            nameField.textProperty().addListener((observable, oldValue, newValue) -> FXController.editingPFMPreset.presetName = newValue);
+            nameField.textProperty().addListener((observable, oldValue, newValue) -> FXController.editingPreset.presetName = newValue);
             nameFieldLabel.setGraphic(nameField);
             nameFieldLabel.setContentDisplay(ContentDisplay.RIGHT);
             vBox.getChildren().add(nameFieldLabel);
 
             setGraphic(vBox);
-            setResultConverter(param -> param == ButtonType.APPLY ? editingPFMPreset : null);
+            setResultConverter(param -> param == ButtonType.APPLY ? editingPreset : null);
             getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
             getDialogPane().getButtonTypes().add(ButtonType.APPLY);
         }
 
-        public void updateFromEditingPFM(){
-            labelTargetPFM.setText("Target PFM: " + FXController.editingPFMPreset.pfmName);
-            labelTotalSettings.setText("Unique Settings: " + FXController.editingPFMPreset.settings.size());
-            nameField.setText(FXController.editingPFMPreset.presetName);
+        public void updateDialog(){
+            labelPresetSubType.setText("Preset Subtype: " + FXController.editingPreset.presetSubType);
+            nameField.setText(FXController.editingPreset.presetName);
         }
 
 
     }
 
-    public static class PFMSettingStringConverter<V> extends StringConverter<V>{
+    public static class GenericSettingStringConverter<V> extends StringConverter<V>{
 
-        public TableCell<GenericSetting<?, V>, V> cell;
+        public Supplier<GenericSetting<?, V>> supplier;
 
-        public PFMSettingStringConverter(TableCell<GenericSetting<?, V>, V> cell){
-            this.cell = cell;
+        public GenericSettingStringConverter(Supplier<GenericSetting<?, V>> supplier){
+            this.supplier = supplier;
         }
 
         public String toString(V object){
-            GenericSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
+            GenericSetting<?, V> setting = supplier.get();
             return setting.stringConverter.toString(object);
         }
 
         public V fromString(String string){
-            GenericSetting<?, V> setting = cell.tableViewProperty().get().getItems().get(cell.getIndex());
+            GenericSetting<?, V> setting = supplier.get();
             try {
                 V value = setting.stringConverter.fromString(string);
                 return setting.validator.apply(value);
@@ -706,15 +879,57 @@ public class FXController {
         }
     }
 
+    ///// CONTEXT MENUS \\\\\
+
+    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, ObservableList<O> list, Consumer<O> duplicate){
+
+        MenuItem menuMoveUp = new MenuItem("Move Up");
+        menuMoveUp.setOnAction(e -> {
+            int index =list.indexOf(row.getItem());
+            if(index != 0){
+                list.remove(index);
+                list.add(index-1, row.getItem());
+            }
+        });
+        menu.getItems().add(menuMoveUp);
+
+        MenuItem menuMoveDown = new MenuItem("Move Down");
+        menuMoveDown.setOnAction(e -> {
+            int index = list.indexOf(row.getItem());
+            if(index != list.size()-1){
+                list.remove(index);
+                list.add(index+1, row.getItem());
+            }
+        });
+        menu.getItems().add(menuMoveDown);
+
+        menu.getItems().add(new SeparatorMenuItem());
+
+        MenuItem menuDelete = new MenuItem("Delete");
+        menuDelete.setOnAction(e -> list.remove(row.getItem()));
+        menu.getItems().add(menuDelete);
+
+        MenuItem menuDuplicate = new MenuItem("Duplicate");
+        menuDuplicate.setOnAction(e -> duplicate.accept(row.getItem()));
+        menu.getItems().add(menuDuplicate);
+    }
+
+    public static class ObservableFilterContextMenu extends ContextMenu{
+
+        public ObservableFilterContextMenu(TableRow<ImageFilterRegistry.ObservableImageFilter> row){
+            super();
+
+            addDefaultTableViewContextMenuItems(this, row, ImageFilterRegistry.currentFilters, f -> ImageFilterRegistry.currentFilters.add(new ImageFilterRegistry.ObservableImageFilter(f)));
+        }
+    }
+
     public static class ObservablePenContextMenu extends ContextMenu{
 
         public ObservablePenContextMenu(TableRow<ObservableDrawingPen> row){
             super();
 
             MenuItem increaseWeight = new MenuItem("Increase Weight");
-            increaseWeight.setOnAction(e -> {
-                row.getItem().distributionWeight.set(row.getItem().distributionWeight.get() + 10);
-            });
+            increaseWeight.setOnAction(e -> row.getItem().distributionWeight.set(row.getItem().distributionWeight.get() + 10));
             getItems().add(increaseWeight);
 
             MenuItem decreaseWeight = new MenuItem("Decrease Weight");
@@ -727,35 +942,7 @@ public class FXController {
 
             getItems().add(new SeparatorMenuItem());
 
-            MenuItem moveUp = new MenuItem("Move Up");
-            moveUp.setOnAction(e -> {
-                int index = DrawingBotV3.INSTANCE.observableDrawingSet.getPens().indexOf(row.getItem());
-                if(index != 0){
-                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().remove(index);
-                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().add(index-1, row.getItem());
-                }
-            });
-            getItems().add(moveUp);
-
-            MenuItem moveDown = new MenuItem("Move Down");
-            moveDown.setOnAction(e -> {
-                int index = DrawingBotV3.INSTANCE.observableDrawingSet.getPens().indexOf(row.getItem());
-                if(index != DrawingBotV3.INSTANCE.observableDrawingSet.getPens().size()-1){
-                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().remove(index);
-                    DrawingBotV3.INSTANCE.observableDrawingSet.getPens().add(index+1, row.getItem());
-                }
-            });
-            getItems().add(moveDown);
-
-            getItems().add(new SeparatorMenuItem());
-
-            MenuItem delete = new MenuItem("Delete");
-            delete.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.pens.remove(row.getItem()));
-            getItems().add(delete);
-
-            MenuItem duplicate = new MenuItem("Duplicate");
-            duplicate.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(row.getItem()));
-            getItems().add(duplicate);
+            addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.observableDrawingSet.pens, p -> DrawingBotV3.observableDrawingSet.addNewPen(p));
         }
 
     }

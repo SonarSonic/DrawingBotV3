@@ -123,42 +123,6 @@ public class PFMLines extends AbstractDarkestPFM{
         return DrawingBotV3.INSTANCE.color(adjustbrightness, adjustbrightness, adjustbrightness, 50);
     }
 
-    public int[] getFullLine(RawLuminanceData data, int x0, int y0, float degree){
-        double minX, minY, maxX, maxY;
-
-        double maxWidth = data.width-1;
-        double maxHeight = data.height-1;
-
-        double slope = Math.tan(degree);
-
-        double leftYIntercept = y0 - slope*x0;
-        if(leftYIntercept >= maxHeight){
-            minY = maxHeight;
-            minX = ((maxHeight-leftYIntercept)/slope);
-        }else if(leftYIntercept < 0){
-            minY = 0;
-            minX = ((-leftYIntercept)/slope);
-        }else{
-            minY = leftYIntercept;
-            minX = 0;
-        }
-
-        double rightYIntercept = y0 - slope*(x0-maxWidth);
-
-        if(rightYIntercept >= maxHeight){
-            maxY = maxHeight-1;
-            maxX = ((maxHeight-rightYIntercept)/slope)  + maxWidth+1;
-        }else if(rightYIntercept < 0){
-            maxY = 0;
-            maxX = ((-rightYIntercept)/slope) + maxWidth+1;
-        }else{
-            maxY = rightYIntercept;
-            maxX = maxWidth;
-        }
-
-        return new int[]{(int)Math.floor(minX), (int)Math.floor(minY), (int)Math.floor(maxX), (int)Math.floor(maxY)};
-    }
-
     @Override
     public void postProcess() {
         //task.img_plotting = new PImage(red.asBufferedImage());

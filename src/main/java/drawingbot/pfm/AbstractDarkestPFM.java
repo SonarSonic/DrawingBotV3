@@ -83,11 +83,48 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         darkest_y = (point - darkest_x) / rawBrightnessData.width;
     }
 
+    public int[] getFullLine(RawLuminanceData data, int x0, int y0, float degree){ //TODO FIX TENDENCY FOR PFMS TO GO TO CORNERS WITH LONG LINES
+        double minX, minY, maxX, maxY;
+
+        double maxWidth = data.width-1;
+        double maxHeight = data.height-1;
+
+        double slope = Math.tan(degree);
+
+        double leftYIntercept = y0 - slope*x0;
+        if(leftYIntercept >= maxHeight){
+            minY = maxHeight;
+            minX = ((maxHeight-leftYIntercept)/slope);
+        }else if(leftYIntercept < 0){
+            minY = 0;
+            minX = ((-leftYIntercept)/slope);
+        }else{
+            minY = leftYIntercept;
+            minX = 0;
+        }
+
+        double rightYIntercept = y0 - slope*(x0-maxWidth);
+
+        if(rightYIntercept >= maxHeight){
+            maxY = maxHeight-1;
+            maxX = ((maxHeight-rightYIntercept)/slope)  + maxWidth+1;
+        }else if(rightYIntercept < 0){
+            maxY = 0;
+            maxX = ((-rightYIntercept)/slope) + maxWidth+1;
+        }else{
+            maxY = rightYIntercept;
+            maxX = maxWidth;
+        }
+
+        return new int[]{(int)Math.floor(minX), (int)Math.floor(minY), (int)Math.floor(maxX), (int)Math.floor(maxY)};
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     protected void bresenhamAvgBrightness(RawLuminanceData rawBrightnessData, int x0, int y0, float distance, float degree) {
         sum_brightness = 0;
         count_brightness = 0;
+
         int x1, y1;
         x1 = (int)(cos(radians(degree))*distance) + x0;
         y1 = (int)(sin(radians(degree))*distance) + y0;

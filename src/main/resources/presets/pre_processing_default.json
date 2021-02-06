@@ -1,0 +1,16 @@
+{
+  "presetType": "IMAGE_FILTER_PRESET",
+  "presetSubType": "",
+  "presetName": "Default",
+  "userCreated": false,
+  "jsonObject": {
+    "filters": [
+      "Unsharp Mask",
+      "Grayscale"
+    ],
+    "settings": [
+      {},
+      {}
+    ]
+  }
+}

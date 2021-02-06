@@ -1,0 +1,18 @@
+{
+  "presetType": "PFM_PRESET",
+  "presetSubType": "Sketch PFM",
+  "presetName": "Glitchy Vertical",
+  "userCreated": false,
+  "jsonObject": {
+    "desired_brightness": "240.0",
+    "squiggle_length": "100",
+    "adjust_brightness": "70",
+    "neighbour_tests": "30",
+    "min_line_length": "2",
+    "max_line_length": "50",
+    "start_angle_min": "80",
+    "start_angle_max": "100",
+    "shading_delta_angle": "180.0",
+    "squiggles_till_shading": "100"
+  }
+}

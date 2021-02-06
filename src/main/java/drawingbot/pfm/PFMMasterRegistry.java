@@ -2,9 +2,12 @@ package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.PresetManager;
 import drawingbot.pfm.legacy.LegacyPFMLoaders;
+import drawingbot.utils.EnumPresetType;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
+import drawingbot.utils.GenericPreset;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,7 +23,7 @@ public class PFMMasterRegistry {
 
     public static HashMap<Class<? extends IPFM>, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
     public static HashMap<Class<? extends IPFM>, GenericFactory<IPFM>> pfmFactories = new LinkedHashMap<>();
-    public static HashMap<String, ObservableList<PFMPreset>> pfmPresets = new LinkedHashMap<>();
+    public static HashMap<String, ObservableList<GenericPreset>> pfmPresets = new LinkedHashMap<>();
 
     static{
         registerPFMFactory(PFMSketch.class, "Sketch PFM", PFMSketch::new, false);
@@ -64,7 +67,7 @@ public class PFMMasterRegistry {
 
     public static void registerPFMFactory(Class<? extends IPFM> pfmClass, String name, Supplier<IPFM> create, boolean isHidden){
         pfmFactories.put(pfmClass, new GenericFactory(pfmClass, name, create, isHidden));
-        registerPreset(new PFMPreset(name, "Default", false));
+        registerPreset(PresetManager.PFM.createNewPreset(name, "Default", false));
     }
 
     public static GenericFactory<IPFM> getDefaultPFMFactory(){
@@ -108,41 +111,17 @@ public class PFMMasterRegistry {
 
     //// PFM PRESET \\\\
 
-    public static PFMPreset getDefaultPFMPreset(){
-        return getDefaultPFMPreset(DrawingBotV3.INSTANCE.pfmLoader.get());
+    public static GenericPreset getDefaultPFMPreset(){
+        return getDefaultPFMPreset(DrawingBotV3.pfmFactory.get());
     }
 
-    public static PFMPreset getDefaultPFMPreset(GenericFactory<IPFM> loader){
+    public static GenericPreset getDefaultPFMPreset(GenericFactory<IPFM> loader){
         return pfmPresets.get(loader.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
     }
 
-    public static void registerPreset(PFMPreset preset){
-        PFMMasterRegistry.pfmPresets.putIfAbsent(preset.pfmName, FXCollections.observableArrayList());
-        PFMMasterRegistry.pfmPresets.get(preset.pfmName).add(preset);
-    }
-
-    public static void savePreset(PFMPreset preset){
-        registerPreset(preset);
-        if(preset.userCreated){
-            updatePresetJSON();
-        }
-    }
-
-    public static void updatePreset(PFMPreset preset){
-        updatePresetJSON();
-    }
-
-    public static void deletePreset(PFMPreset preset){
-        PFMMasterRegistry.pfmPresets.get(preset.pfmName).remove(preset);
-        updatePresetJSON();
-    }
-
-    public static void updatePresetJSON(){
-        DrawingBotV3.INSTANCE.backgroundService.submit(ConfigFileHandler::updatePresetJSON);
-    }
-
-    public static void loadUserCreatedPresets(Map<String, List<PFMPreset>> presets){
-        presets.values().forEach(p -> p.forEach(PFMMasterRegistry::registerPreset));
+    public static void registerPreset(GenericPreset preset){
+        PFMMasterRegistry.pfmPresets.putIfAbsent(preset.presetSubType, FXCollections.observableArrayList());
+        PFMMasterRegistry.pfmPresets.get(preset.presetSubType).add(preset);
     }
 
     //// JAVA FX \\\\
@@ -157,19 +136,20 @@ public class PFMMasterRegistry {
         return list;
     }
 
+    /**the current settings for the PFM*/
     public static ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(){
-        return getObservablePFMSettingsList(DrawingBotV3.INSTANCE.pfmLoader.get());
+        return getObservablePFMSettingsList(DrawingBotV3.pfmFactory.get());
     }
 
     public static ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(GenericFactory<IPFM> loader){
         return pfmSettings.get(loader.getInstanceClass());
     }
 
-    public static ObservableList<PFMPreset> getObservablePFMPresetList(){
-        return getObservablePFMPresetList(DrawingBotV3.INSTANCE.pfmLoader.get());
+    public static ObservableList<GenericPreset> getObservablePFMPresetList(){
+        return getObservablePFMPresetList(DrawingBotV3.pfmFactory.get());
     }
 
-    public static ObservableList<PFMPreset> getObservablePFMPresetList(GenericFactory<IPFM> loader){
+    public static ObservableList<GenericPreset> getObservablePFMPresetList(GenericFactory<IPFM> loader){
         return pfmPresets.get(loader.getName());
     }
 
