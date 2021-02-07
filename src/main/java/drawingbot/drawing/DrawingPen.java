@@ -1,12 +1,14 @@
 package drawingbot.drawing;
 
+import drawingbot.api.IDrawingPen;
+
 public class DrawingPen implements IDrawingPen {
 
     private final String name; //pens name
     private final int rgbColour; //rgb pen colour
 
     public DrawingPen(IDrawingPen source){
-        this(source.getName(), source.getRGBColour());
+        this(source.getName(), source.getARGB());
     }
 
     public DrawingPen(String name, int colour){
@@ -20,7 +22,7 @@ public class DrawingPen implements IDrawingPen {
     }
 
     @Override
-    public int getRGBColour() {
+    public int getARGB() {
         return rgbColour;
     }
 

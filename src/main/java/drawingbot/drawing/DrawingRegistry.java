@@ -1,6 +1,7 @@
 package drawingbot.drawing;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IDrawingPen;
 
 import java.util.*;
 

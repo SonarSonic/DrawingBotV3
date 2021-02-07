@@ -1,7 +1,6 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottedLine;
@@ -29,7 +28,7 @@ public class ImageExporter {
             PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
             ObservableDrawingPen pen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(line.pen_number);
             if (lineFilter.apply(line, pen)) {
-                graphics.stroke(pen.getRGBColour());
+                graphics.stroke(pen.getARGB());
                 graphics.line(line.x1, line.y1, line.x2, line.y2);
             }
             if (i % (plottingTask.plottedDrawing.getDisplayedLineCount() / 100) == 0) { //only update for every percent lines

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
@@ -32,7 +33,7 @@
          <children>
             <VBox prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="637.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                  <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
@@ -119,38 +120,21 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                            <TitledPane text="Path Finding Controls - Basic">
-                              <content>
-                                <AnchorPane>
-                                       <children>
-                                            <ChoiceBox fx:id="choiceBoxPFM" layoutX="141.0" layoutY="14.0" prefHeight="25.0" prefWidth="235.0" />
-                                          <Label layoutX="14.0" layoutY="18.0" text="Path Finding Module: " />
-                                          <Label layoutX="14.0" layoutY="69.0" prefHeight="17.0" prefWidth="108.0" text="Plotted Lines:" />
-                                          <Label fx:id="labelPlottedLines" layoutX="141.0" layoutY="69.0" prefHeight="17.0" prefWidth="90.0" text="Label" />
-                                          <Label layoutX="14.0" layoutY="48.0" prefHeight="17.0" prefWidth="114.0" text="Elapsed Time:" />
-                                          <Label fx:id="labelElapsedTime" layoutX="141.0" layoutY="48.0" text="Label" />
-                                          <Slider fx:id="sliderDisplayedLines" layoutX="19.0" layoutY="131.0" prefHeight="14.0" prefWidth="196.0" />
-                                          <Label layoutX="14.0" layoutY="98.0" text="Displayed Lines:" />
-                                          <TextField fx:id="textFieldDisplayedLines" layoutX="231.0" layoutY="126.0" />
-                                       </children>
-                                    </AnchorPane>
-                              </content>
-                            </TitledPane>
-                              <TitledPane expanded="false" text="Path Finding Controls - Advanced">
+                              <TitledPane text="Path Finding Controls">
                                 <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
-                                          <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="284.0" prefWidth="404.0" tableMenuButtonVisible="true">
+                                          <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="94.0" prefHeight="202.0" prefWidth="404.0" tableMenuButtonVisible="true">
                                             <columns>
                                               <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="188.0" text="Setting" />
                                               <TableColumn fx:id="tableColumnValue" prefWidth="139.0" text="Value" />
                                             </columns>
                                           </TableView>
-                                          <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="14.0" prefHeight="25.0" prefWidth="265.0" promptText="New Preset Name" />
-                                          <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="351.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
-                                          <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="351.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
-                                          <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="351.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
-                                          <MenuButton layoutX="278.0" layoutY="14.0" mnemonicParsing="false" text="Preset Options">
+                                          <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="56.0" prefHeight="25.0" prefWidth="265.0" promptText="New Preset Name" />
+                                          <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
+                                          <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
+                                          <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
+                                          <MenuButton layoutX="279.0" layoutY="56.0" mnemonicParsing="false" text="Preset Options">
                                             <items>
                                                 <MenuItem fx:id="menuNewPreset" mnemonicParsing="false" text="New Preset" />
                                                 <MenuItem fx:id="menuUpdatePreset" mnemonicParsing="false" text="Update Preset" />
@@ -160,13 +144,18 @@
                                               <MenuItem fx:id="menuExportPreset" mnemonicParsing="false" text="Export Preset" />
                                             </items>
                                           </MenuButton>
+                                          <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="16.0" layoutY="10.0" text="Path Finding Module: ">
+                                             <graphic>
+                                                  <ChoiceBox fx:id="choiceBoxPFM" prefHeight="25.0" prefWidth="246.0" />
+                                             </graphic></Label>
+                                          <Separator layoutX="-6.0" layoutY="45.0" prefHeight="3.0" prefWidth="412.0" />
                                        </children>
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                            <TitledPane prefWidth="428.0" text="Pen Settings">
+                            <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
                               <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="404.0">
+                                <AnchorPane minHeight="0.0" minWidth="0.0">
                                        <children>
                                           <Button fx:id="buttonAddPen" layoutX="296.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Add Pen" />
                                           <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="54.0" prefHeight="274.0" prefWidth="403.0" tableMenuButtonVisible="true">
@@ -240,24 +229,49 @@
                <children>
                   <ToolBar prefHeight="40.0">
                      <items>
+                        <VBox />
                         <Label contentDisplay="RIGHT" text="Display Mode:">
                            <graphic>
-                              <ChoiceBox fx:id="choiceBoxDisplayMode" prefWidth="150.0" />
+                              <ChoiceBox fx:id="choiceBoxDisplayMode" prefHeight="25.0" prefWidth="119.0" />
                            </graphic>
                         </Label>
+                        <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
+                        <Label contentDisplay="RIGHT" text="Displayed Lines:" />
+                        <Slider fx:id="sliderDisplayedLines" prefHeight="14.0" prefWidth="117.0" />
+                        <TextField fx:id="textFieldDisplayedLines" prefHeight="25.0" prefWidth="75.0" />
                         <Separator prefHeight="25.0" prefWidth="21.0" />
+                        <Button fx:id="buttonZoomIn" mnemonicParsing="false" text="Zoom In" />
+                        <Button fx:id="buttonZoomOut" mnemonicParsing="false" text="Zoom Out" />
+                        <Separator layoutX="244.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
+                        <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
+                        <Separator layoutX="351.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
                         <Label contentDisplay="RIGHT" text="Show Grid:">
                            <graphic>
                               <CheckBox fx:id="checkBoxShowGrid" mnemonicParsing="false" />
                            </graphic>
                         </Label>
-                        <Separator layoutX="244.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
-                        <Button fx:id="buttonZoomIn" mnemonicParsing="false" text="Zoom In" />
-                        <Button fx:id="buttonZoomOut" mnemonicParsing="false" text="Zoom Out" />
-                        <Separator layoutX="351.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
-                        <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                      </items>
                   </ToolBar>
+                  <HBox minHeight="25.0" prefHeight="25.0">
+                     <children>
+                          <Label contentDisplay="RIGHT" text="Elapsed Time:">
+                           <graphic>
+                              <Label fx:id="labelElapsedTime" prefHeight="17.0" prefWidth="69.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets left="4.0" top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" text="Plotted Lines:">
+                           <graphic>
+                              <Label fx:id="labelPlottedLines" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </HBox>
                   <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" hvalue="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vvalue="0.5" VBox.vgrow="ALWAYS">
                      <content>
                         <StackPane fx:id="viewportStackPane" prefHeight="742.0" prefWidth="1003.0">

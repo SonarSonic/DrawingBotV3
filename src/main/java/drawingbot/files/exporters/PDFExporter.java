@@ -1,7 +1,6 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
@@ -23,7 +22,7 @@ public class PDFExporter {
             PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
             ObservableDrawingPen pen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(line.pen_number);
             if(lineFilter.apply(line, pen)) {
-                int rgb = pen.getRGBColour();
+                int rgb = pen.getARGB();
                 pdf.stroke(rgb, 255);
                 pdf.line(line.x1, line.y1, line.x2, line.y2);
             }

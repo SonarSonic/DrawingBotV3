@@ -2,6 +2,8 @@ package drawingbot.drawing;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IDrawingPen;
+import drawingbot.api.IDrawingSet;
 import drawingbot.utils.EnumBlendMode;
 import drawingbot.utils.EnumDistributionOrder;
 import javafx.beans.property.SimpleObjectProperty;

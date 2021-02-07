@@ -1,5 +1,8 @@
 package drawingbot.drawing;
 
+import drawingbot.api.IDrawingPen;
+import drawingbot.api.IDrawingSet;
+
 import java.util.ArrayList;
 import java.util.List;
 

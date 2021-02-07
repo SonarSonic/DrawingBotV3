@@ -1,6 +1,7 @@
 package drawingbot.drawing;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IDrawingPen;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -19,7 +20,7 @@ public class ObservableDrawingPen implements IDrawingPen {
     public SimpleIntegerProperty currentLines; //lines
 
     public ObservableDrawingPen(int penNumber, IDrawingPen source){
-        this(penNumber, source.getName(), source.getRGBColour());
+        this(penNumber, source.getName(), source.getARGB());
     }
 
     public ObservableDrawingPen(int penNumber, String name, int colour){
@@ -47,7 +48,7 @@ public class ObservableDrawingPen implements IDrawingPen {
     }
 
     @Override
-    public int getRGBColour() {
+    public int getARGB() {
         return ImageTools.getARGBFromColor(javaFXColour.get());
     }
 

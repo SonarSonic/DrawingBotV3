@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.awt.image.BufferedImage;
+import java.nio.Buffer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -63,6 +64,13 @@ public class ImageFilterRegistry {
 
     public static <V> void onSettingChanged(GenericSetting<?,V> setting, ObservableValue<?> observable, V oldValue, V newValue){
         ///not used at the moment, called whenever a setting's value is changed
+    }
+
+    public static BufferedImage applyCurrentFilters(BufferedImage image){
+        for(ImageFilterRegistry.IImageFilter filter : ImageFilterRegistry.createFilters()){
+            image = filter.filter(image);
+        }
+        return image;
     }
 
     public static List<IImageFilter> createFilters(){

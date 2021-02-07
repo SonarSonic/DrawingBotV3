@@ -6,6 +6,7 @@
 ### About
 Drawing Bot is a free, open source software for converting images to line drawings for Plotters / Drawing Machines / 3D printers. It also serves as an application for visual artists to create stylised line drawings from images / video.
 
+
 ### Features
 - Advanced User Interface with live drawing preview
 - GCode - configurable Drawing Area, XYZ Offsets / Auto Homing.

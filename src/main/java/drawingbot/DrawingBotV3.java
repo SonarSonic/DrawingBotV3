@@ -17,7 +17,7 @@ import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
 import drawingbot.javafx.FXController;
-import drawingbot.pfm.IPFM;
+import drawingbot.api.IPathFindingModule;
 import drawingbot.utils.*;
 import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottedLine;
@@ -39,7 +39,7 @@ public class DrawingBotV3 extends PApplet {
     public static final String appName = "DrawingBotV3";
     public static final String majorVersion = "1";
     public static final String minorVersion = "0";
-    public static final String patchVersion = "0";
+    public static final String patchVersion = "1";
     public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
     public static final String PGraphicsFX9 = "drawingbot.javafx.PGraphicsFX9";
 
@@ -59,7 +59,7 @@ public class DrawingBotV3 extends PApplet {
 
     //PATH FINDING \\
     public static SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
-    public static SimpleObjectProperty<GenericFactory<IPFM>> pfmFactory = new SimpleObjectProperty<>(PFMMasterRegistry.getDefaultPFMFactory());
+    public static SimpleObjectProperty<GenericFactory<IPathFindingModule>> pfmFactory = new SimpleObjectProperty<>(PFMMasterRegistry.getDefaultPFMFactory());
 
     // PEN SETS \\
     public static ObservableDrawingSet observableDrawingSet;
@@ -205,7 +205,7 @@ public class DrawingBotV3 extends PApplet {
             if(openImage != null){
                 if(canvasNeedsUpdate){
                     updateCanvasSize(openImage.width, openImage.height);
-                    updateCanvasScaling(openImage.width, openImage.height);
+                    updateCanvasScaling();
                     canvasNeedsUpdate = false;
                     return;
                 }
@@ -233,16 +233,15 @@ public class DrawingBotV3 extends PApplet {
                 canvasNeedsUpdate = false;
                 return;
             }
-            updateCanvasScaling(newWidth, newHeight);
         }
 
+        updateCanvasScaling();
         markRenderDirty = false;
 
         switch (renderedTask.stage){
             case QUEUED:
             case LOADING_IMAGE:
             case PRE_PROCESSING:
-                background(255, 255, 255);
                 break;
             case DO_PROCESS:
                 if(changedTask || changedState){ //avoids redrawing in some instances
@@ -252,7 +251,7 @@ public class DrawingBotV3 extends PApplet {
                 if(renderedTask.plottedDrawing.getPlottedLineCount() != 0){
                     renderedTask.plottedDrawing.renderLines(renderedLines, renderedTask.plottedDrawing.getPlottedLineCount());
                     renderedLines = renderedTask.plottedDrawing.getPlottedLineCount();
-                    if(renderedTask.pfm.finished()){
+                    if(renderedTask.isFinished()){
                         renderedTask.finishedRenderingPaths = true;
                     }
                 }
@@ -347,9 +346,9 @@ public class DrawingBotV3 extends PApplet {
         background(255, 255, 255);//wipe the canvas
     }
 
-    public void updateCanvasScaling(double width, double height){
-        double screen_scale_x = controller.viewportScrollPane.getWidth() / ((float) width);
-        double screen_scale_y = controller.viewportScrollPane.getHeight() / ((float) height);
+    public void updateCanvasScaling(){
+        double screen_scale_x = controller.viewportScrollPane.getWidth() / ((float) canvas.getWidth());
+        double screen_scale_y = controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());
         double screen_scale = Math.min(screen_scale_x, screen_scale_y) * scaleMultiplier.doubleValue();
         canvas.setScaleX(screen_scale);
         canvas.setScaleY(screen_scale);
@@ -358,7 +357,7 @@ public class DrawingBotV3 extends PApplet {
     public void updateUI(){
         String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
         if(getActiveTask() != null && getActiveTask().isRunning()){
-            controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 :getActiveTask().pfm.progress());
+            controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().plottingProgress);
             controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
             controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
@@ -445,6 +444,8 @@ public class DrawingBotV3 extends PApplet {
         isPlotting.setValue(false);
         activeTask = null;
         taskService = initTaskService();
+        localProgress = 0D;
+        localMessage = "";
     }
 
     public ExecutorService initTaskService(){

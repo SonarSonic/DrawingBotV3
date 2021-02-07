@@ -1,10 +1,12 @@
 package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IPixelData;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
+import processing.core.PConstants;
 import processing.core.PImage;
 import java.awt.image.*;
 import java.util.function.Function;
@@ -239,6 +241,68 @@ public class ImageTools {
 
     /// IMAGE CONVERSION
 
+    public static IPixelData newPixelData(int width, int height, int colourMode){
+        switch (colourMode){
+            case 1:
+                return new PixelDataHSB(width, height);
+            case 2:
+                return new PixelDataGray(width, height);
+            default:
+                return new PixelDataARGB(width, height);
+        }
+    }
+
+    public static IPixelData copy(IPixelData source, IPixelData dst){
+        for(int x = 0; x < source.getWidth(); x ++){
+            for(int y = 0; y < source.getHeight(); y ++){
+                dst.setARGB(x, y, source.getARGB(x, y));
+            }
+        }
+        return dst;
+    }
+
+    public static PImage getPImage(IPixelData data){
+        PImage image = new PImage(data.getWidth(), data.getHeight());
+        image.loadPixels();
+        for(int x = 0; x < data.getWidth(); x ++){
+            for(int y = 0; y < data.getHeight(); y ++){
+                image.set(x, y, data.getARGB(x, y));
+            }
+        }
+        image.updatePixels();
+        return image;
+    }
+
+    public static BufferedImage getBufferedImage(IPixelData data){
+        BufferedImage image = new BufferedImage(data.getWidth(), data.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        for(int x = 0; x < data.getWidth(); x ++){
+            for(int y = 0; y < data.getHeight(); y ++){
+                image.setRGB(x, y, data.getARGB(x, y));
+            }
+        }
+
+        return image;
+    }
+
+    public static IPixelData copyToPixelData(PImage image, IPixelData data){
+        for(int x = 0; x < data.getWidth(); x ++){
+            for(int y = 0; y < data.getHeight(); y ++){
+                data.setARGB(x, y, image.get(x, y));
+            }
+        }
+        return data;
+    }
+
+    public static IPixelData copyToPixelData(BufferedImage image, IPixelData data){
+        for(int x = 0; x < data.getWidth(); x ++){
+            for(int y = 0; y < data.getHeight(); y ++){
+                data.setARGB(x, y, image.getRGB(x, y));
+            }
+        }
+        return data;
+    }
+
     public static WritableImage getWritableImageFromPImage(PImage pImage){
         WritableImage writableImage = new WritableImage(pImage.pixelWidth, pImage.pixelHeight);
         pImage.loadPixels();
@@ -250,16 +314,16 @@ public class ImageTools {
 
     /// COLOURS
 
-    public static int[] getColourIntsFromARGB(int argb){
-        int a = (argb>>24)&0xff;
-        int r = (argb>>16)&0xff;
-        int g = (argb>>8)&0xff;
-        int b = argb&0xff;
-        return new int[]{a, r, g, b};
+    public static int[] getColourIntsFromARGB(int argb, int[] array){
+        array[0] = (argb>>24)&0xff;
+        array[1] = (argb>>16)&0xff;
+        array[2] = (argb>>8)&0xff;
+        array[3] = argb&0xff;
+        return array;
     }
 
     public static int getBrightness(int argb){
-        int[] values = getColourIntsFromARGB(argb);
+        int[] values = getColourIntsFromARGB(argb, new int[4]);
         return (int)(0.2126*values[1] + 0.7152*values[2] + 0.0722*values[3]);
     }
 
@@ -269,7 +333,7 @@ public class ImageTools {
 
     /**converts processing colors to java fx colors*/
     public static Color getColorFromARGB(int argb){
-        int[] values = getColourIntsFromARGB(argb);
+        int[] values = getColourIntsFromARGB(argb, new int[4]);
         return new Color(values[1] / 255F, values[2] / 255F, values[3] / 255F, values[0] / 255F);
     }
 
@@ -278,7 +342,7 @@ public class ImageTools {
     }
 
     public static int getARGB(int a, int r, int g, int b){
-        return a<<24 + r<<16 + g<<8 + b;
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     public static String toHex(int argb){
