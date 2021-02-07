@@ -15,13 +15,12 @@ import drawingbot.utils.GenericPreset;
 import drawingbot.utils.GenericSetting;
 import javafx.collections.ObservableList;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 public abstract class PresetManager {
@@ -46,15 +45,12 @@ public abstract class PresetManager {
     public static void loadJSONFiles(){
 
         //load default presets
-        try {
-            URL url = PresetManager.class.getResource("/presets/");
-            File[] files = new File(url.toURI()).listFiles();
-            for(File file : files){
-                importPresetFile(file, null);
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        loadDefaultJSON("pre_processing_default.json");
+        loadDefaultJSON("pre_processing_original.json");
+        loadDefaultJSON("sketch_pfm_glitchy_horizontal.json");
+        loadDefaultJSON("sketch_pfm_glitchy_vertical.json");
+        loadDefaultJSON("sketch_pfm_messy_lines.json");
+        loadDefaultJSON("sketch_pfm_sketchy.json");
 
         //load user presets
         for(AbstractManager manager : MANAGERS){
@@ -68,11 +64,25 @@ public abstract class PresetManager {
 
     }
 
+    public static void loadDefaultJSON(String json){
+        InputStream stream = PresetManager.class.getResourceAsStream("/presets/" + json);
+        if(stream != null)
+            importPresetFile(stream, null);
+    }
+
     public static void importPresetFile(File file, EnumPresetType targetType){
+        try {
+            importPresetFile(new FileInputStream(file), targetType);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void importPresetFile(InputStream stream, EnumPresetType targetType){
         GenericPreset preset = null;
         try {
             Gson gson = new Gson();
-            JsonReader reader = gson.newJsonReader(new FileReader(file));
+            JsonReader reader = gson.newJsonReader(new InputStreamReader(stream));
             preset = gson.fromJson(reader, GenericPreset.class);
             reader.close();
         } catch (IOException e) {
