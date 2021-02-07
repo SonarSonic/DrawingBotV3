@@ -1,5 +1,7 @@
 package drawingbot;
 
+import drawingbot.api.API;
+import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.PGraphicsFX9;
@@ -41,6 +43,9 @@ public class FXApplication extends Application {
 
         DrawingBotV3.logger.info("Loading Processing Environment");
         PApplet.main(DrawingBotV3.class);
+
+        DrawingBotV3.logger.info("Loading API");
+        API.INSTANCE = new DrawingBotV3API();
 
         DrawingBotV3.logger.exiting("FXApplication", "start");
     }

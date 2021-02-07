@@ -2,7 +2,7 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
-import drawingbot.pfm.IPFM;
+import drawingbot.api.IPathFindingModule;
 import drawingbot.utils.GenericFactory;
 import drawingbot.plotting.PlottingTask;
 import javafx.concurrent.Task;
@@ -24,7 +24,7 @@ public class BatchProcessingTask extends Task<Boolean> {
 
     public String inputFolder;
     public String outputFolder;
-    public GenericFactory<IPFM> pfmFactory;
+    public GenericFactory<IPathFindingModule> pfmFactory;
     public ObservableDrawingSet drawingPenSet;
 
     public BatchProcessingTask(String inputFolder, String outputFolder){

@@ -1,11 +1,12 @@
 package drawingbot.javafx;
 
+import drawingbot.api.IDrawingPen;
 import drawingbot.files.*;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.image.ImageTools;
-import drawingbot.pfm.IPFM;
+import drawingbot.api.IPathFindingModule;
 import drawingbot.utils.GenericPreset;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
@@ -51,7 +52,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -68,8 +68,7 @@ public class FXController {
         initProgressBar();
         initDrawingAreaPane();
         initPreProcessingPane();
-        initPFMPaneBasic();
-        initPFMPenAdvanced();
+        initPFMControls();
         initPenSettingsPane();
         initBatchProcessingPane();
 
@@ -143,15 +142,44 @@ public class FXController {
     public StackPane viewportStackPane = null;
 
     ////VIEWPORT SETTINGS
+    public Slider sliderDisplayedLines = null;
+    public TextField textFieldDisplayedLines = null;
+
     public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
     public CheckBox checkBoxShowGrid = null;
     public Button buttonZoomIn = null;
     public Button buttonZoomOut = null;
     public Button buttonResetView = null;
 
+    ////PLOT DETAILS
+    public Label labelElapsedTime = null;
+    public Label labelPlottedLines = null;
+
     public void initViewport(){
 
         ////VIEWPORT SETTINGS
+        sliderDisplayedLines.setMax(1);
+        sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            if(task != null){
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
+                task.plottedDrawing.displayedLineCount.setValue(lines);
+                textFieldDisplayedLines.setText(String.valueOf(lines));
+                DrawingBotV3.INSTANCE.reRender();
+            }
+        });
+
+        textFieldDisplayedLines.setOnAction(e -> {
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            if(task != null){
+                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
+                task.plottedDrawing.displayedLineCount.setValue(lines);
+                textFieldDisplayedLines.setText(String.valueOf(lines));
+                sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
+                DrawingBotV3.INSTANCE.reRender();
+            }
+        });
+
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
         choiceBoxDisplayMode.setValue(EnumDisplayMode.DRAWING);
         choiceBoxDisplayMode.setOnAction(e -> changeDisplayMode(choiceBoxDisplayMode.getSelectionModel().getSelectedItem()));
@@ -174,6 +202,9 @@ public class FXController {
             viewportScrollPane.setVvalue(0.5);
             DrawingBotV3.scaleMultiplier.set(1.0);
         });
+
+        labelElapsedTime.setText("0 s");
+        labelPlottedLines.setText("0 lines");
     }
 
 
@@ -393,52 +424,8 @@ public class FXController {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////PATH FINDING CONTROLS BASIC
-
     ////PATH FINDING CONTROLS
-    public ChoiceBox<GenericFactory<IPFM>> choiceBoxPFM = null;
-    public Label labelElapsedTime = null;
-    public Label labelPlottedLines = null;
-    public Slider sliderDisplayedLines = null;
-    public TextField textFieldDisplayedLines = null;
-
-    public void initPFMPaneBasic(){
-
-        ////PATH FINDING CONTROLS
-        choiceBoxPFM.setItems(PFMMasterRegistry.getObservablePFMLoaderList());
-        choiceBoxPFM.setValue(PFMMasterRegistry.getDefaultPFMFactory());
-        choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
-        DrawingBotV3.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
-
-
-        labelElapsedTime.setText("0 s");
-        labelPlottedLines.setText("0 lines");
-
-        sliderDisplayedLines.setMax(1);
-        sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
-            if(task != null){
-                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
-                task.plottedDrawing.displayedLineCount.setValue(lines);
-                textFieldDisplayedLines.setText(String.valueOf(lines));
-                DrawingBotV3.INSTANCE.reRender();
-            }
-        });
-
-        textFieldDisplayedLines.setOnAction(e -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
-            if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
-                task.plottedDrawing.displayedLineCount.setValue(lines);
-                textFieldDisplayedLines.setText(String.valueOf(lines));
-                sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
-                DrawingBotV3.INSTANCE.reRender();
-            }
-        });
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////PATH FINDING CONTROLS - ADVANCED
+    public ChoiceBox<GenericFactory<IPathFindingModule>> choiceBoxPFM = null;
 
     public ComboBox<GenericPreset> comboBoxPFMPreset = null;
     public MenuItem menuNewPreset = null;
@@ -456,7 +443,14 @@ public class FXController {
     public Button buttonPFMSettingRandom = null;
     public Button buttonPFMSettingHelp = null;
 
-    public void initPFMPenAdvanced(){
+    public void initPFMControls(){
+
+        ////PATH FINDING CONTROLS
+        choiceBoxPFM.setItems(PFMMasterRegistry.getObservablePFMLoaderList());
+        choiceBoxPFM.setValue(PFMMasterRegistry.getDefaultPFMFactory());
+        choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
+        DrawingBotV3.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
+
 
         comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList());
         comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset());
@@ -644,7 +638,7 @@ public class FXController {
         tableColumnPerPen.setCellValueFactory(param -> param.getValue().enablePerPen);
     }
 
-    public void changePathFinderModule(GenericFactory<IPFM> pfm){
+    public void changePathFinderModule(GenericFactory<IPathFindingModule> pfm){
         DrawingBotV3.pfmFactory.set(pfm);
     }
 
@@ -848,7 +842,7 @@ public class FXController {
                 setText("  " + item.toString());
                 HBox box = new HBox();
                 for(IDrawingPen pen : item.getPens()){
-                    box.getChildren().add(new Rectangle(10, 12, ImageTools.getColorFromARGB(pen.getRGBColour())));
+                    box.getChildren().add(new Rectangle(10, 12, ImageTools.getColorFromARGB(pen.getARGB())));
                 }
                 setGraphic(box);
             }
@@ -874,7 +868,7 @@ public class FXController {
             } else {
                 setText("  " + item.toString());
                 setGraphic(colour);
-                colour.setFill(ImageTools.getColorFromARGB(item.getRGBColour()));
+                colour.setFill(ImageTools.getColorFromARGB(item.getARGB()));
             }
         }
     }

@@ -1,14 +1,9 @@
 package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.utils.AlgorithmHelper;
-import drawingbot.image.ImageTools;
-import drawingbot.image.RawLuminanceData;
+import drawingbot.api.IPlottingTask;
 import drawingbot.plotting.PlottingTask;
-import org.imgscalr.Scalr;
-import processing.core.PImage;
-
-import java.awt.image.BufferedImage;
+import drawingbot.utils.AlgorithmHelper;
 
 public class PFMLines extends AbstractDarkestPFM{
 
@@ -21,11 +16,6 @@ public class PFMLines extends AbstractDarkestPFM{
 
     protected float initialProgress;
     protected float progress;
-    protected RawLuminanceData redData;
-    protected RawLuminanceData greenData;
-    protected RawLuminanceData blueData;
-    protected RawLuminanceData grayData;
-    protected RawLuminanceData[] channels;
 
     public PFMLines() {
         super();
@@ -36,96 +26,42 @@ public class PFMLines extends AbstractDarkestPFM{
         maxLines = 5000;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @Override
-    public void preProcess() {
-        BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
-
-        //ImageTools.imageCrop(task); //TODO USE SCALR
-        int targetWidth = (int)(app.getDrawingAreaWidthMM() * 0.5);
-        int targetHeight = (int)(app.getDrawingAreaHeightMM() * 0.5);
-        dst = Scalr.resize(dst, targetWidth, targetHeight);
-
-        //dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 4, true);
-        //dst = ImageTools.lazyConvolutionFilter(dst, ImageTools.MATRIX_UNSHARP_MASK, 3, true);
-
-        dst = ImageTools.lazyImageBorder(dst, "border/b1.png", 0, 0);
-        dst = ImageTools.lazyImageBorder(dst, "border/b11.png", 0, 0);
-        //dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
-
-        task.img_plotting = new PImage(dst);
-        grayData = RawLuminanceData.createBrightnessData(dst);
-        //blueData = RawLuminanceData.createRedData(dst);
-        //greenData = RawLuminanceData.createGreenData(dst);
-        //redData = RawLuminanceData.createBlueData(dst);
-        channels = new RawLuminanceData[]{grayData};
-    }
-
-    @Override
-    public float progress() {
-        return progress;
-    }
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void doProcess() {
+    public void doProcess(IPlottingTask task) {
         for(int i = 0; i < maxLines; i ++){
-            for(RawLuminanceData channel : channels){
-                findDarkestPixel(channel);
-                int startX = darkest_x;
-                int startY = darkest_y;
-                float darkestLineAvg = 0;
-                int[] line = null;
+            findDarkestPixel(task.getPixelData());
+            int startX = darkest_x;
+            int startY = darkest_y;
+            float darkestLineAvg = 0;
+            int[] line = null;
 
-                for (int d = 0; d < tests; d ++) {
-                    count_brightness = 0;
-                    sum_brightness = 0;
-                    int[] testLine = getFullLine(channel, startX, startY, randomSeed(0, 360));
-                    AlgorithmHelper.bresenham(testLine[0], testLine[1], testLine[2], testLine[3], (x,y) -> bresenhamTest(channel, x, y));
-                    float averageBrightness = (float)sum_brightness/(float)count_brightness;
+            for (int d = 0; d < tests; d ++) {
+                count_brightness = 0;
+                sum_brightness = 0;
+                int[] testLine = getFullLine(task.getPixelData(), startX, startY, randomSeed(0, 360));
+                AlgorithmHelper.bresenham(testLine[0], testLine[1], testLine[2], testLine[3], (x,y) -> bresenhamTest(task.getPixelData(), x, y));
+                float averageBrightness = (float)sum_brightness/(float)count_brightness;
 
-                    if(line == null || averageBrightness < darkestLineAvg){
-                        darkestLineAvg = averageBrightness;
-                        line = testLine;
-                    }
-                }
-
-                task.moveAbs(0, line[0], line[1]);
-                task.penDown();
-                task.moveAbs(0, line[2], line[3]);
-                task.penUp();
-
-                task.plottedDrawing.plottedLines.get(task.plottedDrawing.plottedLines.size()-1).rgba = getRGBAForChannel(channel);
-                bresenhamLighten(channel, line[0], line[1], line[2], line[3], adjustbrightness);
-                progress = (float)i / maxLines;
-
-                if(task.isCancelled() || finished()){
-                    break;
+                if(line == null || averageBrightness < darkestLineAvg){
+                    darkestLineAvg = averageBrightness;
+                    line = testLine;
                 }
             }
-        }
-        finish();
-    }
 
-    public int getRGBAForChannel(RawLuminanceData data){
-        if(data == redData){
-            return DrawingBotV3.INSTANCE.color(adjustbrightness, 0, 0, 50);
-        }
-        if(data == greenData){
-            return DrawingBotV3.INSTANCE.color(0, adjustbrightness, 0, 50);
-        }
-        if(data == blueData){
-            return DrawingBotV3.INSTANCE.color(0, 0, adjustbrightness, 50);
-        }
-        return DrawingBotV3.INSTANCE.color(adjustbrightness, adjustbrightness, adjustbrightness, 50);
-    }
+            task.moveAbsolute(line[0], line[1]);
+            task.movePenDown();
+            task.moveAbsolute(line[2], line[3]);
+            task.movePenUp();
 
-    @Override
-    public void postProcess() {
-        //task.img_plotting = new PImage(red.asBufferedImage());
+            ((PlottingTask)task).plottedDrawing.plottedLines.get(((PlottingTask)task).plottedDrawing.plottedLines.size()-1).rgba = DrawingBotV3.INSTANCE.color(adjustbrightness, adjustbrightness, adjustbrightness, 50);
+            bresenhamLighten(task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
+            progress = (float)i / maxLines;
+
+            if(task.isFinished()){
+                break;
+            }
+        }
+        task.finishProcess();
     }
 
 }

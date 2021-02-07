@@ -1,9 +1,9 @@
 package drawingbot.pfm;
 
-import drawingbot.image.ConvolutionMatrices;
+import drawingbot.DrawingBotV3;
+import drawingbot.api.IPlottingTask;
+import drawingbot.image.ImageFilterRegistry;
 import drawingbot.image.ImageTools;
-import drawingbot.image.RawLuminanceData;
-import drawingbot.plotting.PlottingTask;
 import org.imgscalr.Scalr;
 import processing.core.PImage;
 
@@ -26,52 +26,31 @@ public class PFMSpiral extends AbstractPFM {
     protected float x, y, xa, ya, xb, yb;               // Current X and Y + jittered X and Y
     protected float k;                                  // Current radius
     protected float endRadius;                          // Largest value the spiral needs to cover the image
-    protected int mask = app.color(240, 240, 240);      // This color will not be drawn (WHITE)
-
-    public RawLuminanceData rawBrightnessData;
+    protected int mask = 240;                           // This color will not be drawn (WHITE)
 
     @Override
-    public float progress() {
-        float startRadius = distBetweenRings /2;
-        return (radius-startRadius) / (endRadius-startRadius);
+    public int getColourMode() {
+        return 2;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void preProcess() {
-        BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
-
-        dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
-
-        dst = ImageTools.lazyConvolutionFilter(dst, ConvolutionMatrices.MATRIX_UNSHARP_MASK, 3, true);
-
-        dst = ImageTools.lazyImageBorder(dst, "border/b6.png", 0, 0);
-        dst = ImageTools.lazyRGBFilter(dst, ImageTools::grayscaleFilter);
-
-        dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
-
-        task.img_plotting = new PImage(dst);
-        rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public void doProcess() {
+    public void doProcess(IPlottingTask task) {
         radius = distBetweenRings /2;
         k = density/radius;
         alpha = k;
         radius += distBetweenRings /(360/k);
-
+        
         // When have we reached the far corner of the image?
         // TODO: this will have to change if not centered
-        endRadius = sqrt(pow((rawBrightnessData.width/2F), 2)+pow((rawBrightnessData.height/2F), 2));
+        endRadius = sqrt(pow((task.getPixelData().getWidth()/2F), 2)+pow((task.getPixelData().getHeight()/2F), 2));
 
         // Calculates the first point.  Currently just the center.
         // TODO: Allow for ajustable center
-        task.penUp();
-        x =  radius*cos(radians(alpha))+rawBrightnessData.width/2F;
-        y = -radius*sin(radians(alpha))+rawBrightnessData.height/2F;
-        task.moveAbs(0, x, y);
+        task.movePenUp();
+        x =  radius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
+        y = -radius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
+        task.moveAbsolute(x, y);
         xa = 0;
         xb = 0;
         ya = 0;
@@ -82,52 +61,53 @@ public class PFMSpiral extends AbstractPFM {
             k = (density/2)/radius;
             alpha += k;
             radius += distBetweenRings /(360/k);
-            x =  radius*cos(radians(alpha))+rawBrightnessData.width/2F;
-            y = -radius*sin(radians(alpha))+rawBrightnessData.height/2F;
+            x =  radius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
+            y = -radius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
 
             // Are we within the the image?
             // If so check if the shape is open. If not, open it
-            if ((x>=0) && (x<rawBrightnessData.width) && (y>0) && (y<rawBrightnessData.height)) {
+            if ((x>=0) && (x<task.getPixelData().getWidth()) && (y>0) && (y<task.getPixelData().getHeight())) {
 
                 // Get the color and brightness of the sampled pixel
-                b = rawBrightnessData.getBrightness((int)x, (int)y);
+                b = task.getPixelData().getBrightness((int)x, (int)y);
                 b = map (b, 0, 255, distBetweenRings *ampScale, 0);
 
                 // Move up according to sampled brightness
                 aradius = radius+(b/ distBetweenRings);
-                xa =  aradius*cos(radians(alpha))+rawBrightnessData.width/2F;
-                ya = -aradius*sin(radians(alpha))+rawBrightnessData.height/2F;
+                xa =  aradius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
+                ya = -aradius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
 
                 // Move down according to sampled brightness
                 k = (density/2)/radius;
                 alpha += k;
                 radius += distBetweenRings /(360/k);
                 bradius = radius-(b/ distBetweenRings);
-                xb =  bradius*cos(radians(alpha))+rawBrightnessData.width/2F;
-                yb = -bradius*sin(radians(alpha))+rawBrightnessData.height/2F;
+                xb =  bradius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
+                yb = -bradius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
 
                 // If the sampled color is the mask color do not write to the shape
-                if (app.brightness(mask) <= b) {
-                    task.penUp();
+                if (mask <= b) {
+                    task.movePenUp();
                 } else {
-                    task.penDown();
+                    task.movePenDown();
                 }
             } else {
                 // We are outside of the image
-                task.penUp();
+                task.movePenUp();
             }
 
-            int pen_number = (int)(map(b, 0, 255, 0, task.plottedDrawing.getPenCount()));
-            task.moveAbs(pen_number, xa, ya);
-            task.moveAbs(pen_number, xb, yb);
+            int pen_number = (int)(map(b, 0, 255, 0, task.getTotalPens()));
+            task.setActivePen(pen_number);
+            task.moveAbsolute(xa, ya);
+            task.moveAbsolute(xb, yb);
+
+
+            float startRadius = distBetweenRings /2;
+            task.updateProgess(radius-startRadius, endRadius-startRadius);
         }
 
-        task.penUp();
-        finish();
+        task.movePenUp();
+        task.finishProcess();
     }
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void postProcess() {}
 
 }

@@ -1,7 +1,6 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
@@ -65,7 +64,7 @@ public class SVGExporter {
                             String buf = svg_format(gcode_scaled_x2) + "," + svg_format(gcode_scaled_y2);
                             output.println(buf);
                         } else {
-                            output.println("<polyline fill=\"none\" stroke=\"#" + hex(pen.getRGBColour(), 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
+                            output.println("<polyline fill=\"none\" stroke=\"#" + hex(pen.getARGB(), 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
                             String buf = svg_format(gcode_scaled_x1) + "," + svg_format(gcode_scaled_y1);
                             output.println(buf);
                         }

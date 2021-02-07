@@ -1,20 +1,13 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.drawing.*;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.canvas.GraphicsContext;
 import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.javafx.PGraphicsFX2D;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static processing.core.PApplet.*;
 
 public class PlottedDrawing {
 
@@ -82,7 +75,7 @@ public class PlottedDrawing {
         if (line.pen_down) {
             ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);
             if(pen.isEnabled()){
-                app.stroke(line.rgba != -1 ? line.rgba : pen.getRGBColour());
+                app.stroke(line.rgba != -1 ? line.rgba : pen.getARGB());
                 app.line(line.x1, line.y1, line.x2, line.y2); //render line dangerously.
             }
         }

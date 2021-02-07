@@ -1,7 +1,7 @@
 package drawingbot.pfm;
 
-import drawingbot.image.RawLuminanceData;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.api.IPixelData;
+import drawingbot.api.IPlottingTask;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
@@ -19,64 +19,57 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     protected float initialProgress;
     protected float progress;
-    protected RawLuminanceData rawBrightnessData;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     @Override
-    public void init(PlottingTask task) {
+    public void init(IPlottingTask task) {
         super.init(task);
         if(maxLineLength < minLineLength){
             int value = minLineLength;
             minLineLength = maxLineLength;
             maxLineLength = value;
         }
-    }
-
-    @Override
-    public float progress() {
-        return progress;
+        initialProgress = task.getPixelData().getAverageBrightness();
     }
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void doProcess() {
-        int x, y;
-        findDarkestArea(rawBrightnessData);
+    public void doProcess(IPlottingTask task) {
+        findDarkestArea(task.getPixelData());
 
-        x = darkest_x;
-        y = darkest_y;
+        int x = darkest_x;
+        int y = darkest_y;
         squiggle_count++;
 
-        findDarkestNeighbour(x, y);
+        findDarkestNeighbour(task.getPixelData(), x, y);
 
-        task.moveAbs(0, darkest_x, darkest_y);
-        task.penDown();
+        task.moveAbsolute(darkest_x, darkest_y);
+        task.movePenDown();
 
         for (int s = 0; s < squiggle_length; s++) {
-            findDarkestNeighbour(x, y);
-            bresenhamLighten(rawBrightnessData, x, y, darkest_x, darkest_y, adjustbrightness);
-            task.moveAbs(0, darkest_x, darkest_y);
+            findDarkestNeighbour(task.getPixelData(), x, y);
+            bresenhamLighten(task.getPixelData(), x, y, darkest_x, darkest_y, adjustbrightness);
+            task.moveAbsolute(darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
 
 
-            float avgBrightness = rawBrightnessData.getAverageBrightness();
+            float avgBrightness = task.getPixelData().getAverageBrightness();
             progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
-            if(avgBrightness > desired_brightness || task.isCancelled() || finished()){
-                finish();
-                break;
+            if(avgBrightness > desired_brightness || task.isFinished()){
+                task.finishProcess();
+                return;
             }
 
         }
         if(shouldLiftPen){
-            task.penUp();
+            task.movePenUp();
         }
-
     }
 
-    protected abstract void findDarkestNeighbour(int x, int y);
+    protected abstract void findDarkestNeighbour(IPixelData pixels, int x, int y);
 }

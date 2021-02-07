@@ -1,10 +1,9 @@
 package drawingbot.pfm;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IPathFindingModule;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.PresetManager;
-import drawingbot.pfm.legacy.LegacyPFMLoaders;
-import drawingbot.utils.EnumPresetType;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
 import drawingbot.utils.GenericPreset;
@@ -15,14 +14,13 @@ import javafx.collections.ObservableList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 public class PFMMasterRegistry {
 
-    public static HashMap<Class<? extends IPFM>, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
-    public static HashMap<Class<? extends IPFM>, GenericFactory<IPFM>> pfmFactories = new LinkedHashMap<>();
+    public static HashMap<Class<? extends IPathFindingModule>, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
+    public static HashMap<Class<? extends IPathFindingModule>, GenericFactory<IPathFindingModule>> pfmFactories = new LinkedHashMap<>();
     public static HashMap<String, ObservableList<GenericPreset>> pfmPresets = new LinkedHashMap<>();
 
     static{
@@ -30,12 +28,9 @@ public class PFMMasterRegistry {
         registerPFMFactory(PFMSquares.class, "Squares PFM", PFMSquares::new, false);
         registerPFMFactory(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false);
         registerPFMFactory(PFMLines.class, "Lines PFM (Experimental)", PFMLines::new, true);
-        registerPFMFactory(LegacyPFMLoaders.pfmSketchLegacyClass, "Sketch PFM (Legacy)", LegacyPFMLoaders.pfmSketchLegacy, true);
-        registerPFMFactory(LegacyPFMLoaders.pfmSquaresLegacyClass, "Squares PFM (Legacy)", LegacyPFMLoaders.pfmSquaresLegacy, true);
-        registerPFMFactory(LegacyPFMLoaders.pfmSpiralLegacyClass, "Spiral PFM (Legacy)", LegacyPFMLoaders.pfmSpiralLegacy, true);
 
         ////GENERAL
-        registerSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 10F, (pfmSketch, value) -> pfmSketch.plottingResolution = value));
+        registerSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, (pfmSketch, value) -> pfmSketch.pfmResolution = value));
         registerSetting(GenericSetting.createRangedLongSetting(AbstractPFM.class, "Random Seed", 0L, Long.MIN_VALUE, Long.MAX_VALUE, (pfmSketch, value) -> pfmSketch.seed = value));
 
         ////ABSTRACT SKETCH PFM
@@ -65,19 +60,19 @@ public class PFMMasterRegistry {
 
     //// PFM LOADERS \\\\
 
-    public static void registerPFMFactory(Class<? extends IPFM> pfmClass, String name, Supplier<IPFM> create, boolean isHidden){
+    public static void registerPFMFactory(Class<? extends IPathFindingModule> pfmClass, String name, Supplier<IPathFindingModule> create, boolean isHidden){
         pfmFactories.put(pfmClass, new GenericFactory(pfmClass, name, create, isHidden));
         registerPreset(PresetManager.PFM.createNewPreset(name, "Default", false));
     }
 
-    public static GenericFactory<IPFM> getDefaultPFMFactory(){
+    public static GenericFactory<IPathFindingModule> getDefaultPFMFactory(){
         return pfmFactories.get(PFMSketch.class);
     }
 
     //// PFM SETTING \\\\
 
     public static <C, V> void registerSetting(GenericSetting<C, V> setting){
-        for(GenericFactory<IPFM> loader : PFMMasterRegistry.pfmFactories.values()){
+        for(GenericFactory<IPathFindingModule> loader : PFMMasterRegistry.pfmFactories.values()){
             if(setting.isAssignableFrom(loader.getInstanceClass())){
                 GenericSetting<C,V> copy = setting.copy();
                 PFMMasterRegistry.pfmSettings.putIfAbsent(loader.getInstanceClass(), FXCollections.observableArrayList());
@@ -91,7 +86,7 @@ public class PFMMasterRegistry {
         ///not used at the moment, called whenever a setting's value is changed
     }
 
-    public static <P extends IPFM> void applySettings(P pfm){
+    public static <P extends IPathFindingModule> void applySettings(P pfm){
         for(GenericSetting<?, ?> setting : pfmSettings.get(pfm.getClass())){
             setting.applySetting(pfm);
         }
@@ -115,7 +110,7 @@ public class PFMMasterRegistry {
         return getDefaultPFMPreset(DrawingBotV3.pfmFactory.get());
     }
 
-    public static GenericPreset getDefaultPFMPreset(GenericFactory<IPFM> loader){
+    public static GenericPreset getDefaultPFMPreset(GenericFactory<IPathFindingModule> loader){
         return pfmPresets.get(loader.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
     }
 
@@ -126,9 +121,9 @@ public class PFMMasterRegistry {
 
     //// JAVA FX \\\\
 
-    public static ObservableList<GenericFactory<IPFM>> getObservablePFMLoaderList(){
-        ObservableList<GenericFactory<IPFM>> list = FXCollections.observableArrayList();
-        for(GenericFactory<IPFM> loader : pfmFactories.values()){
+    public static ObservableList<GenericFactory<IPathFindingModule>> getObservablePFMLoaderList(){
+        ObservableList<GenericFactory<IPathFindingModule>> list = FXCollections.observableArrayList();
+        for(GenericFactory<IPathFindingModule> loader : pfmFactories.values()){
             if(!loader.isHidden() || ConfigFileHandler.settings.isDeveloperMode){
                 list.add(loader);
             }
@@ -141,7 +136,7 @@ public class PFMMasterRegistry {
         return getObservablePFMSettingsList(DrawingBotV3.pfmFactory.get());
     }
 
-    public static ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(GenericFactory<IPFM> loader){
+    public static ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(GenericFactory<IPathFindingModule> loader){
         return pfmSettings.get(loader.getInstanceClass());
     }
 
@@ -149,10 +144,10 @@ public class PFMMasterRegistry {
         return getObservablePFMPresetList(DrawingBotV3.pfmFactory.get());
     }
 
-    public static ObservableList<GenericPreset> getObservablePFMPresetList(GenericFactory<IPFM> loader){
+    public static ObservableList<GenericPreset> getObservablePFMPresetList(GenericFactory<IPathFindingModule> loader){
         return pfmPresets.get(loader.getName());
     }
 
 
-    public static class PFMHashMap<P extends IPFM> extends LinkedHashMap<Class<P>, ObservableList<GenericSetting<P, ?>>>{}
+    public static class PFMHashMap<P extends IPathFindingModule> extends LinkedHashMap<Class<P>, ObservableList<GenericSetting<P, ?>>>{}
 }

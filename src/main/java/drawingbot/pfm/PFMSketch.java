@@ -1,15 +1,7 @@
 package drawingbot.pfm;
 
-import drawingbot.image.ConvolutionMatrices;
-import drawingbot.image.ImageFilterRegistry;
-import drawingbot.image.ImageTools;
-import drawingbot.image.RawLuminanceData;
-import drawingbot.plotting.PlottingTask;
-import org.imgscalr.Scalr;
-import processing.core.PImage;
-
-import java.awt.*;
-import java.awt.image.*;
+import drawingbot.api.IPixelData;
+import drawingbot.api.IPlottingTask;
 
 public class PFMSketch extends AbstractSketchPFM {
 
@@ -21,7 +13,7 @@ public class PFMSketch extends AbstractSketchPFM {
     public float shadingDeltaAngle;
 
     @Override
-    public void init(PlottingTask task) {
+    public void init(IPlottingTask task) {
         super.init(task);
         if(startAngleMax < startAngleMin){
             int value = startAngleMin;
@@ -30,30 +22,8 @@ public class PFMSketch extends AbstractSketchPFM {
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @Override
-    public void preProcess() {
-
-        BufferedImage dst = (BufferedImage) task.getPlottingImage().getNative();
-
-        dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
-
-        for(ImageFilterRegistry.IImageFilter filter : ImageFilterRegistry.createFilters()){
-            dst = filter.filter(dst);
-        }
-
-        dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
-
-        task.img_plotting = new PImage(dst);
-        rawBrightnessData = RawLuminanceData.createBrightnessData(dst);
-        initialProgress = rawBrightnessData.getAverageBrightness();
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void findDarkestNeighbour(int start_x, int start_y) {
+    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
         darkest_neighbor = 1000;
         float delta_angle;
         float start_angle = randomSeed(startAngleMin, startAngleMax);    // Spitfire;
@@ -66,17 +36,8 @@ public class PFMSketch extends AbstractSketchPFM {
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgBrightness(rawBrightnessData, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            bresenhamAvgBrightness(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void postProcess() {
-        task.img_plotting = new PImage(rawBrightnessData.asBufferedImage());
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
