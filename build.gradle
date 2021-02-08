@@ -46,8 +46,9 @@ launch4j {
     //dontWrapJar = true;
     bundledJrePath = 'jre'
     bundledJre64Bit = false
-    jreMinVersion = '1.8.0_202' //RECOMMENDED PROCESSING VERSION
+    jreMinVersion = '1.8.0_191' //LOWEST TESTED VERSION
     jreMaxVersion = '1.8.0_281' //LATEST JAVA 1.8.0
+    // '1.8.0_202' //RECOMMENDED PROCESSING VERSION
 }
 
 task packageExecutableDistribution(type: Zip) {

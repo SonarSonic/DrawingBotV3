@@ -18,7 +18,6 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     protected int squiggle_count;
 
     protected float initialProgress;
-    protected float progress;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +58,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
 
             float avgBrightness = task.getPixelData().getAverageBrightness();
-            progress = (avgBrightness-initialProgress) / (desired_brightness-initialProgress);
+            task.updateProgess(avgBrightness-initialProgress, desired_brightness-initialProgress);
             if(avgBrightness > desired_brightness || task.isFinished()){
                 task.finishProcess();
                 return;
