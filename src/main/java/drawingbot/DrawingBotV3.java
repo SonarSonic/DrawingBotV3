@@ -176,6 +176,7 @@ public class DrawingBotV3 extends PApplet {
 
         renderTask();
         updateUI();
+
         long endTime = System.currentTimeMillis();
         long lastDrawTick = (endTime - startTime);
         if(lastDrawTick > 1000/60){
@@ -229,7 +230,6 @@ public class DrawingBotV3 extends PApplet {
             if(canvasNeedsUpdate){
                 updateCanvasSize(newWidth, newHeight);
                 lastDrawn = renderedTask;
-                lastState = renderedTask.stage;
                 canvasNeedsUpdate = false;
                 return;
             }
@@ -251,7 +251,7 @@ public class DrawingBotV3 extends PApplet {
                 if(renderedTask.plottedDrawing.getPlottedLineCount() != 0){
                     renderedTask.plottedDrawing.renderLines(renderedLines, renderedTask.plottedDrawing.getPlottedLineCount());
                     renderedLines = renderedTask.plottedDrawing.getPlottedLineCount();
-                    if(renderedTask.isFinished()){
+                    if(renderedTask.plottingFinished){
                         renderedTask.finishedRenderingPaths = true;
                     }
                 }

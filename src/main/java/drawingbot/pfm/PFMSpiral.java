@@ -1,13 +1,6 @@
 package drawingbot.pfm;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IPlottingTask;
-import drawingbot.image.ImageFilterRegistry;
-import drawingbot.image.ImageTools;
-import org.imgscalr.Scalr;
-import processing.core.PImage;
-
-import java.awt.image.BufferedImage;
 
 import static processing.core.PApplet.*;
 

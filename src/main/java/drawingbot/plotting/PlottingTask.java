@@ -43,7 +43,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     // PATH FINDING \\
     public IPathFindingModule pfm;
-    public boolean finishEarly = false;
     public float plottingResolution = 1;
     public float plottingProgress = 0;
     public boolean plottingFinished = false;
@@ -111,7 +110,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 plottingResolution = 1;
                 plottingProgress = 0;
                 plottingFinished = false;
-                finishEarly = false;
 
                 DrawingBotV3.logger.fine("Init PFM");
                 PFMMasterRegistry.applySettings(pfm);
@@ -202,7 +200,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
         }else if(stage == EnumTaskStage.DO_PROCESS){
-            this.finishEarly = true;
+            finishProcess();
             finishStage();
         }
     }
@@ -262,7 +260,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     @Override
     public boolean isFinished() {
-        return isCancelled() || finishEarly;
+        return isCancelled() || plottingFinished;
     }
 
     @Override
