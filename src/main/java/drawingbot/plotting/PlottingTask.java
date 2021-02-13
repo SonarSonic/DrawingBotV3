@@ -84,7 +84,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
 
-                img_plotting = ImageTools.cropToAspectRatio(img_plotting, DrawingBotV3.getDrawingAreaWidthMM() / DrawingBotV3.getDrawingAreaHeightMM());
+                img_plotting = ImageTools.cropToAspectRatio(img_plotting, DrawingBotV3.getDrawingAreaWidthMM(this) / DrawingBotV3.getDrawingAreaHeightMM(this));
                 img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
                 img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * plottingResolution), (int)(img_plotting.getHeight()* plottingResolution));
 
@@ -97,8 +97,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Finished");
 
                 float   gcode_scale_x, gcode_scale_y;
-                gcode_scale_x = DrawingBotV3.getDrawingAreaWidthMM() / img_plotting.getWidth();
-                gcode_scale_y = DrawingBotV3.getDrawingAreaHeightMM() / img_plotting.getHeight();
+                gcode_scale_x = DrawingBotV3.getDrawingAreaWidthMM(this) / img_plotting.getWidth();
+                gcode_scale_y = DrawingBotV3.getDrawingAreaHeightMM(this) / img_plotting.getHeight();
                 gcode_scale = Math.min(gcode_scale_x, gcode_scale_y);
 
 
@@ -220,7 +220,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     @Override
-    protected PlottingTask call() throws Exception {
+    public PlottingTask call() {
         Platform.runLater(() -> DrawingBotV3.setActivePlottingTask(this));
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){

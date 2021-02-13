@@ -18,6 +18,7 @@ import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
 import drawingbot.image.BufferedImageLoader;
+import drawingbot.image.blend.BlendComposite;
 import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.utils.*;
@@ -27,9 +28,11 @@ import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import org.jfree.fx.FXGraphics2D;
 
 public class DrawingBotV3 {
@@ -80,12 +83,12 @@ public class DrawingBotV3 {
     public static ExecutorService imageLoadingService = initImageLoadingService();
 
     // TASKS \\
-    private static PlottingTask activeTask = null;
-    private static ExportTask exportTask = null;
+    public static PlottingTask activeTask = null;
+    public static ExportTask exportTask = null;
     public static BatchProcessingTask batchProcessingTask = null;
 
-    private static BufferedImageLoader loadingImage = null;
-    private static BufferedImage openImage = null;
+    public static BufferedImageLoader loadingImage = null;
+    public static BufferedImage openImage = null;
 
     // GUI \\
     public static FXController controller;
@@ -107,16 +110,16 @@ public class DrawingBotV3 {
         localProgress = progress;
     }
 
-    public static float getDrawingAreaWidthMM(){
+    public static float getDrawingAreaWidthMM(PlottingTask task){
         if(useOriginalSizing.get()){
-            return activeTask.img_original == null ? 0: activeTask.img_original.getWidth();
+            return task.img_original == null ? 0: task.img_original.getWidth();
         }
         return drawingAreaWidth.getValue() * inputUnits.get().convertToMM;
     }
 
-    public static float getDrawingAreaHeightMM(){
+    public static float getDrawingAreaHeightMM(PlottingTask task){
         if(useOriginalSizing.get()){
-            return activeTask.img_original == null ? 0: activeTask.img_original.getHeight();
+            return task.img_original == null ? 0: task.img_original.getHeight();
         }
         return drawingAreaHeight.getValue() * inputUnits.get().convertToMM;
     }
@@ -234,6 +237,7 @@ public class DrawingBotV3 {
                     case DRAWING:
                         if(shouldRedraw){
                             clearCanvas();
+                            canvas.setBlendMode(observableDrawingSet.blendMode.get().javaFXVersion);
                             /* TODO FIX BLEND MODES
                             if(renderedTask.plottedDrawing.drawingPenSet.blendMode.get().additive){
                                 background(0, 0, 0);
@@ -300,8 +304,9 @@ public class DrawingBotV3 {
     }
 
     public static void clearCanvas(){
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, (int)canvas.getWidth(), (int)canvas.getHeight());
+        canvas.getGraphicsContext2D().setFill(Color.WHITE);
+        canvas.getGraphicsContext2D().fillRect(0, 0,(int)canvas.getWidth(), (int)canvas.getHeight());
+        //canvas.getGraphicsContext2D().clearRect(0, 0,(int)canvas.getWidth(), (int)canvas.getHeight());
     }
 
     public static void updateCanvasSize(double width, double height){
@@ -412,14 +417,14 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void openImage(String url){
+    public static void openImage(String url, boolean internal){
         if(activeTask != null){
             activeTask.cancel();
             activeTask = null;
             openImage = null;
             loadingImage = null;
         }
-        loadingImage = new BufferedImageLoader(url, false);
+        loadingImage = new BufferedImageLoader(url, internal);
         imageLoadingService.submit(loadingImage);
     }
 
@@ -508,7 +513,7 @@ public class DrawingBotV3 {
         return Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "DrawingBotV3 - Task Thread");
             t.setDaemon(true);
-            return t ;
+            return t;
         });
     }
 
