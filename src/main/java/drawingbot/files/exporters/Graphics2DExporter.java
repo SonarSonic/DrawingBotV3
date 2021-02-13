@@ -2,6 +2,7 @@ package drawingbot.files.exporters;
 
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
+import drawingbot.image.blend.BlendComposite;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 
@@ -11,6 +12,7 @@ import java.util.function.BiFunction;
 public class Graphics2DExporter {
 
     public static void exportImage(Graphics2D graphics, ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter) {
+        graphics.setComposite(new BlendComposite(plottingTask.plottedDrawing.drawingPenSet.blendMode.get()));
         for (int i = plottingTask.plottedDrawing.getDisplayedLineCount()-1; i >= 0; i--) {
             PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
             ObservableDrawingPen pen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(line.pen_number);

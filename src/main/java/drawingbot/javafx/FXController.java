@@ -665,7 +665,7 @@ public class FXController {
         String url = getClipboardString();
         if (url != null && url.toLowerCase().matches("^https?:...*(jpg|png)")) {
             DrawingBotV3.logger.info("Image URL found on clipboard: " + url);
-            DrawingBotV3.openImage(url);
+            DrawingBotV3.openImage(url, false);
         }
     }
 
@@ -677,7 +677,7 @@ public class FXController {
             d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             File file = d.showOpenDialog(null);
             if(file != null){
-                DrawingBotV3.openImage(file.getAbsolutePath());
+                DrawingBotV3.openImage(file.getAbsolutePath(), false);
             }
         });
     }

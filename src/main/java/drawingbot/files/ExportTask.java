@@ -51,6 +51,7 @@ public class ExportTask extends Task<Boolean> {
                 }
             }
         }
+        Platform.runLater(() -> DrawingBotV3.setActiveExportTask(null));
         return true;
     }
 

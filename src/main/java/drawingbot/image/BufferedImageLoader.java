@@ -1,5 +1,6 @@
 package drawingbot.image;
 
+import drawingbot.DrawingBotV3;
 import javafx.concurrent.Task;
 
 import javax.imageio.ImageIO;
@@ -29,7 +30,7 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         try {
             InputStream stream = null;
             if(internal){
-                stream = BufferedImageLoader.class.getClassLoader().getResourceAsStream(url);
+                stream = DrawingBotV3.class.getClassLoader().getResourceAsStream(url);
             }else{
                 stream = new FileInputStream(url);
             }
