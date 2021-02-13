@@ -71,6 +71,15 @@ public class FXController {
         initPenSettingsPane();
         initBatchProcessingPane();
 
+        viewportStackPane.setOnMousePressed(DrawingBotV3::mousePressedJavaFX);
+        viewportStackPane.setOnMouseDragged(DrawingBotV3::mouseDraggedJavaFX);
+        viewportStackPane.getChildren().add(DrawingBotV3.canvas);
+
+        viewportStackPane.prefHeightProperty().bind(DrawingBotV3.canvas.heightProperty().multiply(4));
+        viewportStackPane.prefWidthProperty().bind(DrawingBotV3.canvas.widthProperty().multiply(4));
+        viewportScrollPane.setHvalue(0.5);
+        viewportScrollPane.setVvalue(0.5);
+
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
 
@@ -159,32 +168,33 @@ public class FXController {
         ////VIEWPORT SETTINGS
         sliderDisplayedLines.setMax(1);
         sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            PlottingTask task = DrawingBotV3.getActiveTask();
             if(task != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
-                DrawingBotV3.INSTANCE.reRender();
+                DrawingBotV3.reRender();
             }
         });
 
         textFieldDisplayedLines.setOnAction(e -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            PlottingTask task = DrawingBotV3.getActiveTask();
             if(task != null){
                 int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
                 sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
-                DrawingBotV3.INSTANCE.reRender();
+                DrawingBotV3.reRender();
             }
         });
 
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
         choiceBoxDisplayMode.setValue(EnumDisplayMode.DRAWING);
-        choiceBoxDisplayMode.setOnAction(e -> changeDisplayMode(choiceBoxDisplayMode.getSelectionModel().getSelectedItem()));
+        DrawingBotV3.display_mode.bindBidirectional(choiceBoxDisplayMode.valueProperty());
+        DrawingBotV3.display_mode.addListener((observable, oldValue, newValue) -> DrawingBotV3.reRender());
 
         DrawingBotV3.displayGrid.bind(checkBoxShowGrid.selectedProperty());
-        DrawingBotV3.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
+        DrawingBotV3.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.reRender());
 
         buttonZoomIn.setOnAction(e -> {
             DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() + 0.1);
@@ -194,7 +204,7 @@ public class FXController {
                 DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() - 0.1);
             }
         });
-        DrawingBotV3.scaleMultiplier.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.canvasNeedsUpdate = true);
+        DrawingBotV3.scaleMultiplier.addListener((observable, oldValue, newValue) -> DrawingBotV3.canvasNeedsUpdate = true);
 
         buttonResetView.setOnAction(e -> {
             viewportScrollPane.setHvalue(0.5);
@@ -215,11 +225,11 @@ public class FXController {
     public Button buttonResetPlotting = null;
 
     public void initPlottingControls(){
-        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
+        buttonStartPlotting.setOnAction(param -> DrawingBotV3.startPlotting());
         buttonStartPlotting.disableProperty().bind(DrawingBotV3.isPlotting);
-        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
+        buttonStopPlotting.setOnAction(param -> DrawingBotV3.stopPlotting());
         buttonStopPlotting.disableProperty().bind(DrawingBotV3.isPlotting.not());
-        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
+        buttonResetPlotting.setOnAction(param -> DrawingBotV3.resetPlotting());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -555,11 +565,13 @@ public class FXController {
         });
 
 
+        penTableView.setItems(DrawingBotV3.observableDrawingSet.pens);
         penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.display_mode == EnumDisplayMode.SELECTED_PEN){
-                DrawingBotV3.INSTANCE.reRender();
+            if(DrawingBotV3.display_mode.get() == EnumDisplayMode.SELECTED_PEN){
+                DrawingBotV3.reRender();
             }
         });
+
         penNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         penNameColumn.setCellValueFactory(param -> param.getValue().name);
 
@@ -583,8 +595,12 @@ public class FXController {
         buttonAddPen.setOnAction(e -> DrawingBotV3.observableDrawingSet.addNewPen(comboBoxDrawingPen.getValue()));
 
         renderOrderComboBox.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
+        renderOrderComboBox.valueProperty().bindBidirectional(DrawingBotV3.observableDrawingSet.renderOrder);
 
         blendModeComboBox.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
+        blendModeComboBox.valueProperty().bindBidirectional(DrawingBotV3.observableDrawingSet.blendMode);
+
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -641,11 +657,6 @@ public class FXController {
         DrawingBotV3.pfmFactory.set(pfm);
     }
 
-    public void changeDisplayMode(EnumDisplayMode mode){
-        DrawingBotV3.INSTANCE.display_mode = mode;
-        DrawingBotV3.INSTANCE.reRender();
-    }
-
     public void changeDrawingSet(DrawingSet set){
         DrawingBotV3.observableDrawingSet.loadDrawingSet(set);
     }
@@ -654,7 +665,7 @@ public class FXController {
         String url = getClipboardString();
         if (url != null && url.toLowerCase().matches("^https?:...*(jpg|png)")) {
             DrawingBotV3.logger.info("Image URL found on clipboard: " + url);
-            DrawingBotV3.INSTANCE.openImage(url);
+            DrawingBotV3.openImage(url);
         }
     }
 
@@ -666,13 +677,13 @@ public class FXController {
             d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             File file = d.showOpenDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.openImage(file.getAbsolutePath());
+                DrawingBotV3.openImage(file.getAbsolutePath());
             }
         });
     }
 
     public void exportFile(ExportFormats format, boolean seperatePens){
-        if(DrawingBotV3.INSTANCE.getActiveTask() == null){
+        if(DrawingBotV3.getActiveTask() == null){
             return;
         }
         Platform.runLater(() -> {
@@ -683,7 +694,7 @@ public class FXController {
             //TODO SET INITIAL FILENAME!!!
             File file = d.showSaveDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), ExportFormats::defaultFilter, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
+                DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), ExportFormats::defaultFilter, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
             }
         });
     }

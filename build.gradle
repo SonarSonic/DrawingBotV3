@@ -5,7 +5,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-mainClassName  = 'drawingbot.FXApplication'
+mainClassName  = 'drawingbot.FXLauncher'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
@@ -22,8 +22,7 @@ dependencies {
     testImplementation "junit:junit:${junit_version}"
 
     // This dependency is used by the application.
-    //implementation "org.processing:core:${processing_core_version}"
-    //shadow "org.processing:core:${processing_core_version}"
+    implementation 'org.jfree:fxgraphics2d:1.8'
 
     implementation "com.itextpdf:itextpdf:${itext_version}"
     shadow "com.itextpdf:itextpdf:${itext_version}"

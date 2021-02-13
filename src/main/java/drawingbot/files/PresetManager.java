@@ -133,7 +133,7 @@ public abstract class PresetManager {
         public void onJSONLoaded(){}
 
         public void updateJSON(){
-            DrawingBotV3.INSTANCE.backgroundService.submit(() -> updatePresetJSON(this));
+            DrawingBotV3.backgroundService.submit(() -> updatePresetJSON(this));
         }
 
         public abstract void registerPreset(GenericPreset preset);
