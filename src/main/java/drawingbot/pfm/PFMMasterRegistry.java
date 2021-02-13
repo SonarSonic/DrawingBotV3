@@ -28,6 +28,7 @@ public class PFMMasterRegistry {
         registerPFMFactory(PFMSquares.class, "Squares PFM", PFMSquares::new, false);
         registerPFMFactory(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false);
         registerPFMFactory(PFMLines.class, "Lines PFM (Experimental)", PFMLines::new, true);
+        registerPFMFactory(PFMSquiggleDraw.class, "Squiggle Draw PFM (Experimental)", PFMSquiggleDraw::new, true);
 
         ////GENERAL
         registerSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, (pfmSketch, value) -> pfmSketch.pfmResolution = value));

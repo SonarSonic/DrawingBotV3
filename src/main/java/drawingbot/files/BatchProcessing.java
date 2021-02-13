@@ -40,7 +40,7 @@ public class BatchProcessing {
         Platform.runLater(() -> {
             DirectoryChooser d = new DirectoryChooser();
             d.setTitle("Select " + (input ? "Input Folder" : "Output Folder"));
-            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             File file = d.showDialog(null);
             if(file != null){
                 if(input){

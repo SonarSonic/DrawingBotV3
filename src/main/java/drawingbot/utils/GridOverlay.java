@@ -2,8 +2,6 @@ package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
 
-import static processing.core.PApplet.*;
-
 //TODO FIXME
 public class GridOverlay {
 
@@ -25,7 +23,7 @@ public class GridOverlay {
 
         //TODO FIX GRID RENDERER!!!
         if (app.displayGrid.getValue() && app.getActiveTask() != null) {
-            app.hint(DISABLE_DEPTH_TEST);      // Allow fills to be shown on top.
+            //app.hint(DISABLE_DEPTH_TEST);      // Allow fills to be shown on top.
             int image_center_x = (int)(app.getActiveTask().width() / 2);
             int image_center_y = (int)(app.getActiveTask().height() / 2);
             int gridlines = 100;
@@ -83,7 +81,7 @@ public class GridOverlay {
             app.fill(0, 0, 255, 255);
             app.ellipse(0, 0, 10, 10);
 
-            app.hint(ENABLE_DEPTH_TEST);
+            //app.hint(ENABLE_DEPTH_TEST);
         }
     }
 

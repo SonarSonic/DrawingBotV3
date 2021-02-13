@@ -2,20 +2,16 @@ package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
+import drawingbot.image.blend.BlendComposite;
+import drawingbot.image.blend.EnumBlendMode;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
-import processing.core.PConstants;
-import processing.core.PImage;
+
+import java.awt.*;
 import java.awt.image.*;
 import java.util.function.Function;
 
-import static processing.core.PApplet.*;
-
 public class ImageTools {
-
-    public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
     //// MATRIX OPERATIONS
 
@@ -84,7 +80,7 @@ public class ImageTools {
 
         for (int i=0; i<n; i++) {
             for (int j=0; j<m; j++) {
-                matrix[i][j] = matrix[i][j] / abs(sum);
+                matrix[i][j] = matrix[i][j] / Math.abs(sum);
             }
         }
 
@@ -141,15 +137,16 @@ public class ImageTools {
      * @param shrink Number of pixels to pull the boarder away, 0 for no change.
      * @param blur Guassian blur the boarder, 0 for no blur, 10+ for a lot.
      */
-    public static BufferedImage lazyImageBorder(BufferedImage dst, String fname, int shrink, int blur) {
+    public static BufferedImage lazyImageBorder(BufferedImage dst, String fname, boolean internal, int shrink, int blur) {
         DrawingBotV3.logger.entering("ImageTools", "lazyImageBorder: " + fname);
-        PImage border_1 = app.loadImage(fname);
 
-        BufferedImage bufferedBorder1 = (BufferedImage) border_1.getNative();
-        bufferedBorder1 = Scalr.resize(bufferedBorder1, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, dst.getWidth(), dst.getHeight());
+        BufferedImage borderImg = BufferedImageLoader.loadImage(fname, internal);
+        if(borderImg != null){
+            borderImg = Scalr.resize(borderImg, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, dst.getWidth(), dst.getHeight());
 
-        ImageTools.lazyRGBFilter(bufferedBorder1, ImageTools::invertFilter);
-        ImageTools.lazyBlend(dst, bufferedBorder1, PImage.ADD);
+            borderImg = ImageTools.lazyRGBFilter(borderImg, ImageTools::invertFilter);
+            dst = ImageTools.lazyBlend(dst, borderImg, EnumBlendMode.ADD);
+        }
         return dst;
     }
 
@@ -191,15 +188,24 @@ public class ImageTools {
         return image;
     }
 
-    /**a lazy/very fast way to blend too images which are exactly the same size only, can be used in conjunction with PImage.blendColor*/
-    public static BufferedImage lazyBlend(BufferedImage image, BufferedImage src, int blendMode){
+    /**a lazy/very fast way to blend too images which are exactly the same size only*/
+    public static BufferedImage lazyBlend(BufferedImage image, BufferedImage overlay, EnumBlendMode blendMode){
         DrawingBotV3.logger.entering("ImageTools", "lazyBlend: " + blendMode);
-        for(int x = 0; x < image.getWidth(); x++){
-            for(int y = 0; y < image.getHeight(); y++){
-                image.setRGB(x, y, PImage.blendColor(image.getRGB(x, y), src.getRGB(x, y), blendMode));
-            }
-        }
-        return image;
+
+        // create the new image, canvas size is the max. of both image sizes
+        int w = Math.max(image.getWidth(), overlay.getWidth());
+        int h = Math.max(image.getHeight(), overlay.getHeight());
+        BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+        // paint both images, preserving the alpha channels
+        Graphics2D g = combined.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.setComposite(new BlendComposite(blendMode));
+        g.drawImage(overlay, 0, 0, null);
+
+        g.dispose();
+
+        return combined;
     }
 
     public static BufferedImage cropToAspectRatio(BufferedImage image, float targetRatio){
@@ -228,13 +234,18 @@ public class ImageTools {
 
     //// RGB FILTERS
 
-    public static int grayscaleFilter(int rgba){
-        int lum = (77*(rgba>>16&0xff) + 151*(rgba>>8&0xff) + 28*(rgba&0xff))>>8;
-        return (rgba & 0xff000000) | lum<<16 | lum<<8 | lum;
+    public static int grayscaleFilter(int argb){
+        int lum = (77*(argb>>16&0xff) + 151*(argb>>8&0xff) + 28*(argb&0xff))>>8;
+        return (argb & 0xff000000) | lum<<16 | lum<<8 | lum;
     }
 
-    public static int invertFilter(int rgba){
-        return rgba ^ 0xffffff;
+    public static int invertFilter(int argb){
+        int[] values = getColourIntsFromARGB(argb, new int[4]);
+        values[1] = 255 - values[1];
+        values[2] = 255 - values[2];
+        values[3] = 255 - values[3];
+
+        return getARGB(values[0], values[1], values[2], values[3]);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +263,13 @@ public class ImageTools {
         }
     }
 
+    public static BufferedImage deepCopy(BufferedImage copy) {
+        ColorModel cm = copy.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = copy.copyData(copy.getRaster().createCompatibleWritableRaster());
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
     public static IPixelData copy(IPixelData source, IPixelData dst){
         for(int x = 0; x < source.getWidth(); x ++){
             for(int y = 0; y < source.getHeight(); y ++){
@@ -259,18 +277,6 @@ public class ImageTools {
             }
         }
         return dst;
-    }
-
-    public static PImage getPImage(IPixelData data){
-        PImage image = new PImage(data.getWidth(), data.getHeight());
-        image.loadPixels();
-        for(int x = 0; x < data.getWidth(); x ++){
-            for(int y = 0; y < data.getHeight(); y ++){
-                image.set(x, y, data.getARGB(x, y));
-            }
-        }
-        image.updatePixels();
-        return image;
     }
 
     public static BufferedImage getBufferedImage(IPixelData data){
@@ -285,15 +291,6 @@ public class ImageTools {
         return image;
     }
 
-    public static IPixelData copyToPixelData(PImage image, IPixelData data){
-        for(int x = 0; x < data.getWidth(); x ++){
-            for(int y = 0; y < data.getHeight(); y ++){
-                data.setARGB(x, y, image.get(x, y));
-            }
-        }
-        return data;
-    }
-
     public static IPixelData copyToPixelData(BufferedImage image, IPixelData data){
         for(int x = 0; x < data.getWidth(); x ++){
             for(int y = 0; y < data.getHeight(); y ++){
@@ -303,6 +300,32 @@ public class ImageTools {
         return data;
     }
 
+    /*
+
+    @Deprecated
+    public static PImage getPImage(IPixelData data){
+        PImage image = new PImage(data.getWidth(), data.getHeight());
+        image.loadPixels();
+        for(int x = 0; x < data.getWidth(); x ++){
+            for(int y = 0; y < data.getHeight(); y ++){
+                image.set(x, y, data.getARGB(x, y));
+            }
+        }
+        image.updatePixels();
+        return image;
+    }
+
+    @Deprecated
+    public static IPixelData copyToPixelData(PImage image, IPixelData data){
+        for(int x = 0; x < data.getWidth(); x ++){
+            for(int y = 0; y < data.getHeight(); y ++){
+                data.setARGB(x, y, image.get(x, y));
+            }
+        }
+        return data;
+    }
+
+    @Deprecated
     public static WritableImage getWritableImageFromPImage(PImage pImage){
         WritableImage writableImage = new WritableImage(pImage.pixelWidth, pImage.pixelHeight);
         pImage.loadPixels();
@@ -310,15 +333,17 @@ public class ImageTools {
         return writableImage;
     }
 
+     */
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// COLOURS
 
     public static int[] getColourIntsFromARGB(int argb, int[] array){
-        array[0] = (argb>>24)&0xff;
-        array[1] = (argb>>16)&0xff;
-        array[2] = (argb>>8)&0xff;
-        array[3] = argb&0xff;
+        array[0] = (argb>>24)&0xff; //alpha
+        array[1] = (argb>>16)&0xff; //red
+        array[2] = (argb>>8)&0xff; //green
+        array[3] = argb&0xff; //blue
         return array;
     }
 
@@ -338,7 +363,7 @@ public class ImageTools {
     }
 
     public static int getARGBFromColor(Color color){
-        return app.color((float)color.getRed() * 255F, (float)color.getGreen() * 255F, (float)color.getBlue() * 255F, (float)color.getOpacity() * 255F);
+        return getARGB((int)(color.getOpacity() * 255F), (int)(color.getRed() * 255F), (int)(color.getGreen() * 255F), (int)(color.getBlue() * 255F));
     }
 
     public static int getARGB(int a, int r, int g, int b){

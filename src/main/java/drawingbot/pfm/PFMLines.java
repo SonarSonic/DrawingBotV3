@@ -1,7 +1,7 @@
 package drawingbot.pfm;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IPlottingTask;
+import drawingbot.image.ImageTools;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.AlgorithmHelper;
 
@@ -53,7 +53,7 @@ public class PFMLines extends AbstractDarkestPFM{
             task.moveAbsolute(line[2], line[3]);
             task.movePenUp();
 
-            ((PlottingTask)task).plottedDrawing.plottedLines.get(((PlottingTask)task).plottedDrawing.plottedLines.size()-1).rgba = DrawingBotV3.INSTANCE.color(adjustbrightness, adjustbrightness, adjustbrightness, 50);
+            ((PlottingTask)task).plottedDrawing.plottedLines.get(((PlottingTask)task).plottedDrawing.plottedLines.size()-1).rgba = ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50);
             bresenhamLighten(task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
             progress = (float)i / maxLines;
 

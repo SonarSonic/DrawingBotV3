@@ -1,10 +1,9 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPlottingTask;
+import drawingbot.utils.Utils;
 
-import static processing.core.PApplet.*;
-
-/**Original PFMSpiral Class*/
+/**https://github.com/krummrey/SpiralFromImage*/
 public class PFMSpiral extends AbstractPFM {
 
     public float distBetweenRings = 7;                  // Distance between rings
@@ -36,13 +35,13 @@ public class PFMSpiral extends AbstractPFM {
         
         // When have we reached the far corner of the image?
         // TODO: this will have to change if not centered
-        endRadius = sqrt(pow((task.getPixelData().getWidth()/2F), 2)+pow((task.getPixelData().getHeight()/2F), 2));
+        endRadius = (float)Math.sqrt(Math.pow((task.getPixelData().getWidth()/2F), 2)+Math.pow((task.getPixelData().getHeight()/2F), 2));
 
         // Calculates the first point.  Currently just the center.
         // TODO: Allow for ajustable center
         task.movePenUp();
-        x =  radius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
-        y = -radius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
+        x =  (float)(radius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
+        y = -(float)(radius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
         task.moveAbsolute(x, y);
         xa = 0;
         xb = 0;
@@ -54,8 +53,8 @@ public class PFMSpiral extends AbstractPFM {
             k = (density/2)/radius;
             alpha += k;
             radius += distBetweenRings /(360/k);
-            x =  radius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
-            y = -radius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
+            x =  (float)(radius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
+            y = -(float)(radius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
 
             // Are we within the the image?
             // If so check if the shape is open. If not, open it
@@ -63,20 +62,20 @@ public class PFMSpiral extends AbstractPFM {
 
                 // Get the color and brightness of the sampled pixel
                 b = task.getPixelData().getBrightness((int)x, (int)y);
-                b = map (b, 0, 255, distBetweenRings *ampScale, 0);
+                b = Utils.mapFloat(b, 0, 255, distBetweenRings * ampScale, 0);
 
                 // Move up according to sampled brightness
                 aradius = radius+(b/ distBetweenRings);
-                xa =  aradius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
-                ya = -aradius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
+                xa =  (float)(aradius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
+                ya = -(float)(aradius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
 
                 // Move down according to sampled brightness
                 k = (density/2)/radius;
                 alpha += k;
                 radius += distBetweenRings /(360/k);
                 bradius = radius-(b/ distBetweenRings);
-                xb =  bradius*cos(radians(alpha))+task.getPixelData().getWidth()/2F;
-                yb = -bradius*sin(radians(alpha))+task.getPixelData().getHeight()/2F;
+                xb =  (float)(bradius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
+                yb = -(float)(bradius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
 
                 // If the sampled color is the mask color do not write to the shape
                 if (mask <= b) {
@@ -89,7 +88,7 @@ public class PFMSpiral extends AbstractPFM {
                 task.movePenUp();
             }
 
-            int pen_number = (int)(map(b, 0, 255, 0, task.getTotalPens()));
+            int pen_number = (int)(Utils.mapFloat(b, 0, 255, 0, task.getTotalPens()));
             task.setActivePen(pen_number);
             task.moveAbsolute(xa, ya);
             task.moveAbsolute(xb, yb);

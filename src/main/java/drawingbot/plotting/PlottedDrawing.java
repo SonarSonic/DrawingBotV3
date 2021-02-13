@@ -3,8 +3,8 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import javafx.beans.property.SimpleIntegerProperty;
-import processing.core.PApplet;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +14,7 @@ public class PlottedDrawing {
     public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
     public final List<PlottedLine> plottedLines;
+
     public ObservableDrawingSet drawingPenSet;
     public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
 
@@ -102,7 +103,7 @@ public class PlottedDrawing {
 
                 //percentage
                 float percentage = (float)pen.distributionWeight.get() / totalWeight;
-                pen.currentPercentage.set(PApplet.nf(percentage*100, 2, 1));
+                pen.currentPercentage.set(NumberFormat.getPercentInstance().format(percentage));
 
                 //lines
                 int linesPerPen = (int)(percentage * getPlottedLineCount());

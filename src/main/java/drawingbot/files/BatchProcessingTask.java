@@ -3,11 +3,12 @@ package drawingbot.files;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.api.IPathFindingModule;
+import drawingbot.image.BufferedImageLoader;
 import drawingbot.utils.GenericFactory;
 import drawingbot.plotting.PlottingTask;
 import javafx.concurrent.Task;
-import processing.core.PImage;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -61,7 +62,7 @@ public class BatchProcessingTask extends Task<Boolean> {
                 updateTitle("Batch Processing " + (imagesDone +1) + " / " + imageCount);
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
-                    PImage image = DrawingBotV3.INSTANCE.loadImage(path.toString());
+                    BufferedImage image = BufferedImageLoader.loadImage(path.toString(), false);
                     PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, image);
                     Future<?> futurePlottingTask = service.submit(internalTask);
                     while(!futurePlottingTask.isDone()){

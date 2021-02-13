@@ -17,9 +17,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import static processing.core.PApplet.*;
-
-//TODO FIX TASKS NOW BROKEN!
 public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public GenericFactory<IPathFindingModule> loader;
@@ -33,9 +30,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public List<String> comments = new ArrayList<>();
 
     // IMAGES \\
-    public PImage img_original;              // The original image
-    public PImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
-    public PImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
+    public BufferedImage img_original;              // The original image
+    public BufferedImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
+    public BufferedImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
     // PIXEL DATA \\
     public IPixelData reference;
@@ -56,7 +53,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     private float gcode_offset_y;
     private float gcode_scale;
 
-    public PlottingTask(GenericFactory<IPathFindingModule> loader, ObservableDrawingSet drawingPenSet, PImage image){
+    public PlottingTask(GenericFactory<IPathFindingModule> loader, ObservableDrawingSet drawingPenSet, BufferedImage image){
         updateTitle("Processing Image");
         this.loader = loader;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
@@ -79,8 +76,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 pfm = loader.instance();
 
                 DrawingBotV3.logger.fine("Creating Plotting Image");
-                img_plotting = app.createImage(img_original.width, img_original.height, PConstants.RGB);
-                img_plotting.copy(img_original, 0, 0, img_original.width, img_original.height, 0, 0, img_original.width, img_original.height);
+                img_plotting = ImageTools.deepCopy(img_original);
 
                 finishStage();
                 break;
@@ -89,21 +85,19 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
 
-                BufferedImage dst = (BufferedImage) img_plotting.getNative();
+                img_plotting = ImageTools.cropToAspectRatio(img_plotting, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
+                img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
+                img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * plottingResolution), (int)(img_plotting.getHeight()* plottingResolution));
 
-                dst = ImageTools.cropToAspectRatio(dst, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
-                dst = ImageFilterRegistry.applyCurrentFilters(dst);
-                dst = Scalr.resize(dst, Scalr.Method.QUALITY, (int)(dst.getWidth() * plottingResolution), (int)(dst.getHeight()* plottingResolution));
-
-                reference = ImageTools.copyToPixelData(dst, ImageTools.newPixelData(dst.getWidth(), dst.getHeight(), pfm.getColourMode()));
-                plotting = ImageTools.copyToPixelData(dst, ImageTools.newPixelData(dst.getWidth(), dst.getHeight(), pfm.getColourMode()));
+                reference = ImageTools.copyToPixelData(img_plotting, ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode()));
+                plotting = ImageTools.copyToPixelData(img_plotting, ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode()));
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Finished");
 
                 float   gcode_scale_x, gcode_scale_y;
-                gcode_scale_x = DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() / img_plotting.width;
-                gcode_scale_y = DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() / img_plotting.height;
-                gcode_scale = min(gcode_scale_x, gcode_scale_y);
+                gcode_scale_x = DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() / img_plotting.getWidth();
+                gcode_scale_y = DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() / img_plotting.getHeight();
+                gcode_scale = Math.min(gcode_scale_x, gcode_scale_y);
 
 
                 currentPen = 0;
@@ -136,8 +130,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 plottedDrawing.updateWeightedDistribution();
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
 
-                img_reference = ImageTools.getPImage(reference);
-                img_plotting = ImageTools.getPImage(plotting);
+                img_reference = ImageTools.getBufferedImage(reference);
+                img_plotting = ImageTools.getBufferedImage(plotting);
 
                 finishStage();
                 break;
@@ -176,24 +170,24 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return stage == EnumTaskStage.FINISHED;
     }
 
-    public PImage getOriginalImage() {
+    public BufferedImage getOriginalImage() {
         return img_original;
     }
 
-    public PImage getReferenceImage() {
+    public BufferedImage getReferenceImage() {
         return img_reference;
     }
 
-    public PImage getPlottingImage() {
+    public BufferedImage getPlottingImage() {
         return img_plotting;
     }
 
     public int width(){
-        return getOriginalImage().width;
+        return getOriginalImage().getWidth();
     }
 
     public int height(){
-        return getOriginalImage().height;
+        return getOriginalImage().getHeight();
     }
 
     public void stopElegantly(){
@@ -291,6 +285,28 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         moveAbsolute(x1, y1);
         movePenDown();
         moveAbsolute(x2, y2);
+    }
+
+    private boolean isDrawingShape = false;
+
+    @Override
+    public void beginShape() {
+        isDrawingShape = true;
+        movePenDown();
+    }
+
+    @Override
+    public void endShape() {
+        movePenUp();
+        isDrawingShape = false;
+    }
+
+    @Override
+    public void addCurveVertex(float x1, float y1) {
+        moveAbsolute(x1, y1);
+        if(!isDrawingShape){
+            beginShape();
+        }
     }
 
     @Override

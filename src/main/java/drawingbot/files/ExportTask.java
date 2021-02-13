@@ -6,7 +6,6 @@ import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.nio.file.Files;

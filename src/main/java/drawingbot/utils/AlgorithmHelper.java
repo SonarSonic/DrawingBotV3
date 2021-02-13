@@ -1,7 +1,5 @@
 package drawingbot.utils;
 
-import static processing.core.PApplet.*;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -17,8 +15,8 @@ public class AlgorithmHelper {
         int sx, sy;
         int e2;
 
-        int deltaX = abs(x1-x0);
-        int deltaY = abs(y1-y0);
+        int deltaX = Math.abs(x1-x0);
+        int deltaY = Math.abs(y1-y0);
         if (x0 < x1) { sx = 1; } else { sx = -1; }
         if (y0 < y1) { sy = 1; } else { sy = -1; }
         int err = deltaX-deltaY;

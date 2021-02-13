@@ -11,6 +11,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 repositories {
     // Use JCenter for resolving dependencies.
     jcenter()
+    mavenCentral()
     flatDir {
         dirs 'libs'
     }
@@ -21,20 +22,20 @@ dependencies {
     testImplementation "junit:junit:${junit_version}"
 
     // This dependency is used by the application.
-    implementation "org.processing:core:${processing_core_version}"
-    shadow "org.processing:core:${processing_core_version}"
+    //implementation "org.processing:core:${processing_core_version}"
+    //shadow "org.processing:core:${processing_core_version}"
 
-    implementation "org.processing:pdf:${processing_pdf_version}"
-    shadow "org.processing:pdf:${processing_pdf_version}"
-
-    implementation name: 'itext' //why does processing use such an old version?
-    shadow name: 'itext'
+    implementation "com.itextpdf:itextpdf:${itext_version}"
+    shadow "com.itextpdf:itextpdf:${itext_version}"
 
     implementation "org.imgscalr:imgscalr-lib:${imgscalr_version}"
     shadow "org.imgscalr:imgscalr-lib:${imgscalr_version}"
 
     implementation "com.google.code.gson:gson:${gson_version}"
     shadow "com.google.code.gson:gson:${gson_version}"
+
+    implementation "org.locationtech.jts:jts-core:${jts_version}"
+    shadow "org.locationtech.jts:jts-core:${jts_version}"
 
 }
 
