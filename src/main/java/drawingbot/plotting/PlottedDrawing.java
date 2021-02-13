@@ -4,14 +4,13 @@ import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import javafx.beans.property.SimpleIntegerProperty;
 
+import java.awt.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class PlottedDrawing {
-
-    public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
 
     public final List<PlottedLine> plottedLines;
 
@@ -42,42 +41,42 @@ public class PlottedDrawing {
         return drawingPenSet.getPens().get(penNumber);
     }
 
-    public void renderLines(int start, int end) {
+    public void renderLines(Graphics2D graphics, int start, int end) {
         for (int i = start; i < end; i++) {
-            renderLine(plottedLines.get(i));
+            renderLine(graphics, plottedLines.get(i));
         }
     }
 
-    public void renderLinesReverse(int start, int end) {
+    public void renderLinesReverse(Graphics2D graphics, int start, int end) {
         for (int i = start; i > end; i--) {
-            renderLine(plottedLines.get(i));
+            renderLine(graphics, plottedLines.get(i));
         }
     }
 
-    public void renderLinesForPen(int start, int end, int pen) {
+    public void renderLinesForPen(Graphics2D graphics, int start, int end, int pen) {
         for (int i = start; i < end; i++) {
             PlottedLine line = plottedLines.get(i);
             if (line.pen_number == pen) {
-                renderLine(line);
+                renderLine(graphics, line);
             }
         }
     }
 
-    public void renderLinesReverse(int start, int end, int pen) {
+    public void renderLinesReverse(Graphics2D graphics, int start, int end, int pen) {
         for (int i = start; i > end; i--) {
             PlottedLine line = plottedLines.get(i);
             if (line.pen_number == pen) {
-                renderLine(line);
+                renderLine(graphics, line);
             }
         }
     }
 
-    public void renderLine(PlottedLine line) {
+    public void renderLine(Graphics2D graphics, PlottedLine line) {
         if (line.pen_down) {
             ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);
             if(pen.isEnabled()){
-                app.stroke(line.rgba != -1 ? line.rgba : pen.getARGB());
-                app.line(line.x1, line.y1, line.x2, line.y2); //render line dangerously.
+                graphics.setColor(pen.getAWTColor());
+                graphics.drawLine((int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2);
             }
         }
     }

@@ -35,7 +35,7 @@ public class SVGExporter {
 
         PrintWriter output = FileUtils.createWriter(saveLocation);
         output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.getGCodeScale()) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().getHeight() * plottingTask.getGCodeScale()) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+        output.println("<svg width=\"" + svg_format(plottingTask.getPlottingImage().getWidth() * plottingTask.getGCodeScale()) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().getHeight() * plottingTask.getGCodeScale()) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
         plottingTask.plottedDrawing.setPenContinuationFlagsForSVG();
 
         int completedLines = 0;

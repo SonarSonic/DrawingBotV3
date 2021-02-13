@@ -42,10 +42,11 @@ Export Formats:
 
 
 ##### Dependencies
-
-- [Processing](https://github.com/processing/processing) - for Rendering/Exporting
+- [JTS Topology Suite](https://github.com/locationtech/jts) - for Vectors/Geometry
 - [ImgScalr](https://github.com/rkalla/imgscalr) - for Optimised Image Scaling
 - [Gson](https://github.com/google/gson) - for Configuration/Preset Files
+- [iText](https://github.com/itext/itextpdf) - for PDF Rendering
+- [FXGraphics2D](https://github.com/jfree/fxgraphics2d) - for Swing/JavaFX Compatibility
 
 ### Original Version
 DrawingBotV3 is an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**. Thanks to Scott for allowing me to publish this version!

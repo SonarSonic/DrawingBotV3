@@ -12,15 +12,13 @@ public class GridOverlay {
     public static final float paper_size_y = 40 * INCHES_TO_MILLIMETRES; //mm, papers height
     public static final float grid_scale = 25.4F; // Use 10.0 for centimeters, 25.4 for inches, and between 444 and 529.2 for cubits.
 
-    public static DrawingBotV3 app = DrawingBotV3.INSTANCE;
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void grid() {
         // This will give you a rough idea of the size of the printed image, in "grid_scale" units.
         // Some screen scales smaller than 1.0 will sometimes display every other line
         // It looks like a big logic bug, but it just can't display a one pixel line scaled down well.
-
+        /*
         //TODO FIX GRID RENDERER!!!
         if (app.displayGrid.getValue() && app.getActiveTask() != null) {
             //app.hint(DISABLE_DEPTH_TEST);      // Allow fills to be shown on top.
@@ -83,6 +81,7 @@ public class GridOverlay {
 
             //app.hint(ENABLE_DEPTH_TEST);
         }
+        */
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

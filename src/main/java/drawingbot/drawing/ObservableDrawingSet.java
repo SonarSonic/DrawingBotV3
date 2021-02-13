@@ -25,11 +25,11 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
     public ObservableDrawingSet(IDrawingSet<?> source){
         this.name = new SimpleStringProperty();
         this.pens = FXCollections.observableArrayList();
-        this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
+        this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.onDrawingSetChanged());
         this.renderOrder = new SimpleObjectProperty<>(EnumDistributionOrder.DARKEST_FIRST);
         this.blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
-        this.renderOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
-        this.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
+        this.renderOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingSetChanged());
+        this.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingSetChanged());
         loadDrawingSet(source);
     }
 

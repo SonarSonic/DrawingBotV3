@@ -33,7 +33,7 @@ public class ExportTask extends Task<Boolean> {
 
     @Override
     protected Boolean call() throws Exception {
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActiveExportTask(this)); //avoid clashing with render thread
+        Platform.runLater(() -> DrawingBotV3.setActiveExportTask(this)); //avoid clashing with render thread
         updateTitle(format.displayName);
         if(!seperatePens){
             updateMessage("1 / 1" + " - " + saveLocation);

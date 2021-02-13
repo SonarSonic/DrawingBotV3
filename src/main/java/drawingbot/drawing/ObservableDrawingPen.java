@@ -32,10 +32,10 @@ public class ObservableDrawingPen implements IDrawingPen {
         this.currentPercentage = new SimpleStringProperty("0.0");
         this.currentLines = new SimpleIntegerProperty(0);
 
-        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.javaFXColour.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
+        this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
+        this.javaFXColour.addListener((observable, oldValue, newValue) -> {DrawingBotV3.onDrawingPenChanged(); awtColor = null;});
+        this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
     }
 
     public boolean isEnabled(){
@@ -55,5 +55,16 @@ public class ObservableDrawingPen implements IDrawingPen {
     @Override
     public String toString(){
         return getName();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private java.awt.Color awtColor = null;
+
+    public java.awt.Color getAWTColor(){
+        if(awtColor == null){
+            awtColor = new java.awt.Color(getARGB(), true);
+        }
+        return awtColor;
     }
 }

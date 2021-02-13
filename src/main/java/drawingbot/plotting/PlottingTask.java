@@ -10,8 +10,6 @@ import drawingbot.utils.EnumTaskStage;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
-import processing.core.PConstants;
-import processing.core.PImage;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -33,6 +31,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public BufferedImage img_original;              // The original image
     public BufferedImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public BufferedImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
+
+    public int width = -1;
+    public int height = -1;
 
     // PIXEL DATA \\
     public IPixelData reference;
@@ -61,8 +62,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public boolean doTask(){
-        DrawingBotV3 app = DrawingBotV3.INSTANCE;
-
         switch (stage){
 
             case QUEUED:
@@ -85,18 +84,21 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
 
-                img_plotting = ImageTools.cropToAspectRatio(img_plotting, app.getDrawingAreaWidthMM() / app.getDrawingAreaHeightMM());
+                img_plotting = ImageTools.cropToAspectRatio(img_plotting, DrawingBotV3.getDrawingAreaWidthMM() / DrawingBotV3.getDrawingAreaHeightMM());
                 img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
                 img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * plottingResolution), (int)(img_plotting.getHeight()* plottingResolution));
 
                 reference = ImageTools.copyToPixelData(img_plotting, ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode()));
                 plotting = ImageTools.copyToPixelData(img_plotting, ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode()));
 
+                width = img_plotting.getWidth();
+                height = img_plotting.getHeight();
+
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Finished");
 
                 float   gcode_scale_x, gcode_scale_y;
-                gcode_scale_x = DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() / img_plotting.getWidth();
-                gcode_scale_y = DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() / img_plotting.getHeight();
+                gcode_scale_x = DrawingBotV3.getDrawingAreaWidthMM() / img_plotting.getWidth();
+                gcode_scale_y = DrawingBotV3.getDrawingAreaHeightMM() / img_plotting.getHeight();
                 gcode_scale = Math.min(gcode_scale_x, gcode_scale_y);
 
 
@@ -162,7 +164,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public void finishStage(){
-        DrawingBotV3.INSTANCE.onTaskStageFinished(this, stage);
+        DrawingBotV3.onTaskStageFinished(this, stage);
         stage = EnumTaskStage.values()[stage.ordinal()+1];
     }
 
@@ -182,12 +184,12 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return img_plotting;
     }
 
-    public int width(){
-        return getOriginalImage().getWidth();
+    public int getPlottingWidth(){
+        return width;
     }
 
-    public int height(){
-        return getOriginalImage().getHeight();
+    public int getPlottingHeight(){
+        return height;
     }
 
     public void stopElegantly(){
@@ -201,7 +203,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        DrawingBotV3.INSTANCE.onTaskCancelled();
+        DrawingBotV3.onTaskCancelled();
         return super.cancel(mayInterruptIfRunning);
     }
 
@@ -219,7 +221,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     @Override
     protected PlottingTask call() throws Exception {
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
+        Platform.runLater(() -> DrawingBotV3.setActivePlottingTask(this));
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){
                 cancel();
