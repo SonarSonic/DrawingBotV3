@@ -10,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.awt.image.BufferedImage;
-import java.nio.Buffer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -186,7 +185,7 @@ public class ImageFilterRegistry {
 
         @Override
         public BufferedImage filter(BufferedImage img) {
-            return ImageTools.lazyImageBorder(img, prefix + borderNumber + suffix, 0, 0);
+            return ImageTools.lazyImageBorder(img, prefix + borderNumber + suffix, true, 0, 0);
         }
     }
 

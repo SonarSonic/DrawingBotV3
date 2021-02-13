@@ -58,6 +58,12 @@ public interface IPlottingTask {
      */
     void addLine(float x1, float y1, float x2, float y2);
 
+    void beginShape(); //TODO MAKE WORK FOR ALL TYPES!
+
+    void endShape();
+
+    void addCurveVertex(float x1, float y1);
+
     /**
      * The pixel data the {@link IPathFindingModule} can alter while processing
      * This will be set to a copy of {@link #getReferencePixelData()} before the process begins

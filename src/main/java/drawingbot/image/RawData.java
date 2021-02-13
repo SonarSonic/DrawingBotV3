@@ -1,6 +1,6 @@
 package drawingbot.image;
 
-import static processing.core.PApplet.constrain;
+import drawingbot.utils.Utils;
 
 /**represents raw pixel data, removing bloat to provide fastest possible speeds
  * it also keeps track of the average of all the data stored which allows for progress updates to be more frequent*/
@@ -48,7 +48,7 @@ public class RawData {
     }
 
     public void adjustData(int x, int y, int adjust) {
-        int newValue = constrain(getData(x, y) + adjust,0,255);
+        int newValue = Utils.clamp(getData(x, y) + adjust,0,255);
         setData(x, y, newValue);
     }
 }

@@ -1,18 +1,17 @@
 package drawingbot.drawing;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
-import drawingbot.utils.EnumBlendMode;
+import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.utils.EnumDistributionOrder;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
@@ -25,10 +24,10 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
     public ObservableDrawingSet(IDrawingSet<?> source){
         this.name = new SimpleStringProperty();
-        this.pens = new ObservableListWrapper<>(new ArrayList<>());
+        this.pens = FXCollections.observableArrayList();
         this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.renderOrder = new SimpleObjectProperty<>(EnumDistributionOrder.DARKEST_FIRST);
-        this.blendMode = new SimpleObjectProperty<>(EnumBlendMode.NONE);
+        this.blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
         this.renderOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         loadDrawingSet(source);

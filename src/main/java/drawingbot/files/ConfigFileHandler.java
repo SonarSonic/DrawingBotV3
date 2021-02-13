@@ -4,10 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
-import drawingbot.image.ImageFilterRegistry;
-import drawingbot.pfm.PFMMasterRegistry;
-import drawingbot.utils.EnumPresetType;
-import drawingbot.utils.GenericPreset;
 
 import java.io.*;
 import java.nio.file.Files;

@@ -2,13 +2,11 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.utils.AlgorithmHelper;
+import drawingbot.utils.Utils;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static processing.core.PApplet.*;
-import static processing.core.PApplet.constrain;
 
 public abstract class AbstractDarkestPFM extends AbstractPFM {
 
@@ -134,12 +132,12 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         count_brightness = 0;
 
         int x1, y1;
-        x1 = (int)(cos(radians(degree))*distance) + x0;
-        y1 = (int)(sin(radians(degree))*distance) + y0;
-        x0 = constrain(x0, 0, pixels.getWidth()-1);
-        y0 = constrain(y0, 0, pixels.getHeight()-1);
-        x1 = constrain(x1, 0, pixels.getWidth()-1);
-        y1 = constrain(y1, 0, pixels.getHeight()-1);
+        x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + x0;
+        y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + y0;
+        x0 = Utils.clamp(x0, 0, pixels.getWidth()-1);
+        y0 = Utils.clamp(y0, 0, pixels.getHeight()-1);
+        x1 = Utils.clamp(x1, 0, pixels.getWidth()-1);
+        y1 = Utils.clamp(y1, 0, pixels.getHeight()-1);
 
         AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> bresenhamTest(pixels, x, y));
     }

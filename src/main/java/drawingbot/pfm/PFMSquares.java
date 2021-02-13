@@ -2,8 +2,6 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 
-import static processing.core.PApplet.*;
-
 public class PFMSquares extends AbstractSketchPFM {
 
     public PFMSquares(){
@@ -22,7 +20,7 @@ public class PFMSquares extends AbstractSketchPFM {
         float start_angle;
         float delta_angle;
 
-        start_angle = 36 + degrees((sin(radians(start_x/9F+46F)) + cos(radians(start_y/26F+26F))));
+        start_angle = 36F + (float)(Math.toDegrees((Math.sin(Math.toRadians(start_x/9F+46F)) + Math.cos(Math.toRadians(start_y/26F+26F)))));
         delta_angle = 360.0F / (float)tests;
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);

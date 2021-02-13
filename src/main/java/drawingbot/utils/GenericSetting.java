@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.util.StringConverter;
 import javafx.util.converter.*;
-import processing.core.PApplet;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,15 +35,15 @@ public class GenericSetting<C, V> {
     }
 
     public static <C> GenericSetting<C, Integer> createRangedIntSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, BiConsumer<C, Integer> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), value -> PApplet.constrain(value, minValue, maxValue), setter);
+        return new GenericSetting<>(pfmClass, settingName, defaultValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     public static <C> GenericSetting<C, Float> createRangedFloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, BiConsumer<C, Float> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), value -> PApplet.constrain(value, minValue, maxValue), setter);
+        return new GenericSetting<>(pfmClass, settingName, defaultValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     public static <C> GenericSetting<C, Long> createRangedLongSetting(Class<C> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, BiConsumer<C, Long> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> (value < minValue) ? minValue : ((value > maxValue) ? maxValue : defaultValue), setter);
+        return new GenericSetting<>(pfmClass, settingName, defaultValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
 

@@ -27,7 +27,6 @@ public class FXApplication extends Application {
 
     public static Stage primaryStage;
 
-
     public static void main(String[] args) {
         launch(args);
     }

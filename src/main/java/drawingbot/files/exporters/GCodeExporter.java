@@ -1,20 +1,17 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.utils.Limit;
+import drawingbot.utils.Utils;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.function.BiFunction;
-import java.util.logging.Level;
-
-import static processing.core.PApplet.*;
 
 public class GCodeExporter {
 
@@ -61,14 +58,14 @@ public class GCodeExporter {
 
     /**formats the value into GCODE Number Format*/
     private static String gcodeFormat(Float value) {
-        String s = nf(value, 0, gcode_decimals);
+        String s = Utils.formatGCode(value);
         s = s.replace('.', gcode_decimal_seperator);
         s = s.replace(',', gcode_decimal_seperator);
         return s;
     }
 
     public static void exportGCode(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
-        output = createWriter(saveLocation);
+        output = FileUtils.createWriter(saveLocation);
         plottingTask.comments.forEach(GCodeExporter::addComment); //add all task comments
         gcodeHeader(plottingTask);
 
@@ -95,13 +92,13 @@ public class GCodeExporter {
                         float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
                         float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
                         float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
-                        float distance = sqrt( sq(abs(gcode_scaled_x1 - gcode_scaled_x2)) + sq(abs(gcode_scaled_y1 - gcode_scaled_y2)) );
+                        double distance = Math.sqrt( Math.pow(Math.abs(gcode_scaled_x1 - gcode_scaled_x2), 2) + Math.pow(Math.abs(gcode_scaled_y1 - gcode_scaled_y2), 2) );
 
                         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
                             // Oh crap, where the line starts is not where I am, pick up the pen and move there.
                             output.println(movePenUp());
                             is_pen_down = false;
-                            distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
+                            distance = Math.sqrt( Math.pow(Math.abs(x - gcode_scaled_x1), 2) + Math.pow(Math.abs(y - gcode_scaled_y1), 2) );
                             output.println(movePen(gcode_scaled_x1, gcode_scaled_y1));
                             x = gcode_scaled_x1;
                             y = gcode_scaled_y1;
@@ -168,7 +165,7 @@ public class GCodeExporter {
         float test_length = 10;
 
         String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + extension;
-        output = DrawingBotV3.INSTANCE.createWriter(gname);
+        output = FileUtils.createWriter(new File(gname));
         output.println(comment("This is a test file to draw the extremes of the drawing area."));
         output.println(comment("Draws a 1cm mark on all four corners of the paper."));
         output.println(comment("WARNING:  pen will be down."));

@@ -3,14 +3,15 @@ package drawingbot.files.exporters;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
+import drawingbot.files.FileUtils;
+import drawingbot.image.ImageTools;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
+import drawingbot.utils.Utils;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.function.BiFunction;
-
-import static processing.core.PApplet.*;
 
 //TODO CHECK SVG COLOUR/OPACITY ACCURACY - ENSURE DPI is relative to actual size not inches.
 public class SVGExporter {
@@ -22,7 +23,7 @@ public class SVGExporter {
         final char regional_decimal_separator = ',';
         final char svg_decimal_seperator = '.';
 
-        String s = nf(n, 0, svg_decimals);
+        String s = Utils.formatGCode(n);
         s = s.replace(regional_decimal_separator, svg_decimal_seperator);
         return s;
     }
@@ -32,9 +33,9 @@ public class SVGExporter {
         boolean  drawing_polyline = false;
         float  svgdpi = 96.0F / 25.4F; // Inkscape versions before 0.91 used 90dpi, Today most software assumes 96dpi.
 
-        PrintWriter output = DrawingBotV3.createWriter(saveLocation);
+        PrintWriter output = FileUtils.createWriter(saveLocation);
         output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.getGCodeScale()) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().height * plottingTask.getGCodeScale()) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+        output.println("<svg width=\"" + svg_format(plottingTask.width() * plottingTask.getGCodeScale()) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().getHeight() * plottingTask.getGCodeScale()) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
         plottingTask.plottedDrawing.setPenContinuationFlagsForSVG();
 
         int completedLines = 0;
@@ -64,7 +65,7 @@ public class SVGExporter {
                             String buf = svg_format(gcode_scaled_x2) + "," + svg_format(gcode_scaled_y2);
                             output.println(buf);
                         } else {
-                            output.println("<polyline fill=\"none\" stroke=\"#" + hex(pen.getARGB(), 6) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
+                            output.println("<polyline fill=\"none\" stroke=\"#" + ImageTools.toHex(pen.getARGB()) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
                             String buf = svg_format(gcode_scaled_x1) + "," + svg_format(gcode_scaled_y1);
                             output.println(buf);
                         }

@@ -7,6 +7,7 @@ import drawingbot.drawing.*;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.image.ImageTools;
 import drawingbot.api.IPathFindingModule;
+import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.utils.GenericPreset;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
@@ -55,8 +56,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-import static processing.core.PApplet.*;
-
 public class FXController {
 
     public void initialize(){
@@ -101,7 +100,7 @@ public class FXController {
         //file
         menuImport.setOnAction(e -> importFile());
         menuImportURL.setOnAction(e -> importURL());
-        menuExit.setOnAction(e -> DrawingBotV3.INSTANCE.exit());
+        menuExit.setOnAction(e -> Platform.exit());
         for(ExportFormats format : ExportFormats.values()){
             MenuItem item = new MenuItem(format.displayName);
             item.setOnAction(e -> exportFile(format, false));
@@ -653,7 +652,7 @@ public class FXController {
 
     public void importURL(){
         String url = getClipboardString();
-        if (url != null && match(url.toLowerCase(), "^https?:...*(jpg|png)") != null) {
+        if (url != null && url.toLowerCase().matches("^https?:...*(jpg|png)")) {
             DrawingBotV3.logger.info("Image URL found on clipboard: " + url);
             DrawingBotV3.INSTANCE.openImage(url);
         }
@@ -664,7 +663,7 @@ public class FXController {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().add(FileUtils.IMPORT_IMAGES);
             d.setTitle("Select an image file to sketch");
-            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             File file = d.showOpenDialog(null);
             if(file != null){
                 DrawingBotV3.INSTANCE.openImage(file.getAbsolutePath());
@@ -680,7 +679,7 @@ public class FXController {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(format.filters);
             d.setTitle(format.getDialogTitle());
-            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             //TODO SET INITIAL FILENAME!!!
             File file = d.showSaveDialog(null);
             if(file != null){
@@ -717,7 +716,7 @@ public class FXController {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().add(FileUtils.FILTER_JSON);
             d.setTitle("Select a preset to import");
-            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             File file = d.showOpenDialog(null);
             if(file != null){
                 PresetManager.importPresetFile(file, presetType);
@@ -730,7 +729,7 @@ public class FXController {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(FileUtils.FILTER_JSON);
             d.setTitle("Save preset");
-            d.setInitialDirectory(new File(DrawingBotV3.INSTANCE.savePath("")));
+            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             d.setInitialFileName(preset.presetName + " - Preset");
             File file = d.showSaveDialog(null);
             if(file != null){
