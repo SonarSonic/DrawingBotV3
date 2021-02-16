@@ -11,6 +11,7 @@ public class PixelDataARGB implements IPixelData {
     public RawData red;
     public RawData green;
     public RawData blue;
+    public int transparentARGB = -1;
 
     private float[] hsbCache = new float[3];
     private int[] argbCache = new int[4];
@@ -130,5 +131,15 @@ public class PixelDataARGB implements IPixelData {
         setRed(x, y, r);
         setGreen(x, y, g);
         setBlue(x, y, b);
+    }
+
+    @Override
+    public int getTransparentARGB() {
+        return transparentARGB;
+    }
+
+    @Override
+    public void setTransparentARGB(int argb) {
+        transparentARGB = argb;
     }
 }

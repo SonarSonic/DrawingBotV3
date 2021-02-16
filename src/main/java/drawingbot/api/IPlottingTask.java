@@ -103,16 +103,4 @@ public interface IPlottingTask {
      */
     IDrawingSet<?> getDrawingSet();
 
-
-    /**
-     * The plotting resolution, how much to scale the image by before plotting.
-     * @return the current plotting resolution, typically = 1
-     */
-    float getPlottingResolution();
-
-    /**
-     * Set the current plotting resolution, must be called during the {@link IPathFindingModule#init(IPlottingTask)}.
-     * @param resolution
-     */
-    void setPlottingResolution(float resolution);
 }

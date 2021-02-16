@@ -10,6 +10,7 @@ public class PixelDataHSB implements IPixelData {
     public RawData hue;
     public RawData saturation;
     public RawData brightness;
+    public int transparentARGB = -1;
 
     private float[] hsbCache = new float[3];
     private int[] argbCache = new int[4];
@@ -126,5 +127,15 @@ public class PixelDataHSB implements IPixelData {
     @Override
     public float getAverageHSB(int type) {
         return getRawData(type).getAverage();
+    }
+
+    @Override
+    public int getTransparentARGB() {
+        return transparentARGB;
+    }
+
+    @Override
+    public void setTransparentARGB(int argb) {
+        transparentARGB = argb;
     }
 }

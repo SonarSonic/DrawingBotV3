@@ -3,7 +3,6 @@
   Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
  */
 package drawingbot;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -18,7 +17,6 @@ import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.image.blend.BlendComposite;
 import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.utils.*;
@@ -28,7 +26,6 @@ import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -211,7 +208,6 @@ public class DrawingBotV3 {
 
         switch (renderedTask.stage){
             case QUEUED:
-            case LOADING_IMAGE:
             case PRE_PROCESSING:
                 break;
             case DO_PROCESS:

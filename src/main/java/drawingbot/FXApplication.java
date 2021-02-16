@@ -13,6 +13,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -21,7 +22,7 @@ import org.jfree.fx.FXGraphics2D;
 import java.io.*;
 import java.util.logging.Level;
 
-public class FXLauncher extends Application {
+public class FXApplication extends Application {
 
     public static Stage primaryStage;
     public static Scene primaryScene;
@@ -37,7 +38,7 @@ public class FXLauncher extends Application {
     public void start(Stage primaryStage) throws IOException {
         DrawingBotV3.logger.setLevel(Level.ALL);
         DrawingBotV3.logger.entering("FXApplication", "start");
-        FXLauncher.primaryStage = primaryStage;
+        FXApplication.primaryStage = primaryStage;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,17 +59,18 @@ public class FXLauncher extends Application {
         DrawingBotV3.canvas = canvas;
         DrawingBotV3.graphics = new FXGraphics2D(canvas.getGraphicsContext2D());
 
-        FXMLLoader loader = new FXMLLoader(FXLauncher.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
+        FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
         loader.setController(DrawingBotV3.controller);
 
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        FXLauncher.primaryScene = new Scene(loader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
-        FXLauncher.primaryScene.setOnKeyPressed(DrawingBotV3::keyPressed);
-        FXLauncher.primaryScene.setOnKeyReleased(DrawingBotV3::keyReleased);
+        FXApplication.primaryScene = new Scene(loader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
+        FXApplication.primaryScene.setOnKeyPressed(DrawingBotV3::keyPressed);
+        FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3::keyReleased);
         primaryStage.setScene(primaryScene);
 
         primaryStage.setTitle(DrawingBotV3.appName + ", Version: " + DrawingBotV3.appVersion);
         primaryStage.setResizable(true);
+        applyDBIcon(primaryStage);
         primaryStage.show();
 
         // set up main drawing loop
@@ -79,5 +81,12 @@ public class FXLauncher extends Application {
         animation.play();
 
         DrawingBotV3.logger.exiting("FXApplication", "start");
+    }
+
+    public void applyDBIcon(Stage primaryStage){
+        InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
+        if(stream != null){
+            primaryStage.getIcons().add(new Image(stream));
+        }
     }
 }

@@ -1,6 +1,11 @@
 # Change Log
 
-###v1.0.1-alpha
+###[v1.0.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.2-beta)
+- Changed: DrawingBotV3 is now for Java 11+
+- Removed: Dependency on Processing
+- Fixed: Alpha channels being ignored by Path Finding Modules
+
+###[v1.0.1-alpha](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.1-alpha)
 - Added: User Configurable Presets which can be imported/exported and shared with other users
 - Added: Default Path Finding Module Presets 
     - inc. "Sketchy", "Glitchy Vertical, "Glitchy Horizontal" & "Messy Lines"
@@ -16,5 +21,6 @@
 - Fixed: The console log not being outputted properly
 - Fixed: "Reset Plotting" button, this will now work more consistently and will try to force plotting to stop regardless of where the process is, the plotting will have to be restarted.
 - Note: The "Pre-Processing" tab is still W.I.P.
+
 ###[v1.0.0-alpha](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.0-alpha)
 - The first public alpha!

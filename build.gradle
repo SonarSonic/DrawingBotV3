@@ -1,11 +1,12 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    id 'edu.sc.seis.launch4j' version '2.4.9';
+    id 'org.openjfx.javafxplugin' version '0.0.9'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id "org.beryx.runtime" version "1.12.1"
 }
 
-mainClassName  = 'drawingbot.FXLauncher'
+apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
@@ -17,53 +18,97 @@ repositories {
     }
 }
 
+javafx {
+    version = "15.0.1"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing']
+}
+
 dependencies {
-    // Use JUnit test framework.
+    //test dependencies
     testImplementation "junit:junit:${junit_version}"
 
-    // This dependency is used by the application.
-    implementation 'org.jfree:fxgraphics2d:1.8'
-
-    implementation "com.itextpdf:itextpdf:${itext_version}"
-    shadow "com.itextpdf:itextpdf:${itext_version}"
-
-    implementation "org.imgscalr:imgscalr-lib:${imgscalr_version}"
-    shadow "org.imgscalr:imgscalr-lib:${imgscalr_version}"
-
-    implementation "com.google.code.gson:gson:${gson_version}"
-    shadow "com.google.code.gson:gson:${gson_version}"
-
-    implementation "org.locationtech.jts:jts-core:${jts_version}"
-    shadow "org.locationtech.jts:jts-core:${jts_version}"
+    //shadowed dependencies
+    compile "org.jfree:org.jfree.fxgraphics2d:${fxgraphics_version}"
+    compile "com.itextpdf:itextpdf:${itext_version}"
+    compile "org.imgscalr:imgscalr-lib:${imgscalr_version}"
+    compile "com.google.code.gson:gson:${gson_version}"
+    compile "org.locationtech.jts:jts-core:${jts_version}"
 
 }
+
+targetCompatibility = "11"
+sourceCompatibility = "11"
 
 project.setArchivesBaseName(app_name + "-" + app_version + "-" + app_state)
 project.setApplicationName(app_name);
 
-application {}
-
-launch4j {
-   // icon = "${projectDir}/icons/myApp.ico"
-    dontWrapJar = true;
-    bundledJrePath = 'jre'
-    bundledJre64Bit = false
-    jreMinVersion = '1.8.0_191' //LOWEST TESTED VERSION
-    jreMaxVersion = '1.8.0_281' //LATEST JAVA 1.8.0
-    // '1.8.0_202' //RECOMMENDED PROCESSING VERSION
+application {
+    mainClassName  = 'drawingbot.Launcher'
+    applicationName = 'drawingbot'
 }
 
-task packageExecutableDistribution(type: Zip) {
-    getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state}.zip")
-    getDestinationDirectory().set(file("$buildDir/distExecutable"));
+runtime {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    modules = [
+            'java.sql',
+            'java.desktop',
+            'java.scripting',
+            'java.logging',
+            'java.xml.crypto',
+            'java.management',
+            'java.xml',
+            'jdk.jfr',
+            'jdk.unsupported',
+            'java.datatransfer'] //created via suggestModules
 
-    from "$buildDir/launch4j"
+    jpackage{
+        def currentOs = org.gradle.internal.os.OperatingSystem.current()
+        def imgType = currentOs.windows ? 'ico' : currentOs.macOsX ? 'icns' : 'png'
+        imageOptions += ['--icon', "src/main/resources/images/icon.$imgType"]
+        appVersion = "$app_version"
+        installerOptions += ['--resource-dir', "src/main/resources"]
+        installerOptions += ['--vendor', 'Ollie Lansdell']
+        if(currentOs.windows) {
+            installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut']
+            installerType = 'exe'
+        }
+        else if (currentOs.linux) {
+            installerOptions += ['--linux-package-name', 'drawingbot','--linux-shortcut']
+        }
+        else if (currentOs.macOsX) {
+            installerOptions += ['--mac-package-name', 'drawingbot']
+        }
+    }
 }
 
-task addJreToDistributable(type: Copy) {
-    //from zipTree("C:\\Program Files\\Java\\jre1.8.0_281")
-    //destinationDir = file("$buildDir/launch4j")
-}
+task jpackageImageZip(type: Zip){
+    getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state + "-win"}.zip")
+    getDestinationDirectory().set(file("$buildDir/release"));
 
-packageExecutableDistribution.dependsOn createExe
-packageExecutableDistribution.dependsOn addJreToDistributable
+    from "$buildDir/jpackage/$app_name"
+}
+jpackageImageZip.dependsOn jpackageImage
+
+task renameWindowsLauncher (type: Copy) { //temporary, due to bug in wix toolset
+    from ("$buildDir/jpackage")
+    into ("$buildDir/release")
+    def baseName = "$app_name" + "-" + "$app_version"
+    include baseName + ".exe"
+    rename baseName + ".exe", baseName + "-" + app_state + "-win" + ".exe"
+}
+renameWindowsLauncher.dependsOn jpackage
+
+task moveShadowJar (type: Copy) {
+    from ("$buildDir/libs")
+    into ("$buildDir/release")
+
+    include app_name + "-" + app_version + "-" + app_state + "-all.jar"
+}
+moveShadowJar.dependsOn shadowJar
+
+task prepareRelease{
+    //
+}
+prepareRelease.dependsOn jpackageImageZip
+prepareRelease.dependsOn renameWindowsLauncher
+prepareRelease.dependsOn moveShadowJar

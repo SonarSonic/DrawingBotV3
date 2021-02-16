@@ -755,8 +755,6 @@ public class FXController {
         switch (stage){
             case QUEUED:
                 break;
-            case LOADING_IMAGE:
-                break;
             case PRE_PROCESSING:
                 break;
             case DO_PROCESS:

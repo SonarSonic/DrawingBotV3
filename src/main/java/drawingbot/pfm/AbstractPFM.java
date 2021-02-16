@@ -8,6 +8,7 @@ import java.util.Random;
 public abstract class AbstractPFM implements IPathFindingModule {
 
     protected float pfmResolution = 1;
+    protected int transparentARGB = -1;
 
     protected long seed = 0;
     protected Random randomSeed;
@@ -15,7 +16,16 @@ public abstract class AbstractPFM implements IPathFindingModule {
     @Override
     public void init(IPlottingTask task) {
         randomSeed = new Random(seed);
-        task.setPlottingResolution(pfmResolution);
+    }
+
+    @Override
+    public float getPlottingResolution() {
+        return pfmResolution;
+    }
+
+    @Override
+    public int getTransparentARGB() {
+        return transparentARGB;
     }
 
     /**produces random results which will be consistent every time the PFM is run*/

@@ -6,6 +6,7 @@ public class PixelDataGray implements IPixelData {
 
     public int width, height;
     public RawData gray;
+    public int transparentARGB = -1;
 
     private float[] hsbCache = new float[3];
     private int[] argbCache = new int[4];
@@ -34,7 +35,8 @@ public class PixelDataGray implements IPixelData {
 
     @Override
     public void setARGB(int x, int y, int argb) {
-        int lum = (77*(argb>>16&0xff) + 151*(argb>>8&0xff) + 28*(argb&0xff))>>8;
+        ImageTools.getColourIntsFromARGB(argb, argbCache);
+        int lum = (77*argbCache[1] + 151*argbCache[2] + 28*argbCache[3])>>8;
         gray.setData(x, y, lum);
     }
 
@@ -86,5 +88,15 @@ public class PixelDataGray implements IPixelData {
     @Override
     public float getAverageHSB(int type) {
         return type == 2 ? gray.getAverage() : 0;
+    }
+
+    @Override
+    public int getTransparentARGB() {
+        return transparentARGB;
+    }
+
+    @Override
+    public void setTransparentARGB(int argb) {
+        transparentARGB = argb;
     }
 }

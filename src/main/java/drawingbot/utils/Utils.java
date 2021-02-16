@@ -10,7 +10,7 @@ public class Utils {
 
     public static Random random = new Random();
     public static NumberFormat defaultNF = NumberFormat.getNumberInstance();
-    public static String URL_GITHUB_REPO = "https://github.com/SonarSonic/Drawbot_image_to_gcode_v3";
+    public static String URL_GITHUB_REPO = "https://github.com/SonarSonic/DrawingBotV3";
     public static String URL_GITHUB_WIKI = URL_GITHUB_REPO + "/wiki";
     public static String URL_GITHUB_PFM_DOCS = URL_GITHUB_WIKI + "/Advanced-PFM-Settings";
 
@@ -48,28 +48,28 @@ public class Utils {
         }
     }
 
-    public static long clamp(long x, long min, long max){
-        if (x < min) return min;
-        if (x > max) return max;
-        return x;
+    public static long clamp(long value, long min, long max){
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
     }
 
-    public static float clamp(float x, float min, float max){
-        if (x < min) return min;
-        if (x > max) return max;
-        return x;
+    public static float clamp(float value, float min, float max){
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
     }
 
-    public static double clamp(double x, double min, double max){
-        if (x < min) return min;
-        if (x > max) return max;
-        return x;
+    public static double clamp(double value, double min, double max){
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
     }
 
-    public static int clamp(int x, int min, int max){
-        if (x < min) return min;
-        if (x > max) return max;
-        return x;
+    public static int clamp(int value, int min, int max){
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
     }
 
     public static int mapInt(int value, int istart, int istop, int ostart, int ostop) {
