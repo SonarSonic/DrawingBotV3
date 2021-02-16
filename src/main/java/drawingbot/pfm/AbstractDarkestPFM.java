@@ -55,7 +55,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
                 float sampleBrightness = 0;
                 for(int x = startX; x < endX; x++){
                     for(int y = startY; y < endY; y++){
-                        sampleBrightness += getBrightnessAlphaTest(pixels, x, y);
+                        sampleBrightness += pixels.getBrightness(x, y);
                     }
                 }
                 float avgBrightness = sampleBrightness / (sampleWidth*sampleHeight);
@@ -74,12 +74,12 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     /**returns a random pixel of the darkest pixels found*/
     public void findDarkestPixel(IPixelData pixels){
         List<Pair<Integer, Integer>> points = new ArrayList<>();
-        int brightness = getBrightnessAlphaTest(pixels, 0,0);
+        int brightness = pixels.getBrightness(0,0);
 
 
         for(int x = 0; x < pixels.getWidth(); x ++){
             for(int y = 0; y < pixels.getHeight(); y ++){
-                int c = getBrightnessAlphaTest(pixels, x, y);
+                int c = pixels.getBrightness(x, y);
                 if(c == brightness) {
                     points.add(new Pair<>(x, y));
                 }
@@ -152,7 +152,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     protected void bresenhamTest(IPixelData pixels, int x, int y){
-        sum_brightness += getBrightnessAlphaTest(pixels, x, y);
+        sum_brightness += pixels.getBrightness(x, y);
         count_brightness++;
         if ((float)sum_brightness / (float)count_brightness < darkest_neighbor) {
             darkest_x = x;
@@ -167,7 +167,4 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> pixels.adjustBrightness(x, y, adjustbrightness));
     }
 
-    public int getBrightnessAlphaTest(IPixelData data, int x, int y){
-        return data.getBrightness(x, y);
-    }
 }

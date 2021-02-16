@@ -4,86 +4,50 @@ import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
-import drawingbot.image.ImageTools;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.PlottedLine;
-import drawingbot.utils.Utils;
+import drawingbot.plotting.PlottingTask;
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
-import java.io.File;
-import java.io.PrintWriter;
+import java.awt.*;
+import java.io.*;
 import java.util.function.BiFunction;
 
-//TODO CHECK SVG COLOUR/OPACITY ACCURACY - ENSURE DPI is relative to actual size not inches.
+//Documentation/Source: https://xmlgraphics.apache.org/batik/using/svg-generator.html
 public class SVGExporter {
 
-    public static final int svg_decimals = 3; // numbers of decimal places used on svg exports
-
-    // Thanks to Vladimir Bochkov for helping me debug the SVG international decimal separators problem.
-    public static String svg_format (Float n) {
-        final char regional_decimal_separator = ',';
-        final char svg_decimal_seperator = '.';
-
-        String s = Utils.formatGCode(n);
-        s = s.replace(regional_decimal_separator, svg_decimal_seperator);
-        return s;
-    }
-
-    // Thanks to John Cliff for getting the SVG output moving forward.
     public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
-        boolean  drawing_polyline = false;
-        float  svgdpi = 96.0F / 25.4F; // Inkscape versions before 0.91 used 90dpi, Today most software assumes 96dpi.
+        try {
+            int width = plottingTask.getPlottingImage().getWidth();
+            int height = plottingTask.getPlottingImage().getHeight();
 
-        PrintWriter output = FileUtils.createWriter(saveLocation);
-        output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        output.println("<svg width=\"" + svg_format(plottingTask.getPlottingImage().getWidth() * plottingTask.getGCodeScale()) + "mm\" height=\"" + svg_format(plottingTask.getPlottingImage().getHeight() * plottingTask.getGCodeScale()) + "mm\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
-        plottingTask.plottedDrawing.setPenContinuationFlagsForSVG();
+            // Get a DOMImplementation.
+            DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
 
-        int completedLines = 0;
+            // Create an instance of org.w3c.dom.Document.
+            String svgNS = "http://www.w3.org/2000/svg";
+            Document document = domImpl.createDocument(svgNS, "svg", null);
 
-        // Loop over pens backwards to display dark lines last.
-        // Then loop over all displayed lines.
-        for (int p = plottingTask.plottedDrawing.getPenCount()-1; p >= 0; p--) {
-            ObservableDrawingPen pen = plottingTask.plottedDrawing.getPen(p);
+            // Create an instance of the SVG Generator.
+            SVGGraphics2D graphics = new SVGGraphics2D(document);
+            graphics.setSVGCanvasSize(new Dimension(width, height));
 
-            output.println("<g id=\"" + pen.getName() + "\">");
-            for (int i = 0; i < plottingTask.plottedDrawing.getDisplayedLineCount(); i++) {
-                PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);
-                if (line.pen_number == p) {
+            // Ask the test to render into the SVG Graphics2D implementation.
+            Graphics2DExporter.drawGraphics(graphics, exportTask, plottingTask, lineFilter);
 
-                    float gcode_scaled_x1 = line.x1 * plottingTask.getGCodeScale() * svgdpi;
-                    float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() * svgdpi;
-                    float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() * svgdpi;
-                    float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() * svgdpi;
+            // Finally, stream out SVG to the standard output using UTF-8 encoding.
+            exportTask.updateMessage("Encoding SVG");
+            exportTask.updateProgress(-1, 1);
 
-                    if (!line.pen_continuation && drawing_polyline) {
-                        output.println("\" />");
-                        drawing_polyline = false;
-                    }
+            boolean useCSS = true; // we want to use CSS style attributes
+            graphics.stream(saveLocation.toString(), useCSS);
+            exportTask.updateProgress(1, 1);
 
-                    if (lineFilter.apply(line, pen)) {
-                        if (line.pen_continuation) {
-                            String buf = svg_format(gcode_scaled_x2) + "," + svg_format(gcode_scaled_y2);
-                            output.println(buf);
-                        } else {
-                            output.println("<polyline fill=\"none\" stroke=\"#" + ImageTools.toHex(pen.getARGB()) + "\" stroke-width=\"1.0\" stroke-opacity=\"1\" points=\"");
-                            String buf = svg_format(gcode_scaled_x1) + "," + svg_format(gcode_scaled_y1);
-                            output.println(buf);
-                        }
-                        drawing_polyline = true;
-                    }
-                    completedLines++;
-                }
-                exportTask.updateProgress(completedLines, plottingTask.plottedDrawing.getDisplayedLineCount());
-            }
-            if (drawing_polyline) {
-                output.println("\" />");
-                drawing_polyline = false;
-            }
-            output.println("</g>");
+        } catch (IOException e) {
+            exportTask.setError(e.getMessage());
+            e.printStackTrace();
         }
-        output.println("</svg>");
-        output.flush();
-        output.close();
-        DrawingBotV3.logger.info("SVG created:  " + saveLocation.getName());
     }
 }

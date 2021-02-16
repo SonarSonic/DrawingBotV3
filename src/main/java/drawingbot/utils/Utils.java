@@ -27,17 +27,6 @@ public class Utils {
         return gCodeNF.format(f);
     }
 
-    public static String formatSVG(float f){
-        if(gCodeNF == null){
-            gCodeNF = NumberFormat.getNumberInstance();
-            gCodeNF.setGroupingUsed(false);
-            gCodeNF.setMinimumIntegerDigits(0);
-            gCodeNF.setMinimumFractionDigits(SVGExporter.svg_decimals);
-            gCodeNF.setMaximumFractionDigits(SVGExporter.svg_decimals);
-        }
-        return gCodeNF.format(f);
-    }
-
     public static String capitalize(String name) {
         if (name != null && name.length() != 0) {
             char[] chars = name.toLowerCase().toCharArray();
