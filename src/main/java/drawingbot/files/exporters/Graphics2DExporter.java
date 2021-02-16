@@ -9,9 +9,12 @@ import drawingbot.plotting.PlottingTask;
 import java.awt.*;
 import java.util.function.BiFunction;
 
+/**
+ * Most exporters will use the an implementation of Graphics2D to handle rendering the drawing and can therefore use this universal exporter
+ */
 public class Graphics2DExporter {
 
-    public static void exportImage(Graphics2D graphics, ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter) {
+    public static void drawGraphics(Graphics2D graphics, ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter) {
         graphics.setComposite(new BlendComposite(plottingTask.plottedDrawing.drawingPenSet.blendMode.get()));
         for (int i = plottingTask.plottedDrawing.getDisplayedLineCount()-1; i >= 0; i--) {
             PlottedLine line = plottingTask.plottedDrawing.plottedLines.get(i);

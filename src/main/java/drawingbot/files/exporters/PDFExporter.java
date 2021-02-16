@@ -23,17 +23,18 @@ public class PDFExporter {
         try {
             int width = plottingTask.getPlottingImage().getWidth();
             int height = plottingTask.getPlottingImage().getHeight();
+
             Document document = new Document(new Rectangle(width, height));
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));
 
             document.open();
             PdfContentByte content = writer.getDirectContent();
-            Graphics2DExporter.exportImage(new PdfGraphics2D(content, width, height), exportTask, plottingTask, lineFilter);
-            document.close();
+            Graphics2DExporter.drawGraphics(new PdfGraphics2D(content, width, height), exportTask, plottingTask, lineFilter);
+            document.close(); //dispose is already called within drawGraphics
 
         } catch (DocumentException | FileNotFoundException e) {
+            exportTask.setError(e.getMessage());
             e.printStackTrace();
         }
-        DrawingBotV3.logger.info("PDF created:  " + saveLocation.getName());
     }
 }

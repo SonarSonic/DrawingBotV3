@@ -16,15 +16,12 @@ public class ImageExporter {
 
     public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
         BufferedImage image = new BufferedImage(plottingTask.img_plotting.getWidth(), plottingTask.img_plotting.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2DExporter.exportImage(image.createGraphics(), exportTask, plottingTask, lineFilter);
-
+        Graphics2DExporter.drawGraphics(image.createGraphics(), exportTask, plottingTask, lineFilter);
         try {
             ImageIO.write(image, extension.substring(1), saveLocation);
         } catch (IOException e) {
-            DrawingBotV3.logger.info("Image Error:  " + saveLocation.getPath());
+            exportTask.setError(e.getMessage());
             e.printStackTrace();
-            return;
         }
-        DrawingBotV3.logger.info("Image created:  " + saveLocation.getPath());
     }
 }

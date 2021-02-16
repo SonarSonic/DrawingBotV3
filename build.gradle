@@ -10,7 +10,6 @@ apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
-    // Use JCenter for resolving dependencies.
     jcenter()
     mavenCentral()
     flatDir {
@@ -33,7 +32,8 @@ dependencies {
     compile "org.imgscalr:imgscalr-lib:${imgscalr_version}"
     compile "com.google.code.gson:gson:${gson_version}"
     compile "org.locationtech.jts:jts-core:${jts_version}"
-
+    compile 'org.apache.xmlgraphics:batik-svggen:1.14'
+    compile 'org.apache.xmlgraphics:batik-dom:1.14'
 }
 
 targetCompatibility = "11"
