@@ -294,7 +294,9 @@ public class ImageTools {
     public static IPixelData copyToPixelData(BufferedImage image, IPixelData data){
         for(int x = 0; x < data.getWidth(); x ++){
             for(int y = 0; y < data.getHeight(); y ++){
-                data.setARGB(x, y, image.getRGB(x, y));
+                int argb = image.getRGB(x, y);
+                int alpha = (argb>>24)&0xff;
+                data.setARGB(x, y, alpha == 0 ? data.getTransparentARGB() : argb);
             }
         }
         return data;

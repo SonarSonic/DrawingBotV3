@@ -7,7 +7,7 @@
 ### About
 Drawing Bot is a free, open source software for converting images to line drawings for Plotters / Drawing Machines / 3D printers. It also serves as an application for visual artists to create stylised line drawings from images / video.
 
-It is available for Windows, Mac or Linux.
+It is available for Windows, Mac and Linux.
 
 ### Features
 - Advanced User Interface with live drawing preview
@@ -21,7 +21,7 @@ It is available for Windows, Mac or Linux.
 #### Planned Features
 - Pen Plugins (Support for multiple manufacturers)
 
-##### Supported File Types
+#### Supported File Types
 ```text
 Import Formats: 
     Images: [.tif, .tga, .png, .jpg, .gif, .bmp, .jpeg] 
@@ -32,16 +32,16 @@ Export Formats:
     Images: [.tif, .tga, .png, .jpg, .jpeg]
 ```
 
-##### Installation (for Windows, Mac, Linux)
-- Install [JAVA 8](https://www.java.com/en/download/) - (Newer versions are not supported)
-- Download the [latest release](https://github.com/SonarSonic/DrawingBotV3/releases), you can choose one of the following options.
+### Installation
 
+Downloads: [Latest Release](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
 
-- **-all**: a single .jar file (for Windows, Mac, Linux) 
-- **-windows**: a zip containing a windows exe (for Windows only)
+1) **Windows - Installer** _(.exe)_*
+2) **Windows - Portable** _(.zip)_*
+3) **Mac/Linux/Win - Executable** _(.jar)_ - [Requires JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
 
-
-##### Dependencies
+### Dependencies
+- [OpenJFX](https://github.com/openjdk/jfx) - for User Interface / Rendering
 - [JTS Topology Suite](https://github.com/locationtech/jts) - for Vectors/Geometry
 - [ImgScalr](https://github.com/rkalla/imgscalr) - for Optimised Image Scaling
 - [Gson](https://github.com/google/gson) - for Configuration/Preset Files
@@ -49,4 +49,6 @@ Export Formats:
 - [FXGraphics2D](https://github.com/jfree/fxgraphics2d) - for Swing/JavaFX Compatibility
 
 ### Original Version
-DrawingBotV3 is an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**. Thanks to Scott for allowing me to publish this version!
+DrawingBotV3 is an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**.
+
+Thanks to Scott for allowing me to publish this version!

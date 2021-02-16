@@ -14,15 +14,40 @@ public interface IPathFindingModule {
      * If you only need brightness calculations go with Grayscale
      * @return the default colour mode is ARGB, but this is often the least efficient, especially for brightness orientated PFMs using bresenham calculations
      */
-    int getColourMode();
+    default int getColourMode(){
+        return 0;
+    }
+
+    /**
+     * the transparent ARGB value of the {@link IPixelData}, this is important for brightness orientated PFMs
+     * @return the current transparent ARGB value
+     */
+    default int getTransparentARGB(){
+        return -1;
+    }
+
+    /**
+     * The plotting resolution, how much to scale the image by before plotting.
+     * @return typically = 1.0F
+     */
+    default float getPlottingResolution(){
+        return 1.0F;
+    }
 
     /**
      * Called immediately after the {@link IPathFindingModule}'s settings have been set.
      * Used to check the given settings and apply any special options to the plotting task e.g. {@link IPlottingTask#setPlottingResolution(float)}, {@link IPlottingTask#setActivePen(int)} (float)}
-     * Initial calculations can also happen here as the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} have already been set.
+     * Shouldn't be used for initial calculations the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} will be initialized but the pixel data will not have been set
      * @param task the plotting task
      */
     void init(IPlottingTask task);
+
+    /**
+     * Called once before the first {@link IPathFindingModule#doProcess(IPlottingTask)}
+     * Should be used for initial calculations the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} will now have been set.
+     * @param task the plotting task
+     */
+    default void preProcess(IPlottingTask task){}
 
     /**
      * Runs the PFM, generating the lines from the pixel data provided by {@link IPlottingTask#getPixelData()}
@@ -32,4 +57,9 @@ public interface IPathFindingModule {
      */
     void doProcess(IPlottingTask task);
 
+    /**
+     * Called once after the process has finished
+     * @param task the plotting task
+     */
+    default void postProcess(IPlottingTask task){}
 }

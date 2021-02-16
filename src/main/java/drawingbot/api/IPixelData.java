@@ -375,4 +375,15 @@ public interface IPixelData {
         return getAverageHSB(2);
     }
 
+    /**
+     * @return the ARGB value of transparent pixels, default = a=0, r=0, g=0, b=0
+     */
+    int getTransparentARGB();
+
+    /**
+     * sets the transparent ARGB value, this is important for brightness orientated PFMs, not to called directly by a {@link IPathFindingModule}
+     * instead use {@link IPathFindingModule#getTransparentARGB()}
+     */
+    void setTransparentARGB(int argb);
+
 }

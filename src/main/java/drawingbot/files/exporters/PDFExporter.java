@@ -1,5 +1,6 @@
 package drawingbot.files.exporters;
 
+import com.itextpdf.awt.PdfGraphics2D;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
@@ -19,7 +20,6 @@ import java.util.function.BiFunction;
 public class PDFExporter {
 
     public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
-
         try {
             int width = plottingTask.getPlottingImage().getWidth();
             int height = plottingTask.getPlottingImage().getHeight();
@@ -28,7 +28,7 @@ public class PDFExporter {
 
             document.open();
             PdfContentByte content = writer.getDirectContent();
-            Graphics2DExporter.exportImage(content.createGraphicsShapes(width, height), exportTask, plottingTask, lineFilter);
+            Graphics2DExporter.exportImage(new PdfGraphics2D(content, width, height), exportTask, plottingTask, lineFilter);
             document.close();
 
         } catch (DocumentException | FileNotFoundException e) {

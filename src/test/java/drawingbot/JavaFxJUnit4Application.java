@@ -13,7 +13,7 @@ import javafx.stage.Stage;
  * This is the application which starts JavaFx.  It is controlled through the startJavaFx() method.
  * src: http://awhite.blogspot.com/2013/04/javafx-junit-testing.html
  */
-public class JavaFxJUnit4Application extends FXLauncher
+public class JavaFxJUnit4Application extends FXApplication
 {
 
     /** The lock that guarantees that only one JavaFX thread will be started. */

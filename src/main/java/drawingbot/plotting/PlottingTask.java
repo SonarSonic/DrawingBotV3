@@ -41,7 +41,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     // PATH FINDING \\
     public IPathFindingModule pfm;
-    public float plottingResolution = 1;
     public float plottingProgress = 0;
     public boolean plottingFinished = false;
     public float old_x = 0;
@@ -68,55 +67,57 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 startTime = System.currentTimeMillis();
                 finishStage();
                 break;
-
-            case LOADING_IMAGE:
-
-                DrawingBotV3.logger.fine("Creating PFM Instance");
-                pfm = loader.instance();
-
-                DrawingBotV3.logger.fine("Creating Plotting Image");
-                img_plotting = ImageTools.deepCopy(img_original);
-
-                finishStage();
-                break;
             case PRE_PROCESSING:
                 updateMessage("Pre-Processing Image");
 
+                currentPen = 0;
+                plottingProgress = 0;
+                plottingFinished = false;
+
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
 
+                DrawingBotV3.logger.fine("PFM - Create Instance");
+                pfm = loader.instance();
+                DrawingBotV3.logger.fine("PFM - Apply Settings");
+                PFMMasterRegistry.applySettings(pfm);
+
+                DrawingBotV3.logger.fine("Copying Original Image");
+                img_plotting = ImageTools.deepCopy(img_original);
+
+                DrawingBotV3.logger.fine("Applying Filters");
                 img_plotting = ImageTools.cropToAspectRatio(img_plotting, DrawingBotV3.getDrawingAreaWidthMM(this) / DrawingBotV3.getDrawingAreaHeightMM(this));
                 img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
-                img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * plottingResolution), (int)(img_plotting.getHeight()* plottingResolution));
+                img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
 
-                reference = ImageTools.copyToPixelData(img_plotting, ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode()));
-                plotting = ImageTools.copyToPixelData(img_plotting, ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode()));
 
+                DrawingBotV3.logger.fine("Creating Pixel Data");
+                reference = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
+                plotting = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
+                plotting.setTransparentARGB(pfm.getTransparentARGB());
+
+                DrawingBotV3.logger.fine("Setting Pixel Data");
+                ImageTools.copyToPixelData(img_plotting, reference);
+                ImageTools.copyToPixelData(img_plotting, plotting);
+
+                DrawingBotV3.logger.fine("PFM - Init");
+                pfm.init(this);
+
+                DrawingBotV3.logger.fine("Setting Plotting Variables");
                 width = img_plotting.getWidth();
                 height = img_plotting.getHeight();
-
-                DrawingBotV3.logger.fine("PFM - Pre-Processing - Finished");
 
                 float   gcode_scale_x, gcode_scale_y;
                 gcode_scale_x = DrawingBotV3.getDrawingAreaWidthMM(this) / img_plotting.getWidth();
                 gcode_scale_y = DrawingBotV3.getDrawingAreaHeightMM(this) / img_plotting.getHeight();
                 gcode_scale = Math.min(gcode_scale_x, gcode_scale_y);
 
-
-                currentPen = 0;
-                plottingResolution = 1;
-                plottingProgress = 0;
-                plottingFinished = false;
-
-                DrawingBotV3.logger.fine("Init PFM");
-                PFMMasterRegistry.applySettings(pfm);
-                pfm.init(this);
-
+                DrawingBotV3.logger.fine("PFM - Pre-Process");
+                pfm.preProcess(this);
                 finishStage();
                 updateMessage("Plotting Image: " + loader.getName()); //here to avoid excessive task updates
                 break;
 
             case DO_PROCESS:
-
                 if(plottingFinished || isFinished()){
                     if(finishedRenderingPaths){ //PAUSE FOR THE DRAW THREAD TO FINISH.
                         finishStage();
@@ -128,12 +129,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
             case POST_PROCESSING:
 
+                pfm.postProcess(this);
+
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Started");
                 plottedDrawing.updateWeightedDistribution();
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
 
                 img_reference = ImageTools.getBufferedImage(reference);
                 img_plotting = ImageTools.getBufferedImage(plotting);
+
 
                 finishStage();
                 break;
@@ -344,16 +348,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     @Override
     public IDrawingSet<?> getDrawingSet() {
         return plottedDrawing.drawingPenSet;
-    }
-
-    @Override
-    public float getPlottingResolution() {
-        return plottingResolution;
-    }
-
-    @Override
-    public void setPlottingResolution(float resolution) {
-        plottingResolution = resolution;
     }
 
     @Override
