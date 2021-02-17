@@ -53,24 +53,6 @@ public class PlottedDrawing {
         }
     }
 
-    public void renderLinesForPen(Graphics2D graphics, int start, int end, int pen) {
-        for (int i = start; i < end; i++) {
-            PlottedLine line = plottedLines.get(i);
-            if (line.pen_number == pen) {
-                renderLine(graphics, line);
-            }
-        }
-    }
-
-    public void renderLinesReverse(Graphics2D graphics, int start, int end, int pen) {
-        for (int i = start; i > end; i--) {
-            PlottedLine line = plottedLines.get(i);
-            if (line.pen_number == pen) {
-                renderLine(graphics, line);
-            }
-        }
-    }
-
     public void renderLine(Graphics2D graphics, PlottedLine line) {
         if (line.pen_down) {
             ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);

@@ -36,15 +36,18 @@ Export Formats:
 
 Downloads: [Latest Release](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
 
-1) **Windows - Installer** _(.exe)_*
-2) **Windows - Portable** _(.zip)_*
+1) **Windows - Installer** _(.exe)_
+2) **Windows - Portable** _(.zip)_
 3) **Mac/Linux/Win - Executable** _(.jar)_ - [Requires JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
 
-### Dependencies
+### Included Dependencies
+All the dependencies are automatically included and **do not need to be installed manually**.
+
 - [OpenJFX](https://github.com/openjdk/jfx) - for User Interface / Rendering
 - [JTS Topology Suite](https://github.com/locationtech/jts) - for Vectors/Geometry
 - [ImgScalr](https://github.com/rkalla/imgscalr) - for Optimised Image Scaling
 - [Gson](https://github.com/google/gson) - for Configuration/Preset Files
+- [Apache XML Graphics](https://github.com/apache/xmlgraphics-batik) - for SVG Rendering
 - [iText](https://github.com/itext/itextpdf) - for PDF Rendering
 - [FXGraphics2D](https://github.com/jfree/fxgraphics2d) - for Swing/JavaFX Compatibility
 
