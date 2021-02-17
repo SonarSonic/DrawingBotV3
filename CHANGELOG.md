@@ -1,7 +1,6 @@
 # Change Log
 ### [v1.0.3-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.3-beta)
 - Changed: The "Reset" / "Help" button has been swapped to help avoid accidental usage
-- Changed: Pressing enter on values in PFM Settings / Pen Settings won't affect the settings window position
 - Fixed: JavaFX Native Bindings have been added, so Mac + Linux users should now be able to run the app as expected.
 
 ### [v1.0.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.2-beta)
