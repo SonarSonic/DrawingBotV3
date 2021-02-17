@@ -131,9 +131,9 @@
                                             </columns>
                                           </TableView>
                                           <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="56.0" prefHeight="25.0" prefWidth="265.0" promptText="New Preset Name" />
-                                          <Button fx:id="buttonPFMSettingReset" layoutX="14.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
-                                          <Button fx:id="buttonPFMSettingRandom" layoutX="135.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
-                                          <Button fx:id="buttonPFMSettingHelp" layoutX="269.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
+                                          <Button fx:id="buttonPFMSettingReset" layoutX="271.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
+                                          <Button fx:id="buttonPFMSettingRandom" layoutX="136.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
+                                          <Button fx:id="buttonPFMSettingHelp" layoutX="11.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
                                           <MenuButton layoutX="279.0" layoutY="56.0" mnemonicParsing="false" text="Preset Options">
                                             <items>
                                                 <MenuItem fx:id="menuNewPreset" mnemonicParsing="false" text="New Preset" />

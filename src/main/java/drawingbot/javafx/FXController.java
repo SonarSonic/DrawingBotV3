@@ -515,6 +515,7 @@ public class FXController {
             return cell;
         });
         tableColumnValue.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
+        tableColumnValue.setOnEditCommit(param -> tableViewAdvancedPFMSettings.requestFocus()); //prevents the viewer from scrolling
 
         buttonPFMSettingReset.setOnAction(e -> {
             PresetManager.PFM.loadSettings(comboBoxPFMPreset.getValue());
@@ -585,6 +586,7 @@ public class FXController {
 
         penWeightColumn.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
         penWeightColumn.setCellValueFactory(param -> param.getValue().distributionWeight.asObject());
+        penWeightColumn.setOnEditCommit(param -> penTableView.requestFocus());  //prevents the viewer from scrolling
 
         penLinesColumn.setCellValueFactory(param -> param.getValue().currentLines.asObject());
 
