@@ -57,7 +57,8 @@ public class FXApplication extends Application {
 
         DrawingBotV3.controller = new FXController();
         DrawingBotV3.canvas = canvas;
-        DrawingBotV3.graphics = new FXGraphics2D(canvas.getGraphicsContext2D());
+        DrawingBotV3.graphicsFX = canvas.getGraphicsContext2D();
+        DrawingBotV3.graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
         FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
         loader.setController(DrawingBotV3.controller);

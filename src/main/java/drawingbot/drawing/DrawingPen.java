@@ -4,16 +4,41 @@ import drawingbot.api.IDrawingPen;
 
 public class DrawingPen implements IDrawingPen {
 
-    private final String name; //the pen's name
-    private final int argb; //the pen's argb colour
+    public String type; //the pen's type
+    public String name; //the pen's name
+    public int argb; //the pen's argb colour
+    public int distributionWeight;
+    public float strokeSize;
+
+    public DrawingPen(){} //for GSON
 
     public DrawingPen(IDrawingPen source){
-        this(source.getName(), source.getARGB());
+        update(source);
     }
 
-    public DrawingPen(String name, int argb){
+    public DrawingPen(String type, String name, int argb){
+        this(type, name, argb, 100, 1F);
+    }
+
+    public DrawingPen(String type, String name, int argb, int distributionWeight, float strokeSize){
+        update(type, name, argb, distributionWeight, strokeSize);
+    }
+
+    public void update(String type, String name, int argb, int distributionWeight, float strokeSize){
+        this.type = type;
         this.name = name;
         this.argb = argb;
+        this.distributionWeight = distributionWeight;
+        this.strokeSize = strokeSize;
+    }
+
+    public void update(IDrawingPen pen){
+        update(pen.getType(), pen.getName(), pen.getCustomARGB(), pen.getDistributionWeight(), pen.getStrokeSize());
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
     @Override
@@ -22,8 +47,18 @@ public class DrawingPen implements IDrawingPen {
     }
 
     @Override
-    public int getARGB() {
+    public int getCustomARGB() {
         return argb;
+    }
+
+    @Override
+    public float getStrokeSize() {
+        return strokeSize;
+    }
+
+    @Override
+    public int getDistributionWeight() {
+        return distributionWeight;
     }
 
     @Override

@@ -1,7 +1,31 @@
 # Change Log
+
+### [v1.0.4-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.4-beta)
+- Added: Presets for Drawing Sets + Drawing Pens
+- Added: Special Drawing Sets/Pens Original Colour / Original Grayscale
+  - These will sample the average colour of the image and colour each line using these samples.
+  - These samples are taken when the plot is being run and cached, this will slightly impact plotting performance, this caching can be disabled however by setting PFM setting "Cache Colour Samples" to "false".
+- Added: "Padding" option to Drawing Area, with "Gang" check box
+- Added: "Scaling Mode" option to Drawing Area: "Crop to fit", "Scale to fit" and "Stretch to fit"
+- Added: "Lock" option for PFM Settings 
+  - Locking a setting will prevent it from being randomised, this will allow more creativity when using "randomise" allowing you to keep track of values you like.
+  - Some settings are locked by default to prevent the plot failing (e.g. Plotting Resolution, Drawing/Shading Delta Angle)
+  - Pressing "Reset" will still return the setting to default
+  
+- Added: Right-Clicking PFM Settings will now allow you to "Randomise" / "Reset" a single setting.
+- Added: Check boxes to Drawing Pen selections to enable quicker configuration
+- Added: Extra Buttons in Pen Settings for "Add", "Remove", "Duplicate", "Move Up" and "Move Down", you can still right click pens instead. 
+- Changed: GCode Settings has been split from "Drawing Area"
+- Changed: Pressing ENTER will not start plotting anymore, avoiding accidentally overwriting your current plot.
+- Changed: Pre-Processing will now be disabled by default
+- Changed: Blend Modes won't lag so much when rendering
+- Fixed: JPG Export not outputting a file
+- Fixed: Potential Memory Leaks with JavaFX
+- Fixed: Blend Modes will render as expected again & also appear properly in exports.
+
+
 ### [v1.0.3-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.3-beta)
 - Changed: The "Reset" / "Help" button has been swapped to help avoid accidental usage
-- Changed: Pressing enter on values in PFM Settings / Pen Settings won't affect the settings window position
 - Fixed: JavaFX Native Bindings have been added, so Mac + Linux users should now be able to run the app as expected.
 
 ### [v1.0.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.2-beta)

@@ -7,12 +7,14 @@ package drawingbot.api;
 public interface IPathFindingModule {
 
     /**
-     * The colour mode, currently supported 0 = ARGB, 1 = HSB, 2 = Grayscale
+     * The colour mode, currently supported 0 = ARGB, 1 = HSB, 2 = Luminance (Y), 3 = ARGBY, 4 = Hybrid
      * This setting is very important to allow for an efficient {@link IPathFindingModule} as the selected setting dictates if values are cached or calculated
      * If you primarily need red/green/blue/alpha calculations go with ARGB
      * If you primarily need hue/saturation/brightness calculations go with HSB
-     * If you only need brightness calculations go with Grayscale
-     * @return the default colour mode is ARGB, but this is often the least efficient, especially for brightness orientated PFMs using bresenham calculations
+     * If you only need luminance calculations go with Luminance
+     * If you primarily need red/green/blue/alpha calculations & luminance go with ARGBY
+     * If you need fast access to every value in ARGB & HSB & Luminance (very often) use Hybrid
+     * @return the default colour mode is ARGB, but this is often the least efficient, especially for luminance orientated PFMs using bresenham calculations
      */
     default int getColourMode(){
         return 0;
@@ -36,7 +38,7 @@ public interface IPathFindingModule {
 
     /**
      * Called immediately after the {@link IPathFindingModule}'s settings have been set.
-     * Used to check the given settings and apply any special options to the plotting task e.g. {@link IPlottingTask#setPlottingResolution(float)}, {@link IPlottingTask#setActivePen(int)} (float)}
+     * Used to check the given settings and apply any special options to the plotting task e.g. {@link IPlottingTask#setActivePen(int)} (float)}
      * Shouldn't be used for initial calculations the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} will be initialized but the pixel data will not have been set
      * @param task the plotting task
      */

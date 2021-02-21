@@ -8,6 +8,25 @@ import java.util.List;
 public interface IDrawingSet<P extends IDrawingPen> {
 
     /**
+     * @return the pens full name, unique to each pen
+     */
+    default String getCodeName(){
+        return getType() + " " + getName();
+    }
+
+    /**
+     * @return the pens display name
+     */
+    default String getDisplayName(){
+        return getType() + " " + getName();
+    }
+
+    /**
+     * @return typically the pens manufacturer or custom sub type
+     */
+    String getType();
+
+    /**
      * @return the drawing sets, as defined in the pen's plugin or set by the user
      */
     String getName();

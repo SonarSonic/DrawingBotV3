@@ -6,7 +6,6 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
-import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
@@ -21,15 +20,15 @@ public class PDFExporter {
 
     public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
         try {
-            int width = plottingTask.getPlottingImage().getWidth();
-            int height = plottingTask.getPlottingImage().getHeight();
+            int width = plottingTask.getPixelWidth();
+            int height = plottingTask.getPixelHeight();
 
             Document document = new Document(new Rectangle(width, height));
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));
 
             document.open();
             PdfContentByte content = writer.getDirectContent();
-            Graphics2DExporter.drawGraphics(new PdfGraphics2D(content, width, height), exportTask, plottingTask, lineFilter);
+            Graphics2DExporter.drawGraphics(new PdfGraphics2D(content, width, height), width, height, exportTask, plottingTask, lineFilter);
             document.close(); //dispose is already called within drawGraphics
 
         } catch (DocumentException | FileNotFoundException e) {

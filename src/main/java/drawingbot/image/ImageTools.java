@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.plotting.PlottingTask;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
@@ -208,25 +209,53 @@ public class ImageTools {
         return combined;
     }
 
-    public static BufferedImage cropToAspectRatio(BufferedImage image, float targetRatio){
+    public static BufferedImage scaleImageForTask(PlottingTask task, BufferedImage image, float widthMM, float heightMM){
         DrawingBotV3.logger.entering("ImageTools", "cropToAspectRatio");
         float currentRatio = (float)image.getWidth() / image.getHeight();
-        if(targetRatio == currentRatio){
-            return image;
-        }
-        if (currentRatio < targetRatio) {
-            int desired_x = image.getWidth();
-            int desired_y = (int)(image.getWidth() / targetRatio);
+        float targetRatio = widthMM / heightMM;
 
-            int half_y = (image.getHeight() - desired_y) / 2;
-            image = Scalr.crop(image, 0, half_y, desired_x, desired_y);
-        } else {
-            int desired_x = (int)(image.getHeight() * targetRatio);
-            int desired_y = image.getHeight();
+        int taskWidth = -1, taskHeight = -1;
+        int taskOffsetX = 0, taskOffsetY = 0;
 
-            int half_x = (image.getWidth() - desired_x) / 2;
-            image = Scalr.crop(image, half_x, 0, desired_x, desired_y);
+        if(targetRatio != currentRatio){
+            int targetWidth = (int)(image.getHeight() * targetRatio);
+            int targetHeight = (int)(image.getWidth() / targetRatio);
+            int x = 0, y = 0, width = image.getWidth(), height = image.getHeight();
+
+            if (currentRatio < targetRatio) {
+                y = (height - targetHeight) / 2;
+                height = targetHeight;
+            }else{
+                x = (width - targetWidth) / 2;
+                width = targetWidth;
+            }
+            switch (DrawingBotV3.scaling_mode.get()){
+                case CROP_TO_FIT:
+                    image = Scalr.crop(image, x, y, width, height);
+                    break;
+                case SCALE_TO_FIT:
+                    int max = Math.max(image.getWidth(), image.getHeight());
+                    width = (int)(max * targetRatio);
+                    height = (int)(max / targetRatio);
+
+                    taskOffsetX = (width - image.getWidth()) / 2;
+                    taskOffsetY = (height - image.getHeight()) / 2;
+                    taskWidth = width;
+                    taskHeight = height;
+                    break;
+                case STRETCH_TO_FIT:
+                    image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, width, height);
+                    break;
+            }
         }
+
+        int pixelPadding = 0;
+
+        task.pixelWidth = (taskWidth == -1 ? image.getWidth() : taskWidth) + pixelPadding*2;
+        task.pixelHeight = (taskHeight == -1 ? image.getHeight() : taskHeight) + pixelPadding*2;
+
+        task.renderOffsetX = taskOffsetX + pixelPadding;
+        task.renderOffsetY = taskOffsetY + pixelPadding;
         return image;
     }
 
@@ -235,7 +264,7 @@ public class ImageTools {
     //// RGB FILTERS
 
     public static int grayscaleFilter(int argb){
-        int lum = (77*(argb>>16&0xff) + 151*(argb>>8&0xff) + 28*(argb&0xff))>>8;
+        int lum = getPerceivedLuminanceFromRGB(argb);
         return (argb & 0xff000000) | lum<<16 | lum<<8 | lum;
     }
 
@@ -257,7 +286,11 @@ public class ImageTools {
             case 1:
                 return new PixelDataHSB(width, height);
             case 2:
-                return new PixelDataGray(width, height);
+                return new PixelDataLuminance(width, height);
+            case 3:
+                return new PixelDataARGBY(width, height);
+            case 4:
+                return new PixelDataHybrid(width, height);
             default:
                 return new PixelDataARGB(width, height);
         }
@@ -349,13 +382,21 @@ public class ImageTools {
         return array;
     }
 
-    public static int getBrightness(int argb){
+    public static int getBrightnessFromRGB(int r, int g, int b){
+        return Math.max(b, Math.max(r, g));
+    }
+
+    public static int getPerceivedLuminanceFromRGB(int argb){
         int[] values = getColourIntsFromARGB(argb, new int[4]);
         return (int)(0.2126*values[1] + 0.7152*values[2] + 0.0722*values[3]);
     }
 
-    public static int getBrightness(int[] rgb){
-        return (int)(0.2126*rgb[0] + 0.7152*rgb[0] + 0.0722*rgb[0]);
+    public static int getPerceivedLuminanceFromRGB(int r, int g, int b){
+        return (int) (0.2126*r + 0.7152*g + 0.0722*b);
+    }
+
+    public static float getAverageLuminanceFromRGB(float r, float g, float b){
+        return 0.2126F*r + 0.7152F*g + 0.0722F*b;
     }
 
     /**converts processing colors to java fx colors*/

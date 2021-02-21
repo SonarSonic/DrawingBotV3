@@ -7,8 +7,8 @@ import java.util.Comparator;
 
 public enum EnumDistributionOrder {
 
-    DARKEST_FIRST(Comparator.comparingInt(pen -> ImageTools.getBrightness(pen.getARGB()))),
-    LIGHTEST_FIRST(Comparator.comparingInt(pen -> -ImageTools.getBrightness(pen.getARGB()))),
+    DARKEST_FIRST(Comparator.comparingInt(pen -> ImageTools.getPerceivedLuminanceFromRGB(pen.getCustomARGB()))),
+    LIGHTEST_FIRST(Comparator.comparingInt(pen -> -ImageTools.getPerceivedLuminanceFromRGB(pen.getCustomARGB()))),
     DISPLAYED(Comparator.comparingInt(pen -> pen.penNumber.get())),
     REVERSED(Comparator.comparingInt(pen -> -pen.penNumber.get()));
 

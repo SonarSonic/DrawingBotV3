@@ -3,7 +3,8 @@ package drawingbot.pfm;
 import drawingbot.api.IPlottingTask;
 import drawingbot.utils.Utils;
 
-/**https://github.com/krummrey/SpiralFromImage*/
+/**https://github.com/krummrey/SpiralFromImage
+ * TODO FIX SPIRAL PFM*/
 public class PFMSpiral extends AbstractPFM {
 
     public float distBetweenRings = 7;                  // Distance between rings
@@ -61,7 +62,7 @@ public class PFMSpiral extends AbstractPFM {
             if ((x>=0) && (x<task.getPixelData().getWidth()) && (y>0) && (y<task.getPixelData().getHeight())) {
 
                 // Get the color and brightness of the sampled pixel
-                b = task.getPixelData().getBrightness((int)x, (int)y);
+                b = task.getPixelData().getLuminance((int)x, (int)y);
                 b = Utils.mapFloat(b, 0, 255, distBetweenRings * ampScale, 0);
 
                 // Move up according to sampled brightness

@@ -37,8 +37,15 @@ Export Formats:
 Downloads: [Latest Release](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
 
 1) **Windows - Installer** _(.exe)_
+        
+    Includes all required libraries and Java Runtime. No further setup required.
 2) **Windows - Portable** _(.zip)_
-3) **Mac/Linux/Win - Executable** _(.jar)_ - [Requires JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
+   
+   Includes all required libraries and Java Runtime. No further setup required.
+
+3) **Mac/Linux/Win - Executable** _(.jar)_ 
+
+   Includes all required libraries but you must manually install [JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
 
 ### Included Dependencies
 All the dependencies are automatically included and **do not need to be installed manually**.

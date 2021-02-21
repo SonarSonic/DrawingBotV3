@@ -27,6 +27,12 @@ public class PFMLines extends AbstractDarkestPFM{
     }
 
     @Override
+    public void init(IPlottingTask task) {
+        super.init(task);
+        task.useCustomARGB(true);
+    }
+
+    @Override
     public void doProcess(IPlottingTask task) {
         for(int i = 0; i < maxLines; i ++){
             findDarkestPixel(task.getPixelData());
@@ -36,11 +42,11 @@ public class PFMLines extends AbstractDarkestPFM{
             int[] line = null;
 
             for (int d = 0; d < tests; d ++) {
-                count_brightness = 0;
-                sum_brightness = 0;
-                int[] testLine = getFullLine(task.getPixelData(), startX, startY, randomSeed(0, 360));
+                count_pixels = 0;
+                sum_luminance = 0;
+                int[] testLine = getIntersectingLine(task.getPixelData(), startX, startY, randomSeed(0, 360));
                 AlgorithmHelper.bresenham(testLine[0], testLine[1], testLine[2], testLine[3], (x,y) -> bresenhamTest(task.getPixelData(), x, y));
-                float averageBrightness = (float)sum_brightness/(float)count_brightness;
+                float averageBrightness = (float) sum_luminance /(float) count_pixels;
 
                 if(line == null || averageBrightness < darkestLineAvg){
                     darkestLineAvg = averageBrightness;
@@ -50,11 +56,11 @@ public class PFMLines extends AbstractDarkestPFM{
 
             task.moveAbsolute(line[0], line[1]);
             task.movePenDown();
+            task.setCustomARGB(ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50));
             task.moveAbsolute(line[2], line[3]);
             task.movePenUp();
 
-            ((PlottingTask)task).plottedDrawing.plottedLines.get(((PlottingTask)task).plottedDrawing.plottedLines.size()-1).rgba = ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50);
-            bresenhamLighten(task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
+            bresenhamLighten(task, task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
             progress = (float)i / maxLines;
 
             if(task.isFinished()){

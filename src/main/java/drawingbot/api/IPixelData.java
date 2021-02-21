@@ -375,6 +375,36 @@ public interface IPixelData {
         return getAverageHSB(2);
     }
 
+
+    /**
+     * Convenience method to get the perceived luminance value of a single pixel
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     * @return the pixels perceived luminanc value 0 - 255
+     */
+    int getLuminance(int x, int y);
+
+    /**
+     * Convenience method to set the perceived luminance value of a single pixel, this will make the pixel grayscale.
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     * @param luminance the brightness value to set 0-255
+     */
+    void setLuminance(int x, int y, int luminance);
+
+    /**
+     * Convenience method to increase the perceived luminance value of a single pixel, this will make the pixel grayscale.
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     * @param luminance the perceived luminance value to increase by 0-255
+     */
+    void adjustLuminance(int x, int y, int luminance);
+
+    /**
+     * @return the average perceived luminance for the entire image
+     */
+    float getAverageLuminance();
+
     /**
      * @return the ARGB value of transparent pixels, default = a=0, r=0, g=0, b=0
      */

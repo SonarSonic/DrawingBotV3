@@ -1,9 +1,7 @@
 package drawingbot.files.exporters;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
-import drawingbot.files.FileUtils;
 import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 import org.apache.batik.dom.GenericDOMImplementation;
@@ -20,8 +18,8 @@ public class SVGExporter {
 
     public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
         try {
-            int width = plottingTask.getPlottingImage().getWidth();
-            int height = plottingTask.getPlottingImage().getHeight();
+            int width = plottingTask.getPixelWidth();
+            int height = plottingTask.getPixelHeight();
 
             // Get a DOMImplementation.
             DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
@@ -35,13 +33,13 @@ public class SVGExporter {
             graphics.setSVGCanvasSize(new Dimension(width, height));
 
             // Ask the test to render into the SVG Graphics2D implementation.
-            Graphics2DExporter.drawGraphics(graphics, exportTask, plottingTask, lineFilter);
+            Graphics2DExporter.drawGraphics(graphics, width, height, exportTask, plottingTask, lineFilter);
 
             // Finally, stream out SVG to the standard output using UTF-8 encoding.
             exportTask.updateMessage("Encoding SVG");
             exportTask.updateProgress(-1, 1);
 
-            boolean useCSS = true; // we want to use CSS style attributes
+            boolean useCSS = false; // if we want to use CSS style attributes
             graphics.stream(saveLocation.toString(), useCSS);
             exportTask.updateProgress(1, 1);
 
