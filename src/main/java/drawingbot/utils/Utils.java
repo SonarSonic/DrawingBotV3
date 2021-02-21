@@ -4,6 +4,8 @@ import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.exporters.SVGExporter;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 public class Utils {
@@ -13,6 +15,7 @@ public class Utils {
     public static String URL_GITHUB_REPO = "https://github.com/SonarSonic/DrawingBotV3";
     public static String URL_GITHUB_WIKI = URL_GITHUB_REPO + "/wiki";
     public static String URL_GITHUB_PFM_DOCS = URL_GITHUB_WIKI + "/Advanced-PFM-Settings";
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
     public static NumberFormat gCodeNF;
 
@@ -35,6 +38,11 @@ public class Utils {
         } else {
             return name;
         }
+    }
+
+    public static String getDateAndTime(){
+        Date date = new Date(System.currentTimeMillis());
+        return dateFormat.format(date);
     }
 
     public static long clamp(long value, long min, long max){

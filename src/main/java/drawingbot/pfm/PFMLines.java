@@ -54,11 +54,11 @@ public class PFMLines extends AbstractDarkestPFM{
                 }
             }
 
-            task.moveAbsolute(line[0], line[1]);
-            task.movePenDown();
+            task.openPath();
+            task.addToPath(line[0], line[1]);
             task.setCustomARGB(ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50));
-            task.moveAbsolute(line[2], line[3]);
-            task.movePenUp();
+            task.addToPath(line[2], line[3]);
+            task.closePath();
 
             bresenhamLighten(task, task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
             progress = (float)i / maxLines;

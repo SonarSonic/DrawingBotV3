@@ -40,10 +40,8 @@ public class PFMSpiral extends AbstractPFM {
 
         // Calculates the first point.  Currently just the center.
         // TODO: Allow for ajustable center
-        task.movePenUp();
         x =  (float)(radius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
         y = -(float)(radius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
-        task.moveAbsolute(x, y);
         xa = 0;
         xb = 0;
         ya = 0;
@@ -80,26 +78,26 @@ public class PFMSpiral extends AbstractPFM {
 
                 // If the sampled color is the mask color do not write to the shape
                 if (mask <= b) {
-                    task.movePenUp();
+                    task.closePath();
                 } else {
-                    task.movePenDown();
+                    task.openPath();
                 }
             } else {
                 // We are outside of the image
-                task.movePenUp();
+                task.closePath();
             }
 
             int pen_number = (int)(Utils.mapFloat(b, 0, 255, 0, task.getTotalPens()));
             task.setActivePen(pen_number);
-            task.moveAbsolute(xa, ya);
-            task.moveAbsolute(xb, yb);
+            task.addToPath(xa, ya);
+            task.addToPath(xb, yb);
 
 
             float startRadius = distBetweenRings /2;
             task.updateProgess(radius-startRadius, endRadius-startRadius);
         }
 
-        task.movePenUp();
+        task.closePath();
         task.finishProcess();
     }
 

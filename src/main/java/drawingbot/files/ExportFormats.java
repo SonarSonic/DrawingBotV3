@@ -1,13 +1,11 @@
 package drawingbot.files;
 
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.api.IPointFilter;
 import drawingbot.files.exporters.*;
-import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.util.function.BiFunction;
 
 public enum ExportFormats {
     EXPORT_PDF("Export PDF", PDFExporter::exportPDF, FileUtils.FILTER_PDF),
@@ -30,12 +28,8 @@ public enum ExportFormats {
         return "Save " + displayName;
     }
 
-    public static boolean defaultFilter(PlottedLine line, ObservableDrawingPen pen){
-        return line.pen_down && pen.isEnabled();
-    }
-
     public interface IExportMethod{
-        void export(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation);
+        void export(ExportTask exportTask, PlottingTask plottingTask, IPointFilter pointFilter, String extension, File saveLocation);
     }
 
 }

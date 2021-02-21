@@ -83,7 +83,7 @@ public class ObservableDrawingPen implements IDrawingPen {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private java.awt.Color awtColor = null;
-    private java.awt.Stroke awtStroke = null;
+    private BasicStroke awtStroke = null;
 
     public java.awt.Color getAWTColor(){
         if(awtColor == null){
@@ -96,7 +96,7 @@ public class ObservableDrawingPen implements IDrawingPen {
         return pfmARGB != null ? new java.awt.Color(getCustomARGB(pfmARGB), true) : getAWTColor();
     }
 
-    public java.awt.Stroke getAWTStroke(){
+    public BasicStroke getAWTStroke(){
         if(awtStroke == null){
             awtStroke = new BasicStroke(1);
         }

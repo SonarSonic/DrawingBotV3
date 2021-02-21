@@ -6,19 +6,17 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.api.IPointFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.plotting.PlottedLine;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.function.BiFunction;
 
 public class PDFExporter {
 
-    public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
+    public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
         try {
             int width = plottingTask.getPixelWidth();
             int height = plottingTask.getPixelHeight();

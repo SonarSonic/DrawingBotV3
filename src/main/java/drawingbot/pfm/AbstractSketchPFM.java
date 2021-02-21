@@ -46,13 +46,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
         findDarkestNeighbour(task.getPixelData(), x, y);
 
-        task.moveAbsolute(darkest_x, darkest_y);
-        task.movePenDown();
+        task.openPath();
+        task.addToPath(darkest_x, darkest_y);
 
         for (int s = 0; s < squiggle_length; s++) {
             findDarkestNeighbour(task.getPixelData(), x, y);
             bresenhamLighten(task, task.getPixelData(), x, y, darkest_x, darkest_y, adjustbrightness);
-            task.moveAbsolute(darkest_x, darkest_y);
+            task.addToPath(darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
 
@@ -66,7 +66,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
         }
         if(shouldLiftPen){
-            task.movePenUp();
+            task.closePath();
         }
     }
 

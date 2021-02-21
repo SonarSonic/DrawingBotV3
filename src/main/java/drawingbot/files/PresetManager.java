@@ -135,7 +135,7 @@ public abstract class PresetManager {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static abstract class AbstractManager {
+    public static abstract class AbstractManager<O> {
 
         public final EnumPresetType type;
         public final File configFile;
@@ -167,7 +167,7 @@ public abstract class PresetManager {
         public abstract void loadSettingsFromPreset(GenericPreset preset);
 
         public void onPresetRenamed(GenericPreset preset){
-
+            updateJSON();
         }
 
         public abstract GenericPreset getDefaultPreset();
@@ -340,25 +340,25 @@ public abstract class PresetManager {
 
         public GenericPreset createNewPreset(String presetSubType, String presetName, boolean userCreated){
             GenericPreset preset = super.createNewPreset(presetSubType, presetName, userCreated);
-            preset.binding = new UserDrawingSet(presetSubType, presetName, new ArrayList<>(), preset);
+            preset.object = new UserDrawingSet(presetSubType, presetName, new ArrayList<>(), preset);
             return preset;
         }
 
         @Override
         public void registerPreset(GenericPreset preset) {
-            if(preset.binding == null){
+            if(preset.object == null){
                 loadSettingsFromPreset(preset);
             }
-            if(preset.binding instanceof UserDrawingSet){
-                UserDrawingSet set = (UserDrawingSet)preset.binding;
+            if(preset.object instanceof UserDrawingSet){
+                UserDrawingSet set = (UserDrawingSet)preset.object;
                 DrawingRegistry.INSTANCE.registerDrawingSet(set);
             }
         }
 
         @Override
         public void unregisterPreset(GenericPreset preset) {
-            if(preset.binding instanceof UserDrawingSet){
-                DrawingRegistry.INSTANCE.registeredSets.get(DrawingRegistry.userType).remove((UserDrawingSet)preset.binding);
+            if(preset.object instanceof UserDrawingSet){
+                DrawingRegistry.INSTANCE.registeredSets.get(DrawingRegistry.userType).remove((UserDrawingSet)preset.object);
             }
         }
 
@@ -378,7 +378,7 @@ public abstract class PresetManager {
             jsonObject.add("pens", jsonArray);
             preset.jsonObject = jsonObject;
 
-            UserDrawingSet set = (UserDrawingSet) preset.binding;
+            UserDrawingSet set = (UserDrawingSet) preset.object;
             set.pens = pens;
             return preset;
         }
@@ -396,13 +396,15 @@ public abstract class PresetManager {
                     pens.add(pen);
                 }
             }
-            preset.binding = new UserDrawingSet(type, name, pens, preset);
+            preset.object = new UserDrawingSet(type, name, pens, preset);
         }
 
         @Override
         public void onPresetRenamed(GenericPreset preset) {
-            if(preset.binding instanceof UserDrawingSet){
-                ((UserDrawingSet) preset.binding).name = preset.presetName;
+            super.onPresetRenamed(preset);
+            preset.jsonObject.addProperty("name", preset.presetName);
+            if(preset.object instanceof UserDrawingSet){
+                ((UserDrawingSet) preset.object).name = preset.presetName;
             }
         }
 
@@ -441,25 +443,25 @@ public abstract class PresetManager {
                 return null;
             }
             GenericPreset preset = super.createNewPreset(DrawingRegistry.userType, pen.getName(), userCreated);
-            preset.binding = new UserDrawingPen(pen, preset);
+            preset.object = new UserDrawingPen(pen, preset);
             return preset;
         }
 
         @Override
         public void registerPreset(GenericPreset preset) {
-            if(preset.binding == null){
+            if(preset.object == null){
                 loadSettingsFromPreset(preset);
             }
-            if(preset.binding instanceof UserDrawingPen){
-                UserDrawingPen pen = (UserDrawingPen)preset.binding;
+            if(preset.object instanceof UserDrawingPen){
+                UserDrawingPen pen = (UserDrawingPen)preset.object;
                 DrawingRegistry.INSTANCE.registerDrawingPen(pen);
             }
         }
 
         @Override
         public void unregisterPreset(GenericPreset preset) {
-            if(preset.binding instanceof UserDrawingPen){
-                DrawingRegistry.INSTANCE.registeredPens.get(DrawingRegistry.userType).remove((UserDrawingPen)preset.binding);
+            if(preset.object instanceof UserDrawingPen){
+                DrawingRegistry.INSTANCE.registeredPens.get(DrawingRegistry.userType).remove((UserDrawingPen)preset.object);
             }
         }
 
@@ -474,7 +476,7 @@ public abstract class PresetManager {
             Gson gson = new GsonBuilder().setExclusionStrategies(exclusionStrategy).create();
             preset.jsonObject = gson.toJsonTree(pen).getAsJsonObject();
 
-            UserDrawingPen set = (UserDrawingPen) preset.binding;
+            UserDrawingPen set = (UserDrawingPen) preset.object;
             set.update(pen);
             return preset;
         }
@@ -483,13 +485,14 @@ public abstract class PresetManager {
         public void loadSettingsFromPreset(GenericPreset preset){
             Gson gson = new GsonBuilder().setExclusionStrategies(exclusionStrategy).create();
             DrawingPen pen = gson.fromJson(preset.jsonObject, DrawingPen.class);
-            preset.binding = new UserDrawingPen(pen, preset);
+            preset.object = new UserDrawingPen(pen, preset);
         }
 
         @Override
         public void onPresetRenamed(GenericPreset preset) {
-            if(preset.binding instanceof UserDrawingPen){
-                ((UserDrawingPen) preset.binding).name = preset.presetName;
+            super.onPresetRenamed(preset);
+            if(preset.object instanceof UserDrawingPen){
+                ((UserDrawingPen) preset.object).name = preset.presetName;
             }
         }
 

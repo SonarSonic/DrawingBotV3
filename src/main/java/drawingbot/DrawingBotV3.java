@@ -7,12 +7,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import drawingbot.api.IPointFilter;
 import drawingbot.drawing.DrawingRegistry;
-import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
@@ -23,7 +22,7 @@ import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.utils.*;
 import drawingbot.pfm.PFMMasterRegistry;
-import drawingbot.plotting.PlottedLine;
+import drawingbot.plotting.PlottedPoint;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -249,7 +248,8 @@ public class DrawingBotV3 {
                     double scaledOffsetY = renderedTask.renderOffsetY + (renderedTask.getPrintOffsetY() / renderedTask.getPrintScale());
 
                     graphicsFX.translate(scaledOffsetX, scaledOffsetY);
-                    renderedTask.plottedDrawing.renderLinesFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getPlottedLineCount());
+
+                    renderedTask.plottedDrawing.renderPointsFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getPlottedLineCount(), PlottedPoint.DEFAULT_FILTER, false);
                     renderedLines = renderedTask.plottedDrawing.getPlottedLineCount();
                     if(renderedTask.plottingFinished){
                         renderedTask.finishedRenderingPaths = true;
@@ -280,18 +280,17 @@ public class DrawingBotV3 {
                             graphicsFX.translate(scaledOffsetX, scaledOffsetY);
                             graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
                             int pen = display_mode.get() == EnumDisplayMode.DRAWING || controller.getSelectedPen() == null ? -1 : controller.getSelectedPen().penNumber.get();
-                            int max = Math.min(renderedLines + (blendMode == EnumBlendMode.NORMAL ? 20000 : 2000), renderedTask.plottedDrawing.getDisplayedLineCount());
-                            for(; renderedLines < max; renderedLines++){
-                                int nextReversed = renderedTask.plottedDrawing.getDisplayedLineCount()-1-renderedLines;
-                                PlottedLine line = renderedTask.plottedDrawing.plottedLines.get(nextReversed);
-                                if(pen == -1 || line.pen_number == pen){
-                                    renderedTask.plottedDrawing.renderLineFX(graphicsFX, line);
-                                }
-                            }
+                            int toRender = (blendMode == EnumBlendMode.NORMAL ? 20000 : 2000);
+
+                            int displayedLines = renderedTask.plottedDrawing.getDisplayedLineCount()-1;
+                            int start = displayedLines - (renderedLines);
+                            int end = Math.max(0, displayedLines - (renderedLines + toRender));
+                            renderedTask.plottedDrawing.renderPointsFX(graphicsFX, start, end, (point, p) -> p.isEnabled() && (pen == -1 || point.pen_number == pen),true);
+                            renderedLines += toRender;
                             graphicsFX.translate(-scaledOffsetX, -scaledOffsetY);
 
-                            updateLocalProgress((float)renderedLines / renderedTask.plottedDrawing.getDisplayedLineCount());
-                            if(renderedLines == renderedTask.plottedDrawing.getDisplayedLineCount()-1){
+                            updateLocalProgress((float)renderedLines / displayedLines);
+                            if(renderedLines >= displayedLines){
                                 long time = System.currentTimeMillis();
                                 logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
                                 renderedLines = -1;
@@ -378,7 +377,7 @@ public class DrawingBotV3 {
         if(getActiveTask() != null && getActiveTask().isRunning()){
             controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().plottingProgress);
             controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
-            controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedLines.size()) + " lines");
+            controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedPoints.size()) + " lines");
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
@@ -484,8 +483,8 @@ public class DrawingBotV3 {
 
     //// EXPORT TASKS
 
-    public static void createExportTask(ExportFormats format, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation, boolean seperatePens){
-        taskService.submit(new ExportTask(format, plottingTask, lineFilter, extension, saveLocation, seperatePens, true));
+    public static void createExportTask(ExportFormats format, PlottingTask plottingTask, IPointFilter pointFilter, String extension, File saveLocation, boolean seperatePens){
+        taskService.submit(new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true));
     }
 
     public static void setActiveExportTask(ExportTask task){

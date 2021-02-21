@@ -12,7 +12,7 @@ public class UserDrawingSet extends DrawingSet {
     public UserDrawingSet(String type, String name, List<IDrawingPen> pens, GenericPreset preset) {
         super(type, name, pens);
         this.preset = preset;
-        this.preset.binding = this;
+        this.preset.object = this;
     }
 
 }

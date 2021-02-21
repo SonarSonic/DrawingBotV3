@@ -6,6 +6,7 @@ import drawingbot.files.FileUtils;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.pfm.PFMMasterRegistry;
+import drawingbot.plotting.PlottedPoint;
 import drawingbot.utils.GenericFactory;
 import javafx.application.Platform;
 import org.junit.Test;
@@ -63,8 +64,8 @@ public class DrawingBotV3Test {
                 if(!newValue){ //when the value changes we add export tasks for every type
                     for(ExportFormats format : ExportFormats.values()){
                         String extension = format.filters[0].getExtensions().get(0).substring(1);
-                        DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), ExportFormats::defaultFilter, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), true);
-                        DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), ExportFormats::defaultFilter, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
+                        DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), PlottedPoint.DEFAULT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), true);
+                        DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), PlottedPoint.DEFAULT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
                     }
                     DrawingBotV3.taskService.submit(latch::countDown); //we add a final task to the exporter service, when this is reached we know the other export tasks are down also.
                 }
