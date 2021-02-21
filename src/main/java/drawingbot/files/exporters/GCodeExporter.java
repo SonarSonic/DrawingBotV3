@@ -88,10 +88,10 @@ public class GCodeExporter {
                 if(line.pen_number == p){
                     if (lineFilter.apply(line, drawingPen)) { // we apply the line filter also.
 
-                        float gcode_scaled_x1 = line.x1 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
-                        float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
-                        float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
-                        float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
+                        float gcode_scaled_x1 = line.x1 * plottingTask.getPrintScale() + plottingTask.getGCodeXOffset();
+                        float gcode_scaled_y1 = line.y1 * plottingTask.getPrintScale() + plottingTask.getGCodeYOffset();
+                        float gcode_scaled_x2 = line.x2 * plottingTask.getPrintScale() + plottingTask.getGCodeXOffset();
+                        float gcode_scaled_y2 = line.y2 * plottingTask.getPrintScale() + plottingTask.getGCodeYOffset();
                         double distance = Math.sqrt( Math.pow(Math.abs(gcode_scaled_x1 - gcode_scaled_x2), 2) + Math.pow(Math.abs(gcode_scaled_y1 - gcode_scaled_y2), 2) );
 
                         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
@@ -149,10 +149,10 @@ public class GCodeExporter {
 
         Limit dx = new Limit(), dy = new Limit();
         for (PlottedLine line : plottingTask.plottedDrawing.plottedLines) { //to allow the export of the gcode test file seperately we must update the limits
-            float gcode_scaled_x1 = line.x1 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
-            float gcode_scaled_y1 = line.y1 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
-            float gcode_scaled_x2 = line.x2 * plottingTask.getGCodeScale() + plottingTask.getGCodeXOffset();
-            float gcode_scaled_y2 = line.y2 * plottingTask.getGCodeScale() + plottingTask.getGCodeYOffset();
+            float gcode_scaled_x1 = line.x1 * plottingTask.getPrintScale() + plottingTask.getGCodeXOffset();
+            float gcode_scaled_y1 = line.y1 * plottingTask.getPrintScale() + plottingTask.getGCodeYOffset();
+            float gcode_scaled_x2 = line.x2 * plottingTask.getPrintScale() + plottingTask.getGCodeXOffset();
+            float gcode_scaled_y2 = line.y2 * plottingTask.getPrintScale() + plottingTask.getGCodeYOffset();
 
             dx.update_limit(gcode_scaled_x1);
             dx.update_limit(gcode_scaled_x2);

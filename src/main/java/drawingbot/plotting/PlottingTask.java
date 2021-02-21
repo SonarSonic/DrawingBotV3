@@ -5,8 +5,8 @@ import drawingbot.api.*;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.image.*;
 import drawingbot.pfm.PFMMasterRegistry;
-import drawingbot.utils.GenericFactory;
 import drawingbot.utils.EnumTaskStage;
+import drawingbot.utils.GenericFactory;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
@@ -14,10 +14,11 @@ import org.imgscalr.Scalr;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
-    public GenericFactory<IPathFindingModule> loader;
+    public GenericFactory<IPathFindingModule> pfmFactory;
     public PlottedDrawing plottedDrawing;
 
     // STATUS \\
@@ -32,9 +33,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public BufferedImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public BufferedImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
-    public int width = -1;
-    public int height = -1;
-
     // PIXEL DATA \\
     public IPixelData reference;
     public IPixelData plotting;
@@ -47,17 +45,50 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public float old_y = 0;
     public boolean is_pen_down;
     public int currentPen = 0;
+    public boolean useCustomARGB = false;
+    public int customARGB = -1;
+
+    // RENDERING \\\
+    public int renderOffsetX = 0;
+    public int renderOffsetY = 0;
+    public int pixelWidth = -1;
+    public int pixelHeight = -1;
 
     // GCODE \\
     private float gcode_offset_x;
     private float gcode_offset_y;
-    private float gcode_scale;
 
-    public PlottingTask(GenericFactory<IPathFindingModule> loader, ObservableDrawingSet drawingPenSet, BufferedImage image){
+    private final float printPageWidth;
+    private final float printPageHeight;
+    private final float printDrawingWidth;
+    private final float printDrawingHeight;
+    private final float printOffsetX;
+    private final float printOffsetY;
+
+    private float printScale;
+
+    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image){
         updateTitle("Processing Image");
-        this.loader = loader;
+        this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.img_original = image;
+
+        boolean useOriginal = DrawingBotV3.useOriginalSizing.get();
+
+        this.printPageWidth = useOriginal ? img_original.getWidth() : DrawingBotV3.getDrawingAreaWidthMM();
+        this.printPageHeight = useOriginal ? img_original.getHeight() : DrawingBotV3.getDrawingAreaHeightMM();
+
+        this.printDrawingWidth = useOriginal ? img_original.getWidth() : DrawingBotV3.getDrawingWidthMM();
+        this.printDrawingHeight = useOriginal ? img_original.getHeight() : DrawingBotV3.getDrawingHeightMM();
+
+        this.printOffsetX = useOriginal ? 0 : DrawingBotV3.getDrawingOffsetXMM();
+        this.printOffsetY = useOriginal ? 0 : DrawingBotV3.getDrawingOffsetYMM();
+    }
+
+    @Override
+    protected void setException(Throwable t) {
+        super.setException(t);
+        DrawingBotV3.logger.log(Level.SEVERE, "Plotting Task Failed", t);
     }
 
     public boolean doTask(){
@@ -71,13 +102,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 updateMessage("Pre-Processing Image");
 
                 currentPen = 0;
+                useCustomARGB = false;
+                customARGB = 0;
                 plottingProgress = 0;
                 plottingFinished = false;
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
 
                 DrawingBotV3.logger.fine("PFM - Create Instance");
-                pfm = loader.instance();
+                pfm = pfmFactory.instance();
                 DrawingBotV3.logger.fine("PFM - Apply Settings");
                 PFMMasterRegistry.applySettings(pfm);
 
@@ -85,9 +118,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 img_plotting = ImageTools.deepCopy(img_original);
 
                 DrawingBotV3.logger.fine("Applying Filters");
-                img_plotting = ImageTools.cropToAspectRatio(img_plotting, DrawingBotV3.getDrawingAreaWidthMM(this) / DrawingBotV3.getDrawingAreaHeightMM(this));
-                img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
                 img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
+                img_plotting = ImageTools.scaleImageForTask(this, img_plotting, printDrawingWidth, printDrawingHeight);
+                img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
 
 
                 DrawingBotV3.logger.fine("Creating Pixel Data");
@@ -103,18 +136,16 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 pfm.init(this);
 
                 DrawingBotV3.logger.fine("Setting Plotting Variables");
-                width = img_plotting.getWidth();
-                height = img_plotting.getHeight();
 
-                float   gcode_scale_x, gcode_scale_y;
-                gcode_scale_x = DrawingBotV3.getDrawingAreaWidthMM(this) / img_plotting.getWidth();
-                gcode_scale_y = DrawingBotV3.getDrawingAreaHeightMM(this) / img_plotting.getHeight();
-                gcode_scale = Math.min(gcode_scale_x, gcode_scale_y);
+                float print_scale_x, print_scale_y;
+                print_scale_x = printDrawingWidth / img_plotting.getWidth();
+                print_scale_y = printDrawingHeight / img_plotting.getHeight();
+                printScale = Math.min(print_scale_x, print_scale_y);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");
                 pfm.preProcess(this);
                 finishStage();
-                updateMessage("Plotting Image: " + loader.getName()); //here to avoid excessive task updates
+                updateMessage("Plotting Image: " + pfmFactory.getName()); //here to avoid excessive task updates
                 break;
 
             case DO_PROCESS:
@@ -188,12 +219,36 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return img_plotting;
     }
 
-    public int getPlottingWidth(){
-        return width;
+    public int getPixelWidth(){
+        return pixelWidth;
     }
 
-    public int getPlottingHeight(){
-        return height;
+    public int getPixelHeight(){
+        return pixelHeight;
+    }
+
+    public float getPrintPageWidth() {
+        return printPageWidth;
+    }
+
+    public float getPrintPageHeight() {
+        return printPageHeight;
+    }
+
+    public float getPrintDrawingWidth() {
+        return printDrawingWidth;
+    }
+
+    public float getPrintDrawingHeight() {
+        return printDrawingHeight;
+    }
+
+    public float getPrintOffsetX() {
+        return printOffsetX;
+    }
+
+    public float getPrintOffsetY() {
+        return printOffsetY;
     }
 
     public void stopElegantly(){
@@ -211,8 +266,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return super.cancel(mayInterruptIfRunning);
     }
 
-    public float getGCodeScale(){
-        return gcode_scale;
+    public float getPrintScale(){
+        return printScale;
     }
 
     public float getGCodeXOffset(){
@@ -246,9 +301,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         is_pen_down = false;
         gcode_offset_x = 0;
         gcode_offset_y = 0;
-        gcode_scale = 0;
+        printScale = 0;
         pfm = null;
-        loader = null;
+        pfmFactory = null;
         startTime = 0;
         finishTime = -1;
         finishedRenderingPaths = false;
@@ -280,9 +335,12 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     @Override
     public void moveAbsolute(float x, float y) {
-        plottedDrawing.addline(currentPen, is_pen_down, old_x, old_y, x, y);
+        PlottedLine line = plottedDrawing.addline(currentPen, is_pen_down, old_x, old_y, x, y);
         old_x = x;
         old_y = y;
+        if(useCustomARGB){
+            line.rgba = customARGB;
+        }
     }
 
     @Override
@@ -323,6 +381,16 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     @Override
     public IPixelData getReferencePixelData() {
         return reference;
+    }
+
+    @Override
+    public void useCustomARGB(boolean useARGB) {
+        useCustomARGB = useARGB;
+    }
+
+    @Override
+    public void setCustomARGB(int argb) {
+        customARGB = argb;
     }
 
     @Override

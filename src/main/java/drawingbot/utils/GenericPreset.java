@@ -1,6 +1,7 @@
 package drawingbot.utils;
 
 import com.google.gson.JsonObject;
+import drawingbot.files.GsonExclude;
 
 public class GenericPreset {
 
@@ -10,6 +11,9 @@ public class GenericPreset {
     public boolean userCreated; //if the preset should be saved to the json, if false it's assumed the preset is pre-installed
 
     public JsonObject jsonObject; //the json object the settings are stored in
+
+    @GsonExclude
+    public Object binding; //optional object this preset is bound to
 
     public GenericPreset(){}
 

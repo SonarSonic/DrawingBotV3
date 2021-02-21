@@ -2,18 +2,26 @@ package drawingbot.drawing;
 
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
+import drawingbot.utils.GenericPreset;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DrawingSet implements IDrawingSet {
 
-    private final String name;
-    private final List<IDrawingPen> pens;
+    public String type;
+    public String name;
+    public List<IDrawingPen> pens;
 
-    public DrawingSet(String name, List<IDrawingPen> pens) {
+    public DrawingSet(String type, String name, List<IDrawingPen> pens) {
+        this.type = type;
         this.name = name;
         this.pens = pens;
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
     @Override
@@ -32,6 +40,6 @@ public class DrawingSet implements IDrawingSet {
     }
 
     public DrawingSet copy(){
-        return new DrawingSet(name, new ArrayList<>(pens));
+        return new DrawingSet(type, name, new ArrayList<>(pens));
     }
 }

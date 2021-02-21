@@ -10,6 +10,7 @@ import javafx.concurrent.Task;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.function.BiFunction;
+import java.util.logging.Level;
 
 public class ExportTask extends Task<Boolean> {
 
@@ -31,6 +32,12 @@ public class ExportTask extends Task<Boolean> {
         this.saveLocation = saveLocation;
         this.seperatePens = seperatePens;
         this.overwrite = overwrite;
+    }
+
+    @Override
+    protected void setException(Throwable t) {
+        super.setException(t);
+        DrawingBotV3.logger.log(Level.SEVERE, "Export Task Failed", t);
     }
 
     @Override

@@ -5,6 +5,9 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.utils.EnumDistributionOrder;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -16,6 +19,7 @@ import java.util.List;
 
 public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
+    public final SimpleStringProperty type;
     public final SimpleStringProperty name;
     public final ObservableList<ObservableDrawingPen> pens;
     public final SimpleObjectProperty<EnumDistributionOrder> renderOrder;
@@ -23,6 +27,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
     public int[] currentRenderOrder;
 
     public ObservableDrawingSet(IDrawingSet<?> source){
+        this.type = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.pens = FXCollections.observableArrayList();
         this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.onDrawingSetChanged());
@@ -35,6 +40,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
     public void loadDrawingSet(IDrawingSet<?> source){
         this.pens.clear();
+        this.type.set(source.getType());
         this.name.set(source.getName());
         for(IDrawingPen pen : source.getPens()){
             pens.add(new ObservableDrawingPen(pens.size(), pen));
@@ -53,6 +59,18 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
             currentRenderOrder[i] = sortedList.getSourceIndex(i);
         }
         return currentRenderOrder;
+    }
+
+    public boolean containsPen(IDrawingPen pen){
+        if(pen == null){
+            return false;
+        }
+        return pens.stream().anyMatch(p -> p.getCodeName().equals(pen.getCodeName()));
+    }
+
+    @Override
+    public String getType() {
+        return type.get();
     }
 
     @Override

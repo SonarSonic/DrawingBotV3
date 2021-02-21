@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-//TODO
+//TODO IMPROVE FILTERS!!!
 public class ImageFilterRegistry {
 
     public static ObservableList<GenericFactory<IImageFilter>> filterFactories = FXCollections.observableArrayList();
@@ -36,7 +36,7 @@ public class ImageFilterRegistry {
         registerImageFilter(SimpleFilter.class, "Invert", () -> new SimpleFilter(ImageTools::invertFilter), false);
         registerImageFilter(BorderFilter.class, "Border", BorderFilter::new, false);
 
-        registerSetting(GenericSetting.createRangedIntSetting(BorderFilter.class, "Type", 1, 1, 13, (filter, value) -> filter.borderNumber = value));
+        registerSetting(GenericSetting.createRangedIntSetting(BorderFilter.class, "Type", 1, 1, 13, true, (filter, value) -> filter.borderNumber = value));
 
     }
 

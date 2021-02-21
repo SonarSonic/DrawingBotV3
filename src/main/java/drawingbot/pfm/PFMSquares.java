@@ -25,7 +25,7 @@ public class PFMSquares extends AbstractSketchPFM {
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgBrightness(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            bresenhamAvgLuminance(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 }

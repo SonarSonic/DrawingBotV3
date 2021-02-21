@@ -78,6 +78,16 @@ public interface IPlottingTask {
     IPixelData getReferencePixelData();
 
     /**
+     * @param useARGB true if the pfm wishes to set the colours of lines itself, false if drawing pen settings should be used, this can be changed mid plot.
+     */
+    void useCustomARGB(boolean useARGB);
+
+    /**
+     * @param argb the colour all subsequent geometries will use, requires {@link IPlottingTask#useCustomARGB(boolean)} to be true
+     */
+    void setCustomARGB(int argb);
+
+    /**
      * Sets the active pen from the current drawing set by index
      * @param index the index of the pen
      */

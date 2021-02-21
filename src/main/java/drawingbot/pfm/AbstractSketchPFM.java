@@ -30,7 +30,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             minLineLength = maxLineLength;
             maxLineLength = value;
         }
-        initialProgress = task.getPixelData().getAverageBrightness();
+        initialProgress = task.getPixelData().getAverageLuminance();
     }
 
 
@@ -51,15 +51,15 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
         for (int s = 0; s < squiggle_length; s++) {
             findDarkestNeighbour(task.getPixelData(), x, y);
-            bresenhamLighten(task.getPixelData(), x, y, darkest_x, darkest_y, adjustbrightness);
+            bresenhamLighten(task, task.getPixelData(), x, y, darkest_x, darkest_y, adjustbrightness);
             task.moveAbsolute(darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
 
 
-            float avgBrightness = task.getPixelData().getAverageBrightness();
-            task.updateProgess(avgBrightness-initialProgress, desired_brightness-initialProgress);
-            if(avgBrightness > desired_brightness || task.isFinished()){
+            float avgLuminance = task.getPixelData().getAverageLuminance();
+            task.updateProgess(avgLuminance-initialProgress, desired_brightness-initialProgress);
+            if(avgLuminance > desired_brightness || task.isFinished()){
                 task.finishProcess();
                 return;
             }

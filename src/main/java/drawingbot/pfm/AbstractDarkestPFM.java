@@ -20,13 +20,9 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     protected float darkest_value;
     protected float darkest_neighbor;
 
-    ///bresenham calculations
-    protected int sum_brightness = 0;
-    protected int count_brightness = 0;
-
     @Override
     public int getColourMode() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -34,8 +30,15 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         return ImageTools.getARGB(0, 255, 255, 255);
     }
 
+    @Override
+    public void init(IPlottingTask task) {
+        super.init(task);
+        task.useCustomARGB(true);
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /** finds the darkest area of the image, according to sampleWidth/sampleHeight and returns a random pixel in that area */
     protected void findDarkestArea(IPixelData pixels) {
         int totalSamplesX = pixels.getWidth()/sampleWidth;
         int totalSamplesY = pixels.getHeight()/sampleHeight;
@@ -52,15 +55,15 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
                 int startY = sampleY*sampleHeight;
                 int endY = startY + sampleHeight;
-                float sampleBrightness = 0;
+                float sampleLuminance = 0;
                 for(int x = startX; x < endX; x++){
                     for(int y = startY; y < endY; y++){
-                        sampleBrightness += pixels.getBrightness(x, y);
+                        sampleLuminance += pixels.getLuminance(x, y);
                     }
                 }
-                float avgBrightness = sampleBrightness / (sampleWidth*sampleHeight);
-                if (avgBrightness < darkest_value) {
-                    darkest_value = avgBrightness;
+                float avgLuminance = sampleLuminance / (sampleWidth*sampleHeight);
+                if (avgLuminance < darkest_value) {
+                    darkest_value = avgLuminance;
                     darkestSampleX = startX;
                     darkestSampleY = startY;
                 }
@@ -71,22 +74,22 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         darkest_y = darkestSampleY + randomSeed.nextInt(sampleHeight);
     }
 
-    /**returns a random pixel of the darkest pixels found*/
+    /** returns a random pixel of the darkest pixels found*/
     public void findDarkestPixel(IPixelData pixels){
         List<Pair<Integer, Integer>> points = new ArrayList<>();
-        int brightness = pixels.getBrightness(0,0);
+        int luminance = pixels.getLuminance(0,0);
 
 
         for(int x = 0; x < pixels.getWidth(); x ++){
             for(int y = 0; y < pixels.getHeight(); y ++){
-                int c = pixels.getBrightness(x, y);
-                if(c == brightness) {
+                int c = pixels.getLuminance(x, y);
+                if(c == luminance) {
                     points.add(new Pair<>(x, y));
                 }
-                if(c < brightness) {
+                if(c < luminance) {
                     points.clear();
                     points.add(new Pair<>(x, y));
-                    brightness = c;
+                    luminance = c;
                 }
             }
         }
@@ -96,47 +99,59 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         darkest_y = point.getValue();
     }
 
-    public int[] getFullLine(IPixelData pixels, int x0, int y0, float degree){ //TODO FIX TENDENCY FOR PFMS TO GO TO CORNERS WITH LONG LINES
-        double minX, minY, maxX, maxY;
+    /** returns a line which intersects through the entire image going through the specified point */
+    public int[] getIntersectingLine(IPixelData pixels, int pointX, int pointY, float degree){
+        double slope = Math.tan(degree);
+        int[] left = getLeftIntersection(pixels, pointX, pointY, slope);
+        int[] right = getRightIntersection(pixels, pointX, pointY, slope);
+        return new int[]{left[0], left[1], right[0], right[1]};
+    }
 
+    private final int[] leftPointCache = new int[2];
+
+    /** finds the point of intersection with the image to the left of the given point */
+    public int[] getLeftIntersection(IPixelData pixels, int originX, int originY, double slope){
+        double maxHeight = pixels.getHeight()-1;
+        double leftYIntercept = originY - slope*originX;
+        if(leftYIntercept >= maxHeight){
+            leftPointCache[0] = (int)((maxHeight-leftYIntercept)/slope);
+            leftPointCache[1] = (int)maxHeight;
+        }else if(leftYIntercept < 0){
+            leftPointCache[0] = (int)((-leftYIntercept)/slope);
+            leftPointCache[1] = 0;
+        }else{
+            leftPointCache[0] = 0;
+            leftPointCache[1] = (int)leftYIntercept;
+        }
+        return leftPointCache;
+    }
+
+    private final int[] rightPointCache = new int[2];
+
+    /** finds the point of intersection with the image to the right of the given point */
+    public int[] getRightIntersection(IPixelData pixels, int originX, int originY, double slope){
         double maxWidth = pixels.getWidth()-1;
         double maxHeight = pixels.getHeight()-1;
 
-        double slope = Math.tan(degree);
-
-        double leftYIntercept = y0 - slope*x0;
-        if(leftYIntercept >= maxHeight){
-            minY = maxHeight;
-            minX = ((maxHeight-leftYIntercept)/slope);
-        }else if(leftYIntercept < 0){
-            minY = 0;
-            minX = ((-leftYIntercept)/slope);
-        }else{
-            minY = leftYIntercept;
-            minX = 0;
-        }
-
-        double rightYIntercept = y0 - slope*(x0-maxWidth);
-
+        double rightYIntercept = originY - slope*(originX-maxWidth);
         if(rightYIntercept >= maxHeight){
-            maxY = maxHeight-1;
-            maxX = ((maxHeight-rightYIntercept)/slope)  + maxWidth+1;
+            rightPointCache[0] = (int)(((maxHeight-rightYIntercept)/slope)  + maxWidth);
+            rightPointCache[1] = (int)maxHeight-1;
         }else if(rightYIntercept < 0){
-            maxY = 0;
-            maxX = ((-rightYIntercept)/slope) + maxWidth+1;
+            rightPointCache[0] = (int)(((-rightYIntercept)/slope) + maxWidth);
+            rightPointCache[1] = 0;
         }else{
-            maxY = rightYIntercept;
-            maxX = maxWidth;
+            rightPointCache[0] = (int)maxWidth;
+            rightPointCache[1] = (int)rightYIntercept;
         }
-
-        return new int[]{(int)Math.floor(minX), (int)Math.floor(minY), (int)Math.floor(maxX), (int)Math.floor(maxY)};
+        return rightPointCache;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void bresenhamAvgBrightness(IPixelData pixels, int x0, int y0, float distance, float degree) {
-        sum_brightness = 0;
-        count_brightness = 0;
+    protected void bresenhamAvgLuminance(IPixelData pixels, int x0, int y0, float distance, float degree) {
+        sum_luminance = 0;
+        count_pixels = 0;
 
         int x1, y1;
         x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + x0;
@@ -151,20 +166,47 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    ///bresenham calculations
+    protected int sum_luminance = 0;
+    protected int count_pixels = 0;
+
+    protected int sum_red = 0;
+    protected int sum_green = 0;
+    protected int sum_blue = 0;
+    protected int sum_alpha = 0;
+    protected int total_pixels = 0;
+
     protected void bresenhamTest(IPixelData pixels, int x, int y){
-        sum_brightness += pixels.getBrightness(x, y);
-        count_brightness++;
-        if ((float)sum_brightness / (float)count_brightness < darkest_neighbor) {
+        sum_luminance += pixels.getLuminance(x, y);
+        count_pixels++;
+        if ((float) sum_luminance / (float) count_pixels < darkest_neighbor) {
             darkest_x = x;
             darkest_y = y;
-            darkest_neighbor = (float)sum_brightness / (float)count_brightness;
+            darkest_neighbor = (float) sum_luminance / (float) count_pixels;
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void bresenhamLighten(IPixelData pixels, int x0, int y0, int x1, int y1, int adjustbrightness) {
-        AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> pixels.adjustBrightness(x, y, adjustbrightness));
+    public void bresenhamLighten(IPlottingTask task, IPixelData pixels, int x0, int y0, int x1, int y1, int adjustLum) {
+        sum_red = 0;
+        sum_green = 0;
+        sum_blue = 0;
+        sum_alpha = 0;
+        total_pixels = 0;
+        AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
+        task.setCustomARGB(ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels));
+    }
+
+    public void adjustLuminanceColour(IPixelData pixels, int x, int y, int adjustLum){
+        total_pixels++;
+        sum_alpha += pixels.getAlpha(x, y);
+        sum_red += pixels.getRed(x, y);
+        sum_green += pixels.getGreen(x, y);
+        sum_blue += pixels.getBlue(x, y);
+        pixels.adjustRed(x, y, adjustLum);
+        pixels.adjustGreen(x, y, adjustLum);
+        pixels.adjustBlue(x, y, adjustLum);
     }
 
 }

@@ -1,24 +1,21 @@
 package drawingbot.image;
 
-import drawingbot.api.IPixelData;
+import drawingbot.utils.Utils;
 
-import java.awt.*;
+/**
+ * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to RGB values and their cached averages
+ */
+public class PixelDataARGB extends PixelDataAbstract {
 
-public class PixelDataARGB implements IPixelData {
-
-    public int width, height;
     public RawData alpha;
     public RawData red;
     public RawData green;
     public RawData blue;
-    public int transparentARGB = -1;
 
-    private float[] hsbCache = new float[3];
-    private int[] argbCache = new int[4];
+    private int[] cacheARGBtoARGB = new int[4];
 
     public PixelDataARGB(int width, int height) {
-        this.width = width;
-        this.height = height;
+        super(width, height);
         this.alpha = new RawData(width, height);
         this.red = new RawData(width, height);
         this.green = new RawData(width, height);
@@ -37,16 +34,6 @@ public class PixelDataARGB implements IPixelData {
                 return blue;
         }
         return null;
-    }
-
-    @Override
-    public int getWidth() {
-        return width;
-    }
-
-    @Override
-    public int getHeight() {
-        return height;
     }
 
     @Override
@@ -74,33 +61,29 @@ public class PixelDataARGB implements IPixelData {
         int r = red.getData(x, y);
         int g = green.getData(x, y);
         int b = blue.getData(x, y);
-        return (int)(Color.RGBtoHSB(r, g, b, hsbCache)[type]*255);
+        return (int)(updateRGBtoHSBCache(r, g, b)[type]*255);
     }
 
     @Override
     public void setHSB(int type, int x, int y, int value) {
-        int r = red.getData(x, y);
-        int g = green.getData(x, y);
-        int b = blue.getData(x, y);
-        Color.RGBtoHSB(r, g, b, hsbCache);
-        hsbCache[type] = value/255F; //set value
-        int rgb = Color.HSBtoRGB(hsbCache[0], hsbCache[1], hsbCache[2]);
-        red.setData(x, y, (rgb>>16)&0xff);
-        green.setData(x, y, (rgb>>8)&0xff);
-        blue.setData(x, y, rgb&0xff);
+        float[] hsb = copyHSB(updateRGBtoHSBCache(red.getData(x, y), green.getData(x, y), blue.getData(x, y)));
+        hsb[type] = value/255F; //set value
+        onChangedHSB(x, y, hsb[0], hsb[1], hsb[2]);
     }
 
     @Override
     public void adjustHSB(int type, int x, int y, int value) {
-        int r = red.getData(x, y);
-        int g = green.getData(x, y);
-        int b = blue.getData(x, y);
-        Color.RGBtoHSB(r, g, b, hsbCache);
-        hsbCache[type] = Math.max(0, Math.min((hsbCache[type]*255) + value, 255))/255F; //adjust value
-        int rgb = Color.HSBtoRGB(hsbCache[0], hsbCache[1], hsbCache[2]);
-        red.setData(x, y, (rgb>>16)&0xff);
-        green.setData(x, y, (rgb>>8)&0xff);
-        blue.setData(x, y, rgb&0xff);
+        float[] hsb = copyHSB(updateRGBtoHSBCache(red.getData(x, y), green.getData(x, y), blue.getData(x, y)));
+        hsb[type] = Math.max(0, Math.min((hsb[type]*255) + value, 255))/255F; //adjust value
+        onChangedHSB(x, y, hsb[0], hsb[1], hsb[2]);
+    }
+
+    /**update the RGB cache*/
+    protected void onChangedHSB(int x, int y, float hue, float saturation, float brightness){
+        int[] rgb = updateHSBtoRGBCache(hue, saturation, brightness);
+        red.setData(x, y, rgb[1]);
+        green.setData(x, y, rgb[2]);
+        blue.setData(x, y, rgb[3]);
     }
 
     @Override
@@ -108,7 +91,7 @@ public class PixelDataARGB implements IPixelData {
         int r = (int)red.getAverage();
         int g = (int)green.getAverage();
         int b = (int)blue.getAverage();
-        return (Color.RGBtoHSB(r, g, b, hsbCache)[type]*255);
+        return (updateRGBtoHSBCache(r, g, b)[type]*255);
     }
 
     @Override
@@ -118,28 +101,15 @@ public class PixelDataARGB implements IPixelData {
 
     @Override
     public void setARGB(int x, int y, int argb) {
-        ImageTools.getColourIntsFromARGB(argb, argbCache);
-        setAlpha(x, y, argbCache[0]);
-        setRed(x, y, argbCache[1]);
-        setGreen(x, y, argbCache[2]);
-        setBlue(x, y, argbCache[3]);
+        ImageTools.getColourIntsFromARGB(argb, cacheARGBtoARGB);
+        setARGB(x, y, cacheARGBtoARGB[0], cacheARGBtoARGB[1], cacheARGBtoARGB[2], cacheARGBtoARGB[3]);
     }
 
     @Override
     public void setARGB(int x, int y, int a, int r, int g, int b) {
-        setAlpha(x, y, a);
-        setRed(x, y, r);
-        setGreen(x, y, g);
-        setBlue(x, y, b);
-    }
-
-    @Override
-    public int getTransparentARGB() {
-        return transparentARGB;
-    }
-
-    @Override
-    public void setTransparentARGB(int argb) {
-        transparentARGB = argb;
+        alpha.setData(x, y, a);
+        red.setData(x, y, r);
+        green.setData(x, y, g);
+        blue.setData(x, y, b);
     }
 }

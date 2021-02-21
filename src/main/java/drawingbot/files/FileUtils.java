@@ -42,8 +42,6 @@ public class FileUtils {
         return System.getProperty("user.home") + File.separator + "." + DrawingBotV3.appName + File.separator;
     }
 
-    //TODO REMOVE THESE?
-
     public static PrintWriter createWriter(File file) {
         if (file == null) {
             throw new RuntimeException("File passed to createWriter() was null");

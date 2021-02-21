@@ -5,12 +5,8 @@
   "userCreated": false,
   "jsonObject": {
     "filters": [
-      "Unsharp Mask",
-      "Grayscale"
     ],
     "settings": [
-      {},
-      {}
     ]
   }
 }

@@ -2,7 +2,11 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
+import drawingbot.image.ImageTools;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.awt.*;
 import java.text.NumberFormat;
@@ -38,29 +42,44 @@ public class PlottedDrawing {
     }
 
     public ObservableDrawingPen getPen(int penNumber){
-        return drawingPenSet.getPens().get(penNumber);
+        if(penNumber < drawingPenSet.getPens().size()){
+            return drawingPenSet.getPens().get(penNumber);
+        }
+        return null;
     }
 
-    public void renderLines(Graphics2D graphics, int start, int end) {
+    public void renderLinesFX(GraphicsContext graphics, int start, int end) {
+
         for (int i = start; i < end; i++) {
-            renderLine(graphics, plottedLines.get(i));
+            renderLineFX(graphics, plottedLines.get(i));
         }
     }
 
-    public void renderLinesReverse(Graphics2D graphics, int start, int end) {
+    public void renderLinesReverseFX(GraphicsContext graphics, int start, int end) {
         for (int i = start; i > end; i--) {
-            renderLine(graphics, plottedLines.get(i));
+            renderLineFX(graphics, plottedLines.get(i));
         }
     }
 
-    public void renderLine(Graphics2D graphics, PlottedLine line) {
+    public void renderLineFX(GraphicsContext graphics, PlottedLine line) {
         if (line.pen_down) {
-            ObservableDrawingPen pen = drawingPenSet.getPens().get(line.pen_number);
-            if(pen.isEnabled()){
-                graphics.setColor(pen.getAWTColor());
-                graphics.drawLine((int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2);
+            ObservableDrawingPen pen = getPen(line.pen_number);
+            if(pen != null && pen.isEnabled()){
+                renderLineFX(graphics, pen, line);
             }
         }
+    }
+
+    public void renderLineFX(GraphicsContext graphics, ObservableDrawingPen pen, PlottedLine line) {
+        graphics.setLineWidth(pen.getStrokeSize());
+        graphics.setStroke(pen.getFXColor(line.rgba));
+        graphics.strokeLine((int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2);
+    }
+
+    public void renderLineAWT(Graphics2D graphics, ObservableDrawingPen pen, PlottedLine line) {
+        graphics.setStroke(pen.getAWTStroke());
+        graphics.setColor(pen.getAWTColor(line.rgba));
+        graphics.drawLine((int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2);
     }
 
     /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
@@ -91,7 +110,7 @@ public class PlottedDrawing {
                 pen.currentLines.set(linesPerPen);
 
                 //set pen references
-                int end = currentLine + linesPerPen;
+                int end = i == renderOrder.length-1 ? plottedLines.size() : currentLine + linesPerPen;
                 for (; currentLine < end; currentLine++) {
                     PlottedLine line = plottedLines.get(currentLine);
                     line.pen_number = penNumber;
@@ -127,8 +146,10 @@ public class PlottedDrawing {
         DrawingBotV3.logger.fine("set_pen_continuation_flags");
     }
 
-    public void addline(int penNumber, boolean penDown, float x1, float y1, float x2, float y2) {
-        plottedLines.add(new PlottedLine(penDown, penNumber, x1, y1, x2, y2));
+    public PlottedLine addline(int penNumber, boolean penDown, float x1, float y1, float x2, float y2) {
+        PlottedLine line = new PlottedLine(penDown, penNumber, x1, y1, x2, y2);
+        plottedLines.add(line);
+        return line;
     }
 
     public void reset(){

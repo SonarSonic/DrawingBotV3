@@ -32,87 +32,91 @@ import javafx.scene.effect.BlendMode;
 
 public enum EnumBlendMode implements Blender {
 
-    NORMAL(BlendMode.SRC_OVER, (src, dst) -> src),
+    NORMAL(BlendMode.SRC_OVER, false, (src, dst) -> src),
 
-    ADD(BlendMode.ADD, (src, dst) -> new int[]{
+    ADD(BlendMode.ADD, true, (src, dst) -> new int[]{
             Math.min(255, src[0] + dst[0]),
             Math.min(255, src[1] + dst[1]),
             Math.min(255, src[2] + dst[2]),
             Math.min(255, src[3] + dst[3])
     }),
-    MULTIPLY(BlendMode.MULTIPLY, (src, dst) -> new int[]{
+    MULTIPLY(BlendMode.MULTIPLY, false, (src, dst) -> new int[]{
             (src[0] * dst[0]) >> 8,
             (src[1] * dst[1]) >> 8,
             (src[2] * dst[2]) >> 8,
             Math.min(255, src[3] + dst[3])
     }),
-    SCREEN(BlendMode.SCREEN, (src, dst) -> new int[]{
+    SCREEN(BlendMode.SCREEN, true, (src, dst) -> new int[]{
             255 - ((255 - src[0]) * (255 - dst[0]) >> 8),
             255 - ((255 - src[1]) * (255 - dst[1]) >> 8),
             255 - ((255 - src[2]) * (255 - dst[2]) >> 8),
             Math.min(255, src[3] + dst[3])
     }),
-    OVERLAY(BlendMode.OVERLAY, (src, dst) -> new int[]{
+    /*  TODO MAYBE THESE ONES SHOULD RENDER TWICE
+    OVERLAY(BlendMode.OVERLAY, true, (src, dst) -> new int[]{ //TEST
             dst[0] < 128 ? dst[0] * src[0] >> 7 :255 - ((255 - dst[0]) * (255 - src[0]) >> 7),
             dst[1] < 128 ? dst[1] * src[1] >> 7 : 255 - ((255 - dst[1]) * (255 - src[1]) >> 7),
             dst[2] < 128 ? dst[2] * src[2] >> 7 : 255 - ((255 - dst[2]) * (255 - src[2]) >> 7),
             Math.min(255, src[3] + dst[3])
     }),
-    DARKEN(BlendMode.DARKEN, (src, dst) -> new int[]{
+     */
+    DARKEN(BlendMode.DARKEN, false, (src, dst) -> new int[]{
             Math.min(src[0], dst[0]),
             Math.min(src[1], dst[1]),
             Math.min(src[2], dst[2]),
             Math.min(255, src[3] + dst[3])
     }),
-    LIGHTEN(BlendMode.LIGHTEN, (src, dst) -> new int[]{
+    LIGHTEN(BlendMode.LIGHTEN, true, (src, dst) -> new int[]{
             Math.max(src[0], dst[0]),
             Math.max(src[1], dst[1]),
             Math.max(src[2], dst[2]),
             Math.min(255, src[3] + dst[3])
     }),
-    COLOR_DODGE(BlendMode.COLOR_DODGE, (src, dst) -> new int[]{
+    /*
+    COLOR_DODGE(BlendMode.COLOR_DODGE, true, (src, dst) -> new int[]{ //TEST
             src[0] == 255 ? 255 : Math.min((dst[0] << 8) / (255 - src[0]), 255),
             src[1] == 255 ? 255 : Math.min((dst[1] << 8) / (255 - src[1]), 255),
             src[2] == 255 ? 255 : Math.min((dst[2] << 8) / (255 - src[2]), 255),
             Math.min(255, src[3] + dst[3])
     }),
-    COLOR_BURN(BlendMode.COLOR_BURN, (src, dst) -> new int[]{
+    COLOR_BURN(BlendMode.COLOR_BURN, true, (src, dst) -> new int[]{ //TEST
             src[0] == 0 ? 0 : Math.max(0, 255 - (((255 - dst[0]) << 8) / src[0])),
             src[1] == 0 ? 0 : Math.max(0, 255 - (((255 - dst[1]) << 8) / src[1])),
             src[2] == 0 ? 0 : Math.max(0, 255 - (((255 - dst[2]) << 8) / src[2])),
             Math.min(255, src[3] + dst[3])
     }),
-    HARD_LIGHT(BlendMode.HARD_LIGHT, (src, dst) -> new int[]{
+    */
+    HARD_LIGHT(BlendMode.HARD_LIGHT, true, (src, dst) -> new int[]{
             src[0] < 128 ? dst[0] * src[0] >> 7 : 255 - ((255 - src[0]) * (255 - dst[0]) >> 7),
             src[1] < 128 ? dst[1] * src[1] >> 7 : 255 - ((255 - src[1]) * (255 - dst[1]) >> 7),
             src[2] < 128 ? dst[2] * src[2] >> 7 : 255 - ((255 - src[2]) * (255 - dst[2]) >> 7),
             Math.min(255, src[3] + dst[3])
     }),
-    DIFFERENCE(BlendMode.DIFFERENCE, (src, dst) -> new int[]{
+    DIFFERENCE(BlendMode.DIFFERENCE, false, (src, dst) -> new int[]{
             Math.abs(dst[0] - src[0]),
             Math.abs(dst[1] - src[1]),
             Math.abs(dst[2] - src[2]),
             Math.min(255, src[3] + dst[3])
     }),
-    EXCLUSION(BlendMode.EXCLUSION, (src, dst) -> new int[]{
+    EXCLUSION(BlendMode.EXCLUSION, false, (src, dst) -> new int[]{
             dst[0] + src[0] - (dst[0] * src[0] >> 7),
             dst[1] + src[1] - (dst[1] * src[1] >> 7),
             dst[2] + src[2] - (dst[2] * src[2] >> 7),
             Math.min(255, src[3] + dst[3])
     }),
-    RED(BlendMode.RED, (src, dst) -> new int[]{
+    RED(BlendMode.RED, false, (src, dst) -> new int[]{
             src[0],
             dst[1],
             dst[2],
             Math.min(255, src[3] + dst[3])
     }),
-    GREEN(BlendMode.GREEN, (src, dst) -> new int[]{
+    GREEN(BlendMode.GREEN, false, (src, dst) -> new int[]{
             dst[0],
             dst[1],
             src[2],
             Math.min(255, src[3] + dst[3])
     }),
-    BLUE(BlendMode.BLUE, (src, dst) -> new int[]{
+    BLUE(BlendMode.BLUE, false, (src, dst) -> new int[]{
             dst[0],
             src[1],
             dst[2],
@@ -247,10 +251,12 @@ public enum EnumBlendMode implements Blender {
      */
 
     public BlendMode javaFXVersion;
+    public boolean additive;
     public Blender blender;
 
-    EnumBlendMode(BlendMode javaFXVersion, Blender blender) {
+    EnumBlendMode(BlendMode javaFXVersion, boolean additive, Blender blender) {
         this.javaFXVersion = javaFXVersion;
+        this.additive = additive;
         this.blender = blender;
     }
 

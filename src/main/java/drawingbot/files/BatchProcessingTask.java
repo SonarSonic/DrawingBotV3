@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class BatchProcessingTask extends Task<Boolean> {
@@ -39,6 +40,7 @@ public class BatchProcessingTask extends Task<Boolean> {
     protected void setException(Throwable t) {
         super.setException(t);
         BatchProcessing.finishProcessing();
+        DrawingBotV3.logger.log(Level.SEVERE, "Batch Processing Task Failed", t);
     }
 
     @Override

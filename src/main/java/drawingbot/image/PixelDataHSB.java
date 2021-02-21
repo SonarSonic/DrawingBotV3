@@ -1,22 +1,24 @@
 package drawingbot.image;
 
 import drawingbot.api.IPixelData;
+import drawingbot.utils.Utils;
 
 import java.awt.*;
 
-public class PixelDataHSB implements IPixelData {
+/**
+ * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to HSB values and their cached averages
+ */
+public class PixelDataHSB extends PixelDataAbstract {
 
-    public int width, height;
     public RawData hue;
     public RawData saturation;
     public RawData brightness;
-    public int transparentARGB = -1;
 
     private float[] hsbCache = new float[3];
     private int[] argbCache = new int[4];
 
     public PixelDataHSB(int width, int height) {
-        this.width = width;
+        super(width, height);
         this.height = height;
         this.hue = new RawData(width, height);
         this.saturation = new RawData(width, height);
@@ -33,16 +35,6 @@ public class PixelDataHSB implements IPixelData {
                 return brightness;
         }
         return null;
-    }
-
-    @Override
-    public int getWidth() {
-        return width;
-    }
-
-    @Override
-    public int getHeight() {
-        return height;
     }
 
     @Override
@@ -127,15 +119,5 @@ public class PixelDataHSB implements IPixelData {
     @Override
     public float getAverageHSB(int type) {
         return getRawData(type).getAverage();
-    }
-
-    @Override
-    public int getTransparentARGB() {
-        return transparentARGB;
-    }
-
-    @Override
-    public void setTransparentARGB(int argb) {
-        transparentARGB = argb;
     }
 }

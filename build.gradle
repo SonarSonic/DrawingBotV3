@@ -32,8 +32,9 @@ dependencies {
     compile "org.imgscalr:imgscalr-lib:${imgscalr_version}"
     compile "com.google.code.gson:gson:${gson_version}"
     compile "org.locationtech.jts:jts-core:${jts_version}"
-    compile 'org.apache.xmlgraphics:batik-svggen:1.14'
-    compile 'org.apache.xmlgraphics:batik-dom:1.14'
+    compile "org.apache.xmlgraphics:batik-svggen:${xml_graphics_version}"
+    compile "org.apache.xmlgraphics:batik-dom:${xml_graphics_version}"
+    compile "org.controlsfx:controlsfx:${controlsfx_version}"
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
     String javaFxVersion = '15'
@@ -52,6 +53,7 @@ dependencies {
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFxVersion, classifier: 'win'
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFxVersion, classifier: 'mac'
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFxVersion, classifier: 'linux'
+
 }
 
 targetCompatibility = "11"
