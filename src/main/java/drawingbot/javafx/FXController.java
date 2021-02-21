@@ -9,6 +9,7 @@ import drawingbot.image.ImageFilterRegistry;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.controls.*;
+import drawingbot.plotting.PlottedPoint;
 import drawingbot.utils.GenericPreset;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
@@ -519,7 +520,7 @@ public class FXController {
         }, (preset) -> {
             if(preset != null){
                 comboBoxSetType.setValue(DrawingRegistry.userType);
-                comboBoxDrawingSet.setValue((UserDrawingSet)preset.binding);
+                comboBoxDrawingSet.setValue((UserDrawingSet)preset.object);
             }else{
                 DrawingRegistry.INSTANCE.getDefaultSet(comboBoxSetType.getValue());
             }
@@ -602,7 +603,7 @@ public class FXController {
             }, (preset) -> {
                 if(preset != null){
                     comboBoxPenType.setValue(DrawingRegistry.userType);
-                    comboBoxDrawingPen.setValue((UserDrawingPen)preset.binding);
+                    comboBoxDrawingPen.setValue((UserDrawingPen)preset.object);
                 }else{
                     DrawingRegistry.INSTANCE.getDefaultPen(comboBoxPenType.getValue());
                 }
@@ -757,7 +758,7 @@ public class FXController {
             //TODO SET INITIAL FILENAME!!!
             File file = d.showSaveDialog(null);
             if(file != null){
-                DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), ExportFormats::defaultFilter, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
+                DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), PlottedPoint.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
             }
         });
     }

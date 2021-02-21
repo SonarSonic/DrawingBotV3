@@ -3,7 +3,7 @@ package drawingbot.utils;
 import com.google.gson.JsonObject;
 import drawingbot.files.GsonExclude;
 
-public class GenericPreset {
+public class GenericPreset<O> {
 
     public EnumPresetType presetType;
     public String presetSubType; //only needed by some presets, e.g. PFMPresets have different presets for each PFM
@@ -13,7 +13,7 @@ public class GenericPreset {
     public JsonObject jsonObject; //the json object the settings are stored in
 
     @GsonExclude
-    public Object binding; //optional object this preset is bound to
+    public O object; //optional object this preset is bound to //TODO TEST TRANSIENT
 
     public GenericPreset(){}
 

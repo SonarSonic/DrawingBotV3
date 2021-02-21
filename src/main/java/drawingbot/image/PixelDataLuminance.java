@@ -3,6 +3,7 @@ package drawingbot.image;
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to perceived luminance values and the cached average
  */
+//TODO ISSUE WITH LUMINANCE VALUES?
 public class PixelDataLuminance extends PixelDataAbstract {
 
     public RawData luminance;

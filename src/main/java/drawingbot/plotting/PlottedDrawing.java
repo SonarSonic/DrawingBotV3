@@ -1,14 +1,12 @@
 package drawingbot.plotting;
 
-import drawingbot.DrawingBotV3;
+import drawingbot.api.IPointFilter;
 import drawingbot.drawing.*;
-import drawingbot.image.ImageTools;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 import java.awt.*;
+import java.awt.geom.GeneralPath;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,15 +14,17 @@ import java.util.List;
 
 public class PlottedDrawing {
 
-    public final List<PlottedLine> plottedLines;
+    public final List<PlottedPoint> plottedPoints;
 
     public ObservableDrawingSet drawingPenSet;
     public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
 
     public PlottedDrawing(ObservableDrawingSet penSet){
-        this.plottedLines = Collections.synchronizedList(new ArrayList<>());
+        this.plottedPoints = Collections.synchronizedList(new ArrayList<>());
         this.drawingPenSet = penSet;
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public int getPenCount(){
         return drawingPenSet.getPens().size();
@@ -38,7 +38,7 @@ public class PlottedDrawing {
     }
 
     public int getPlottedLineCount(){
-        return plottedLines.size();
+        return plottedPoints.size();
     }
 
     public ObservableDrawingPen getPen(int penNumber){
@@ -48,39 +48,63 @@ public class PlottedDrawing {
         return null;
     }
 
-    public void renderLinesFX(GraphicsContext graphics, int start, int end) {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        for (int i = start; i < end; i++) {
-            renderLineFX(graphics, plottedLines.get(i));
-        }
+    public PlottedPoint addPoint(int pathIndex, int penNumber, float x1, float y1) {
+        PlottedPoint line = new PlottedPoint(pathIndex, penNumber, x1, y1);
+        plottedPoints.add(line);
+        return line;
     }
 
-    public void renderLinesReverseFX(GraphicsContext graphics, int start, int end) {
-        for (int i = start; i > end; i--) {
-            renderLineFX(graphics, plottedLines.get(i));
-        }
+    public void reset(){
+        plottedPoints.clear();
+        drawingPenSet = null;
+        displayedLineCount = null;
     }
 
-    public void renderLineFX(GraphicsContext graphics, PlottedLine line) {
-        if (line.pen_down) {
-            ObservableDrawingPen pen = getPen(line.pen_number);
-            if(pen != null && pen.isEnabled()){
-                renderLineFX(graphics, pen, line);
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public PlottedPoint last = null;
+
+    public void renderPointsFX(GraphicsContext graphics, int start, int end, IPointFilter pointFilter, boolean reverse) {
+        last = null;
+        if(!reverse){
+            for (int i = start; i < end; i++) {
+                renderPointsFX(graphics, i, pointFilter);
+            }
+        }else{
+            for (int i = start; i > end; i--) {
+                renderPointsFX(graphics, i, pointFilter);
             }
         }
     }
 
-    public void renderLineFX(GraphicsContext graphics, ObservableDrawingPen pen, PlottedLine line) {
-        graphics.setLineWidth(pen.getStrokeSize());
-        graphics.setStroke(pen.getFXColor(line.rgba));
-        graphics.strokeLine((int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2);
+    private void renderPointsFX(GraphicsContext graphics, int nextPoint, IPointFilter pointFilter){
+        PlottedPoint point = plottedPoints.get(nextPoint);
+        ObservableDrawingPen pen = getPen(point.pen_number);
+        if(pen != null && pointFilter.filter(point, pen)){
+            if(isPathContinuation(last, point)){
+                renderLineFX(graphics, pen, last, point);
+            }
+            last = point;
+        }else{
+            last = null; //break off the rendering of points
+        }
     }
 
-    public void renderLineAWT(Graphics2D graphics, ObservableDrawingPen pen, PlottedLine line) {
-        graphics.setStroke(pen.getAWTStroke());
-        graphics.setColor(pen.getAWTColor(line.rgba));
-        graphics.drawLine((int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2);
+    public void renderLineFX(GraphicsContext graphics, ObservableDrawingPen pen, PlottedPoint start, PlottedPoint end) {
+        graphics.setLineWidth(pen.getStrokeSize());
+        graphics.setStroke(pen.getFXColor(end.rgba));
+        graphics.strokeLine((int)start.x1, (int)start.y1, (int)end.x1, (int)end.y1);
     }
+
+    public void renderLineAWT(Graphics2D graphics, ObservableDrawingPen pen, PlottedPoint start, PlottedPoint end) {
+        graphics.setStroke(pen.getAWTStroke());
+        graphics.setColor(pen.getAWTColor(end.rgba));
+        graphics.drawLine((int)start.x1, (int)start.y1, (int)end.x1, (int)end.y1);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
     public void updateWeightedDistribution(){
@@ -110,9 +134,9 @@ public class PlottedDrawing {
                 pen.currentLines.set(linesPerPen);
 
                 //set pen references
-                int end = i == renderOrder.length-1 ? plottedLines.size() : currentLine + linesPerPen;
+                int end = i == renderOrder.length-1 ? plottedPoints.size() : currentLine + linesPerPen;
                 for (; currentLine < end; currentLine++) {
-                    PlottedLine line = plottedLines.get(currentLine);
+                    PlottedPoint line = plottedPoints.get(currentLine);
                     line.pen_number = penNumber;
                 }
             }else{
@@ -135,28 +159,73 @@ public class PlottedDrawing {
         selected.distributionWeight.set(Math.max(0, current + adjust));
     }
 
-    public void setPenContinuationFlagsForSVG() {
-        PlottedLine prevLine = null;
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        for (int i = 0; i < plottedLines.size(); i++) {
-            PlottedLine line = plottedLines.get(i);
-            line.pen_continuation = !(prevLine == null || prevLine.x2 != line.x1 || prevLine.y2 != line.y1 || prevLine.pen_down != line.pen_down  || prevLine.pen_number != line.pen_number);
-            prevLine = line;
+    private List<PlottedPath> plottedPaths = null;
+    private PlottedPath currentPath = null;
+
+    public List<PlottedPath> generatePlottedPaths(IPointFilter pointFilter){
+        plottedPaths = new ArrayList<>();
+        currentPath = null;
+
+        PlottedPoint last = null;
+        Integer lastARGB = null;
+
+        for(PlottedPoint point : plottedPoints){
+            ObservableDrawingPen pen = getPen(point.pen_number);
+            boolean shouldRenderPen = pen != null && pointFilter.filter(point, pen);
+
+            if(!shouldRenderPen){
+                last = null;
+                lastARGB = null;
+                continue;
+            }
+
+            int argb = pen.getCustomARGB(point.rgba);
+            boolean isContinuation = isPathContinuation(last, point) && lastARGB != null && argb == lastARGB;
+
+            if(!isContinuation){
+                openPath(point, pen);
+                currentPath.path.moveTo(point.x1, point.y1);
+                currentPath.pointCount++;
+            }else{
+                currentPath.path.lineTo(point.x1, point.y1); //TODO CHECK SPECIALS RENDER PROPERLY, POSSIBLY "LASTARGB" will mean they are always only one point long
+                currentPath.pointCount++;
+            }
+
+            last = point;
+            lastARGB = argb;
+
         }
-        DrawingBotV3.logger.fine("set_pen_continuation_flags");
+        closePath();
+
+        Collections.reverse(plottedPaths); //should probably use render order...
+        return plottedPaths;
     }
 
-    public PlottedLine addline(int penNumber, boolean penDown, float x1, float y1, float x2, float y2) {
-        PlottedLine line = new PlottedLine(penDown, penNumber, x1, y1, x2, y2);
-        plottedLines.add(line);
-        return line;
+    public void openPath(PlottedPoint point, ObservableDrawingPen pen){
+        if(currentPath != null){
+            closePath();
+        }
+        currentPath = new PlottedPath(new GeneralPath(), pen.getAWTStroke(), pen.getAWTColor(point.rgba));
     }
 
-    public void reset(){
-        plottedLines.clear();
-        drawingPenSet = null;
-        displayedLineCount = null;
+    public void closePath(){
+        if(currentPath != null && currentPath.pointCount > 1){
+            plottedPaths.add(currentPath);
+        }
+        currentPath = null;
     }
+
+
+    public boolean isPathContinuation(PlottedPoint prev, PlottedPoint next){
+        if(prev == null){
+            return false;
+        }
+        return prev.pathIndex == next.pathIndex && prev.pen_number == next.pen_number;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 }

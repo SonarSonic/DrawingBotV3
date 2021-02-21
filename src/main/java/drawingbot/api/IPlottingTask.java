@@ -2,7 +2,6 @@ package drawingbot.api;
 
 /**
  * Access editable image data via {@link IPlottingTask#getPixelData()} and unedited reference data {@link IPlottingTask#getReferencePixelData()}
- * Lines can be added via the {@link IPlottingTask#movePenDown()}, {@link IPlottingTask#movePenUp()}, {@link IPlottingTask#moveAbsolute(float, float)}, {@link IPlottingTask#addLine(float, float, float, float)}
  */
 public interface IPlottingTask {
 
@@ -25,44 +24,11 @@ public interface IPlottingTask {
      */
     void finishProcess();
 
-    /**
-     * @return if the pen is currently down
-     */
-    boolean isPenDown();
+    void openPath();
 
-    /**
-     * Moves the pen up, making any subsequent moves invisible, has no effect if the pen is already up
-     */
-    void movePenUp();
+    void closePath();
 
-    /**
-     * Moves the pen down, making any subsequent moves visible, has no effect if the pen is already down
-     */
-    void movePenDown();
-
-    /**
-     * Moves the pen to the given pixel coordinates, sub-pixel positioning can be used.
-     * If the pen is down a line will be drawn if not the pen will simple move to the given position.
-     * @param x the x coordinate
-     * @param y the y coordinate
-     */
-    void moveAbsolute(float x, float y);
-
-    /**
-     * A convenience method which moves the pen up, moves it to the first point, lowers the pen and draws a line
-     * Useful for converting other scripts to {@link IPathFindingModule} format which specify lines in this way
-     * @param x1 the x coordinate of the first point
-     * @param y1 the y coordinate of the first point
-     * @param x2 the x coordinate of the second point
-     * @param y2 the y coordinate of the second point
-     */
-    void addLine(float x1, float y1, float x2, float y2);
-
-    void beginShape(); //TODO MAKE WORK FOR ALL TYPES!
-
-    void endShape();
-
-    void addCurveVertex(float x1, float y1);
+    void addToPath(float x1, float y1);
 
     /**
      * The pixel data the {@link IPathFindingModule} can alter while processing

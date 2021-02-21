@@ -1,8 +1,7 @@
 package drawingbot.files.exporters;
 
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.api.IPointFilter;
 import drawingbot.files.ExportTask;
-import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 
 import javax.imageio.ImageIO;
@@ -10,14 +9,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.function.BiFunction;
 
 public class ImageExporter {
 
-    public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
+    public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
 
         int width = plottingTask.getPixelWidth();
-        int height = plottingTask.getPixelWidth();
+        int height = plottingTask.getPixelHeight();
 
         boolean useAlpha = !extension.equals(".jpg");
         BufferedImage image = new BufferedImage(width, height, useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);

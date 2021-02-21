@@ -5,7 +5,7 @@ package drawingbot.api;
  * There are lots of convenience methods for providing individual values for alpha, red, green, blue, hue, saturation, luminance
  * It is recommended to change individual values rather than using ARGB methods.
  *
- * Can be one of three colour modes: 0 = ARGB, 1 = HSB, 2 = GRAYSCALE
+ * Can be one of three colour modes: 0 = ARGB, 1 = HSB, 2 = Luminance (Y), 3 = ARGBY, 4 = Hybrid
  * The chosen mode will affect the efficiency of accessing pixel data
  * See: {@link IPathFindingModule#getColourMode()}
  *

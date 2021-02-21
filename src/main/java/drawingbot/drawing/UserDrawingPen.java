@@ -11,7 +11,7 @@ public class UserDrawingPen extends DrawingPen {
         super(source);
         this.type = DrawingRegistry.userType;
         this.preset = preset;
-        this.preset.binding = this;
+        this.preset.object = this;
     }
 
     @Override

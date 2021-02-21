@@ -1,8 +1,7 @@
 package drawingbot.files.exporters;
 
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.api.IPointFilter;
 import drawingbot.files.ExportTask;
-import drawingbot.plotting.PlottedLine;
 import drawingbot.plotting.PlottingTask;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -11,12 +10,11 @@ import org.w3c.dom.Document;
 
 import java.awt.*;
 import java.io.*;
-import java.util.function.BiFunction;
 
 //Documentation/Source: https://xmlgraphics.apache.org/batik/using/svg-generator.html
 public class SVGExporter {
 
-    public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, BiFunction<PlottedLine, ObservableDrawingPen, Boolean> lineFilter, String extension, File saveLocation) {
+    public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
         try {
             int width = plottingTask.getPixelWidth();
             int height = plottingTask.getPixelHeight();

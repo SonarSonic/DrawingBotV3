@@ -43,10 +43,10 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public boolean plottingFinished = false;
     public float old_x = 0;
     public float old_y = 0;
-    public boolean is_pen_down;
     public int currentPen = 0;
     public boolean useCustomARGB = false;
     public int customARGB = -1;
+    public int pathIndex = 0;
 
     // RENDERING \\\
     public int renderOffsetX = 0;
@@ -104,6 +104,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 currentPen = 0;
                 useCustomARGB = false;
                 customARGB = 0;
+                pathIndex = 0;
                 plottingProgress = 0;
                 plottingFinished = false;
 
@@ -156,6 +157,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                     break;
                 }
                 pfm.doProcess(this);
+                //finishProcess();
                 break;
 
             case POST_PROCESSING:
@@ -298,7 +300,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         comments.clear();
         old_x = 0;
         old_y = 0;
-        is_pen_down = false;
         gcode_offset_x = 0;
         gcode_offset_y = 0;
         printScale = 0;
@@ -318,58 +319,27 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return isCancelled() || plottingFinished;
     }
 
+    private boolean isDrawingPath = false;
+
     @Override
-    public boolean isPenDown(){
-        return is_pen_down;
+    public void openPath() {
+        isDrawingPath = true;
     }
 
     @Override
-    public void movePenUp() {
-        is_pen_down = false;
+    public void closePath() {
+        isDrawingPath = false;
+        pathIndex++;
     }
 
     @Override
-    public void movePenDown() {
-        is_pen_down = true;
-    }
-
-    @Override
-    public void moveAbsolute(float x, float y) {
-        PlottedLine line = plottedDrawing.addline(currentPen, is_pen_down, old_x, old_y, x, y);
-        old_x = x;
-        old_y = y;
+    public void addToPath(float x1, float y1) {
+        if(!isDrawingPath){
+            openPath();
+        }
+        PlottedPoint line = plottedDrawing.addPoint(pathIndex, currentPen, x1, y1);
         if(useCustomARGB){
             line.rgba = customARGB;
-        }
-    }
-
-    @Override
-    public void addLine(float x1, float y1, float x2, float y2) {
-        movePenUp();
-        moveAbsolute(x1, y1);
-        movePenDown();
-        moveAbsolute(x2, y2);
-    }
-
-    private boolean isDrawingShape = false;
-
-    @Override
-    public void beginShape() {
-        isDrawingShape = true;
-        movePenDown();
-    }
-
-    @Override
-    public void endShape() {
-        movePenUp();
-        isDrawingShape = false;
-    }
-
-    @Override
-    public void addCurveVertex(float x1, float y1) {
-        moveAbsolute(x1, y1);
-        if(!isDrawingShape){
-            beginShape();
         }
     }
 
