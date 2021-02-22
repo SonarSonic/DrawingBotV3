@@ -1,28 +1,28 @@
 package drawingbot.utils;
 
-import com.google.gson.JsonObject;
-import drawingbot.files.GsonExclude;
+import com.google.gson.annotations.JsonAdapter;
+import drawingbot.files.presets.IJsonData;
+import drawingbot.files.presets.JsonAdapterGenericPreset;
 
-public class GenericPreset<O> {
+@JsonAdapter(JsonAdapterGenericPreset.class)
+public class GenericPreset<O extends IJsonData> {
 
-    public EnumPresetType presetType;
+    public EnumJsonType presetType; //preset type, which defines the PresetManager and IPresetData types
+    public int version; //the major version of this preset
     public String presetSubType; //only needed by some presets, e.g. PFMPresets have different presets for each PFM
     public String presetName; //the presets name as it should show up in the user interface
     public boolean userCreated; //if the preset should be saved to the json, if false it's assumed the preset is pre-installed
 
-    public JsonObject jsonObject; //the json object the settings are stored in
-
-    @GsonExclude
-    public O object; //optional object this preset is bound to //TODO TEST TRANSIENT
+    public O data; //data this preset is bound to
 
     public GenericPreset(){}
 
-    public GenericPreset(EnumPresetType presetType, String presetSubType, String presetName, boolean userCreated, JsonObject jsonObject){
+    public GenericPreset(EnumJsonType presetType, String presetSubType, String presetName, boolean userCreated){
+        this.version = 1; //current major version
         this.presetType = presetType;
         this.presetSubType = presetSubType;
         this.presetName = presetName;
         this.userCreated = userCreated;
-        this.jsonObject = jsonObject;
     }
 
     @Override

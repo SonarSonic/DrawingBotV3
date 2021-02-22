@@ -97,6 +97,7 @@ public class DrawingBotV3 {
 
     public static BufferedImageLoader loadingImage = null;
     public static BufferedImage openImage = null;
+    public static File openFile = null;
 
     // GUI \\
     public static FXController controller;
@@ -434,7 +435,7 @@ public class DrawingBotV3 {
             activeTask.cancel();
         }
         if(openImage != null){
-            taskService.submit(new PlottingTask(DrawingBotV3.pfmFactory.get(), DrawingBotV3.observableDrawingSet, openImage));
+            taskService.submit(new PlottingTask(DrawingBotV3.pfmFactory.get(), DrawingBotV3.observableDrawingSet, openImage, openFile));
             isPlotting.setValue(true);
         }
     }
@@ -457,14 +458,15 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void openImage(String url, boolean internal){
+    public static void openImage(File file, boolean internal){
         if(activeTask != null){
             activeTask.cancel();
             setActivePlottingTask(null);
             openImage = null;
             loadingImage = null;
         }
-        loadingImage = new BufferedImageLoader(url, internal);
+        openFile = file;
+        loadingImage = new BufferedImageLoader(file.getAbsolutePath(), internal);
         imageLoadingService.submit(loadingImage);
     }
 

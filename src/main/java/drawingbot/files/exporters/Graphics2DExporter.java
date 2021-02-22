@@ -30,9 +30,7 @@ public class Graphics2DExporter {
             graphics.setStroke(plottedPath.stroke);
             graphics.setColor(plottedPath.color);
             graphics.draw(plottedPath.path);
-            if (i % (plottingTask.plottedDrawing.getDisplayedLineCount() / 100) == 0) { //only update for every percent lines
-                exportTask.updateProgress(plottingTask.plottedDrawing.getDisplayedLineCount() - i, plottingTask.plottedDrawing.getDisplayedLineCount());
-            }
+            exportTask.updateProgress(i, plottedPaths.size());
         }
         graphics.dispose();
     }

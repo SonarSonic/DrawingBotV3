@@ -17,7 +17,7 @@ public class DrawingRegistry {
 
     public static DrawingRegistry INSTANCE = new DrawingRegistry();
 
-    public ObservableMap<String, ObservableList<IDrawingPen>> registeredPens;
+    public ObservableMap<String, ObservableList<DrawingPen>> registeredPens;
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets;
 
     public DrawingRegistry(){
@@ -26,12 +26,6 @@ public class DrawingRegistry {
 
         CopicPenPlugin.registerPens(this);
         CopicPenPlugin.registerPenSets(this);
-
-        ///add special sub menu types
-        registeredSets.putIfAbsent(specialType, FXCollections.observableArrayList());
-        registeredSets.putIfAbsent(userType, FXCollections.observableArrayList());
-        registeredPens.putIfAbsent(specialType, FXCollections.observableArrayList());
-        registeredPens.putIfAbsent(userType, FXCollections.observableArrayList());
 
         DrawingPen originalColourPen = new DrawingPen(specialType, "Original Colour", -1){
             @Override
@@ -57,8 +51,12 @@ public class DrawingRegistry {
         return "Copic Original";
     }
 
-    public IDrawingPen getDefaultPen(String type){
-        return registeredPens.get(type).stream().findFirst().orElse(null);
+    public DrawingPen getDefaultPen(String type){
+        ObservableList<DrawingPen> pens = registeredPens.get(type);
+        if(pens == null){
+            return null;
+        }
+        return pens.stream().findFirst().orElse(null);
     }
 
     public String getDefaultSetType(){
@@ -66,10 +64,17 @@ public class DrawingRegistry {
     }
 
     public IDrawingSet<IDrawingPen> getDefaultSet(String type){
-        return registeredSets.get(type).stream().findFirst().orElse(null);
+        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(type);
+        if(sets == null){
+            return null;
+        }
+        return sets.stream().findFirst().orElse(null);
     }
 
     public void registerDrawingPen(DrawingPen pen){
+        if(pen == null){
+            return;
+        }
         if(registeredPens.get(pen.getName()) != null){
             DrawingBotV3.logger.warning("DUPLICATE PEN UNIQUE ID: " + pen.getName());
             return;
@@ -78,7 +83,18 @@ public class DrawingRegistry {
         registeredPens.get(pen.getType()).add(pen);
     }
 
+    public void unregisterDrawingPen(DrawingPen pen){
+        ObservableList<DrawingPen> pens = registeredPens.get(pen.getType());
+        pens.remove(pen);
+        if(pens.isEmpty()){
+           registeredPens.remove(pen.getType());
+        }
+    }
+
     public void registerDrawingSet(IDrawingSet<IDrawingPen> penSet){
+        if(penSet == null){
+            return;
+        }
         if(registeredSets.get(penSet.getName()) != null){
             DrawingBotV3.logger.warning("DUPLICATE DRAWING SET NAME: " + penSet.getName());
             return;
@@ -87,20 +103,29 @@ public class DrawingRegistry {
         registeredSets.get(penSet.getType()).add(penSet);
     }
 
+    public void unregisterDrawingSet(IDrawingSet<IDrawingPen> penSet){
+        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(penSet.getType());
+        sets.remove(penSet);
+        if(sets.isEmpty()){
+            registeredSets.remove(penSet.getType());
+        }
+    }
+
+
     public IDrawingSet<IDrawingPen> getDrawingSetFromCodeName(String codeName){
         String[] split = codeName.split(":");
         return registeredSets.get(split[0]).stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
     }
 
-    public IDrawingPen getDrawingPenFromCodeName(String codeName){
+    public DrawingPen getDrawingPenFromCodeName(String codeName){
         String[] split = codeName.split(":");
         return registeredPens.get(split[0]).stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
     }
 
-    public List<IDrawingPen> getDrawingPensFromCodes(String[] codes){
-        List<IDrawingPen> pens = new ArrayList<>();
+    public List<DrawingPen> getDrawingPensFromCodes(String[] codes){
+        List<DrawingPen> pens = new ArrayList<>();
         for(String code : codes){
-            IDrawingPen pen = getDrawingPenFromCodeName(code);
+            DrawingPen pen = getDrawingPenFromCodeName(code);
             if(pen != null){
                 pens.add(pen);
             }else{

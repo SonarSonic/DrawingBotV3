@@ -1,7 +1,8 @@
 package drawingbot.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,7 +10,10 @@ import javafx.collections.ObservableList;
 import javafx.util.StringConverter;
 import javafx.util.converter.*;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -117,28 +121,57 @@ public class GenericSetting<C, V> {
         value.setValue(validator.apply(randomiser.apply(random)));
     }
 
-    public static JsonObject writeJsonObject(List<GenericSetting<?, ?>> settingList){
-        JsonObject jsonObject = new JsonObject();
-        for(GenericSetting<?, ?> setting : settingList){
-            if(setting.value.get() != setting.defaultValue){
-                jsonObject.addProperty(setting.toSafeName(setting.settingName.getValue()), setting.getValueAsString());
-            }
-        }
-        return jsonObject;
+    private static Type jsonMapType = new TypeToken<HashMap<String, String>>(){}.getType();
+
+    public static JsonElement toJsonElement(Gson gson, HashMap<String, String> settingList){
+        return gson.toJsonTree(settingList, jsonMapType);
     }
 
-    public static void readJsonObject(JsonObject jsonObject, List<GenericSetting<?, ?>> settingList){
-        for(GenericSetting<?, ?> setting : settingList){
-            JsonElement value = jsonObject.get(setting.toSafeName(setting.settingName.getValue()));
-            if(value != null){
-                setting.setValueFromString(value.getAsString());
-            }else{
-                setting.resetSetting();
+    public static HashMap<String, String> fromJsonElement(Gson gson, JsonElement jsonObject, HashMap<String, String> settingList){
+        return gson.fromJson(jsonObject, jsonMapType);
+    }
+
+    public static HashMap<String, String> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, String> dst){
+        list.forEach(s -> {
+            if(s.value.get() != s.defaultValue){
+                dst.put(s.settingName.getValue(), s.getValueAsString());
             }
+        });
+        return dst;
+    }
+
+    public static void applySettings(HashMap<String, String> src, List<GenericSetting<?, ?>> dst){
+        dst: for(GenericSetting<?, ?> settingDst : dst){
+
+            for(Map.Entry<String, String> settingSrc : src.entrySet()){
+                if(settingSrc.getKey().equals(settingDst.settingName.getValue())){
+                    settingDst.setValueFromString(settingSrc.getValue());
+                    continue dst;
+                }
+            }
+            settingDst.resetSetting(); //if the src list doesn't contain a value for the dst setting, reset it to default
+        }
+    }
+
+    public static void applySettings(List<GenericSetting<?, ?>> src, List<GenericSetting<?, ?>> dst){
+        dst: for(GenericSetting<?, ?> settingDst : dst){
+
+            for(GenericSetting<?, ?> settingSrc : src){
+                if(settingSrc.settingName.getValue().equals(settingDst.settingName.getValue())){
+                    settingDst.setValue(settingSrc.value);
+                    continue dst;
+                }
+            }
+            settingDst.resetSetting(); //if the src list doesn't contain a value for the dst setting, reset it to default
         }
     }
 
     public static ObservableList<GenericSetting<?, ?>> copy(ObservableList<GenericSetting<?, ?>> list, ObservableList<GenericSetting<?, ?>> dst){
+        list.forEach(s -> dst.add(s.copy()));
+        return dst;
+    }
+
+    public static List<GenericSetting<?, ?>> copy(List<GenericSetting<?, ?>> list, List<GenericSetting<?, ?>> dst){
         list.forEach(s -> dst.add(s.copy()));
         return dst;
     }

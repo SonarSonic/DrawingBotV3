@@ -12,7 +12,7 @@ public enum ExportFormats {
     EXPORT_SVG("Export SVG", SVGExporter::exportSVG, FileUtils.FILTER_SVG),
     EXPORT_IMAGE("Export Image File", ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA),
     EXPORT_GCODE("Export GCode File", GCodeExporter::exportGCode, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE),
-    EXPORT_GCODE_TEST("Export GCode Test Drawing", GCodeExporter::createGcodeTestFile, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE);
+    EXPORT_GCODE_TEST("Export GCode Test Drawing", GCodeExporter::exportGCodeTest, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE);
 
     public String displayName;
     public FileChooser.ExtensionFilter[] filters;

@@ -1,22 +1,21 @@
 {
-  "presetType": "IMAGE_FILTER_PRESET",
+  "presetType": "image_filters",
+  "version": 1,
   "presetSubType": "",
   "presetName": "Original - Dirty Border",
   "userCreated": false,
-  "jsonObject": {
+  "data": {
     "filters": [
-      "Unsharp Mask",
-      "Border",
-      "Border",
-      "Grayscale"
-    ],
-    "settings": [
-      {},
-      {},
       {
-        "type": "11"
+        "type": "Border",
+        "settings": {}
       },
-      {}
+      {
+        "type": "Border",
+        "settings": {
+          "Type": "11"
+        }
+      }
     ]
   }
 }

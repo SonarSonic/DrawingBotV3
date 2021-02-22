@@ -2,6 +2,7 @@
 
 ### [v1.0.4-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.4-beta)
 - Added: Presets for Drawing Sets + Drawing Pens
+  - Presets created for Drawing Sets / Pens will be saved to the "User" type.
 - Added: Special Drawing Sets/Pens Original Colour / Original Grayscale
   - These will sample the average colour of the image and colour each line using these samples.
   - These samples are taken when the plot is being run and cached, this will slightly impact plotting performance, this caching can be disabled however by setting PFM setting "Cache Colour Samples" to "false".
@@ -11,18 +12,24 @@
   - Locking a setting will prevent it from being randomised, this will allow more creativity when using "randomise" allowing you to keep track of values you like.
   - Some settings are locked by default to prevent the plot failing (e.g. Plotting Resolution, Drawing/Shading Delta Angle)
   - Pressing "Reset" will still return the setting to default
-  
 - Added: Right-Clicking PFM Settings will now allow you to "Randomise" / "Reset" a single setting.
 - Added: Check boxes to Drawing Pen selections to enable quicker configuration
 - Added: Extra Buttons in Pen Settings for "Add", "Remove", "Duplicate", "Move Up" and "Move Down", you can still right click pens instead. 
-- Changed: GCode Settings has been split from "Drawing Area"
+- Added: "Stroke" options for Drawing Pens to change the thickness of the
 - Changed: Pressing ENTER will not start plotting anymore, avoiding accidentally overwriting your current plot.
 - Changed: Pre-Processing will now be disabled by default
 - Changed: Blend Modes won't lag so much when rendering
+- Changed: Preset files have been overhauled to allow for the easy addition of even more preset types.
+- Changed: GCode Settings has been split from "Drawing Area" and now appear at the bottom
+- Changed: GCode Exporting has been re-written.
+- Changed: GCode "Test Drawings" will now respect the enabled pens / allow seperate pen tests
+- Changed: Removed "Import URL" option
+- Changed: When exporting the default will now be the original files folder and name with the suffix "_plotted"
 - Fixed: JPG Export not outputting a file
+- Fixed: SVG exporting with individual line segments and consequently creating large output files.
 - Fixed: Potential Memory Leaks with JavaFX
 - Fixed: Blend Modes will render as expected again & also appear properly in exports.
-
+- Note: Old user presets / presets will be broken, presets will need to transferred to the new json format (this won't happen again)
 
 ### [v1.0.3-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.3-beta)
 - Changed: The "Reset" / "Help" button has been swapped to help avoid accidental usage

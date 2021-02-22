@@ -2,6 +2,7 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
+import drawingbot.drawing.DrawingPen;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,12 +14,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
 
-public class ComboCellDrawingPen extends ComboBoxListCell<IDrawingPen> {
+public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
 
     public final HBox hbox;
     public final CheckBox checkBox;
     public final Rectangle colour;
-    public Callback<IDrawingPen, BooleanProperty> propertyCallback;
+    public Callback<DrawingPen, BooleanProperty> propertyCallback;
 
     private BooleanProperty property;
 
@@ -57,7 +58,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<IDrawingPen> {
     }
 
     @Override
-    public void updateItem(IDrawingPen item, boolean empty) {
+    public void updateItem(DrawingPen item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
