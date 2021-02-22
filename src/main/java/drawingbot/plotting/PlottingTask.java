@@ -11,7 +11,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
 
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,6 +22,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public GenericFactory<IPathFindingModule> pfmFactory;
     public PlottedDrawing plottedDrawing;
+    public File originalFile;
 
     // STATUS \\
     public EnumTaskStage stage = EnumTaskStage.QUEUED;
@@ -67,11 +70,12 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     private float printScale;
 
-    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image){
+    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Processing Image");
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.img_original = image;
+        this.originalFile = originalFile;
 
         boolean useOriginal = DrawingBotV3.useOriginalSizing.get();
 
@@ -266,6 +270,13 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public boolean cancel(boolean mayInterruptIfRunning) {
         DrawingBotV3.onTaskCancelled();
         return super.cancel(mayInterruptIfRunning);
+    }
+
+    public AffineTransform createPrintTransform(){
+        AffineTransform transform = new AffineTransform();
+        transform.scale(getPrintScale(), getPrintScale());
+        transform.translate(getGCodeXOffset(), getGCodeYOffset());
+        return transform;
     }
 
     public float getPrintScale(){

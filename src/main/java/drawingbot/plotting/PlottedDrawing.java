@@ -182,14 +182,20 @@ public class PlottedDrawing {
             }
 
             int argb = pen.getCustomARGB(point.rgba);
-            boolean isContinuation = isPathContinuation(last, point) && lastARGB != null && argb == lastARGB;
+            boolean isContinuation = last != null && isPathContinuation(last, point);
+            boolean isMatchingColour = lastARGB != null && argb == lastARGB; //specials will not have matching colours
 
             if(!isContinuation){
                 openPath(point, pen);
                 currentPath.path.moveTo(point.x1, point.y1);
                 currentPath.pointCount++;
+            }else if(!isMatchingColour){ //if we're dealing with a special, we need to add the point of the last path
+                openPath(point, pen);
+                currentPath.path.moveTo(last.x1, last.y1);
+                currentPath.path.lineTo(point.x1, point.y1);
+                currentPath.pointCount+=2;
             }else{
-                currentPath.path.lineTo(point.x1, point.y1); //TODO CHECK SPECIALS RENDER PROPERLY, POSSIBLY "LASTARGB" will mean they are always only one point long
+                currentPath.path.lineTo(point.x1, point.y1);
                 currentPath.pointCount++;
             }
 

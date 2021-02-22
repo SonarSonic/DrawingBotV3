@@ -1,18 +1,20 @@
 {
-  "presetType": "PFM_PRESET",
+  "presetType": "pfm_settings",
+  "version": 1,
   "presetSubType": "Sketch PFM",
   "presetName": "Sketchy",
   "userCreated": false,
-  "jsonObject": {
-    "desired_brightness": "240.0",
-    "squiggle_length": "100",
-    "adjust_brightness": "90",
-    "neighbour_tests": "30",
-    "min_line_length": "8",
-    "max_line_length": "30",
-    "start_angle_min": "50",
-    "start_angle_max": "130",
-    "shading_delta_angle": "180.0",
-    "squiggles_till_shading": "200"
+  "data": {
+    "settingList": {
+      "Neighbour Tests": "30",
+      "Squiggles till shading": "200",
+      "Squiggle Length": "100",
+      "Min Line length": "8",
+      "Max Line length": "30",
+      "Start Angle Min": "50",
+      "Desired Brightness": "240.0",
+      "Start Angle Max": "130",
+      "Adjust Brightness": "90"
+    }
   }
 }

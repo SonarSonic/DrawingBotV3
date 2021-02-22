@@ -1,5 +1,6 @@
 package drawingbot.image;
 
+import drawingbot.files.presets.types.PresetImageFilters;
 import drawingbot.utils.GenericFactory;
 import drawingbot.utils.GenericPreset;
 import drawingbot.utils.GenericSetting;
@@ -20,7 +21,7 @@ public class ImageFilterRegistry {
     public static ObservableList<GenericFactory<IImageFilter>> filterFactories = FXCollections.observableArrayList();
     public static ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
     public static HashMap<Class<? extends IImageFilter>, List<GenericSetting<?, ?>>> filterSettings = new LinkedHashMap<>();
-    public static ObservableList<GenericPreset> imagePresets = FXCollections.observableArrayList();
+    public static ObservableList<GenericPreset<PresetImageFilters>> imagePresets = FXCollections.observableArrayList();
 
     static {
         registerImageFilter(LazyConvolutionFilter.class, "Gaussian Blur", () -> new LazyConvolutionFilter(ConvolutionMatrices.MATRIX_GAUSSIAN_BLUR), false);
@@ -53,11 +54,11 @@ public class ImageFilterRegistry {
         filterSettings.get(setting.clazz).add(setting);
     }
 
-    public static GenericPreset getDefaultImageFilterPreset(){
+    public static GenericPreset<PresetImageFilters> getDefaultImageFilterPreset(){
         return imagePresets.stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
     }
 
-    public static void registerPreset(GenericPreset preset){
+    public static void registerPreset(GenericPreset<PresetImageFilters> preset){
         imagePresets.add(preset);
     }
 

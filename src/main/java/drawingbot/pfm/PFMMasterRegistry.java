@@ -3,7 +3,8 @@ package drawingbot.pfm;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.PresetManager;
+import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.presets.types.PresetPFMSettings;
 import drawingbot.utils.GenericSetting;
 import drawingbot.utils.GenericFactory;
 import drawingbot.utils.GenericPreset;
@@ -21,7 +22,7 @@ public class PFMMasterRegistry {
 
     public static HashMap<Class<? extends IPathFindingModule>, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
     public static HashMap<Class<? extends IPathFindingModule>, GenericFactory<IPathFindingModule>> pfmFactories = new LinkedHashMap<>();
-    public static HashMap<String, ObservableList<GenericPreset>> pfmPresets = new LinkedHashMap<>();
+    public static HashMap<String, ObservableList<GenericPreset<PresetPFMSettings>>> pfmPresets = new LinkedHashMap<>();
 
     static{
         registerPFMFactory(PFMSketch.class, "Sketch PFM", PFMSketch::new, false);
@@ -63,7 +64,7 @@ public class PFMMasterRegistry {
 
     public static void registerPFMFactory(Class<? extends IPathFindingModule> pfmClass, String name, Supplier<IPathFindingModule> create, boolean isHidden){
         pfmFactories.put(pfmClass, new GenericFactory(pfmClass, name, create, isHidden));
-        registerPreset(PresetManager.PFM.createNewPreset(name, "Default", false));
+        registerPreset(JsonLoaderManager.PFM.createNewPreset(name, "Default", false));
     }
 
     public static GenericFactory<IPathFindingModule> getDefaultPFMFactory(){
@@ -107,15 +108,15 @@ public class PFMMasterRegistry {
 
     //// PFM PRESET \\\\
 
-    public static GenericPreset getDefaultPFMPreset(){
+    public static GenericPreset<PresetPFMSettings> getDefaultPFMPreset(){
         return getDefaultPFMPreset(DrawingBotV3.pfmFactory.get());
     }
 
-    public static GenericPreset getDefaultPFMPreset(GenericFactory<IPathFindingModule> loader){
+    public static GenericPreset<PresetPFMSettings> getDefaultPFMPreset(GenericFactory<IPathFindingModule> loader){
         return pfmPresets.get(loader.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
     }
 
-    public static void registerPreset(GenericPreset preset){
+    public static void registerPreset(GenericPreset<PresetPFMSettings> preset){
         PFMMasterRegistry.pfmPresets.putIfAbsent(preset.presetSubType, FXCollections.observableArrayList());
         PFMMasterRegistry.pfmPresets.get(preset.presetSubType).add(preset);
     }
@@ -125,7 +126,7 @@ public class PFMMasterRegistry {
     public static ObservableList<GenericFactory<IPathFindingModule>> getObservablePFMLoaderList(){
         ObservableList<GenericFactory<IPathFindingModule>> list = FXCollections.observableArrayList();
         for(GenericFactory<IPathFindingModule> loader : pfmFactories.values()){
-            if(!loader.isHidden() || ConfigFileHandler.settings.isDeveloperMode){
+            if(!loader.isHidden() || ConfigFileHandler.getApplicationSettings().isDeveloperMode){
                 list.add(loader);
             }
         }
@@ -141,11 +142,11 @@ public class PFMMasterRegistry {
         return pfmSettings.get(loader.getInstanceClass());
     }
 
-    public static ObservableList<GenericPreset> getObservablePFMPresetList(){
+    public static ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(){
         return getObservablePFMPresetList(DrawingBotV3.pfmFactory.get());
     }
 
-    public static ObservableList<GenericPreset> getObservablePFMPresetList(GenericFactory<IPathFindingModule> loader){
+    public static ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(GenericFactory<IPathFindingModule> loader){
         return pfmPresets.get(loader.getName());
     }
 

@@ -66,7 +66,7 @@ public class BatchProcessingTask extends Task<Boolean> {
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
                     BufferedImage image = BufferedImageLoader.loadImage(path.toString(), false);
-                    PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, image);
+                    PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, image, new File(path.toString()));
                     Future<?> futurePlottingTask = service.submit(internalTask);
                     while(!futurePlottingTask.isDone()){
                         ///wait

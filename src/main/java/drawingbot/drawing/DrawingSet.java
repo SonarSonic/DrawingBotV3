@@ -11,9 +11,11 @@ public class DrawingSet implements IDrawingSet {
 
     public String type;
     public String name;
-    public List<IDrawingPen> pens;
+    public List<DrawingPen> pens;
 
-    public DrawingSet(String type, String name, List<IDrawingPen> pens) {
+    public DrawingSet(){}
+
+    public DrawingSet(String type, String name, List<DrawingPen> pens) {
         this.type = type;
         this.name = name;
         this.pens = pens;
@@ -30,7 +32,7 @@ public class DrawingSet implements IDrawingSet {
     }
 
     @Override
-    public List<IDrawingPen> getPens() {
+    public List<DrawingPen> getPens() {
         return pens;
     }
 

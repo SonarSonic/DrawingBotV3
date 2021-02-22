@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
+import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.presets.types.ConfigApplicationSettings;
+import drawingbot.files.presets.types.ConfigJsonLoader;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -14,49 +17,32 @@ import java.util.logging.Formatter;
 
 public class ConfigFileHandler {
 
-    public static DBSettings settings;
+    public static ConfigApplicationSettings applicationSettings;
 
     public static void init() {
+        //create the user data directory
         File userDir = new File(FileUtils.getUserDataDirectory());
         userDir.mkdirs();
-        settings = getOrCreateJSONFile(DBSettings.class, new File(userDir,"settings.json"), c -> new DBSettings());
+
+        //start by loading the application jsons to allow settings to be used during configuration
+        JsonLoaderManager.loadJSONFiles();
+
+        //load any config objects for use during the loading phases
+        applicationSettings = JsonLoaderManager.CONFIGS.getConfigData(ConfigApplicationSettings.class);
+
+        //setup any console output files, now that we know what settings they require
         ConfigFileHandler.setupConsoleOutputFile();
-
-        PresetManager.loadJSONFiles();
     }
 
-    public static <I> I getOrCreateJSONFile(Class<I> clazz, File file, Function<Class<I>, I> iProvider) {
-        I loaded = null;
-        try {
-            boolean createSettingsFile = true;
-
-            if(Files.exists(file.toPath())){
-                Gson gson = new Gson();
-                JsonReader reader = gson.newJsonReader(new FileReader(file));
-                loaded = gson.fromJson(reader, clazz);
-                reader.close();
-                if(loaded != null){
-                    createSettingsFile = false;
-                }
-            }
-
-            if(createSettingsFile){
-                Gson gson = new Gson();
-                JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
-                gson.toJson(loaded = iProvider.apply(clazz), clazz, writer);
-                writer.flush();
-                writer.close();
-            }
-        } catch (IOException e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error loading " + file.getName() + " using defaults");
-            loaded = iProvider.apply(clazz);
-        }
-        return loaded;
+    public static ConfigApplicationSettings getApplicationSettings(){
+        return applicationSettings;
     }
 
-    public static void setupConsoleOutputFile(){
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private static void setupConsoleOutputFile(){
         try {
-            if(!ConfigFileHandler.settings.isDeveloperMode){
+            if(!getApplicationSettings().isDeveloperMode){
                 File outputFile = new File(FileUtils.getUserDataDirectory(), "latest_output.txt");
                 System.setOut(new PrintStream(new FileOutputStream(outputFile)));
                 System.setErr(new PrintStream(new FileOutputStream(outputFile)));
@@ -77,8 +63,11 @@ public class ConfigFileHandler {
         }
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     ///copy of java.util.logging.SimpleFormatter with custom format to fit logs onto one line
-    public static class OutputFormat extends Formatter{
+    private static class OutputFormat extends Formatter{
         private static final String formatWithoutThrowable = "%1$tc: %4$s - %2$s - %5$s%n";
         private static final String formatWithThrowable = "%1$tc: %4$s - %2$s - %5$s%n%6$s%n";
         private final Date dat = new Date();
@@ -107,12 +96,6 @@ public class ConfigFileHandler {
             }
             return String.format(throwable.isEmpty() ? formatWithoutThrowable :formatWithThrowable, dat, source, record.getLoggerName(), record.getLevel().getName(), message, throwable);
         }
-    }
-
-    /**general settings*/
-    public static class DBSettings {
-        public boolean isDeveloperMode;
-
     }
 
 }

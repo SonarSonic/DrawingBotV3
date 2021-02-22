@@ -34,7 +34,7 @@ dependencies {
     compile "org.locationtech.jts:jts-core:${jts_version}"
     compile "org.apache.xmlgraphics:batik-svggen:${xml_graphics_version}"
     compile "org.apache.xmlgraphics:batik-dom:${xml_graphics_version}"
-    compile "org.controlsfx:controlsfx:${controlsfx_version}"
+    //compile "org.controlsfx:controlsfx:${controlsfx_version}"
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
     String javaFxVersion = '15'
