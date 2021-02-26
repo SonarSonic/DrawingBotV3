@@ -1,7 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.image.ImageFilterRegistry;
-import drawingbot.utils.GenericSetting;
+import drawingbot.javafx.GenericSetting;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;

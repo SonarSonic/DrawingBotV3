@@ -8,7 +8,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.presets.types.*;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 import java.io.*;
 import java.nio.file.Files;

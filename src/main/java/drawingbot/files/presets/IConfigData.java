@@ -1,6 +1,6 @@
 package drawingbot.files.presets;
 
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 public interface IConfigData extends IJsonData {
 

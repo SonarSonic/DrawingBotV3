@@ -3,6 +3,7 @@ package drawingbot.utils;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.exporters.SVGExporter;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,6 +70,7 @@ public class Utils {
         return value;
     }
 
+
     public static int mapInt(int value, int istart, int istop, int ostart, int ostop) {
         return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
     }
@@ -81,5 +83,39 @@ public class Utils {
         return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
     }
 
+
+    public static double decrease(double x, double mult) {
+        if (mult == 0D) {
+            return x;
+        }
+        double mod = x % mult;
+        return x - mult + mod;
+    }
+
+    public static double increase(double x, double mult) {
+        if (mult == 0D) {
+            return x;
+        }
+        double mod = x % mult;
+        return x + mult - mod;
+    }
+
+    public static double floorTo(double x, double mult) {
+        return mult == 0D ? x : x - (x % mult);
+    }
+
+    public static double ceilTo(double x, double mult) {
+        if (mult == 0D) return x;
+        double mod = x % mult;
+        return mod == 0D ? x : x + mult - mod;
+    }
+
+    public static double roundTo(double x, double mult) {
+        if (mult == 0D) {
+            return x;
+        }
+        double mod = x % mult;
+        return mod >= mult/2D ? x + mult - mod : x - mod;
+    }
 
 }

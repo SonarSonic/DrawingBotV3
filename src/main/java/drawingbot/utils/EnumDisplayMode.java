@@ -2,7 +2,7 @@ package drawingbot.utils;
 
 public enum EnumDisplayMode {
 
-    DRAWING,
+    DRAWING, //TODO ADD IMAGE DISPLAY MODE
     ORIGINAL,
     REFERENCE,
     LIGHTENED,

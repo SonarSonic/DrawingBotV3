@@ -1,7 +1,7 @@
 package drawingbot.files.presets.types;
 
 import drawingbot.files.presets.IJsonData;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 import java.util.ArrayList;
 import java.util.List;

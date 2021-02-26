@@ -1,16 +1,18 @@
-package drawingbot.utils;
+package drawingbot.javafx;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
+import drawingbot.javafx.settings.*;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.util.StringConverter;
-import javafx.util.converter.*;
+import javafx.util.converter.DefaultStringConverter;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**a simple setting which can be easily altered in java fx, which can be randomised, reset, converted to and from a string & parsed to json*/
-public class GenericSetting<C, V> {
+public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public final Class<C> clazz; //the class this setting can be applied to
     public final SimpleStringProperty settingName; //the settings name
@@ -32,27 +34,7 @@ public class GenericSetting<C, V> {
     public final SimpleObjectProperty<V> value; //the current value
     public final SimpleBooleanProperty lock; //the current value
 
-    public static <C> GenericSetting<C, Boolean> createBooleanSetting(Class<C> pfmClass, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new BooleanStringConverter(), ThreadLocalRandom::nextBoolean, shouldLock, value -> value, setter);
-    }
-
-    public static <C> GenericSetting<C, String> createStringSetting(Class<C> pfmClass, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new DefaultStringConverter(), (random) -> defaultValue, shouldLock, value -> value, setter);
-    }
-
-    public static <C> GenericSetting<C, Integer> createRangedIntSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
-    }
-
-    public static <C> GenericSetting<C, Float> createRangedFloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
-    }
-
-    public static <C> GenericSetting<C, Long> createRangedLongSetting(Class<C> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
-        return new GenericSetting<>(pfmClass, settingName, defaultValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
-    }
-
-    private GenericSetting(Class<C> clazz, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
+    protected GenericSetting(Class<C> clazz, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
         this.clazz = clazz;
         this.settingName = new SimpleStringProperty(settingName);
         this.defaultValue = defaultValue;
@@ -121,14 +103,29 @@ public class GenericSetting<C, V> {
         value.setValue(validator.apply(randomiser.apply(random)));
     }
 
-    private static Type jsonMapType = new TypeToken<HashMap<String, String>>(){}.getType();
-
-    public static JsonElement toJsonElement(Gson gson, HashMap<String, String> settingList){
-        return gson.toJsonTree(settingList, jsonMapType);
+    @Override
+    public void addListener(InvalidationListener listener) {
+        value.addListener(listener);
     }
 
-    public static HashMap<String, String> fromJsonElement(Gson gson, JsonElement jsonObject, HashMap<String, String> settingList){
-        return gson.fromJson(jsonObject, jsonMapType);
+    @Override
+    public void removeListener(InvalidationListener listener) {
+        value.removeListener(listener);
+    }
+
+    @Override
+    public void addListener(ChangeListener<? super V> listener) {
+        value.addListener(listener);
+    }
+
+    @Override
+    public void removeListener(ChangeListener<? super V> listener) {
+        value.removeListener(listener);
+    }
+
+    @Override
+    public V getValue() {
+        return value.get();
     }
 
     public static HashMap<String, String> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, String> dst){
@@ -158,7 +155,7 @@ public class GenericSetting<C, V> {
 
             for(GenericSetting<?, ?> settingSrc : src){
                 if(settingSrc.settingName.getValue().equals(settingDst.settingName.getValue())){
-                    settingDst.setValue(settingSrc.value);
+                    settingDst.setValue(settingSrc.value.get());
                     continue dst;
                 }
             }
@@ -180,7 +177,73 @@ public class GenericSetting<C, V> {
         return name.replace(' ', '_').toLowerCase();
     }
 
-    public GenericSetting<C, V> copy(){
-        return new GenericSetting<>(clazz, settingName.getValue(), defaultValue, stringConverter, randomiser, lock.get(), validator, setter);
+    public void unbind(){
+        value.unbind();
+        lock.unbind();
+    }
+
+    public Node defaultNode;
+    public Node labelledNode;
+
+    public Node getJavaFXNode(boolean label){
+        if(label){
+            if(labelledNode == null){
+                labelledNode = createJavaFXNode(true);
+            }
+            return labelledNode;
+        }else{
+            if(defaultNode == null){
+                defaultNode = createJavaFXNode(false);
+            }
+            return defaultNode;
+        }
+    }
+
+    protected abstract Node createJavaFXNode(boolean label);
+
+    public abstract GenericSetting<C, V> copy();
+
+    public static <C> GenericSetting<C, Boolean> createBooleanSetting(Class<C> pfmClass, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
+        return new BooleanSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
+    }
+
+    public static <C> GenericSetting<C, String> createStringSetting(Class<C> pfmClass, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
+        return new StringSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
+    }
+
+    public static <C> GenericSetting<C, Integer> createRangedIntSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
+        return new IntegerSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> GenericSetting<C, Float> createRangedFloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
+        return new FloatSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> GenericSetting<C, Long> createRangedLongSetting(Class<C> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
+        return new LongSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> pfmClass, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter){
+        StringConverter<V> optionStringConverter = new StringConverter<V>() {
+            @Override
+            public String toString(V object) {
+                return object.toString();
+            }
+            @Override
+            public V fromString(String string) {
+                for(V v : values){
+                    if(v.toString().equals(string)){
+                        return v;
+                    }
+                }
+                return null;
+            }
+        };
+        return new OptionSetting<>(pfmClass, settingName, optionStringConverter, values, defaultValue, shouldLock, setter);
+    }
+
+    @Override
+    public String toString() {
+        return settingName.get() + ": " + getValueAsString();
     }
 }

@@ -1,4 +1,4 @@
-package drawingbot.utils;
+package drawingbot.javafx;
 
 import java.util.function.Supplier;
 

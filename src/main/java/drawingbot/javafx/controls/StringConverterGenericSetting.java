@@ -1,7 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.utils.GenericSetting;
+import drawingbot.javafx.GenericSetting;
 import javafx.util.StringConverter;
 
 import java.util.function.Supplier;

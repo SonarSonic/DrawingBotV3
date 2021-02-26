@@ -4,8 +4,9 @@ import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.image.BufferedImageLoader;
+import drawingbot.image.FilteredBufferedImage;
 import drawingbot.plotting.PlottedPoint;
-import drawingbot.utils.GenericFactory;
+import drawingbot.javafx.GenericFactory;
 import drawingbot.plotting.PlottingTask;
 import javafx.concurrent.Task;
 
@@ -66,7 +67,9 @@ public class BatchProcessingTask extends Task<Boolean> {
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
                     BufferedImage image = BufferedImageLoader.loadImage(path.toString(), false);
-                    PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, image, new File(path.toString()));
+                    FilteredBufferedImage filtered = new FilteredBufferedImage(image);
+                    filtered.applyCurrentFilters();
+                    PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, filtered, new File(path.toString()));
                     Future<?> futurePlottingTask = service.submit(internalTask);
                     while(!futurePlottingTask.isDone()){
                         ///wait

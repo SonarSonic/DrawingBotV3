@@ -10,7 +10,7 @@ public abstract class AbstractPFM implements IPathFindingModule {
     protected float pfmResolution = 1;
     protected int transparentARGB = -1;
 
-    protected long seed = 0;
+    protected int seed = 0;
     protected Random randomSeed;
 
     @Override

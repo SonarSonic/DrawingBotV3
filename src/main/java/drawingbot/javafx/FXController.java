@@ -6,7 +6,6 @@ import drawingbot.files.*;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import drawingbot.files.presets.*;
-import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.types.PresetDrawingPen;
 import drawingbot.files.presets.types.PresetDrawingSet;
 import drawingbot.files.presets.types.PresetImageFilters;
@@ -16,9 +15,6 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.controls.*;
 import drawingbot.plotting.PlottedPoint;
-import drawingbot.utils.GenericPreset;
-import drawingbot.utils.GenericSetting;
-import drawingbot.utils.GenericFactory;
 import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
@@ -33,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -46,6 +43,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -53,6 +51,7 @@ import javafx.util.converter.IntegerStringConverter;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -334,9 +333,10 @@ public class FXController {
     public TableView<ImageFilterRegistry.ObservableImageFilter> tableViewImageFilters = null;
     public TableColumn<ImageFilterRegistry.ObservableImageFilter, Boolean> columnEnableImageFilter = null;
     public TableColumn<ImageFilterRegistry.ObservableImageFilter, String> columnImageFilterType = null;
-    public TableColumn<ImageFilterRegistry.ObservableImageFilter, ObservableList<GenericSetting<?, ?>>> columnImageFilterSettings = null;
+    public TableColumn<ImageFilterRegistry.ObservableImageFilter, String> columnImageFilterSettings = null;
 
-    public ComboBox<GenericFactory<ImageFilterRegistry.IImageFilter>> comboBoxImageFilter = null;
+    public ComboBox<EnumFilterTypes> comboBoxFilterType = null;
+    public ComboBox<GenericFactory<BufferedImageOp>> comboBoxImageFilter = null;
     public Button buttonAddFilter = null;
 
     public void initPreProcessingPane(){
@@ -364,6 +364,11 @@ public class FXController {
                     event.consume();
                 }
             });
+            row.setOnMouseClicked(e -> {
+                if(e.getClickCount() > 1){
+                    openImageFilterDialog(row.getItem());
+                }
+            });
             row.setContextMenu(new ContextMenuObservableFilter(row));
             row.setPrefHeight(30);
             return row;
@@ -375,14 +380,25 @@ public class FXController {
         columnImageFilterType.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         columnImageFilterType.setCellValueFactory(param -> param.getValue().name);
 
-        columnImageFilterSettings.setCellFactory(param -> new TableCellImageFilterSettings());
-        columnImageFilterSettings.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().filterSettings));
 
-        comboBoxImageFilter.setItems(ImageFilterRegistry.filterFactories);
-        comboBoxImageFilter.setValue(ImageFilterRegistry.filterFactories.get(0));
+        columnImageFilterSettings.setCellValueFactory(param -> param.getValue().settingsString);
+
+        comboBoxFilterType.setItems(FXCollections.observableArrayList(ImageFilterRegistry.filterFactories.keySet()));
+        comboBoxFilterType.setValue(ImageFilterRegistry.getDefaultFilterType());
+        comboBoxFilterType.valueProperty().addListener((observable, oldValue, newValue) -> {
+            comboBoxImageFilter.setItems(ImageFilterRegistry.filterFactories.get(newValue));
+            comboBoxImageFilter.setValue(ImageFilterRegistry.getDefaultFilter(newValue));
+        });
+
+        comboBoxImageFilter.setItems(ImageFilterRegistry.filterFactories.get(ImageFilterRegistry.getDefaultFilterType()));
+        comboBoxImageFilter.setValue(ImageFilterRegistry.getDefaultFilter(ImageFilterRegistry.getDefaultFilterType()));
         buttonAddFilter.setOnAction(e -> {
             if(comboBoxImageFilter.getValue() != null){
-                ImageFilterRegistry.currentFilters.add(new ImageFilterRegistry.ObservableImageFilter(comboBoxImageFilter.getValue()));
+                ImageFilterRegistry.ObservableImageFilter filter = new ImageFilterRegistry.ObservableImageFilter(comboBoxImageFilter.getValue());
+                ImageFilterRegistry.currentFilters.add(filter);
+                if(!filter.filterSettings.isEmpty()){
+                    openImageFilterDialog(filter);
+                }
             }
         });
     }
@@ -398,6 +414,7 @@ public class FXController {
     public TableColumn<GenericSetting<?, ?>, Boolean> tableColumnLock = null;
     public TableColumn<GenericSetting<?, ?>, String> tableColumnSetting = null;
     public TableColumn<GenericSetting<?, ?>, Object> tableColumnValue = null;
+    public TableColumn<GenericSetting<?, ?>, Object> tableColumnControl = null;
 
     public Button buttonPFMSettingReset = null;
     public Button buttonPFMSettingRandom = null;
@@ -452,6 +469,9 @@ public class FXController {
             return cell;
         });
         tableColumnValue.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
+
+        tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
+        tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
         buttonPFMSettingReset.setOnAction(e -> {
             JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue());
@@ -960,6 +980,20 @@ public class FXController {
     public static <O> void deleteItem(O item, ObservableList<O> list){
         if(item == null) return;
         list.remove(item);
+    }
+
+    public static void openImageFilterDialog(ImageFilterRegistry.ObservableImageFilter filter){
+        if(filter != null){
+            Dialog<ImageFilterRegistry.ObservableImageFilter> dialog = ImageFilterRegistry.getDialogForFilter(filter);
+            Optional<ImageFilterRegistry.ObservableImageFilter> result = dialog.showAndWait();
+            //TODO MAKE DIALOG APPEAR ON THE CORRECT DISPLAY
+            if(result.isPresent()){
+                if(result.get() != filter){ //if the dialog was cancelled copy the settings of the original
+                    GenericSetting.applySettings(result.get().filterSettings, filter.filterSettings);
+                    DrawingBotV3.onImageFiltersChanged();
+                }
+            }
+        }
     }
 
 }

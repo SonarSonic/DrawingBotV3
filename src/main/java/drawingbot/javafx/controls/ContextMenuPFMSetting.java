@@ -1,6 +1,6 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.utils.GenericSetting;
+import drawingbot.javafx.GenericSetting;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;

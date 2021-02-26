@@ -7,13 +7,15 @@ import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottedPoint;
-import drawingbot.utils.GenericFactory;
+import drawingbot.javafx.GenericFactory;
 import javafx.application.Platform;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(JavaFxJUnit4ClassRunner.class)
@@ -23,10 +25,12 @@ public class DrawingBotV3Test {
     public void testImageFilters() {
         BufferedImage image = BufferedImageLoader.loadImage("images/testimage.jpg", true);
         assert image != null;
-        for(GenericFactory<ImageFilterRegistry.IImageFilter> factory : ImageFilterRegistry.filterFactories){
-            System.out.println("Started Image Filter Test: " + factory.getName());
-            image = factory.instance().filter(image);
-            System.out.println("Finished Image Filter Test: " + factory.getName());
+        for(List<GenericFactory<BufferedImageOp>> factories : ImageFilterRegistry.filterFactories.values()){
+            for(GenericFactory<BufferedImageOp> factory : factories){
+                System.out.println("Started Image Filter Test: " + factory.getName());
+                image = factory.instance().filter(image, null);
+                System.out.println("Finished Image Filter Test: " + factory.getName());
+            }
         }
     }
 
@@ -39,7 +43,7 @@ public class DrawingBotV3Test {
 
             Platform.runLater(() -> {
                 DrawingBotV3.pfmFactory.setValue(factory);
-                DrawingBotV3.openImage = BufferedImageLoader.loadImage("images/testimage.jpg", true);
+                DrawingBotV3.openImage = BufferedImageLoader.loadFilteredImage("images/testimage.jpg", true);
                 assert DrawingBotV3.openImage != null;
                 DrawingBotV3.startPlotting();
                 DrawingBotV3.isPlotting.addListener((observable, oldValue, newValue) -> {
@@ -57,7 +61,7 @@ public class DrawingBotV3Test {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             DrawingBotV3.pfmFactory.setValue(PFMMasterRegistry.getDefaultPFMFactory());
-            DrawingBotV3.openImage = BufferedImageLoader.loadImage("images/testimage.jpg", true);
+            DrawingBotV3.openImage = BufferedImageLoader.loadFilteredImage("images/testimage.jpg", true);
             assert DrawingBotV3.openImage != null;
             DrawingBotV3.startPlotting();
             DrawingBotV3.isPlotting.addListener((observable, oldValue, newValue) -> {

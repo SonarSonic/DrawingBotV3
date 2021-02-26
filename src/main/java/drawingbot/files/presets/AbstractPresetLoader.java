@@ -3,7 +3,7 @@ package drawingbot.files.presets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 public abstract class AbstractPresetLoader<O extends IJsonData> extends AbstractJsonLoader<O>{
 
