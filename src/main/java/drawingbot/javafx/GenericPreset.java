@@ -1,8 +1,9 @@
-package drawingbot.utils;
+package drawingbot.javafx;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonAdapterGenericPreset;
+import drawingbot.utils.EnumJsonType;
 
 @JsonAdapter(JsonAdapterGenericPreset.class)
 public class GenericPreset<O extends IJsonData> {

@@ -5,9 +5,9 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetPFMSettings;
-import drawingbot.utils.GenericSetting;
-import drawingbot.utils.GenericFactory;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.GenericFactory;
+import drawingbot.javafx.GenericPreset;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,15 +33,15 @@ public class PFMMasterRegistry {
 
         ////GENERAL
         registerSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value));
-        registerSetting(GenericSetting.createRangedLongSetting(AbstractPFM.class, "Random Seed", 0L, Long.MIN_VALUE, Long.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.seed = value));
+        registerSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.seed = value));
 
         ////ABSTRACT SKETCH PFM
         registerSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Desired Brightness", 250F, 0F, 255F, true, (pfmSketch, value) -> pfmSketch.desired_brightness = value));
-        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggle_length = value).setRandomiser((rand) -> rand.nextInt(1, Short.MAX_VALUE)));
+        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggle_length = value));
         registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 50, 1, 255, false, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
         registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 720, false, (pfmSketch, value) -> pfmSketch.tests = value));
-        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 20, 1, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value).setRandomiser((rand) -> rand.nextInt(1, Short.MAX_VALUE)));
-        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 1, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value).setRandomiser((rand) -> rand.nextInt(1, Short.MAX_VALUE)));
+        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 20, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value));
+        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value));
         registerSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
         ////SKETCH PFM
@@ -50,7 +50,7 @@ public class PFMMasterRegistry {
         registerSetting(GenericSetting.createRangedFloatSetting(PFMSketch.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
         registerSetting(GenericSetting.createRangedFloatSetting(PFMSketch.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
         registerSetting(GenericSetting.createBooleanSetting(PFMSketch.class, "Enable Shading", true, true, (pfmSketch, value) -> pfmSketch.enableShading = value));
-        registerSetting(GenericSetting.createRangedIntSetting(PFMSketch.class, "Squiggles till shading", 190, 1, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squigglesTillShading = value).setRandomiser((rand) -> rand.nextInt(1, Short.MAX_VALUE)));
+        registerSetting(GenericSetting.createRangedIntSetting(PFMSketch.class, "Squiggles till shading", 190, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squigglesTillShading = value));
 
         ////SQUARES PFM
 

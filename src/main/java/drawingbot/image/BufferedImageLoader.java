@@ -25,6 +25,16 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         return loadImage(url, internal);
     }
 
+    public static FilteredBufferedImage loadFilteredImage(String url, boolean internal) {
+        BufferedImage source = loadImage(url, internal);
+        if(source != null){
+            FilteredBufferedImage filtered = new FilteredBufferedImage(source);
+            filtered.applyCurrentFilters();
+            return filtered;
+        }
+        return null;
+    }
+
     public static BufferedImage loadImage(String url, boolean internal) {
         BufferedImage img = null;
         try {
@@ -50,5 +60,21 @@ public class BufferedImageLoader extends Task<BufferedImage> {
             return optimalImg;
         }
         return null;
+    }
+
+    public static class Filtered extends Task<FilteredBufferedImage> {
+
+        public String url;
+        public boolean internal; //true if the image should be loaded from within the jar
+
+        public Filtered(String url, boolean internal){
+            this.url = url;
+            this.internal = internal;
+        }
+
+        @Override
+        protected FilteredBufferedImage call() throws Exception {
+            return loadFilteredImage(url, internal);
+        }
     }
 }

@@ -4,11 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.types.UserJsonFile;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 import java.io.File;
 import java.io.FileWriter;

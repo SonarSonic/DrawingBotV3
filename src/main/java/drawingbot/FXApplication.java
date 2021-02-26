@@ -84,7 +84,7 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.exiting("FXApplication", "start");
     }
 
-    public void applyDBIcon(Stage primaryStage){
+    public static void applyDBIcon(Stage primaryStage){
         InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
         if(stream != null){
             primaryStage.getIcons().add(new Image(stream));

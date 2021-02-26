@@ -4,10 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.IConfigData;
-import drawingbot.files.presets.types.ConfigApplicationSettings;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericFactory;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericFactory;
+import drawingbot.javafx.GenericPreset;
 
 import java.util.HashMap;
 import java.util.List;

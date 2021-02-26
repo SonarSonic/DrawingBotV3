@@ -73,6 +73,9 @@ public abstract class PixelDataAbstract implements IPixelData {
     protected float[] RGBtoHSBCache = new float[3];
     protected int[] HSBtoRGBCache = new int[4];
 
+    protected Integer prevARGB;
+    protected int[] cacheARGB = new int[4];
+
     public float[] copyHSB(float[] hsb){
         float[] copy = new float[3];
         copy[0] = hsb[0];
@@ -123,6 +126,19 @@ public abstract class PixelDataAbstract implements IPixelData {
         prevSat = null;
         prevBri = null;
         HSBtoRGBCache = new int[4];
+    }
+
+    protected int[] updateARGBCache(int argb){
+        if(prevARGB == null || argb != prevARGB){
+            prevARGB = argb;
+            ImageTools.getColourIntsFromARGB(argb, cacheARGB);
+        }
+        return HSBtoRGBCache;
+    }
+
+    protected void flushARGBCache(){
+        prevARGB = null;
+        cacheARGB = new int[4];
     }
 }
 

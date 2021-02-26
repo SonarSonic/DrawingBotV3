@@ -3,7 +3,7 @@ package drawingbot.api_impl;
 import drawingbot.api.API;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.pfm.PFMMasterRegistry;
-import drawingbot.utils.GenericSetting;
+import drawingbot.javafx.GenericSetting;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;

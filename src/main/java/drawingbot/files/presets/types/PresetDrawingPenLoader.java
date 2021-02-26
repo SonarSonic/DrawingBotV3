@@ -2,13 +2,11 @@ package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
-import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingRegistry;
-import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;

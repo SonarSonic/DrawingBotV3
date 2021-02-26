@@ -5,7 +5,7 @@ import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingRegistry;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 public class PresetDrawingPen extends DrawingPen implements IJsonData {
 

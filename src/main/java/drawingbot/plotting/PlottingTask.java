@@ -6,7 +6,7 @@ import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.image.*;
 import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.GenericFactory;
+import drawingbot.javafx.GenericFactory;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
@@ -32,7 +32,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public List<String> comments = new ArrayList<>();
 
     // IMAGES \\
-    public BufferedImage img_original;              // The original image
+    public FilteredBufferedImage img_original;              // The original image
     public BufferedImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public BufferedImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
@@ -70,7 +70,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     private float printScale;
 
-    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
+    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, FilteredBufferedImage image, File originalFile){
         updateTitle("Processing Image");
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
@@ -79,11 +79,11 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
         boolean useOriginal = DrawingBotV3.useOriginalSizing.get();
 
-        this.printPageWidth = useOriginal ? img_original.getWidth() : DrawingBotV3.getDrawingAreaWidthMM();
-        this.printPageHeight = useOriginal ? img_original.getHeight() : DrawingBotV3.getDrawingAreaHeightMM();
+        this.printPageWidth = useOriginal ? img_original.source.getWidth() : DrawingBotV3.getDrawingAreaWidthMM();
+        this.printPageHeight = useOriginal ? img_original.source.getHeight() : DrawingBotV3.getDrawingAreaHeightMM();
 
-        this.printDrawingWidth = useOriginal ? img_original.getWidth() : DrawingBotV3.getDrawingWidthMM();
-        this.printDrawingHeight = useOriginal ? img_original.getHeight() : DrawingBotV3.getDrawingHeightMM();
+        this.printDrawingWidth = useOriginal ? img_original.source.getWidth() : DrawingBotV3.getDrawingWidthMM();
+        this.printDrawingHeight = useOriginal ? img_original.source.getHeight() : DrawingBotV3.getDrawingHeightMM();
 
         this.printOffsetX = useOriginal ? 0 : DrawingBotV3.getDrawingOffsetXMM();
         this.printOffsetY = useOriginal ? 0 : DrawingBotV3.getDrawingOffsetYMM();
@@ -120,17 +120,18 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 PFMMasterRegistry.applySettings(pfm);
 
                 DrawingBotV3.logger.fine("Copying Original Image");
-                img_plotting = ImageTools.deepCopy(img_original);
+                img_plotting = ImageTools.deepCopy(img_original.getSource());
 
                 DrawingBotV3.logger.fine("Applying Filters");
                 img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
                 img_plotting = ImageTools.scaleImageForTask(this, img_plotting, printDrawingWidth, printDrawingHeight);
-                img_plotting = ImageFilterRegistry.applyCurrentFilters(img_plotting);
+                img_plotting = img_original.applyCurrentFilters(img_plotting);
 
 
                 DrawingBotV3.logger.fine("Creating Pixel Data");
                 reference = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
                 plotting = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
+                //plotting = new PixelDataBufferedImage(img_plotting);
                 plotting.setTransparentARGB(pfm.getTransparentARGB());
 
                 DrawingBotV3.logger.fine("Setting Pixel Data");
@@ -214,7 +215,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public BufferedImage getOriginalImage() {
-        return img_original;
+        return img_original.source;
     }
 
     public BufferedImage getReferenceImage() {

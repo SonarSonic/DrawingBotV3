@@ -1,8 +1,10 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.utils.GenericPreset;
+import drawingbot.FXApplication;
+import drawingbot.javafx.GenericPreset;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class DialogPresetRename extends Dialog<GenericPreset<?>> {
 
@@ -30,6 +32,7 @@ public class DialogPresetRename extends Dialog<GenericPreset<?>> {
         setResultConverter(param -> param == ButtonType.APPLY ? editingPreset : null);
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
+        FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
     }
 
     public void setEditingPreset(GenericPreset<?> editingPreset) {

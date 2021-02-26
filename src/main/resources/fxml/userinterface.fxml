@@ -98,8 +98,13 @@
                                           </TableView>
                                           <ComboBox fx:id="comboBoxImageFilterPreset" layoutX="12.0" layoutY="14.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
                                           <MenuButton fx:id="menuButtonFilterPresets" layoutX="321.0" layoutY="14.0" mnemonicParsing="false" text="Presets" />
-                                          <ComboBox fx:id="comboBoxImageFilter" layoutX="14.0" layoutY="269.0" prefHeight="25.0" prefWidth="282.0" />
-                                          <Button fx:id="buttonAddFilter" layoutX="303.0" layoutY="269.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Add Filter" />
+                                          <HBox layoutX="7.0" layoutY="271.0" spacing="3.0">
+                                             <children>
+                                                <ComboBox fx:id="comboBoxFilterType" prefHeight="25.0" prefWidth="100.0" promptText="Transitions" />
+                                                <ComboBox fx:id="comboBoxImageFilter" prefHeight="25.0" prefWidth="223.0" />
+                                                <Button fx:id="buttonAddFilter" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Add" />
+                                             </children>
+                                          </HBox>
                                        </children>
                                     </AnchorPane>
                                 </content>
@@ -111,8 +116,9 @@
                                           <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="86.0" prefHeight="212.0" prefWidth="404.0" tableMenuButtonVisible="true">
                                             <columns>
                                                 <TableColumn fx:id="tableColumnLock" prefWidth="33.0" text="Lock" />
-                                              <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="230.0" text="Setting" />
-                                              <TableColumn fx:id="tableColumnValue" prefWidth="139.0" text="Value" />
+                                              <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="132.0" text="Setting" />
+                                              <TableColumn fx:id="tableColumnValue" prefWidth="89.0" text="Value" />
+                                                <TableColumn fx:id="tableColumnControl" prefWidth="137.0" text="Control" />
                                             </columns>
                                           </TableView>
                                           <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="52.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />

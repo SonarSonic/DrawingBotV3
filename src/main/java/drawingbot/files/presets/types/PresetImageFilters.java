@@ -3,9 +3,10 @@ package drawingbot.files.presets.types;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericFactory;
-import drawingbot.utils.GenericSetting;
+import drawingbot.javafx.GenericFactory;
+import drawingbot.javafx.GenericSetting;
 
+import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ public class PresetImageFilters implements IJsonData {
         filters = new ArrayList<>();
     }
 
-    public void addFilter(GenericFactory<ImageFilterRegistry.IImageFilter> factory, HashMap<String, String> settings) {
+    public void addFilter(GenericFactory<BufferedImageOp> factory, HashMap<String, String> settings) {
         filters.add(new Filter(factory.getName(), settings));
     }
 

@@ -1,13 +1,13 @@
 package drawingbot.files.presets.types;
 
-import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericFactory;
-import drawingbot.utils.GenericPreset;
-import drawingbot.utils.GenericSetting;
+import drawingbot.javafx.GenericFactory;
+import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.GenericSetting;
 
+import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
         ImageFilterRegistry.currentFilters.clear();
         for (int i = 0; i < preset.data.filters.size(); i++) {
             PresetImageFilters.Filter filter = preset.data.filters.get(i);
-            GenericFactory<ImageFilterRegistry.IImageFilter> factory = ImageFilterRegistry.getFilterFromName(filter.type);
+            GenericFactory<BufferedImageOp> factory = ImageFilterRegistry.getFilterFromName(filter.type);
             ImageFilterRegistry.ObservableImageFilter observableImageFilter = new ImageFilterRegistry.ObservableImageFilter(factory);
             GenericSetting.applySettings(filter.settings, observableImageFilter.filterSettings);
             ImageFilterRegistry.currentFilters.add(observableImageFilter);

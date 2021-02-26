@@ -3,7 +3,6 @@
   Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
  */
 package drawingbot;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,9 +16,11 @@ import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
 import drawingbot.image.BufferedImageLoader;
+import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
+import drawingbot.javafx.GenericFactory;
 import drawingbot.utils.*;
 import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottedPoint;
@@ -44,7 +45,7 @@ public class DrawingBotV3 {
     public static final String appName = "DrawingBotV3";
     public static final String majorVersion = "1";
     public static final String minorVersion = "0";
-    public static final String patchVersion = "4";
+    public static final String patchVersion = "5";
     public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
 
     //DRAWING AREA
@@ -82,6 +83,8 @@ public class DrawingBotV3 {
     public static double minScale = 0.1;
     public static SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public static SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
+    public static boolean imageFiltersDirty = false;
+
 
     //// VARIABLES \\\\
 
@@ -89,14 +92,15 @@ public class DrawingBotV3 {
     public static ExecutorService taskService = initTaskService();
     public static ExecutorService backgroundService = initBackgroundService();
     public static ExecutorService imageLoadingService = initImageLoadingService();
+    public static ExecutorService imageFilteringService = initImageFilteringService();
 
     // TASKS \\
     public static PlottingTask activeTask = null;
     public static ExportTask exportTask = null;
     public static BatchProcessingTask batchProcessingTask = null;
 
-    public static BufferedImageLoader loadingImage = null;
-    public static BufferedImage openImage = null;
+    public static BufferedImageLoader.Filtered loadingImage = null;
+    public static FilteredBufferedImage openImage = null;
     public static File openFile = null;
 
     // GUI \\
@@ -211,9 +215,15 @@ public class DrawingBotV3 {
             updateCanvasScaling();
         }
         if(openImage != null){
+            if(imageFiltersDirty){
+                openImage.applyCurrentFilters();
+                imageFiltersDirty = false;
+                shouldRedraw = true;
+            }
+
             if(shouldRedraw){
                 clearCanvas();
-                graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage, null), 0, 0);
+                graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage.getFiltered(), null), 0, 0);
             }
         }else{
             clearCanvas();
@@ -421,6 +431,13 @@ public class DrawingBotV3 {
         observableDrawingSetFlag.set(!observableDrawingSetFlag.get());
     }
 
+    public static void onImageFiltersChanged(){
+        if(openImage == null || imageFiltersDirty){
+            return;
+        }
+        imageFiltersDirty = true;
+    }
+
     public static void updateWeightedDistribution(){
         if(activeTask != null && activeTask.isTaskFinished()){
             activeTask.plottedDrawing.updateWeightedDistribution();
@@ -466,7 +483,7 @@ public class DrawingBotV3 {
             loadingImage = null;
         }
         openFile = file;
-        loadingImage = new BufferedImageLoader(file.getAbsolutePath(), internal);
+        loadingImage = new BufferedImageLoader.Filtered(file.getAbsolutePath(), internal);
         imageLoadingService.submit(loadingImage);
     }
 
@@ -576,6 +593,15 @@ public class DrawingBotV3 {
     public static ExecutorService initImageLoadingService(){
         return Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "DrawingBotV3 - Image Loading Thread");
+            t.setDaemon(true);
+            t.setUncaughtExceptionHandler(exceptionHandler);
+            return t;
+        });
+    }
+
+    public static ExecutorService initImageFilteringService(){
+        return Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "DrawingBotV3 - Image Filtering Thread");
             t.setDaemon(true);
             t.setUncaughtExceptionHandler(exceptionHandler);
             return t;

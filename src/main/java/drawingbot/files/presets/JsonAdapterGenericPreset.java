@@ -2,7 +2,7 @@ package drawingbot.files.presets;
 
 import com.google.gson.*;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 import java.lang.reflect.Type;
 

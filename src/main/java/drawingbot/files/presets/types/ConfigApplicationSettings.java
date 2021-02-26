@@ -2,7 +2,7 @@ package drawingbot.files.presets.types;
 
 import drawingbot.files.presets.IConfigData;
 import drawingbot.utils.EnumJsonType;
-import drawingbot.utils.GenericPreset;
+import drawingbot.javafx.GenericPreset;
 
 public class ConfigApplicationSettings implements IConfigData{
 
