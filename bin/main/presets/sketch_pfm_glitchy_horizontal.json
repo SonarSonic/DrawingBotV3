@@ -1,0 +1,20 @@
+{
+  "presetType": "pfm_settings",
+  "version": 1,
+  "presetSubType": "Sketch PFM",
+  "presetName": "Glitchy Horizontal",
+  "userCreated": true,
+  "data": {
+    "settingList": {
+      "Neighbour Tests": "30",
+      "Squiggles till shading": "100",
+      "Squiggle Length": "100",
+      "Min Line length": "2",
+      "Max Line length": "50",
+      "Start Angle Min": "-10",
+      "Desired Brightness": "240.0",
+      "Start Angle Max": "10",
+      "Adjust Brightness": "70"
+    }
+  }
+}

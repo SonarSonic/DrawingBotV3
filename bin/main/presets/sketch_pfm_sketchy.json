@@ -1,0 +1,20 @@
+{
+  "presetType": "pfm_settings",
+  "version": 1,
+  "presetSubType": "Sketch PFM",
+  "presetName": "Sketchy",
+  "userCreated": false,
+  "data": {
+    "settingList": {
+      "Neighbour Tests": "30",
+      "Squiggles till shading": "200",
+      "Squiggle Length": "100",
+      "Min Line length": "8",
+      "Max Line length": "30",
+      "Start Angle Min": "50",
+      "Desired Brightness": "240.0",
+      "Start Angle Max": "130",
+      "Adjust Brightness": "90"
+    }
+  }
+}

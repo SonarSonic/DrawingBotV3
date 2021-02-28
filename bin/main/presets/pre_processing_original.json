@@ -1,0 +1,21 @@
+{
+  "presetType": "image_filters",
+  "version": 1,
+  "presetSubType": "",
+  "presetName": "Original - Dirty Border",
+  "userCreated": false,
+  "data": {
+    "filters": [
+      {
+        "type": "Border",
+        "settings": {}
+      },
+      {
+        "type": "Border",
+        "settings": {
+          "Type": "11"
+        }
+      }
+    ]
+  }
+}
