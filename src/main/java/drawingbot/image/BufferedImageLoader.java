@@ -29,7 +29,7 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         BufferedImage source = loadImage(url, internal);
         if(source != null){
             FilteredBufferedImage filtered = new FilteredBufferedImage(source);
-            filtered.applyCurrentFilters();
+            filtered.updateAll();
             return filtered;
         }
         return null;

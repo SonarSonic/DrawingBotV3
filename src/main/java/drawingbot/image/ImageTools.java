@@ -4,7 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.plotting.PlottingTask;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
@@ -141,13 +140,7 @@ public class ImageTools {
     public static BufferedImage lazyImageBorder(BufferedImage dst, String fname, boolean internal, int shrink, int blur) {
         DrawingBotV3.logger.entering("ImageTools", "lazyImageBorder: " + fname);
 
-        BufferedImage borderImg = BufferedImageLoader.loadImage(fname, internal);
-        if(borderImg != null){
-            borderImg = Scalr.resize(borderImg, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, dst.getWidth(), dst.getHeight());
 
-            borderImg = ImageTools.lazyRGBFilter(borderImg, ImageTools::invertFilter);
-            dst = ImageTools.lazyBlend(dst, borderImg, EnumBlendMode.ADD);
-        }
         return dst;
     }
 
@@ -209,53 +202,20 @@ public class ImageTools {
         return combined;
     }
 
-    public static BufferedImage scaleImageForTask(PlottingTask task, BufferedImage image, float widthMM, float heightMM){
-        DrawingBotV3.logger.entering("ImageTools", "cropToAspectRatio");
-        float currentRatio = (float)image.getWidth() / image.getHeight();
-        float targetRatio = widthMM / heightMM;
-
-        int taskWidth = -1, taskHeight = -1;
-        int taskOffsetX = 0, taskOffsetY = 0;
-
-        if(targetRatio != currentRatio){
-            int targetWidth = (int)(image.getHeight() * targetRatio);
-            int targetHeight = (int)(image.getWidth() / targetRatio);
-            int x = 0, y = 0, width = image.getWidth(), height = image.getHeight();
-
-            if (currentRatio < targetRatio) {
-                y = (height - targetHeight) / 2;
-                height = targetHeight;
-            }else{
-                x = (width - targetWidth) / 2;
-                width = targetWidth;
-            }
-            switch (DrawingBotV3.scaling_mode.get()){
-                case CROP_TO_FIT:
-                    image = Scalr.crop(image, x, y, width, height);
-                    break;
-                case SCALE_TO_FIT:
-                    int max = Math.max(image.getWidth(), image.getHeight());
-                    width = (int)(max * targetRatio);
-                    height = (int)(max / targetRatio);
-
-                    taskOffsetX = (width - image.getWidth()) / 2;
-                    taskOffsetY = (height - image.getHeight()) / 2;
-                    taskWidth = width;
-                    taskHeight = height;
-                    break;
-                case STRETCH_TO_FIT:
-                    image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, width, height);
-                    break;
-            }
+    public static BufferedImage cropToPrintResolution(BufferedImage image, PrintResolution resolution){
+        if(!resolution.hasCropping()){
+            return image;
         }
-
-        int pixelPadding = 0;
-
-        task.pixelWidth = (taskWidth == -1 ? image.getWidth() : taskWidth) + pixelPadding*2;
-        task.pixelHeight = (taskHeight == -1 ? image.getHeight() : taskHeight) + pixelPadding*2;
-
-        task.renderOffsetX = taskOffsetX + pixelPadding;
-        task.renderOffsetY = taskOffsetY + pixelPadding;
+        switch (DrawingBotV3.scaling_mode.get()){
+            case CROP_TO_FIT:
+                image = Scalr.crop(image, resolution.cropX, resolution.cropY, resolution.cropWidth, resolution.cropHeight);
+                break;
+            case SCALE_TO_FIT:
+                break;
+            case STRETCH_TO_FIT:
+                image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, resolution.cropWidth, resolution.cropHeight);
+                break;
+        }
         return image;
     }
 
@@ -303,6 +263,8 @@ public class ImageTools {
         return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
+
+
     public static IPixelData copy(IPixelData source, IPixelData dst){
         for(int x = 0; x < source.getWidth(); x ++){
             for(int y = 0; y < source.getHeight(); y ++){
@@ -333,6 +295,13 @@ public class ImageTools {
             }
         }
         return data;
+    }
+
+    public static BufferedImage drawImage(BufferedImage src, BufferedImage dst) {
+        Graphics2D g = dst.createGraphics();
+        g.drawRenderedImage( src, null );
+        g.dispose();
+        return dst;
     }
 
     /*

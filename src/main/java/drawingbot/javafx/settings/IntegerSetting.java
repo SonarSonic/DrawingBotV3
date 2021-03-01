@@ -13,12 +13,13 @@ public class IntegerSetting<C> extends RangedNumberSetting<C, Integer> {
     }
 
     @Override
-    public GenericSetting<C, Integer> copy() {
-        return new IntegerSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter);
-    }
-
-    @Override
     public Integer fromNumber(Number number) {
         return number.intValue();
     }
+
+    @Override
+    public GenericSetting<C, Integer> copy() {
+        return new IntegerSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks);
+    }
+
 }

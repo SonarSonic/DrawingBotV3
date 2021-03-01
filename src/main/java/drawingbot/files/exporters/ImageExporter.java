@@ -14,8 +14,8 @@ public class ImageExporter {
 
     public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
 
-        int width = plottingTask.getPixelWidth();
-        int height = plottingTask.getPixelHeight();
+        int width = plottingTask.resolution.getRenderWidth();
+        int height = plottingTask.resolution.getRenderHeight();
 
         boolean useAlpha = !extension.equals(".jpg");
         BufferedImage image = new BufferedImage(width, height, useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);

@@ -14,11 +14,24 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
     public V minValue;
     public V maxValue;
 
+    public V majorTick;
+    public boolean snapToTicks;
+
     protected RangedNumberSetting(Class<C> clazz, String settingName, V defaultValue, V minValue, V maxValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
         super(clazz, settingName, defaultValue, stringConverter, randomiser, shouldLock, validator, setter);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
+    }
+
+    public RangedNumberSetting<C, V> setMajorTick(V majorTick){
+        this.majorTick = majorTick;
+        return this;
+    }
+
+    public RangedNumberSetting<C, V> setSnapToTicks(boolean snapToTicks){
+        this.snapToTicks = snapToTicks;
+        return this;
     }
 
     @Override
@@ -28,9 +41,10 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
         slider.setMin(minValue.doubleValue());
         slider.setMax(maxValue.doubleValue());
         if(label){
-            slider.setMajorTickUnit(Math.min(Integer.MAX_VALUE, Math.abs(maxValue.doubleValue()-minValue.doubleValue())));
+            slider.setMajorTickUnit(majorTick == null ? Math.min(Integer.MAX_VALUE, Math.abs(maxValue.doubleValue()-minValue.doubleValue())) : majorTick.doubleValue());
             slider.setShowTickLabels(true);
             slider.setShowTickMarks(true);
+            slider.setSnapToTicks(snapToTicks);
         }
         slider.setValue(value.getValue().doubleValue());
 

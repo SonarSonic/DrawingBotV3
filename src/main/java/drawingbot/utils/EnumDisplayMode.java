@@ -2,11 +2,18 @@ package drawingbot.utils;
 
 public enum EnumDisplayMode {
 
-    DRAWING, //TODO ADD IMAGE DISPLAY MODE
-    ORIGINAL,
-    REFERENCE,
-    LIGHTENED,
-    SELECTED_PEN;
+    IMAGE(false),
+    DRAWING(true),
+    ORIGINAL(true),
+    REFERENCE(true),
+    LIGHTENED(true),
+    SELECTED_PEN(true);
+
+    public boolean scaleToTask;
+
+    EnumDisplayMode(boolean scaleToTask){
+        this.scaleToTask = scaleToTask;
+    }
 
     @Override
     public String toString() {

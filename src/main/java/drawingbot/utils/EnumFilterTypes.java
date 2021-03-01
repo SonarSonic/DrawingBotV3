@@ -1,6 +1,7 @@
 package drawingbot.utils;
 
 public enum EnumFilterTypes {
+    BORDERS,
     BLUR,
     CHANNELS,
     COLOURS,

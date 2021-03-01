@@ -21,7 +21,7 @@ public class Graphics2DExporter {
             graphics.setColor(Color.BLACK);
             graphics.drawRect(0, 0, width, height);
         }
-        graphics.translate(plottingTask.renderOffsetX, plottingTask.renderOffsetY);
+        graphics.translate(plottingTask.resolution.renderOffsetX, plottingTask.resolution.renderOffsetY);
         graphics.setComposite(new BlendComposite(blendMode));
 
         List<PlottedPath> plottedPaths = plottingTask.plottedDrawing.generatePlottedPaths(lineFilter);

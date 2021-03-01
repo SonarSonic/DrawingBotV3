@@ -7,11 +7,11 @@
   "data": {
     "filters": [
       {
-        "type": "Border",
+        "type": "Dirty Border",
         "settings": {}
       },
       {
-        "type": "Border",
+        "type": "Dirty Border",
         "settings": {
           "Type": "11"
         }

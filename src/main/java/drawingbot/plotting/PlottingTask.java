@@ -32,7 +32,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public List<String> comments = new ArrayList<>();
 
     // IMAGES \\
-    public FilteredBufferedImage img_original;              // The original image
+    public BufferedImage img_original;              // The original image
     public BufferedImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
     public BufferedImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
@@ -52,41 +52,19 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public int pathIndex = 0;
 
     // RENDERING \\\
-    public int renderOffsetX = 0;
-    public int renderOffsetY = 0;
-    public int pixelWidth = -1;
-    public int pixelHeight = -1;
+    public PrintResolution resolution;
 
     // GCODE \\
     private float gcode_offset_x;
     private float gcode_offset_y;
 
-    private final float printPageWidth;
-    private final float printPageHeight;
-    private final float printDrawingWidth;
-    private final float printDrawingHeight;
-    private final float printOffsetX;
-    private final float printOffsetY;
-
-    private float printScale;
-
-    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, FilteredBufferedImage image, File originalFile){
+    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Processing Image");
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.img_original = image;
         this.originalFile = originalFile;
-
-        boolean useOriginal = DrawingBotV3.useOriginalSizing.get();
-
-        this.printPageWidth = useOriginal ? img_original.source.getWidth() : DrawingBotV3.getDrawingAreaWidthMM();
-        this.printPageHeight = useOriginal ? img_original.source.getHeight() : DrawingBotV3.getDrawingAreaHeightMM();
-
-        this.printDrawingWidth = useOriginal ? img_original.source.getWidth() : DrawingBotV3.getDrawingWidthMM();
-        this.printDrawingHeight = useOriginal ? img_original.source.getHeight() : DrawingBotV3.getDrawingHeightMM();
-
-        this.printOffsetX = useOriginal ? 0 : DrawingBotV3.getDrawingOffsetXMM();
-        this.printOffsetY = useOriginal ? 0 : DrawingBotV3.getDrawingOffsetYMM();
+        this.resolution = new PrintResolution(image);
     }
 
     @Override
@@ -120,18 +98,17 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 PFMMasterRegistry.applySettings(pfm);
 
                 DrawingBotV3.logger.fine("Copying Original Image");
-                img_plotting = ImageTools.deepCopy(img_original.getSource());
+                img_plotting = ImageTools.deepCopy(img_original);
 
                 DrawingBotV3.logger.fine("Applying Filters");
+                resolution.plottingResolution = pfm.getPlottingResolution();
+                resolution.updateAll();
+                img_plotting = FilteredBufferedImage.applyAll(img_plotting, resolution);
                 img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
-                img_plotting = ImageTools.scaleImageForTask(this, img_plotting, printDrawingWidth, printDrawingHeight);
-                img_plotting = img_original.applyCurrentFilters(img_plotting);
-
 
                 DrawingBotV3.logger.fine("Creating Pixel Data");
                 reference = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
                 plotting = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
-                //plotting = new PixelDataBufferedImage(img_plotting);
                 plotting.setTransparentARGB(pfm.getTransparentARGB());
 
                 DrawingBotV3.logger.fine("Setting Pixel Data");
@@ -140,13 +117,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
                 DrawingBotV3.logger.fine("PFM - Init");
                 pfm.init(this);
-
-                DrawingBotV3.logger.fine("Setting Plotting Variables");
-
-                float print_scale_x, print_scale_y;
-                print_scale_x = printDrawingWidth / img_plotting.getWidth();
-                print_scale_y = printDrawingHeight / img_plotting.getHeight();
-                printScale = Math.min(print_scale_x, print_scale_y);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");
                 pfm.preProcess(this);
@@ -215,7 +185,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public BufferedImage getOriginalImage() {
-        return img_original.source;
+        return img_original;
     }
 
     public BufferedImage getReferenceImage() {
@@ -226,36 +196,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return img_plotting;
     }
 
-    public int getPixelWidth(){
-        return pixelWidth;
-    }
-
-    public int getPixelHeight(){
-        return pixelHeight;
-    }
-
-    public float getPrintPageWidth() {
-        return printPageWidth;
-    }
-
-    public float getPrintPageHeight() {
-        return printPageHeight;
-    }
-
-    public float getPrintDrawingWidth() {
-        return printDrawingWidth;
-    }
-
-    public float getPrintDrawingHeight() {
-        return printDrawingHeight;
-    }
-
-    public float getPrintOffsetX() {
-        return printOffsetX;
-    }
-
-    public float getPrintOffsetY() {
-        return printOffsetY;
+    public PrintResolution getResolution(){
+        return resolution;
     }
 
     public void stopElegantly(){
@@ -275,13 +217,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public AffineTransform createPrintTransform(){
         AffineTransform transform = new AffineTransform();
-        transform.scale(getPrintScale(), getPrintScale());
+        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
         transform.translate(getGCodeXOffset(), getGCodeYOffset());
         return transform;
-    }
-
-    public float getPrintScale(){
-        return printScale;
     }
 
     public float getGCodeXOffset(){
@@ -314,8 +252,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         old_y = 0;
         gcode_offset_x = 0;
         gcode_offset_y = 0;
-        printScale = 0;
         pfm = null;
+        resolution = null;
         pfmFactory = null;
         startTime = 0;
         finishTime = -1;

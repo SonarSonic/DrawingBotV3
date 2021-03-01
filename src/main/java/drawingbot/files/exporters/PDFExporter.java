@@ -18,8 +18,8 @@ public class PDFExporter {
 
     public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
         try {
-            int width = plottingTask.getPixelWidth();
-            int height = plottingTask.getPixelHeight();
+            int width = plottingTask.resolution.getRenderWidth();
+            int height = plottingTask.resolution.getRenderHeight();
 
             Document document = new Document(new Rectangle(width, height));
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));

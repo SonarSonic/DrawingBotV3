@@ -110,12 +110,25 @@ public class Utils {
         return mod == 0D ? x : x + mult - mod;
     }
 
-    public static double roundTo(double x, double mult) {
+    public static double roundToMultiple(double x, double mult) {
         if (mult == 0D) {
             return x;
         }
         double mod = x % mult;
         return mod >= mult/2D ? x + mult - mod : x - mod;
+    }
+
+    public static float roundToMultiple(float x, float mult) {
+        if (mult == 0F) {
+            return x;
+        }
+        float mod = x % mult;
+        return mod >= mult/2F ? x + mult - mod : x - mod;
+    }
+
+    public static double roundToPrecision(double value, int precision) {
+        int scale = (int) Math.pow(10, precision);
+        return (double) Math.round(value * scale) / scale;
     }
 
 }
