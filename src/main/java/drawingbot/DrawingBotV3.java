@@ -77,13 +77,14 @@ public class DrawingBotV3 {
     public static ObservableDrawingSet observableDrawingSet = new ObservableDrawingSet(DrawingRegistry.INSTANCE.getDefaultSet(DrawingRegistry.INSTANCE.getDefaultSetType()));
 
     // DISPLAY \\
-    public static SimpleObjectProperty<EnumDisplayMode> display_mode = new SimpleObjectProperty<>(EnumDisplayMode.DRAWING);
+    public static SimpleObjectProperty<EnumDisplayMode> display_mode = new SimpleObjectProperty<>(EnumDisplayMode.IMAGE);
 
     //VIEWPORT SETTINGS \\
     public static double minScale = 0.1;
     public static SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public static SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
     public static boolean imageFiltersDirty = false;
+    public static boolean drawingAreaDirty = false;
 
 
     //// VARIABLES \\\\
@@ -162,11 +163,7 @@ public class DrawingBotV3 {
         long startTime = System.currentTimeMillis();
 
         preRender();
-        if(activeTask != null){
-            renderTask();
-        }else{
-            renderOpenImage();
-        }
+        render();
         postRender();
 
         updateUI();
@@ -183,16 +180,22 @@ public class DrawingBotV3 {
     private static long drawingTime = 0;
     private static PlottingTask lastDrawn = null;
     private static EnumTaskStage lastState = null;
+    private static EnumDisplayMode lastMode = null;
     public static boolean canvasNeedsUpdate = false;
     
-    private static boolean markRenderDirty = true, changedTask, changedState, shouldRedraw;
+    private static boolean markRenderDirty = true, changedTask, changedMode, changedState, shouldRedraw;
 
     private static void preRender(){
         PlottingTask renderedTask = getActiveTask();
 
         changedTask = lastDrawn != renderedTask;
+        changedMode = lastMode != display_mode.get();
         changedState = renderedTask != null && lastState != renderedTask.stage;
-        shouldRedraw = markRenderDirty || changedTask || changedState;
+        shouldRedraw = markRenderDirty || changedTask || changedMode || changedState;
+
+        if(lastMode == null || lastMode.scaleToTask != display_mode.get().scaleToTask){
+            canvasNeedsUpdate = true;
+        }
 
         updateCanvasScaling();
         graphicsFX.setGlobalBlendMode(BlendMode.SRC_OVER);
@@ -203,65 +206,138 @@ public class DrawingBotV3 {
 
         markRenderDirty = false;
         lastDrawn = renderedTask;
+        lastMode = display_mode.get();
         lastState = renderedTask == null ? null : renderedTask.stage;
     }
 
-    private static void renderOpenImage(){
-        if(loadingImage != null && loadingImage.isDone()){
-            openImage = loadingImage.getValue();
-            shouldRedraw = true;
-            loadingImage = null;
-            updateCanvasSize(openImage.getWidth(), openImage.getHeight());
-            updateCanvasScaling();
-        }
-        if(openImage != null){
-            if(imageFiltersDirty){
-                openImage.applyCurrentFilters();
-                imageFiltersDirty = false;
-                shouldRedraw = true;
-            }
-
-            if(shouldRedraw){
-                clearCanvas();
-                graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage.getFiltered(), null), 0, 0);
-            }
-        }else{
-            clearCanvas();
-        }
-    }
-
-    private static void renderTask() {
+    //TODO ALLOW RESIZING IMAGE LIVE / UPDATE CANVAS SIZE / REMOVE MOST IMAGE RELATED STUFF FROM PLOTTING TASK.
+    private static void render() {
         PlottingTask renderedTask = getActiveTask();
 
         if(changedTask){
             canvasNeedsUpdate = true;
         }
 
-        if(canvasNeedsUpdate && renderedTask.getPrintScale() > 0){
-            double scaledPageWidth = renderedTask.getPrintPageWidth() / renderedTask.getPrintScale();
-            double scaledPageHeight = renderedTask.getPrintPageHeight() / renderedTask.getPrintScale();
-            updateCanvasSize(scaledPageWidth, scaledPageHeight);
-            canvasNeedsUpdate = false;
+        if(canvasNeedsUpdate){
+            if(display_mode.get().scaleToTask){
+                if(renderedTask != null && renderedTask.resolution.getPrintScale() > 0){
+                    updateCanvasSize(renderedTask.resolution.getScaledWidth(), renderedTask.resolution.getScaledHeight());
+                    updateCanvasScaling();
+                    canvasNeedsUpdate = false;
+                }
+            }
         }
 
+        switch (display_mode.get()){
+            case IMAGE:
+                if(loadingImage != null && loadingImage.isDone()){
+                    openImage = loadingImage.getValue();
+                    shouldRedraw = true;
+                    loadingImage = null;
+                    canvasNeedsUpdate = true;
+                }
+                if(openImage != null){
+                    canvasNeedsUpdate = canvasNeedsUpdate || imageFiltersDirty || drawingAreaDirty;
+                    shouldRedraw = shouldRedraw || canvasNeedsUpdate;
+
+                    if(imageFiltersDirty){
+                        openImage.updateAll();
+                        imageFiltersDirty = false;
+                        drawingAreaDirty = false;
+                    }
+
+                    if(drawingAreaDirty){
+                        openImage.updateCroppingOnly();
+                        drawingAreaDirty = false;
+                    }
+
+                    if(canvasNeedsUpdate){
+                        updateCanvasSize(openImage.resolution.getScaledWidth(), openImage.resolution.getScaledHeight());
+                        updateCanvasScaling();
+                        canvasNeedsUpdate = false;
+                    }
+
+                    if(shouldRedraw){
+                        clearCanvas();
+                        graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
+                        graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage.getFiltered(), null), 0, 0);
+                        graphicsFX.translate(-openImage.resolution.getScaledOffsetX(), -openImage.resolution.getScaledOffsetY());
+                    }
+                }else{
+                    clearCanvas();
+                }
+                break;
+            case SELECTED_PEN:
+            case DRAWING:
+                if(renderedTask != null){
+                    renderPlottingTask(renderedTask);
+                }else if(shouldRedraw){
+                    clearCanvas();
+                }
+                break;
+            case ORIGINAL:
+                if(shouldRedraw){
+                    clearCanvas();
+                    if(renderedTask != null && renderedTask.getOriginalImage() != null){
+                        float screen_scale_x = (float)renderedTask.img_plotting.getWidth() / (float)renderedTask.img_original.getWidth();
+                        float screen_scale_y = (float)renderedTask.img_plotting.getHeight() / (float)renderedTask.img_original.getHeight();
+                        float screen_scale = Math.min(screen_scale_x, screen_scale_y);
+
+                        graphicsFX.translate(renderedTask.resolution.renderOffsetX, renderedTask.resolution.renderOffsetY);
+                        graphicsFX.scale(screen_scale, screen_scale);
+                        graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getOriginalImage(), null), 0, 0);
+                        graphicsFX.scale(1/screen_scale, 1/screen_scale);
+                        graphicsFX.translate(-renderedTask.resolution.renderOffsetX, -renderedTask.resolution.renderOffsetY);
+                    }
+                }
+                break;
+            case REFERENCE:
+                if(shouldRedraw){
+                    clearCanvas();
+                    if(renderedTask != null && renderedTask.getReferenceImage() != null){
+                        graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
+                        graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getReferenceImage(), null), 0, 0);
+                        graphicsFX.translate(-openImage.resolution.getScaledOffsetX(), -openImage.resolution.getScaledOffsetY());
+                    }
+                }
+                break;
+            case LIGHTENED:
+                if(shouldRedraw){
+                    clearCanvas();
+                    if(renderedTask != null && renderedTask.getPlottingImage() != null){
+                        graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
+                        graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getPlottingImage(), null), 0, 0);
+                        graphicsFX.translate(-openImage.resolution.getScaledOffsetX(), -openImage.resolution.getScaledOffsetY());
+                    }
+                }
+                break;
+        }
+
+        if(shouldRedraw){
+            GridOverlay.grid();
+        }
+    }
+
+    public static void renderPlottingTask(PlottingTask renderedTask){
         switch (renderedTask.stage){
             case QUEUED:
             case PRE_PROCESSING:
                 break;
             case DO_PROCESS:
-                if(changedTask || changedState){ //avoids redrawing in some instances
+                if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
                     clearCanvas();
                     renderedLines = 0;
                 }
                 if(renderedTask.plottedDrawing.getPlottedLineCount() != 0){
 
-                    double scaledOffsetX = renderedTask.renderOffsetX  + (renderedTask.getPrintOffsetX() / renderedTask.getPrintScale());
-                    double scaledOffsetY = renderedTask.renderOffsetY + (renderedTask.getPrintOffsetY() / renderedTask.getPrintScale());
+                    double scaledOffsetX = renderedTask.resolution.renderOffsetX  + (renderedTask.resolution.getPrintOffsetX() / renderedTask.resolution.getPrintScale());
+                    double scaledOffsetY = renderedTask.resolution.renderOffsetY + (renderedTask.resolution.getPrintOffsetY() / renderedTask.resolution.getPrintScale());
 
                     graphicsFX.translate(scaledOffsetX, scaledOffsetY);
 
-                    renderedTask.plottedDrawing.renderPointsFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getPlottedLineCount(), PlottedPoint.DEFAULT_FILTER, false);
-                    renderedLines = renderedTask.plottedDrawing.getPlottedLineCount();
+                    int end = Math.min(renderedTask.plottedDrawing.getPlottedLineCount(), renderedLines + 20000);
+                    renderedTask.plottedDrawing.renderPointsFX(graphicsFX, renderedLines, end, PlottedPoint.DEFAULT_FILTER, false);
+                    renderedLines = end;
                     if(renderedTask.plottingFinished){
                         renderedTask.finishedRenderingPaths = true;
                     }
@@ -273,77 +349,36 @@ public class DrawingBotV3 {
                 // NOP - continue displaying the path finding result
                 break;
             case FINISHED:
-                switch (display_mode.get()){
-                    case SELECTED_PEN:
-                    case DRAWING:
-                        EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
-                        if(shouldRedraw){
-                            clearCanvas(blendMode.additive ? Color.BLACK : Color.WHITE);
-                            renderedLines = 0;
-                            updateLocalMessage("Drawing");
-                            updateLocalProgress(0);
-                            drawingTime = System.currentTimeMillis();
-                        }
-                        if(renderedLines != -1){
-                            double scaledOffsetX = renderedTask.renderOffsetX  + (renderedTask.getPrintOffsetX() / renderedTask.getPrintScale());
-                            double scaledOffsetY = renderedTask.renderOffsetY + (renderedTask.getPrintOffsetY() / renderedTask.getPrintScale());
-
-                            graphicsFX.translate(scaledOffsetX, scaledOffsetY);
-                            graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
-                            int pen = display_mode.get() == EnumDisplayMode.DRAWING || controller.getSelectedPen() == null ? -1 : controller.getSelectedPen().penNumber.get();
-                            int toRender = (blendMode == EnumBlendMode.NORMAL ? 20000 : 2000);
-
-                            int displayedLines = renderedTask.plottedDrawing.getDisplayedLineCount()-1;
-                            int start = displayedLines - (renderedLines);
-                            int end = Math.max(0, displayedLines - (renderedLines + toRender));
-                            renderedTask.plottedDrawing.renderPointsFX(graphicsFX, start, end, (point, p) -> p.isEnabled() && (pen == -1 || point.pen_number == pen),true);
-                            renderedLines += toRender;
-                            graphicsFX.translate(-scaledOffsetX, -scaledOffsetY);
-
-                            updateLocalProgress((float)renderedLines / displayedLines);
-                            if(renderedLines >= displayedLines){
-                                long time = System.currentTimeMillis();
-                                logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
-                                renderedLines = -1;
-                            }
-                        }
-                        break;
-                    case ORIGINAL:
-                        if(shouldRedraw){
-                            clearCanvas();
-                            float screen_scale_x = (float)renderedTask.img_plotting.getWidth() / (float)renderedTask.img_original.getWidth();
-                            float screen_scale_y = (float)renderedTask.img_plotting.getHeight() / (float)renderedTask.img_original.getHeight();
-                            float screen_scale = Math.min(screen_scale_x, screen_scale_y);
-
-                            graphicsFX.translate(renderedTask.renderOffsetX, renderedTask.renderOffsetY);
-                            graphicsFX.scale(screen_scale, screen_scale);
-                            graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getOriginalImage(), null), 0, 0);
-                            graphicsFX.scale(1/screen_scale, 1/screen_scale);
-                            graphicsFX.translate(-renderedTask.renderOffsetX, -renderedTask.renderOffsetY);
-                        }
-                        break;
-                    case REFERENCE:
-                        if(shouldRedraw){
-                            clearCanvas();
-                            graphicsFX.translate(renderedTask.renderOffsetX, renderedTask.renderOffsetY);
-                            graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getReferenceImage(), null), 0, 0);
-                            graphicsFX.translate(-renderedTask.renderOffsetX, -renderedTask.renderOffsetY);
-                        }
-                        break;
-                    case LIGHTENED:
-                        if(shouldRedraw){
-                            clearCanvas();
-                            graphicsFX.translate(renderedTask.renderOffsetX, renderedTask.renderOffsetY);
-                            graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getPlottingImage(), null), 0, 0);
-                            graphicsFX.translate(-renderedTask.renderOffsetX, -renderedTask.renderOffsetY);
-                        }
-                        break;
+                EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
+                if(shouldRedraw){
+                    clearCanvas(blendMode.additive ? Color.BLACK : Color.WHITE);
+                    renderedLines = 0;
+                    updateLocalMessage("Drawing");
+                    updateLocalProgress(0);
+                    drawingTime = System.currentTimeMillis();
                 }
-                break;
-        }
+                if(renderedLines != -1){
+                    graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
+                    graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
+                    int pen = display_mode.get() == EnumDisplayMode.DRAWING || controller.getSelectedPen() == null ? -1 : controller.getSelectedPen().penNumber.get();
+                    int toRender = (blendMode == EnumBlendMode.NORMAL ? 20000 : 2000);
 
-        if(shouldRedraw){
-            GridOverlay.grid();
+                    int displayedLines = renderedTask.plottedDrawing.getDisplayedLineCount()-1;
+                    int start = displayedLines - (renderedLines);
+                    int end = Math.max(0, displayedLines - (renderedLines + toRender));
+                    renderedTask.plottedDrawing.renderPointsFX(graphicsFX, start, end, (point, p) -> p.isEnabled() && (pen == -1 || point.pen_number == pen),true);
+                    renderedLines += toRender;
+                    graphicsFX.translate(-openImage.resolution.getScaledOffsetX(), -openImage.resolution.getScaledOffsetY());
+
+                    updateLocalProgress((float)renderedLines / displayedLines);
+                    if(renderedLines >= displayedLines){
+                        long time = System.currentTimeMillis();
+                        logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
+                        renderedLines = -1;
+                    }
+                }
+                //TODO CACHE FINISHED?
+                break;
         }
     }
 
@@ -421,10 +456,13 @@ public class DrawingBotV3 {
         isPlotting.setValue(false);
     }
 
+    public static void onDrawingAreaChanged(){
+        drawingAreaDirty = true;
+    }
+
     public static void onDrawingPenChanged(){
         updateWeightedDistribution();
     }
-
 
     public static void onDrawingSetChanged(){
         updateWeightedDistribution();
@@ -432,9 +470,6 @@ public class DrawingBotV3 {
     }
 
     public static void onImageFiltersChanged(){
-        if(openImage == null || imageFiltersDirty){
-            return;
-        }
         imageFiltersDirty = true;
     }
 
@@ -452,7 +487,7 @@ public class DrawingBotV3 {
             activeTask.cancel();
         }
         if(openImage != null){
-            taskService.submit(new PlottingTask(DrawingBotV3.pfmFactory.get(), DrawingBotV3.observableDrawingSet, openImage, openFile));
+            taskService.submit(new PlottingTask(DrawingBotV3.pfmFactory.get(), DrawingBotV3.observableDrawingSet, openImage.getSource(), openFile));
             isPlotting.setValue(true);
         }
     }
@@ -492,6 +527,10 @@ public class DrawingBotV3 {
             activeTask.reset(); //help GC by removing references to PlottedLines
         }
         activeTask = task;
+
+        if(activeTask == null){
+            DrawingBotV3.display_mode.setValue(EnumDisplayMode.IMAGE);
+        }
     }
 
     public static PlottingTask getActiveTask(){

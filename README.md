@@ -57,6 +57,7 @@ All the dependencies are automatically included and **do not need to be installe
 - [Apache XML Graphics](https://github.com/apache/xmlgraphics-batik) - for SVG Rendering
 - [iText](https://github.com/itext/itextpdf) - for PDF Rendering
 - [FXGraphics2D](https://github.com/jfree/fxgraphics2d) - for Swing/JavaFX Compatibility
+- [JHLabs](http://www.jhlabs.com/) - for Image Filters / Effects
 
 ### Original Version
 DrawingBotV3 is an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**.

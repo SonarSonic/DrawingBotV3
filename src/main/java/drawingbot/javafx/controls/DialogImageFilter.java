@@ -64,7 +64,7 @@ public class DialogImageFilter extends Dialog<ImageFilterRegistry.ObservableImag
         setTitle("Image Filter: " + filter.name.getValue());
         getDialogPane().setPrefWidth(300);
         setResultConverter(param -> param == ButtonType.APPLY ? filter : original);
-        getDialogPane().getButtonTypes().add(ButtonType.CANCEL); //TODO MAKE CANCEL BUTTON WORK!
+        getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
         FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
 

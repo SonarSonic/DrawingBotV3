@@ -22,6 +22,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -88,6 +89,18 @@ public class FXController {
         viewportStackPane.prefWidthProperty().bind(DrawingBotV3.canvas.widthProperty().multiply(4));
         viewportScrollPane.setHvalue(0.5);
         viewportScrollPane.setVvalue(0.5);
+
+
+        DrawingBotV3.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.scaling_mode.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+
+        DrawingBotV3.drawingAreaWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
+        DrawingBotV3.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
 
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
@@ -196,7 +209,7 @@ public class FXController {
         });
 
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
-        choiceBoxDisplayMode.setValue(EnumDisplayMode.DRAWING);
+        choiceBoxDisplayMode.setValue(EnumDisplayMode.IMAGE);
         DrawingBotV3.display_mode.bindBidirectional(choiceBoxDisplayMode.valueProperty());
         DrawingBotV3.display_mode.addListener((observable, oldValue, newValue) -> DrawingBotV3.reRender());
 
@@ -841,6 +854,7 @@ public class FXController {
             case QUEUED:
                 break;
             case PRE_PROCESSING:
+                Platform.runLater(() -> DrawingBotV3.display_mode.setValue(EnumDisplayMode.DRAWING));
                 break;
             case DO_PROCESS:
                 sliderDisplayedLines.setValue(1.0F);

@@ -23,12 +23,13 @@ public class LongSetting<C> extends RangedNumberSetting<C, Long> {
     }
 
     @Override
-    public GenericSetting<C, Long> copy() {
-        return new LongSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter);
-    }
-
-    @Override
     public Long fromNumber(Number number) {
         return number.longValue();
     }
+
+    @Override
+    public GenericSetting<C, Long> copy() {
+        return new LongSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks);
+    }
+
 }

@@ -10,6 +10,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 
@@ -203,24 +204,32 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public abstract GenericSetting<C, V> copy();
 
-    public static <C> GenericSetting<C, Boolean> createBooleanSetting(Class<C> pfmClass, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
+    public static <C> BooleanSetting<C> createBooleanSetting(Class<C> pfmClass, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
         return new BooleanSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
     }
 
-    public static <C> GenericSetting<C, String> createStringSetting(Class<C> pfmClass, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
+    public static <C> StringSetting<C> createStringSetting(Class<C> pfmClass, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
         return new StringSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
     }
 
-    public static <C> GenericSetting<C, Integer> createRangedIntSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
+    public static <C> IntegerSetting<C> createRangedIntSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
         return new IntegerSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> GenericSetting<C, Float> createRangedFloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
+    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
         return new FloatSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> GenericSetting<C, Long> createRangedLongSetting(Class<C> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
+    public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> pfmClass, String settingName, double defaultValue, double minValue, double maxValue, boolean shouldLock, BiConsumer<C, Double> setter){
+        return new DoubleSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> LongSetting<C> createRangedLongSetting(Class<C> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
         return new LongSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> ColourSetting<C> createColourSetting(Class<C> pfmClass, String settingName, Color defaultValue, boolean shouldLock, BiConsumer<C, Color> setter){
+        return new ColourSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
     }
 
     public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> pfmClass, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter){
