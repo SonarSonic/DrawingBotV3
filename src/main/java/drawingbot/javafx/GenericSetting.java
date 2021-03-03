@@ -1,5 +1,6 @@
 package drawingbot.javafx;
 
+import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.settings.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -35,6 +36,9 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public final SimpleObjectProperty<V> value; //the current value
     public final SimpleBooleanProperty lock; //the current value
 
+    ///optional
+    public Function<C, V> getter; //the getter gets the value in the class
+
     protected GenericSetting(Class<C> clazz, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
         this.clazz = clazz;
         this.settingName = new SimpleStringProperty(settingName);
@@ -67,6 +71,11 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         return this;
     }
 
+    public GenericSetting<C, V> setGetter(Function<C, V> getter){
+        this.getter = getter;
+        return this;
+    }
+
     public boolean isInstance(Object instance){
         return this.clazz.isInstance(instance);
     }
@@ -85,6 +94,12 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public void setValueFromString(String obj){
         value.setValue(stringConverter.fromString(obj));
+    }
+
+    public void updateSetting(Object instance){
+        if(clazz.isInstance(instance)){
+            setValue(getter.apply((C)instance));
+        }
     }
 
     public void applySetting(Object instance){
@@ -131,11 +146,29 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public static HashMap<String, String> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, String> dst){
         list.forEach(s -> {
-            if(s.value.get() != s.defaultValue){
+            if(!s.value.get().equals(s.defaultValue)){
                 dst.put(s.settingName.getValue(), s.getValueAsString());
             }
         });
         return dst;
+    }
+
+    public static void randomiseSettings(List<GenericSetting<?, ?>> settingList){
+        for(GenericSetting<?, ?> setting : settingList){
+            setting.randomiseSetting(ThreadLocalRandom.current());
+        }
+    }
+
+    public static void updateSettingsFromInstance(List<GenericSetting<?, ?>> src, Object instance){
+        for(GenericSetting<?, ?> setting : src){
+            setting.updateSetting(instance);
+        }
+    }
+
+    public static void applySettingsToInstance(List<GenericSetting<?, ?>> src, Object instance){
+        for(GenericSetting<?, ?> setting : src){
+            setting.applySetting(instance);
+        }
     }
 
     public static void applySettings(HashMap<String, String> src, List<GenericSetting<?, ?>> dst){
@@ -204,35 +237,35 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public abstract GenericSetting<C, V> copy();
 
-    public static <C> BooleanSetting<C> createBooleanSetting(Class<C> pfmClass, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
-        return new BooleanSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
+    public static <C> BooleanSetting<C> createBooleanSetting(Class<C> clazz, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
+        return new BooleanSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
     }
 
-    public static <C> StringSetting<C> createStringSetting(Class<C> pfmClass, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
-        return new StringSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
+    public static <C> StringSetting<C> createStringSetting(Class<C> clazz, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
+        return new StringSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
     }
 
-    public static <C> IntegerSetting<C> createRangedIntSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
-        return new IntegerSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    public static <C> IntegerSetting<C> createRangedIntSetting(Class<C> clazz, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
+        return new IntegerSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
-        return new FloatSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> clazz, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
+        return new FloatSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> pfmClass, String settingName, double defaultValue, double minValue, double maxValue, boolean shouldLock, BiConsumer<C, Double> setter){
-        return new DoubleSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> clazz, String settingName, double defaultValue, double minValue, double maxValue, boolean shouldLock, BiConsumer<C, Double> setter){
+        return new DoubleSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> LongSetting<C> createRangedLongSetting(Class<C> pfmClass, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
-        return new LongSetting<>(pfmClass, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    public static <C> LongSetting<C> createRangedLongSetting(Class<C> clazz, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
+        return new LongSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> ColourSetting<C> createColourSetting(Class<C> pfmClass, String settingName, Color defaultValue, boolean shouldLock, BiConsumer<C, Color> setter){
-        return new ColourSetting<>(pfmClass, settingName, defaultValue, shouldLock, setter);
+    public static <C> ColourSetting<C> createColourSetting(Class<C> clazz, String settingName, Color defaultValue, boolean shouldLock, BiConsumer<C, Color> setter){
+        return new ColourSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> pfmClass, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter){
+    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter){
         StringConverter<V> optionStringConverter = new StringConverter<V>() {
             @Override
             public String toString(V object) {
@@ -248,7 +281,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
                 return null;
             }
         };
-        return new OptionSetting<>(pfmClass, settingName, optionStringConverter, values, defaultValue, shouldLock, setter);
+        return new OptionSetting<>(clazz, settingName, optionStringConverter, values, defaultValue, shouldLock, setter);
     }
 
     @Override

@@ -6,12 +6,12 @@ public class FilteredBufferedImage {
 
     public final BufferedImage source;
     public BufferedImage filtered;
-    public BufferedImage output;
     public PrintResolution resolution;
 
     public FilteredBufferedImage(BufferedImage source){
         this.source = source;
         this.resolution = new PrintResolution(source);
+        this.resolution.updateAll();
     }
 
     public BufferedImage getSource(){
@@ -19,24 +19,17 @@ public class FilteredBufferedImage {
     }
 
     public BufferedImage getFiltered(){
-        return output == null ? source : output;
+        return filtered == null ? source : filtered;
     }
 
     public void updateAll(){
         resolution.updateAll();
-        filtered = applyFilters(source);
-        output = applyCropping(filtered, resolution);
-    }
-
-    public void updateCroppingOnly(){
-        resolution.updateAll();
-        output = applyCropping(filtered, resolution);
-        //TODO BORDER FILTERS,NEED UPDATING TOO, TOO FIX WITH OFFSCREEN RENDERING
+        filtered = applyAll(source, resolution);
     }
 
     public static BufferedImage applyAll(BufferedImage src, PrintResolution resolution){
-        src = applyFilters(src);
         src = applyCropping(src, resolution);
+        src = applyFilters(src);
         return src;
     }
 
@@ -46,14 +39,6 @@ public class FilteredBufferedImage {
 
     public static BufferedImage applyCropping(BufferedImage src, PrintResolution resolution){
         return ImageTools.cropToPrintResolution(src, resolution);
-    }
-
-    public int getOutputHeight(){
-        return output.getHeight();
-    }
-
-    public int getOutputWidth(){
-        return output.getWidth();
     }
 
 }

@@ -56,15 +56,15 @@ public class BatchProcessing {
         if(inputFolder.get() == null || outputFolder.get() == null){
             return;
         }
-        DrawingBotV3.batchProcessingTask = new BatchProcessingTask(inputFolder.get(), outputFolder.get());
-        DrawingBotV3.taskService.submit(DrawingBotV3.batchProcessingTask);
+        DrawingBotV3.INSTANCE.batchProcessingTask = new BatchProcessingTask(inputFolder.get(), outputFolder.get());
+        DrawingBotV3.INSTANCE.taskService.submit(DrawingBotV3.INSTANCE.batchProcessingTask);
         isBatchProcessing.setValue(true);
     }
 
     public static void finishProcessing(){
-        if(DrawingBotV3.batchProcessingTask != null){
-            DrawingBotV3.batchProcessingTask.cancel(true);
-            DrawingBotV3.batchProcessingTask = null;
+        if(DrawingBotV3.INSTANCE.batchProcessingTask != null){
+            DrawingBotV3.INSTANCE.batchProcessingTask.cancel(true);
+            DrawingBotV3.INSTANCE.batchProcessingTask = null;
         }
         isBatchProcessing.setValue(false);
     }

@@ -71,7 +71,6 @@ public class ImageFilterRegistry {
         registerImageFilter(EnumFilterTypes.BLUR, HighPassFilter.class, "High Pass", HighPassFilter::new, false);
         registerSetting(GenericSetting.createRangedFloatSetting(HighPassFilter.class, "Softness", 0, 0, 100, false, HighPassFilter::setRadius));
 
-
         registerImageFilter(EnumFilterTypes.BLUR, LensBlurFilter.class, "Lens Blur", LensBlurFilter::new, false);
         registerSetting(GenericSetting.createRangedFloatSetting(LensBlurFilter.class, "Radius", 10, 0, 50, false, LensBlurFilter::setRadius));
         registerSetting(GenericSetting.createRangedIntSetting(LensBlurFilter.class, "Sides", 5, 3, 12, false, LensBlurFilter::setSides));
@@ -81,8 +80,6 @@ public class ImageFilterRegistry {
         registerImageFilter(EnumFilterTypes.BLUR, MaximumFilter.class, "Maximum", MaximumFilter::new, false);
 
         registerImageFilter(EnumFilterTypes.BLUR, MedianFilter.class, "Median", MedianFilter::new, false);
-
-        registerImageFilter(EnumFilterTypes.BLUR, MinimumFilter.class, "Minimum", MinimumFilter::new, false);
 
         registerImageFilter(EnumFilterTypes.BLUR, MinimumFilter.class, "Minimum", MinimumFilter::new, false);
 
@@ -480,7 +477,7 @@ public class ImageFilterRegistry {
         ///VIDEO - NOT FOR NOW
 
         currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> {
-            DrawingBotV3.onImageFiltersChanged();
+            DrawingBotV3.INSTANCE.onImageFiltersChanged();
         });
     }
 
@@ -590,7 +587,7 @@ public class ImageFilterRegistry {
             this.settingsString = new SimpleStringProperty(filterSettings.toString());
 
             this.filterSettings.forEach(s -> s.addListener((observable, oldValue, newValue) -> onSettingChanged()));
-            this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.onImageFiltersChanged());
+            this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onImageFiltersChanged());
             //changes to filter settings are called from the FXController
         }
 

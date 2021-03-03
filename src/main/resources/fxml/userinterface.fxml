@@ -36,21 +36,21 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane expanded="false" text="Drawing Area">
+                              <TitledPane text="Drawing Area">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
                                        <children>
-                                          <Label contentDisplay="RIGHT" layoutX="245.0" layoutY="10.0" text="Input Units:">
+                                          <Label contentDisplay="RIGHT" layoutX="245.0" layoutY="48.0" text="Input Units:">
                                              <graphic>
                                                 <ChoiceBox fx:id="choiceBoxDrawingUnits" prefHeight="25.0" prefWidth="64.0" />
                                              </graphic>
                                           </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" text="Use Original Sizing">
+                                          <Label contentDisplay="RIGHT" layoutX="15.0" layoutY="52.0" text="Use Original Sizing">
                                              <graphic>
                                                 <CheckBox fx:id="checkBoxOriginalSizing" mnemonicParsing="false" selected="true" />
                                              </graphic>
                                           </Label>
-                                          <Pane fx:id="paneDrawingAreaCustom" layoutX="17.0" layoutY="47.0">
+                                          <Pane fx:id="paneDrawingAreaCustom" layoutX="17.0" layoutY="85.0">
                                              <children>
                                                 <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="-2.0" text="Width">
                                                    <graphic>
@@ -81,6 +81,8 @@
                                                    </graphic>
                                                 </Label>
                                              </children></Pane>
+                                          <ComboBox fx:id="comboBoxDrawingAreaPreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+                                          <MenuButton fx:id="menuButtonDrawingAreaPresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
                                        </children>
                                     </AnchorPane>
                                 </content>
@@ -135,7 +137,7 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                            <TitledPane prefWidth="428.0" text="Pen Settings">
+                            <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -217,35 +219,37 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                              <TitledPane expanded="false" text="GCode Settings">
+                              <TitledPane text="GCode Settings">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
-                                          <Label contentDisplay="RIGHT" layoutX="11.0" layoutY="12.0" text="X Offset:">
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="48.0" text="X Offset:">
                                              <graphic>
                                                 <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="116.0" text="0" />
                                              </graphic>
                                           </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="202.0" layoutY="12.0" text="Y Offset:">
+                                          <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="48.0" text="Y Offset:">
                                              <graphic>
                                                 <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="121.0" text="0" />
                                              </graphic>
                                           </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="11.0" layoutY="46.0" text="Pen Up (Z):">
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="82.0" text="Pen Up (Z):">
                                              <graphic>
                                                 <TextField fx:id="textFieldPenUpZ" prefHeight="25.0" prefWidth="102.0" text="0" />
                                              </graphic>
                                           </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="202.0" layoutY="46.0" text="Pen Down (Z)">
+                                          <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="82.0" text="Pen Down (Z)">
                                              <graphic>
                                                 <TextField fx:id="textFieldPenDownZ" prefHeight="25.0" prefWidth="94.0" text="0" />
                                              </graphic>
                                           </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="11.0" layoutY="83.0" text="Enable Auto Home:">
+                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="119.0" text="Enable Auto Home:">
                                              <graphic>
                                                 <CheckBox fx:id="checkBoxAutoHome" mnemonicParsing="false" />
                                              </graphic>
                                           </Label>
+                                          <ComboBox fx:id="comboBoxGCodePreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+                                          <MenuButton fx:id="menuButtonGCodePresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
                                        </children>
                                     </AnchorPane>
                                 </content>

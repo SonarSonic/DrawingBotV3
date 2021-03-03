@@ -27,7 +27,7 @@ public class ContextMenuObservablePen extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
-        FXController.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.observableDrawingSet.pens, p -> DrawingBotV3.observableDrawingSet.addNewPen(p));
+        FXController.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.INSTANCE.observableDrawingSet.pens, p -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(p));
     }
 
 }

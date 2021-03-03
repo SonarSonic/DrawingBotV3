@@ -33,12 +33,12 @@ public class ObservableDrawingPen implements IDrawingPen {
         this.currentPercentage = new SimpleStringProperty("0.0");
         this.currentLines = new SimpleIntegerProperty(0);
 
-        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
-        this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
-        this.type.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
-        this.javaFXColour.addListener((observable, oldValue, newValue) -> {DrawingBotV3.onDrawingPenChanged(); awtColor = null;});
-        this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingPenChanged());
-        this.strokeSize.addListener((observable, oldValue, newValue) -> {DrawingBotV3.onDrawingPenChanged(); awtStroke = null;});
+        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.type.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.javaFXColour.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtColor = null;});
+        this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
+        this.strokeSize.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtStroke = null;});
     }
 
     public boolean isEnabled(){

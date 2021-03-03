@@ -8,6 +8,13 @@ import org.imgscalr.Scalr;
 
 import java.awt.image.BufferedImage;
 
+/**A quick and dirty way of softening the edges of your drawing.
+ * Look in the boarders directory for some examples.
+ * Ideally, the boarder will have similar dimensions as the image to be drawn.
+ * For far more control, just edit your input image directly.
+ * Most of the examples are pretty heavy handed so you can "shrink" them a few pixels as desired.
+ * It does not matter if you use a transparant background or just white.  JPEG or PNG, it's all good.
+ */
 public class SimpleBorderFilter extends AbstractBufferedImageOp{
 
     public final String prefix = "border/b", suffix = ".png";

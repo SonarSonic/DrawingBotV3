@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
-import drawingbot.files.presets.types.UserJsonFile;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 
@@ -117,11 +116,11 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public abstract O fromJsonElement(Gson gson,  GenericPreset<?> preset, JsonElement element);
 
     public final void queueJsonUpdate() {
-        DrawingBotV3.backgroundService.submit(this::saveToJSON);
+        DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
     }
 
     public void loadFromJSON(){
-        UserJsonFile<O> presets = JsonLoaderManager.getOrCreateJSONFile(UserJsonFile.class, configFile, c -> new UserJsonFile<O>());
+        PresetContainerJsonFile<O> presets = JsonLoaderManager.getOrCreateJSONFile(PresetContainerJsonFile.class, configFile, c -> new PresetContainerJsonFile<O>());
         presets.jsonMap.forEach(this::tryRegisterPreset);
         onJSONLoaded();
     }
@@ -129,9 +128,9 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public void saveToJSON(){
         try {
             Gson gson = JsonLoaderManager.createDefaultGson();
-            UserJsonFile<O> userPFMPresets = new UserJsonFile(getUserCreatedPresets());
+            PresetContainerJsonFile<O> userPFMPresets = new PresetContainerJsonFile(getUserCreatedPresets());
             JsonWriter writer = gson.newJsonWriter(new FileWriter(configFile));
-            gson.toJson(userPFMPresets, UserJsonFile.class, writer);
+            gson.toJson(userPFMPresets, PresetContainerJsonFile.class, writer);
             writer.flush();
             writer.close();
         }catch (Exception e) {

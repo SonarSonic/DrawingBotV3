@@ -28,7 +28,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public EnumTaskStage stage = EnumTaskStage.QUEUED;
     public long startTime;
     public long finishTime = -1;
-    public boolean finishedRenderingPaths = false;
     public List<String> comments = new ArrayList<>();
 
     // IMAGES \\
@@ -126,15 +125,11 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
             case DO_PROCESS:
                 if(plottingFinished || isFinished()){
-                    if(finishedRenderingPaths){ //PAUSE FOR THE DRAW THREAD TO FINISH.
-                        finishStage();
-                    }
+                    finishStage();
                     break;
                 }
                 pfm.doProcess(this);
-                //finishProcess();
                 break;
-
             case POST_PROCESSING:
 
                 pfm.postProcess(this);
@@ -176,7 +171,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public void finishStage(){
-        DrawingBotV3.onTaskStageFinished(this, stage);
+        DrawingBotV3.INSTANCE.onTaskStageFinished(this, stage);
         stage = EnumTaskStage.values()[stage.ordinal()+1];
     }
 
@@ -211,7 +206,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        DrawingBotV3.onTaskCancelled();
+        DrawingBotV3.INSTANCE.onTaskCancelled();
         return super.cancel(mayInterruptIfRunning);
     }
 
@@ -223,16 +218,16 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public float getGCodeXOffset(){
-        return gcode_offset_x + DrawingBotV3.gcodeOffsetX.get();
+        return gcode_offset_x + DrawingBotV3.INSTANCE.gcodeOffsetX.get();
     }
 
     public float getGCodeYOffset(){
-        return gcode_offset_y + DrawingBotV3.gcodeOffsetY.get();
+        return gcode_offset_y + DrawingBotV3.INSTANCE.gcodeOffsetY.get();
     }
 
     @Override
     public PlottingTask call() {
-        Platform.runLater(() -> DrawingBotV3.setActivePlottingTask(this));
+        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){
                 cancel();
@@ -257,7 +252,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         pfmFactory = null;
         startTime = 0;
         finishTime = -1;
-        finishedRenderingPaths = false;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,7 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public GenericPreset<PresetPFMSettings> updatePreset(GenericPreset<PresetPFMSettings> preset) {
-        preset.presetSubType = DrawingBotV3.pfmFactory.get().getName();
+        preset.presetSubType = DrawingBotV3.INSTANCE.pfmFactory.get().getName();
         preset.data.settingList = GenericSetting.toJsonMap(PFMMasterRegistry.getObservablePFMSettingsList(), new HashMap<>());
         return preset;
     }

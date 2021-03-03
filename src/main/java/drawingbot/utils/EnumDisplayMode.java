@@ -2,17 +2,17 @@ package drawingbot.utils;
 
 public enum EnumDisplayMode {
 
-    IMAGE(false),
-    DRAWING(true),
-    ORIGINAL(true),
-    REFERENCE(true),
-    LIGHTENED(true),
-    SELECTED_PEN(true);
+    IMAGE(EnumDisplayModeType.IMAGE),
+    DRAWING(EnumDisplayModeType.TASK),
+    ORIGINAL(EnumDisplayModeType.TASK),
+    REFERENCE(EnumDisplayModeType.TASK),
+    LIGHTENED(EnumDisplayModeType.TASK),
+    SELECTED_PEN(EnumDisplayModeType.TASK);
 
-    public boolean scaleToTask;
+    public EnumDisplayModeType type;
 
-    EnumDisplayMode(boolean scaleToTask){
-        this.scaleToTask = scaleToTask;
+    EnumDisplayMode(EnumDisplayModeType type){
+        this.type = type;
     }
 
     @Override

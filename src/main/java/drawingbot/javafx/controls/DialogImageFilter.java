@@ -56,7 +56,7 @@ public class DialogImageFilter extends Dialog<ImageFilterRegistry.ObservableImag
                 gridPane.addRow(i, label, node, value);
             }
 
-            node.setOnMouseReleased(e -> DrawingBotV3.onImageFiltersChanged()); //change on mouse release, not on value change
+            node.setOnMouseReleased(e -> DrawingBotV3.INSTANCE.onImageFiltersChanged()); //change on mouse release, not on value change
 
             i++;
         }

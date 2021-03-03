@@ -1,15 +1,12 @@
 package drawingbot.javafx;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
-import drawingbot.DrawingBotV3;
 import drawingbot.drawing.*;
 import drawingbot.files.presets.*;
-import drawingbot.files.presets.types.PresetDrawingPen;
-import drawingbot.files.presets.types.PresetDrawingSet;
-import drawingbot.files.presets.types.PresetImageFilters;
-import drawingbot.files.presets.types.PresetPFMSettings;
+import drawingbot.files.presets.types.*;
 import drawingbot.image.ImageFilterRegistry;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.image.blend.EnumBlendMode;
@@ -20,9 +17,8 @@ import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -44,7 +40,6 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -81,26 +76,14 @@ public class FXController {
         initBatchProcessingPane();
         initGCodeSettingsPane();
 
-        viewportStackPane.setOnMousePressed(DrawingBotV3::mousePressedJavaFX);
-        viewportStackPane.setOnMouseDragged(DrawingBotV3::mouseDraggedJavaFX);
-        viewportStackPane.getChildren().add(DrawingBotV3.canvas);
+        viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
+        viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
+        viewportStackPane.getChildren().add(DrawingBotV3.INSTANCE.canvas);
 
-        viewportStackPane.prefHeightProperty().bind(DrawingBotV3.canvas.heightProperty().multiply(4));
-        viewportStackPane.prefWidthProperty().bind(DrawingBotV3.canvas.widthProperty().multiply(4));
+        viewportStackPane.prefHeightProperty().bind(DrawingBotV3.INSTANCE.canvas.heightProperty().multiply(4));
+        viewportStackPane.prefWidthProperty().bind(DrawingBotV3.INSTANCE.canvas.widthProperty().multiply(4));
         viewportScrollPane.setHvalue(0.5);
         viewportScrollPane.setVvalue(0.5);
-
-
-        DrawingBotV3.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.scaling_mode.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-
-        DrawingBotV3.drawingAreaWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
-        DrawingBotV3.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.onDrawingAreaChanged());
 
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
@@ -188,48 +171,46 @@ public class FXController {
         ////VIEWPORT SETTINGS
         sliderDisplayedLines.setMax(1);
         sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottingTask task = DrawingBotV3.getActiveTask();
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
-                DrawingBotV3.reRender();
+                DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         textFieldDisplayedLines.setOnAction(e -> {
-            PlottingTask task = DrawingBotV3.getActiveTask();
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
                 int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
                 sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
-                DrawingBotV3.reRender();
+                DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
         choiceBoxDisplayMode.setValue(EnumDisplayMode.IMAGE);
-        DrawingBotV3.display_mode.bindBidirectional(choiceBoxDisplayMode.valueProperty());
-        DrawingBotV3.display_mode.addListener((observable, oldValue, newValue) -> DrawingBotV3.reRender());
+        DrawingBotV3.INSTANCE.display_mode.bindBidirectional(choiceBoxDisplayMode.valueProperty());
 
-        DrawingBotV3.displayGrid.bind(checkBoxShowGrid.selectedProperty());
-        DrawingBotV3.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.reRender());
+        DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
+        DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
         buttonZoomIn.setOnAction(e -> {
-            DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() + 0.1);
+            DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() + 0.1);
         });
         buttonZoomOut.setOnAction(e -> {
-            if(DrawingBotV3.scaleMultiplier.getValue() > DrawingBotV3.minScale){
-                DrawingBotV3.scaleMultiplier.set(DrawingBotV3.scaleMultiplier.getValue() - 0.1);
+            if(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() > DrawingBotV3.minScale){
+                DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() - 0.1);
             }
         });
-        DrawingBotV3.scaleMultiplier.addListener((observable, oldValue, newValue) -> DrawingBotV3.canvasNeedsUpdate = true);
 
         buttonResetView.setOnAction(e -> {
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
-            DrawingBotV3.scaleMultiplier.set(1.0);
+            DrawingBotV3.INSTANCE.scaleMultiplier.set(1.0);
         });
 
         labelElapsedTime.setText("0 s");
@@ -245,11 +226,11 @@ public class FXController {
     public Button buttonResetPlotting = null;
 
     public void initPlottingControls(){
-        buttonStartPlotting.setOnAction(param -> DrawingBotV3.startPlotting());
-        buttonStartPlotting.disableProperty().bind(DrawingBotV3.isPlotting);
-        buttonStopPlotting.setOnAction(param -> DrawingBotV3.stopPlotting());
-        buttonStopPlotting.disableProperty().bind(DrawingBotV3.isPlotting.not());
-        buttonResetPlotting.setOnAction(param -> DrawingBotV3.resetPlotting());
+        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
+        buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting);
+        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
+        buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting.not());
+        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +248,8 @@ public class FXController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////DRAWING AREA PANE
+    public ComboBox<GenericPreset<PresetDrawingArea>> comboBoxDrawingAreaPreset = null;
+    public MenuButton menuButtonDrawingAreaPresets = null;
 
     /////SIZING OPTIONS
     public CheckBox checkBoxOriginalSizing = null;
@@ -284,31 +267,49 @@ public class FXController {
 
     public void initDrawingAreaPane(){
 
+        comboBoxDrawingAreaPreset.setItems(JsonLoaderManager.DRAWING_AREA.presets);
+        comboBoxDrawingAreaPreset.setValue(JsonLoaderManager.DRAWING_AREA.getDefaultPreset());
+        comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                JsonLoaderManager.DRAWING_AREA.applyPreset(newValue);
+            }
+        });
+
+        setupPresetMenuButton(JsonLoaderManager.DRAWING_AREA, menuButtonDrawingAreaPresets, comboBoxDrawingAreaPreset::getValue, (preset) -> {
+            comboBoxDrawingAreaPreset.setValue(preset);
+
+            ///force update rendering
+            comboBoxDrawingAreaPreset.setItems(JsonLoaderManager.DRAWING_AREA.presets);
+            comboBoxDrawingAreaPreset.setButtonCell(new ComboBoxListCell<>());
+        });
+
+
         /////SIZING OPTIONS
-        DrawingBotV3.useOriginalSizing.bind(checkBoxOriginalSizing.selectedProperty());
+        DrawingBotV3.INSTANCE.useOriginalSizing.bindBidirectional(checkBoxOriginalSizing.selectedProperty());
+
         paneDrawingAreaCustom.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
 
         choiceBoxDrawingUnits.getItems().addAll(Units.values());
         choiceBoxDrawingUnits.setValue(Units.MILLIMETRES);
-        DrawingBotV3.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
+        DrawingBotV3.INSTANCE.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
 
-        DrawingBotV3.drawingAreaWidth.bind(Bindings.createFloatBinding(() -> textFieldDrawingWidth.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingWidth.textProperty().get()), textFieldDrawingWidth.textProperty()));
+        DrawingBotV3.INSTANCE.drawingAreaWidth.bind(Bindings.createFloatBinding(() -> textFieldDrawingWidth.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingWidth.textProperty().get()), textFieldDrawingWidth.textProperty()));
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.drawingAreaHeight.bind(Bindings.createFloatBinding(() -> textFieldDrawingHeight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingHeight.textProperty().get()), textFieldDrawingHeight.textProperty()));
+        DrawingBotV3.INSTANCE.drawingAreaHeight.bind(Bindings.createFloatBinding(() -> textFieldDrawingHeight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingHeight.textProperty().get()), textFieldDrawingHeight.textProperty()));
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.drawingAreaPaddingLeft.bind(Bindings.createFloatBinding(() -> textFieldPaddingLeft.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingLeft.textProperty().get()), textFieldPaddingLeft.textProperty()));
+        DrawingBotV3.INSTANCE.drawingAreaPaddingLeft.bind(Bindings.createFloatBinding(() -> textFieldPaddingLeft.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingLeft.textProperty().get()), textFieldPaddingLeft.textProperty()));
         textFieldPaddingLeft.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.drawingAreaPaddingRight.bind(Bindings.createFloatBinding(() -> textFieldPaddingRight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingRight.textProperty().get()), textFieldPaddingRight.textProperty()));
+        DrawingBotV3.INSTANCE.drawingAreaPaddingRight.bind(Bindings.createFloatBinding(() -> textFieldPaddingRight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingRight.textProperty().get()), textFieldPaddingRight.textProperty()));
         textFieldPaddingRight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.drawingAreaPaddingTop.bind(Bindings.createFloatBinding(() -> textFieldPaddingTop.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingTop.textProperty().get()), textFieldPaddingTop.textProperty()));
+        DrawingBotV3.INSTANCE.drawingAreaPaddingTop.bind(Bindings.createFloatBinding(() -> textFieldPaddingTop.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingTop.textProperty().get()), textFieldPaddingTop.textProperty()));
         textFieldPaddingTop.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.drawingAreaPaddingBottom.bind(Bindings.createFloatBinding(() -> textFieldPaddingBottom.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingBottom.textProperty().get()), textFieldPaddingBottom.textProperty()));
+        DrawingBotV3.INSTANCE.drawingAreaPaddingBottom.bind(Bindings.createFloatBinding(() -> textFieldPaddingBottom.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingBottom.textProperty().get()), textFieldPaddingBottom.textProperty()));
         textFieldPaddingBottom.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
         checkBoxGangPadding.setSelected(true);
@@ -317,21 +318,31 @@ public class FXController {
 
         choiceBoxScalingMode.getItems().addAll(EnumScalingMode.values());
         choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
-        DrawingBotV3.scaling_mode.bindBidirectional(choiceBoxScalingMode.valueProperty());
+        DrawingBotV3.INSTANCE.scalingMode.bindBidirectional(choiceBoxScalingMode.valueProperty());
+
+        ///generic listeners
+        DrawingBotV3.INSTANCE.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.scalingMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
     }
 
     public void updatePaddingBindings(boolean ganged){
         if(ganged){
-            DrawingBotV3.drawingAreaPaddingGang.set("0");
-            textFieldPaddingLeft.textProperty().bindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
-            textFieldPaddingRight.textProperty().bindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
-            textFieldPaddingTop.textProperty().bindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
-            textFieldPaddingBottom.textProperty().bindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
+            DrawingBotV3.INSTANCE.drawingAreaPaddingGang.set("0");
+            textFieldPaddingLeft.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingRight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingTop.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingBottom.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
         }else{
-            textFieldPaddingLeft.textProperty().unbindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
-            textFieldPaddingRight.textProperty().unbindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
-            textFieldPaddingTop.textProperty().unbindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
-            textFieldPaddingBottom.textProperty().unbindBidirectional(DrawingBotV3.drawingAreaPaddingGang);
+            textFieldPaddingLeft.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingRight.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingTop.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingBottom.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
         }
     }
 
@@ -439,7 +450,7 @@ public class FXController {
         choiceBoxPFM.setItems(PFMMasterRegistry.getObservablePFMLoaderList());
         choiceBoxPFM.setValue(PFMMasterRegistry.getDefaultPFMFactory());
         choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
-        DrawingBotV3.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
+        DrawingBotV3.INSTANCE.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
 
 
         comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList());
@@ -458,7 +469,7 @@ public class FXController {
             comboBoxPFMPreset.setButtonCell(new ComboBoxListCell<>());
         });
 
-        DrawingBotV3.pfmFactory.addListener((observable, oldValue, newValue) -> {
+        DrawingBotV3.INSTANCE.pfmFactory.addListener((observable, oldValue, newValue) -> {
             comboBoxPFMPreset.setItems(PFMMasterRegistry.getObservablePFMPresetList(newValue));
             comboBoxPFMPreset.setValue(PFMMasterRegistry.getDefaultPFMPreset(newValue));
         });
@@ -469,7 +480,7 @@ public class FXController {
             row.setContextMenu(new ContextMenuPFMSetting(row));
             return row;
         });
-        DrawingBotV3.pfmFactory.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList()));
+        DrawingBotV3.INSTANCE.pfmFactory.addListener((observable, oldValue, newValue) -> tableViewAdvancedPFMSettings.setItems(PFMMasterRegistry.getObservablePFMSettingsList()));
 
         tableColumnLock.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnLock.getCellObservableValue(index)));
         tableColumnLock.setCellValueFactory(param -> param.getValue().lock);
@@ -490,7 +501,7 @@ public class FXController {
             JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue());
         });
 
-        buttonPFMSettingRandom.setOnAction(e -> PFMMasterRegistry.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
+        buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> openURL(Utils.URL_GITHUB_PFM_DOCS));
 
     }
@@ -583,10 +594,10 @@ public class FXController {
         });
 
 
-        penTableView.setItems(DrawingBotV3.observableDrawingSet.pens);
+        penTableView.setItems(DrawingBotV3.INSTANCE.observableDrawingSet.pens);
         penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.display_mode.get() == EnumDisplayMode.SELECTED_PEN){
-                DrawingBotV3.reRender();
+            if(DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN){
+                DrawingBotV3.INSTANCE.reRender();
             }
         });
 
@@ -657,24 +668,24 @@ public class FXController {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        buttonAddPen.setOnAction(e -> DrawingBotV3.observableDrawingSet.addNewPen(comboBoxDrawingPen.getValue()));
-        buttonRemovePen.setOnAction(e -> deleteItem(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.observableDrawingSet.pens));
+        buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(comboBoxDrawingPen.getValue()));
+        buttonRemovePen.setOnAction(e -> deleteItem(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.observableDrawingSet.pens));
         buttonDuplicatePen.setOnAction(e -> {
             ObservableDrawingPen pen = penTableView.getSelectionModel().getSelectedItem();
             if(pen != null)
-                DrawingBotV3.observableDrawingSet.addNewPen(pen);
+                DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(pen);
         });
-        buttonMoveUpPen.setOnAction(e -> moveItemUp(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.observableDrawingSet.pens));
-        buttonMoveDownPen.setOnAction(e -> moveItemDown(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.observableDrawingSet.pens));
-        buttonMoveDownPen.setOnAction(e -> moveItemDown(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.observableDrawingSet.pens));
+        buttonMoveUpPen.setOnAction(e -> moveItemUp(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.observableDrawingSet.pens));
+        buttonMoveDownPen.setOnAction(e -> moveItemDown(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.observableDrawingSet.pens));
+        buttonMoveDownPen.setOnAction(e -> moveItemDown(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.observableDrawingSet.pens));
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         renderOrderComboBox.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
-        renderOrderComboBox.valueProperty().bindBidirectional(DrawingBotV3.observableDrawingSet.renderOrder);
+        renderOrderComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.renderOrder);
 
         blendModeComboBox.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
-        blendModeComboBox.valueProperty().bindBidirectional(DrawingBotV3.observableDrawingSet.blendMode);
+        blendModeComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.blendMode);
 
 
     }
@@ -732,6 +743,9 @@ public class FXController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////GCODE SETTINGS
 
+    public ComboBox<GenericPreset<PresetGCodeSettings>> comboBoxGCodePreset = null;
+    public MenuButton menuButtonGCodePresets = null;
+
     public TextField textFieldOffsetX = null;
     public TextField textFieldOffsetY = null;
     public TextField textFieldPenUpZ = null;
@@ -741,31 +755,47 @@ public class FXController {
 
     public void initGCodeSettingsPane(){
 
-        checkBoxAutoHome.setSelected(true);
-        DrawingBotV3.enableAutoHome.bind(checkBoxAutoHome.selectedProperty());
+        comboBoxGCodePreset.setItems(JsonLoaderManager.GCODE_SETTINGS.presets);
+        comboBoxGCodePreset.setValue(JsonLoaderManager.GCODE_SETTINGS.getDefaultPreset());
+        comboBoxGCodePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                JsonLoaderManager.GCODE_SETTINGS.applyPreset(newValue);
+            }
+        });
 
-        DrawingBotV3.gcodeOffsetX.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetX.textProperty().get()), textFieldOffsetX.textProperty()));
+        setupPresetMenuButton(JsonLoaderManager.GCODE_SETTINGS, menuButtonGCodePresets, comboBoxGCodePreset::getValue, (preset) -> {
+            comboBoxGCodePreset.setValue(preset);
+
+            ///force update rendering
+            comboBoxGCodePreset.setItems(JsonLoaderManager.GCODE_SETTINGS.presets);
+            comboBoxGCodePreset.setButtonCell(new ComboBoxListCell<>());
+        });
+
+        checkBoxAutoHome.setSelected(true);
+        DrawingBotV3.INSTANCE.enableAutoHome.bindBidirectional(checkBoxAutoHome.selectedProperty());
+
+        DrawingBotV3.INSTANCE.gcodeOffsetX.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetX.textProperty().get()), textFieldOffsetX.textProperty()));
         textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
+        DrawingBotV3.INSTANCE.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
         textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.penUpZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenUpZ.textProperty().get()), textFieldPenUpZ.textProperty()));
+        DrawingBotV3.INSTANCE.penUpZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenUpZ.textProperty().get()), textFieldPenUpZ.textProperty()));
         textFieldPenUpZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 5F));
 
-        DrawingBotV3.penDownZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenDownZ.textProperty().get()), textFieldPenDownZ.textProperty()));
+        DrawingBotV3.INSTANCE.penDownZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenDownZ.textProperty().get()), textFieldPenDownZ.textProperty()));
         textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void changePathFinderModule(GenericFactory<IPathFindingModule> pfm){
-        DrawingBotV3.pfmFactory.set(pfm);
+        DrawingBotV3.INSTANCE.pfmFactory.set(pfm);
     }
 
     public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
         if(set != null)
-            DrawingBotV3.observableDrawingSet.loadDrawingSet(set);
+            DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
     }
 
     public void importFile(){
@@ -776,24 +806,24 @@ public class FXController {
             d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
             File file = d.showOpenDialog(null);
             if(file != null){
-                DrawingBotV3.openImage(file, false);
+                DrawingBotV3.INSTANCE.openImage(file, false);
             }
         });
     }
 
     public void exportFile(ExportFormats format, boolean seperatePens){
-        if(DrawingBotV3.getActiveTask() == null){
+        if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
         }
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(format.filters);
             d.setTitle(format.getDialogTitle());
-            d.setInitialDirectory(DrawingBotV3.getActiveTask().originalFile.getParentFile());
-            d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.getActiveTask().originalFile.getName()) + "_plotted");
+            d.setInitialDirectory(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getParentFile());
+            d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getName()) + "_plotted");
             File file = d.showSaveDialog(null);
             if(file != null){
-                DrawingBotV3.createExportTask(format, DrawingBotV3.getActiveTask(), PlottedPoint.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), PlottedPoint.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
             }
         });
     }
@@ -854,11 +884,13 @@ public class FXController {
             case QUEUED:
                 break;
             case PRE_PROCESSING:
-                Platform.runLater(() -> DrawingBotV3.display_mode.setValue(EnumDisplayMode.DRAWING));
+                Platform.runLater(() -> DrawingBotV3.INSTANCE.display_mode.setValue(EnumDisplayMode.DRAWING));
                 break;
             case DO_PROCESS:
-                sliderDisplayedLines.setValue(1.0F);
-                textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
+                Platform.runLater(() -> {
+                    sliderDisplayedLines.setValue(1.0F);
+                    textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
+                });
                 break;
             case POST_PROCESSING:
                 break;
@@ -1004,7 +1036,7 @@ public class FXController {
             if(result.isPresent()){
                 if(result.get() != filter){ //if the dialog was cancelled copy the settings of the original
                     GenericSetting.applySettings(result.get().filterSettings, filter.filterSettings);
-                    DrawingBotV3.onImageFiltersChanged();
+                    DrawingBotV3.INSTANCE.onImageFiltersChanged();
                 }
             }
         }

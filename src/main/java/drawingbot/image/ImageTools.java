@@ -126,24 +126,6 @@ public class ImageTools {
 
     //// BUFFERED IMAGE FILTERS
 
-    /**A quick and dirty way of softening the edges of your drawing.
-     * Look in the boarders directory for some examples.
-     * Ideally, the boarder will have similar dimensions as the image to be drawn.
-     * For far more control, just edit your input image directly.
-     * Most of the examples are pretty heavy handed so you can "shrink" them a few pixels as desired.
-     * It does not matter if you use a transparant background or just white.  JPEG or PNG, it's all good.
-     * @param dst destination buffered image
-     * @param fname Name of boarder file.
-     * @param shrink Number of pixels to pull the boarder away, 0 for no change.
-     * @param blur Guassian blur the boarder, 0 for no blur, 10+ for a lot.
-     */
-    public static BufferedImage lazyImageBorder(BufferedImage dst, String fname, boolean internal, int shrink, int blur) {
-        DrawingBotV3.logger.entering("ImageTools", "lazyImageBorder: " + fname);
-
-
-        return dst;
-    }
-
     public static BufferedImage lazyConvolutionFilter(BufferedImage image, float[][] matrix){
         return lazyConvolutionFilter(image, matrix, 1, false);
     }
@@ -206,14 +188,14 @@ public class ImageTools {
         if(!resolution.hasCropping()){
             return image;
         }
-        switch (DrawingBotV3.scaling_mode.get()){
+        switch (DrawingBotV3.INSTANCE.scalingMode.get()){
             case CROP_TO_FIT:
-                image = Scalr.crop(image, resolution.cropX, resolution.cropY, resolution.cropWidth, resolution.cropHeight);
+                image = Scalr.crop(image, resolution.imageCropX, resolution.imageCropY, resolution.imageWidth, resolution.imageHeight);
                 break;
             case SCALE_TO_FIT:
                 break;
             case STRETCH_TO_FIT:
-                image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, resolution.cropWidth, resolution.cropHeight);
+                image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, resolution.imageWidth, resolution.imageHeight);
                 break;
         }
         return image;

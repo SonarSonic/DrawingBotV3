@@ -63,7 +63,7 @@ public class GCodeExporter {
             comment("Time: " + Utils.getDateAndTime());
             command("G21"); //programming in millimeters, mm
             command("G90"); //programming in absolute positioning
-            if(DrawingBotV3.enableAutoHome.get()){
+            if(DrawingBotV3.INSTANCE.enableAutoHome.get()){
                 command("G28");
             }
             command("G1 F8000"); //SET SPEED
@@ -92,7 +92,7 @@ public class GCodeExporter {
 
         public void movePenUp(){
             if(isPenDown){
-                output.println("G1 Z" + gcodeFormat(DrawingBotV3.penUpZ.get()));
+                output.println("G1 Z" + gcodeFormat(DrawingBotV3.INSTANCE.penUpZ.get()));
                 isPenDown = false;
                 penLifts++;
             }
@@ -100,7 +100,7 @@ public class GCodeExporter {
 
         public void movePenDown(){
             if(!isPenDown){
-                output.println("G1 Z" + gcodeFormat(DrawingBotV3.penDownZ.get()));
+                output.println("G1 Z" + gcodeFormat(DrawingBotV3.INSTANCE.penDownZ.get()));
                 isPenDown = true;
                 penDrops++;
             }

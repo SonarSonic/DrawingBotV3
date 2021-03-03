@@ -34,8 +34,8 @@ public class BatchProcessingTask extends Task<Boolean> {
     public BatchProcessingTask(String inputFolder, String outputFolder){
         this.inputFolder = inputFolder;
         this.outputFolder = outputFolder;
-        this.pfmFactory = DrawingBotV3.pfmFactory.get();
-        this.drawingPenSet = new ObservableDrawingSet(DrawingBotV3.observableDrawingSet);
+        this.pfmFactory = DrawingBotV3.INSTANCE.pfmFactory.get();
+        this.drawingPenSet = new ObservableDrawingSet(DrawingBotV3.INSTANCE.observableDrawingSet);
     }
 
     @Override
