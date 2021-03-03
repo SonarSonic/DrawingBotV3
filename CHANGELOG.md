@@ -1,4 +1,15 @@
 # Change Log
+### [v1.0.5-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.4-beta)
+- Added: New Image Filters, there are now over 60+ Image Filters!
+- Added: Presets for Drawing Areas & GCode Settings
+- Added: "Image" Display Mode, to view the imported image.
+- Changed: Filters / Cropping will now update live in the "Image" display mode.
+- Changed: Image exports now have Anti-Aliasing so will match the viewport more closely
+- Changed: The viewport is now defaults to a resolution of 4096 x 4096, exceeding this size could prevent some GPUs from working, image exports will still match the resolution of the input.
+- Changed: Increased the maximum vram usage from 512MB to 1024 MB
+- Fixed: SVG Outputs will now match the specified dimensions and will use a DPI of 96
+- Fixed: The application hanging when importing large images by increasing the maximum
+- Fixed: Issue with high resolution images plotting endlessly
 
 ### [v1.0.4-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.4-beta)
 - Added: Presets for Drawing Sets + Drawing Pens

@@ -36,7 +36,7 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
 
     @Override
     public GenericPreset<PresetDrawingPen> updatePreset(GenericPreset<PresetDrawingPen> preset) {
-        IDrawingPen selectedPen = DrawingBotV3.controller.getSelectedPen();
+        IDrawingPen selectedPen = DrawingBotV3.INSTANCE.controller.getSelectedPen();
         if (selectedPen == null) {
             return null; // can't save the preset
         }

@@ -15,17 +15,19 @@ public class DrawingRegistry {
     public static String specialType = "Special";
     public static String userType = "User";
 
-    public static DrawingRegistry INSTANCE = new DrawingRegistry();
+    public static DrawingRegistry INSTANCE;
 
     public ObservableMap<String, ObservableList<DrawingPen>> registeredPens;
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets;
 
-    public DrawingRegistry(){
-        registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
-        registeredSets = FXCollections.observableMap(new LinkedHashMap<>());
+    public static void init(){
+        INSTANCE = new DrawingRegistry();
 
-        CopicPenPlugin.registerPens(this);
-        CopicPenPlugin.registerPenSets(this);
+        INSTANCE.registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
+        INSTANCE.registeredSets = FXCollections.observableMap(new LinkedHashMap<>());
+
+        CopicPenPlugin.registerPens(INSTANCE);
+        CopicPenPlugin.registerPenSets(INSTANCE);
 
         DrawingPen originalColourPen = new DrawingPen(specialType, "Original Colour", -1){
             @Override
@@ -39,12 +41,13 @@ public class DrawingRegistry {
                 return ImageTools.grayscaleFilter(pfmARGB);
             }
         };
-        registerDrawingPen(originalColourPen);
-        registerDrawingPen(originalGrayscalePen);
+        INSTANCE.registerDrawingPen(originalColourPen);
+        INSTANCE.registerDrawingPen(originalGrayscalePen);
 
-        registerDrawingSet(new DrawingSet(specialType,"Original Colour", List.of(originalColourPen)));
-        registerDrawingSet(new DrawingSet(specialType,"Original Grayscale", List.of(originalGrayscalePen)));
+        INSTANCE.registerDrawingSet(new DrawingSet(specialType,"Original Colour", List.of(originalColourPen)));
+        INSTANCE.registerDrawingSet(new DrawingSet(specialType,"Original Grayscale", List.of(originalGrayscalePen)));
 
+        DrawingBotV3.INSTANCE.observableDrawingSet = new ObservableDrawingSet(INSTANCE.getDefaultSet(INSTANCE.getDefaultSetType()));
     }
 
     public String getDefaultPenType(){

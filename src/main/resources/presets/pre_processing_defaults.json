@@ -1,0 +1,35 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "image_filters",
+      "version": 1,
+      "presetSubType": "",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "filters": []
+      }
+    },
+    {
+      "presetType": "image_filters",
+      "version": 1,
+      "presetSubType": "",
+      "presetName": "Original - Dirty Border",
+      "userCreated": false,
+      "data": {
+        "filters": [
+          {
+            "type": "Dirty Border",
+            "settings": {}
+          },
+          {
+            "type": "Dirty Border",
+            "settings": {
+              "Type": "11"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 
 public class BufferedImageLoader extends Task<BufferedImage> {
 
@@ -23,6 +24,12 @@ public class BufferedImageLoader extends Task<BufferedImage> {
     @Override
     protected BufferedImage call() throws Exception {
         return loadImage(url, internal);
+    }
+
+    @Override
+    protected void setException(Throwable t) {
+        super.setException(t);
+        DrawingBotV3.logger.log(Level.SEVERE, "Buffered Image Loader Failed", t);
     }
 
     public static FilteredBufferedImage loadFilteredImage(String url, boolean internal) {

@@ -29,12 +29,12 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
 
         if (useCheckBox) {
             propertyCallback = param -> {
-                SimpleBooleanProperty prop = new SimpleBooleanProperty(DrawingBotV3.observableDrawingSet.containsPen(param));
+                SimpleBooleanProperty prop = new SimpleBooleanProperty(DrawingBotV3.INSTANCE.observableDrawingSet.containsPen(param));
                 prop.addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
-                        DrawingBotV3.observableDrawingSet.addNewPen(getItem());
+                        DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(getItem());
                     } else {
-                        DrawingBotV3.observableDrawingSet.pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
+                        DrawingBotV3.INSTANCE.observableDrawingSet.pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
                     }
                 });
                 return prop;
@@ -45,7 +45,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
             hbox.setAlignment(Pos.CENTER_LEFT);
 
             setOnMouseClicked(e -> {
-                DrawingBotV3.controller.comboBoxDrawingPen.hide();
+                DrawingBotV3.INSTANCE.controller.comboBoxDrawingPen.hide();
             });
             colour = new Rectangle(20, 12, Color.AQUA);
             hbox.getChildren().add(colour);

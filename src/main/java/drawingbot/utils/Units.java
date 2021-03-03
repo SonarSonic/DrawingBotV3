@@ -14,9 +14,16 @@ public enum Units {
         this.convertToMM = convertToMM;
     }
 
-
     @Override
     public String toString() {
         return displayName;
+    }
+
+    public float toMM(float value){
+        return value * convertToMM;
+    }
+
+    public static float convert(float value, Units from, Units to){
+        return (value * from.convertToMM) / to.convertToMM;
     }
 }

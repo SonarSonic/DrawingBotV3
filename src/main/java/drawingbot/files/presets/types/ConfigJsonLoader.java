@@ -84,6 +84,6 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     @Override
     public void loadFromJSON() {
         super.loadFromJSON();
-        queueJsonUpdate();//saves the defaults to the config file
+        queueJsonUpdate(); //saves the defaults to the config file
     }
 }

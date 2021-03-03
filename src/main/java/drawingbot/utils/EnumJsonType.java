@@ -6,7 +6,9 @@ public enum EnumJsonType {
     PFM_PRESET("pfm_settings"),
     IMAGE_FILTER_PRESET("image_filters"),
     DRAWING_SET("drawing_set"),
-    DRAWING_PEN("drawing_pen");
+    DRAWING_PEN("drawing_pen"),
+    DRAWING_AREA("drawing_area"),
+    GCODE_SETTINGS("gcode_settings");
 
     public String id;
     EnumJsonType(String id){

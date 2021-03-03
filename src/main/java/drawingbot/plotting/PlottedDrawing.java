@@ -64,31 +64,35 @@ public class PlottedDrawing {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public PlottedPoint last = null;
-
-    public void renderPointsFX(GraphicsContext graphics, int start, int end, IPointFilter pointFilter, boolean reverse) {
-        last = null;
-        if(!reverse){
-            for (int i = start; i < end; i++) {
-                renderPointsFX(graphics, i, pointFilter);
+    public int renderPointsFX(GraphicsContext graphics, int start, int end, IPointFilter pointFilter, int maxRender, boolean reverse) {
+        PlottedPoint last = null;
+        int maxPoints = end-start;
+        int renderCount = 0;
+        for (int i = 0; i < maxPoints; i++) {
+            int index = reverse ? end - i : start + i;
+            if(renderCount >= maxRender){
+                return index;
             }
-        }else{
-            for (int i = start; i > end; i--) {
-                renderPointsFX(graphics, i, pointFilter);
+            PlottedPoint next = plottedPoints.get(index);
+            if(renderPointsFX(graphics, last, next, pointFilter)){
+                last = next;
+                renderCount++;
+            }else{
+                last = null;
             }
         }
+        return reverse ? start : end;
     }
 
-    private void renderPointsFX(GraphicsContext graphics, int nextPoint, IPointFilter pointFilter){
-        PlottedPoint point = plottedPoints.get(nextPoint);
-        ObservableDrawingPen pen = getPen(point.pen_number);
-        if(pen != null && pointFilter.filter(point, pen)){
-            if(isPathContinuation(last, point)){
-                renderLineFX(graphics, pen, last, point);
+    private boolean renderPointsFX(GraphicsContext graphics, PlottedPoint last, PlottedPoint next, IPointFilter pointFilter){
+        ObservableDrawingPen pen = getPen(next.pen_number);
+        if(pen != null && pointFilter.filter(next, pen)){
+            if(isPathContinuation(last, next)){
+                renderLineFX(graphics, pen, last, next);
             }
-            last = point;
+            return true;
         }else{
-            last = null; //break off the rendering of points
+            return false;
         }
     }
 
@@ -96,6 +100,34 @@ public class PlottedDrawing {
         graphics.setLineWidth(pen.getStrokeSize());
         graphics.setStroke(pen.getFXColor(end.rgba));
         graphics.strokeLine((int)start.x1, (int)start.y1, (int)end.x1, (int)end.y1);
+    }
+
+    public PlottedPoint lastAWT = null;
+
+    public void renderPointsAWT(Graphics2D graphics, int start, int end, IPointFilter pointFilter, boolean reverse) {
+        lastAWT = null;
+        if(!reverse){
+            for (int i = start; i < end; i++) {
+                renderPointsAWT(graphics, i, pointFilter);
+            }
+        }else{
+            for (int i = start; i > end; i--) {
+                renderPointsAWT(graphics, i, pointFilter);
+            }
+        }
+    }
+
+    private void renderPointsAWT(Graphics2D graphics, int nextPoint, IPointFilter pointFilter){
+        PlottedPoint point = plottedPoints.get(nextPoint);
+        ObservableDrawingPen pen = getPen(point.pen_number);
+        if(pen != null && pointFilter.filter(point, pen)){
+            if(isPathContinuation(lastAWT, point)){
+                renderLineAWT(graphics, pen, lastAWT, point);
+            }
+            lastAWT = point;
+        }else{
+            lastAWT = null; //break off the rendering of points
+        }
     }
 
     public void renderLineAWT(Graphics2D graphics, ObservableDrawingPen pen, PlottedPoint start, PlottedPoint end) {
@@ -187,8 +219,14 @@ public class PlottedDrawing {
 
             if(!isContinuation){
                 openPath(point, pen);
-                currentPath.path.moveTo(point.x1, point.y1);
-                currentPath.pointCount++;
+                if(last != null && last.pathIndex == point.pathIndex){
+                    currentPath.path.moveTo(last.x1, last.y1);
+                    currentPath.path.lineTo(point.x1, point.y1);
+                    currentPath.pointCount+=2;
+                }else{
+                    currentPath.path.moveTo(point.x1, point.y1);
+                    currentPath.pointCount++;
+                }
             }else if(!isMatchingColour){ //if we're dealing with a special, we need to add the point of the last path
                 openPath(point, pen);
                 currentPath.path.moveTo(last.x1, last.y1);

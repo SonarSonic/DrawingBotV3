@@ -89,9 +89,7 @@ public class PFMMasterRegistry {
     }
 
     public static <P extends IPathFindingModule> void applySettings(P pfm){
-        for(GenericSetting<?, ?> setting : pfmSettings.get(pfm.getClass())){
-            setting.applySetting(pfm);
-        }
+        GenericSetting.applySettingsToInstance(pfmSettings.get(pfm.getClass()), pfm);
     }
 
     public static void resetSettingsToDefault(List<GenericSetting<?, ?>> settingList){
@@ -100,16 +98,10 @@ public class PFMMasterRegistry {
         }
     }
 
-    public static void randomiseSettings(List<GenericSetting<?, ?>> settingList){
-        for(GenericSetting<?, ?> setting : settingList){
-            setting.randomiseSetting(ThreadLocalRandom.current());
-        }
-    }
-
     //// PFM PRESET \\\\
 
     public static GenericPreset<PresetPFMSettings> getDefaultPFMPreset(){
-        return getDefaultPFMPreset(DrawingBotV3.pfmFactory.get());
+        return getDefaultPFMPreset(DrawingBotV3.INSTANCE.pfmFactory.get());
     }
 
     public static GenericPreset<PresetPFMSettings> getDefaultPFMPreset(GenericFactory<IPathFindingModule> loader){
@@ -135,7 +127,7 @@ public class PFMMasterRegistry {
 
     /**the current settings for the PFM*/
     public static ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(){
-        return getObservablePFMSettingsList(DrawingBotV3.pfmFactory.get());
+        return getObservablePFMSettingsList(DrawingBotV3.INSTANCE.pfmFactory.get());
     }
 
     public static ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(GenericFactory<IPathFindingModule> loader){
@@ -143,7 +135,7 @@ public class PFMMasterRegistry {
     }
 
     public static ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(){
-        return getObservablePFMPresetList(DrawingBotV3.pfmFactory.get());
+        return getObservablePFMPresetList(DrawingBotV3.INSTANCE.pfmFactory.get());
     }
 
     public static ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(GenericFactory<IPathFindingModule> loader){

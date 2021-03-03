@@ -1,14 +1,17 @@
 package drawingbot.files.exporters;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IPointFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.utils.Units;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.io.*;
 
 //Documentation/Source: https://xmlgraphics.apache.org/batik/using/svg-generator.html
@@ -16,8 +19,8 @@ public class SVGExporter {
 
     public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
         try {
-            int width = plottingTask.resolution.getRenderWidth();
-            int height = plottingTask.resolution.getRenderHeight();
+            int width = (int)plottingTask.resolution.getScaledWidth();
+            int height = (int)plottingTask.resolution.getScaledHeight();
 
             // Get a DOMImplementation.
             DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
@@ -28,7 +31,12 @@ public class SVGExporter {
 
             // Create an instance of the SVG Generator.
             SVGGraphics2D graphics = new SVGGraphics2D(document);
-            graphics.setSVGCanvasSize(new Dimension(width, height));
+
+            int scaledPageWidth = (int)Math.ceil((plottingTask.resolution.printPageWidth / Units.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            int scaledPageHeight = (int)Math.ceil((plottingTask.resolution.printPageHeight / Units.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            double scale = (double)scaledPageWidth / width;
+            graphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
+            graphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
             // Ask the test to render into the SVG Graphics2D implementation.
             Graphics2DExporter.drawGraphics(graphics, width, height, exportTask, plottingTask, lineFilter);

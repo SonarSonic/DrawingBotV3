@@ -9,7 +9,7 @@ public class RawData {
     public int width;
     public int height;
     public int[][] data;
-    public float averageData;
+    public double averageData;
 
     public int min = 0;
     public int max = 255;
@@ -34,7 +34,7 @@ public class RawData {
     }
 
     public float getAverage(){
-        return averageData / (width*height);
+        return (float)(averageData / (width*height));
     }
 
     public int getData(int x, int y){

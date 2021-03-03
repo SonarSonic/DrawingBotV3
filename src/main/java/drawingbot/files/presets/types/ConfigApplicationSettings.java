@@ -7,6 +7,7 @@ import drawingbot.javafx.GenericPreset;
 public class ConfigApplicationSettings implements IConfigData{
 
     public boolean isDeveloperMode;
+    public int maxTextureSize = -1;
 
     @Override
     public EnumJsonType getJsonType() {
