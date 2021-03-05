@@ -87,7 +87,7 @@ public class PixelDataBufferedImage extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageChannel(int channel) {
+    public double getAverageChannel(int channel) {
         return 0; //TODO
     }
 
@@ -107,7 +107,7 @@ public class PixelDataBufferedImage extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageHSB(int type) {
+    public double getAverageHSB(int type) {
         return 0; //TODO
     }
 
@@ -127,7 +127,7 @@ public class PixelDataBufferedImage extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageLuminance() {
+    public double getAverageLuminance() {
         return data.getAverage();
     }
 }

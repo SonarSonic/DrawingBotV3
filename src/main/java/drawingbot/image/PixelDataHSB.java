@@ -1,8 +1,5 @@
 package drawingbot.image;
 
-import drawingbot.api.IPixelData;
-import drawingbot.utils.Utils;
-
 import java.awt.*;
 
 /**
@@ -94,7 +91,7 @@ public class PixelDataHSB extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageChannel(int channel) {
+    public double getAverageChannel(int channel) {
         int h = (int)hue.getAverage();
         int s = (int)saturation.getAverage();
         int b = (int)brightness.getAverage();
@@ -117,7 +114,7 @@ public class PixelDataHSB extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageHSB(int type) {
+    public double getAverageHSB(int type) {
         return getRawData(type).getAverage();
     }
 }

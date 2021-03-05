@@ -41,7 +41,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     // PATH FINDING \\
     public IPathFindingModule pfm;
-    public float plottingProgress = 0;
+    public double plottingProgress = 0;
     public boolean plottingFinished = false;
     public float old_x = 0;
     public float old_y = 0;
@@ -333,7 +333,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     @Override
-    public void updateProgess(float progress, float max) {
+    public void updateProgess(double progress, double max) {
         plottingProgress = progress/max;
     }
 

@@ -49,7 +49,7 @@ public class PixelDataLuminance extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageChannel(int channel) {
+    public double getAverageChannel(int channel) {
         return luminance.getAverage();
     }
 
@@ -65,7 +65,7 @@ public class PixelDataLuminance extends PixelDataAbstract {
     public void adjustHSB(int type, int x, int y, int value) {}
 
     @Override
-    public float getAverageHSB(int type) {
+    public double getAverageHSB(int type) {
         return 0;
     }
 
@@ -85,7 +85,7 @@ public class PixelDataLuminance extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageLuminance() {
+    public double getAverageLuminance() {
         return luminance.getAverage();
     }
 }

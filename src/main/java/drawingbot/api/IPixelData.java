@@ -204,33 +204,33 @@ public interface IPixelData {
     /**
      * @return the average channel value for the entire image - 0 = Alpha, 1 = Red, 2 = Green, 3 = Blue
      */
-    float getAverageChannel(int channel);
+    double getAverageChannel(int channel);
 
     /**
      * @return the average alpha value for the entire image
      */
-    default float getAverageAlpha(){
+    default double getAverageAlpha(){
         return getAverageChannel(0);
     }
 
     /**
      * @return the average red value for the entire image
      */
-    default float getAverageRed(){
+    default double getAverageRed(){
         return getAverageChannel(1);
     }
 
     /**
      * @return the average green value for the entire image
      */
-    default float getAverageGreen(){
+    default double getAverageGreen(){
         return getAverageChannel(2);
     }
 
     /**
      * @return the average blue value for the entire image
      */
-    default float getAverageBlue(){
+    default double getAverageBlue(){
         return getAverageChannel(3);
     }
 
@@ -352,26 +352,26 @@ public interface IPixelData {
      * @param type the hsb type 0 = Hue, 1 = Saturation, 2 = Brightness
      * @return the average of the given hsb type for the entire image
      */
-    float getAverageHSB(int type);
+    double getAverageHSB(int type);
 
     /**
      * @return the average hue for the entire image
      */
-    default float getAverageHue(){
+    default double getAverageHue(){
         return getAverageHSB(0);
     }
 
     /**
      * @return the average saturation for the entire image
      */
-    default float getAverageSaturation(){
+    default double getAverageSaturation(){
         return getAverageHSB(1);
     }
 
     /**
      * @return the average brightness for the entire image
      */
-    default float getAverageBrightness(){
+    default double getAverageBrightness(){
         return getAverageHSB(2);
     }
 
@@ -403,7 +403,7 @@ public interface IPixelData {
     /**
      * @return the average perceived luminance for the entire image
      */
-    float getAverageLuminance();
+    double getAverageLuminance();
 
     /**
      * @return the ARGB value of transparent pixels, default = a=0, r=0, g=0, b=0
