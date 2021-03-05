@@ -2,26 +2,22 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.image.ImageFilterRegistry;
 
+import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.RangedNumberSetting;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class DialogImageFilter extends Dialog<ImageFilterRegistry.ObservableImageFilter> {
+public class DialogImageFilter extends Dialog<ObservableImageFilter> {
 
-    public DialogImageFilter(ImageFilterRegistry.ObservableImageFilter filter) {
+    public DialogImageFilter(ObservableImageFilter filter) {
         super();
-        ImageFilterRegistry.ObservableImageFilter original = new ImageFilterRegistry.ObservableImageFilter(filter);
+        ObservableImageFilter original = new ObservableImageFilter(filter);
 
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.TOP_LEFT);

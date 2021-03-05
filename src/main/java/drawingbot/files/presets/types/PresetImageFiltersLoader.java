@@ -1,7 +1,9 @@
 package drawingbot.files.presets.types;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractPresetLoader;
-import drawingbot.image.ImageFilterRegistry;
+import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
@@ -25,47 +27,47 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
     @Override
     public void onJSONLoaded() {
         super.onJSONLoaded();
-        applyPreset(ImageFilterRegistry.getDefaultImageFilterPreset());
+        applyPreset(MasterRegistry.INSTANCE.getDefaultImageFilterPreset());
     }
 
     @Override
     public void registerPreset(GenericPreset<PresetImageFilters> preset) {
-        ImageFilterRegistry.registerPreset(preset);
+        MasterRegistry.INSTANCE.registerImageFilterPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetImageFilters> preset) {
-        ImageFilterRegistry.imagePresets.remove(preset);
+        MasterRegistry.INSTANCE.imgFilterPresets.remove(preset);
     }
 
     @Override
     public GenericPreset<PresetImageFilters> updatePreset(GenericPreset<PresetImageFilters> preset) {
         preset.data.filters.clear();
-        ImageFilterRegistry.currentFilters.forEach(preset.data::copyFilter);
+        DrawingBotV3.INSTANCE.currentFilters.forEach(preset.data::copyFilter);
         return preset;
     }
 
     @Override
     public void applyPreset(GenericPreset<PresetImageFilters> preset) {
-        ImageFilterRegistry.currentFilters.clear();
+        DrawingBotV3.INSTANCE.currentFilters.clear();
         for (int i = 0; i < preset.data.filters.size(); i++) {
             PresetImageFilters.Filter filter = preset.data.filters.get(i);
-            GenericFactory<BufferedImageOp> factory = ImageFilterRegistry.getFilterFromName(filter.type);
-            ImageFilterRegistry.ObservableImageFilter observableImageFilter = new ImageFilterRegistry.ObservableImageFilter(factory);
+            GenericFactory<BufferedImageOp> factory = MasterRegistry.INSTANCE.getImageFilterFactory(filter.type);
+            ObservableImageFilter observableImageFilter = new ObservableImageFilter(factory);
             GenericSetting.applySettings(filter.settings, observableImageFilter.filterSettings);
-            ImageFilterRegistry.currentFilters.add(observableImageFilter);
+            DrawingBotV3.INSTANCE.currentFilters.add(observableImageFilter);
         }
     }
 
     @Override
     public GenericPreset<PresetImageFilters> getDefaultPreset() {
-        return ImageFilterRegistry.getDefaultImageFilterPreset();
+        return MasterRegistry.INSTANCE.getDefaultImageFilterPreset();
     }
 
     @Override
     public List<GenericPreset<?>> getUserCreatedPresets() {
         List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (GenericPreset<PresetImageFilters> preset : ImageFilterRegistry.imagePresets) {
+        for (GenericPreset<PresetImageFilters> preset : MasterRegistry.INSTANCE.imgFilterPresets) {
             if (preset.userCreated) {
                 userCreated.add(preset);
             }

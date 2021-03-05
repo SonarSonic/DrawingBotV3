@@ -7,11 +7,11 @@ import java.util.Random;
 
 public abstract class AbstractPFM implements IPathFindingModule {
 
-    protected float pfmResolution = 1;
-    protected int transparentARGB = -1;
+    public float pfmResolution = 1;
+    public int transparentARGB = -1;
 
-    protected int seed = 0;
-    protected Random randomSeed;
+    public int seed = 0;
+    public Random randomSeed;
 
     @Override
     public void init(IPlottingTask task) {

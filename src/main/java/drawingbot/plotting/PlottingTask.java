@@ -4,7 +4,8 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.image.*;
-import drawingbot.pfm.PFMMasterRegistry;
+import drawingbot.javafx.GenericSetting;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.javafx.GenericFactory;
 import javafx.application.Platform;
@@ -94,7 +95,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 DrawingBotV3.logger.fine("PFM - Create Instance");
                 pfm = pfmFactory.instance();
                 DrawingBotV3.logger.fine("PFM - Apply Settings");
-                PFMMasterRegistry.applySettings(pfm);
+                GenericSetting.applySettingsToInstance(MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), pfm);
 
                 DrawingBotV3.logger.fine("Copying Original Image");
                 img_plotting = ImageTools.deepCopy(img_original);

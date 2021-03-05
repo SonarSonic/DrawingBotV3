@@ -144,6 +144,44 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         return value.get();
     }
 
+    public String toSafeName(String name){
+        return name.replace(' ', '_').toLowerCase();
+    }
+
+    public void unbind(){
+        value.unbind();
+        lock.unbind();
+    }
+
+    public Node defaultNode;
+    public Node labelledNode;
+
+    public Node getJavaFXNode(boolean label){
+        if(label){
+            if(labelledNode == null){
+                labelledNode = createJavaFXNode(true);
+            }
+            return labelledNode;
+        }else{
+            if(defaultNode == null){
+                defaultNode = createJavaFXNode(false);
+            }
+            return defaultNode;
+        }
+    }
+
+    protected abstract Node createJavaFXNode(boolean label);
+
+    public abstract GenericSetting<C, V> copy();
+
+
+    @Override
+    public String toString() {
+        return settingName.get() + ": " + getValueAsString();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public static HashMap<String, String> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, String> dst){
         list.forEach(s -> {
             if(!s.value.get().equals(s.defaultValue)){
@@ -156,6 +194,13 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public static void randomiseSettings(List<GenericSetting<?, ?>> settingList){
         for(GenericSetting<?, ?> setting : settingList){
             setting.randomiseSetting(ThreadLocalRandom.current());
+        }
+    }
+
+
+    public static void resetSettings(List<GenericSetting<?, ?>> settingList){
+        for(GenericSetting<?, ?> setting : settingList){
+            setting.resetSetting();
         }
     }
 
@@ -207,35 +252,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         return dst;
     }
 
-    public String toSafeName(String name){
-        return name.replace(' ', '_').toLowerCase();
-    }
-
-    public void unbind(){
-        value.unbind();
-        lock.unbind();
-    }
-
-    public Node defaultNode;
-    public Node labelledNode;
-
-    public Node getJavaFXNode(boolean label){
-        if(label){
-            if(labelledNode == null){
-                labelledNode = createJavaFXNode(true);
-            }
-            return labelledNode;
-        }else{
-            if(defaultNode == null){
-                defaultNode = createJavaFXNode(false);
-            }
-            return defaultNode;
-        }
-    }
-
-    protected abstract Node createJavaFXNode(boolean label);
-
-    public abstract GenericSetting<C, V> copy();
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static <C> BooleanSetting<C> createBooleanSetting(Class<C> clazz, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
         return new BooleanSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
@@ -282,10 +299,5 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
             }
         };
         return new OptionSetting<>(clazz, settingName, optionStringConverter, values, defaultValue, shouldLock, setter);
-    }
-
-    @Override
-    public String toString() {
-        return settingName.get() + ": " + getValueAsString();
     }
 }

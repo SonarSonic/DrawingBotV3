@@ -1,8 +1,10 @@
 package drawingbot.drawing;
 
+import drawingbot.registry.MasterRegistry;
+
 public class CopicPenPlugin {
 
-    public static void registerPens(DrawingRegistry registry) {
+    public static void registerPens(MasterRegistry registry) {
 
         //Copic Original Pens
         registry.registerDrawingPen(new DrawingPen("Copic Original", "0 Colorless Blender", -1));
@@ -581,7 +583,7 @@ public class CopicPenPlugin {
         registry.registerDrawingPen(new DrawingPen("Copic Sketch", "YR82 Mellow Peach", -145779));
     }
 
-    public static void registerPenSets(DrawingRegistry registry) {
+    public static void registerPenSets(MasterRegistry registry) {
         registry.registerDrawingSet(new DrawingSet("Copic", "Dark Greys", registry.getDrawingPensFromCodes(new String[]{"Copic Original:100 Black", "Copic Original:N10 Neutral Gray", "Copic Original:N8 Neutral Gray", "Copic Original:N6 Neutral Gray", "Copic Original:N4 Neutral Gray", "Copic Original:N2 Neutral Gray"})));
         registry.registerDrawingSet(new DrawingSet("Copic", "Light Greys", registry.getDrawingPensFromCodes(new String[]{"Copic Original:100 Black", "Copic Original:100 Black", "Copic Original:N7 Neutral Gray", "Copic Original:N5 Neutral Gray", "Copic Original:N3 Neutral Gray", "Copic Original:N2 Neutral Gray"})));
         registry.registerDrawingSet(new DrawingSet("Copic", "Warm Greys", registry.getDrawingPensFromCodes(new String[]{"Copic Original:100 Black", "Copic Original:W10 Warm Gray", "Copic Original:W8 Warm Gray", "Copic Original:W6 Warm Gray", "Copic Original:W4 Warm Gray", "Copic Original:W2 Warm Gray"})));

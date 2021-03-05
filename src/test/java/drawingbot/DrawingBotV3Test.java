@@ -4,8 +4,7 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.FileUtils;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.image.ImageFilterRegistry;
-import drawingbot.pfm.PFMMasterRegistry;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.plotting.PlottedPoint;
 import drawingbot.javafx.GenericFactory;
 import javafx.application.Platform;
@@ -25,7 +24,7 @@ public class DrawingBotV3Test {
     public void testImageFilters() {
         BufferedImage image = BufferedImageLoader.loadImage("images/testimage.jpg", true);
         assert image != null;
-        for(List<GenericFactory<BufferedImageOp>> factories : ImageFilterRegistry.filterFactories.values()){
+        for(List<GenericFactory<BufferedImageOp>> factories : MasterRegistry.INSTANCE.imgFilterFactories.values()){
             for(GenericFactory<BufferedImageOp> factory : factories){
                 System.out.println("Started Image Filter Test: " + factory.getName());
                 image = factory.instance().filter(image, null);
@@ -37,7 +36,7 @@ public class DrawingBotV3Test {
     @Test
     public void testPathFindingModules() throws InterruptedException {
 
-        for(final GenericFactory<IPathFindingModule> factory : PFMMasterRegistry.pfmFactories.values()){
+        for(final GenericFactory<IPathFindingModule> factory : MasterRegistry.INSTANCE.pfmFactories.values()){
             System.out.println("Started PFM Test: " + factory.getName());
             final CountDownLatch latch = new CountDownLatch(1);
 
@@ -60,7 +59,7 @@ public class DrawingBotV3Test {
     public void textExport() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.pfmFactory.setValue(PFMMasterRegistry.getDefaultPFMFactory());
+            DrawingBotV3.INSTANCE.pfmFactory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
             DrawingBotV3.INSTANCE.openImage = BufferedImageLoader.loadFilteredImage("images/testimage.jpg", true);
             assert DrawingBotV3.INSTANCE.openImage != null;
             DrawingBotV3.INSTANCE.startPlotting();

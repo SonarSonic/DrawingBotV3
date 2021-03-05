@@ -1,6 +1,7 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.utils.DBConstants;
 import javafx.stage.FileChooser;
 
 import java.io.*;
@@ -39,7 +40,7 @@ public class FileUtils {
     }
 
     public static String getUserDataDirectory() {
-        return System.getProperty("user.home") + File.separator + "." + DrawingBotV3.appName + File.separator;
+        return System.getProperty("user.home") + File.separator + "." + DBConstants.appName + File.separator;
     }
 
     public static PrintWriter createWriter(File file) {
