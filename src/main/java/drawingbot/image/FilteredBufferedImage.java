@@ -34,7 +34,7 @@ public class FilteredBufferedImage {
     }
 
     public static BufferedImage applyFilters(BufferedImage src){
-        return ImageFilterRegistry.applyCurrentFilters(src);
+        return ImageTools.applyCurrentImageFilters(src);
     }
 
     public static BufferedImage applyCropping(BufferedImage src, PrintResolution resolution){

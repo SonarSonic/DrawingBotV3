@@ -3,6 +3,7 @@ package drawingbot.javafx.controls;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.javafx.FXController;
+import drawingbot.javafx.FXHelper;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -27,7 +28,7 @@ public class ContextMenuObservablePen extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
-        FXController.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.INSTANCE.observableDrawingSet.pens, p -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(p));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.INSTANCE.observableDrawingSet.pens, p -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(p));
     }
 
 }

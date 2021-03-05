@@ -2,9 +2,11 @@ package drawingbot;
 
 import drawingbot.api.API;
 import drawingbot.api_impl.DrawingBotV3API;
-import drawingbot.drawing.DrawingRegistry;
+import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.javafx.FXController;
+import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.DBConstants;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -21,7 +23,6 @@ import javafx.util.Duration;
 import org.jfree.fx.FXGraphics2D;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 
 public class FXApplication extends Application {
@@ -46,14 +47,17 @@ public class FXApplication extends Application {
 
         //// PRE-INIT
 
+        DrawingBotV3.logger.info("Loading API");
+        API.INSTANCE = new DrawingBotV3API();
+
+        DrawingBotV3.logger.info("Loading Registry");
+        MasterRegistry.init();
+
         DrawingBotV3.logger.info("Init DrawingBotV3");
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
-        DrawingBotV3.logger.info("Init DrawingRegistry");
-        DrawingRegistry.init();
-
-        DrawingBotV3.logger.info("Loading API");
-        API.INSTANCE = new DrawingBotV3API();
+        DrawingBotV3.logger.info("Init Observable Drawing Set");
+        DrawingBotV3.INSTANCE.observableDrawingSet = new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
 
         DrawingBotV3.logger.info("Loading configuration");
         ConfigFileHandler.init();
@@ -77,7 +81,7 @@ public class FXApplication extends Application {
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
         primaryStage.setScene(primaryScene);
 
-        primaryStage.setTitle(DrawingBotV3.appName + ", Version: " + DrawingBotV3.appVersion);
+        primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion);
         primaryStage.setResizable(true);
         applyDBIcon(primaryStage);
         primaryStage.show();

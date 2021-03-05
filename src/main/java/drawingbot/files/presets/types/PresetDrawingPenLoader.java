@@ -3,8 +3,9 @@ package drawingbot.files.presets.types;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.drawing.DrawingRegistry;
 import drawingbot.files.presets.AbstractPresetLoader;
+import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 import javafx.collections.ObservableList;
@@ -25,13 +26,13 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
 
     @Override
     public void registerPreset(GenericPreset<PresetDrawingPen> preset) {
-        DrawingRegistry.INSTANCE.registerDrawingPen(preset.data);
+        MasterRegistry.INSTANCE.registerDrawingPen(preset.data);
         preset.data.preset = preset; //set transient binding
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetDrawingPen> preset) {
-        DrawingRegistry.INSTANCE.unregisterDrawingPen(preset.data);
+        MasterRegistry.INSTANCE.unregisterDrawingPen(preset.data);
     }
 
     @Override
@@ -66,13 +67,13 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
 
     @Override
     public GenericPreset<PresetDrawingPen> createNewPreset() {
-        return createNewPreset(DrawingRegistry.userType, "New Preset", true);
+        return createNewPreset(DBConstants.DRAWING_TYPE_USER, "New Preset", true);
     }
 
     @Override
     public List<GenericPreset<?>> getUserCreatedPresets() {
         List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (ObservableList<DrawingPen> list : DrawingRegistry.INSTANCE.registeredPens.values()) {
+        for (ObservableList<DrawingPen> list : MasterRegistry.INSTANCE.registeredPens.values()) {
             for (IDrawingPen pen : list) {
                 if (pen instanceof PresetDrawingPen) {
                     PresetDrawingPen userSet = (PresetDrawingPen) pen;

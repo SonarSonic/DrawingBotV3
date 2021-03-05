@@ -2,8 +2,8 @@ package drawingbot.files.presets.types;
 
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.drawing.DrawingRegistry;
 import drawingbot.files.presets.IJsonData;
+import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 
@@ -27,13 +27,13 @@ public class PresetDrawingPen extends DrawingPen implements IJsonData {
     @Override
     public void update(String type, String name, int argb, int distributionWeight, float strokeSize) {
         super.update(type, name, argb, distributionWeight, strokeSize);
-        this.type = DrawingRegistry.userType;
+        this.type = DBConstants.DRAWING_TYPE_USER;
     }
 
     @Override
     public void update(IDrawingPen pen) {
         super.update(pen);
-        this.type = DrawingRegistry.userType;
+        this.type = DBConstants.DRAWING_TYPE_USER;
     }
 
     @Override

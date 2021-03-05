@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.IPointFilter;
-import drawingbot.drawing.DrawingRegistry;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ConfigFileHandler;
@@ -20,15 +19,18 @@ import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.GenericFactory;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.*;
-import drawingbot.pfm.PFMMasterRegistry;
 import drawingbot.plotting.PlottedPoint;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -43,13 +45,6 @@ public class DrawingBotV3 {
 
     public static final Logger logger = Logger.getLogger("DrawingBotV3");
     public static DrawingBotV3 INSTANCE;
-
-    // CONSTANTS \\\
-    public static final String appName = "DrawingBotV3";
-    public static final String majorVersion = "1";
-    public static final String minorVersion = "0";
-    public static final String patchVersion = "5";
-    public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
 
     //DRAWING AREA
     public SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
@@ -71,9 +66,12 @@ public class DrawingBotV3 {
     public SimpleFloatProperty penDownZ = new SimpleFloatProperty(0);
     public SimpleFloatProperty penUpZ = new SimpleFloatProperty(0);
 
+    //PRE-PROCESSING\\
+    public ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
+
     //PATH FINDING \\
     public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
-    public SimpleObjectProperty<GenericFactory<IPathFindingModule>> pfmFactory = new SimpleObjectProperty<>(PFMMasterRegistry.getDefaultPFMFactory());
+    public SimpleObjectProperty<GenericFactory<IPathFindingModule>> pfmFactory = new SimpleObjectProperty<>();
 
     // PEN SETS \\
     public SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
@@ -457,10 +455,28 @@ public class DrawingBotV3 {
     ////// EVENTS
 
     public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
-       controller.onTaskStageFinished(task, stage);
-       if(stage == EnumTaskStage.FINISHING && batchProcessingTask == null){
-           isPlotting.setValue(false);
-       }
+        switch (stage){
+            case QUEUED:
+                break;
+            case PRE_PROCESSING:
+                Platform.runLater(() -> display_mode.setValue(EnumDisplayMode.DRAWING));
+                break;
+            case DO_PROCESS:
+                Platform.runLater(() -> {
+                    controller.sliderDisplayedLines.setValue(1.0F);
+                    controller.textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
+                });
+                break;
+            case POST_PROCESSING:
+                break;
+            case FINISHING:
+                if(batchProcessingTask == null){
+                    isPlotting.setValue(false);
+                }
+                break;
+            case FINISHED:
+                break;
+        }
        logger.info("Plotting Task: Finished Stage " + stage.name());
     }
 

@@ -4,125 +4,37 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.image.filters.ObservableImageFilter;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class ImageTools {
 
-    //// MATRIX OPERATIONS
-
-    public static Kernel matrixToKernal(float[][] matrix){
-        int height = matrix.length;
-        int width = matrix[0].length;
-        float[] kernalMatrix = new float[height*width];
-
-        int pos = 0;
-        for(float[] row : matrix){
-            for(float value : row){
-                kernalMatrix[pos] = value;
-                pos++;
-            }
+    public static BufferedImage applyCurrentImageFilters(BufferedImage image){
+        for(BufferedImageOp filter : ImageTools.createBufferedImageOps(DrawingBotV3.INSTANCE.currentFilters)){
+            image = filter.filter(image, null);
         }
-
-        return new Kernel(width, height, kernalMatrix);
+        return image;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Source:  https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm
-     * Test:    http://www.calcul.com/show/calculator/matrix-multiplication_;2;3;3;5
-     * @param matrixA
-     * @param matrixB
-     * @return
-     */
-    public static float [][] multiplyMatrix(float[][] matrixA, float[][] matrixB) {
-
-        int n = matrixA.length;      // matrixA rows
-        int m = matrixA[0].length;   // matrixA columns
-        int p = matrixB[0].length;
-
-        float[][] matrixC;
-        matrixC = new float[n][p];
-
-        for (int i=0; i<n; i++) {
-            for (int j=0; j<p; j++) {
-                for (int k=0; k<m; k++) {
-                    matrixC[i][j] = matrixC[i][j] + matrixA[i][k] * matrixB[k][j];
-                }
+    public static List<BufferedImageOp> createBufferedImageOps(List<ObservableImageFilter> observableImageFilters){
+        List<BufferedImageOp> filters = new ArrayList<>();
+        for(ObservableImageFilter filter : observableImageFilters){
+            if(filter.enable.get()){
+                BufferedImageOp instance = filter.filterFactory.instance();
+                filter.filterSettings.forEach(setting -> setting.applySetting(instance));
+                filters.add(instance);
             }
         }
-        return matrixC;
+        return filters;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Source:  https://www.taylorpetrick.com/blog/post/convolution-part2
-     * Useful for keeping brightness the same.
-     * Do not use on a maxtix that sums to zero, such as sobel.
-     * @param matrix
-     * @return The resulting matrix is the same size as the original, but the output range will be constrained between 0.0 and 1.0
-     */
-    public static float [][] normalizeMatrix(float[][] matrix) {
-        int n = matrix.length;      // rows
-        int m = matrix[0].length;   // columns
-        float sum = 0;
-
-        for (int i=0; i<n; i++) {
-            for (int j=0; j<m; j++) {
-                sum += matrix[i][j];
-            }
-        }
-
-        for (int i=0; i<n; i++) {
-            for (int j=0; j<m; j++) {
-                matrix[i][j] = matrix[i][j] / Math.abs(sum);
-            }
-        }
-
-        return matrix;
-    }
-
-    public static float [][] scaleMatrix(float[][] matrix, int scale) {
-        int n = matrix.length;      // rows
-        int p = matrix[0].length;   // columns
-
-        float [][] nmatrix = new float[n*scale][p*scale];
-
-        for (int i=0; i<n; i++){
-            for (int j=0; j<p; j++){
-                for (int si=0; si<scale; si++){
-                    for (int sj=0; sj<scale; sj++){
-                        int a1 = (i*scale)+si;
-                        int a2 = (j*scale)+sj;
-                        float a3 = matrix[i][j];
-                        nmatrix[a1][a2] = a3;
-                    }
-                }
-            }
-        }
-        return nmatrix;
-    }
-
-    public static void printMatrix(float[][] matrix) {
-        int n = matrix.length;      // rows
-        int p = matrix[0].length;   // columns
-        float sum = 0;
-
-        for (int i=0; i<n; i++){
-            for (int j=0; j<p; j++){
-                sum += matrix[i][j];
-                DrawingBotV3.logger.fine("%10.5f " + matrix[i][j]);
-            }
-        }
-        DrawingBotV3.logger.fine("Sum: " + sum);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// BUFFERED IMAGE FILTERS
 
@@ -133,12 +45,12 @@ public class ImageTools {
     public static BufferedImage lazyConvolutionFilter(BufferedImage image, float[][] matrix, int scale, boolean normalize){
         DrawingBotV3.logger.entering("ImageTools", "lazyConvolutionFilter: " + scale);
         if(scale != 1){
-            matrix = ImageTools.scaleMatrix(matrix, scale);
+            matrix = MatrixTools.scaleMatrix(matrix, scale);
         }
         if(normalize){
-            matrix = ImageTools.normalizeMatrix(matrix);
+            matrix = MatrixTools.normalizeMatrix(matrix);
         }
-        return new ConvolveOp(ImageTools.matrixToKernal(matrix), ConvolveOp.EDGE_NO_OP, null).filter(image, null);
+        return new ConvolveOp(MatrixTools.matrixToKernal(matrix), ConvolveOp.EDGE_NO_OP, null).filter(image, null);
     }
 
     /**a lazy/very fast way to filter an image,*/
@@ -245,8 +157,6 @@ public class ImageTools {
         return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
-
-
     public static IPixelData copy(IPixelData source, IPixelData dst){
         for(int x = 0; x < source.getWidth(); x ++){
             for(int y = 0; y < source.getHeight(); y ++){
@@ -258,13 +168,11 @@ public class ImageTools {
 
     public static BufferedImage getBufferedImage(IPixelData data){
         BufferedImage image = new BufferedImage(data.getWidth(), data.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
         for(int x = 0; x < data.getWidth(); x ++){
             for(int y = 0; y < data.getHeight(); y ++){
                 image.setRGB(x, y, data.getARGB(x, y));
             }
         }
-
         return image;
     }
 
@@ -285,41 +193,6 @@ public class ImageTools {
         g.dispose();
         return dst;
     }
-
-    /*
-
-    @Deprecated
-    public static PImage getPImage(IPixelData data){
-        PImage image = new PImage(data.getWidth(), data.getHeight());
-        image.loadPixels();
-        for(int x = 0; x < data.getWidth(); x ++){
-            for(int y = 0; y < data.getHeight(); y ++){
-                image.set(x, y, data.getARGB(x, y));
-            }
-        }
-        image.updatePixels();
-        return image;
-    }
-
-    @Deprecated
-    public static IPixelData copyToPixelData(PImage image, IPixelData data){
-        for(int x = 0; x < data.getWidth(); x ++){
-            for(int y = 0; y < data.getHeight(); y ++){
-                data.setARGB(x, y, image.get(x, y));
-            }
-        }
-        return data;
-    }
-
-    @Deprecated
-    public static WritableImage getWritableImageFromPImage(PImage pImage){
-        WritableImage writableImage = new WritableImage(pImage.pixelWidth, pImage.pixelHeight);
-        pImage.loadPixels();
-        writableImage.getPixelWriter().setPixels(0, 0, pImage.pixelWidth, pImage.pixelHeight, PixelFormat.getIntArgbInstance(), pImage.pixels, 0, 0);
-        return writableImage;
-    }
-
-     */
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

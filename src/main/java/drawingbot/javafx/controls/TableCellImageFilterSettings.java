@@ -1,6 +1,6 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.image.ImageFilterRegistry;
+import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContentDisplay;
@@ -9,7 +9,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 
-public class TableCellImageFilterSettings extends TableCell<ImageFilterRegistry.ObservableImageFilter, ObservableList<GenericSetting<?, ?>>> {
+public class TableCellImageFilterSettings extends TableCell<ObservableImageFilter, ObservableList<GenericSetting<?, ?>>> {
 
     public TableCellImageFilterSettings() {
         super();

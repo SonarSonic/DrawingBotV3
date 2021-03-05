@@ -1,7 +1,7 @@
 package drawingbot.files.presets.types;
 
 import drawingbot.files.presets.IJsonData;
-import drawingbot.image.ImageFilterRegistry;
+import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
@@ -23,7 +23,7 @@ public class PresetImageFilters implements IJsonData {
         filters.add(new Filter(factory.getName(), settings));
     }
 
-    public void copyFilter(ImageFilterRegistry.ObservableImageFilter filter) {
+    public void copyFilter(ObservableImageFilter filter) {
         filters.add(new Filter(filter.filterFactory.getName(), GenericSetting.toJsonMap(filter.filterSettings, new HashMap<>())));
     }
 
