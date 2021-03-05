@@ -59,11 +59,11 @@ public abstract class PixelDataAbstract implements IPixelData {
     }
 
     @Override
-    public float getAverageLuminance() {
-        float r = getAverageRed();
-        float g = getAverageGreen();
-        float b = getAverageBlue();
-        return ImageTools.getAverageLuminanceFromRGB(r, g, b);
+    public double getAverageLuminance() {
+        double r = getAverageRed();
+        double g = getAverageGreen();
+        double b = getAverageBlue();
+        return ImageTools.getAverageLuminanceFromRGB((float)r, (float)g, (float)b);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

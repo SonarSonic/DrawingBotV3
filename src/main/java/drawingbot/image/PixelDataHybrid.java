@@ -68,7 +68,7 @@ public class PixelDataHybrid extends PixelDataARGB {
     }
 
     @Override
-    public float getAverageHSB(int type) {
+    public double getAverageHSB(int type) {
         return getRawDataHSB(type).getAverage();
     }
 
@@ -84,7 +84,7 @@ public class PixelDataHybrid extends PixelDataARGB {
     }
 
     @Override
-    public float getAverageLuminance() {
+    public double getAverageLuminance() {
         return luminance.getAverage();
     }
 }

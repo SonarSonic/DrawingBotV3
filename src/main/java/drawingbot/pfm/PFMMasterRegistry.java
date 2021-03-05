@@ -42,6 +42,7 @@ public class PFMMasterRegistry {
         registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 720, false, (pfmSketch, value) -> pfmSketch.tests = value));
         registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 20, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value));
         registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value));
+        registerSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.maxLines = value));
         registerSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
         ////SKETCH PFM

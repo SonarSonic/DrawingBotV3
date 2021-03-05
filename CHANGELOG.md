@@ -1,14 +1,18 @@
 # Change Log
-### [v1.0.5-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.4-beta)
+
+### [v1.0.6-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.6-beta)
+- Added: "Max Line Limit" option to PFM Sketch & PFM Squares
+
+### [v1.0.5-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.5-beta)
 - Added: New Image Filters, there are now over 60+ Image Filters!
-- Added: Presets for Drawing Areas & GCode Settings
+- Added: Presets for Drawing Areas (A4 Paper / A3 Paper etc.) & GCode Settings
 - Added: "Image" Display Mode, to view the imported image.
 - Changed: Filters / Cropping will now update live in the "Image" display mode.
 - Changed: Image exports now have Anti-Aliasing so will match the viewport more closely
-- Changed: The viewport is now defaults to a resolution of 4096 x 4096, exceeding this size could prevent some GPUs from working, image exports will still match the resolution of the input.
+- Changed: The viewport now has a max resolution of 4096 x 4096, exceeding this size can prevent some GPUs from working, image exports will still match the resolution of the input.
 - Changed: Increased the maximum vram usage from 512MB to 1024 MB
 - Fixed: SVG Outputs will now match the specified dimensions and will use a DPI of 96
-- Fixed: The application hanging when importing large images by increasing the maximum
+- Fixed: The application hanging when importing large images
 - Fixed: Issue with high resolution images plotting endlessly
 
 ### [v1.0.4-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.4-beta)

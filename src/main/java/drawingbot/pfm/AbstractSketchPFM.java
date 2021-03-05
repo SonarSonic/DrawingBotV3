@@ -2,6 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
+import drawingbot.plotting.PlottingTask;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
@@ -12,12 +13,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public int tests;                   // Reasonable values:  13 for development, 720 for final
     public int minLineLength;
     public int maxLineLength;
+    public int maxLines;
 
     public boolean shouldLiftPen;
 
     protected int squiggle_count;
 
-    protected float initialProgress;
+    protected double initialProgress;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,19 +57,26 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             task.addToPath(darkest_x, darkest_y);
             x = darkest_x;
             y = darkest_y;
-
-
-            float avgLuminance = task.getPixelData().getAverageLuminance();
-            task.updateProgess(avgLuminance-initialProgress, desired_brightness-initialProgress);
-            if(avgLuminance > desired_brightness || task.isFinished()){
+            if(updateProgress(task) || task.isFinished()){
                 task.finishProcess();
                 return;
             }
-
         }
         if(shouldLiftPen){
             task.closePath();
         }
+    }
+
+    private boolean updateProgress(IPlottingTask task){
+        PlottingTask plottingTask = (PlottingTask) task;
+        double avgLuminance = task.getPixelData().getAverageLuminance();
+        double lineProgress = maxLines == -1 ? 0 : (double)plottingTask.plottedDrawing.plottedPoints.size() / maxLines;
+        double lumProgress = (avgLuminance-initialProgress) / (desired_brightness-initialProgress);
+        double progress = Math.max(lineProgress, lumProgress);
+
+        task.updateProgess(progress, 1D);
+        return progress >= 1;
+
     }
 
     protected abstract void findDarkestNeighbour(IPixelData pixels, int x, int y);

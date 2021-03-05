@@ -40,7 +40,7 @@ public class PixelDataARGBY extends PixelDataARGB {
     }
 
     @Override
-    public float getAverageLuminance() {
+    public double getAverageLuminance() {
         return luminance.getAverage();
     }
 }

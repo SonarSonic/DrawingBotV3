@@ -1,7 +1,5 @@
 package drawingbot.image;
 
-import drawingbot.utils.Utils;
-
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to RGB values and their cached averages
  */
@@ -52,7 +50,7 @@ public class PixelDataARGB extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageChannel(int channel) {
+    public double getAverageChannel(int channel) {
         return getRawData(channel).getAverage();
     }
 
@@ -87,7 +85,7 @@ public class PixelDataARGB extends PixelDataAbstract {
     }
 
     @Override
-    public float getAverageHSB(int type) {
+    public double getAverageHSB(int type) {
         int r = (int)red.getAverage();
         int g = (int)green.getAverage();
         int b = (int)blue.getAverage();

@@ -33,8 +33,8 @@ public class RawData {
         return height;
     }
 
-    public float getAverage(){
-        return (float)(averageData / (width*height));
+    public double getAverage(){
+        return averageData / (width*height);
     }
 
     public int getData(int x, int y){
