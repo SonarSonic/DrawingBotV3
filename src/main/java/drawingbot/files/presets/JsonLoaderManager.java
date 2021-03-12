@@ -61,6 +61,10 @@ public class JsonLoaderManager {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public static void loadConfigFiles(){
+        CONFIGS.loadFromJSON();
+    }
+
     public static void loadJSONFiles(){
 
         //load default presets
@@ -71,7 +75,9 @@ public class JsonLoaderManager {
 
         //load user presets
         for(AbstractJsonLoader<?> manager : LOADERS){
-            manager.loadFromJSON();
+            if(manager != CONFIGS){
+                manager.loadFromJSON();
+            }
         }
 
     }

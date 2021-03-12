@@ -6,6 +6,8 @@ import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.PlottedPath;
 import drawingbot.plotting.PlottingTask;
+import org.apache.batik.svggen.SVGHintsDescriptor;
+import org.apache.batik.svggen.SVGRenderingHints;
 
 import java.awt.*;
 import java.util.List;

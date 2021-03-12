@@ -1,16 +1,13 @@
 package drawingbot.registry;
 
 import com.jhlabs.image.*;
-import drawingbot.DrawingBotV3;
-import drawingbot.drawing.CopicPenPlugin;
-import drawingbot.drawing.DrawingPen;
-import drawingbot.drawing.DrawingSet;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.drawing.*;
 import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.*;
 import drawingbot.utils.DBConstants;
+import drawingbot.utils.EnumColourSplitter;
 import drawingbot.utils.EnumFilterTypes;
 import javafx.scene.paint.Color;
 
@@ -60,23 +57,49 @@ public class Register {
         CopicPenPlugin.registerPens(MasterRegistry.INSTANCE);
         CopicPenPlugin.registerPenSets(MasterRegistry.INSTANCE);
 
-        DrawingPen originalColourPen = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", -1){
+        //// ORIGINAL COLOURS \\\\
+
+        DrawingPen originalColourPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", -1){
             @Override
             public int getCustomARGB(int pfmARGB) {
                 return pfmARGB;
             }
         };
-        DrawingPen originalGrayscalePen = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale", -1){
+        MasterRegistry.INSTANCE.registerDrawingPen(originalColourPen);
+
+        DrawingPen originalGrayscalePen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale", -1){
             @Override
             public int getCustomARGB(int pfmARGB) {
                 return ImageTools.grayscaleFilter(pfmARGB);
             }
         };
-        MasterRegistry.INSTANCE.registerDrawingPen(originalColourPen);
         MasterRegistry.INSTANCE.registerDrawingPen(originalGrayscalePen);
 
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Colour", List.of(originalColourPen)));
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Grayscale", List.of(originalGrayscalePen)));
+        DrawingSet originalColourSet = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Colour", List.of(originalColourPen));
+        MasterRegistry.INSTANCE.registerDrawingSet(originalColourSet);
+
+        DrawingSet originalGrayscaleSet = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Grayscale", List.of(originalGrayscalePen));
+        MasterRegistry.INSTANCE.registerDrawingSet(originalGrayscaleSet);
+
+        //// CYMK COLOURS \\\\
+
+        DrawingPen cyan = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Cyan", ImageTools.getARGB(30, 0, 255, 255));
+        MasterRegistry.INSTANCE.registerDrawingPen(cyan);
+
+        DrawingPen magenta = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Magenta", ImageTools.getARGB(30, 255, 0, 255));
+        MasterRegistry.INSTANCE.registerDrawingPen(magenta);
+
+        DrawingPen yellow = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Yellow", ImageTools.getARGB(30, 255, 255, 0));
+        MasterRegistry.INSTANCE.registerDrawingPen(yellow);
+
+        DrawingPen key = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Key", ImageTools.getARGB(30, 0, 0, 0));
+        MasterRegistry.INSTANCE.registerDrawingPen(key);
+
+        for(EnumColourSplitter splitter : EnumColourSplitter.values()){
+            splitter.drawingSet = splitter.createDrawingSet.apply(splitter);
+            MasterRegistry.INSTANCE.registerDrawingSet(splitter.drawingSet);
+        }
+
     }
 
     public static void registerImageFilters(){

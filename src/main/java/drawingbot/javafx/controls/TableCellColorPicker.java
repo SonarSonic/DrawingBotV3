@@ -16,11 +16,11 @@ public class TableCellColorPicker<T> extends TableCell<T, Color> {
             tableView.getSelectionModel().select(getTableRow().getIndex());
             tableView.edit(tableView.getSelectionModel().getSelectedIndex(), column);       
         });
-        this.colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(isEditing()) {
-                commitEdit(newValue);
+        this.colorPicker.setOnHiding(event -> {
+            if (isEditing()) {
+                commitEdit(this.colorPicker.getValue());
             }
-        });     
+        });
         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
     }
 

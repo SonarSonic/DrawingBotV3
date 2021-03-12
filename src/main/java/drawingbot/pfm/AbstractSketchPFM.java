@@ -71,10 +71,10 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         PlottingTask plottingTask = (PlottingTask) task;
         double avgLuminance = task.getPixelData().getAverageLuminance();
         double lineProgress = maxLines == -1 ? 0 : (double)plottingTask.plottedDrawing.plottedPoints.size() / maxLines;
-        double lumProgress = (avgLuminance-initialProgress) / (desired_brightness-initialProgress);
+        double lumProgress = avgLuminance >= desired_brightness ? 1 : (avgLuminance-initialProgress) / (desired_brightness-initialProgress);
         double progress = Math.max(lineProgress, lumProgress);
 
-        task.updateProgess(progress, 1D);
+        task.updatePlottingProgress(progress, 1D);
         return progress >= 1;
 
     }

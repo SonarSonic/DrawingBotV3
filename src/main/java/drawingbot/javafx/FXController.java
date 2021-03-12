@@ -41,6 +41,7 @@ import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.awt.image.BufferedImageOp;
+import java.io.File;
 import java.util.ArrayList;
 
 public class FXController {
@@ -89,32 +90,39 @@ public class FXController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// TOOL BAR
 
-    //file
-    public MenuItem menuImport = null;
-    public MenuItem menuImportURL = null;
-    public MenuItem menuExit = null;
-    public Menu menuExport = null;
-    public Menu menuExportPerPen = null;
-    //view
+    public Menu menuFile = null;
     public Menu menuView = null;
-    //help
-    public MenuItem menuHelpPage = null;
+    public Menu menuHelp = null;
 
     public void initToolbar(){
         //file
+        MenuItem menuImport = new MenuItem("Import");
         menuImport.setOnAction(e -> FXHelper.importFile());
-        menuExit.setOnAction(e -> Platform.exit());
+        menuFile.getItems().add(menuImport);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
+        Menu menuExport = new Menu("Export per/drawing");
         for(ExportFormats format : ExportFormats.values()){
             MenuItem item = new MenuItem(format.displayName);
             item.setOnAction(e -> FXHelper.exportFile(format, false));
             menuExport.getItems().add(item);
         }
+        menuFile.getItems().add(menuExport);
 
+        Menu menuExportPerPen = new Menu("Export per/pen");
         for(ExportFormats format : ExportFormats.values()){
             MenuItem item = new MenuItem(format.displayName);
             item.setOnAction(e -> FXHelper.exportFile(format, true));
             menuExportPerPen.getItems().add(item);
         }
+        menuFile.getItems().add(menuExportPerPen);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
+        MenuItem menuQuit = new MenuItem("Quit");
+        menuQuit.setOnAction(e -> Platform.exit());
+        menuFile.getItems().add(menuQuit);
 
         //view
         ArrayList<TitledPane> allPanes = new ArrayList<>();
@@ -132,7 +140,14 @@ public class FXController {
         }
 
         //help
-        menuHelpPage.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_REPO));
+        MenuItem aboutPage = new MenuItem("About DrawingBotV3");
+        aboutPage.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_REPO));
+        menuHelp.getItems().add(aboutPage);
+
+
+        MenuItem configFolder = new MenuItem("Open Configs Folder");
+        configFolder.setOnAction(e -> FXHelper.openFolder(new File(FileUtils.getUserDataDirectory())));
+        menuHelp.getItems().add(configFolder);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,6 +450,8 @@ public class FXController {
     public Button buttonPFMSettingRandom = null;
     public Button buttonPFMSettingHelp = null;
 
+    public ChoiceBox<EnumColourSplitter> choiceBoxColourSeperation = null;
+
     public void initPFMControls(){
 
         ////PATH FINDING CONTROLS
@@ -495,6 +512,12 @@ public class FXController {
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_PFM_DOCS));
 
+
+        DrawingBotV3.INSTANCE.colourSplitter.bindBidirectional(choiceBoxColourSeperation.valueProperty());
+        choiceBoxColourSeperation.setItems(FXCollections.observableArrayList(EnumColourSplitter.values()));
+        choiceBoxColourSeperation.setValue(EnumColourSplitter.DEFAULT);
+        choiceBoxColourSeperation.setOnAction(e -> FXHelper.openColourSeperationDialog(choiceBoxColourSeperation.getValue()));
+
     }
 
 
@@ -540,14 +563,15 @@ public class FXController {
         comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultSetType());
         comboBoxSetType.valueProperty().addListener((observable, oldValue, newValue) -> {
             comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(newValue));
-            comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultSet(newValue));
+            comboBoxDrawingSet.setValue(null);
         });
 
         comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
-        comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultSet(comboBoxSetType.getValue()));
+        comboBoxDrawingSet.setValue(null);
         comboBoxDrawingSet.valueProperty().addListener((observable, oldValue, newValue) -> changeDrawingSet(newValue));
         comboBoxDrawingSet.setCellFactory(param -> new ComboCellDrawingSet());
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet());
+        comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
         FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_SET, menuButtonDrawingSetPresets,
             () -> {
@@ -673,7 +697,7 @@ public class FXController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         renderOrderComboBox.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
-        renderOrderComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.renderOrder);
+        renderOrderComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder);
 
         blendModeComboBox.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
         blendModeComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.blendMode);

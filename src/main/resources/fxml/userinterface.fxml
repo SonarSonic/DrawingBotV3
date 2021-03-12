@@ -10,22 +10,9 @@
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-                  <MenuItem fx:id="menuImport" mnemonicParsing="false" text="Import" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <Menu fx:id="menuExport" mnemonicParsing="false" text="Export per/drawing" />
-                  <Menu fx:id="menuExportPerPen" mnemonicParsing="false" text="Export per/pen" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="menuExit" mnemonicParsing="false" text="Quit" />
-          </items>
-        </Menu>
+        <Menu fx:id="menuFile" mnemonicParsing="false" text="File" />
         <Menu fx:id="menuView" mnemonicParsing="false" text="View" />
-        <Menu mnemonicParsing="false" text="Help">
-          <items>
-            <MenuItem fx:id="menuHelpPage" mnemonicParsing="false" text="About DrawingBotV3" />
-          </items>
-        </Menu>
+        <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help" />
       </menus>
     </MenuBar>
       <HBox VBox.vgrow="ALWAYS">
@@ -133,15 +120,21 @@
                                                   <ChoiceBox fx:id="choiceBoxPFM" prefHeight="25.0" prefWidth="246.0" />
                                              </graphic></Label>
                                           <Separator layoutX="-6.0" layoutY="42.0" prefHeight="3.0" prefWidth="412.0" />
+                                          <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="16.0" layoutY="351.0" text="Colour Seperation:">
+                                             <graphic>
+                                                <ChoiceBox fx:id="choiceBoxColourSeperation" prefHeight="25.0" prefWidth="265.0" />
+                                             </graphic>
+                                          </Label>
+                                          <Separator layoutX="-4.0" layoutY="341.0" prefHeight="3.0" prefWidth="412.0" />
                                        </children>
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                            <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
+                            <TitledPane prefWidth="428.0" text="Pen Settings">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
-                                          <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="48.0" prefHeight="274.0" prefWidth="403.0" tableMenuButtonVisible="true">
+                                          <TableView fx:id="penTableView" editable="true" layoutX="-1.0" layoutY="48.0" prefHeight="250.0" prefWidth="403.0" tableMenuButtonVisible="true">
                                              <columns>
                                                 <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="28.0" />
                                                 <TableColumn fx:id="penTypeColumn" prefWidth="92.0" sortable="false" text="Type" />
@@ -153,16 +146,16 @@
                                                 <TableColumn fx:id="penLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Lines" />
                                              </columns>
                                           </TableView>
-                                          <ComboBox fx:id="blendModeComboBox" layoutX="223.0" layoutY="423.0" prefHeight="25.0" prefWidth="170.0" promptText="Blend Order: Hard Light" />
-                                          <ComboBox fx:id="renderOrderComboBox" layoutX="10.0" layoutY="423.0" prefHeight="25.0" prefWidth="210.0" promptText="Distribution Order: Lightest first" />
-                                          <HBox layoutX="11.0" layoutY="333.0" spacing="3.0">
+                                          <ComboBox fx:id="blendModeComboBox" layoutX="223.0" layoutY="382.0" prefHeight="25.0" prefWidth="170.0" promptText="Blend Order: Hard Light" />
+                                          <ComboBox fx:id="renderOrderComboBox" layoutX="10.0" layoutY="382.0" prefHeight="25.0" prefWidth="210.0" promptText="Distribution: Lightest first" />
+                                          <HBox layoutX="11.0" layoutY="309.0" spacing="3.0">
                                              <children>
                                                 <ComboBox fx:id="comboBoxPenType" prefHeight="25.0" prefWidth="118.0" promptText="Copic Original" />
                                                 <ComboBox fx:id="comboBoxDrawingPen" prefHeight="25.0" prefWidth="187.0" promptText="Select a pen" />
                                                 <MenuButton fx:id="menuButtonDrawingPenPresets" mnemonicParsing="false" text="Presets" />
                                              </children>
                                           </HBox>
-                                          <HBox layoutX="11.0" layoutY="368.0" spacing="3.0">
+                                          <HBox layoutX="11.0" layoutY="341.0" spacing="3.0">
                                              <children>
                                                 <Button fx:id="buttonAddPen" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Add" />
                                                 <Button fx:id="buttonRemovePen" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Remove" />
@@ -171,7 +164,7 @@
                                                 <Button fx:id="buttonMoveDownPen" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Down" />
                                              </children>
                                           </HBox>
-                                          <Separator layoutX="11.0" layoutY="410.0" prefWidth="380.0" />
+                                          <Separator layoutX="11.0" layoutY="376.0" prefWidth="380.0" />
                                           <HBox layoutX="11.0" layoutY="12.0" spacing="3.0">
                                              <children>
                                                 <ComboBox fx:id="comboBoxSetType" prefHeight="25.0" prefWidth="80.0" promptText="Special" />
@@ -219,7 +212,7 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                              <TitledPane text="GCode Settings">
+                              <TitledPane expanded="false" text="GCode Settings">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -272,9 +265,9 @@
                   <ToolBar prefHeight="40.0">
                      <items>
                         <VBox />
-                        <Label contentDisplay="RIGHT" text="Display Mode:">
+                        <Label contentDisplay="RIGHT" text="Display:">
                            <graphic>
-                              <ChoiceBox fx:id="choiceBoxDisplayMode" prefHeight="25.0" prefWidth="119.0" />
+                              <ChoiceBox fx:id="choiceBoxDisplayMode" prefHeight="25.0" prefWidth="114.0" />
                            </graphic>
                         </Label>
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
@@ -284,7 +277,7 @@
                         <Separator prefHeight="25.0" prefWidth="21.0" />
                         <Button fx:id="buttonZoomIn" mnemonicParsing="false" text="Zoom In" />
                         <Button fx:id="buttonZoomOut" mnemonicParsing="false" text="Zoom Out" />
-                        <Separator layoutX="244.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
+                        <Separator layoutX="244.0" layoutY="10.0" prefHeight="30.0" prefWidth="14.0" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                         <Separator layoutX="351.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
                         <Label contentDisplay="RIGHT" text="Show Grid:">

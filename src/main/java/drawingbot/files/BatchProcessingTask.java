@@ -8,6 +8,7 @@ import drawingbot.image.FilteredBufferedImage;
 import drawingbot.plotting.PlottedPoint;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.utils.EnumColourSplitter;
 import javafx.concurrent.Task;
 
 import java.awt.image.BufferedImage;
@@ -30,12 +31,14 @@ public class BatchProcessingTask extends Task<Boolean> {
     public String outputFolder;
     public GenericFactory<IPathFindingModule> pfmFactory;
     public ObservableDrawingSet drawingPenSet;
+    public EnumColourSplitter splitter;
 
     public BatchProcessingTask(String inputFolder, String outputFolder){
         this.inputFolder = inputFolder;
         this.outputFolder = outputFolder;
         this.pfmFactory = DrawingBotV3.INSTANCE.pfmFactory.get();
         this.drawingPenSet = new ObservableDrawingSet(DrawingBotV3.INSTANCE.observableDrawingSet);
+        this.splitter = DrawingBotV3.INSTANCE.colourSplitter.get();
     }
 
     @Override
@@ -67,7 +70,8 @@ public class BatchProcessingTask extends Task<Boolean> {
                 String simpleFileName = FileUtils.removeExtension(path.getFileName().toString());
                 if(BatchProcessing.overwriteExistingFiles.get() || BatchProcessing.exportTasks.stream().anyMatch(b -> b.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet))){
                     BufferedImage image = BufferedImageLoader.loadImage(path.toString(), false);
-                    PlottingTask internalTask = new PlottingTask(pfmFactory, drawingPenSet, image, new File(path.toString()));
+                    PlottingTask internalTask = DrawingBotV3.INSTANCE.initPlottingTask(pfmFactory, drawingPenSet, image, new File(path.toString()), splitter);
+                    internalTask.isSubTask = true;
                     Future<?> futurePlottingTask = service.submit(internalTask);
                     while(!futurePlottingTask.isDone()){
                         ///wait

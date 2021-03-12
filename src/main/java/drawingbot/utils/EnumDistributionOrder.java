@@ -7,12 +7,12 @@ import java.util.Comparator;
 
 public enum EnumDistributionOrder {
 
-    DARKEST_FIRST(Comparator.comparingInt(pen -> ImageTools.getPerceivedLuminanceFromRGB(pen.getCustomARGB()))),
-    LIGHTEST_FIRST(Comparator.comparingInt(pen -> -ImageTools.getPerceivedLuminanceFromRGB(pen.getCustomARGB()))),
+    DARKEST_FIRST(Comparator.comparingInt(pen -> ImageTools.getPerceivedLuminanceFromRGB(pen.getARGB()))),
+    LIGHTEST_FIRST(Comparator.comparingInt(pen -> -ImageTools.getPerceivedLuminanceFromRGB(pen.getARGB()))),
     DISPLAYED(Comparator.comparingInt(pen -> pen.penNumber.get())),
     REVERSED(Comparator.comparingInt(pen -> -pen.penNumber.get()));
 
-    public Comparator<ObservableDrawingPen> comparator;
+    public final Comparator<ObservableDrawingPen> comparator;
 
     EnumDistributionOrder(Comparator<ObservableDrawingPen> comparator){
         this.comparator = comparator;

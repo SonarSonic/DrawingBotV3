@@ -18,6 +18,7 @@ public class PlottedDrawing {
 
     public ObservableDrawingSet drawingPenSet;
     public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
+    public boolean ignoreWeightedDistribution = false;
 
     public PlottedDrawing(ObservableDrawingSet penSet){
         this.plottedPoints = Collections.synchronizedList(new ArrayList<>());
@@ -140,40 +141,43 @@ public class PlottedDrawing {
 
     /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
     public void updateWeightedDistribution(){
-        int totalWeight = 0;
-        for(int i = 0; i < drawingPenSet.pens.size(); i++){
-            ObservableDrawingPen pen = drawingPenSet.pens.get(i);
-            pen.penNumber.set(i); //update pens number based on position
-            if(pen.isEnabled()){
-                totalWeight += pen.distributionWeight.get();
-            }
-        }
 
-        int currentLine = 0;
-        int[] renderOrder = drawingPenSet.getCurrentRenderOrder();
-
-        for(int i = 0; i < renderOrder.length; i++){
-            int penNumber = renderOrder[i];
-            ObservableDrawingPen pen = drawingPenSet.pens.get(penNumber);
-            if(pen.isEnabled()){ //if it's not enabled leave it at 0
-
-                //percentage
-                float percentage = (float)pen.distributionWeight.get() / totalWeight;
-                pen.currentPercentage.set(NumberFormat.getPercentInstance().format(percentage));
-
-                //lines
-                int linesPerPen = (int)(percentage * getPlottedLineCount());
-                pen.currentLines.set(linesPerPen);
-
-                //set pen references
-                int end = i == renderOrder.length-1 ? plottedPoints.size() : currentLine + linesPerPen;
-                for (; currentLine < end; currentLine++) {
-                    PlottedPoint line = plottedPoints.get(currentLine);
-                    line.pen_number = penNumber;
+        if(!ignoreWeightedDistribution){
+            int totalWeight = 0;
+            for(int i = 0; i < drawingPenSet.pens.size(); i++){
+                ObservableDrawingPen pen = drawingPenSet.pens.get(i);
+                pen.penNumber.set(i); //update pens number based on position
+                if(pen.isEnabled()){
+                    totalWeight += pen.distributionWeight.get();
                 }
-            }else{
-                pen.currentPercentage.set("0.0");
-                pen.currentLines.set(0);
+            }
+
+            int currentLine = 0;
+            int[] renderOrder = drawingPenSet.getCurrentRenderOrder();
+
+            for(int i = 0; i < renderOrder.length; i++){
+                int penNumber = renderOrder[i];
+                ObservableDrawingPen pen = drawingPenSet.pens.get(penNumber);
+                if(pen.isEnabled()){ //if it's not enabled leave it at 0
+
+                    //percentage
+                    float percentage = (float)pen.distributionWeight.get() / totalWeight;
+                    pen.currentPercentage.set(NumberFormat.getPercentInstance().format(percentage));
+
+                    //lines
+                    int linesPerPen = (int)(percentage * getPlottedLineCount());
+                    pen.currentLines.set(linesPerPen);
+
+                    //set pen references
+                    int end = i == renderOrder.length-1 ? plottedPoints.size() : currentLine + linesPerPen;
+                    for (; currentLine < end; currentLine++) {
+                        PlottedPoint line = plottedPoints.get(currentLine);
+                        line.pen_number = penNumber;
+                    }
+                }else{
+                    pen.currentPercentage.set("0.0");
+                    pen.currentLines.set(0);
+                }
             }
         }
     }
@@ -213,7 +217,7 @@ public class PlottedDrawing {
                 continue;
             }
 
-            int argb = pen.getCustomARGB(point.rgba);
+            int argb = point.rgba == null ? pen.getARGB() : pen.getCustomARGB(point.rgba);
             boolean isContinuation = last != null && isPathContinuation(last, point);
             boolean isMatchingColour = lastARGB != null && argb == lastARGB; //specials will not have matching colours
 
