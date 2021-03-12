@@ -1,7 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.BooleanProperty;
@@ -76,7 +75,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
                     checkBox.selectedProperty().bindBidirectional(property);
                 }
             }
-            colour.setFill(ImageTools.getColorFromARGB(item.getCustomARGB()));
+            colour.setFill(ImageTools.getColorFromARGB(item.getARGB()));
         }
     }
 }

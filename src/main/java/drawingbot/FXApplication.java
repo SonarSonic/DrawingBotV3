@@ -4,10 +4,12 @@ import drawingbot.api.API;
 import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
 import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -46,6 +48,8 @@ public class FXApplication extends Application {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //// PRE-INIT
+        DrawingBotV3.logger.info("Loading Configuration");
+        ConfigFileHandler.init();
 
         DrawingBotV3.logger.info("Loading API");
         API.INSTANCE = new DrawingBotV3API();
@@ -59,8 +63,8 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Init Observable Drawing Set");
         DrawingBotV3.INSTANCE.observableDrawingSet = new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
 
-        DrawingBotV3.logger.info("Loading configuration");
-        ConfigFileHandler.init();
+        DrawingBotV3.logger.info("Loading Json Files");
+        JsonLoaderManager.loadJSONFiles();
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,11 +91,8 @@ public class FXApplication extends Application {
         primaryStage.show();
 
         // set up main drawing loop
-        KeyFrame keyFrame = new KeyFrame(Duration.millis(1000), event -> DrawingBotV3.INSTANCE.draw());
-        animation = new Timeline(keyFrame);
-        animation.setCycleCount(Animation.INDEFINITE);
-        animation.setRate(-frameRate);// setting rate to negative so that event fires at the start of the key frame and first frame is drawn immediately
-        animation.play();
+        DrawTimer timer = new DrawTimer();
+        timer.start();
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +103,14 @@ public class FXApplication extends Application {
         InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
         if(stream != null){
             primaryStage.getIcons().add(new Image(stream));
+        }
+    }
+
+    private static class DrawTimer extends AnimationTimer{
+
+        @Override
+        public void handle(long now) {
+            DrawingBotV3.INSTANCE.draw();
         }
     }
 }

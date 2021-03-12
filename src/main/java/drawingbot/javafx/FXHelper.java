@@ -6,9 +6,13 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.controls.DialogColourSeperationMode;
 import drawingbot.plotting.PlottedPoint;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.EnumColourSplitter;
+import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.EnumJsonType;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -38,10 +42,11 @@ public class FXHelper {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().add(FileUtils.IMPORT_IMAGES);
             d.setTitle("Select an image file to sketch");
-            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
+            d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
                 DrawingBotV3.INSTANCE.openImage(file, false);
+                FileUtils.updateImportDirectory(file.getParentFile());
             }
         });
     }
@@ -54,11 +59,12 @@ public class FXHelper {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(format.filters);
             d.setTitle(format.getDialogTitle());
-            d.setInitialDirectory(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getParentFile());
+            d.setInitialDirectory(FileUtils.getExportDirectory());
             d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getName()) + "_plotted");
             File file = d.showSaveDialog(null);
             if(file != null){
                 DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), PlottedPoint.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
+                FileUtils.updateExportDirectory(file.getParentFile());
             }
         });
     }
@@ -68,10 +74,11 @@ public class FXHelper {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().add(FileUtils.FILTER_JSON);
             d.setTitle("Select a preset to import");
-            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
+            d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
                 JsonLoaderManager.importPresetFile(file, presetType);
+                FileUtils.updateImportDirectory(file.getParentFile());
             }
         });
     }
@@ -81,11 +88,12 @@ public class FXHelper {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(FileUtils.FILTER_JSON);
             d.setTitle("Save preset");
-            d.setInitialDirectory(new File(FileUtils.getUserHomeDirectory()));
+            d.setInitialDirectory(FileUtils.getExportDirectory());
             d.setInitialFileName(preset.presetName + " - Preset");
             File file = d.showSaveDialog(null);
             if(file != null){
                 JsonLoaderManager.exportPresetFile(file, preset);
+                FileUtils.updateExportDirectory(file.getParentFile());
             }
         });
     }
@@ -97,6 +105,16 @@ public class FXHelper {
             }
         } catch (IOException e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening webpage: " + url);
+        }
+    }
+
+    public static void openFolder(File directory){
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                Desktop.getDesktop().open(directory);
+            }
+        } catch (IOException e) {
+            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening directory: " + directory);
         }
     }
 
@@ -231,6 +249,22 @@ public class FXHelper {
     public static <O> void deleteItem(O item, ObservableList<O> list){
         if(item == null) return;
         list.remove(item);
+    }
+
+    public static void openColourSeperationDialog(EnumColourSplitter splitter){
+        DialogColourSeperationMode dialog = new DialogColourSeperationMode(splitter);
+        Optional<Boolean> result = dialog.showAndWait();
+        if(result.isPresent() && result.get()){
+            if(splitter != EnumColourSplitter.DEFAULT){
+                DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DISPLAYED);
+                DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.DARKEN);
+                DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(splitter.drawingSet);
+            }else{
+                DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
+                DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.NORMAL);
+                DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
+            }
+        }
     }
 
     public static void openImageFilterDialog(ObservableImageFilter filter){

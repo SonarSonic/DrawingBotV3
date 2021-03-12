@@ -7,6 +7,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
+import javafx.application.Platform;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -116,7 +117,8 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public abstract O fromJsonElement(Gson gson,  GenericPreset<?> preset, JsonElement element);
 
     public final void queueJsonUpdate() {
-        DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
+        //run later to prevent json update happen before services have been created
+        Platform.runLater(() -> DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON));
     }
 
     public void loadFromJSON(){

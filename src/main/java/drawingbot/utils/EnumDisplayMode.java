@@ -9,7 +9,7 @@ public enum EnumDisplayMode {
     LIGHTENED(EnumDisplayModeType.TASK),
     SELECTED_PEN(EnumDisplayModeType.TASK);
 
-    public EnumDisplayModeType type;
+    public final EnumDisplayModeType type;
 
     EnumDisplayMode(EnumDisplayModeType type){
         this.type = type;

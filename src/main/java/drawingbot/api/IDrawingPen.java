@@ -6,14 +6,6 @@ package drawingbot.api;
 public interface IDrawingPen {
 
     /**
-     * @param pfmARGB the line's colour as configured by the PFM, won't be null
-     * @return returns the custom ARGB value to use when rendering a pen
-     */
-    default int getCustomARGB(int pfmARGB){
-        return getCustomARGB();
-    }
-
-    /**
      * @return the pens unique name, unique to each pen
      */
     default String getCodeName(){
@@ -40,7 +32,7 @@ public interface IDrawingPen {
     /**
      * @return the ARGB value of the pen, used when rendering
      */
-    int getCustomARGB();
+    int getARGB();
 
     /**
      * @return the stroke size for rendering the pen

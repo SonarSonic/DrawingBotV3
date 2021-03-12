@@ -8,6 +8,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.javafx.GenericFactory;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
@@ -42,10 +43,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     // PATH FINDING \\
     public IPathFindingModule pfm;
-    public double plottingProgress = 0;
     public boolean plottingFinished = false;
-    public float old_x = 0;
-    public float old_y = 0;
     public int currentPen = 0;
     public boolean useCustomARGB = false;
     public int customARGB = -1;
@@ -57,6 +55,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     // GCODE \\
     private float gcode_offset_x;
     private float gcode_offset_y;
+
+    public boolean enableImageFiltering = true;
+    public boolean isSubTask = false;
 
     public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Processing Image");
@@ -75,7 +76,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public boolean doTask(){
         switch (stage){
-
             case QUEUED:
                 startTime = System.currentTimeMillis();
                 finishStage();
@@ -87,7 +87,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 useCustomARGB = false;
                 customARGB = 0;
                 pathIndex = 0;
-                plottingProgress = 0;
+                //plottingProgress = 0;
                 plottingFinished = false;
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
@@ -100,11 +100,19 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 DrawingBotV3.logger.fine("Copying Original Image");
                 img_plotting = ImageTools.deepCopy(img_original);
 
-                DrawingBotV3.logger.fine("Applying Filters");
+                DrawingBotV3.logger.fine("Updating Resolution");
                 resolution.plottingResolution = pfm.getPlottingResolution();
                 resolution.updateAll();
-                img_plotting = FilteredBufferedImage.applyAll(img_plotting, resolution);
-                img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
+
+                if(enableImageFiltering){
+                    DrawingBotV3.logger.fine("Applying Cropping");
+                    img_plotting = FilteredBufferedImage.applyCropping(img_plotting, resolution);
+
+                    DrawingBotV3.logger.fine("Applying Filters");
+                    img_plotting = FilteredBufferedImage.applyFilters(img_plotting);
+
+                    img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
+                }
 
                 DrawingBotV3.logger.fine("Creating Pixel Data");
                 reference = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
@@ -123,7 +131,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 finishStage();
                 updateMessage("Plotting Image: " + pfmFactory.getName()); //here to avoid excessive task updates
                 break;
-
             case DO_PROCESS:
                 if(plottingFinished || isFinished()){
                     finishStage();
@@ -132,7 +139,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 pfm.doProcess(this);
                 break;
             case POST_PROCESSING:
-
                 pfm.postProcess(this);
 
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Started");
@@ -142,18 +148,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 img_reference = ImageTools.getBufferedImage(reference);
                 img_plotting = ImageTools.getBufferedImage(plotting);
 
-
                 finishStage();
                 break;
-
             case FINISHING:
                 finishTime = (System.currentTimeMillis() - startTime);
                 updateMessage("Finished: " + finishTime/1000 + " s");
                 finishStage();
                 break;
-
             case FINISHED:
-                finishStage();
+                //finishStage();
                 break;
         }
         return true;
@@ -172,7 +175,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public void finishStage(){
-        DrawingBotV3.INSTANCE.onTaskStageFinished(this, stage);
+        if(!isSubTask){
+            DrawingBotV3.INSTANCE.onTaskStageFinished(this, stage);
+        }
         stage = EnumTaskStage.values()[stage.ordinal()+1];
     }
 
@@ -201,7 +206,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
             cancel();
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishProcess();
-            finishStage();
         }
     }
 
@@ -235,24 +239,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
             }
         }
         return this;
-    }
-
-    public void reset(){
-        img_original = null;
-        img_reference = null;
-        img_plotting = null;
-        plottedDrawing.reset();
-        plottedDrawing = null;
-        comments.clear();
-        old_x = 0;
-        old_y = 0;
-        gcode_offset_x = 0;
-        gcode_offset_y = 0;
-        pfm = null;
-        resolution = null;
-        pfmFactory = null;
-        startTime = 0;
-        finishTime = -1;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,12 +320,44 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     @Override
-    public void updateProgess(double progress, double max) {
-        plottingProgress = progress/max;
+    public void updatePlottingProgress(double progress, double max) {
+        double actual = Math.min(Utils.roundToPrecision(progress / max, 3), 1D);
+        updateProgress(actual, 1D);
     }
 
     @Override
     public void finishProcess() {
         plottingFinished = true;
+    }
+
+
+    public void reset(){
+        pfmFactory = null;
+        plottedDrawing.reset();
+        plottedDrawing = null;
+        originalFile = null;
+
+        startTime = 0;
+        finishTime = -1;
+        comments.clear();
+
+        img_original = null;
+        img_reference = null;
+        img_plotting = null;
+
+        reference = null;
+        plotting = null;
+
+        pfm = null;
+        plottingFinished = false;
+        currentPen = 0;
+        useCustomARGB = false;
+        customARGB = -1;
+        pathIndex = 0;
+
+        resolution = null;
+
+        gcode_offset_x = 0;
+        gcode_offset_y = 0;
     }
 }

@@ -94,7 +94,7 @@ public class PFMSpiral extends AbstractPFM {
 
 
             float startRadius = distBetweenRings /2;
-            task.updateProgess(radius-startRadius, endRadius-startRadius);
+            task.updatePlottingProgress(radius-startRadius, endRadius-startRadius);
         }
 
         task.closePath();

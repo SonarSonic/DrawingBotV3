@@ -54,7 +54,7 @@ public interface IPathFindingModule {
     /**
      * Runs the PFM, generating the lines from the pixel data provided by {@link IPlottingTask#getPixelData()}
      * Called indefinitely until {@link IPlottingTask#finishProcess()} is called.
-     * Implementations should also update the progress of the process with {@link IPlottingTask#updateProgess(double, double)} ()}
+     * Implementations should also update the progress of the process with {@link IPlottingTask#updatePlottingProgress(double, double)} ()}
      * @param task the plotting task
      */
     void doProcess(IPlottingTask task);

@@ -5,9 +5,6 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.utils.EnumDistributionOrder;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -22,7 +19,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
     public final SimpleStringProperty type;
     public final SimpleStringProperty name;
     public final ObservableList<ObservableDrawingPen> pens;
-    public final SimpleObjectProperty<EnumDistributionOrder> renderOrder;
+    public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder;
     public final SimpleObjectProperty<EnumBlendMode> blendMode;
     public int[] currentRenderOrder;
 
@@ -30,10 +27,11 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         this.type = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.pens = FXCollections.observableArrayList();
-        this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
-        this.renderOrder = new SimpleObjectProperty<>(EnumDistributionOrder.DARKEST_FIRST);
+        this.distributionOrder = new SimpleObjectProperty<>(EnumDistributionOrder.DARKEST_FIRST);
         this.blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
-        this.renderOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
+
+        this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
+        this.distributionOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         loadDrawingSet(source);
     }
@@ -53,7 +51,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
     public int[] getCurrentRenderOrder(){
         SortedList<ObservableDrawingPen> sortedList = pens.sorted();
-        sortedList.setComparator(renderOrder.get().comparator);
+        sortedList.setComparator(distributionOrder.get().comparator);
         currentRenderOrder = new int[sortedList.size()];
         for(int i = 0; i < sortedList.size(); i++){
             currentRenderOrder[i] = sortedList.getSourceIndex(i);

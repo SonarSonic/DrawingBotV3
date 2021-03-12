@@ -1,6 +1,7 @@
 package drawingbot.drawing;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICustomPen;
 import drawingbot.api.IDrawingPen;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.*;
@@ -8,7 +9,7 @@ import javafx.scene.paint.Color;
 
 import java.awt.*;
 
-public class ObservableDrawingPen implements IDrawingPen {
+public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
 
     public SimpleIntegerProperty penNumber; //the pens index in the set
     public SimpleBooleanProperty enable; //if the pen should be enabled in renders / exports
@@ -27,7 +28,7 @@ public class ObservableDrawingPen implements IDrawingPen {
         this.enable = new SimpleBooleanProperty(true);
         this.type = new SimpleStringProperty(source.getType());
         this.name = new SimpleStringProperty(source.getName());
-        this.javaFXColour = new SimpleObjectProperty<>(ImageTools.getColorFromARGB(source.getCustomARGB()));
+        this.javaFXColour = new SimpleObjectProperty<>(ImageTools.getColorFromARGB(source.getARGB()));
         this.distributionWeight = new SimpleIntegerProperty(source.getDistributionWeight());
         this.strokeSize = new SimpleFloatProperty(source.getStrokeSize());
         this.currentPercentage = new SimpleStringProperty("0.0");
@@ -66,13 +67,13 @@ public class ObservableDrawingPen implements IDrawingPen {
     }
 
     @Override
-    public int getCustomARGB() {
+    public int getARGB() {
         return ImageTools.getARGBFromColor(javaFXColour.get());
     }
 
     @Override
     public int getCustomARGB(int pfmARGB) {
-        return source.getCustomARGB(pfmARGB);
+        return source instanceof ICustomPen ? ((ICustomPen) source).getCustomARGB(pfmARGB) : getARGB();
     }
 
     @Override
@@ -87,23 +88,29 @@ public class ObservableDrawingPen implements IDrawingPen {
 
     public java.awt.Color getAWTColor(){
         if(awtColor == null){
-            awtColor = new java.awt.Color(getCustomARGB(), true);
+            awtColor = new java.awt.Color(getARGB(), true);
         }
         return awtColor;
     }
 
     public java.awt.Color getAWTColor(Integer pfmARGB){
-        return pfmARGB != null ? new java.awt.Color(getCustomARGB(pfmARGB), true) : getAWTColor();
+        if(pfmARGB != null && source instanceof ICustomPen){
+            return new java.awt.Color(((ICustomPen) source).getCustomARGB(pfmARGB), true);
+        }
+        return getAWTColor();
     }
 
     public BasicStroke getAWTStroke(){
         if(awtStroke == null){
-            awtStroke = new BasicStroke(1);
+            awtStroke = new BasicStroke(strokeSize.get());
         }
         return awtStroke;
     }
 
     public Color getFXColor(Integer pfmARGB){
-        return pfmARGB != null ? ImageTools.getColorFromARGB(getCustomARGB(pfmARGB)) : javaFXColour.get();
+        if(pfmARGB != null && source instanceof ICustomPen){
+            return ImageTools.getColorFromARGB(((ICustomPen) source).getCustomARGB(pfmARGB));
+        }
+        return javaFXColour.get();
     }
 }

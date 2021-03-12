@@ -115,11 +115,13 @@ public class MasterRegistry {
     //// PATH FINDING MODULES: REGISTERING
 
     public void registerPFM(Class<? extends IPathFindingModule> pfmClass, String name, Supplier<IPathFindingModule> create, boolean isHidden){
+        DrawingBotV3.logger.finest("Registering PFM: " + name);
         pfmFactories.put(pfmClass, new GenericFactory(pfmClass, name, create, isHidden));
         registerPFMPreset(JsonLoaderManager.PFM.createNewPreset(name, "Default", false));
     }
 
     public <C, V> void registerPFMSetting(GenericSetting<C, V> setting){
+        DrawingBotV3.logger.finest("Registering PFM Setting: " + setting.settingName.getValue());
         for(GenericFactory<IPathFindingModule> loader : pfmFactories.values()){
             if(setting.isAssignableFrom(loader.getInstanceClass())){
                 GenericSetting<C,V> copy = setting.copy();
@@ -130,6 +132,7 @@ public class MasterRegistry {
     }
 
     public void registerPFMPreset(GenericPreset<PresetPFMSettings> preset){
+        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.presetName);
         pfmPresets.putIfAbsent(preset.presetSubType, FXCollections.observableArrayList());
         pfmPresets.get(preset.presetSubType).add(preset);
     }
@@ -138,21 +141,25 @@ public class MasterRegistry {
     //// IMAGE FILTERS: REGISTERING
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
+        DrawingBotV3.logger.finest("Registering Image Filter: " + name);
         imgFilterFactories.putIfAbsent(filterType, FXCollections.observableArrayList());
         imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
     }
 
     public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
+        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.settingName.getValue());
         imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
         imgFilterSettings.get(setting.clazz).add(setting);
     }
 
     public void registerImageFilterDialog(Class<BufferedImageOp> filterClass, Function<ObservableImageFilter, Dialog<ObservableImageFilter>> dialog){
+        DrawingBotV3.logger.finest("Registering Image Filter Dialog: " + filterClass);
         imgFilterSettings.putIfAbsent(filterClass, new ArrayList<>());
         imgFilterDialogs.put(filterClass, dialog);
     }
 
     public void registerImageFilterPreset(GenericPreset<PresetImageFilters> preset){
+        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.presetName);
         imgFilterPresets.add(preset);
     }
 
@@ -163,6 +170,7 @@ public class MasterRegistry {
         if(pen == null){
             return;
         }
+        DrawingBotV3.logger.finest("Registering Drawing Pen: " + pen.getCodeName());
         if(registeredPens.get(pen.getName()) != null){
             DrawingBotV3.logger.warning("DUPLICATE PEN UNIQUE ID: " + pen.getName());
             return;
@@ -172,6 +180,7 @@ public class MasterRegistry {
     }
 
     public void unregisterDrawingPen(DrawingPen pen){
+        DrawingBotV3.logger.finest("Unregistering Drawing Pen: " + pen.getCodeName());
         ObservableList<DrawingPen> pens = registeredPens.get(pen.getType());
         pens.remove(pen);
         if(pens.isEmpty()){
@@ -185,6 +194,7 @@ public class MasterRegistry {
         if(penSet == null){
             return;
         }
+        DrawingBotV3.logger.finest("Registering Drawing Set: " + penSet.getCodeName());
         if(registeredSets.get(penSet.getName()) != null){
             DrawingBotV3.logger.warning("DUPLICATE DRAWING SET NAME: " + penSet.getName());
             return;
@@ -194,6 +204,7 @@ public class MasterRegistry {
     }
 
     public void unregisterDrawingSet(IDrawingSet<IDrawingPen> penSet){
+        DrawingBotV3.logger.finest("Unregistering Drawing Set: " + penSet.getCodeName());
         ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(penSet.getType());
         sets.remove(penSet);
         if(sets.isEmpty()){

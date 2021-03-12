@@ -17,7 +17,7 @@ public interface IPlottingTask {
      * @param progress the current progress
      * @param max the max progress
      */
-    void updateProgess(double progress, double max);
+    void updatePlottingProgress(double progress, double max);
 
     /**
      * Notifies the PlottingTask that the {@link IPathFindingModule} has finished

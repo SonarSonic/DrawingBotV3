@@ -10,7 +10,7 @@ public enum EnumJsonType {
     DRAWING_AREA("drawing_area"),
     GCODE_SETTINGS("gcode_settings");
 
-    public String id;
+    public final String id;
     EnumJsonType(String id){
         this.id = id;
     }

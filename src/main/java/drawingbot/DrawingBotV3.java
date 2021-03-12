@@ -3,6 +3,7 @@
   Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
  */
 package drawingbot;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +24,7 @@ import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.GenericFactory;
-import drawingbot.registry.MasterRegistry;
+import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottedPoint;
 import drawingbot.plotting.PlottingTask;
@@ -72,6 +73,7 @@ public class DrawingBotV3 {
     //PATH FINDING \\
     public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
     public SimpleObjectProperty<GenericFactory<IPathFindingModule>> pfmFactory = new SimpleObjectProperty<>();
+    public SimpleObjectProperty<EnumColourSplitter> colourSplitter = new SimpleObjectProperty<>();
 
     // PEN SETS \\
     public SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
@@ -83,7 +85,7 @@ public class DrawingBotV3 {
     //VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
     public static int pointRenderLimitNormal = 20000;
-    public static int pointRenderLimitBlendMode = 2000;
+    public static int pointRenderLimitBlendMode = 5000;
     public static int defaultMaxTextureSize = 4096;
     public static double minScale = 0.1;
 
@@ -103,6 +105,7 @@ public class DrawingBotV3 {
 
     // TASKS \\
     public PlottingTask activeTask = null;
+    public PlottingTask renderedTask = null; //for tasks which generate sub tasks e.g. colour splitter, batch processing
     public ExportTask exportTask = null;
     public BatchProcessingTask batchProcessingTask = null;
 
@@ -205,7 +208,8 @@ public class DrawingBotV3 {
     private boolean markRenderDirty = true, changedTask, changedMode, changedState, shouldRedraw;
 
     private void preRender(){
-        PlottingTask renderedTask = getActiveTask();
+
+        PlottingTask renderedTask = getRenderedTask();
 
         //update the flags from the last render
         changedTask = lastDrawn != renderedTask;
@@ -264,7 +268,7 @@ public class DrawingBotV3 {
     private void postRender(){
         graphicsFX.restore();
 
-        PlottingTask renderedTask = getActiveTask();
+        PlottingTask renderedTask = getRenderedTask();
         markRenderDirty = false;
         lastDrawn = renderedTask;
         lastMode = display_mode.get();
@@ -272,7 +276,7 @@ public class DrawingBotV3 {
     }
 
     private void render() {
-        PlottingTask renderedTask = getActiveTask();
+        PlottingTask renderedTask = getRenderedTask();
         switch (display_mode.get()){
             case IMAGE:
                 if(openImage != null){
@@ -431,7 +435,7 @@ public class DrawingBotV3 {
     public void updateUI(){
         String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
         if(getActiveTask() != null && getActiveTask().isRunning()){
-            controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().plottingProgress);
+            controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().progressProperty().get());
             controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
             controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedPoints.size()) + " lines");
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
@@ -470,9 +474,7 @@ public class DrawingBotV3 {
             case POST_PROCESSING:
                 break;
             case FINISHING:
-                if(batchProcessingTask == null){
-                    isPlotting.setValue(false);
-                }
+                isPlotting.setValue(false);
                 break;
             case FINISHED:
                 break;
@@ -510,12 +512,16 @@ public class DrawingBotV3 {
 
     //// PLOTTING TASKS
 
+    public PlottingTask initPlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter){
+        return colourSplitter.get() == EnumColourSplitter.DEFAULT ? new PlottingTask(pfmFactory, drawingPenSet, image, originalFile) : new SplitPlottingTask(pfmFactory, drawingPenSet, image, originalFile, splitter);
+    }
+
     public void startPlotting(){
         if(activeTask != null){
             activeTask.cancel();
         }
         if(openImage != null){
-            taskService.submit(new PlottingTask(pfmFactory.get(), observableDrawingSet, openImage.getSource(), openFile));
+            taskService.submit(initPlottingTask(pfmFactory.get(), observableDrawingSet, openImage.getSource(), openFile, colourSplitter.get()));
             isPlotting.setValue(true);
         }
     }
@@ -563,6 +569,10 @@ public class DrawingBotV3 {
 
     public PlottingTask getActiveTask(){
         return activeTask;
+    }
+
+    public PlottingTask getRenderedTask(){
+        return renderedTask == null ? activeTask : renderedTask;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,7 @@ public class DrawingPen implements IDrawingPen {
     }
 
     public void update(IDrawingPen pen){
-        update(pen.getType(), pen.getName(), pen.getCustomARGB(), pen.getDistributionWeight(), pen.getStrokeSize());
+        update(pen.getType(), pen.getName(), pen.getARGB(), pen.getDistributionWeight(), pen.getStrokeSize());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DrawingPen implements IDrawingPen {
     }
 
     @Override
-    public int getCustomARGB() {
+    public int getARGB() {
         return argb;
     }
 
