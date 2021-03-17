@@ -1,11 +1,11 @@
-package drawingbot.pfm;
+package drawingbot.pfm.wip;
 
 import drawingbot.api.IPlottingTask;
+import drawingbot.geom.basic.GLine;
 import drawingbot.image.ImageTools;
-import drawingbot.plotting.PlottingTask;
-import drawingbot.utils.AlgorithmHelper;
+import drawingbot.pfm.AbstractDarkestPFM;
 
-public class PFMLines extends AbstractDarkestPFM{
+public class PFMIntersectingLines extends AbstractDarkestPFM {
 
     public int adjustbrightness;        // How fast it moves from dark to light, over-draw
     //public float desired_brightness;    // How long to process.  You can always stop early with "s" key
@@ -17,7 +17,7 @@ public class PFMLines extends AbstractDarkestPFM{
     protected float initialProgress;
     protected float progress;
 
-    public PFMLines() {
+    public PFMIntersectingLines() {
         super();
         tests = 360;
         adjustbrightness = 30;
@@ -29,7 +29,6 @@ public class PFMLines extends AbstractDarkestPFM{
     @Override
     public void init(IPlottingTask task) {
         super.init(task);
-        task.useCustomARGB(true);
     }
 
     @Override
@@ -42,10 +41,11 @@ public class PFMLines extends AbstractDarkestPFM{
             int[] line = null;
 
             for (int d = 0; d < tests; d ++) {
-                count_pixels = 0;
-                sum_luminance = 0;
+
                 int[] testLine = getIntersectingLine(task.getPixelData(), startX, startY, randomSeed(0, 360));
-                AlgorithmHelper.bresenham(testLine[0], testLine[1], testLine[2], testLine[3], (x,y) -> bresenhamTest(task.getPixelData(), x, y));
+
+                luminanceTestLine(task.getPixelData(), testLine[0], testLine[1], testLine[2], testLine[3]);
+
                 float averageBrightness = (float) sum_luminance /(float) count_pixels;
 
                 if(line == null || averageBrightness < darkestLineAvg){
@@ -54,13 +54,10 @@ public class PFMLines extends AbstractDarkestPFM{
                 }
             }
 
-            task.openPath();
-            task.addToPath(line[0], line[1]);
-            task.setCustomARGB(ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50));
-            task.addToPath(line[2], line[3]);
-            task.closePath();
+            int rgba = ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50);
+            task.addGeometry(new GLine(line[0], line[1], line[2], line[3]), null, rgba);
 
-            bresenhamLighten(task, task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
+            adjustLuminanceLine(task, task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
             progress = (float)i / maxLines;
 
             if(task.isFinished()){

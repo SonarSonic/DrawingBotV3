@@ -3,8 +3,10 @@ package drawingbot.drawing;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IDrawingPen;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.*;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
@@ -79,6 +81,18 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     @Override
     public String toString(){
         return getName();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void preRenderFX(GraphicsContext graphics, IGeometry geometry){
+        graphics.setLineWidth(getStrokeSize());
+        graphics.setStroke(getFXColor(geometry.getCustomRGBA()));
+    }
+
+    public void preRenderAWT(Graphics2D graphics, IGeometry geometry){
+        graphics.setStroke(getAWTStroke());
+        graphics.setColor(getAWTColor(geometry.getCustomRGBA()));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

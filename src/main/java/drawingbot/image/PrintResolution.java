@@ -3,6 +3,7 @@ package drawingbot.image;
 import drawingbot.DrawingBotV3;
 import drawingbot.utils.EnumScalingMode;
 
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class PrintResolution {
@@ -14,6 +15,13 @@ public class PrintResolution {
     public final int sourceWidth;
     public final int sourceHeight;
 
+    //// PLOTTING RESOLUTION \\\\
+
+    //the resolution the PFM is plotting the image at
+    public float plottingResolution = 1;
+
+    //for transforming from the plotting resolution to the image resolution
+    public AffineTransform plottingTransform;
 
     //// IMAGE RESOLUTION \\\\
 
@@ -31,8 +39,6 @@ public class PrintResolution {
 
     public double imageScale = 1;
 
-    //the resolution the PFM is plotting the image at
-    public float plottingResolution = 1;
 
     //// PRINT RESOLUTION \\\\
 
@@ -63,20 +69,24 @@ public class PrintResolution {
     }
 
     public void updateAll(){
+        updatePlottingTransform();
         updatePrintResolution();
         updateCropping();
         updatePrintScale();
     }
 
-    public void updatePrintResolution(){
+    public void updatePlottingTransform(){
+        plottingTransform = AffineTransform.getScaleInstance(1D / plottingResolution, 1D / plottingResolution);
+    }
 
+    public void updatePrintResolution(){
         boolean useOriginal = DrawingBotV3.INSTANCE.useOriginalSizing.get() || DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() == 0 || DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() == 0; //invalid
 
-        this.printPageWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
-        this.printPageHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
+        this.printPageWidth = useOriginal ? sourceWidth/10F : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
+        this.printPageHeight = useOriginal ? sourceHeight/10F : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
 
-        this.printDrawingWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingWidthMM();
-        this.printDrawingHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingHeightMM();
+        this.printDrawingWidth = useOriginal ? sourceWidth/10F : DrawingBotV3.INSTANCE.getDrawingWidthMM();
+        this.printDrawingHeight = useOriginal ? sourceHeight/10F : DrawingBotV3.INSTANCE.getDrawingHeightMM();
 
         this.printOffsetX = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetXMM();
         this.printOffsetY = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetYMM();
@@ -121,12 +131,12 @@ public class PrintResolution {
 
     public void updatePrintScale(){
         double print_scale_x, print_scale_y;
-        print_scale_x = printDrawingWidth / (imageWidth * imageScale * plottingResolution);
-        print_scale_y = printDrawingHeight / (imageHeight * imageScale * plottingResolution);
+        print_scale_x = printDrawingWidth / (imageWidth * imageScale);
+        print_scale_y = printDrawingHeight / (imageHeight * imageScale);
         printScale = Math.min(print_scale_x, print_scale_y);
 
-        scaledOffsetX = (imageOffsetX * plottingResolution)  + (getPrintOffsetX() / getPrintScale());
-        scaledOffsetY = (imageOffsetY * plottingResolution) + (getPrintOffsetY() / getPrintScale());
+        scaledOffsetX = (imageOffsetX)  + (getPrintOffsetX() / getPrintScale());
+        scaledOffsetY = (imageOffsetY) + (getPrintOffsetY() / getPrintScale());
         scaledWidth = getPrintPageWidth() / getPrintScale();
         scaledHeight = getPrintPageHeight() / getPrintScale();
     }

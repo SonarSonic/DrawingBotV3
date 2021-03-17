@@ -14,7 +14,7 @@ import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogImageFilter;
-import drawingbot.pfm.PFMSketch;
+import drawingbot.pfm.PFMSketchLines;
 import drawingbot.utils.EnumFilterTypes;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -63,7 +63,7 @@ public class MasterRegistry {
     //// PATH FINDING MODULES: DEFAULTS
 
     public GenericFactory<IPathFindingModule> getDefaultPFM(){
-        return pfmFactories.get(PFMSketch.class);
+        return pfmFactories.get(PFMSketchLines.class);
     }
 
     public GenericPreset<PresetPFMSettings> getDefaultPFMPreset(){

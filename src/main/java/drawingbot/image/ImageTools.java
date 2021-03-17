@@ -199,9 +199,25 @@ public class ImageTools {
 
     /// COLOURS
 
+    public static int alpha(int argb){
+        return (argb>>24)&0xff;
+    }
+
+    public static int red(int argb){
+        return (argb>>16)&0xff;
+    }
+
+    public static int green(int argb){
+        return (argb>>8)&0xff;
+    }
+
+    public static int blue(int argb){
+        return argb&0xff;
+    }
+
     public static int[] getColourIntsFromARGB(int argb, int[] array){
         array[0] = (argb>>24)&0xff; //alpha
-        array[1] = (argb>>16)&0xff; //red
+        array[1] = (argb>>16)&0xff;//red
         array[2] = (argb>>8)&0xff; //green
         array[3] = argb&0xff; //blue
         return array;

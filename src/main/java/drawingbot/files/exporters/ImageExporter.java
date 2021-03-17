@@ -1,7 +1,7 @@
 package drawingbot.files.exporters;
 
-import drawingbot.api.IPointFilter;
 import drawingbot.files.ExportTask;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
 
 import javax.imageio.ImageIO;
@@ -9,10 +9,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class ImageExporter {
 
-    public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
+    public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
         int width = (int)plottingTask.resolution.getScaledWidth();
         int height = (int)plottingTask.resolution.getScaledHeight();
 
@@ -23,7 +25,11 @@ public class ImageExporter {
             graphics.setColor(Color.WHITE);
             graphics.fillRect(0, 0, width, height);
         }
-        Graphics2DExporter.drawGraphics(graphics, width, height, exportTask, plottingTask, lineFilter);
+
+        Graphics2DExporter.preDraw(graphics, width, height, exportTask, plottingTask);
+        Graphics2DExporter.drawGeometryWithDrawingSet(graphics, plottingTask.getDrawingSet(), geometries);
+        Graphics2DExporter.postDraw(graphics, width, height, exportTask, plottingTask);
+
         try {
             ImageIO.write(image, extension.substring(1), saveLocation);
         } catch (IOException e) {

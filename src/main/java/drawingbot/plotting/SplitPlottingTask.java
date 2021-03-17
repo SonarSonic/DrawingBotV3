@@ -51,12 +51,11 @@ public class SplitPlottingTask extends PlottingTask{
                     DrawingBotV3.INSTANCE.renderedTask = subTask;
                     DrawingBotV3.INSTANCE.reRender();
                     while(!subTask.isTaskFinished() && !plottingFinished && !isFinished()){
-                        subTask.setActivePen(currentIndex); //make sure it's on the right colour seperation pen.
+                        subTask.defaultPen = currentIndex;//make sure it's on the right colour seperation pen.
                         subTask.doTask();
                     }
                     DrawingBotV3.INSTANCE.renderedTask = null;
-                    //note path index is not checked, could this be an issue?
-                    plottedDrawing.plottedPoints.addAll(subTask.plottedDrawing.plottedPoints);
+                    plottedDrawing.addGeometry(subTask.plottedDrawing);
                     currentIndex++;
                 }
                 plottedDrawing.displayedLineCount.set(-1); //sometimes needed

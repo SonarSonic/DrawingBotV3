@@ -1,12 +1,15 @@
-package drawingbot.pfm;
+package drawingbot.pfm.wip;
 
 import drawingbot.api.IPlottingTask;
+import drawingbot.geom.PathBuilder;
+import drawingbot.pfm.AbstractPFM;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PFMSquiggleDraw extends AbstractPFM {
+//TODO FIXME
+public class PFMSineWaves extends AbstractPFM {
 
     public int ystep = 160;
     public int ymult = 6;
@@ -28,6 +31,9 @@ public class PFMSquiggleDraw extends AbstractPFM {
     public boolean invert = false;
 
     public boolean connectEnds = false;
+
+
+    public float tension = 0.4F;
 
     @Override
     public int getColourMode() {
@@ -82,7 +88,7 @@ public class PFMSquiggleDraw extends AbstractPFM {
         //strokeWeight(strokeWidth * scaleFactor); //TODO SET STROKE WIDTH
 
         if (connectEnds) {
-            task.openPath(); //TODO
+            task.getPathBuilder().startCurve();
         }
 
         boolean oddRow = false;
@@ -106,7 +112,7 @@ public class PFMSquiggleDraw extends AbstractPFM {
 
 
             if (!connectEnds) {
-                task.openPath(); //TODO
+                task.getPathBuilder().startCurve();
             }
 
             // Add initial "extra" point to give splines a consistent visual endpoint,
@@ -115,15 +121,15 @@ public class PFMSquiggleDraw extends AbstractPFM {
             if (reverseRow) {
                 if (!connectEnds || y == 0) {
                     // Always add the extra initial point if we're not connecting the ends, or if this is the first row.
-                    task.addToPath(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
+                    task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
                 }
-                task.addToPath(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
+                task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
             } else {
                 if (!connectEnds || y == 0) {
                     // Always add the extra initial point if we're not connecting the ends, or if this is the first row.
-                    task.addToPath(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
+                    task.getPathBuilder().addCurveVertex(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
                 }
-                task.addToPath(xOffset, y * scaleFactor);
+                task.getPathBuilder().addCurveVertex(xOffset, y * scaleFactor);
             }
 
 
@@ -275,41 +281,42 @@ public class PFMSquiggleDraw extends AbstractPFM {
             }
 
             for (int i = 0; i < xPoints.size(); i++) {
-                task.addToPath(xPoints.get(i), yPoints.get(i));
+                task.getPathBuilder().addCurveVertex(xPoints.get(i), yPoints.get(i));
+
             }
 
 
             // Add final "extra" point to give splines a consistent visual endpoint:
             if (reverseRow) {
-                task.addToPath(xOffset, y * scaleFactor);
+                task.getPathBuilder().addCurveVertex(xOffset, y * scaleFactor);
                 if (!connectEnds || finalRow) {
                     // Always add the extra final point if we're not connecting the ends, or if this is the first row.
-                    task.addToPath(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
+                    task.getPathBuilder().addCurveVertex(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
                 }
             } else {
-                task.addToPath(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
+                task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
                 if (!connectEnds || finalRow) {
                     // Always add the extra final point if we're not connecting the ends, or if this is the first row.
-                    task.addToPath(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
+                    task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
                 }
             }
 
 
             if (connectEnds && !finalRow){  // Add curvy end connectors
                 if (reverseRow) {
-                    task.addToPath(xOffset - scaleFactor * (0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
+                    task.getPathBuilder().addCurveVertex(xOffset - scaleFactor * (0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
                 } else {
-                    task.addToPath(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
+                    task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
                 }
             }
 
             if (!connectEnds) {
-                task.closePath();
+                task.getPathBuilder().endCurve();
             }
         }
 
         if (connectEnds) {
-            task.closePath();
+            task.getPathBuilder().endCurve();
         }
         task.finishProcess();
     }

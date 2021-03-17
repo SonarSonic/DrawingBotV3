@@ -3,6 +3,8 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.geom.PathBuilder;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.*;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
@@ -44,10 +46,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     // PATH FINDING \\
     public IPathFindingModule pfm;
     public boolean plottingFinished = false;
-    public int currentPen = 0;
-    public boolean useCustomARGB = false;
-    public int customARGB = -1;
-    public int pathIndex = 0;
+    public PathBuilder pathBuilder = new PathBuilder(this);
 
     // RENDERING \\\
     public PrintResolution resolution;
@@ -58,6 +57,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public boolean enableImageFiltering = true;
     public boolean isSubTask = false;
+    public int defaultPen = 1;
 
     public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Processing Image");
@@ -82,11 +82,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 break;
             case PRE_PROCESSING:
                 updateMessage("Pre-Processing Image");
-
-                currentPen = 0;
-                useCustomARGB = false;
-                customARGB = 0;
-                pathIndex = 0;
                 //plottingProgress = 0;
                 plottingFinished = false;
 
@@ -111,8 +106,10 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                     DrawingBotV3.logger.fine("Applying Filters");
                     img_plotting = FilteredBufferedImage.applyFilters(img_plotting);
 
-                    img_plotting = Scalr.resize(img_plotting, Scalr.Method.QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
+                    img_plotting = Scalr.resize(img_plotting, Scalr.Method.ULTRA_QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
+
                 }
+                img_plotting = pfm.preFilter(img_plotting);
 
                 DrawingBotV3.logger.fine("Creating Pixel Data");
                 reference = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
@@ -218,6 +215,12 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public AffineTransform createPrintTransform(){
         AffineTransform transform = new AffineTransform();
         transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
+        return transform;
+    }
+
+    public AffineTransform createGCodeTransform(){
+        AffineTransform transform = new AffineTransform();
+        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
         transform.translate(getGCodeXOffset(), getGCodeYOffset());
         return transform;
     }
@@ -250,28 +253,34 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return isCancelled() || plottingFinished;
     }
 
-    private boolean isDrawingPath = false;
-
     @Override
-    public void openPath() {
-        isDrawingPath = true;
+    public PathBuilder getPathBuilder() {
+        return pathBuilder;
     }
 
     @Override
-    public void closePath() {
-        isDrawingPath = false;
-        pathIndex++;
+    public IGeometry getLastGeometry() {
+        return plottedDrawing.geometries.isEmpty() ? null : plottedDrawing.geometries.get(plottedDrawing.geometries.size()-1);
     }
 
     @Override
-    public void addToPath(float x1, float y1) {
-        if(!isDrawingPath){
-            openPath();
+    public void addGeometry(IGeometry geometry) {
+        addGeometry(geometry, null, null);
+    }
+
+    @Override
+    public void addGeometry(IGeometry geometry, Integer penIndex, Integer rgba) {
+        if(geometry.getCustomRGBA() == null){
+            geometry.setCustomRGBA(rgba);
         }
-        PlottedPoint line = plottedDrawing.addPoint(pathIndex, currentPen, x1, y1);
-        if(useCustomARGB){
-            line.rgba = customARGB;
+        if(geometry.getPenIndex() == null){
+            geometry.setPenIndex(penIndex == null ? defaultPen : penIndex);
         }
+        //transform geometry back to the images size
+        if(resolution.plottingResolution != 1F){
+            geometry.transform(resolution.plottingTransform);
+        }
+        plottedDrawing.addGeometry(geometry);
     }
 
     @Override
@@ -285,37 +294,12 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     @Override
-    public void useCustomARGB(boolean useARGB) {
-        useCustomARGB = useARGB;
-    }
-
-    @Override
-    public void setCustomARGB(int argb) {
-        customARGB = argb;
-    }
-
-    @Override
-    public void setActivePen(int index) {
-        currentPen = index;
-    }
-
-    @Override
-    public int getActivePen() {
-        return currentPen;
-    }
-
-    @Override
     public int getTotalPens() {
         return plottedDrawing.drawingPenSet.getPens().size();
     }
 
     @Override
-    public IDrawingPen getDrawingPen() {
-        return plottedDrawing.drawingPenSet.getPens().get(getActivePen());
-    }
-
-    @Override
-    public IDrawingSet<?> getDrawingSet() {
+    public ObservableDrawingSet getDrawingSet() {
         return plottedDrawing.drawingPenSet;
     }
 
@@ -350,10 +334,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
         pfm = null;
         plottingFinished = false;
-        currentPen = 0;
-        useCustomARGB = false;
-        customARGB = -1;
-        pathIndex = 0;
 
         resolution = null;
 

@@ -1,6 +1,7 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPlottingTask;
+import drawingbot.geom.basic.GLine;
 import drawingbot.utils.Utils;
 
 /**https://github.com/krummrey/SpiralFromImage
@@ -78,26 +79,22 @@ public class PFMSpiral extends AbstractPFM {
 
                 // If the sampled color is the mask color do not write to the shape
                 if (mask <= b) {
-                    task.closePath();
+                    //task.closePath();
                 } else {
-                    task.openPath();
+                    //task.openPath();
                 }
             } else {
                 // We are outside of the image
-                task.closePath();
+                //task.closePath();
             }
 
             int pen_number = (int)(Utils.mapFloat(b, 0, 255, 0, task.getTotalPens()));
-            task.setActivePen(pen_number);
-            task.addToPath(xa, ya);
-            task.addToPath(xb, yb);
-
-
+            task.addGeometry(new GLine(xa, ya, xb, yb), pen_number, null);
             float startRadius = distBetweenRings /2;
             task.updatePlottingProgress(radius-startRadius, endRadius-startRadius);
         }
 
-        task.closePath();
+        //task.closePath();
         task.finishProcess();
     }
 

@@ -3,9 +3,8 @@ package drawingbot.files;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.api.IPathFindingModule;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.image.FilteredBufferedImage;
-import drawingbot.plotting.PlottedPoint;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumColourSplitter;
@@ -87,11 +86,11 @@ public class BatchProcessingTask extends Task<Boolean> {
                             if(BatchProcessing.overwriteExistingFiles.get() || task.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet)){
                                 File saveLocation = new File(outputFolder + "\\" + simpleFileName + task.getCleanExtension());
                                 if(task.enablePerDrawing.get()){
-                                    tasks.add(new ExportTask(task.format, internalTask, PlottedPoint.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, false, BatchProcessing.overwriteExistingFiles.get()));
+                                    tasks.add(new ExportTask(task.format, internalTask, IGeometry.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, false, BatchProcessing.overwriteExistingFiles.get()));
 
                                 }
                                 if(task.enablePerPen.get()){
-                                    tasks.add(new ExportTask(task.format, internalTask, PlottedPoint.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, true, BatchProcessing.overwriteExistingFiles.get()));
+                                    tasks.add(new ExportTask(task.format, internalTask, IGeometry.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, true, BatchProcessing.overwriteExistingFiles.get()));
                                 }
                             }
                         }

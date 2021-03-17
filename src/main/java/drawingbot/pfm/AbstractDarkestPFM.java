@@ -3,9 +3,8 @@ package drawingbot.pfm;
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.image.ImageTools;
-import drawingbot.utils.AlgorithmHelper;
+import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.utils.Utils;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     protected int darkest_x;
     protected int darkest_y;
-    protected float darkest_value;
-    protected float darkest_neighbor;
+    public BresenhamHelper bresenham = new BresenhamHelper();
 
     @Override
     public int getColourMode() {
@@ -33,7 +31,6 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     @Override
     public void init(IPlottingTask task) {
         super.init(task);
-        task.useCustomARGB(true);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +43,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         int darkestSampleX = 0;
         int darkestSampleY = 0;
 
-        darkest_value = 1000;
+        float darkest_value = 1000;
 
         for(int sampleX = 0; sampleX < totalSamplesX; sampleX++){
             for(int sampleY = 0; sampleY < totalSamplesY; sampleY++){
@@ -74,9 +71,12 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         darkest_y = darkestSampleY + randomSeed.nextInt(sampleHeight);
     }
 
-    /** returns a random pixel of the darkest pixels found*/
-    public void findDarkestPixel(IPixelData pixels){
-        List<Pair<Integer, Integer>> points = new ArrayList<>();
+    /**
+     * @param pixels
+     * @return a collection of all the darkest pixels
+     */
+    public List<int[]> findDarkestPixels(IPixelData pixels){
+        List<int[]> points = new ArrayList<>();
         int luminance = pixels.getLuminance(0,0);
 
 
@@ -84,19 +84,24 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
             for(int y = 0; y < pixels.getHeight(); y ++){
                 int c = pixels.getLuminance(x, y);
                 if(c == luminance) {
-                    points.add(new Pair<>(x, y));
+                    points.add(new int[]{x, y});
                 }
                 if(c < luminance) {
                     points.clear();
-                    points.add(new Pair<>(x, y));
+                    points.add(new int[]{x, y});
                     luminance = c;
                 }
             }
         }
+        return points;
+    }
 
-        Pair<Integer, Integer> point = points.get(randomSeed.nextInt(points.size()));
-        darkest_x = point.getKey();
-        darkest_y = point.getValue();
+    /** returns a random pixel of the darkest pixels found*/
+    public void findDarkestPixel(IPixelData pixels){
+        List<int[]> darkestPixels = findDarkestPixels(pixels);
+        int[] point = darkestPixels.get(randomSeed.nextInt(darkestPixels.size()));
+        darkest_x = point[0];
+        darkest_y = point[1];
     }
 
     /** returns a line which intersects through the entire image going through the specified point */
@@ -149,26 +154,10 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void bresenhamAvgLuminance(IPixelData pixels, int x0, int y0, float distance, float degree) {
-        sum_luminance = 0;
-        count_pixels = 0;
-
-        int x1, y1;
-        x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + x0;
-        y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + y0;
-        x0 = Utils.clamp(x0, 0, pixels.getWidth()-1);
-        y0 = Utils.clamp(y0, 0, pixels.getHeight()-1);
-        x1 = Utils.clamp(x1, 0, pixels.getWidth()-1);
-        y1 = Utils.clamp(y1, 0, pixels.getHeight()-1);
-
-        AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> bresenhamTest(pixels, x, y));
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ///bresenham calculations
+    ///luminance calculations
     protected int sum_luminance = 0;
     protected int count_pixels = 0;
+    protected float test_luminance = 0;
 
     protected int sum_red = 0;
     protected int sum_green = 0;
@@ -176,29 +165,78 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     protected int sum_alpha = 0;
     protected int total_pixels = 0;
 
-    protected void bresenhamTest(IPixelData pixels, int x, int y){
+    protected void resetLuminanceTest(){
+        test_luminance = -1;
+    }
+
+    protected void resetLuminanceSamples(){
+        sum_luminance = 0;
+        count_pixels = 0;
+    }
+
+    protected float getLuminanceTestAverage(){
+        return (float) sum_luminance / (float)count_pixels;
+    }
+
+    protected int clampX(int x, int width){
+        return Utils.clamp(x, 0, width-1);
+    }
+
+    protected int clampY(int y, int height){
+        return Utils.clamp(y, 0, height-1);
+    }
+
+    /**
+     * luminance test for angled lines
+     */
+    protected void luminanceTestAngledLine(IPixelData pixels, int originX, int originY, float distance, float degree){
+        int x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + originX;
+        int y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + originY;
+        luminanceTestLine(pixels, originX, originY, x1, y1);
+    }
+
+    /**
+     * luminance test for straight lines
+     */
+    protected void luminanceTestLine(IPixelData pixels, int x0, int y0, int x1, int y1) {
+        resetLuminanceSamples();
+
+        x0 = clampX(x0, pixels.getWidth());
+        y0 = clampY(y0, pixels.getHeight());
+
+        bresenham.line(x0, y0, x1, y1, (x, y) -> luminanceTest(pixels, x, y));
+    }
+
+    /**
+     * luminance test for individual pixels
+     */
+    protected boolean luminanceTest(IPixelData pixels, int x, int y){
+        if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
+            return true;
+        }
         sum_luminance += pixels.getLuminance(x, y);
         count_pixels++;
-        if ((float) sum_luminance / (float) count_pixels < darkest_neighbor) {
+        if (test_luminance == -1 || getLuminanceTestAverage() < test_luminance) {
             darkest_x = x;
             darkest_y = y;
-            darkest_neighbor = (float) sum_luminance / (float) count_pixels;
+            test_luminance = getLuminanceTestAverage();
         }
+        return false;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void bresenhamLighten(IPlottingTask task, IPixelData pixels, int x0, int y0, int x1, int y1, int adjustLum) {
+    public int adjustLuminanceLine(IPlottingTask task, IPixelData pixels, int x0, int y0, int x1, int y1, int adjustLum) {
         sum_red = 0;
         sum_green = 0;
         sum_blue = 0;
         sum_alpha = 0;
         total_pixels = 0;
-        AlgorithmHelper.bresenham(x0, y0, x1, y1, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
-        task.setCustomARGB(ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels));
+        bresenham.line(x0, y0, x1, y1, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
+        return ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels);
     }
 
-    public void adjustLuminanceColour(IPixelData pixels, int x, int y, int adjustLum){
+    public boolean adjustLuminanceColour(IPixelData pixels, int x, int y, int adjustLum){
         total_pixels++;
         sum_alpha += pixels.getAlpha(x, y);
         sum_red += pixels.getRed(x, y);
@@ -207,6 +245,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         pixels.adjustRed(x, y, adjustLum);
         pixels.adjustGreen(x, y, adjustLum);
         pixels.adjustBlue(x, y, adjustLum);
+        return false;
     }
 
 }

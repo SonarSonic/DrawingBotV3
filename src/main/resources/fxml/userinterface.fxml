@@ -271,7 +271,7 @@
                            </graphic>
                         </Label>
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
-                        <Label contentDisplay="RIGHT" text="Displayed Lines:" />
+                        <Label contentDisplay="RIGHT" text="Displayed Shapes:" />
                         <Slider fx:id="sliderDisplayedLines" prefHeight="14.0" prefWidth="117.0" />
                         <TextField fx:id="textFieldDisplayedLines" prefHeight="25.0" prefWidth="75.0" />
                         <Separator prefHeight="25.0" prefWidth="21.0" />
@@ -297,9 +297,17 @@
                               <Insets left="4.0" top="4.0" />
                            </padding>
                         </Label>
-                        <Label contentDisplay="RIGHT" text="Plotted Lines:">
+                        <Label contentDisplay="RIGHT" text="Plotted Shapes:">
                            <graphic>
-                              <Label fx:id="labelPlottedLines" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                              <Label fx:id="labelPlottedShapes" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" layoutX="160.0" layoutY="10.0" text="Plotted Vertices:">
+                           <graphic>
+                              <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
                            </graphic>
                            <padding>
                               <Insets top="4.0" />

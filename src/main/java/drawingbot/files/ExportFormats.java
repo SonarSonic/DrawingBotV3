@@ -1,25 +1,30 @@
 package drawingbot.files;
 
-import drawingbot.api.IPointFilter;
 import drawingbot.files.exporters.*;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public enum ExportFormats {
-    EXPORT_PDF("Export PDF", PDFExporter::exportPDF, FileUtils.FILTER_PDF),
-    EXPORT_SVG("Export SVG", SVGExporter::exportSVG, FileUtils.FILTER_SVG),
-    EXPORT_IMAGE("Export Image File", ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA),
-    EXPORT_GCODE("Export GCode File", GCodeExporter::exportGCode, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE),
-    EXPORT_GCODE_TEST("Export GCode Test Drawing", GCodeExporter::exportGCodeTest, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE);
+    EXPORT_SVG("Export SVG", true, SVGExporter::exportBasicSVG, FileUtils.FILTER_SVG),
+    EXPORT_INKSCAPE_SVG("Export Inkscape SVG", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG),
+    EXPORT_IMAGE("Export Image File", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA),
+    EXPORT_PDF("Export PDF", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF),
+    EXPORT_GCODE("Export GCode File", true, GCodeExporter::exportGCode, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE),
+    EXPORT_GCODE_TEST("Export GCode Test Drawing", true, GCodeExporter::exportGCodeTest, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE);
 
     public String displayName;
+    public boolean isVector;
     public FileChooser.ExtensionFilter[] filters;
     public IExportMethod exportMethod;
 
-    ExportFormats(String displayName, IExportMethod exportMethod, FileChooser.ExtensionFilter... filters){
+    ExportFormats(String displayName, boolean isVector, IExportMethod exportMethod, FileChooser.ExtensionFilter... filters){
         this.displayName = displayName;
+        this.isVector = isVector;
         this.filters = filters;
         this.exportMethod = exportMethod;
     }
@@ -29,7 +34,7 @@ public enum ExportFormats {
     }
 
     public interface IExportMethod{
-        void export(ExportTask exportTask, PlottingTask plottingTask, IPointFilter pointFilter, String extension, File saveLocation);
+        void export(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation);
     }
 
 }
