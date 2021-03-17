@@ -1,5 +1,8 @@
 package drawingbot.api;
 
+import drawingbot.geom.PathBuilder;
+import drawingbot.geom.basic.IGeometry;
+
 /**
  * Access editable image data via {@link IPlottingTask#getPixelData()} and unedited reference data {@link IPlottingTask#getReferencePixelData()}
  */
@@ -24,11 +27,13 @@ public interface IPlottingTask {
      */
     void finishProcess();
 
-    void openPath();
+    IGeometry getLastGeometry();
 
-    void closePath();
+    void addGeometry(IGeometry geometry);
 
-    void addToPath(float x1, float y1);
+    void addGeometry(IGeometry geometry, Integer penIndex, Integer rgba);
+
+    PathBuilder getPathBuilder();
 
     /**
      * The pixel data the {@link IPathFindingModule} can alter while processing
@@ -44,35 +49,10 @@ public interface IPlottingTask {
     IPixelData getReferencePixelData();
 
     /**
-     * @param useARGB true if the pfm wishes to set the colours of lines itself, false if drawing pen settings should be used, this can be changed mid plot.
-     */
-    void useCustomARGB(boolean useARGB);
-
-    /**
-     * @param argb the colour all subsequent geometries will use, requires {@link IPlottingTask#useCustomARGB(boolean)} to be true
-     */
-    void setCustomARGB(int argb);
-
-    /**
-     * Sets the active pen from the current drawing set by index
-     * @param index the index of the pen
-     */
-    void setActivePen(int index);
-
-    /**
-     * @return the index of the pen in the drawing set
-     */
-    int getActivePen();
-
-    /**
      * @return the number of pens in the current drawing set
      */
     int getTotalPens();
 
-    /**
-     * @return the current drawing pen
-     */
-    IDrawingPen getDrawingPen();
 
     /**
      * @return the current drawing set

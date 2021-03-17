@@ -6,10 +6,10 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.controls.DialogColourSeperationMode;
-import drawingbot.plotting.PlottedPoint;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumColourSplitter;
 import drawingbot.utils.EnumDistributionOrder;
@@ -63,7 +63,7 @@ public class FXHelper {
             d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getName()) + "_plotted");
             File file = d.showSaveDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), PlottedPoint.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });

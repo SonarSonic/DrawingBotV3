@@ -59,6 +59,15 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         return currentRenderOrder;
     }
 
+    public ObservableDrawingPen getPen(int penNumber){
+        for(ObservableDrawingPen pen : pens){
+            if(pen.penNumber.get() == penNumber){
+                return pen;
+            }
+        }
+        return null;
+    }
+
     public boolean containsPen(IDrawingPen pen){
         if(pen == null){
             return false;

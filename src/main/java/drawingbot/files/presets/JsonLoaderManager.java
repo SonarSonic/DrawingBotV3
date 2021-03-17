@@ -67,7 +67,7 @@ public class JsonLoaderManager {
 
     public static void loadJSONFiles(){
 
-        //load default presets
+        //load default presets TODO FIX DEFAULTS / FIX LOADING JSON WITH OLD NAMES!!!
         loadDefaultPresetContainerJSON("pre_processing_defaults.json");
         loadDefaultPresetContainerJSON("sketch_pfm_defaults.json");
         loadDefaultPresetContainerJSON("drawing_area_defaults.json");

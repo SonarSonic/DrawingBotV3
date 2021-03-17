@@ -2,9 +2,9 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 
-public class PFMSquares extends AbstractSketchPFM {
+public class PFMSketchSquares extends AbstractSketchPFM {
 
-    public PFMSquares(){
+    public PFMSketchSquares(){
         super();
         squiggle_length = 1000;
         adjustbrightness = 9;
@@ -16,7 +16,6 @@ public class PFMSquares extends AbstractSketchPFM {
 
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
-        darkest_neighbor = 257;
         float start_angle;
         float delta_angle;
 
@@ -24,8 +23,10 @@ public class PFMSquares extends AbstractSketchPFM {
         delta_angle = 360.0F / (float)tests;
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
+
+        resetLuminanceTest();
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgLuminance(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 }

@@ -1,12 +1,12 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IPointFilter;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
-import drawingbot.plotting.PlottedPath;
+import drawingbot.geom.GeometryUtils;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.plotting.PlottedPoint;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Limit;
 import drawingbot.utils.Utils;
@@ -16,9 +16,8 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class GCodeExporter {
 
@@ -149,50 +148,52 @@ public class GCodeExporter {
     }
 
 
-    public static void exportGCode(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
+    public static void exportGCode(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
         PrintWriter output = FileUtils.createWriter(saveLocation);
         GCodeBuilder builder = new GCodeBuilder(plottingTask, output);
 
         plottingTask.comments.forEach(builder::comment);
         builder.open();
 
-        AffineTransform transform = plottingTask.createPrintTransform();
-        List<PlottedPath> plottedPaths = plottingTask.plottedDrawing.generatePlottedPaths(lineFilter);
+        AffineTransform transform = plottingTask.createGCodeTransform();
 
         float[] coords = new float[6];
-        int i = 0;
-        for(PlottedPath plottedPath : plottedPaths){
-            PathIterator iterator = plottedPath.path.getPathIterator(transform);
-            while(!iterator.isDone()){
-                int type = iterator.currentSegment(coords);
-                builder.move(coords, type);
-                iterator.next();
+        for(List<IGeometry> geometryList : geometries.values()){
+            int i = 0;
+            for(IGeometry geometry : geometryList){
+                PathIterator iterator = geometry.getAWTShape().getPathIterator(transform);
+                while(!iterator.isDone()){
+                    int type = iterator.currentSegment(coords);
+                    builder.move(coords, type);
+                    iterator.next();
+                }
+                i++;
+                exportTask.updateProgress(i, geometryList.size()-1);
             }
-            i++;
-            exportTask.updateProgress(i, plottedPaths.size()-1);
         }
         builder.close();
         DrawingBotV3.logger.info("GCode File Created:  " +  saveLocation);
     }
 
-    public static void exportGCodeTest(ExportTask exportTask, PlottingTask plottingTask, IPointFilter lineFilter, String extension, File saveLocation) {
-        List<PlottedPath> plottedPaths = plottingTask.plottedDrawing.generatePlottedPaths(lineFilter);
-        AffineTransform transform = plottingTask.createPrintTransform();
+    public static void exportGCodeTest(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
+        AffineTransform transform = plottingTask.createGCodeTransform();
 
         Limit dx = new Limit(), dy = new Limit();
 
         float[] coords = new float[6];
-        int i = 0;
-        for(PlottedPath plottedPath : plottedPaths){
-            PathIterator iterator = plottedPath.path.getPathIterator(transform);
-            while(!iterator.isDone()){
-                int type = iterator.currentSegment(coords);
-                dx.update_limit(coords[0]);
-                dy.update_limit(coords[1]);
-                iterator.next();
+        for(List<IGeometry> geometryList : geometries.values()){
+            int i = 0;
+            for(IGeometry geometry : geometryList){
+                PathIterator iterator = geometry.getAWTShape().getPathIterator(transform);
+                while(!iterator.isDone()){
+                    int type = iterator.currentSegment(coords);
+                    dx.update_limit(coords[0]);
+                    dy.update_limit(coords[1]);
+                    iterator.next();
+                }
+                i++;
+                exportTask.updateProgress(i, geometryList.size()-1);
             }
-            i++;
-            exportTask.updateProgress(i, plottedPaths.size()-1);
         }
 
         String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + extension;

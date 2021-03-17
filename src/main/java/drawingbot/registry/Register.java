@@ -6,9 +6,11 @@ import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.*;
+import drawingbot.pfm.wip.*;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumColourSplitter;
 import drawingbot.utils.EnumFilterTypes;
+import drawingbot.utils.EnumSketchShapes;
 import javafx.scene.paint.Color;
 
 import java.awt.geom.Point2D;
@@ -17,17 +19,54 @@ import java.util.List;
 public class Register {
 
     public static void registerPFMs(){
-        MasterRegistry.INSTANCE.registerPFM(PFMSketch.class, "Sketch PFM", PFMSketch::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMSquares.class, "Squares PFM", PFMSquares::new, false);
+
+        //operational path finding modules
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, false);
         MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMLines.class, "Lines PFM (Experimental)", PFMLines::new, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSquiggleDraw.class, "Squiggle Draw PFM (Experimental)", PFMSquiggleDraw::new, true);
+
+        //experimental / developer only path finding modules
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSineWaves.class, "Sine Waves PFM (Experimental)", PFMSineWaves::new, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSobelLines.class, "Sobel Lines PFM (Experimental)", PFMSobelLines::new, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSobelSketchEdges.class, "Sketch Edges PFM (Experimental)", PFMSobelSketchEdges::new, true);
 
         ////GENERAL
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.seed = value));
 
-        ////ABSTRACT SKETCH PFM
+        ////SKETCH PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Enable Shading", true, true, (pfmSketch, value) -> pfmSketch.enableShading = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Squiggles till shading", 190, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squigglesTillShading = value));
+
+        ////SQUARES PFM
+
+        ////CURVES PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchCurves.class, "Curve tension", 0.4F, 0, 90, false, (pfmSketch, value) -> pfmSketch.tension = value));
+
+        ////SHAPES PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchShapes.class, "Shape Type", List.of(EnumSketchShapes.values()), EnumSketchShapes.RECTANGLES, false, (pfmSketch, value) -> pfmSketch.shapes = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchShapes.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchShapes.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchShapes.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
+
+
+        ////SHAPES AWARE PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchShapesAware.class, "Shape Type", List.of(EnumSketchShapes.values()), EnumSketchShapes.RECTANGLES, false, (pfmSketch, value) -> pfmSketch.shapes = value));
+
+        ////SPIRAL PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Distance between rings", 7F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.distBetweenRings = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.density = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.ampScale = value));
+
+        ////ABSTRACT SKETCH PFM - register these last so unique settings are more obvious
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Desired Brightness", 250F, 0F, 255F, true, (pfmSketch, value) -> pfmSketch.desired_brightness = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggle_length = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 50, 1, 255, false, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
@@ -37,20 +76,6 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.maxLines = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
-        ////SKETCH PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketch.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketch.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketch.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketch.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketch.class, "Enable Shading", true, true, (pfmSketch, value) -> pfmSketch.enableShading = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketch.class, "Squiggles till shading", 190, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squigglesTillShading = value));
-
-        ////SQUARES PFM
-
-        ////SPIRAL PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Distance between rings", 7F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.distBetweenRings = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.density = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.ampScale = value));
     }
 
     public static void registerDrawingTools(){

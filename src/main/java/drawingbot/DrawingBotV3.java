@@ -10,12 +10,13 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import drawingbot.api.IPointFilter;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageFilteringTask;
@@ -26,7 +27,6 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.utils.*;
-import drawingbot.plotting.PlottedPoint;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -84,8 +84,8 @@ public class DrawingBotV3 {
 
     //VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
-    public static int pointRenderLimitNormal = 20000;
-    public static int pointRenderLimitBlendMode = 5000;
+    public static int vertexRenderLimitNormal = 20000;
+    public static int vertexRenderLimitBlendMode = 5000;
     public static int defaultMaxTextureSize = 4096;
     public static double minScale = 0.1;
 
@@ -173,8 +173,8 @@ public class DrawingBotV3 {
         return defaultMaxTextureSize;
     }
 
-    public int getPointRenderLimit(){
-        return graphicsFX.getGlobalBlendMode() == BlendMode.SRC_OVER ? pointRenderLimitNormal : pointRenderLimitBlendMode;
+    public int getVertexRenderLimit(){
+        return graphicsFX.getGlobalBlendMode() == BlendMode.SRC_OVER ? vertexRenderLimitNormal : vertexRenderLimitBlendMode;
     }
 
     public void reRender(){
@@ -350,10 +350,10 @@ public class DrawingBotV3 {
                     clearCanvas();
                     renderedLines = 0;
                 }
-                if(renderedTask.plottedDrawing.getPlottedLineCount() != 0){
+                if(renderedTask.plottedDrawing.getGeometryCount() != 0){
                     graphicsFX.scale(canvasScaling, canvasScaling);
                     graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                    renderedLines = renderedTask.plottedDrawing.renderPointsFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getPlottedLineCount(), PlottedPoint.DEFAULT_FILTER, getPointRenderLimit(), false);
+                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_FILTER, getVertexRenderLimit(), false);
                 }
                 break;
             case POST_PROCESSING:
@@ -364,7 +364,7 @@ public class DrawingBotV3 {
                 EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
                 if(shouldRedraw){
                     clearCanvas(blendMode.additive ? Color.BLACK : Color.WHITE);
-                    renderedLines = renderedTask.plottedDrawing.getDisplayedLineCount()-1;
+                    renderedLines = renderedTask.plottedDrawing.getDisplayedGeometryCount()-1;
                     updateLocalMessage("Drawing");
                     updateLocalProgress(0);
                     drawingTime = System.currentTimeMillis();
@@ -374,10 +374,10 @@ public class DrawingBotV3 {
                     graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
                     graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
-                    IPointFilter pointFilter = display_mode.get() == EnumDisplayMode.SELECTED_PEN ? PlottedPoint.SELECTED_PEN_FILTER : PlottedPoint.DEFAULT_FILTER;
-                    renderedLines = renderedTask.plottedDrawing.renderPointsFX(graphicsFX, 0, renderedLines, pointFilter, getPointRenderLimit(),true);
+                    IGeometryFilter pointFilter = display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_FILTER;
+                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, 0, renderedLines, pointFilter, getVertexRenderLimit(),true);
 
-                    int end = renderedTask.plottedDrawing.getDisplayedLineCount()-1;
+                    int end = renderedTask.plottedDrawing.getDisplayedGeometryCount()-1;
                     updateLocalProgress((float)(end-renderedLines) / end);
 
                     if(renderedLines == 0){
@@ -437,7 +437,8 @@ public class DrawingBotV3 {
         if(getActiveTask() != null && getActiveTask().isRunning()){
             controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().progressProperty().get());
             controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
-            controller.labelPlottedLines.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.plottedPoints.size()) + " lines");
+            controller.labelPlottedShapes.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.getGeometryCount()));
+            controller.labelPlottedVertices.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.getVertexCount()));
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
@@ -468,7 +469,7 @@ public class DrawingBotV3 {
             case DO_PROCESS:
                 Platform.runLater(() -> {
                     controller.sliderDisplayedLines.setValue(1.0F);
-                    controller.textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getPlottedLineCount()));
+                    controller.textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getGeometryCount()));
                 });
                 break;
             case POST_PROCESSING:
@@ -579,7 +580,7 @@ public class DrawingBotV3 {
 
     //// EXPORT TASKS
 
-    public void createExportTask(ExportFormats format, PlottingTask plottingTask, IPointFilter pointFilter, String extension, File saveLocation, boolean seperatePens){
+    public void createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens){
         taskService.submit(new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true));
     }
 

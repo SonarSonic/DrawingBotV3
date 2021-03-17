@@ -3,7 +3,7 @@ package drawingbot.pfm;
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 
-public class PFMSketch extends AbstractSketchPFM {
+public class PFMSketchLines extends AbstractSketchPFM {
 
     public boolean enableShading;
     public int squigglesTillShading;
@@ -24,9 +24,8 @@ public class PFMSketch extends AbstractSketchPFM {
 
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
-        darkest_neighbor = 1000;
         float delta_angle;
-        float start_angle = randomSeed(startAngleMin, startAngleMax);    // Spitfire;
+        float start_angle = randomSeed(startAngleMin, startAngleMax);
 
         if (!enableShading || squiggle_count < squigglesTillShading) {
             delta_angle = drawingDeltaAngle / (float)tests;
@@ -35,8 +34,10 @@ public class PFMSketch extends AbstractSketchPFM {
         }
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
+
+        resetLuminanceTest();
         for (int d = 0; d < tests; d ++) {
-            bresenhamAvgLuminance(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 

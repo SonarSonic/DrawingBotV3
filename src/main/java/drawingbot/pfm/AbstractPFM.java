@@ -30,7 +30,12 @@ public abstract class AbstractPFM implements IPathFindingModule {
 
     /**produces random results which will be consistent every time the PFM is run*/
     public int randomSeed(int low, int high){
-        return randomSeed.nextInt(high-low) + low;
+        return low == high ? low : randomSeed.nextInt(high-low) + low;
+    }
+
+    /**produces random results which will be consistent every time the PFM is run*/
+    public float randomSeed(float low, float high){
+        return low == high ? low : (randomSeed.nextFloat()*(high-low)) + low;
     }
 
 }

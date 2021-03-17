@@ -170,7 +170,8 @@ public class FXController {
 
     ////PLOT DETAILS
     public Label labelElapsedTime = null;
-    public Label labelPlottedLines = null;
+    public Label labelPlottedShapes = null;
+    public Label labelPlottedVertices = null;
 
     public void initViewport(){
 
@@ -179,7 +180,7 @@ public class FXController {
         sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
             PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getPlottedLineCount());
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
@@ -189,10 +190,10 @@ public class FXController {
         textFieldDisplayedLines.setOnAction(e -> {
             PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getPlottedLineCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
+                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
                 task.plottedDrawing.displayedLineCount.setValue(lines);
                 textFieldDisplayedLines.setText(String.valueOf(lines));
-                sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getPlottedLineCount());
+                sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getGeometryCount());
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
@@ -220,7 +221,8 @@ public class FXController {
         });
 
         labelElapsedTime.setText("0 s");
-        labelPlottedLines.setText("0 lines");
+        labelPlottedShapes.setText("0");
+        labelPlottedVertices.setText("0");
     }
 
 

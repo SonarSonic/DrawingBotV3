@@ -1,14 +1,18 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IPointFilter;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.geom.GeometryUtils;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class ExportTask extends Task<Boolean> {
@@ -16,14 +20,14 @@ public class ExportTask extends Task<Boolean> {
     public ExportFormats format;
     public String extension;
     public PlottingTask plottingTask;
-    public IPointFilter pointFilter;
+    public IGeometryFilter pointFilter;
     public File saveLocation;
     public boolean seperatePens;
     public boolean overwrite;
 
     private String error = null;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, IPointFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite){
+    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite){
         this.format = format;
         this.plottingTask = plottingTask;
         this.pointFilter = pointFilter;
@@ -37,18 +41,23 @@ public class ExportTask extends Task<Boolean> {
     protected void setException(Throwable t) {
         super.setException(t);
         DrawingBotV3.logger.log(Level.SEVERE, "Export Task Failed", t);
+        Platform.runLater(() -> { DrawingBotV3.INSTANCE.setActiveExportTask(null);});
     }
 
     @Override
     protected Boolean call() throws Exception {
         Platform.runLater(() -> DrawingBotV3.INSTANCE.setActiveExportTask(this)); //avoid clashing with render thread
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
-        updateMessage("Processing");
         error = null;
         if(!seperatePens){
             updateTitle(format.displayName + ": 1 / 1" + " - " + saveLocation.getPath());
             if(overwrite || Files.notExists(saveLocation.toPath())){
-                format.exportMethod.export(this, plottingTask, pointFilter, extension, saveLocation);
+
+                updateMessage("Optimising Paths");
+                Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, pointFilter);
+
+                updateMessage("Exporting Paths");
+                format.exportMethod.export(this, plottingTask, geometries, extension, saveLocation);
             }
         }else{
             File path = FileUtils.removeExtension(saveLocation);
@@ -57,7 +66,11 @@ public class ExportTask extends Task<Boolean> {
                 ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(p);
                 File fileName = new File(path.getPath() + "_pen" + p + "_" + drawingPen.getName() + extension);
                 if(drawingPen.isEnabled() || (overwrite || Files.notExists(fileName.toPath()))){
-                    format.exportMethod.export(this, plottingTask, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen, extension, fileName);
+                    updateMessage("Optimising Paths");
+                    Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen);
+
+                    updateMessage("Exporting Paths");
+                    format.exportMethod.export(this, plottingTask, geometries,  extension, fileName);
                 }
             }
         }

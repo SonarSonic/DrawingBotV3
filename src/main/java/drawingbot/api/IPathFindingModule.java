@@ -1,5 +1,7 @@
 package drawingbot.api;
 
+import java.awt.image.BufferedImage;
+
 /**
  * A {@link IPathFindingModule} (or PFM) defines an algorithm/method for converting an image to lines/curves.
  * Specifically generating lines from raw pixel data and providing them to the {@link IPlottingTask}
@@ -43,6 +45,11 @@ public interface IPathFindingModule {
      * @param task the plotting task
      */
     void init(IPlottingTask task);
+
+
+    default BufferedImage preFilter(BufferedImage image){
+        return image;
+    }
 
     /**
      * Called once before the first {@link IPathFindingModule#doProcess(IPlottingTask)}

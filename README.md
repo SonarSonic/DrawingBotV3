@@ -1,9 +1,10 @@
 # Drawing Bot V3
 ![Screenshot](https://github.com/SonarSonic/Drawbot_image_to_gcode_v3/blob/master/images/ScreenshotV101.PNG?raw=true)
-[![Platforms](https://img.shields.io/badge/platform-Windows%2C%20Mac%2C%20Linux-green)](https://github.com/SonarSonic/DrawingBotV3#installation)
-![GitHub top language](https://img.shields.io/github/languages/top/SonarSonic/DrawingBotV3)
-[![GitHub License](https://img.shields.io/github/license/SonarSonic/DrawingBotV3)](https://github.com/SonarSonic/DrawingBotV3/blob/master/LICENSE)
-[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/SonarSonic/DrawingBotV3?include_prereleases)](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
+[![Platforms](https://img.shields.io/badge/platform-Windows%2C%20Mac%2C%20Linux-green?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3#installation)
+![GitHub top language](https://img.shields.io/github/languages/top/SonarSonic/DrawingBotV3?style=flat-square)
+[![GitHub License](https://img.shields.io/github/license/SonarSonic/DrawingBotV3?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/blob/master/LICENSE)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/SonarSonic/DrawingBotV3?include_prereleases&style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
+![GitHub all releases](https://img.shields.io/github/downloads/SonarSonic/DrawingBotV3/total?style=flat-square)
 ### About
 Drawing Bot is a free, open source software for converting images to line drawings for Plotters / Drawing Machines / 3D printers. It also serves as an application for visual artists to create stylised line drawings from images / video.
 
