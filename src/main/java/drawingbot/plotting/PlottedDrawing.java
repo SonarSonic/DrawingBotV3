@@ -2,7 +2,6 @@ package drawingbot.plotting;
 
 import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.*;
-import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;

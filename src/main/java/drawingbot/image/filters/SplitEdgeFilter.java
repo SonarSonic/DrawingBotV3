@@ -26,7 +26,7 @@ public class SplitEdgeFilter extends WholeImageFilter {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int r = 0, g = 0, b = 0;
+                int r, g, b;
                 int rh = 0, gh = 0, bh = 0;
                 int a = inPixels[y*width+x] & 0xff000000;
 

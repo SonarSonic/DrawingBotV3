@@ -45,7 +45,7 @@ public class BufferedImageLoader extends Task<BufferedImage> {
     public static BufferedImage loadImage(String url, boolean internal) {
         BufferedImage img = null;
         try {
-            InputStream stream = null;
+            InputStream stream;
             if(internal){
                 stream = DrawingBotV3.class.getClassLoader().getResourceAsStream(url);
             }else{

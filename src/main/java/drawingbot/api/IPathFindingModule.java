@@ -40,7 +40,7 @@ public interface IPathFindingModule {
 
     /**
      * Called immediately after the {@link IPathFindingModule}'s settings have been set.
-     * Used to check the given settings and apply any special options to the plotting task e.g. {@link IPlottingTask#setActivePen(int)} (float)}
+     * Used to check the given settings and apply any special options to the plotting task}
      * Shouldn't be used for initial calculations the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} will be initialized but the pixel data will not have been set
      * @param task the plotting task
      */

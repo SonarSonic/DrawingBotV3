@@ -12,6 +12,7 @@
       <menus>
         <Menu fx:id="menuFile" mnemonicParsing="false" text="File" />
         <Menu fx:id="menuView" mnemonicParsing="false" text="View" />
+            <Menu fx:id="menuFilters" mnemonicParsing="false" text="Filters" />
         <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help" />
       </menus>
     </MenuBar>
@@ -208,41 +209,6 @@
                                                 <CheckBox fx:id="checkBoxOverwrite" contentDisplay="RIGHT" mnemonicParsing="false" />
                                              </graphic>
                                           </Label>
-                                       </children>
-                                    </AnchorPane>
-                                </content>
-                              </TitledPane>
-                              <TitledPane expanded="false" text="GCode Settings">
-                                <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
-                                       <children>
-                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="48.0" text="X Offset:">
-                                             <graphic>
-                                                <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="116.0" text="0" />
-                                             </graphic>
-                                          </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="48.0" text="Y Offset:">
-                                             <graphic>
-                                                <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="121.0" text="0" />
-                                             </graphic>
-                                          </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="82.0" text="Pen Up (Z):">
-                                             <graphic>
-                                                <TextField fx:id="textFieldPenUpZ" prefHeight="25.0" prefWidth="102.0" text="0" />
-                                             </graphic>
-                                          </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="82.0" text="Pen Down (Z)">
-                                             <graphic>
-                                                <TextField fx:id="textFieldPenDownZ" prefHeight="25.0" prefWidth="94.0" text="0" />
-                                             </graphic>
-                                          </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="119.0" text="Enable Auto Home:">
-                                             <graphic>
-                                                <CheckBox fx:id="checkBoxAutoHome" mnemonicParsing="false" />
-                                             </graphic>
-                                          </Label>
-                                          <ComboBox fx:id="comboBoxGCodePreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
-                                          <MenuButton fx:id="menuButtonGCodePresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
                                        </children>
                                     </AnchorPane>
                                 </content>

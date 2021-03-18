@@ -3,13 +3,9 @@ package drawingbot.javafx.settings;
 import drawingbot.javafx.GenericSetting;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
-import javafx.util.StringConverter;
-import javafx.util.converter.BooleanStringConverter;
 import javafx.util.converter.DefaultStringConverter;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class StringSetting<C> extends GenericSetting<C, String> {
 

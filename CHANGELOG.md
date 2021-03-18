@@ -1,4 +1,17 @@
 # Change Log
+### [v1.0.7-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.6-beta)
+- Added: Automatic SVG Optimisation, Line Simplification / Line Merging / Line Sorting
+  - Can be configured in File / Export Settings / Path Optimisation
+- Added: New Path Finding Module: "Sketch Curves PFM"
+  - Performs the same as the default, but without shading and with Catmoll Com curves instead of lines, you can configure the tension of the curves.
+- Added: Export Settings tab, to configure Path Optimisation / SVG Settings / GCode Settings
+- Added "Export Inkscape SVG" Option which supports Inkscape layers but might not work in other applications.
+- Added: New option "Rename layers (Pen1, Pen2...)" for Inkscape SVGs (compatible with the "Plot" function in Inkscape)
+- Added: "Filters" to the Menu Bar to allow for adding filters quickly.
+- Changed: GCode Export Settings have moved into the new "Export Settings tab"
+- Changed: Re-ordered export settings to better reflect file types used by plotters.
+- Fixed: Changing the Plotting Resolution will not affect the visual quality of the render and line size will be consistent
+- Fixed: Path Finding Modules will no longer gravitate to the corners of the image and will trace drawings more accurately.
 
 ### [v1.0.6-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.6-beta)
 - Added: CMYK Colour Seperation / Special Drawing Sets - Print results will vary!

@@ -6,7 +6,6 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
-import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;

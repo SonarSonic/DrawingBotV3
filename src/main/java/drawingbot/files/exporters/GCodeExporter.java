@@ -1,10 +1,8 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
-import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.DBConstants;

@@ -1,7 +1,6 @@
 package drawingbot.pfm.wip;
 
 import drawingbot.api.IPlottingTask;
-import drawingbot.geom.PathBuilder;
 import drawingbot.pfm.AbstractPFM;
 
 import java.util.ArrayList;

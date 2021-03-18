@@ -5,8 +5,11 @@ import drawingbot.api.ICustomPen;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
+import drawingbot.files.presets.types.ConfigApplicationSettings;
 import drawingbot.geom.basic.*;
+import drawingbot.utils.Units;
 import drawingbot.utils.Utils;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.awt.ShapeReader;
@@ -41,20 +44,24 @@ public class GeometryUtils {
 
         Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(geometryFilter, drawingSet, geometries);
 
-        DrawingBotV3.logger.info("--------- Geometry - Pre-Optimisation ---------");
-        printEstimatedTravelDistance(combinedGeometry, printTransform);
+        if(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
 
-        AffineTransform toJTS = AffineTransform.getScaleInstance(printTransform.getScaleX(), printTransform.getScaleY());
-        AffineTransform fromJTS = AffineTransform.getScaleInstance(1/printTransform.getScaleX(), 1/printTransform.getScaleY());
-        for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
-            ObservableDrawingPen pen = drawingSet.getPen(entry.getKey());
-            if(!(pen.source instanceof ICustomPen)){
-                entry.setValue(optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS));
+            DrawingBotV3.logger.info("--------- Geometry - Pre-Optimisation ---------");
+            printEstimatedTravelDistance(combinedGeometry, printTransform);
+
+            AffineTransform toJTS = AffineTransform.getScaleInstance(printTransform.getScaleX(), printTransform.getScaleY());
+            AffineTransform fromJTS = AffineTransform.getScaleInstance(1/printTransform.getScaleX(), 1/printTransform.getScaleY());
+            for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
+                ObservableDrawingPen pen = drawingSet.getPen(entry.getKey());
+                if(!(pen.source instanceof ICustomPen)){
+                    entry.setValue(optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS));
+                }
             }
-        }
 
-        DrawingBotV3.logger.info("--------- Geometry - Post-Optimisation ---------");
-        printEstimatedTravelDistance(combinedGeometry, printTransform);
+            DrawingBotV3.logger.info("--------- Geometry - Post-Optimisation ---------");
+            printEstimatedTravelDistance(combinedGeometry, printTransform);
+
+        }
 
         return combinedGeometry;
     }
@@ -143,14 +150,27 @@ public class GeometryUtils {
         if(lineStrings.isEmpty()){
             return new ArrayList<>();
         }
+        ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
 
-        lineStrings = lineSimplify(lineStrings, 0.1);
+        if(settings.lineSimplifyEnabled){
+            float tolerance = Units.convert(settings.lineSimplifyTolerance, settings.lineSimplifyUnits, Units.MILLIMETRES);
+            lineStrings = lineSimplify(lineStrings, tolerance);
+        }
 
-        lineStrings = lineMerge(lineStrings, 0.5);
+        if(settings.lineMergingEnabled){
+            float tolerance = Units.convert(settings.lineMergingTolerance, settings.lineMergingUnits, Units.MILLIMETRES);
+            lineStrings = lineMerge(lineStrings, tolerance);
+        }
 
-        lineStrings = lineFilter(lineStrings, 0.5);
+        if(settings.lineFilteringEnabled){
+            float tolerance = Units.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, Units.MILLIMETRES);
+            lineStrings = lineFilter(lineStrings, tolerance);
+        }
 
-        lineStrings = lineSort(lineStrings, 1);
+        if(settings.lineSortingEnabled){
+            float tolerance = Units.convert(settings.lineSortingTolerance, settings.lineSortingUnits, Units.MILLIMETRES);
+            lineStrings = lineSort(lineStrings, tolerance);
+        }
 
         return lineStrings;
     }

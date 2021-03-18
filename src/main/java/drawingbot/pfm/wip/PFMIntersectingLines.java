@@ -54,10 +54,13 @@ public class PFMIntersectingLines extends AbstractDarkestPFM {
                 }
             }
 
-            int rgba = ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50);
-            task.addGeometry(new GLine(line[0], line[1], line[2], line[3]), null, rgba);
+            if(line != null){
+                int rgba = ImageTools.getARGB(adjustbrightness, adjustbrightness, adjustbrightness, 50);
+                task.addGeometry(new GLine(line[0], line[1], line[2], line[3]), null, rgba);
 
-            adjustLuminanceLine(task, task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
+                adjustLuminanceLine(task, task.getPixelData(), line[0], line[1], line[2], line[3], adjustbrightness);
+            }
+
             progress = (float)i / maxLines;
 
             if(task.isFinished()){

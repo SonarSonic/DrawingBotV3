@@ -3,6 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
@@ -79,7 +80,7 @@ public class SVGExporter {
                 group.setAttribute("id", safeName);
                 if(inkscape){
                     group.setAttribute("inkscape:groupmode", "layer");
-                    group.setAttribute("inkscape:label", safeName);
+                    group.setAttribute("inkscape:label", ConfigFileHandler.getApplicationSettings().svgLayerRenaming ? "Pen" + (renderOrder[p]+1) : safeName);
                 }
 
                 // Draw the pen's paths

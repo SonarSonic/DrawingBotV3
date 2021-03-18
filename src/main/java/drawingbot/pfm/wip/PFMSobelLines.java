@@ -6,17 +6,12 @@ import com.jhlabs.image.InvertFilter;
 import com.jhlabs.image.QuantizeFilter;
 import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
-import drawingbot.image.ImageTools;
 import drawingbot.image.filters.SplitEdgeFilter;
 import drawingbot.pfm.AbstractPFM;
 import drawingbot.utils.Utils;
 import org.joml.Vector2d;
-import org.locationtech.jts.math.Vector2D;
 
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.nio.Buffer;
-import java.util.Arrays;
 
 public class PFMSobelLines extends AbstractPFM {
 

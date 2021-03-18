@@ -24,6 +24,9 @@ public enum Units {
     }
 
     public static float convert(float value, Units from, Units to){
+        if(from == to){
+            return value;
+        }
         return (value * from.convertToMM) / to.convertToMM;
     }
 }

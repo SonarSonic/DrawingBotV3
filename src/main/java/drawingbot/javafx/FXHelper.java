@@ -24,6 +24,7 @@ import javafx.stage.FileChooser;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -267,6 +268,14 @@ public class FXHelper {
         }
     }
 
+    public static void addImageFilter(GenericFactory<BufferedImageOp> filterFactory){
+        ObservableImageFilter filter = new ObservableImageFilter(filterFactory);
+        DrawingBotV3.INSTANCE.currentFilters.add(filter);
+        if(!filter.filterSettings.isEmpty()){
+            FXHelper.openImageFilterDialog(filter);
+        }
+    }
+
     public static void openImageFilterDialog(ObservableImageFilter filter){
         if(filter != null){
             Dialog<ObservableImageFilter> dialog = MasterRegistry.INSTANCE.getDialogForFilter(filter);
@@ -279,6 +288,10 @@ public class FXHelper {
                 }
             }
         }
+    }
+
+    public static void openExportSettingsDialog(){
+
     }
 
 }

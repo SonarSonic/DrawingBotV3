@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 
 public class GPath extends Path2D.Float implements IGeometry {
 

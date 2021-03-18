@@ -1,6 +1,5 @@
 package drawingbot.files;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.utils.DBConstants;
 import javafx.stage.FileChooser;
 

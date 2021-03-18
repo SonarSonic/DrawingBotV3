@@ -1,6 +1,5 @@
 package drawingbot.files.exporters;
 
-import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.ExportTask;

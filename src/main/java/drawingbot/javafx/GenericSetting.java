@@ -1,9 +1,7 @@
 package drawingbot.javafx;
 
-import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.settings.*;
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,7 +11,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
-import javafx.util.converter.DefaultStringConverter;
 
 import java.util.HashMap;
 import java.util.List;

@@ -3,13 +3,10 @@ package drawingbot.javafx.settings;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericSetting;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
-import javafx.util.converter.BooleanStringConverter;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 
 public class ColourSetting<C> extends GenericSetting<C, Color> {
