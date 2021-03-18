@@ -1,6 +1,7 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
@@ -20,15 +21,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -36,13 +34,17 @@ import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class FXController {
 
@@ -61,7 +63,7 @@ public class FXController {
         initPFMControls();
         initPenSettingsPane();
         initBatchProcessingPane();
-        initGCodeSettingsPane();
+
 
         viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
         viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
@@ -72,12 +74,33 @@ public class FXController {
         viewportScrollPane.setHvalue(0.5);
         viewportScrollPane.setVvalue(0.5);
 
+        initSeperateStages();
 
         DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> {
             DrawingBotV3.INSTANCE.onImageFiltersChanged();
         });
-
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
+    }
+
+    public Stage exportSettingsStage;
+    public FXExportController exportController;
+
+    public void initSeperateStages() {
+        try {
+            exportSettingsStage = new Stage();
+            FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource("/fxml/exportsettings.fxml"));
+            exportUILoader.setController(exportController = new FXExportController());
+
+            Scene scene = new Scene(exportUILoader.load());
+            exportSettingsStage.initModality(Modality.APPLICATION_MODAL);
+            exportSettingsStage.setScene(scene);
+            exportSettingsStage.hide();
+            exportSettingsStage.setTitle("Export Settings");
+            exportSettingsStage.setResizable(false);
+            FXApplication.applyDBIcon(exportSettingsStage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +115,7 @@ public class FXController {
 
     public Menu menuFile = null;
     public Menu menuView = null;
+    public Menu menuFilters = null;
     public Menu menuHelp = null;
 
     public void initToolbar(){
@@ -118,6 +142,10 @@ public class FXController {
         }
         menuFile.getItems().add(menuExportPerPen);
 
+        MenuItem menuExportSettings = new MenuItem("Export Settings");
+        menuExportSettings.setOnAction(e -> exportSettingsStage.show());
+        menuFile.getItems().add(menuExportSettings);
+
         menuFile.getItems().add(new SeparatorMenuItem());
 
         MenuItem menuQuit = new MenuItem("Quit");
@@ -137,6 +165,19 @@ public class FXController {
                 allPanes.forEach(p -> p.expandedProperty().setValue(p == pane));
             });
             menuView.getItems().add(viewButton);
+        }
+
+        //filters
+        for(Map.Entry<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> entry : MasterRegistry.INSTANCE.imgFilterFactories.entrySet()){
+            Menu type = new Menu(entry.getKey().toString());
+
+            for(GenericFactory<BufferedImageOp> factory : entry.getValue()){
+                MenuItem item = new MenuItem(factory.getName());
+                item.setOnAction(e -> FXHelper.addImageFilter(factory));
+                type.getItems().add(item);
+            }
+
+            menuFilters.getItems().add(type);
         }
 
         //help
@@ -426,11 +467,7 @@ public class FXController {
         comboBoxImageFilter.setValue(MasterRegistry.INSTANCE.getDefaultImageFilter(MasterRegistry.INSTANCE.getDefaultImageFilterType()));
         buttonAddFilter.setOnAction(e -> {
             if(comboBoxImageFilter.getValue() != null){
-                ObservableImageFilter filter = new ObservableImageFilter(comboBoxImageFilter.getValue());
-                DrawingBotV3.INSTANCE.currentFilters.add(filter);
-                if(!filter.filterSettings.isEmpty()){
-                    FXHelper.openImageFilterDialog(filter);
-                }
+                FXHelper.addImageFilter(comboBoxImageFilter.getValue());
             }
         });
     }
@@ -590,11 +627,14 @@ public class FXController {
             if(preset != null){
                 comboBoxSetType.setValue(preset.presetSubType);
                 comboBoxDrawingSet.setValue(preset.data);
-            }else{
+            }
+            /*
+            else{
                 //don't set to avoid overwriting the users configured pens
                 //comboBoxSetType.setValue(DrawingRegistry.INSTANCE.getDefaultSetType());
                 //comboBoxDrawingSet.setValue(DrawingRegistry.INSTANCE.getDefaultSet(comboBoxSetType.getValue()));
             }
+             */
         });
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -756,54 +796,6 @@ public class FXController {
         tableColumnPerPen.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerPen.getCellObservableValue(index)));
         tableColumnPerPen.setCellValueFactory(param -> param.getValue().enablePerPen);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////GCODE SETTINGS
-
-    public ComboBox<GenericPreset<PresetGCodeSettings>> comboBoxGCodePreset = null;
-    public MenuButton menuButtonGCodePresets = null;
-
-    public TextField textFieldOffsetX = null;
-    public TextField textFieldOffsetY = null;
-    public TextField textFieldPenUpZ = null;
-    public TextField textFieldPenDownZ = null;
-    public CheckBox checkBoxAutoHome = null;
-
-
-    public void initGCodeSettingsPane(){
-
-        comboBoxGCodePreset.setItems(JsonLoaderManager.GCODE_SETTINGS.presets);
-        comboBoxGCodePreset.setValue(JsonLoaderManager.GCODE_SETTINGS.getDefaultPreset());
-        comboBoxGCodePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                JsonLoaderManager.GCODE_SETTINGS.applyPreset(newValue);
-            }
-        });
-
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.GCODE_SETTINGS, menuButtonGCodePresets, comboBoxGCodePreset::getValue, (preset) -> {
-            comboBoxGCodePreset.setValue(preset);
-
-            ///force update rendering
-            comboBoxGCodePreset.setItems(JsonLoaderManager.GCODE_SETTINGS.presets);
-            comboBoxGCodePreset.setButtonCell(new ComboBoxListCell<>());
-        });
-
-        checkBoxAutoHome.setSelected(true);
-        DrawingBotV3.INSTANCE.enableAutoHome.bindBidirectional(checkBoxAutoHome.selectedProperty());
-
-        DrawingBotV3.INSTANCE.gcodeOffsetX.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetX.textProperty().get()), textFieldOffsetX.textProperty()));
-        textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-
-        DrawingBotV3.INSTANCE.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
-        textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-
-        DrawingBotV3.INSTANCE.penUpZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenUpZ.textProperty().get()), textFieldPenUpZ.textProperty()));
-        textFieldPenUpZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 5F));
-
-        DrawingBotV3.INSTANCE.penDownZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenDownZ.textProperty().get()), textFieldPenDownZ.textProperty()));
-        textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void changePathFinderModule(GenericFactory<IPathFindingModule> pfm){

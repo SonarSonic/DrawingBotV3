@@ -35,7 +35,7 @@ import java.awt.image.ColorModel;
 public final class BlendComposite implements Composite {
 
     private float alpha;
-    private EnumBlendMode mode;
+    private final EnumBlendMode mode;
 
     public BlendComposite(EnumBlendMode mode) {
         this(mode, 1.0f);

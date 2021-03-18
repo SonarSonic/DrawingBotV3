@@ -1,9 +1,7 @@
 package drawingbot.utils;
 
 import drawingbot.files.exporters.GCodeExporter;
-import drawingbot.files.exporters.SVGExporter;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

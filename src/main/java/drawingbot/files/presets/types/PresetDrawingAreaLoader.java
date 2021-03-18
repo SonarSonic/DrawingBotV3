@@ -1,7 +1,6 @@
 package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.AbstractSettingsLoader;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;

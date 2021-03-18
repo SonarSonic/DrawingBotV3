@@ -3,7 +3,7 @@
     {
       "presetType": "pfm_settings",
       "version": 1,
-      "presetSubType": "Sketch PFM",
+      "presetSubType": "Sketch Lines PFM",
       "presetName": "Glitchy Horizontal",
       "userCreated": true,
       "data": {
@@ -23,7 +23,7 @@
     {
       "presetType": "pfm_settings",
       "version": 1,
-      "presetSubType": "Sketch PFM",
+      "presetSubType": "Sketch Lines PFM",
       "presetName": "Glitchy Vertical",
       "userCreated": false,
       "data": {
@@ -44,7 +44,7 @@
     {
       "presetType": "pfm_settings",
       "version": 1,
-      "presetSubType": "Sketch PFM",
+      "presetSubType": "Sketch Lines PFM",
       "presetName": "Messy Lines",
       "userCreated": false,
       "data": {
@@ -64,7 +64,7 @@
     {
       "presetType": "pfm_settings",
       "version": 1,
-      "presetSubType": "Sketch PFM",
+      "presetSubType": "Sketch Lines PFM",
       "presetName": "Sketchy",
       "userCreated": false,
       "data": {

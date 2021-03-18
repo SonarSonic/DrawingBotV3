@@ -77,11 +77,11 @@ public class MasterRegistry {
     //// IMAGE FILTER: DEFAULTS
 
     public EnumFilterTypes getDefaultImageFilterType(){
-        return imgFilterFactories.keySet().stream().findFirst().orElseGet(null);
+        return imgFilterFactories.keySet().stream().findFirst().orElse(null);
     }
 
     public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
-        return imgFilterFactories.get(type).stream().findFirst().orElseGet(null);
+        return imgFilterFactories.get(type).stream().findFirst().orElse(null);
     }
 
     public GenericPreset<PresetImageFilters> getDefaultImageFilterPreset(){

@@ -10,8 +10,6 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -21,7 +19,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.jfree.fx.FXGraphics2D;
 
 import java.io.*;
@@ -76,11 +73,11 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE.graphicsFX = canvas.getGraphicsContext2D();
         DrawingBotV3.INSTANCE.graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
-        FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
-        loader.setController(DrawingBotV3.INSTANCE.controller);
+        FXMLLoader uiLoader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
+        uiLoader.setController(DrawingBotV3.INSTANCE.controller);
 
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        FXApplication.primaryScene = new Scene(loader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
+        FXApplication.primaryScene = new Scene(uiLoader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
         FXApplication.primaryScene.setOnKeyPressed(DrawingBotV3.INSTANCE::keyPressed);
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
         primaryStage.setScene(primaryScene);

@@ -2,19 +2,9 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerExpression;
-import javafx.beans.binding.LongExpression;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.util.StringConverter;
-import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.LongStringConverter;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class LongSetting<C> extends RangedNumberSetting<C, Long> {
 

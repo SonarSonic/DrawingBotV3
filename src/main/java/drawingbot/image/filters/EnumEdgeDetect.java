@@ -1,7 +1,6 @@
 package drawingbot.image.filters;
 
 import com.jhlabs.image.EdgeFilter;
-import com.jhlabs.image.RippleFilter;
 import drawingbot.utils.Utils;
 
 public enum EnumEdgeDetect {

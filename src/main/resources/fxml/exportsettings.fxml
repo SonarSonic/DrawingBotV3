@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TabPane minHeight="400.0" minWidth="400.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Path Optimisation">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
+                     <children>
+                        <VBox prefHeight="350.0" prefWidth="400.0" spacing="10.0">
+                           <children>
+                              <Label contentDisplay="RIGHT" text="Enable Path Optimisation">
+                                 <graphic>
+                                    <CheckBox fx:id="checkBoxEnableOptimisation" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                 </graphic>
+                              </Label>
+                              <Separator prefWidth="384.0" />
+                              <Pane fx:id="paneOptimisationControls" prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox spacing="6.0">
+                                       <children>
+                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Line Simplifing">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                             <graphic>
+                                                <Label text="Simplifies lines using the Douglas Peucker Algorithm">
+                                                   <font>
+                                                      <Font name="System Italic" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </graphic>
+                                          </Label>
+                                          <HBox fillHeight="false" spacing="10.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" prefHeight="25.0" text="Enabled">
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxSimplify" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" text="Tolerance:">
+                                                   <graphic>
+                                                      <TextField fx:id="textFieldSimplifyTolerance" prefHeight="25.0" prefWidth="107.0" />
+                                                   </graphic>
+                                                </Label>
+                                                <ChoiceBox fx:id="choiceBoxSimplifyUnits" prefHeight="25.0" prefWidth="100.0" />
+                                             </children>
+                                          </HBox>
+                                          <Separator prefWidth="200.0" />
+                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Line Merging">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                             <graphic>
+                                                <Label text="Merges start/end points within the given tolerance">
+                                                   <font>
+                                                      <Font name="System Italic" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </graphic>
+                                          </Label>
+                                          <HBox fillHeight="false" spacing="10.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" prefHeight="25.0" text="Enabled">
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxMerge" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" text="Tolerance:">
+                                                   <graphic>
+                                                      <TextField fx:id="textFieldMergeTolerance" prefHeight="25.0" prefWidth="107.0" />
+                                                   </graphic>
+                                                </Label>
+                                                <ChoiceBox fx:id="choiceBoxMergeUnits" prefHeight="25.0" prefWidth="100.0" />
+                                             </children>
+                                          </HBox>
+                                          <Separator prefWidth="200.0" />
+                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Line Filtering">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                             <graphic>
+                                                <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Removes lines shorter than the tolerance">
+                                                   <font>
+                                                      <Font name="System Italic" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </graphic>
+                                          </Label>
+                                          <HBox fillHeight="false" spacing="10.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" prefHeight="25.0" text="Enabled">
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxFilter" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" text="Tolerance:">
+                                                   <graphic>
+                                                      <TextField fx:id="textFieldFilterTolerance" prefHeight="25.0" prefWidth="107.0" />
+                                                   </graphic>
+                                                </Label>
+                                                <ChoiceBox fx:id="choiceBoxFilterUnits" prefHeight="25.0" prefWidth="100.0" />
+                                             </children>
+                                          </HBox>
+                                          <Separator prefWidth="200.0" />
+                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Line Sorting">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                             <graphic>
+                                                <Label text="Sorts lines to minimise air time">
+                                                   <font>
+                                                      <Font name="System Italic" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </graphic>
+                                          </Label>
+                                          <HBox fillHeight="false" spacing="10.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" prefHeight="25.0" text="Enabled">
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxSort" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" text="Tolerance:">
+                                                   <graphic>
+                                                      <TextField fx:id="textFieldSortTolerance" prefHeight="25.0" prefWidth="107.0" />
+                                                   </graphic>
+                                                </Label>
+                                                <ChoiceBox fx:id="choiceBoxSortUnits" prefHeight="25.0" prefWidth="100.0" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </Pane>
+                           </children>
+                           <padding>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="12.0" />
+                           </padding>
+                        </VBox>
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="SVG Settings">
+                <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
+                     <children>
+                        <VBox prefHeight="46.0" prefWidth="400.0" spacing="10.0">
+                           <padding>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </padding>
+                           <children>
+                              <Separator prefWidth="200.0" />
+                              <Label text="Inkscape SVG">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <Label contentDisplay="RIGHT" text="Rename layers (Pen1, Pen2...)">
+                                 <graphic>
+                                    <CheckBox fx:id="checkBoxEnableSVGLayerNaming" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                 </graphic>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children></AnchorPane>
+                </content>
+            </Tab>
+          <Tab text="GCode Settings">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <children>
+                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="48.0" text="X Offset:">
+                        <graphic>
+                            <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="116.0" text="0" />
+                        </graphic>
+                    </Label>
+                    <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="48.0" text="Y Offset:">
+                        <graphic>
+                            <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="121.0" text="0" />
+                        </graphic>
+                    </Label>
+                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="82.0" text="Pen Up (Z):">
+                        <graphic>
+                            <TextField fx:id="textFieldPenUpZ" prefHeight="25.0" prefWidth="102.0" text="0" />
+                        </graphic>
+                    </Label>
+                    <Label contentDisplay="RIGHT" layoutX="205.0" layoutY="82.0" text="Pen Down (Z)">
+                        <graphic>
+                            <TextField fx:id="textFieldPenDownZ" prefHeight="25.0" prefWidth="94.0" text="0" />
+                        </graphic>
+                    </Label>
+                    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="119.0" text="Enable Auto Home:">
+                        <graphic>
+                            <CheckBox fx:id="checkBoxAutoHome" mnemonicParsing="false" />
+                        </graphic>
+                    </Label>
+                    <ComboBox fx:id="comboBoxGCodePreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+                    <MenuButton fx:id="menuButtonGCodePresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
+                </children>
+                </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
