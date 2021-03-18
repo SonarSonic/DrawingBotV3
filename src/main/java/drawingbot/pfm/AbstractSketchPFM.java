@@ -44,11 +44,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     @Override
     public void doProcess(IPlottingTask task) {
+        findDarkestArea(task.getPixelData());
+
         if(!shouldLiftPen && x != -1){
             addGeometry(task, x, y, darkest_x, darkest_y, adjustbrightness);
         }
-
-        findDarkestArea(task.getPixelData());
 
         x = darkest_x;
         y = darkest_y;

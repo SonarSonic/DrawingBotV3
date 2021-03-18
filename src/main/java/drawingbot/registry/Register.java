@@ -27,12 +27,12 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false);
 
         //experimental / developer only path finding modules
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel PFM", PFMSketchSobel::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSineWaves.class, "Sine Waves PFM (Experimental)", PFMSineWaves::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSobelLines.class, "Sobel Lines PFM (Experimental)", PFMSobelLines::new, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSobelSketchEdges.class, "Sketch Edges PFM (Experimental)", PFMSobelSketchEdges::new, true);
 
         ////GENERAL
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value));
@@ -50,6 +50,10 @@ public class Register {
 
         ////CURVES PFM
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchCurves.class, "Curve tension", 0.4F, 0, 90, false, (pfmSketch, value) -> pfmSketch.tension = value));
+
+        ////SOBEL PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchSobel.class, "Sobel Intensity", 1, 0, 10, false, (pfmSketch, value) -> pfmSketch.sobelIntensity = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSobel.class, "Sobel Adjust", 10, 0, 255, false, (pfmSketch, value) -> pfmSketch.adjustSobel = value));
 
         ////SHAPES PFM
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchShapes.class, "Shape Type", List.of(EnumSketchShapes.values()), EnumSketchShapes.RECTANGLES, false, (pfmSketch, value) -> pfmSketch.shapes = value));
