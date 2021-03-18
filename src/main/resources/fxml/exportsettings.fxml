@@ -25,7 +25,7 @@
                                  <children>
                                     <VBox spacing="6.0">
                                        <children>
-                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Line Simplifing">
+                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" text="Line Simplifying">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
                                              </font>

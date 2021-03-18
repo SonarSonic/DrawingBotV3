@@ -11,9 +11,13 @@ import drawingbot.pfm.AbstractSketchPFM;
 
 import java.awt.image.BufferedImage;
 
-public class PFMSobelSketchEdges extends AbstractSketchPFM {
+public class PFMSketchSobel extends AbstractSketchPFM {
 
     public IPixelData sobelPixelData;
+    public float sobelIntensity;
+    public int adjustSobel;
+
+    protected int sum_sobel = 0;
 
     @Override
     public BufferedImage preFilter(BufferedImage image) {
@@ -26,13 +30,19 @@ public class PFMSobelSketchEdges extends AbstractSketchPFM {
 
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
+        float start_angle = randomSeed(0, 45);
         float delta_angle = 360F / tests;
         int nextLineLength = randomSeed(20, 30);
 
         resetLuminanceTest();
         for (int d = 0; d < tests; d ++) {
-            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + 45);
+            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
+    }
+    @Override
+    protected void resetLuminanceSamples(){
+        super.resetLuminanceSamples();
+        sum_sobel = 0;
     }
 
     @Override
@@ -40,16 +50,21 @@ public class PFMSobelSketchEdges extends AbstractSketchPFM {
         if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
             return true;
         }
-        double sobel = sobelPixelData.getLuminance(x, y);
-        double luminance = pixels.getLuminance(x, y);
-        sum_luminance += luminance > 200 ? luminance : Math.max(luminance - sobel*4, 0);
+        float luminance = pixels.getLuminance(x, y);
+        float sobel = sobelPixelData.getLuminance(x, y)*sobelIntensity;
+        sum_luminance += luminance-sobel;
+        //if(luminance < 200){
+            //sum_sobel += Math.min(255, sobelPixelData.getLuminance(x, y)*sobelIntensity);
+        //}
 
         count_pixels++;
 
-        if (test_luminance == -1 || getLuminanceTestAverage() < test_luminance) {
+        float testResult = ((float) sum_luminance - sum_sobel) / count_pixels;
+
+        if (test_luminance == -1 || testResult < test_luminance) {
             darkest_x = x;
             darkest_y = y;
-            test_luminance = getLuminanceTestAverage();
+            test_luminance = testResult;
         }
         return false;
     }
@@ -57,12 +72,8 @@ public class PFMSobelSketchEdges extends AbstractSketchPFM {
     public void addGeometry(IPlottingTask task, int x1, int y1, int x2, int y2, int adjust){
         int rgba = adjustLuminanceLine(task, task.getPixelData(), x1, y1, x2, y2, adjust);
         task.addGeometry(new GLine(x1, y1, x2, y2), null, rgba);
-        /*
-        bresenham.line(x1, y1, x2, y2, (x, y) -> {
-            sobelPixelData.adjustLuminance(x, y, -adjust*4);
-            return false;
-        });
 
-         */
+        ///adjust sobel data
+        adjustLuminanceLine(task, sobelPixelData, x1, y1, x2, y2, -adjustSobel);
     }
 }

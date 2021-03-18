@@ -1,29 +1,29 @@
 # Change Log
-### [v1.0.7-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.6-beta)
-- Added: Automatic SVG Optimisation, Line Simplification / Line Merging / Line Sorting
-  - Can be configured in File / Export Settings / Path Optimisation
-- Added: New Path Finding Module: "Sketch Curves PFM"
-  - Performs the same as the default, but without shading and with Catmoll Com curves instead of lines, you can configure the tension of the curves.
-- Added: Export Settings tab, to configure Path Optimisation / SVG Settings / GCode Settings
-- Added "Export Inkscape SVG" Option which supports Inkscape layers but might not work in other applications.
-- Added: New option "Rename layers (Pen1, Pen2...)" for Inkscape SVGs (compatible with the "Plot" function in Inkscape)
-- Added: "Filters" to the Menu Bar to allow for adding filters quickly.
-- Changed: GCode Export Settings have moved into the new "Export Settings tab"
-- Changed: Re-ordered export settings to better reflect file types used by plotters.
-- Fixed: Changing the Plotting Resolution will not affect the visual quality of the render and line size will be consistent
-- Fixed: Path Finding Modules will no longer gravitate to the corners of the image and will trace drawings more accurately.
+### [v1.0.7-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.7-beta)
+-  Added: New Path Finding Module! "Sketch Curves PFM"
+- Performs the same as the default, but without shading and with Catmull Rom Splines instead of lines, you can configure the tension of the curves.
+-   Added: Automatic SVG Optimisation, Line Simplification / Line Merging / Line Sorting
+- Can be configured in File / Export Settings / Path Optimisation
+-   Added: Export Settings tab, to configure Path Optimisation / SVG Settings / GCode Settings
+-   Added "Export Inkscape SVG" Option which supports Inkscape layers but might not work in other applications.
+-  Added: New option "Rename layers (Pen1, Pen2...)" for Inkscape SVGs (compatible with the "Plot" function in Inkscape)
+-  Added: "Filters" to the Menu Bar to allow for adding filters quickly.
+-  Changed: GCode Export Settings have moved into the new "Export Settings tab"
+-  Changed: Re-ordered export settings to better reflect file types used by plotters.
+-  Fixed: Changing the Plotting Resolution will not affect the visual quality of the render and line size will be consistent
+-  Fixed: Path Finding Modules will no longer gravitate to the corners of the image and will trace drawings more accurately.
 
 ### [v1.0.6-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.6-beta)
-- Added: CMYK Colour Seperation / Special Drawing Sets - Print results will vary!
-- Added: Multi-Layer SVGs, SVGs now have seperate groups for each pen
-- Added: "Max Line Limit" option to PFM Sketch & PFM Squares
-- Added: Import / Export will now store the last used locations.
-- Added: "Open Configs Folder" option in the help menu.
-- Fixed: Massive Lag Spikes / the program becoming unresponsive
-- Fixed: Lag Spikes when changing to Special Drawing Sets / Changing Drawing Mode
-- Fixed: Pen stoke sizes will match custom values properly on exported SVGs
-- Fixed: Custom pen colours not rendering with the new colour / not saving when pressing "use"
-- Fixed: Logs not outputting correctly
+-  Added: CMYK Colour Seperation / Special Drawing Sets - Print results will vary!
+-  Added: Multi-Layer SVGs, SVGs now have seperate groups for each pen
+-  Added: "Max Line Limit" option to PFM Sketch & PFM Squares
+-  Added: Import / Export will now store the last used locations.
+-  Added: "Open Configs Folder" option in the help menu.
+-  Fixed: Massive Lag Spikes / the program becoming unresponsive
+-  Fixed: Lag Spikes when changing to Special Drawing Sets / Changing Drawing Mode
+-  Fixed: Pen stoke sizes will match custom values properly on exported SVGs
+-  Fixed: Custom pen colours not rendering with the new colour / not saving when pressing "use"
+-  Fixed: Logs not outputting correctly
 
 ### [v1.0.5-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.5-beta)
 - Added: New Image Filters, there are now over 60+ Image Filters!
@@ -45,13 +45,13 @@
   - These samples are taken when the plot is being run and cached, this will slightly impact plotting performance, this caching can be disabled however by setting PFM setting "Cache Colour Samples" to "false".
 - Added: "Padding" option to Drawing Area, with "Gang" check box
 - Added: "Scaling Mode" option to Drawing Area: "Crop to fit", "Scale to fit" and "Stretch to fit"
-- Added: "Lock" option for PFM Settings 
+- Added: "Lock" option for PFM Settings
   - Locking a setting will prevent it from being randomised, this will allow more creativity when using "randomise" allowing you to keep track of values you like.
   - Some settings are locked by default to prevent the plot failing (e.g. Plotting Resolution, Drawing/Shading Delta Angle)
   - Pressing "Reset" will still return the setting to default
 - Added: Right-Clicking PFM Settings will now allow you to "Randomise" / "Reset" a single setting.
 - Added: Check boxes to Drawing Pen selections to enable quicker configuration
-- Added: Extra Buttons in Pen Settings for "Add", "Remove", "Duplicate", "Move Up" and "Move Down", you can still right click pens instead. 
+- Added: Extra Buttons in Pen Settings for "Add", "Remove", "Duplicate", "Move Up" and "Move Down", you can still right click pens instead.
 - Added: "Stroke" options for Drawing Pens to change the thickness of the
 - Changed: Pressing ENTER will not start plotting anymore, avoiding accidentally overwriting your current plot.
 - Changed: Pre-Processing will now be disabled by default
@@ -79,10 +79,10 @@
 
 ### [v1.0.1-alpha](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.1-alpha)
 - Added: User Configurable Presets which can be imported/exported and shared with other users
-- Added: Default Path Finding Module Presets 
-    - inc. "Sketchy", "Glitchy Vertical, "Glitchy Horizontal" & "Messy Lines"
+- Added: Default Path Finding Module Presets
+  - inc. "Sketchy", "Glitchy Vertical, "Glitchy Horizontal" & "Messy Lines"
 - Added: Default Pre-Processing Presets
-    - inc. "Original Dirty Border"
+  - inc. "Original Dirty Border"
 - Added: Pre-Processing Settings, for adding/removing image filters
 - Added: Large amounts of work on the API
 - Changed: Improved application log output
