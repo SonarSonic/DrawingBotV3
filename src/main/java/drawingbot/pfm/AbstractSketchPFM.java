@@ -9,7 +9,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     public int squiggle_length;         // How often to lift the pen
     public int adjustbrightness;        // How fast it moves from dark to light, over-draw
-    public float desired_brightness;    // How long to process.  You can always stop early with "s" key
+    public float lineDensity;
 
     public int tests;                   // Reasonable values:  13 for development, 720 for final
     public int minLineLength;
@@ -20,10 +20,17 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     protected int squiggle_count;
 
-    protected double initialProgress;
+    protected double initialLuminance;
 
     protected int x = -1;
     protected int y = -1;
+
+    public final float desiredLuminance = 250;
+
+    //latest progress
+    protected double lineProgress = 0;
+    protected double lumProgress = 0;
+    protected double actualProgress = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,14 +43,14 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             minLineLength = maxLineLength;
             maxLineLength = value;
         }
-        initialProgress = task.getPixelData().getAverageLuminance();
+        initialLuminance = this.task.getPixelData().getAverageLuminance();
     }
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void doProcess(IPlottingTask task) {
+    public void doProcess() {
         findDarkestArea(task.getPixelData());
 
         if(!shouldLiftPen && x != -1){
@@ -74,14 +81,23 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     protected boolean updateProgress(IPlottingTask task){
         PlottingTask plottingTask = (PlottingTask) task;
         double avgLuminance = task.getPixelData().getAverageLuminance();
-        double lineProgress = maxLines == -1 ? 0 : (double)plottingTask.plottedDrawing.geometries.size() / maxLines;
-        double lumProgress = avgLuminance >= desired_brightness ? 1 : (avgLuminance-initialProgress) / (desired_brightness-initialProgress);
-        double progress = Math.max(lineProgress, lumProgress);
+        lineProgress = maxLines == -1 ? 0 : (double)plottingTask.plottedDrawing.geometries.size() / maxLines;
+        lumProgress = avgLuminance >= desiredLuminance ? 1 : (avgLuminance - initialLuminance) / ((desiredLuminance - initialLuminance)*lineDensity);
+        actualProgress = Math.max(lineProgress, lumProgress);
 
-        task.updatePlottingProgress(progress, 1D);
-        return progress >= 1;
-
+        task.updatePlottingProgress(actualProgress, 1D);
+        return actualProgress >= 1;
     }
 
     protected abstract void findDarkestNeighbour(IPixelData pixels, int x, int y);
+
+    @Override
+    public int minLineLength() {
+        return minLineLength;
+    }
+
+    @Override
+    public int maxLineLength() {
+        return maxLineLength;
+    }
 }

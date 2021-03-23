@@ -2,6 +2,7 @@ package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.utils.EnumScalingMode;
+import org.imgscalr.Scalr;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -28,16 +29,18 @@ public class PrintResolution {
     //the cropped area to be plotted
     public int imageCropX = 0;
     public int imageCropY = 0;
+    public int imageCropWidth = 0;
+    public int imageCropHeight = 0;
 
     //the output render offsets, in PX
     public int imageOffsetX = 0;
     public int imageOffsetY = 0;
 
     //the output render dimensions, includes any borders, in PX
-    public int imageWidth = 0;
+    public int imageWidth = 0; //TODO MAKE WARNING WHEN THIS EXCEEDS THE TEXTURE LIMIT.
     public int imageHeight = 0;
 
-    public double imageScale = 1;
+    public double imageRenderScale = 1;
 
 
     //// PRINT RESOLUTION \\\\
@@ -80,13 +83,13 @@ public class PrintResolution {
     }
 
     public void updatePrintResolution(){
-        boolean useOriginal = DrawingBotV3.INSTANCE.useOriginalSizing.get() || DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() == 0 || DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() == 0; //invalid
+        boolean useOriginal = useOriginalSizing();
 
-        this.printPageWidth = useOriginal ? sourceWidth/10F : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
-        this.printPageHeight = useOriginal ? sourceHeight/10F : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
+        this.printPageWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
+        this.printPageHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
 
-        this.printDrawingWidth = useOriginal ? sourceWidth/10F : DrawingBotV3.INSTANCE.getDrawingWidthMM();
-        this.printDrawingHeight = useOriginal ? sourceHeight/10F : DrawingBotV3.INSTANCE.getDrawingHeightMM();
+        this.printDrawingWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingWidthMM();
+        this.printDrawingHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingHeightMM();
 
         this.printOffsetX = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetXMM();
         this.printOffsetY = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetYMM();
@@ -98,10 +101,10 @@ public class PrintResolution {
 
         this.imageOffsetX = 0;
         this.imageOffsetY = 0;
-        this.imageScale = 1;
+        this.imageRenderScale = 1;
 
-        this.imageWidth = sourceWidth;
-        this.imageHeight = sourceHeight;
+        this.imageCropWidth = sourceWidth;
+        this.imageCropHeight = sourceHeight;
 
         this.imageCropX = 0;
         this.imageCropY = 0;
@@ -112,27 +115,55 @@ public class PrintResolution {
 
             if (currentRatio < targetRatio) {
                 this.imageCropY = (sourceHeight - targetHeight) / 2;
-                this.imageHeight = targetHeight;
+                this.imageCropHeight = targetHeight;
             }else{
                 this.imageCropX = (sourceWidth - targetWidth) / 2;
-                this.imageWidth = targetWidth;
+                this.imageCropWidth = targetWidth;
             }
             if(DrawingBotV3.INSTANCE.scalingMode.get() == EnumScalingMode.SCALE_TO_FIT){
                 if(currentRatio < targetRatio){
-                    this.imageScale = sourceHeight /(double)targetHeight;
+                    this.imageRenderScale = sourceHeight /(double)targetHeight;
                     this.imageOffsetX = (targetWidth - sourceWidth) / 2;
                 }else{
-                    this.imageScale = sourceWidth / (double)targetWidth;
+                    this.imageRenderScale = sourceWidth / (double)targetWidth;
                     this.imageOffsetY = (targetHeight - sourceHeight) / 2;
                 }
             }
+
         }
+
+        if(!useOriginalSizing() && DrawingBotV3.INSTANCE.optimiseForPrint.get() && DrawingBotV3.INSTANCE.targetPenWidth.get() > 0){
+
+            //divide the image so that 1 pixel = 1 pen mark
+            imageWidth = (int)(getPrintDrawingWidth() / DrawingBotV3.INSTANCE.targetPenWidth.get());
+            imageHeight = (int)(getPrintDrawingHeight() / DrawingBotV3.INSTANCE.targetPenWidth.get());
+
+            if(DrawingBotV3.INSTANCE.scalingMode.get() == EnumScalingMode.SCALE_TO_FIT){
+                //factor out the image's render scale & reset it
+                if(currentRatio < targetRatio){
+                    int renderWidth = (int)(imageWidth / imageRenderScale);
+                    this.imageOffsetX = (imageWidth - renderWidth) / 2;
+                    imageWidth = renderWidth;
+                }else{
+                    int renderHeight = (int)(imageHeight / imageRenderScale);
+                    this.imageOffsetY = (imageHeight - renderHeight) / 2;
+                    imageHeight = renderHeight;
+                }
+                this.imageRenderScale = 1;
+            }
+
+        }else{
+            imageWidth = imageCropWidth;
+            imageHeight = imageCropHeight;
+        }
+
+
     }
 
     public void updatePrintScale(){
         double print_scale_x, print_scale_y;
-        print_scale_x = printDrawingWidth / (imageWidth * imageScale);
-        print_scale_y = printDrawingHeight / (imageHeight * imageScale);
+        print_scale_x = printDrawingWidth / (imageWidth * imageRenderScale);
+        print_scale_y = printDrawingHeight / (imageHeight * imageRenderScale);
         printScale = Math.min(print_scale_x, print_scale_y);
 
         scaledOffsetX = (imageOffsetX)  + (getPrintOffsetX() / getPrintScale());
@@ -141,8 +172,8 @@ public class PrintResolution {
         scaledHeight = getPrintPageHeight() / getPrintScale();
     }
 
-    public boolean hasCropping(){
-        return imageCropX != 0 || imageCropY != 0 || imageWidth != sourceWidth || imageHeight != sourceHeight;
+    public boolean useOriginalSizing(){
+        return DrawingBotV3.INSTANCE.useOriginalSizing.get() || DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() == 0 || DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() == 0;
     }
 
     public float getPrintPageWidth() {
@@ -169,12 +200,12 @@ public class PrintResolution {
         return printOffsetY;
     }
 
-    public int getImageWidth(){
-        return imageWidth;
+    public int getImageCropWidth(){
+        return imageCropWidth;
     }
 
-    public int getImageHeight(){
-        return imageHeight;
+    public int getImageCropHeight(){
+        return imageCropHeight;
     }
 
     public double getScaledWidth(){

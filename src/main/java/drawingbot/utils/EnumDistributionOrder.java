@@ -20,7 +20,10 @@ public enum EnumDistributionOrder {
 
     @Override
     public String toString() {
-        return "Distribution Order: " + Utils.capitalize(name());
+        if(this == DARKEST_FIRST){
+            return Utils.capitalize(name()) + " " + "(Default)";
+        }
+        return Utils.capitalize(name());
     }
 
 }

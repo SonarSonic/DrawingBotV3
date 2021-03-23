@@ -1,9 +1,37 @@
 # Change Log
+### [v1.0.8-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.8-beta)
+- Added: Five New Path Finding Modules!
+    - "Sketch Sobel Edges PFM" - Works like the "Sketch Lines PFM" but uses Edge Detection as well as Brightness Sampling, which can be adjusted to create stylised drawings with emphasised contours.
+    - "Voronoi Triangulation" - Draws triangles between the centre points of a Weighted Voronoi Diagram.
+    - "Voronoi Stippling" - Draws filled circles at the centre points of a Weighted Voronoi Diagram, each circle is scaled to the average brightness of the containing cell
+    - "Voronoi Circles" - Draws inscribed circles into the cells of a Weighted Voronoi Diagram
+    - "Voronoi Diagram" - Draws the Voronoi Diagram by itself.
+- Added: New "Rescale to Pen Width" option in "Drawing Area" - which helps in optimising the line density of your plots, you must enter the "width" & "height" of the drawing area for this to be applied. 
+- Added: New Special Pens for use for screen only outputs "Original Red" , "Original Green", "Original Blue"
+- Added: New Pen Distribution Type Setting, options include "Even", "Even Weighted (Default)", "Random", "Random Weighted", "Preconfigured", "Single Pen" - Path Finding Modules will select there recommended distribution type the first time they are run.
+- Added: New "Rotate" button in Drawing Area to quickly swap Width / Height.
+- Added: "Centre X", "Centre Y" & "Spiral Size" to "Spiral PFM", which allows you to move the start position of the spiral and change it's size.
+- Changed: The rendering quality of lines created from low quality images has been improved massively, the images will look the same, exports will still be lower res / match the input resolution.
+- Changed: The default preset for "Sketch Lines PFM" now has shading disabled by default, there is a new preset called "Simple Shading" which performs like the original.
+- Changed: "Lock" has been renamed to "Randomise Exclude" and hidden by default, as it was misleading for new users and is rarely needed.
+- Changed: Renamed setting "Desired brightness" to "Line density", instead of being an arbitary number, the images brightness/density is a percentage where any value is valid the default is 75%
+- Changed: Renamed setting "Enable Shading" to "Shading", it behaves the same
+- Changed: Renamed setting "Squiggle to shading" to "Shading Threshold", instead of being an arbitary number shading now kicks in when the processing has passed the specified percentage default is 50%.
+- Changed: Renamed setting "Distance between rings" to "Ring Spacing", it behaves the same
+- Changed: The settings for "Spiral PFM" now have more logical maximums.
+- Fixed: Spiral PFM rendering the spiral off-screen.
+- Fixed: "Min Line Length" would not always be respected and shorter lines would still be created, this has been fixed and so the defaults of some presets have also changed.
+- Fixed: Rounding errors resulting in a less than uniform distribution of random angles, affected most path finding modules.
+- Fixed: Line merging in Path Optimisation will now work more like expected.
+- Fixed: Issue where completely black would not show up in the SVG output.
+- Fixed: Image Rendering not updating when "Width" was changed.
+- Note: If you have created any presets in older versions, they may break in this version.
+
 ### [v1.0.7-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.7-beta)
 -  Added: New Path Finding Module! "Sketch Curves PFM"
-- Performs the same as the default, but without shading and with Catmull Rom Splines instead of lines, you can configure the tension of the curves.
+   - Performs the same as the default, but without shading and with Catmull Rom Splines instead of lines, you can configure the tension of the curves.
 -   Added: Automatic SVG Optimisation, Line Simplification / Line Merging / Line Sorting
-- Can be configured in File / Export Settings / Path Optimisation
+    - Can be configured in File / Export Settings / Path Optimisation
 -   Added: Export Settings tab, to configure Path Optimisation / SVG Settings / GCode Settings
 -   Added "Export Inkscape SVG" Option which supports Inkscape layers but might not work in other applications.
 -  Added: New option "Rename layers (Pen1, Pen2...)" for Inkscape SVGs (compatible with the "Plot" function in Inkscape)

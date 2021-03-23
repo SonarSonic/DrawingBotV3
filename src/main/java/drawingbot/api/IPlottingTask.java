@@ -9,7 +9,7 @@ import drawingbot.geom.basic.IGeometry;
 public interface IPlottingTask {
 
     /**
-     * The {@link IPathFindingModule} should check this value during {@link IPathFindingModule#doProcess(IPlottingTask)}.
+     * The {@link IPathFindingModule} should check this value during {@link IPathFindingModule#doProcess()}.
      * If the plotting task is finished the {@link IPathFindingModule} should end the process prematurely.
      * @return if the task has been finished by the user.
      */

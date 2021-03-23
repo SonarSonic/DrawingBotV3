@@ -15,7 +15,7 @@ public class API {
          * @param create supplier to create a new instance of the {@link IPathFindingModule}
          * @param isHidden true if the PFM should be only be shown in developer mode
          */
-        void registerPathFindingModule(Class<? extends IPathFindingModule> pfmClass, String name, Supplier<IPathFindingModule> create, boolean isHidden);
+        void registerPathFindingModule(Class<IPathFindingModule> pfmClass, String name, Supplier<IPathFindingModule> create, boolean isHidden);
 
         /**
          * Create a boolean setting for a specific {@link IPathFindingModule}

@@ -212,16 +212,30 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
      */
     protected boolean luminanceTest(IPixelData pixels, int x, int y){
         if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
+            //if we're off the image we'll take the last result and stop there
+            if(test_luminance == -1){
+                darkest_x = bresenham.lastX;
+                darkest_y = bresenham.lastY;
+                test_luminance = getLuminanceTestAverage();
+            }
             return true;
         }
         sum_luminance += pixels.getLuminance(x, y);
         count_pixels++;
-        if (test_luminance == -1 || getLuminanceTestAverage() < test_luminance) {
+        if (bresenham.pointCount >= minLineLength() && bresenham.pointCount <= maxLineLength() && (test_luminance == -1 || getLuminanceTestAverage() < test_luminance)) {
             darkest_x = x;
             darkest_y = y;
             test_luminance = getLuminanceTestAverage();
         }
-        return false;
+        return bresenham.pointCount > maxLineLength();
+    }
+
+    public int minLineLength(){
+        return 0;
+    }
+
+    public int maxLineLength(){
+        return Integer.MAX_VALUE;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

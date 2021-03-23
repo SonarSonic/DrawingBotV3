@@ -5,10 +5,11 @@ import drawingbot.api.IPlottingTask;
 
 public class PFMSketchLines extends AbstractSketchPFM {
 
-    public boolean enableShading;
-    public int squigglesTillShading;
     public int startAngleMin;
     public int startAngleMax;
+
+    public boolean enableShading;
+    public float shadingThreshold;
     public float drawingDeltaAngle;
     public float shadingDeltaAngle;
 
@@ -25,16 +26,15 @@ public class PFMSketchLines extends AbstractSketchPFM {
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
         float delta_angle;
-        float start_angle = randomSeed(startAngleMin, startAngleMax);
+        float start_angle = randomSeedF(startAngleMin, startAngleMax);
 
-        if (!enableShading || squiggle_count < squigglesTillShading) {
+        if (!enableShading || shadingThreshold > lumProgress) {
             delta_angle = drawingDeltaAngle / (float)tests;
         } else {
             delta_angle = shadingDeltaAngle;
         }
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
-
         resetLuminanceTest();
         for (int d = 0; d < tests; d ++) {
             luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);

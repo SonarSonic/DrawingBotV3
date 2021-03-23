@@ -1,8 +1,10 @@
 package drawingbot.pfm;
 
-import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
 import drawingbot.utils.Utils;
+import org.locationtech.jts.algorithm.construct.MaximumInscribedCircle;
+
+import java.awt.geom.Point2D;
 
 /**https://github.com/krummrey/SpiralFromImage
  * TODO FIX SPIRAL PFM*/
@@ -22,6 +24,10 @@ public class PFMSpiral extends AbstractPFM {
     protected float endRadius;                          // Largest value the spiral needs to cover the image
     protected int mask = 240;                           // This color will not be drawn (WHITE)
 
+    public double centreXScale = 0.5;
+    public double centreYScale = 0.5;
+    public double fillPercentage = 1.0;
+
     @Override
     public int getColourMode() {
         return 2;
@@ -29,68 +35,78 @@ public class PFMSpiral extends AbstractPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void doProcess(IPlottingTask task) {
-        radius = distBetweenRings /2;
-        k = density/radius;
+    public void doProcess() {
+        radius = distBetweenRings / 2;
+        k = density / radius;
         alpha = k;
-        radius += distBetweenRings /(360/k);
-        
-        // When have we reached the far corner of the image?
-        // TODO: this will have to change if not centered
-        endRadius = (float)Math.sqrt(Math.pow((task.getPixelData().getWidth()/2F), 2)+Math.pow((task.getPixelData().getHeight()/2F), 2));
+        radius += distBetweenRings / (360 / k);
 
-        // Calculates the first point.  Currently just the center.
-        // TODO: Allow for ajustable center
-        x =  (float)(radius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
-        y = -(float)(radius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
+        int centreX = (int)(task.getPixelData().getWidth()*centreXScale);
+        int centreY = (int)(task.getPixelData().getHeight()*centreYScale);
+
+        // find the furthest corner of the image
+        double topLeft = Point2D.distance(centreX, centreY, 0, 0);
+        double topRight = Point2D.distance(centreX, centreY, 0, task.getPixelData().getHeight()-1);
+        double bottomLeft = Point2D.distance(centreX, centreY, task.getPixelData().getWidth()-1, 0);
+        double bottomRight = Point2D.distance(centreX, centreY, task.getPixelData().getWidth()-1, task.getPixelData().getHeight()-1);
+
+        endRadius = (float)(Math.max(Math.max(topLeft, topRight), Math.max(bottomLeft, bottomRight))*fillPercentage);
+
+        // Calculates the first point
+        x =  (float)(radius * Math.cos(Math.toRadians(alpha)) + centreX);
+        y = (float)(-radius * Math.sin(Math.toRadians(alpha)) + centreY);
         xa = 0;
         xb = 0;
         ya = 0;
         yb = 0;
 
         // Have we reached the far corner of the image?
+        boolean draw;
         while (radius < endRadius) {
-            k = (density/2)/radius;
+            k = (density / 2) / radius;
             alpha += k;
-            radius += distBetweenRings /(360/k);
-            x =  (float)(radius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
-            y = -(float)(radius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
+            radius += distBetweenRings / (360 / k);
+            x =  (float)(radius * Math.cos(Math.toRadians(alpha)) + centreX);
+            y = (float)(-radius * Math.sin(Math.toRadians(alpha)) + centreY);
 
             // Are we within the the image?
             // If so check if the shape is open. If not, open it
-            if ((x>=0) && (x<task.getPixelData().getWidth()) && (y>0) && (y<task.getPixelData().getHeight())) {
+            if ((x >= 0) && (x < task.getPixelData().getWidth()) && (y > 0) && (y < task.getPixelData().getHeight())) {
 
                 // Get the color and brightness of the sampled pixel
                 b = task.getPixelData().getLuminance((int)x, (int)y);
                 b = Utils.mapFloat(b, 0, 255, distBetweenRings * ampScale, 0);
 
                 // Move up according to sampled brightness
-                aradius = radius+(b/ distBetweenRings);
-                xa =  (float)(aradius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
-                ya = -(float)(aradius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
+                aradius = radius + (b / distBetweenRings);
+                xa =  (float)(aradius * Math.cos(Math.toRadians(alpha)) + centreX);
+                ya = (float)(-aradius * Math.sin(Math.toRadians(alpha)) + centreY);
 
                 // Move down according to sampled brightness
-                k = (density/2)/radius;
+                k = (density / 2) /radius;
                 alpha += k;
-                radius += distBetweenRings /(360/k);
+                radius += distBetweenRings / (360 / k);
                 bradius = radius-(b/ distBetweenRings);
-                xb =  (float)(bradius*Math.cos(Math.toRadians(alpha))+task.getPixelData().getWidth()/2F);
-                yb = -(float)(bradius*Math.sin(Math.toRadians(alpha))+task.getPixelData().getHeight()/2F);
+                xb =  (float)(bradius * Math.cos(Math.toRadians(alpha)) + centreX);
+                yb = (float)(-bradius * Math.sin(Math.toRadians(alpha)) + centreY);
 
                 // If the sampled color is the mask color do not write to the shape
                 if (mask <= b) {
-                    //task.closePath();
+                    draw = false;
                 } else {
-                    //task.openPath();
+                    draw = true;
                 }
             } else {
                 // We are outside of the image
-                //task.closePath();
+                draw = false;
             }
 
-            int pen_number = (int)(Utils.mapFloat(b, 0, 255, 0, task.getTotalPens()));
-            task.addGeometry(new GLine(xa, ya, xb, yb), pen_number, null);
-            float startRadius = distBetweenRings /2;
+            if(draw){
+                int pen_number = (int)(Utils.mapFloat(b, 0, 255, 0, task.getTotalPens()));
+                task.addGeometry(new GLine(xa, ya, xb, yb), pen_number, null);
+            }
+
+            float startRadius = distBetweenRings / 2;
             task.updatePlottingProgress(radius-startRadius, endRadius-startRadius);
         }
 

@@ -12,13 +12,22 @@ import drawingbot.geom.basic.*;
 import drawingbot.utils.Units;
 import drawingbot.utils.Utils;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
+import org.locationtech.jts.dissolve.LineDissolver;
 import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.util.LineStringExtracter;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
 import org.locationtech.jts.index.kdtree.KdNode;
 import org.locationtech.jts.index.kdtree.KdTree;
+import org.locationtech.jts.linearref.LinearGeometryBuilder;
+import org.locationtech.jts.noding.*;
+import org.locationtech.jts.noding.snap.SnappingNoder;
 import org.locationtech.jts.operation.linemerge.LineMerger;
+import org.locationtech.jts.operation.linemerge.LineSequencer;
+import org.locationtech.jts.operation.overlay.snap.LineStringSnapper;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.awt.*;
@@ -34,7 +43,7 @@ public class GeometryUtils {
     public static GeometryFactory factory = new GeometryFactory();
 
     public static Map<Integer, List<IGeometry>> getGeometriesForExportTask(ExportTask task, IGeometryFilter filter){
-        if(!task.format.isVector){
+        if(!task.format.isVector || task.plottingTask.pfmFactory.bypassOptimisation){
             return getBasicGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);
         }
         return getOptimisedGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);
@@ -190,6 +199,14 @@ public class GeometryUtils {
         return segments;
     }
 
+    public static List<Coordinate> extractCoordinates(List<Geometry> geometries){
+        List<Coordinate> coordinates = new ArrayList<>();
+        for(Geometry geometry : geometries){
+            coordinates.addAll(Arrays.asList(geometry.getCoordinates()));
+        }
+        return coordinates;
+    }
+
     /**
      * Filters out line strings with a length below the given minimum length
      */
@@ -223,25 +240,8 @@ public class GeometryUtils {
      * Merges lines at their start/end point within the given tolerance.
      */
     public static List<LineString> lineMerge(List<LineString> lineStrings, double tolerance){
-
-        //nodes the line strings by the given tolerance
-        KdTree kdTree = new KdTree(tolerance);
-        for(LineString lineString : lineStrings){
-            Coordinate startCoord = lineString.getCoordinateN(0);
-            KdNode startNode = kdTree.insert(startCoord);
-            lineString.getCoordinateSequence().setOrdinate(0, 0, startNode.getX());
-            lineString.getCoordinateSequence().setOrdinate(0, 1, startNode.getY());
-
-            Coordinate endCoord = lineString.getCoordinateN(lineString.getNumPoints()-1);
-            KdNode endNode = kdTree.insert(endCoord);
-            lineString.getCoordinateSequence().setOrdinate(lineString.getNumPoints()-1, 0, endNode.getX());
-            lineString.getCoordinateSequence().setOrdinate(lineString.getNumPoints()-1, 1, endNode.getY());
-        }
-
-        ///combines line strings where the edges touch & removes empty lines or lines with one unique point
-        LineMerger merger = new LineMerger();
-        lineStrings.forEach(merger::add);
-        return (List<LineString>) merger.getMergedLineStrings();
+        TSPSequencer sequencer = new TSPSequencer(lineStrings, tolerance);
+        return sequencer.lineMerge();
     }
 
     /**
@@ -262,6 +262,7 @@ public class GeometryUtils {
         public boolean[] sorted;
         public int sortedCount = 0;
 
+        public double measuredDistance;
         public double allowableDistance;
 
         public TSPSequencer(List<LineString> lineStrings, double allowableDistance){
@@ -287,9 +288,32 @@ public class GeometryUtils {
             return sortedList;
         }
 
+        protected List<LineString> lineMerge(){
+            LinearGeometryBuilder builder = new LinearGeometryBuilder(factory);
+            LineString first = lineStrings.get(0);
+            sorted[0] = true;
+            sortedCount++;
+            mergeLine(builder, first);
+
+            while(sortedCount < lineStrings.size()){
+                LineString nearest = getNearestLineString(builder.getLastCoordinate());
+                if(measuredDistance > allowableDistance){
+                    builder.endLine();
+                }
+                mergeLine(builder, nearest);
+            }
+            return LinearComponentExtracter.getLines(builder.getGeometry(), true);
+        }
+
+        public void mergeLine(LinearGeometryBuilder builder, LineString string){
+            for(Coordinate coordinate : string.getCoordinates()){
+                builder.add(coordinate, false);
+            }
+        }
+
         protected LineString getNearestLineString(Coordinate point){
             LineString nearest = null;
-            double distance = -1;
+            measuredDistance = -1;
             boolean reversed = false;
             int index = 0;
             for(int i = 0; i < sorted.length; i++){
@@ -297,23 +321,23 @@ public class GeometryUtils {
                     LineString lineString = lineStrings.get(i);
                     Coordinate startCoord = lineString.getCoordinateN(0);
                     double toStart = point.distance(startCoord);
-                    if(distance == -1 || toStart < distance){
-                        distance = toStart;
+                    if(measuredDistance == -1 || toStart < measuredDistance){
+                        measuredDistance = toStart;
                         nearest = lineString;
                         reversed = false;
                         index = i;
-                        if(distance <= allowableDistance){
+                        if(measuredDistance <= allowableDistance){
                             break;
                         }
                     }
                     Coordinate endCoord = lineString.getCoordinateN(lineString.getNumPoints()-1);
                     double toEnd = point.distance(endCoord);
-                    if(distance == -1 || toEnd < distance){
-                        distance = toEnd;
+                    if(measuredDistance == -1 || toEnd < measuredDistance){
+                        measuredDistance = toEnd;
                         nearest = lineString;
                         reversed = true;
                         index = i;
-                        if(distance <= allowableDistance){
+                        if(measuredDistance <= allowableDistance){
                             break;
                         }
                     }
@@ -418,6 +442,10 @@ public class GeometryUtils {
         GShape shape = new GShape(new ShapeWriter().toShape(string));
         shape.transform(transform);
         return shape;
+    }
+
+    public static GPath geometryToGPath(Geometry string, AffineTransform transform){
+        return new GPath(new ShapeWriter().toShape(string), transform);
     }
 
     public static int getVertexCount(Shape shape){

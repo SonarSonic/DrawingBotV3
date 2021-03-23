@@ -13,6 +13,7 @@ import drawingbot.javafx.controls.DialogColourSeperationMode;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumColourSplitter;
 import drawingbot.utils.EnumDistributionOrder;
+import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumJsonType;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -257,10 +258,12 @@ public class FXHelper {
         Optional<Boolean> result = dialog.showAndWait();
         if(result.isPresent() && result.get()){
             if(splitter != EnumColourSplitter.DEFAULT){
-                DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DISPLAYED);
+                DrawingBotV3.INSTANCE.updateDistributionType = EnumDistributionType.PRECONFIGURED;
+                DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
                 DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.DARKEN);
                 DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(splitter.drawingSet);
             }else{
+                DrawingBotV3.INSTANCE.updateDistributionType = DrawingBotV3.INSTANCE.pfmFactory.get().getDistributionType();
                 DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
                 DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.NORMAL);
                 DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
@@ -288,10 +291,6 @@ public class FXHelper {
                 }
             }
         }
-    }
-
-    public static void openExportSettingsDialog(){
-
     }
 
 }

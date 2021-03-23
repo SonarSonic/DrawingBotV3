@@ -97,19 +97,24 @@ public class ImageTools {
     }
 
     public static BufferedImage cropToPrintResolution(BufferedImage image, PrintResolution resolution){
-        if(!resolution.hasCropping()){
-            return image;
+
+        //crop the image in it's original resolution
+        if(resolution.imageCropX != 0 || resolution.imageCropY != 0 || resolution.imageCropWidth != resolution.sourceWidth || resolution.imageCropHeight != resolution.sourceHeight){
+            switch (DrawingBotV3.INSTANCE.scalingMode.get()){
+                case CROP_TO_FIT:
+                    image = Scalr.crop(image, resolution.imageCropX, resolution.imageCropY, resolution.imageCropWidth, resolution.imageCropHeight);
+                    break;
+                case STRETCH_TO_FIT:
+                    image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, resolution.imageCropWidth, resolution.imageCropHeight);
+                    break;
+            }
         }
-        switch (DrawingBotV3.INSTANCE.scalingMode.get()){
-            case CROP_TO_FIT:
-                image = Scalr.crop(image, resolution.imageCropX, resolution.imageCropY, resolution.imageWidth, resolution.imageHeight);
-                break;
-            case SCALE_TO_FIT:
-                break;
-            case STRETCH_TO_FIT:
-                image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, resolution.imageWidth, resolution.imageHeight);
-                break;
+
+        //rescale the pre-cropped image to the optimised print sizes
+        if(resolution.imageWidth != resolution.imageCropWidth || resolution.imageHeight != resolution.imageCropHeight){
+            image = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, resolution.imageWidth, resolution.imageHeight);
         }
+
         return image;
     }
 

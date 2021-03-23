@@ -267,6 +267,6 @@ public enum EnumBlendMode implements Blender {
 
     @Override
     public String toString() {
-        return "Blend Mode: " + Utils.capitalize(name());
+        return Utils.capitalize(name());
     }
 }

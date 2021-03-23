@@ -64,7 +64,7 @@ public class SVGExporter {
             }
 
             ObservableDrawingSet drawingSet = plottingTask.plottedDrawing.drawingPenSet;
-            int[] renderOrder = drawingSet.getCurrentRenderOrder();
+            int[] renderOrder = drawingSet.calculateRenderOrder();
             for (int p = renderOrder.length-1; p >= 0; p --) {
                 // Find the pen to render
                 ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(renderOrder[p]);

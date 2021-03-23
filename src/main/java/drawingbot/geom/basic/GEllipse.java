@@ -62,4 +62,28 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
         width = coords[2] - x;
         height = coords[3] - y;
     }
+
+    public static class Filled extends GEllipse{
+        public Filled() {
+            super();
+        }
+
+        public Filled(float x, float y, float w, float h) {
+            super(x, y, w, h);
+        }
+
+        @Override
+        public void renderAWT(Graphics2D graphics, ObservableDrawingPen pen) {
+            graphics.setStroke(pen.getAWTStroke());
+            graphics.setColor(pen.getAWTColor(getCustomRGBA()));
+            graphics.fill(getAWTShape());
+        }
+
+        @Override
+        public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
+            graphics.setLineWidth(pen.getStrokeSize());
+            graphics.setFill(pen.getFXColor(getCustomRGBA()));
+            graphics.fillOval(x, y, width, height);
+        }
+    }
 }

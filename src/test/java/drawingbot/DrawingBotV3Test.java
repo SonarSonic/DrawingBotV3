@@ -5,6 +5,7 @@ import drawingbot.files.ExportFormats;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericFactory;
 import javafx.application.Platform;
@@ -36,7 +37,7 @@ public class DrawingBotV3Test {
     @Test
     public void testPathFindingModules() throws InterruptedException {
 
-        for(final GenericFactory<IPathFindingModule> factory : MasterRegistry.INSTANCE.pfmFactories.values()){
+        for(final PFMFactory factory : MasterRegistry.INSTANCE.pfmFactories){
             System.out.println("Started PFM Test: " + factory.getName());
             final CountDownLatch latch = new CountDownLatch(1);
 

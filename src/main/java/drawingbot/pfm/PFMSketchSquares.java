@@ -8,7 +8,6 @@ public class PFMSketchSquares extends AbstractSketchPFM {
         super();
         squiggle_length = 1000;
         adjustbrightness = 9;
-        desired_brightness = 250;
         tests = 4;
         minLineLength = 30;
         maxLineLength = 30;

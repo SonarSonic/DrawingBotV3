@@ -1,5 +1,7 @@
 package drawingbot.api;
 
+import drawingbot.utils.EnumDistributionType;
+
 import java.awt.image.BufferedImage;
 
 /**
@@ -42,7 +44,6 @@ public interface IPathFindingModule {
      * Called immediately after the {@link IPathFindingModule}'s settings have been set.
      * Used to check the given settings and apply any special options to the plotting task}
      * Shouldn't be used for initial calculations the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} will be initialized but the pixel data will not have been set
-     * @param task the plotting task
      */
     void init(IPlottingTask task);
 
@@ -52,23 +53,21 @@ public interface IPathFindingModule {
     }
 
     /**
-     * Called once before the first {@link IPathFindingModule#doProcess(IPlottingTask)}
+     * Called once before the first {@link IPathFindingModule#doProcess()}
      * Should be used for initial calculations the {@link IPlottingTask#getPixelData()} and {@link IPlottingTask#getReferencePixelData()} ()} will now have been set.
-     * @param task the plotting task
      */
-    default void preProcess(IPlottingTask task){}
+    default void preProcess(){}
 
     /**
      * Runs the PFM, generating the lines from the pixel data provided by {@link IPlottingTask#getPixelData()}
      * Called indefinitely until {@link IPlottingTask#finishProcess()} is called.
      * Implementations should also update the progress of the process with {@link IPlottingTask#updatePlottingProgress(double, double)} ()}
-     * @param task the plotting task
      */
-    void doProcess(IPlottingTask task);
+    void doProcess();
 
     /**
      * Called once after the process has finished
-     * @param task the plotting task
      */
-    default void postProcess(IPlottingTask task){}
+    default void postProcess(){}
+
 }

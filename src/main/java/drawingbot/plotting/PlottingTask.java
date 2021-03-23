@@ -7,6 +7,7 @@ import drawingbot.geom.PathBuilder;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.*;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.javafx.GenericFactory;
@@ -24,7 +25,7 @@ import java.util.logging.Level;
 
 public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
-    public GenericFactory<IPathFindingModule> pfmFactory;
+    public PFMFactory<?> pfmFactory;
     public PlottedDrawing plottedDrawing;
     public File originalFile;
 
@@ -57,9 +58,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public boolean enableImageFiltering = true;
     public boolean isSubTask = false;
-    public int defaultPen = 1;
+    public int defaultPen = 0;
 
-    public PlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
+    public PlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Processing Image");
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
@@ -124,7 +125,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 pfm.init(this);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");
-                pfm.preProcess(this);
+                pfm.preProcess();
                 finishStage();
                 updateMessage("Plotting Image: " + pfmFactory.getName()); //here to avoid excessive task updates
                 break;
@@ -133,13 +134,13 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                     finishStage();
                     break;
                 }
-                pfm.doProcess(this);
+                pfm.doProcess();
                 break;
             case POST_PROCESSING:
-                pfm.postProcess(this);
+                pfm.postProcess();
 
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Started");
-                plottedDrawing.updateWeightedDistribution();
+                plottedDrawing.updatePenDistribution();
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
 
                 img_reference = ImageTools.getBufferedImage(reference);
@@ -318,7 +319,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public void reset(){
         pfmFactory = null;
         plottedDrawing.reset();
-        plottedDrawing = null;
         originalFile = null;
 
         startTime = 0;
@@ -339,5 +339,28 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
         gcode_offset_x = 0;
         gcode_offset_y = 0;
+    }
+
+
+    ///MAKE UPDATE METHODS ACCESSIBLE TO PFMS
+
+    @Override
+    public void updateProgress(long workDone, long max) {
+        super.updateProgress(workDone, max);
+    }
+
+    @Override
+    public void updateProgress(double workDone, double max) {
+        super.updateProgress(workDone, max);
+    }
+
+    @Override
+    public void updateMessage(String message) {
+        super.updateMessage(message);
+    }
+
+    @Override
+    public void updateTitle(String title) {
+        super.updateTitle(title);
     }
 }
