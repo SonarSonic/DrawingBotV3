@@ -12,6 +12,7 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.controls.*;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.*;
@@ -306,6 +307,7 @@ public class FXController {
     public Pane paneDrawingAreaCustom = null;
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
+    public Button buttonRotate = null;
     public TextField textFieldPaddingLeft = null;
     public TextField textFieldPaddingRight = null;
     public TextField textFieldPaddingTop = null;
@@ -313,6 +315,9 @@ public class FXController {
     public CheckBox checkBoxGangPadding = null;
 
     public ChoiceBox<EnumScalingMode> choiceBoxScalingMode = null;
+
+    public CheckBox checkBoxOptimiseForPrint = null;
+    public TextField textFieldPenWidth = null;
 
     public void initDrawingAreaPane(){
 
@@ -349,6 +354,13 @@ public class FXController {
         DrawingBotV3.INSTANCE.drawingAreaHeight.bind(Bindings.createFloatBinding(() -> textFieldDrawingHeight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingHeight.textProperty().get()), textFieldDrawingHeight.textProperty()));
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
+        buttonRotate.setOnAction(e -> {
+            String width = textFieldDrawingWidth.getText();
+            String height = textFieldDrawingHeight.getText();
+            textFieldDrawingWidth.setText(height);
+            textFieldDrawingHeight.setText(width);
+        });
+
         DrawingBotV3.INSTANCE.drawingAreaPaddingLeft.bind(Bindings.createFloatBinding(() -> textFieldPaddingLeft.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingLeft.textProperty().get()), textFieldPaddingLeft.textProperty()));
         textFieldPaddingLeft.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
@@ -369,15 +381,25 @@ public class FXController {
         choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
         DrawingBotV3.INSTANCE.scalingMode.bindBidirectional(choiceBoxScalingMode.valueProperty());
 
+        DrawingBotV3.INSTANCE.optimiseForPrint.bindBidirectional(checkBoxOptimiseForPrint.selectedProperty());
+
+        DrawingBotV3.INSTANCE.targetPenWidth.bind(Bindings.createFloatBinding(() -> textFieldPenWidth.textProperty().get().isEmpty() ? 0.5F : Float.parseFloat(textFieldPenWidth.textProperty().get()), textFieldPenWidth.textProperty()));
+        textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.5F));
+
+
         ///generic listeners
         DrawingBotV3.INSTANCE.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.scalingMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingAreaWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+
     }
 
     public void updatePaddingBindings(boolean ganged){
@@ -474,7 +496,7 @@ public class FXController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////PATH FINDING CONTROLS
-    public ChoiceBox<GenericFactory<IPathFindingModule>> choiceBoxPFM = null;
+    public ChoiceBox<PFMFactory<?>> choiceBoxPFM = null;
 
     public ComboBox<GenericPreset<PresetPFMSettings>> comboBoxPFMPreset = null;
     public MenuButton menuButtonPFMPresets = null;
@@ -582,17 +604,15 @@ public class FXController {
     public ComboBoxListViewSkin<DrawingPen> comboBoxDrawingPenSkin = null;
     public MenuButton menuButtonDrawingPenPresets = null;
 
-
     public Button buttonAddPen = null;
     public Button buttonRemovePen = null;
     public Button buttonDuplicatePen = null;
     public Button buttonMoveUpPen = null;
     public Button buttonMoveDownPen = null;
 
-
-
-    public ComboBox<EnumDistributionOrder> renderOrderComboBox = null;
-    public ComboBox<EnumBlendMode> blendModeComboBox = null;
+    public ComboBox<EnumDistributionType> comboBoxDistributionType = null;
+    public ComboBox<EnumDistributionOrder> comboBoxDistributionOrder = null;
+    public ComboBox<EnumBlendMode> comboBoxBlendMode = null;
 
     public void initPenSettingsPane(){
 
@@ -680,7 +700,7 @@ public class FXController {
         penWeightColumn.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
         penWeightColumn.setCellValueFactory(param -> param.getValue().distributionWeight.asObject());
 
-        penLinesColumn.setCellValueFactory(param -> param.getValue().currentLines.asObject());
+        penLinesColumn.setCellValueFactory(param -> param.getValue().currentGeometries.asObject());
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -738,11 +758,14 @@ public class FXController {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        renderOrderComboBox.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
-        renderOrderComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder);
+        comboBoxDistributionOrder.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
+        comboBoxDistributionOrder.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder);
 
-        blendModeComboBox.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
-        blendModeComboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.blendMode);
+        comboBoxDistributionType.setItems(FXCollections.observableArrayList(EnumDistributionType.values()));
+        comboBoxDistributionType.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.distributionType);
+
+        comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
+        comboBoxBlendMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.observableDrawingSet.blendMode);
 
 
     }
@@ -798,8 +821,9 @@ public class FXController {
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void changePathFinderModule(GenericFactory<IPathFindingModule> pfm){
+    public void changePathFinderModule(PFMFactory<?> pfm){
         DrawingBotV3.INSTANCE.pfmFactory.set(pfm);
+        DrawingBotV3.INSTANCE.updateDistributionType = pfm.getDistributionType();
     }
 
     public void changeDrawingSet(IDrawingSet<IDrawingPen> set){

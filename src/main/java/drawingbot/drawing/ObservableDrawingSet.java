@@ -5,6 +5,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.utils.EnumDistributionOrder;
+import drawingbot.utils.EnumDistributionType;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
     public final SimpleStringProperty name;
     public final ObservableList<ObservableDrawingPen> pens;
     public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder;
+    public final SimpleObjectProperty<EnumDistributionType> distributionType;
     public final SimpleObjectProperty<EnumBlendMode> blendMode;
     public int[] currentRenderOrder;
 
@@ -28,10 +30,12 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         this.name = new SimpleStringProperty();
         this.pens = FXCollections.observableArrayList();
         this.distributionOrder = new SimpleObjectProperty<>(EnumDistributionOrder.DARKEST_FIRST);
+        this.distributionType = new SimpleObjectProperty<>(EnumDistributionType.EVEN_WEIGHTED);
         this.blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
 
         this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.distributionOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
+        this.distributionType.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         loadDrawingSet(source);
     }
@@ -49,7 +53,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         pens.add(new ObservableDrawingPen(pens.size(), pen));
     }
 
-    public int[] getCurrentRenderOrder(){
+    public int[] calculateRenderOrder(){
         SortedList<ObservableDrawingPen> sortedList = pens.sorted();
         sortedList.setComparator(distributionOrder.get().comparator);
         currentRenderOrder = new int[sortedList.size()];

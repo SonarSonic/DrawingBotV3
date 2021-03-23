@@ -6,11 +6,13 @@ import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.*;
+import drawingbot.pfm.modules.position.WeightedVoronoiPositionEncoder;
+import drawingbot.pfm.modules.shapes.GeometryShapeEncoder;
+import drawingbot.pfm.modules.shapes.InscribedCircleShapeEncoder;
+import drawingbot.pfm.modules.shapes.StipplingShapeEncoder;
+import drawingbot.pfm.modules.shapes.TriangulationShapeEncoder;
 import drawingbot.pfm.wip.*;
-import drawingbot.utils.DBConstants;
-import drawingbot.utils.EnumColourSplitter;
-import drawingbot.utils.EnumFilterTypes;
-import drawingbot.utils.EnumSketchShapes;
+import drawingbot.utils.*;
 import javafx.scene.paint.Color;
 
 import java.awt.geom.Point2D;
@@ -24,10 +26,15 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel Edges PFM", PFMSketchSobel::new, false);
         MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TriangulationShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class));
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new StipplingShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Circles", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class));
+
 
         //experimental / developer only path finding modules
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel PFM", PFMSketchSobel::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true);
         MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true);
@@ -42,9 +49,9 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Shading", false, true, (pfmSketch, value) -> pfmSketch.enableShading = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Threshold", 50, 0, 100, false, (pfmSketch, value) -> pfmSketch.shadingThreshold = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Enable Shading", true, true, (pfmSketch, value) -> pfmSketch.enableShading = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Squiggles till shading", 190, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squigglesTillShading = value));
 
         ////SQUARES PFM
 
@@ -52,7 +59,7 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchCurves.class, "Curve tension", 0.4F, 0, 90, false, (pfmSketch, value) -> pfmSketch.tension = value));
 
         ////SOBEL PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchSobel.class, "Sobel Intensity", 1, 0, 10, false, (pfmSketch, value) -> pfmSketch.sobelIntensity = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchSobel.class, "Sobel Intensity", 1.5F, 0, 10, false, (pfmSketch, value) -> pfmSketch.sobelIntensity = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSobel.class, "Sobel Adjust", 10, 0, 255, false, (pfmSketch, value) -> pfmSketch.adjustSobel = value));
 
         ////SHAPES PFM
@@ -66,19 +73,35 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchShapesAware.class, "Shape Type", List.of(EnumSketchShapes.values()), EnumSketchShapes.RECTANGLES, false, (pfmSketch, value) -> pfmSketch.shapes = value));
 
         ////SPIRAL PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Distance between rings", 7F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.distBetweenRings = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.density = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.ampScale = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Spiral Size", 100F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.fillPercentage = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Centre X", 50F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.centreXScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Centre Y", 50F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.centreYScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Ring Spacing", 7F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.distBetweenRings = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, 50F, false, (pfmSketch, value) -> pfmSketch.ampScale = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, 1000F, false, (pfmSketch, value) -> pfmSketch.density = value));
+
+
 
         ////ABSTRACT SKETCH PFM - register these last so unique settings are more obvious
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Desired Brightness", 250F, 0F, 255F, true, (pfmSketch, value) -> pfmSketch.desired_brightness = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Line Density", 75F, 0F, 100F, true, (pfmSketch, value) -> pfmSketch.lineDensity = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 2, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.maxLines = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggle_length = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 50, 1, 255, false, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 720, false, (pfmSketch, value) -> pfmSketch.tests = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 20, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.maxLines = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
+
+        ////MODULAR ENCODERS
+
+        ////WEIGHTED VORONOI
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Point Count", 10000, 100, 100000, true, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).pointCount = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Luminance Power", 5, 1, 50, false, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).luminancePower = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Density Power", 5, 1, 50, false, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).densityPower = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Voronoi Iterations", 5, 1, 50, true, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).iterations = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StipplingShapeEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Stipple Size", 80, 1, 100, false, (pfmSketch, value) -> ((StipplingShapeEncoder)pfmSketch.shapeEncoder).stippleSize = value/100D));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(InscribedCircleShapeEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Circle Size", 80, 1, 100, false, (pfmSketch, value) -> ((InscribedCircleShapeEncoder)pfmSketch.shapeEncoder).circleSize = value/100D));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(TriangulationShapeEncoder.class, GenericSetting.createBooleanSetting(PFMModular.class, "Triangulate Corners", false, false, (pfmSketch, value) -> ((TriangulationShapeEncoder)pfmSketch.shapeEncoder).connectCorners = value));
 
     }
 
@@ -104,6 +127,30 @@ public class Register {
         };
         MasterRegistry.INSTANCE.registerDrawingPen(originalGrayscalePen);
 
+        DrawingPen originalRedPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Red", ImageTools.getARGB(255, 255, 0, 0)){
+            @Override
+            public int getCustomARGB(int pfmARGB) {
+                return ImageTools.red(pfmARGB);
+            }
+        };
+        MasterRegistry.INSTANCE.registerDrawingPen(originalRedPen);
+
+        DrawingPen originalGreenPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Green", ImageTools.getARGB(255, 0, 255, 0)){
+            @Override
+            public int getCustomARGB(int pfmARGB) {
+                return ImageTools.green(pfmARGB);
+            }
+        };
+        MasterRegistry.INSTANCE.registerDrawingPen(originalGreenPen);
+
+        DrawingPen originalBluePen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Blue", ImageTools.getARGB(255, 0, 0, 255)){
+            @Override
+            public int getCustomARGB(int pfmARGB) {
+                return ImageTools.blue(pfmARGB);
+            }
+        };
+        MasterRegistry.INSTANCE.registerDrawingPen(originalBluePen);
+
         DrawingSet originalColourSet = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Colour", List.of(originalColourPen));
         MasterRegistry.INSTANCE.registerDrawingSet(originalColourSet);
 
@@ -123,6 +170,17 @@ public class Register {
 
         DrawingPen key = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Key", ImageTools.getARGB(30, 0, 0, 0));
         MasterRegistry.INSTANCE.registerDrawingPen(key);
+
+        /*
+        DrawingPen red = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Red", ImageTools.getARGB(30, 255, 0, 0));
+        MasterRegistry.INSTANCE.registerDrawingPen(red);
+
+        DrawingPen green = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Green", ImageTools.getARGB(30, 0, 255, 0));
+        MasterRegistry.INSTANCE.registerDrawingPen(green);
+
+        DrawingPen blue = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Blue", ImageTools.getARGB(30, 0, 0, 255));
+        MasterRegistry.INSTANCE.registerDrawingPen(blue);
+         */
 
         for(EnumColourSplitter splitter : EnumColourSplitter.values()){
             splitter.drawingSet = splitter.createDrawingSet.apply(splitter);

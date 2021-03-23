@@ -2,11 +2,13 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPathFindingModule;
 import drawingbot.api.IPlottingTask;
+import drawingbot.plotting.PlottingTask;
 
 import java.util.Random;
 
 public abstract class AbstractPFM implements IPathFindingModule {
 
+    public PlottingTask task;
     public float pfmResolution = 1;
     public int transparentARGB = -1;
 
@@ -15,7 +17,8 @@ public abstract class AbstractPFM implements IPathFindingModule {
 
     @Override
     public void init(IPlottingTask task) {
-        randomSeed = new Random(seed);
+        this.task = (PlottingTask) task;
+        this.randomSeed = new Random(seed);
     }
 
     @Override
@@ -34,7 +37,7 @@ public abstract class AbstractPFM implements IPathFindingModule {
     }
 
     /**produces random results which will be consistent every time the PFM is run*/
-    public float randomSeed(float low, float high){
+    public float randomSeedF(float low, float high){
         return low == high ? low : (randomSeed.nextFloat()*(high-low)) + low;
     }
 

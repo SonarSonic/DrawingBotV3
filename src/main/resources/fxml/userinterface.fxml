@@ -24,53 +24,91 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane expanded="false" text="Drawing Area">
+                              <TitledPane text="Drawing Area">
                                 <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="402.0">
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="423.0">
                                        <children>
-                                          <Label contentDisplay="RIGHT" layoutX="245.0" layoutY="48.0" text="Input Units:">
-                                             <graphic>
-                                                <ChoiceBox fx:id="choiceBoxDrawingUnits" prefHeight="25.0" prefWidth="64.0" />
-                                             </graphic>
-                                          </Label>
-                                          <Label contentDisplay="RIGHT" layoutX="15.0" layoutY="52.0" text="Use Original Sizing">
-                                             <graphic>
-                                                <CheckBox fx:id="checkBoxOriginalSizing" mnemonicParsing="false" selected="true" />
-                                             </graphic>
-                                          </Label>
                                           <Pane fx:id="paneDrawingAreaCustom" layoutX="17.0" layoutY="85.0">
                                              <children>
-                                                <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="-2.0" text="Width">
-                                                   <graphic>
-                                                      <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="123.0" text="0" />
-                                                   </graphic>
-                                                </Label>
-                                                <Label contentDisplay="RIGHT" layoutX="188.0" text="Height:">
-                                                   <graphic>
-                                                      <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="128.0" text="0" />
-                                                   </graphic>
-                                                </Label>
-                                                <Label contentDisplay="RIGHT" layoutX="-1.0" layoutY="65.0" text="Scaling Mode:">
-                                                   <graphic>
-                                                      <ChoiceBox fx:id="choiceBoxScalingMode" prefHeight="25.0" prefWidth="283.0" />
-                                                   </graphic>
-                                                </Label>
-                                                <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="-2.0" layoutY="32.0" text="Padding:">
-                                                   <graphic>
-                                                      <HBox spacing="9.0">
+                                                <VBox prefHeight="185.0" prefWidth="363.0" spacing="8.0">
+                                                   <children>
+                                                      <HBox spacing="18.0">
                                                          <children>
-                                                            <TextField fx:id="textFieldPaddingLeft" prefHeight="25.0" prefWidth="54.0" promptText="Left" />
-                                                            <TextField fx:id="textFieldPaddingRight" prefHeight="25.0" prefWidth="54.0" promptText="Right" />
-                                                            <TextField fx:id="textFieldPaddingTop" prefHeight="25.0" prefWidth="54.0" promptText="Top" />
-                                                            <TextField fx:id="textFieldPaddingBottom" prefHeight="25.0" prefWidth="54.0" promptText="Bottom" />
-                                                            <CheckBox fx:id="checkBoxGangPadding" mnemonicParsing="false" prefHeight="23.0" prefWidth="56.0" selected="true" text="Gang" />
+                                                            <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Width:">
+                                                               <graphic>
+                                                                  <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="90.0" text="0" />
+                                                               </graphic>
+                                                            </Label>
+                                                            <Label contentDisplay="RIGHT" text="Height:">
+                                                               <graphic>
+                                                                  <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="90.0" text="0" />
+                                                               </graphic>
+                                                            </Label>
+                                                            <Button fx:id="buttonRotate" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Rotate" />
                                                          </children>
                                                       </HBox>
-                                                   </graphic>
-                                                </Label>
+                                                      <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Padding:">
+                                                         <graphic>
+                                                            <HBox spacing="9.0">
+                                                               <children>
+                                                                  <TextField fx:id="textFieldPaddingLeft" prefHeight="25.0" prefWidth="54.0" promptText="Left" />
+                                                                  <TextField fx:id="textFieldPaddingRight" prefHeight="25.0" prefWidth="54.0" promptText="Right" />
+                                                                  <TextField fx:id="textFieldPaddingTop" prefHeight="25.0" prefWidth="54.0" promptText="Top" />
+                                                                  <TextField fx:id="textFieldPaddingBottom" prefHeight="25.0" prefWidth="54.0" promptText="Bottom" />
+                                                                  <CheckBox fx:id="checkBoxGangPadding" mnemonicParsing="false" prefHeight="23.0" prefWidth="56.0" selected="true" text="Gang" />
+                                                               </children>
+                                                            </HBox>
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" text="Scaling Mode:">
+                                                         <graphic>
+                                                            <ChoiceBox fx:id="choiceBoxScalingMode" prefHeight="25.0" prefWidth="283.0" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Separator prefWidth="200.0" />
+                                                      <Label contentDisplay="RIGHT" text="Rescale to Pen Width">
+                                                         <graphic>
+                                                            <CheckBox fx:id="checkBoxOptimiseForPrint" mnemonicParsing="false" selected="true" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Pen Width (mm):">
+                                                         <graphic>
+                                                            <TextField fx:id="textFieldPenWidth" prefHeight="25.0" prefWidth="123.0" text="0" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                </VBox>
                                              </children></Pane>
-                                          <ComboBox fx:id="comboBoxDrawingAreaPreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
-                                          <MenuButton fx:id="menuButtonDrawingAreaPresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
+                                          <VBox spacing="8.0">
+                                             <children>
+                                                <HBox spacing="4.0">
+                                                   <children>
+                                                      <ComboBox fx:id="comboBoxDrawingAreaPreset" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+                                                      <MenuButton fx:id="menuButtonDrawingAreaPresets" mnemonicParsing="false" text="Presets" />
+                                                   </children>
+                                                </HBox>
+                                                <HBox spacing="98.0">
+                                                   <children>
+                                                      <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="134.0" text="Use Original Sizing">
+                                                         <graphic>
+                                                            <CheckBox fx:id="checkBoxOriginalSizing" mnemonicParsing="false" selected="true" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" text="Input Units:">
+                                                         <graphic>
+                                                            <ChoiceBox fx:id="choiceBoxDrawingUnits" prefHeight="25.0" prefWidth="64.0" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                   <padding>
+                                                      <Insets left="10.0" />
+                                                   </padding>
+                                                </HBox>
+                                             </children>
+                                             <padding>
+                                                <Insets left="10.0" top="10.0" />
+                                             </padding>
+                                          </VBox>
                                        </children>
                                     </AnchorPane>
                                 </content>
@@ -105,10 +143,10 @@
                                        <children>
                                           <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="86.0" prefHeight="212.0" prefWidth="404.0" tableMenuButtonVisible="true">
                                             <columns>
-                                                <TableColumn fx:id="tableColumnLock" prefWidth="33.0" text="Lock" />
                                               <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="132.0" text="Setting" />
-                                              <TableColumn fx:id="tableColumnValue" prefWidth="89.0" text="Value" />
                                                 <TableColumn fx:id="tableColumnControl" prefWidth="137.0" text="Control" />
+                                              <TableColumn fx:id="tableColumnValue" prefWidth="89.0" text="Value" />
+                                                <TableColumn fx:id="tableColumnLock" prefWidth="45.0" text="Randomise Exclude" visible="false" />
                                             </columns>
                                           </TableView>
                                           <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="52.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
@@ -147,8 +185,6 @@
                                                 <TableColumn fx:id="penLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Lines" />
                                              </columns>
                                           </TableView>
-                                          <ComboBox fx:id="blendModeComboBox" layoutX="223.0" layoutY="382.0" prefHeight="25.0" prefWidth="170.0" promptText="Blend Order: Hard Light" />
-                                          <ComboBox fx:id="renderOrderComboBox" layoutX="10.0" layoutY="382.0" prefHeight="25.0" prefWidth="210.0" promptText="Distribution: Lightest first" />
                                           <HBox layoutX="11.0" layoutY="309.0" spacing="3.0">
                                              <children>
                                                 <ComboBox fx:id="comboBoxPenType" prefHeight="25.0" prefWidth="118.0" promptText="Copic Original" />
@@ -166,6 +202,14 @@
                                              </children>
                                           </HBox>
                                           <Separator layoutX="11.0" layoutY="376.0" prefWidth="380.0" />
+                                          <Label contentDisplay="RIGHT" layoutX="240.0" layoutY="384.0" text="Order:">
+                                             <graphic>
+                                                <ComboBox fx:id="comboBoxDistributionOrder" prefHeight="25.0" prefWidth="114.0" promptText="Lightest first" />
+                                             </graphic>
+                                             <font>
+                                                <Font name="System Italic" size="12.0" />
+                                             </font>
+                                          </Label>
                                           <HBox layoutX="11.0" layoutY="12.0" spacing="3.0">
                                              <children>
                                                 <ComboBox fx:id="comboBoxSetType" prefHeight="25.0" prefWidth="80.0" promptText="Special" />
@@ -173,6 +217,23 @@
                                                 <MenuButton fx:id="menuButtonDrawingSetPresets" mnemonicParsing="false" text="Presets" />
                                              </children>
                                           </HBox>
+                                          <Label contentDisplay="RIGHT" layoutX="11.0" layoutY="384.0" text="Distribution:">
+                                             <graphic>
+                                                <Label contentDisplay="RIGHT" text="Type">
+                                                   <graphic>
+                                                      <ComboBox fx:id="comboBoxDistributionType" prefHeight="25.0" prefWidth="122.0" promptText="Even Weighted" />
+                                                   </graphic>
+                                                   <font>
+                                                      <Font name="System Italic" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </graphic>
+                                          </Label>
+                                          <Label contentDisplay="RIGHT" layoutX="11.0" layoutY="425.0" text="Blend Mode:">
+                                             <graphic>
+                                                <ComboBox fx:id="comboBoxBlendMode" prefHeight="25.0" prefWidth="100.0" promptText="Hard Light" />
+                                             </graphic></Label>
+                                          <Separator layoutX="9.0" layoutY="417.0" prefWidth="380.0" />
                                        </children>
                                     </AnchorPane>
                               </content>

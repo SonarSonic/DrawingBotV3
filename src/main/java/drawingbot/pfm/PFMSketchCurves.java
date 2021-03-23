@@ -12,14 +12,14 @@ public class PFMSketchCurves extends PFMSketchLines {
     private int count;
 
     @Override
-    public void preProcess(IPlottingTask task) {
-        super.preProcess(task);
+    public void preProcess() {
+        super.preProcess();
         task.getPathBuilder().setCurveTension(tension);
     }
 
     @Override
-    public void doProcess(IPlottingTask task) {
-        super.doProcess(task);
+    public void doProcess() {
+        super.doProcess();
         if(shouldLiftPen){
             task.getPathBuilder().endCurve();
             task.getLastGeometry().setCustomRGBA(getCurveARGB());
@@ -27,7 +27,7 @@ public class PFMSketchCurves extends PFMSketchLines {
     }
 
     @Override
-    public void postProcess(IPlottingTask task) {
+    public void postProcess() {
         task.getPathBuilder().endCurve();
         task.getLastGeometry().setCustomRGBA(getCurveARGB());
     }

@@ -58,7 +58,7 @@ public class PFMSobelLines extends AbstractPFM {
     }
 
     @Override
-    public void doProcess(IPlottingTask task) {
+    public void doProcess() {
         for(int x = 0; x < task.getPixelData().getWidth(); x++){
             for(int y = 0; y < task.getPixelData().getHeight(); y++){
                 int argb = Utils.mapInt((task.getPixelData().getARGB(x, y) >> 16) & 0xff, 0, 255 ,1, quantificationlevels);
@@ -80,10 +80,10 @@ public class PFMSobelLines extends AbstractPFM {
 
 
             vertX.mul(Math.max(grad_mag*0.1, 1));
-            vertX.mul(randomSeed(1-randomness_length, 1+randomness_length));
+            vertX.mul(randomSeedF(1-randomness_length, 1+randomness_length));
 
 
-            vertY.add(randomSeed(-randomness_vertex, randomness_vertex), randomSeed(-randomness_vertex,randomness_vertex));
+            vertY.add(randomSeedF(-randomness_vertex, randomness_vertex), randomSeedF(-randomness_vertex,randomness_vertex));
 
 
             // rotate line by gradient direction so that line is perpendicular to gradients
@@ -91,9 +91,9 @@ public class PFMSobelLines extends AbstractPFM {
             Vector2d p2 = rotate_origin(vertY, alpha);
 
 
-            vertX = new Vector2d(p1.x(), p2.x()).add(x, x).add(randomSeed(-randomness_position,+randomness_position), randomSeed(-randomness_position,+randomness_position));
+            vertX = new Vector2d(p1.x(), p2.x()).add(x, x).add(randomSeedF(-randomness_position,+randomness_position), randomSeedF(-randomness_position,+randomness_position));
 
-            vertY = new Vector2d(p1.y(), p2.y()).add(y, y).add(randomSeed(-randomness_position,+randomness_position), randomSeed(-randomness_position,+randomness_position));
+            vertY = new Vector2d(p1.y(), p2.y()).add(y, y).add(randomSeedF(-randomness_position,+randomness_position), randomSeedF(-randomness_position,+randomness_position));
 
             task.addGeometry(new GLine((float)vertX.x(), (float)vertY.x(), (float)vertX.y(), (float)vertY.y()));
 

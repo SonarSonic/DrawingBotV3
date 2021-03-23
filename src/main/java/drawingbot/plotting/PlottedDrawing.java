@@ -10,6 +10,7 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PlottedDrawing {
 
@@ -18,7 +19,7 @@ public class PlottedDrawing {
 
     public ObservableDrawingSet drawingPenSet;
     public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
-    public boolean ignoreWeightedDistribution = false;
+    public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
     public PlottedDrawing(ObservableDrawingSet penSet){
         this.geometries = Collections.synchronizedList(new ArrayList<>());
@@ -60,8 +61,13 @@ public class PlottedDrawing {
         vertexCount += drawing.vertexCount;
     }
 
-    public void reset(){
+    public void clearGeometries(){
         geometries.clear();
+        vertexCount = 0;
+    }
+
+    public void reset(){
+        clearGeometries();
         drawingPenSet = null;
         displayedLineCount = null;
     }
@@ -104,36 +110,64 @@ public class PlottedDrawing {
         return reverse ? start : end;
     }
 
+    public void updatePenDistribution(){
+        if(!ignoreWeightedDistribution){
+            drawingPenSet.distributionType.get().distribute.accept(this);
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
-    public void updateWeightedDistribution(){
+    public void updatePenNumbers(){
+        for(int i = 0; i < drawingPenSet.pens.size(); i++){
+            ObservableDrawingPen pen = drawingPenSet.pens.get(i);
+            pen.penNumber.set(i); //update pens number based on position
+        }
+    }
 
-        if(!ignoreWeightedDistribution){
-            int totalWeight = 0;
-            for(int i = 0; i < drawingPenSet.pens.size(); i++){
-                ObservableDrawingPen pen = drawingPenSet.pens.get(i);
-                pen.penNumber.set(i); //update pens number based on position
-                if(pen.isEnabled()){
-                    totalWeight += pen.distributionWeight.get();
-                }
+    public void updateFromGeometryCounts(int[] geometryCounts){
+        for(int p = 0; p < geometryCounts.length; p++){
+            ObservableDrawingPen pen = drawingPenSet.getPen(p);
+            int geometryCount = geometryCounts[p];
+            if(pen.isEnabled()){
+                pen.currentPercentage.set(NumberFormat.getPercentInstance().format((float)geometryCount / geometries.size()));
+                pen.currentGeometries.set(geometryCount);
+            }else{
+                //if the pen's not enabled set it to 0
+                pen.currentPercentage.set("0.0");
+                pen.currentGeometries.set(0);
             }
+        }
+    }
 
-            int currentGeometry = 0;
-            int[] renderOrder = drawingPenSet.getCurrentRenderOrder();
+    /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
+    public void updateEvenDistribution(boolean weighted, boolean random){
+        int currentGeometry = 0;
+        int totalWeight = 0;
+        int[] weights = new int[drawingPenSet.pens.size()];
+        for(int i = 0; i < drawingPenSet.pens.size(); i++){
+            ObservableDrawingPen pen = drawingPenSet.pens.get(i);
+            pen.penNumber.set(i); //update pens number based on position
+            if(pen.isEnabled()){
+                weights[i] = weighted ? pen.distributionWeight.get() : 100;
+                totalWeight += weights[i];
+            }
+        }
 
+        int[] renderOrder = drawingPenSet.calculateRenderOrder();
+
+        if(!random){
             for(int i = 0; i < renderOrder.length; i++){
                 int penNumber = renderOrder[i];
-                ObservableDrawingPen pen = drawingPenSet.pens.get(penNumber);
-                if(pen.isEnabled()){ //if it's not enabled leave it at 0
-
-                    //percentage
-                    float percentage = (float)pen.distributionWeight.get() / totalWeight;
+                ObservableDrawingPen pen = drawingPenSet.getPen(penNumber);
+                if(pen.isEnabled()){
+                    //update percentage
+                    float percentage = (weighted ? (float)pen.distributionWeight.get() : 100) / totalWeight;
                     pen.currentPercentage.set(NumberFormat.getPercentInstance().format(percentage));
 
-                    //lines
+                    //update geometry count
                     int geometriesPerPen = (int)(percentage * getGeometryCount());
-                    pen.currentLines.set(geometriesPerPen);
+                    pen.currentGeometries.set(geometriesPerPen);
 
                     //set pen references
                     int end = i == renderOrder.length-1 ? geometries.size() : currentGeometry + geometriesPerPen;
@@ -142,11 +176,72 @@ public class PlottedDrawing {
                         geometry.setPenIndex(penNumber);
                     }
                 }else{
+                    //if the pen's not enabled set it to 0
                     pen.currentPercentage.set("0.0");
-                    pen.currentLines.set(0);
+                    pen.currentGeometries.set(0);
                 }
             }
+        }else{
+            int[] geometryCounts = new int[getPenCount()];
+
+            Random rand = new Random(0);
+
+            for(IGeometry geometry : geometries){
+                int weightedRand = rand.nextInt(totalWeight);
+                int currentWeight = 0;
+                for(int w = 0; w < weights.length; w++){
+                    currentWeight += weights[w];
+                    if(weightedRand < currentWeight){
+                        geometryCounts[w]++;
+                        geometry.setPenIndex(w);
+                        break;
+                    }
+                }
+            }
+            updateFromGeometryCounts(geometryCounts);
+
         }
+    }
+
+    public void updatePreConfiguredPenDistribution(){
+        //don't update the pen numbers so they match the original ones
+
+        int[] geometryCounts = new int[getPenCount()];
+        for(IGeometry geometry : geometries){
+            Integer penIndex = geometry.getPenIndex();
+            if(penIndex != null){
+                geometryCounts[penIndex] ++;
+            }
+        }
+        updateFromGeometryCounts(geometryCounts);
+    }
+
+    public void updateSinglePenDistribution(){
+        updatePenNumbers();
+
+        boolean addedFirstPen = false;
+        int[] renderOrder = drawingPenSet.calculateRenderOrder();
+
+        for (int penNumber : renderOrder) {
+            ObservableDrawingPen pen = drawingPenSet.pens.get(penNumber);
+            if (!addedFirstPen && pen.isEnabled()) {
+
+                //update percentage
+                pen.currentPercentage.set(NumberFormat.getPercentInstance().format(1));
+
+                //update geometry count
+                pen.currentGeometries.set(geometries.size());
+
+                geometries.forEach(g -> g.setPenIndex(penNumber));
+
+                addedFirstPen = true;
+            } else {
+                //if the pen's not enabled set it to 0
+                pen.currentPercentage.set("0.0");
+                pen.currentGeometries.set(0);
+            }
+        }
+
     }
 
     /**sets all the pens to default distribution / even*/

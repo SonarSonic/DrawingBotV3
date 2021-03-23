@@ -46,7 +46,7 @@ public class PFMSobelSketchEdgesOLD extends AbstractSketchPFM {
     }
 
     @Override
-    public void doProcess(IPlottingTask task) {
+    public void doProcess() {
 
         List<int[]> darkestPixels = findDarkestPixels(task.getPixelData());
 
@@ -61,7 +61,7 @@ public class PFMSobelSketchEdgesOLD extends AbstractSketchPFM {
             Vector2d vertX = new Vector2d(-0.5, 0.5);
             Vector2d vertY = new Vector2d(0, 0);
 
-            vertY.add(randomSeed(-0.01F, 0.01F), randomSeed(-0.01F,0.01F));
+            vertY.add(randomSeedF(-0.01F, 0.01F), randomSeedF(-0.01F,0.01F));
 
             double lineLength = Math.max(grad_mag, 1);
             vertX.mul(lineLength);

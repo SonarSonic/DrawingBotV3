@@ -4,7 +4,10 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.javafx.GenericFactory;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.utils.EnumColourSplitter;
+import drawingbot.utils.EnumDistributionType;
+import javafx.application.Platform;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,10 +23,9 @@ public class SplitPlottingTask extends PlottingTask{
     public List<PlottingTask> subTasks;
     public int currentIndex;
 
-    public SplitPlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter) {
+    public SplitPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter) {
         super(pfmFactory, drawingPenSet, image, originalFile);
         this.splitter = splitter;
-        this.plottedDrawing.ignoreWeightedDistribution = true;
     }
 
     public boolean doTask(){

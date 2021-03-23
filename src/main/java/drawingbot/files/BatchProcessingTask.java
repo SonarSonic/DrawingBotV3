@@ -6,6 +6,7 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.javafx.GenericFactory;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumColourSplitter;
 import javafx.concurrent.Task;
@@ -28,7 +29,7 @@ public class BatchProcessingTask extends Task<Boolean> {
 
     public String inputFolder;
     public String outputFolder;
-    public GenericFactory<IPathFindingModule> pfmFactory;
+    public PFMFactory<?> pfmFactory;
     public ObservableDrawingSet drawingPenSet;
     public EnumColourSplitter splitter;
 

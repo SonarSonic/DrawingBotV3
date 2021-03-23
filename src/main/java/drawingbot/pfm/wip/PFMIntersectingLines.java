@@ -32,7 +32,7 @@ public class PFMIntersectingLines extends AbstractDarkestPFM {
     }
 
     @Override
-    public void doProcess(IPlottingTask task) {
+    public void doProcess() {
         for(int i = 0; i < maxLines; i ++){
             findDarkestPixel(task.getPixelData());
             int startX = darkest_x;
@@ -42,7 +42,7 @@ public class PFMIntersectingLines extends AbstractDarkestPFM {
 
             for (int d = 0; d < tests; d ++) {
 
-                int[] testLine = getIntersectingLine(task.getPixelData(), startX, startY, randomSeed(0, 360));
+                int[] testLine = getIntersectingLine(task.getPixelData(), startX, startY, randomSeedF(0, 360));
 
                 luminanceTestLine(task.getPixelData(), testLine[0], testLine[1], testLine[2], testLine[3]);
 

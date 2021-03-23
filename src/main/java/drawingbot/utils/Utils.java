@@ -70,7 +70,7 @@ public class Utils {
 
 
     public static int mapInt(int value, int istart, int istop, int ostart, int ostop) {
-        return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+        return (int) mapFloat(value, istart, istop, ostart, ostop);
     }
 
     public static float mapFloat(float value, float istart, float istop, float ostart, float ostop) {

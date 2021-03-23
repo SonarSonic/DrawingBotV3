@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.function.Function;
 
 public enum EnumColourSplitter {
-    DEFAULT(List::of, EnumColourSplitter::getDefaultDrawingSet, List.of("Original")),
-    CMYK(EnumColourSplitter::splitCMYK, EnumColourSplitter::getDefaultDrawingSet, List.of("Cyan", "Magenta", "Yellow", "Key"));
+    DEFAULT(List::of, EnumColourSplitter::createDefaultDrawingSet, List.of("Original")),
+    CMYK(EnumColourSplitter::splitCMYK, EnumColourSplitter::createDefaultDrawingSet, List.of("Cyan", "Magenta", "Yellow", "Key"));
+    //RGB(EnumColourSplitter::splitRGB, EnumColourSplitter::createDefaultDrawingSet, List.of("Red", "Green", "Blue"));
 
     public final Function<BufferedImage, List<BufferedImage>> splitFunction;
     public final Function<EnumColourSplitter, DrawingSet> createDrawingSet;
@@ -29,7 +30,7 @@ public enum EnumColourSplitter {
         return drawingSet;
     }
 
-    public static DrawingSet getDefaultDrawingSet(EnumColourSplitter splitter){
+    public static DrawingSet createDefaultDrawingSet(EnumColourSplitter splitter){
         if(splitter != DEFAULT){
             List<DrawingPen> pens = new ArrayList<>();
             for(int i = 0; i < splitter.outputNames.size(); i++){
@@ -103,6 +104,8 @@ public enum EnumColourSplitter {
         return List.of(redImage, yellowImage, blueImage);
     }
 
+     */
+
     public static List<BufferedImage> splitRGB(BufferedImage image){
         return splitRGBK(image, false);
     }
@@ -128,9 +131,9 @@ public enum EnumColourSplitter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 ImageTools.getColourIntsFromARGB(pixels[index], argb);
-                redImage.setRGB(x, y, ImageTools.getARGB(255, 255-argb[1], 255, 255));
-                greenImage.setRGB(x, y, ImageTools.getARGB(255, 255, 255-argb[2], 255));
-                blueImage.setRGB(x, y, ImageTools.getARGB(255, 255, 255, 255-argb[3]));
+                redImage.setRGB(x, y, ImageTools.getARGB(255, argb[1], 255, 255));
+                greenImage.setRGB(x, y, ImageTools.getARGB(255, 255, argb[2], 255));
+                blueImage.setRGB(x, y, ImageTools.getARGB(255, 255, 255, argb[3]));
 
                 if(includeKey){
                     int lum = ImageTools.getPerceivedLuminanceFromRGB(argb[1], argb[2], argb[3]);
@@ -141,8 +144,6 @@ public enum EnumColourSplitter {
         }
         return includeKey ? List.of(redImage, greenImage, blueImage, keyImage) : List.of(redImage, greenImage, blueImage);
     }
-
-     */
 
     @Override
     public String toString() {

@@ -1,4 +1,4 @@
-package drawingbot.pfm.wip;
+package drawingbot.pfm;
 
 import com.jhlabs.image.EdgeFilter;
 import com.jhlabs.image.GrayscaleFilter;
@@ -30,7 +30,7 @@ public class PFMSketchSobel extends AbstractSketchPFM {
 
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
-        float start_angle = randomSeed(0, 45);
+        float start_angle = randomSeedF(0, 45);
         float delta_angle = 360F / tests;
         int nextLineLength = randomSeed(20, 30);
 

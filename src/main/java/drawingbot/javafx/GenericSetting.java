@@ -36,7 +36,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     ///optional
     public Function<C, V> getter; //the getter gets the value in the class
 
-    protected GenericSetting(Class<C> clazz, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
+    public GenericSetting(Class<C> clazz, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
         this.clazz = clazz;
         this.settingName = new SimpleStringProperty(settingName);
         this.defaultValue = defaultValue;

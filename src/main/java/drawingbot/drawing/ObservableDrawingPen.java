@@ -21,7 +21,7 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     public SimpleIntegerProperty distributionWeight; //weight
     public SimpleFloatProperty strokeSize; //stroke size
     public SimpleStringProperty currentPercentage; //percentage
-    public SimpleIntegerProperty currentLines; //lines
+    public SimpleIntegerProperty currentGeometries; //geometries
     public IDrawingPen source;
 
     public ObservableDrawingPen(int penNumber, IDrawingPen source){
@@ -34,7 +34,7 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
         this.distributionWeight = new SimpleIntegerProperty(source.getDistributionWeight());
         this.strokeSize = new SimpleFloatProperty(source.getStrokeSize());
         this.currentPercentage = new SimpleStringProperty("0.0");
-        this.currentLines = new SimpleIntegerProperty(0);
+        this.currentGeometries = new SimpleIntegerProperty(0);
 
         this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
         this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
@@ -102,7 +102,7 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
 
     public java.awt.Color getAWTColor(){
         if(awtColor == null){
-            awtColor = new java.awt.Color(getARGB(), true);
+            awtColor = new java.awt.Color((float)javaFXColour.get().getRed(), (float)javaFXColour.get().getGreen(), (float)javaFXColour.get().getBlue(), (float)javaFXColour.get().getOpacity());
         }
         return awtColor;
     }

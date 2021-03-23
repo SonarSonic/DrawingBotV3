@@ -25,6 +25,7 @@ import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.FXController;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.GenericFactory;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottingTask;
@@ -60,6 +61,9 @@ public class DrawingBotV3 {
     public SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
     public SimpleStringProperty drawingAreaPaddingGang = new SimpleStringProperty("0");
 
+    public SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
+    public SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
+
     //GCODE SETTINGS
     public SimpleBooleanProperty enableAutoHome = new SimpleBooleanProperty(false);
     public SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
@@ -72,7 +76,7 @@ public class DrawingBotV3 {
 
     //PATH FINDING \\
     public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
-    public SimpleObjectProperty<GenericFactory<IPathFindingModule>> pfmFactory = new SimpleObjectProperty<>();
+    public SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
     public SimpleObjectProperty<EnumColourSplitter> colourSplitter = new SimpleObjectProperty<>();
 
     // PEN SETS \\
@@ -86,6 +90,7 @@ public class DrawingBotV3 {
     public static int SVG_DPI = 96;
     public static int vertexRenderLimitNormal = 20000;
     public static int vertexRenderLimitBlendMode = 5000;
+    public static int defaultMinTextureSize = 1024;
     public static int defaultMaxTextureSize = 4096;
     public static double minScale = 0.1;
 
@@ -166,6 +171,10 @@ public class DrawingBotV3 {
 
     //// RENDERING
 
+    public int getMinTextureSize(){
+        return defaultMinTextureSize;
+    }
+
     public int getMaxTextureSize(){
         if(ConfigFileHandler.getApplicationSettings().maxTextureSize != -1){
             return ConfigFileHandler.getApplicationSettings().maxTextureSize;
@@ -197,6 +206,7 @@ public class DrawingBotV3 {
         }
     }
 
+    public EnumDistributionType updateDistributionType = null;
 
     public int renderedLines = 0;
     private long drawingTime = 0;
@@ -395,9 +405,9 @@ public class DrawingBotV3 {
     }
 
     public void clearCanvas(Color color){
-        canvas.getGraphicsContext2D().clearRect(0, 0,canvas.getWidth(), canvas.getHeight()); //ensures the canva's buffer is always cleared, some blend modes will prevent fillRect from triggering this
+        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); //ensures the canva's buffer is always cleared, some blend modes will prevent fillRect from triggering this
         canvas.getGraphicsContext2D().setFill(color);
-        canvas.getGraphicsContext2D().fillRect(0, 0,canvas.getWidth(), canvas.getHeight());
+        canvas.getGraphicsContext2D().fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
     public void updateCanvasSize(double width, double height){
@@ -406,9 +416,22 @@ public class DrawingBotV3 {
             canvasScaling = getMaxTextureSize() / max;
             width = Math.floor(width*canvasScaling);
             height = Math.floor(height*canvasScaling);
+        }else if(width < getMinTextureSize() || height < getMinTextureSize()){
+            double max = Math.max(width, height);
+            double newScaling = getMinTextureSize() / max;
+            double newWidth = Math.floor(width*newScaling);
+            double newHeight = Math.floor(height*newScaling);
+            if(newWidth > width && newHeight > height){ //sanity check, prevents scaling down images where one side is under and one is over the limit
+                canvasScaling = newScaling;
+                width = newWidth;
+                height = newHeight;
+            }else{
+                canvasScaling = 1;
+            }
         }else{
             canvasScaling = 1;
         }
+
         if(canvas.getWidth() == width && canvas.getHeight() == height){
             return;
         }
@@ -492,11 +515,11 @@ public class DrawingBotV3 {
     }
 
     public void onDrawingPenChanged(){
-        updateWeightedDistribution();
+        updatePenDistribution();
     }
 
     public void onDrawingSetChanged(){
-        updateWeightedDistribution();
+        updatePenDistribution();
         observableDrawingSetFlag.set(!observableDrawingSetFlag.get());
     }
 
@@ -504,16 +527,23 @@ public class DrawingBotV3 {
         imageFiltersDirty = true;
     }
 
-    public void updateWeightedDistribution(){
+    public void updatePenDistribution(){
         if(activeTask != null && activeTask.isTaskFinished()){
-            activeTask.plottedDrawing.updateWeightedDistribution();
+            activeTask.plottedDrawing.updatePenDistribution();
             reRender();
         }
     }
 
     //// PLOTTING TASKS
 
-    public PlottingTask initPlottingTask(GenericFactory<IPathFindingModule> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter){
+    public PlottingTask initPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter){
+        //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
+        Platform.runLater(() -> {
+            if(updateDistributionType != null){
+                drawingPenSet.distributionType.set(updateDistributionType);
+                updateDistributionType = null;
+            }
+        });
         return colourSplitter.get() == EnumColourSplitter.DEFAULT ? new PlottingTask(pfmFactory, drawingPenSet, image, originalFile) : new SplitPlottingTask(pfmFactory, drawingPenSet, image, originalFile, splitter);
     }
 
