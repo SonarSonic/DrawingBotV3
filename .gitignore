@@ -18,3 +18,4 @@ out
 *.log
 
 images_tests
+venv
