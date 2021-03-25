@@ -1,0 +1,45 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Squares PFM",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Neighbour Tests": "4",
+          "Max Line length": "30"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Squares PFM",
+      "presetName": "Waves",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Neighbour Tests": "2",
+          "Start Angle": "20",
+          "Max Line length": "20",
+          "Line Density": "35"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Squares PFM",
+      "presetName": "Triangles",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Neighbour Tests": "3",
+          "Max Line length": "30"
+        }
+      }
+    }
+  ]
+}

@@ -23,23 +23,24 @@ public class Register {
     public static void registerPFMs(){
 
         //operational path finding modules
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel Edges PFM", PFMSketchSobel::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TriangulationShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class));
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new StipplingShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Circles", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class));
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel Edges PFM", PFMSketchSobel::new, false, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false, true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Circles", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TriangulationShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new StipplingShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
 
 
         //experimental / developer only path finding modules
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSineWaves.class, "Sine Waves PFM (Experimental)", PFMSineWaves::new, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSobelLines.class, "Sobel Lines PFM (Experimental)", PFMSobelLines::new, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchWaves.class, "Sketch Waves PFM", PFMSketchWaves::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSineWaves.class, "Sine Waves PFM (Experimental)", PFMSineWaves::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSobelLines.class, "Sobel Lines PFM (Experimental)", PFMSobelLines::new, true, true);
 
         ////GENERAL
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value));
@@ -54,9 +55,20 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
 
         ////SQUARES PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquares.class, "Start Angle", 45, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngle = value));
 
         ////CURVES PFM
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchCurves.class, "Curve tension", 0.4F, 0, 90, false, (pfmSketch, value) -> pfmSketch.tension = value));
+
+        ////WAVES PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchWaves.class, "Start Angle", 45, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Offset X", 45, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveOffsetX = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Offset Y", 45, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveOffsetY = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Divisor X", 9, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveDivisorX = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Divisor Y", 9, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveDivisorY = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchWaves.class, "Wave Type X", List.of(PFMSketchWaves.WaveType.values()), PFMSketchWaves.WaveType.SIN, false, (pfmSketch, value) -> pfmSketch.xWave = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchWaves.class, "Wave Type Y", List.of(PFMSketchWaves.WaveType.values()), PFMSketchWaves.WaveType.COS, false, (pfmSketch, value) -> pfmSketch.yWave = value));
+
 
         ////SOBEL PFM
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchSobel.class, "Sobel Intensity", 1.5F, 0, 10, false, (pfmSketch, value) -> pfmSketch.sobelIntensity = value));
@@ -159,28 +171,17 @@ public class Register {
 
         //// CYMK COLOURS \\\\
 
-        DrawingPen cyan = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Cyan", ImageTools.getARGB(30, 0, 255, 255));
-        MasterRegistry.INSTANCE.registerDrawingPen(cyan);
+        DrawingPen cyanTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Cyan", ImageTools.getARGB(255, 0, 255, 255));
+        MasterRegistry.INSTANCE.registerDrawingPen(cyanTransparent);
 
-        DrawingPen magenta = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Magenta", ImageTools.getARGB(30, 255, 0, 255));
-        MasterRegistry.INSTANCE.registerDrawingPen(magenta);
+        DrawingPen magentaTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Magenta", ImageTools.getARGB(255, 255, 0, 255));
+        MasterRegistry.INSTANCE.registerDrawingPen(magentaTransparent);
 
-        DrawingPen yellow = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Yellow", ImageTools.getARGB(30, 255, 255, 0));
-        MasterRegistry.INSTANCE.registerDrawingPen(yellow);
+        DrawingPen yellowTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Yellow", ImageTools.getARGB(255, 255, 255, 0));
+        MasterRegistry.INSTANCE.registerDrawingPen(yellowTransparent);
 
-        DrawingPen key = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Key", ImageTools.getARGB(30, 0, 0, 0));
-        MasterRegistry.INSTANCE.registerDrawingPen(key);
-
-        /*
-        DrawingPen red = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Red", ImageTools.getARGB(30, 255, 0, 0));
-        MasterRegistry.INSTANCE.registerDrawingPen(red);
-
-        DrawingPen green = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Green", ImageTools.getARGB(30, 0, 255, 0));
-        MasterRegistry.INSTANCE.registerDrawingPen(green);
-
-        DrawingPen blue = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Blue", ImageTools.getARGB(30, 0, 0, 255));
-        MasterRegistry.INSTANCE.registerDrawingPen(blue);
-         */
+        DrawingPen keyTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Key", ImageTools.getARGB(255, 0, 0, 0));
+        MasterRegistry.INSTANCE.registerDrawingPen(keyTransparent);
 
         for(EnumColourSplitter splitter : EnumColourSplitter.values()){
             splitter.drawingSet = splitter.createDrawingSet.apply(splitter);

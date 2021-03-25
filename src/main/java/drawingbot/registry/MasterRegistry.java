@@ -119,11 +119,13 @@ public class MasterRegistry {
 
     //// PATH FINDING MODULES: REGISTERING
 
-    public <C extends IPathFindingModule> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden){
+    public <C extends IPathFindingModule> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
         DrawingBotV3.logger.finest("Registering PFM: " + name);
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
         pfmFactories.add(factory);
-        registerPFMPreset(JsonLoaderManager.PFM.createNewPreset(name, "Default", false));
+        if(registerDefaultPreset){
+            registerPFMPreset(JsonLoaderManager.PFM.createNewPreset(name, "Default", false));
+        }
         return factory;
     }
 

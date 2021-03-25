@@ -254,6 +254,7 @@ public class FXHelper {
     }
 
     public static void openColourSeperationDialog(EnumColourSplitter splitter){
+
         DialogColourSeperationMode dialog = new DialogColourSeperationMode(splitter);
         Optional<Boolean> result = dialog.showAndWait();
         if(result.isPresent() && result.get()){
@@ -268,6 +269,7 @@ public class FXHelper {
                 DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.NORMAL);
                 DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
             }
+            DrawingBotV3.INSTANCE.colourSplitter.set(splitter);
         }
     }
 
