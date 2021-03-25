@@ -30,6 +30,10 @@ public enum EnumColourSplitter {
         return drawingSet;
     }
 
+    public int getSplitCount(){
+        return outputNames.size();
+    }
+
     public static DrawingSet createDefaultDrawingSet(EnumColourSplitter splitter){
         if(splitter != DEFAULT){
             List<DrawingPen> pens = new ArrayList<>();
@@ -37,7 +41,7 @@ public enum EnumColourSplitter {
                 DrawingPen pen = MasterRegistry.INSTANCE.getDrawingPenFromCodeName(DBConstants.DRAWING_TYPE_SPECIAL + ":" + splitter.outputNames.get(i));
                 pens.add(pen);
             }
-            return new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,splitter.name() + " Seperation", pens);
+            return new ColourSplitterDrawingSet(splitter, DBConstants.DRAWING_TYPE_SPECIAL,splitter.name() + " Seperation", pens);
         }
         return null;
     }
@@ -148,5 +152,21 @@ public enum EnumColourSplitter {
     @Override
     public String toString() {
         return this == DEFAULT ? "Default" : name();
+    }
+
+
+    public static class ColourSplitterDrawingSet extends DrawingSet{
+
+        public transient EnumColourSplitter splitter;
+
+        public ColourSplitterDrawingSet(EnumColourSplitter splitter) {
+            super();
+            this.splitter = splitter;
+        }
+
+        public ColourSplitterDrawingSet(EnumColourSplitter splitter, String type, String name, List<DrawingPen> pens) {
+            super(type, name, pens);
+            this.splitter = splitter;
+        }
     }
 }

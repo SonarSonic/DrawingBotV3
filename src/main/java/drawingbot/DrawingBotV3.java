@@ -356,14 +356,30 @@ public class DrawingBotV3 {
             case PRE_PROCESSING:
                 break;
             case DO_PROCESS:
-                if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
-                    clearCanvas();
-                    renderedLines = 0;
-                }
-                if(renderedTask.plottedDrawing.getGeometryCount() != 0){
-                    graphicsFX.scale(canvasScaling, canvasScaling);
-                    graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_FILTER, getVertexRenderLimit(), false);
+                if(!(renderedTask instanceof SplitPlottingTask)){
+                    if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
+                        clearCanvas();
+                        renderedLines = 0;
+                    }
+                    if(renderedTask.plottedDrawing.getGeometryCount() != 0){
+                        graphicsFX.scale(canvasScaling, canvasScaling);
+                        graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
+                        renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_FILTER, getVertexRenderLimit(), false);
+                    }
+                }else{
+                    SplitPlottingTask splitPlottingTask = (SplitPlottingTask) renderedTask;
+                    if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
+                        clearCanvas();
+                        splitPlottingTask.renderedLines = new int[splitPlottingTask.splitter.getSplitCount()];
+                    }
+                    if(splitPlottingTask.subTasks != null){
+                        graphicsFX.scale(canvasScaling, canvasScaling);
+                        graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
+                        for(int i = 0; i < splitPlottingTask.splitter.getSplitCount(); i ++){
+                            PlottingTask task = splitPlottingTask.subTasks.get(i);
+                            splitPlottingTask.renderedLines[i] = task.plottedDrawing.renderGeometryFX(graphicsFX, splitPlottingTask.renderedLines[i], task.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_FILTER, getVertexRenderLimit() / splitPlottingTask.splitter.getSplitCount(), false);
+                        }
+                    }
                 }
                 break;
             case POST_PROCESSING:
@@ -398,6 +414,18 @@ public class DrawingBotV3 {
                 }
                 break;
         }
+    }
+
+    public void clearProcessRendering(){
+        Platform.runLater(() -> {
+            if(getRenderedTask() instanceof SplitPlottingTask){
+                SplitPlottingTask splitPlottingTask = (SplitPlottingTask) getRenderedTask();
+                splitPlottingTask.renderedLines = new int[splitPlottingTask.splitter.getSplitCount()];
+            }else{
+                DrawingBotV3.INSTANCE.renderedLines = 0;
+            }
+            DrawingBotV3.INSTANCE.clearCanvas();
+        });
     }
 
     public void clearCanvas(){
@@ -493,6 +521,8 @@ public class DrawingBotV3 {
                 Platform.runLater(() -> {
                     controller.sliderDisplayedLines.setValue(1.0F);
                     controller.textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getGeometryCount()));
+                    controller.labelPlottedShapes.setText(Utils.defaultNF.format(task.plottedDrawing.getGeometryCount()));
+                    controller.labelPlottedVertices.setText(Utils.defaultNF.format(task.plottedDrawing.getVertexCount()));
                 });
                 break;
             case POST_PROCESSING:
@@ -539,7 +569,7 @@ public class DrawingBotV3 {
     public PlottingTask initPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         Platform.runLater(() -> {
-            if(updateDistributionType != null){
+            if(updateDistributionType != null && colourSplitter.get() == EnumColourSplitter.DEFAULT){
                 drawingPenSet.distributionType.set(updateDistributionType);
                 updateDistributionType = null;
             }
@@ -676,7 +706,7 @@ public class DrawingBotV3 {
 
     //// SERVICES
 
-    private final Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
+    public final Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
         DrawingBotV3.logger.log(Level.SEVERE, "Thread Exception: " + thread.getName(), throwable);
     };
 

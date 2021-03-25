@@ -32,12 +32,12 @@ public class PFMModular extends AbstractPFM{
     }
 
     @Override
-    public void preProcess() {
-        positionalEncoder.preProcess(task.getPixelData());
-    }
+    public void preProcess() {}
 
     @Override
     public void doProcess() {
+        positionalEncoder.preProcess(task.getPixelData());
+
         currentIteration = 0;
         targetIteration = positionalEncoder.getIterations();
         while(currentIteration < targetIteration){
@@ -48,10 +48,7 @@ public class PFMModular extends AbstractPFM{
 
             //clear previous geometries & mark for re-render
             task.plottedDrawing.clearGeometries();
-            Platform.runLater(() -> {
-                DrawingBotV3.INSTANCE.renderedLines = 0;
-                DrawingBotV3.INSTANCE.clearCanvas();
-            });
+            DrawingBotV3.INSTANCE.clearProcessRendering();
 
             shapeEncoder.doProcess(task.getPixelData(), positionalEncoder);
             currentIteration++;

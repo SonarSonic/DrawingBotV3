@@ -827,8 +827,13 @@ public class FXController {
     }
 
     public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
-        if(set != null)
+        if(set != null){
             DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
+            if(set instanceof EnumColourSplitter.ColourSplitterDrawingSet){
+                EnumColourSplitter.ColourSplitterDrawingSet splitterDrawingSet = (EnumColourSplitter.ColourSplitterDrawingSet) set;
+                DrawingBotV3.INSTANCE.colourSplitter.set(splitterDrawingSet.splitter);
+            }
+        }
     }
 
     public ObservableDrawingPen getSelectedPen(){

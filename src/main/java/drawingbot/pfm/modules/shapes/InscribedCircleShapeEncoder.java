@@ -27,7 +27,7 @@ public class InscribedCircleShapeEncoder extends ShapeEncoder {
             MaximumInscribedCircle circle = new MaximumInscribedCircle(geometry, 1);
             Point radius = circle.getRadiusPoint();
             Point centre = circle.getCenter();
-            int diameter = (int)((radius.distance(centre)*2)*0.8D);
+            int diameter = Math.max(1, (int)((radius.distance(centre)*2)*circleSize));
 
             pfmModular.task.addGeometry(new GEllipse((float)centre.getX() - diameter/2F, (float)centre.getY() - diameter/2F, diameter, diameter));
             pfmModular.updateShapeEncoderProgess(i, positionEncoder.getGeometries().getNumGeometries()-1);

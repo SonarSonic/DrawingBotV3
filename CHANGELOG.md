@@ -1,4 +1,12 @@
 # Change Log
+### [v1.0.9-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.9-beta)
+- Added: New Presets for "Sketch Squares" - "Waves" & "Triangles"
+- Added: CMYK Seperation is now multi-threaded & and gives an accurate live preview
+- Added: If the "CMYK Drawing Set" is selected & CMYK is activated a dialog will appear to apply the settings automatically.
+- Fixed "Sketch Squares" PFM it will now work as expected and have different styles to PFM Default
+- Fixed "Circle Size" not working as expected in "Voronoi Circles" + prevented small circles being invisible.
+- Changed: CMYK Seperation will now use opaque pens on some PFMs.
+
 ### [v1.0.8-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.8-beta)
 - Added: Five New Path Finding Modules!
     - "Sketch Sobel Edges PFM" - Works like the "Sketch Lines PFM" but uses Edge Detection as well as Brightness Sampling, which can be adjusted to create stylised drawings with emphasised contours.
