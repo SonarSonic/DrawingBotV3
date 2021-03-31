@@ -1,10 +1,13 @@
+.. _pfms:
+
+======================
 Path Finding Modules
 ======================
 
-The Path Finding Modules (PFM's) are algorithms for converting images into geometric shapes.
+The Path Finding Modules (PFMs) are algorithms for converting images into geometric shapes.
 They have been designed to be as flexible as possible and to run with almost any combination of settings. This means that they can create many more styles than those you see here. Some of these extra styles are included as **presets**!
 
-Every Path Finding Module can also be run with **CMYK Seperation**!
+Every Path Finding Module can also be run with :ref:`cmyk-separation`
 
 ------
 
@@ -15,29 +18,41 @@ Lines
 ^^^^^^
 Transforms an image into lines using brightness data.
 
+.. image:: images/sketch_lines_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/sketch_lines_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 Curves
 ^^^^^^
 Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline>`_ using brightness data.
 
+.. image:: images/sketch_curves_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/sketch_curves_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 Squares
 ^^^^^^^^^^^^
 Transforms an image into lines in a rectangular pattern using brightness data.
 
+.. image:: images/sketch_squares_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/sketch_squares_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 Sobel Edges
 ^^^^^^^^^^^^
 Transforms an image into lines using brightness data & edge detection data. By using a `Sobel Operator <https://en.wikipedia.org/wiki/Sobel_operator>`_ to find sharp edges and then using this data in conjunction with the brightness to find the next line.
 
+.. image:: images/sketch_sobel_edges_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/sketch_sobel_edges_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 How they work
 ^^^^^^^^^^^^^^
@@ -89,8 +104,11 @@ Spiral PFM
 ---------------------
 Transforms an image into a oscillating spiral using brightness data.
 
+.. image:: images/spiral_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/spiral_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 How it works
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,29 +139,41 @@ Circles
 ^^^^^^^^
 Transforms an image into a series of inscribed circles for each cell of the voronoi diagram.
 
+.. image:: images/voronoi_circles_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/voronoi_circles_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 Triangulation
 ^^^^^^^^^^^^^^^^
 Transforms an image into a series of connected triangles joining all the *centroids* in the voronoi diagram using `Delaunay Triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation>`_
 
+.. image:: images/voronoi_triangulation_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/voronoi_triangulation_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 Stippling
 ^^^^^^^^^^^^^^^^
 Transforms an image into a series of filled circles for each *centroid* in the voronoi diagram, the size of the "stipple" is relative to the sampled brightness of the cell the centroid belongs to.
 
+.. image:: images/voronoi_stippling_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/voronoi_stippling_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 Diagram
 ^^^^^^^^^^^^^^^^
 Transforms an image into a Voronoi Diagram
 
+.. image:: images/voronoi_diagram_eye_after.jpg
+    :width: 250pt
+
 .. image:: images/voronoi_diagram_after.jpg
-    :width: 300pt
+    :width: 250pt
 
 How they work
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
