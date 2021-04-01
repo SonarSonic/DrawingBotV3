@@ -7,7 +7,7 @@ CMYK Separation
 .. image:: images/cmyk_before.jpg
     :width: 250pt
 
-.. image:: images/cmyk_after.jpg
+.. image:: images/cmyk_after1.jpg
     :width: 250pt
 
 *Before + After CMYK Separation*
