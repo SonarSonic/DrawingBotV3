@@ -14,6 +14,7 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+from m2r import MdInclude
 
 # -- Project information -----------------------------------------------------
 
@@ -62,19 +63,6 @@ html_css_files = []
 
 
 def setup(app):
-    from m2r import MdInclude
-    from recommonmark.transform import AutoStructify
-
-    params = {
-        "auto_toc_tree_section": "Contents",
-        "auto_toc_maxdepth": 2,
-        "enable_eval_rst": True,
-        "enable_math": True,
-        "enable_inline_math": True,
-    }
-    app.add_config_value("recommonmark_config", params, True)
-    app.add_transform(AutoStructify)
-
     # from m2r to make `mdinclude` work
     app.add_config_value('no_underscore_emphasis', False, 'env')
     app.add_config_value('m2r_parse_relative_links', False, 'env')
