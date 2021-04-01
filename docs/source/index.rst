@@ -1,20 +1,13 @@
 .. _index:
 
-==========================================
-DrawingBotV3
-==========================================
-
-.. image:: images/user_interface1.jpg
-    :width: 600pt
-
-Drawing Bot is a free, open source software for converting images to line drawings for Plotters / Drawing Machines / 3D printers. It also serves as an application for visual artists to create stylised line drawings from images / video.
-
-It is available for Windows, Mac and Linux.
+===========
+Index
+===========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   install
+   About <about>
    quickstart
    userinterface
    drawingarea

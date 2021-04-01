@@ -4,7 +4,7 @@
 Path Finding Modules
 ======================
 
-The Path Finding Modules (PFMs) are algorithms for converting images into geometric shapes.
+The Path Finding Modules (PFMs) are algorithms for converting images into geometric shapes, they can be configured in the **Path Finding Controls** panel.
 They have been designed to be as flexible as possible and to run with almost any combination of settings. This means that they can create many more styles than those you see here. Some of these extra styles are included as **presets**!
 
 Every Path Finding Module can also be run with :ref:`cmyk-separation`

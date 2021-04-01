@@ -1,4 +1,5 @@
 # Change Log
+
 ### [v1.0.9-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.9-beta)
 - Added: New Presets for "Sketch Squares" - "Waves" & "Triangles"
 - Added: CMYK Seperation is now multi-threaded & and gives an accurate live preview
