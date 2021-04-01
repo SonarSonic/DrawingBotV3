@@ -222,7 +222,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         }
         sum_luminance += pixels.getLuminance(x, y);
         count_pixels++;
-        if (bresenham.pointCount >= minLineLength() && bresenham.pointCount <= maxLineLength() && (test_luminance == -1 || getLuminanceTestAverage() < test_luminance)) {
+        if ((test_luminance == -1 || getLuminanceTestAverage() < test_luminance)) {
             darkest_x = x;
             darkest_y = y;
             test_luminance = getLuminanceTestAverage();

@@ -26,9 +26,9 @@ public class ImageExporter {
             graphics.fillRect(0, 0, width, height);
         }
 
-        Graphics2DExporter.preDraw(graphics, width, height, exportTask, plottingTask);
-        Graphics2DExporter.drawGeometryWithDrawingSet(graphics, plottingTask.getDrawingSet(), geometries);
-        Graphics2DExporter.postDraw(graphics, width, height, exportTask, plottingTask);
+        Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
+        Graphics2DExporter.drawGeometryWithDrawingSet(exportTask, graphics, plottingTask.getDrawingSet(), geometries);
+        Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
 
         try {
             ImageIO.write(image, extension.substring(1), saveLocation);

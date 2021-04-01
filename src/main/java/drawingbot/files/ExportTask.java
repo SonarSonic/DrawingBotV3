@@ -26,6 +26,8 @@ public class ExportTask extends Task<Boolean> {
     public boolean overwrite;
 
     private String error = null;
+    public int totalGeometries;
+    public int renderedGeometries;
 
     public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite){
         this.format = format;
@@ -56,6 +58,9 @@ public class ExportTask extends Task<Boolean> {
                 updateMessage("Optimising Paths");
                 Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, pointFilter);
 
+                totalGeometries = GeometryUtils.getTotalGeometries(geometries);
+                renderedGeometries = 0;
+
                 updateMessage("Exporting Paths");
                 format.exportMethod.export(this, plottingTask, geometries, extension, saveLocation);
             }
@@ -67,7 +72,11 @@ public class ExportTask extends Task<Boolean> {
                 File fileName = new File(path.getPath() + "_pen" + p + "_" + drawingPen.getName() + extension);
                 if(drawingPen.isEnabled() || (overwrite || Files.notExists(fileName.toPath()))){
                     updateMessage("Optimising Paths");
+
                     Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen);
+
+                    totalGeometries = GeometryUtils.getTotalGeometries(geometries);
+                    renderedGeometries = 0;
 
                     updateMessage("Exporting Paths");
                     format.exportMethod.export(this, plottingTask, geometries,  extension, fileName);
@@ -82,6 +91,11 @@ public class ExportTask extends Task<Boolean> {
         DrawingBotV3.logger.info("Export Task: Finished " + saveLocation.getPath());
         Platform.runLater(() -> { DrawingBotV3.INSTANCE.updateUI(); DrawingBotV3.INSTANCE.setActiveExportTask(null);});
         return true;
+    }
+
+    public void onGeometryRendered(){
+        renderedGeometries++;
+        updateProgress(renderedGeometries, totalGeometries);
     }
 
     ///MAKE UPDATE METHODS ACCESSIBLE TO EXPORTERS

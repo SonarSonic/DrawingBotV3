@@ -142,7 +142,8 @@ public class Register {
         DrawingPen originalRedPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Red", ImageTools.getARGB(255, 255, 0, 0)){
             @Override
             public int getCustomARGB(int pfmARGB) {
-                return ImageTools.red(pfmARGB);
+                int red = ImageTools.red(pfmARGB);
+                return ImageTools.getARGB(255, red, 0, 0);
             }
         };
         MasterRegistry.INSTANCE.registerDrawingPen(originalRedPen);
@@ -150,7 +151,8 @@ public class Register {
         DrawingPen originalGreenPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Green", ImageTools.getARGB(255, 0, 255, 0)){
             @Override
             public int getCustomARGB(int pfmARGB) {
-                return ImageTools.green(pfmARGB);
+                int green = ImageTools.green(pfmARGB);
+                return ImageTools.getARGB(255, 0, green, 0);
             }
         };
         MasterRegistry.INSTANCE.registerDrawingPen(originalGreenPen);
@@ -158,7 +160,8 @@ public class Register {
         DrawingPen originalBluePen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Blue", ImageTools.getARGB(255, 0, 0, 255)){
             @Override
             public int getCustomARGB(int pfmARGB) {
-                return ImageTools.blue(pfmARGB);
+                int blue = ImageTools.blue(pfmARGB);
+                return ImageTools.getARGB(255, 0, 0, blue);
             }
         };
         MasterRegistry.INSTANCE.registerDrawingPen(originalBluePen);
@@ -530,7 +533,7 @@ public class Register {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(NoiseFilter.class, "Monochrome", false, false, NoiseFilter::setMonochrome));
 
         /// CONTOURS
-        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.STYLIZE, ContourFilter.class, "Coutours", ContourFilter::new, false);
+        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.STYLIZE, ContourFilter.class, "Contours", ContourFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ContourFilter.class, "Levels", 5F, 0F, 30F, false, ContourFilter::setLevels));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ContourFilter.class, "Offset", 0F, 0F, 1F, false, ContourFilter::setOffset));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ContourFilter.class, "Scale", 1F, 0F, 1F, false, ContourFilter::setScale));

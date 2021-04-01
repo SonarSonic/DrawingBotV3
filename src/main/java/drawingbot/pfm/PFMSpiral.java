@@ -6,8 +6,7 @@ import org.locationtech.jts.algorithm.construct.MaximumInscribedCircle;
 
 import java.awt.geom.Point2D;
 
-/**https://github.com/krummrey/SpiralFromImage
- * TODO FIX SPIRAL PFM*/
+/**https://github.com/krummrey/SpiralFromImage*/
 public class PFMSpiral extends AbstractPFM {
 
     public float distBetweenRings = 7;                  // Distance between rings

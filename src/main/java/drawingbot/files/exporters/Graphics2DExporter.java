@@ -12,13 +12,14 @@ import drawingbot.plotting.PlottingTask;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Most exporters will use the an implementation of Graphics2D to handle rendering the drawing and can therefore use this universal exporter
  */
 public class Graphics2DExporter {
 
-    public static void preDraw(Graphics2D graphics, int width, int height, ExportTask exportTask, PlottingTask plottingTask){
+    public static void preDraw(ExportTask exportTask, Graphics2D graphics, int width, int height, PlottingTask plottingTask){
         EnumBlendMode blendMode = plottingTask.plottedDrawing.drawingPenSet.blendMode.get();
         if(blendMode.additive){
             graphics.setColor(Color.BLACK);
@@ -29,26 +30,24 @@ public class Graphics2DExporter {
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 
-    public static void drawGeometryWithDrawingSet(Graphics2D graphics, ObservableDrawingSet drawingSet, Map<Integer, List<IGeometry>> geometries){
-        int totalGeometries = GeometryUtils.getTotalGeometries(geometries);
+    public static void drawGeometryWithDrawingSet(ExportTask exportTask, Graphics2D graphics, ObservableDrawingSet drawingSet, Map<Integer, List<IGeometry>> geometries){
+
         int[] renderOrder = drawingSet.calculateRenderOrder();
         for(int i = 0; i < renderOrder.length; i++){
             int penIndex = renderOrder[renderOrder.length-1-i];
             ObservableDrawingPen pen = drawingSet.getPen(penIndex);
-            drawGeometryWithDrawingPen(graphics, pen, geometries.get(penIndex));
+            drawGeometryWithDrawingPen(exportTask, graphics, pen, geometries.get(penIndex));
         }
     }
 
-    public static void drawGeometryWithDrawingPen(Graphics2D graphics, ObservableDrawingPen pen, List<IGeometry> geometries){
-        int renderCount = 0;
+    public static void drawGeometryWithDrawingPen(ExportTask exportTask, Graphics2D graphics, ObservableDrawingPen pen, List<IGeometry> geometries){
         for(IGeometry g : geometries){
             g.renderAWT(graphics, pen);
-            renderCount++;
-            //exportTask.updateProgress(renderCount, totalGeometries);
+            exportTask.onGeometryRendered();
         }
     }
 
-    public static void postDraw(Graphics2D graphics, int width, int height, ExportTask exportTask, PlottingTask plottingTask){
+    public static void postDraw(ExportTask exportTask, Graphics2D graphics, int width, int height, PlottingTask plottingTask){
         graphics.dispose();
     }
 

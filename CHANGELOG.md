@@ -1,5 +1,12 @@
 # Change Log
 
+### [v1.0.10-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.10-beta)
+- Added: DrawingBotV3 now has [documentation](https://drawingbotv3.readthedocs.io)!
+- Added: The name of the current image file will be displayed in the title of the window.
+- Changed: Line density's maximum value will now result in target brightness of 253.5, not 250
+- Fixed: Inaccuracies in plotting image sections smaller than the line length.
+- Fixed: Progress updates when exporting files
+
 ### [v1.0.9-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.9-beta)
 - Added: New Presets for "Sketch Squares" - "Waves" & "Triangles"
 - Added: CMYK Seperation is now multi-threaded & and gives an accurate live preview
