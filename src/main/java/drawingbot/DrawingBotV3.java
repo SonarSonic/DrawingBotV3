@@ -62,11 +62,15 @@ public class DrawingBotV3 {
     public SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
 
     //GCODE SETTINGS
-    public SimpleBooleanProperty enableAutoHome = new SimpleBooleanProperty(false);
     public SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
     public SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
-    public SimpleFloatProperty penDownZ = new SimpleFloatProperty(0);
-    public SimpleFloatProperty penUpZ = new SimpleFloatProperty(0);
+    public SimpleObjectProperty<EnumDirection> gcodeXDirection = new SimpleObjectProperty<>();
+    public SimpleObjectProperty<EnumDirection> gcodeYDirection = new SimpleObjectProperty<>();
+    public SimpleStringProperty gcodeStartCode = new SimpleStringProperty();
+    public SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
+    public SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
+    public SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
+
 
     //PRE-PROCESSING\\
     public ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();

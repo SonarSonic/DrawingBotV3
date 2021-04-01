@@ -2,8 +2,10 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetGCodeSettings;
+import drawingbot.utils.EnumDirection;
 import drawingbot.utils.Units;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -119,9 +121,13 @@ public class FXExportController {
 
     public TextField textFieldOffsetX = null;
     public TextField textFieldOffsetY = null;
-    public TextField textFieldPenUpZ = null;
-    public TextField textFieldPenDownZ = null;
-    public CheckBox checkBoxAutoHome = null;
+    public TextArea textAreaGCodeStart = null;
+    public TextArea textAreaGCodeEnd = null;
+    public TextArea textAreaGCodePenDown = null;
+    public TextArea textAreaGCodePenUp = null;
+
+    public ChoiceBox<EnumDirection> choiceBoxGCodeXDir = null;
+    public ChoiceBox<EnumDirection> choiceBoxGCodeYDir = null;
 
 
     public void initGCodeSettingsPane(){
@@ -142,20 +148,32 @@ public class FXExportController {
             comboBoxGCodePreset.setButtonCell(new ComboBoxListCell<>());
         });
 
-        checkBoxAutoHome.setSelected(true);
-        DrawingBotV3.INSTANCE.enableAutoHome.bindBidirectional(checkBoxAutoHome.selectedProperty());
-
         DrawingBotV3.INSTANCE.gcodeOffsetX.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetX.textProperty().get()), textFieldOffsetX.textProperty()));
         textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
         DrawingBotV3.INSTANCE.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
         textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.INSTANCE.penUpZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenUpZ.textProperty().get()), textFieldPenUpZ.textProperty()));
-        textFieldPenUpZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 5F));
+        textAreaGCodeStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeStartCode);
+        textAreaGCodeStart.setText(GCodeExporter.defaultStartCode);
 
-        DrawingBotV3.INSTANCE.penDownZ.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldPenDownZ.textProperty().get()), textFieldPenDownZ.textProperty()));
-        textFieldPenDownZ.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textAreaGCodeEnd.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeEndCode);
+        textAreaGCodeEnd.setText(GCodeExporter.defaultEndCode);
+
+        textAreaGCodePenDown.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodePenDownCode);
+        textAreaGCodePenDown.setText(GCodeExporter.defaultPenDownCode);
+
+        textAreaGCodePenUp.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodePenUpCode);
+        textAreaGCodePenUp.setText(GCodeExporter.defaultPenUpCode);
+
+        choiceBoxGCodeXDir.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeXDirection);
+        choiceBoxGCodeXDir.setValue(EnumDirection.POSITIVE);
+        choiceBoxGCodeXDir.setItems(FXCollections.observableArrayList(EnumDirection.values()));
+
+        choiceBoxGCodeYDir.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeYDirection);
+        choiceBoxGCodeYDir.setValue(EnumDirection.POSITIVE);
+        choiceBoxGCodeYDir.setItems(FXCollections.observableArrayList(EnumDirection.values()));
+
     }
 
 }
