@@ -29,9 +29,6 @@ public class FXApplication extends Application {
     public static Stage primaryStage;
     public static Scene primaryScene;
 
-    public Animation animation;
-    public float frameRate = 60;
-
     public static void main(String[] args) {
         launch(args);
     }

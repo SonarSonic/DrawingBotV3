@@ -18,16 +18,23 @@ public class Utils {
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
     public static NumberFormat gCodeNF;
+    public static final int gcode_decimals = 3; // numbers of decimal places used on gcode exports
+    public static final char gcode_decimal_seperator = '.';
 
-    public static String formatGCode(float f){
+    /**formats the value into GCODE Number Format*/
+    public static String gcodeFloat(float f){
         if(gCodeNF == null){
             gCodeNF = NumberFormat.getNumberInstance();
             gCodeNF.setGroupingUsed(false);
             gCodeNF.setMinimumIntegerDigits(0);
-            gCodeNF.setMinimumFractionDigits(GCodeExporter.gcode_decimals);
-            gCodeNF.setMaximumFractionDigits(GCodeExporter.gcode_decimals);
+            gCodeNF.setMinimumFractionDigits(gcode_decimals);
+            gCodeNF.setMaximumFractionDigits(gcode_decimals);
         }
-        return gCodeNF.format(f);
+        String s = gCodeNF.format(f);
+        s = s.replace('.', gcode_decimal_seperator);
+        s = s.replace(',', gcode_decimal_seperator);
+
+        return s;
     }
 
     public static String capitalize(String name) {

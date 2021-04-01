@@ -10,7 +10,6 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumTaskStage;
-import drawingbot.javafx.GenericFactory;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -221,7 +220,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public AffineTransform createGCodeTransform(){
         AffineTransform transform = new AffineTransform();
-        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
+        transform.scale(resolution.getPrintScale() * DrawingBotV3.INSTANCE.gcodeXDirection.get().asInteger(), resolution.getPrintScale() * DrawingBotV3.INSTANCE.gcodeYDirection.get().asInteger());
         transform.translate(getGCodeXOffset(), getGCodeYOffset());
         return transform;
     }
