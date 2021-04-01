@@ -23,7 +23,7 @@ DrawingBotV3 allows you to automate the CMYK splitting process and will automati
 How to use
 -------------
 
-1) To activate CMYK go to **Path Finding Controls** and chane **Colour Separation** to **CMYK**.
+1) To activate CMYK go to the **Path Finding Controls** panel and change **Colour Separation** to **CMYK** or select the **CMYK Separation** Special Drawing Set.
 2) A dialog will appear asking you if you wish to apply the recommended settings, hit **Apply**. This will activate a Special Drawing Set which has all of the CMYK colours already configured & also activate the *Darken* blend mode.
 3) You then will need to press **Start Plotting** again to generate the final plot.
 
