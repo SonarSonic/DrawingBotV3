@@ -88,9 +88,9 @@ public class SVGExporter {
                 graphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
                 graphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
-                Graphics2DExporter.preDraw(graphics, width, height, exportTask, plottingTask);
-                Graphics2DExporter.drawGeometryWithDrawingPen(graphics, drawingPen, geometries.get(renderOrder[p]));
-                Graphics2DExporter.postDraw(graphics, width, height, exportTask, plottingTask);
+                Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
+                Graphics2DExporter.drawGeometryWithDrawingPen(exportTask, graphics, drawingPen, geometries.get(renderOrder[p]));
+                Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
 
                 // Transfer the graphics document into the host document
                 if(group.hasChildNodes()){
@@ -103,8 +103,6 @@ public class SVGExporter {
 
             // Finally, stream out SVG to the standard output using UTF-8 encoding.
             exportTask.updateMessage("Encoding SVG");
-            exportTask.updateProgress(-1, 1);
-
 
             SVGGraphics2D generator = new SVGGraphics2D(document);
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(saveLocation.toString()), SVGGraphics2D.DEFAULT_XML_ENCODING);

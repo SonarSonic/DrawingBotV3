@@ -182,7 +182,7 @@
                                                 <TableColumn fx:id="penWeightColumn" minWidth="0.0" prefWidth="66.0" sortable="false" text="Weight" />
                                                 <TableColumn fx:id="penStrokeColumn" minWidth="8.0" prefWidth="53.0" sortable="false" text="Stroke" />
                                                 <TableColumn fx:id="penPercentageColumn" editable="false" minWidth="0.0" prefWidth="46.0" sortable="false" text="\%" />
-                                                <TableColumn fx:id="penLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Lines" />
+                                                <TableColumn fx:id="penLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Shape Count" />
                                              </columns>
                                           </TableView>
                                           <HBox layoutX="11.0" layoutY="309.0" spacing="3.0">

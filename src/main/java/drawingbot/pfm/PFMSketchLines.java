@@ -26,7 +26,7 @@ public class PFMSketchLines extends AbstractSketchPFM {
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
         float delta_angle;
-        float start_angle = randomSeedF(startAngleMin, startAngleMax);
+        float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
 
         if (!enableShading || shadingThreshold > lumProgress) {
             delta_angle = drawingDeltaAngle / (float)tests;

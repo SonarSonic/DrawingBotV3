@@ -31,9 +31,9 @@ public class PDFExporter {
             PdfContentByte content = writer.getDirectContent();
             Graphics2D graphics = new PdfGraphics2D(content, width, height);
 
-            Graphics2DExporter.preDraw(graphics, width, height, exportTask, plottingTask);
-            Graphics2DExporter.drawGeometryWithDrawingSet(graphics, plottingTask.getDrawingSet(), geometries);
-            Graphics2DExporter.postDraw(graphics, width, height, exportTask, plottingTask);
+            Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
+            Graphics2DExporter.drawGeometryWithDrawingSet(exportTask, graphics, plottingTask.getDrawingSet(), geometries);
+            Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
             document.close(); //dispose is already called within drawGraphics
 
         } catch (DocumentException | FileNotFoundException e) {

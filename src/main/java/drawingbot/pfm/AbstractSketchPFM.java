@@ -7,11 +7,11 @@ import drawingbot.plotting.PlottingTask;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
-    public int squiggle_length;         // How often to lift the pen
-    public int adjustbrightness;        // How fast it moves from dark to light, over-draw
+    public int squiggle_length;
+    public int adjustbrightness;
     public float lineDensity;
 
-    public int tests;                   // Reasonable values:  13 for development, 720 for final
+    public int tests;
     public int minLineLength;
     public int maxLineLength;
     public int maxLines;
@@ -25,7 +25,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     protected int x = -1;
     protected int y = -1;
 
-    public final float desiredLuminance = 250;
+    public final float desiredLuminance = 253.5F;
 
     //latest progress
     protected double lineProgress = 0;

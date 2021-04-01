@@ -11,9 +11,10 @@ public class Utils {
 
     public static Random random = new Random();
     public static NumberFormat defaultNF = NumberFormat.getNumberInstance();
+    public static String URL_READ_THE_DOCS = "https://drawingbotv3.readthedocs.io";
+    public static String URL_READ_THE_DOCS_HOME = URL_READ_THE_DOCS + "/en/latest/about.html";
+    public static String URL_READ_THE_DOCS_PFMS = URL_READ_THE_DOCS + "/en/latest/pfms.html";
     public static String URL_GITHUB_REPO = "https://github.com/SonarSonic/DrawingBotV3";
-    public static String URL_GITHUB_WIKI = URL_GITHUB_REPO + "/wiki";
-    public static String URL_GITHUB_PFM_DOCS = URL_GITHUB_WIKI + "/Advanced-PFM-Settings";
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
     public static NumberFormat gCodeNF;

@@ -182,10 +182,13 @@ public class FXController {
         }
 
         //help
-        MenuItem aboutPage = new MenuItem("About DrawingBotV3");
-        aboutPage.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_REPO));
-        menuHelp.getItems().add(aboutPage);
+        MenuItem documentation = new MenuItem("View Documentation");
+        documentation.setOnAction(e -> FXHelper.openURL(Utils.URL_READ_THE_DOCS_HOME));
+        menuHelp.getItems().add(documentation);
 
+        MenuItem sourceCode = new MenuItem("View Source Code");
+        sourceCode.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_REPO));
+        menuHelp.getItems().add(sourceCode);
 
         MenuItem configFolder = new MenuItem("Open Configs Folder");
         configFolder.setOnAction(e -> FXHelper.openFolder(new File(FileUtils.getUserDataDirectory())));
@@ -385,6 +388,7 @@ public class FXController {
 
         DrawingBotV3.INSTANCE.targetPenWidth.bind(Bindings.createFloatBinding(() -> textFieldPenWidth.textProperty().get().isEmpty() ? 0.5F : Float.parseFloat(textFieldPenWidth.textProperty().get()), textFieldPenWidth.textProperty()));
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.5F));
+        textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
 
 
         ///generic listeners
@@ -571,7 +575,7 @@ public class FXController {
         });
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
-        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_PFM_DOCS));
+        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(Utils.URL_READ_THE_DOCS_PFMS));
 
 
         DrawingBotV3.INSTANCE.colourSplitter.bindBidirectional(choiceBoxColourSeperation.valueProperty());

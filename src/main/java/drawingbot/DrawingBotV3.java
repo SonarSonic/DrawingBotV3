@@ -12,10 +12,7 @@ import java.util.logging.Logger;
 
 import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.ObservableDrawingSet;
-import drawingbot.files.BatchProcessingTask;
-import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.ExportFormats;
-import drawingbot.files.ExportTask;
+import drawingbot.files.*;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.FilteredBufferedImage;
@@ -615,6 +612,8 @@ public class DrawingBotV3 {
         openFile = file;
         loadingImage = new BufferedImageLoader.Filtered(file.getAbsolutePath(), internal);
         imageLoadingService.submit(loadingImage);
+
+        FXApplication.primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
     }
 
     public void setActivePlottingTask(PlottingTask task){
