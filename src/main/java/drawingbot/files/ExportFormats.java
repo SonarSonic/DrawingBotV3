@@ -14,8 +14,8 @@ public enum ExportFormats {
     EXPORT_INKSCAPE_SVG("Export Inkscape SVG", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG),
     EXPORT_IMAGE("Export Image File", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA),
     EXPORT_PDF("Export PDF", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF),
-    EXPORT_GCODE("Export GCode File", true, GCodeExporter::exportGCode, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE),
-    EXPORT_GCODE_TEST("Export GCode Test Drawing", true, GCodeExporter::exportGCodeTest, FileUtils.FILTER_TXT, FileUtils.FILTER_GCODE);
+    EXPORT_GCODE("Export GCode File", true, GCodeExporter::exportGCode, FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT),
+    EXPORT_GCODE_TEST("Export GCode Test Drawing", true, GCodeExporter::exportGCodeTest, FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT);
 
     public String displayName;
     public boolean isVector;

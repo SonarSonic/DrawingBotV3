@@ -60,12 +60,20 @@ public class FXHelper {
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(format.filters);
+            d.setSelectedExtensionFilter(format.filters[0]);
             d.setTitle(format.getDialogTitle());
             d.setInitialDirectory(FileUtils.getExportDirectory());
             d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getName()) + "_plotted");
             File file = d.showSaveDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, d.getSelectedExtensionFilter().getExtensions().get(0).substring(1), file, seperatePens);
+                String extension = d.getSelectedExtensionFilter().getExtensions().get(0).substring(1);
+                String fileName = file.toString();
+
+                if(!FileUtils.hasExtension(fileName)){
+                    //linux doesn't add file extensions so we add the default selected one
+                    fileName += extension;
+                }
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(fileName), seperatePens);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });

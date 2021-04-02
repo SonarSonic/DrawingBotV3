@@ -33,7 +33,7 @@ public class ExportTask extends Task<Boolean> {
         this.format = format;
         this.plottingTask = plottingTask;
         this.pointFilter = pointFilter;
-        this.extension = extension; //remove asterisk
+        this.extension = extension;
         this.saveLocation = saveLocation;
         this.seperatePens = seperatePens;
         this.overwrite = overwrite;
