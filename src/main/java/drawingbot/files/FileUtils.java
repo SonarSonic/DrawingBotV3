@@ -34,6 +34,11 @@ public class FileUtils {
         return string;
     }
 
+    public static boolean hasExtension(String string){
+        int begin = string.lastIndexOf(".");
+        return begin != -1;
+    }
+
     private static File importDirectory = null;
 
     public static File getImportDirectory(){

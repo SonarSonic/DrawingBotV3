@@ -494,7 +494,7 @@ public class DrawingBotV3 {
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
-            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get() + exportTask.extension + " - " + exportTask.messageProperty().get());
+            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get() + " - " + exportTask.messageProperty().get());
         }else{
             if(localProgress != null){
                 controller.progressBarGeneral.setProgress(localProgress);
