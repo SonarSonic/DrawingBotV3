@@ -35,9 +35,9 @@ Each drawing pen has the following settings.
 
 **Colour**: the rgba colour of the pen, which can be customised
 
-**Weight**: dictates how many shapes this specified pen should draw, a higher weight will increase the shapes of geometries the pen draws but decrease the amount other pens will draw, pens with equal weight will draw the same number of lines.
+**Weight**: dictates how many shapes this specified pen should draw, a higher weight will increase the number of geometries the pen draws but decrease the amount other pens will draw, pens with equal weight will draw the same number of shapes.
 
-**Stroke**: the pen's width *subject to change* currently this is relative to pixel size rather than actual pen size, unless "Rescale to Pen Width" has been selected.
+**Stroke**: the pen's width *(subject to change)* currently this is relative to pixel size rather than actual pen size, unless "Rescale to Pen Width" has been enabled.
 
 **%**: not user editable, the percentage of shapes which are being drawn by this pen
 
@@ -45,7 +45,7 @@ Each drawing pen has the following settings.
 
 Default Drawing Pens
 ------------------------------------------
-Currently the following manufacturers pen's are included as default, the future more will be added.
+Currently the following manufacturers pen's are included as default. in the future more will be added.
 
 -   Copic Original Markers
 -   Copic Sketch Markers

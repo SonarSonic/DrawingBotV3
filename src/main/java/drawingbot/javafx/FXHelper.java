@@ -1,7 +1,9 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportFormats;
+import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.IJsonData;
@@ -29,6 +31,8 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -73,7 +77,7 @@ public class FXHelper {
                     //linux doesn't add file extensions so we add the default selected one
                     fileName += extension;
                 }
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(fileName), seperatePens);
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(fileName), seperatePens, false);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });

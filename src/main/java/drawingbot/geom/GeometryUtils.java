@@ -42,8 +42,8 @@ public class GeometryUtils {
 
     public static GeometryFactory factory = new GeometryFactory();
 
-    public static Map<Integer, List<IGeometry>> getGeometriesForExportTask(ExportTask task, IGeometryFilter filter){
-        if(!task.format.isVector || task.plottingTask.pfmFactory.bypassOptimisation){
+    public static Map<Integer, List<IGeometry>> getGeometriesForExportTask(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
+        if(!task.format.isVector || task.plottingTask.pfmFactory.bypassOptimisation || forceBypassOptimisation){
             return getBasicGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);
         }
         return getOptimisedGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);

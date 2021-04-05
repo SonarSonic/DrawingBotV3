@@ -4,11 +4,11 @@
 Presets
 ======================
 
-DrawingBotV3 supports the saving / exporting of presets as .JSONS which can be saved for future use or shared with other users. Presets will be saved automatically and be available when you restart the software. The following presets currently exist...
+DrawingBotV3 supports the saving / exporting of presets as .JSONS which can be saved for future use or shared with other users. Presets will be saved automatically and be available when you restart the software. The following preset types currently exist...
 
 -   :ref:`drawing-area`
 -   :ref:`pre-processing`
--   :ref:`Path Finding Module <pfms>` Settings
+-   :ref:`Path Finding Module  Settings <pfms>`
 -   :ref:`gcode-settings`
 -   :ref:`drawing_pen`
 -   :ref:`drawing_set`

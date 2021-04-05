@@ -4,7 +4,7 @@
 Pre-Processing
 ======================
 
-DrawingBotV3 offers some basic Image Filters to alter the source image before it is plotted by a :ref:`Path Finding Module <pfms>`. The image filters provided are not a replacement for using other more advanced image processing applications. They are instead intended to help with basic corrections, as minor changes can change the final result dramatically and having them in the same software can greatly speed up this workflow. Filter configuration can also be saved as :ref:`presets <presets>`
+DrawingBotV3 offers some basic Image Filters to alter the source image before it is plotted by a :ref:`Path Finding Module <pfms>`. The image filters provided are not a replacement for using other more advanced image processing applications. They are instead intended to help with basic corrections, as minor changes can change the final result dramatically and having them in the same software can greatly speed up this workflow. Image filter configurations can also be saved as :ref:`presets <presets>`
 
 Image Filters can be added at the bottom of the pre-processing panel or from the toolbar.
 

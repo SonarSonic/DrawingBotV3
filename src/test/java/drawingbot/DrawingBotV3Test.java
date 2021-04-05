@@ -68,8 +68,8 @@ public class DrawingBotV3Test {
                 if(!newValue){ //when the value changes we add export tasks for every type
                     for(ExportFormats format : ExportFormats.values()){
                         String extension = format.filters[0].getExtensions().get(0).substring(1);
-                        DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), true);
-                        DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
+                        DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), true, false);
+                        DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false, false);
                     }
                     DrawingBotV3.INSTANCE.taskService.submit(latch::countDown); //we add a final task to the exporter service, when this is reached we know the other export tasks are down also.
                 }

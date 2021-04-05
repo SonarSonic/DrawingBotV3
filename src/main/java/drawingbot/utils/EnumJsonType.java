@@ -8,7 +8,8 @@ public enum EnumJsonType {
     DRAWING_SET("drawing_set"),
     DRAWING_PEN("drawing_pen"),
     DRAWING_AREA("drawing_area"),
-    GCODE_SETTINGS("gcode_settings");
+    GCODE_SETTINGS("gcode_settings"),
+    VPYPE_SETTINGS("vpype_settings");
 
     public final String id;
     EnumJsonType(String id){

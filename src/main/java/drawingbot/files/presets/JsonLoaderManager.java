@@ -7,6 +7,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.presets.types.*;
+import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 
@@ -24,7 +25,8 @@ public class JsonLoaderManager {
     public static final PresetDrawingAreaLoader DRAWING_AREA = new PresetDrawingAreaLoader();
     public static final ConfigJsonLoader CONFIGS = new ConfigJsonLoader();
     public static final PresetGCodeSettingsLoader GCODE_SETTINGS = new PresetGCodeSettingsLoader();
-    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS};
+    public static final PresetVpypeSettingsLoader VPYPE_SETTINGS = new PresetVpypeSettingsLoader();
+    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS, VPYPE_SETTINGS};
 
     /** used to prevent certain values from being serialized, transient achives the same thing*/
     public static final ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
@@ -73,6 +75,7 @@ public class JsonLoaderManager {
         loadDefaultPresetContainerJSON("square_pfm_defaults.json");
         loadDefaultPresetContainerJSON("drawing_area_defaults.json");
         loadDefaultPresetContainerJSON("gcode_settings_defaults.json");
+        loadDefaultPresetContainerJSON("vpype_settings_defaults.json");
 
         //load user presets
         for(AbstractJsonLoader<?> manager : LOADERS){
