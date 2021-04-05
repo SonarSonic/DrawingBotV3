@@ -6,10 +6,12 @@ import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.utils.Units;
 
-public class ConfigApplicationSettings implements IConfigData{
+public class ConfigApplicationSettings implements IConfigData {
 
     public boolean isDeveloperMode;
     public int maxTextureSize = -1;
+
+    ///path optimisation
 
     public boolean pathOptimisationEnabled = true;
 
@@ -29,7 +31,15 @@ public class ConfigApplicationSettings implements IConfigData{
     public float lineSortingTolerance = 1F;
     public Units lineSortingUnits = Units.MILLIMETRES;
 
+    ///svg settings
+
     public boolean svgLayerRenaming = false;
+
+    ////vpype settings
+
+    public String pathToVPypeExecutable = "";
+    public String pathToVPypeWorkingDir = "";
+    public String vPypePresetName = "";
 
     @Override
     public EnumJsonType getJsonType() {
@@ -38,22 +48,11 @@ public class ConfigApplicationSettings implements IConfigData{
 
     @Override
     public GenericPreset<IConfigData> updatePreset(GenericPreset<IConfigData> preset) {
-        /*
-        if(preset.data instanceof ConfigApplicationSettings){
-            //TODO?
-        }
-         */
         return preset;
     }
 
     @Override
-    public void applyPreset(GenericPreset<IConfigData> preset) {
-        /*
-        if(preset.data instanceof ConfigApplicationSettings){
-            //TODO?
-        }
-         */
-    }
+    public void applyPreset(GenericPreset<IConfigData> preset) {}
 
     public void markDirty(){
         JsonLoaderManager.CONFIGS.queueJsonUpdate();

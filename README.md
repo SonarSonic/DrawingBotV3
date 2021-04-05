@@ -20,7 +20,7 @@ It is available for Windows, Mac and Linux.
 -  Automatic Path Optimisation for Faster Plots - Line Simplifying, Merging, Filtering, Sorting
 -  Pen Settings: configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.
 -  60+ Image Filters for altering the input
--  Automated CMYK seperation
+-  Automated CMYK separation
 -  User configurable Drawing Area, with Padding / Scaling Modes 
 -  Special pens for Original Colour/Grayscale Sampling
 -  Presets: can be saved/imported/exported for sharing different styles with other users

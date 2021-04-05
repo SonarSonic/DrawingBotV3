@@ -8,9 +8,9 @@ import drawingbot.files.*;
 import drawingbot.drawing.*;
 import drawingbot.files.presets.*;
 import drawingbot.files.presets.types.*;
-import drawingbot.api.IPathFindingModule;
 import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -142,6 +142,12 @@ public class FXController {
             menuExportPerPen.getItems().add(item);
         }
         menuFile.getItems().add(menuExportPerPen);
+
+        MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
+        menuExportToVPype.setOnAction(e -> VpypeHelper.exportToVpype());
+        menuFile.getItems().add(menuExportToVPype);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
 
         MenuItem menuExportSettings = new MenuItem("Export Settings");
         menuExportSettings.setOnAction(e -> exportSettingsStage.show());

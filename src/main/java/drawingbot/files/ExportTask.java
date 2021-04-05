@@ -24,12 +24,13 @@ public class ExportTask extends Task<Boolean> {
     public File saveLocation;
     public boolean seperatePens;
     public boolean overwrite;
+    public boolean forceBypassOptimisation;
 
     private String error = null;
     public int totalGeometries;
     public int renderedGeometries;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite){
+    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation){
         this.format = format;
         this.plottingTask = plottingTask;
         this.pointFilter = pointFilter;
@@ -37,6 +38,7 @@ public class ExportTask extends Task<Boolean> {
         this.saveLocation = saveLocation;
         this.seperatePens = seperatePens;
         this.overwrite = overwrite;
+        this.forceBypassOptimisation = forceBypassOptimisation;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class ExportTask extends Task<Boolean> {
             if(overwrite || Files.notExists(saveLocation.toPath())){
 
                 updateMessage("Optimising Paths");
-                Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, pointFilter);
+                Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, pointFilter, forceBypassOptimisation);
 
                 totalGeometries = GeometryUtils.getTotalGeometries(geometries);
                 renderedGeometries = 0;
@@ -73,7 +75,7 @@ public class ExportTask extends Task<Boolean> {
                 if(drawingPen.isEnabled() || (overwrite || Files.notExists(fileName.toPath()))){
                     updateMessage("Optimising Paths");
 
-                    Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen);
+                    Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen, forceBypassOptimisation);
 
                     totalGeometries = GeometryUtils.getTotalGeometries(geometries);
                     renderedGeometries = 0;

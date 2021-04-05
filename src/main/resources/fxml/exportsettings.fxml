@@ -157,7 +157,6 @@
                               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                            </padding>
                            <children>
-                              <Separator prefWidth="200.0" />
                               <Label text="Inkscape SVG">
                                  <font>
                                     <Font name="System Bold" size="12.0" />
@@ -168,11 +167,67 @@
                                     <CheckBox fx:id="checkBoxEnableSVGLayerNaming" contentDisplay="RIGHT" mnemonicParsing="false" />
                                  </graphic>
                               </Label>
+                              <Separator prefWidth="200.0" />
                            </children>
                         </VBox>
                      </children></AnchorPane>
                 </content>
             </Tab>
+           <Tab text="vpype Settings">
+              <content>
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
+                    <children>
+                       <VBox spacing="10.0">
+                          <padding>
+                             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                          </padding>
+                           <children>
+                              <HBox>
+                                 <children>
+                                    <ComboBox fx:id="comboBoxVPypePreset" prefHeight="25.0" prefWidth="314.0" promptText="Default" />
+                                    <MenuButton fx:id="menuButtonVPypePresets" mnemonicParsing="false" text="Presets" />
+                                 </children>
+                              </HBox>
+                              <TextArea fx:id="textAreaVPypeCommand" minHeight="124.0" prefHeight="112.0" prefWidth="384.0" wrapText="true" />
+                              <Label contentDisplay="RIGHT" text="Bypass &quot;Path Optimisation&quot;">
+                                 <graphic>
+                                    <CheckBox fx:id="checkBoxBypassPathOptimisation" mnemonicParsing="false" />
+                                 </graphic>
+                              </Label>
+                              <Separator prefWidth="200.0" />
+                              <Label contentDisplay="RIGHT" text="Path to vpype Executable">
+                                 <padding>
+                                    <Insets bottom="-10.0" />
+                                 </padding>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <HBox spacing="4.0">
+                                 <children>
+                                    <TextField fx:id="textBoxVPypeExecutablePath" prefHeight="25.0" prefWidth="320.0" />
+                                    <Button fx:id="buttonVPypeExecutablePath" mnemonicParsing="false" text="Choose" />
+                                 </children>
+                              </HBox>
+                              <Label contentDisplay="RIGHT" text="Working Directory">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                                 <padding>
+                                    <Insets bottom="-10.0" />
+                                 </padding>
+                              </Label>
+                              <HBox layoutX="18.0" layoutY="273.0" spacing="4.0">
+                                 <children>
+                                    <TextField fx:id="textBoxVPypWorkingDirPath" prefHeight="25.0" prefWidth="320.0" />
+                                    <Button fx:id="buttonVPypeWorkingDirPath" mnemonicParsing="false" text="Choose" />
+                                 </children>
+                              </HBox>
+                           </children>
+                       </VBox>
+                    </children></AnchorPane>
+              </content>
+           </Tab>
           <Tab text="GCode Settings">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

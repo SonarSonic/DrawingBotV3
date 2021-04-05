@@ -19,9 +19,8 @@ import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.integrations.vpype.VpypeTask;
 import drawingbot.javafx.FXController;
-import drawingbot.api.IPathFindingModule;
-import drawingbot.javafx.GenericFactory;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.utils.*;
@@ -61,6 +60,12 @@ public class DrawingBotV3 {
     public SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
     public SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
 
+    //VPYPE SETTINGS
+    public SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
+    public SimpleStringProperty vPypeWorkingDirectory = new SimpleStringProperty();
+    public SimpleStringProperty vPypeCommand = new SimpleStringProperty();
+    public SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
+
     //GCODE SETTINGS
     public SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
     public SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
@@ -70,7 +75,6 @@ public class DrawingBotV3 {
     public SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
     public SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
     public SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
-
 
     //PRE-PROCESSING\\
     public ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
@@ -113,6 +117,7 @@ public class DrawingBotV3 {
     public PlottingTask activeTask = null;
     public PlottingTask renderedTask = null; //for tasks which generate sub tasks e.g. colour splitter, batch processing
     public ExportTask exportTask = null;
+    public VpypeTask vPypeTask = null;
     public BatchProcessingTask batchProcessingTask = null;
 
     public BufferedImageLoader.Filtered loadingImage = null;
@@ -485,6 +490,9 @@ public class DrawingBotV3 {
     }
 
     public void updateUI(){
+
+        //TODO MAKE THIS AUTOMATED PER TASK - KEEP TRACK OF ALL OF THEM MULTIPLE TASKS ON SAME PROGRESS BAR?????
+
         String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
         if(getActiveTask() != null && getActiveTask().isRunning()){
             controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().progressProperty().get());
@@ -494,7 +502,10 @@ public class DrawingBotV3 {
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }else if(exportTask != null){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
-            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get() + " - " + exportTask.messageProperty().get());
+            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get());
+        }else if(vPypeTask != null){
+            controller.progressBarGeneral.setProgress(vPypeTask.progressProperty().get());
+            controller.progressBarLabel.setText(prefix + vPypeTask.titleProperty().get());
         }else{
             if(localProgress != null){
                 controller.progressBarGeneral.setProgress(localProgress);
@@ -643,8 +654,10 @@ public class DrawingBotV3 {
 
     //// EXPORT TASKS
 
-    public void createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens){
-        taskService.submit(new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true));
+    public ExportTask createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
+        ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation);
+        taskService.submit(task);
+        return task;
     }
 
     public void setActiveExportTask(ExportTask task){
