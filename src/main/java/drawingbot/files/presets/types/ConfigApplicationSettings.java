@@ -12,7 +12,6 @@ public class ConfigApplicationSettings implements IConfigData {
     public int maxTextureSize = -1;
 
     ///path optimisation
-
     public boolean pathOptimisationEnabled = true;
 
     public boolean lineSimplifyEnabled = true;
@@ -32,13 +31,10 @@ public class ConfigApplicationSettings implements IConfigData {
     public Units lineSortingUnits = Units.MILLIMETRES;
 
     ///svg settings
-
     public boolean svgLayerRenaming = false;
 
     ////vpype settings
-
     public String pathToVPypeExecutable = "";
-    public String pathToVPypeWorkingDir = "";
     public String vPypePresetName = "";
 
     @Override

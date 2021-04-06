@@ -62,7 +62,6 @@ public class DrawingBotV3 {
 
     //VPYPE SETTINGS
     public SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
-    public SimpleStringProperty vPypeWorkingDirectory = new SimpleStringProperty();
     public SimpleStringProperty vPypeCommand = new SimpleStringProperty();
     public SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
 

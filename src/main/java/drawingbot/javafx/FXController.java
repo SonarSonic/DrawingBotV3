@@ -10,6 +10,7 @@ import drawingbot.files.presets.*;
 import drawingbot.files.presets.types.*;
 import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.pfm.PFMFactory;
@@ -75,7 +76,7 @@ public class FXController {
         viewportScrollPane.setHvalue(0.5);
         viewportScrollPane.setVvalue(0.5);
 
-        initSeperateStages();
+        initSeparateStages();
 
         DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> {
             DrawingBotV3.INSTANCE.onImageFiltersChanged();
@@ -86,23 +87,15 @@ public class FXController {
     public Stage exportSettingsStage;
     public FXExportController exportController;
 
-    public void initSeperateStages() {
-        try {
-            exportSettingsStage = new Stage();
-            FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource("/fxml/exportsettings.fxml"));
-            exportUILoader.setController(exportController = new FXExportController());
 
-            Scene scene = new Scene(exportUILoader.load());
-            exportSettingsStage.initModality(Modality.APPLICATION_MODAL);
-            exportSettingsStage.setScene(scene);
-            exportSettingsStage.hide();
-            exportSettingsStage.setTitle("Export Settings");
-            exportSettingsStage.setResizable(false);
-            FXApplication.applyDBIcon(exportSettingsStage);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Stage vpypeSettingsStage;
+    public FXVPypeController vpypeController;
+
+    public void initSeparateStages() {
+        FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings");
+        FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings");
     }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////GLOBAL CONTAINERS
@@ -144,7 +137,11 @@ public class FXController {
         menuFile.getItems().add(menuExportPerPen);
 
         MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
-        menuExportToVPype.setOnAction(e -> VpypeHelper.exportToVpype());
+        menuExportToVPype.setOnAction(e -> {
+            if(DrawingBotV3.INSTANCE.getActiveTask() != null){
+                vpypeSettingsStage.show();
+            }
+        });
         menuFile.getItems().add(menuExportToVPype);
 
         menuFile.getItems().add(new SeparatorMenuItem());

@@ -22,7 +22,6 @@ public class FXExportController {
     public void initialize(){
         initPathOptimisationPane();
         initSVGSettingsPane();
-        initVPypeSettingsPane();
         initGCodeSettingsPane();
 
         DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnHidden(e -> ConfigFileHandler.getApplicationSettings().markDirty());
@@ -119,68 +118,6 @@ public class FXExportController {
     public void initSVGSettingsPane(){
         checkBoxEnableSVGLayerNaming.setSelected(ConfigFileHandler.getApplicationSettings().svgLayerRenaming);
         checkBoxEnableSVGLayerNaming.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().svgLayerRenaming = newValue);
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////VPYPE OPTIMISATION
-
-    public ComboBox<GenericPreset<PresetVpypeSettings>> comboBoxVPypePreset = null;
-    public MenuButton menuButtonVPypePresets = null;
-    public TextArea textAreaVPypeCommand = null;
-    public CheckBox checkBoxBypassPathOptimisation = null;
-    public TextField textBoxVPypeExecutablePath = null;
-    public Button buttonVPypeExecutablePath = null;
-
-    public TextField textBoxVPypWorkingDirPath = null;
-    public Button buttonVPypeWorkingDirPath = null;
-
-
-    public void initVPypeSettingsPane(){
-
-        comboBoxVPypePreset.setItems(JsonLoaderManager.VPYPE_SETTINGS.presets);
-        comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                JsonLoaderManager.VPYPE_SETTINGS.applyPreset(newValue);
-                if(!ConfigFileHandler.getApplicationSettings().vPypePresetName.equals(newValue.presetName)){
-                    ConfigFileHandler.getApplicationSettings().vPypePresetName = newValue.presetName;
-                    ConfigFileHandler.getApplicationSettings().markDirty();
-                }
-            }
-        });
-        comboBoxVPypePreset.setValue(PresetVpypeSettingsLoader.getPresetOrDefault(ConfigFileHandler.getApplicationSettings().vPypePresetName));
-
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.VPYPE_SETTINGS, menuButtonVPypePresets, comboBoxVPypePreset::getValue, (preset) -> {
-            comboBoxVPypePreset.setValue(preset);
-
-            ///force update rendering
-            comboBoxVPypePreset.setItems(JsonLoaderManager.VPYPE_SETTINGS.presets);
-            comboBoxVPypePreset.setButtonCell(new ComboBoxListCell<>());
-        });
-
-        textAreaVPypeCommand.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeCommand);
-
-        checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeBypassOptimisation);
-
-        textBoxVPypeExecutablePath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeExecutable);
-        textBoxVPypeExecutablePath.setText(ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable);
-        textBoxVPypeExecutablePath.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable = textBoxVPypeExecutablePath.getText();
-            ConfigFileHandler.getApplicationSettings().markDirty();
-        });
-
-
-        buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable());
-
-        textBoxVPypWorkingDirPath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeWorkingDirectory);
-        textBoxVPypWorkingDirPath.setText(ConfigFileHandler.getApplicationSettings().pathToVPypeWorkingDir);
-        textBoxVPypWorkingDirPath.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().pathToVPypeWorkingDir = textBoxVPypWorkingDirPath.getText();
-            ConfigFileHandler.getApplicationSettings().markDirty();
-        });
-
-
-        buttonVPypeWorkingDirPath.setOnAction(e -> VpypeHelper.choosePathToWorkingDirectory());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
