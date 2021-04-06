@@ -98,11 +98,11 @@ runtime {
             installerType = 'exe'
         }
         else if (currentOs.linux) {
-            installerOptions += ['--linux-package-name', app_name,'--linux-shortcut']
+            installerOptions += ['--linux-package-name', "drawingbotv3",'--linux-shortcut']
             installerName = app_name + "-" + app_version + "-" + app_state + "-linux"
         }
         else if (currentOs.macOsX) {
-            installerOptions += ['--mac-package-name', app_name]
+            installerOptions += ['--mac-package-name', "drawingbotv3"]
             installerName = app_name + "-" + app_version + "-" + app_state + "-mac"
         }
     }
