@@ -1,6 +1,7 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.FileUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 
@@ -32,19 +33,19 @@ public class VpypeTask extends Task<Boolean> {
         } else {
             builder.command("sh", "-c", command);
         }
-        builder.directory(new File(DrawingBotV3.INSTANCE.vPypeWorkingDirectory.get()));
+        builder.directory(new File(FileUtils.getUserHomeDirectory()));
         Process process = builder.start();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         Executors.newSingleThreadExecutor().submit(() -> reader.lines().forEach(System.out::println));
 
-        int exitCode = process.waitFor();
+        //int exitCode = process.waitFor();
 
         updateMessage(VpypeHelper.VPYPE_NAME + " Command - Finished");
         updateProgress(1, 1);
 
         Platform.runLater(() -> DrawingBotV3.INSTANCE.vPypeTask = null);
 
-        return exitCode == 0;
+        return true;
     }
 }

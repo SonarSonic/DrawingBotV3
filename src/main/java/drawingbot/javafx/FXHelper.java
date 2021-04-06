@@ -1,6 +1,7 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
@@ -19,10 +20,14 @@ import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumJsonType;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -142,6 +147,23 @@ public class FXHelper {
             //
         }
         return null;
+    }
+
+    public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle){
+        try {
+            FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource(fmxlPath));
+            exportUILoader.setController(controller);
+
+            Scene scene = new Scene(exportUILoader.load());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.hide();
+            stage.setTitle(stageTitle);
+            stage.setResizable(false);
+            FXApplication.applyDBIcon(stage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> presetManager, MenuButton button, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
