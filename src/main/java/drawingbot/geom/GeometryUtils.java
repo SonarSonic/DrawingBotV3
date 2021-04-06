@@ -290,6 +290,7 @@ public class GeometryUtils {
 
         protected List<LineString> lineMerge(){
             LinearGeometryBuilder builder = new LinearGeometryBuilder(factory);
+            builder.setIgnoreInvalidLines(true);
             LineString first = lineStrings.get(0);
             sorted[0] = true;
             sortedCount++;

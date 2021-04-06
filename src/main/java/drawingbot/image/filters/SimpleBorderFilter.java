@@ -7,6 +7,7 @@ import drawingbot.image.blend.EnumBlendMode;
 import org.imgscalr.Scalr;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**A quick and dirty way of softening the edges of your drawing.
  * Look in the boarders directory for some examples.
@@ -33,7 +34,14 @@ public class SimpleBorderFilter extends AbstractBufferedImageOp{
         if (dest == null ){
             dest = createCompatibleDestImage( src, null );
         }
-        BufferedImage borderImg = BufferedImageLoader.loadImage(prefix + borderNumber + suffix, true);
+
+        BufferedImage borderImg;
+        try {
+            borderImg = BufferedImageLoader.loadImage(prefix + borderNumber + suffix, true);
+        } catch (IOException e) {
+            return dest;
+        }
+
         if(borderImg != null){
             ImageTools.drawImage(src, dest);
 

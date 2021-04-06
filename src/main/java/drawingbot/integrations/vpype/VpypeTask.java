@@ -7,8 +7,14 @@ import javafx.concurrent.Task;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class VpypeTask extends Task<Boolean> {
 
@@ -20,7 +26,6 @@ public class VpypeTask extends Task<Boolean> {
 
     @Override
     protected Boolean call() throws Exception {
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.vPypeTask = this);
 
         updateTitle(VpypeHelper.VPYPE_NAME + " Command - Waiting - " + command.replace(DrawingBotV3.INSTANCE.vPypeExecutable.getValue(), "vpype"));
         updateProgress(-1, 1);
@@ -36,16 +41,12 @@ public class VpypeTask extends Task<Boolean> {
         builder.directory(new File(FileUtils.getUserHomeDirectory()));
         Process process = builder.start();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        Executors.newSingleThreadExecutor().submit(() -> reader.lines().forEach(System.out::println));
-
-        //int exitCode = process.waitFor();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> new BufferedReader(new InputStreamReader(process.getInputStream())).lines().forEach(System.out::println));
+        executor.submit(() -> new BufferedReader(new InputStreamReader(process.getErrorStream())).lines().forEach(System.out::println));
 
         updateMessage(VpypeHelper.VPYPE_NAME + " Command - Finished");
         updateProgress(1, 1);
-
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.vPypeTask = null);
-
         return true;
     }
 }

@@ -24,6 +24,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -33,7 +34,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
-import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -46,6 +47,7 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class FXController {
@@ -71,8 +73,9 @@ public class FXController {
         viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
         viewportStackPane.getChildren().add(DrawingBotV3.INSTANCE.canvas);
 
-        viewportStackPane.prefHeightProperty().bind(DrawingBotV3.INSTANCE.canvas.heightProperty().multiply(4));
-        viewportStackPane.prefWidthProperty().bind(DrawingBotV3.INSTANCE.canvas.widthProperty().multiply(4));
+        viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> DrawingBotV3.INSTANCE.canvas.getWidth() * Math.max(1, DrawingBotV3.INSTANCE.canvas.getScaleX()), DrawingBotV3.INSTANCE.canvas.widthProperty(), DrawingBotV3.INSTANCE.canvas.scaleXProperty()));
+        viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> DrawingBotV3.INSTANCE.canvas.getHeight() * Math.max(1, DrawingBotV3.INSTANCE.canvas.getScaleY()), DrawingBotV3.INSTANCE.canvas.heightProperty(), DrawingBotV3.INSTANCE.canvas.scaleYProperty()));
+
         viewportScrollPane.setHvalue(0.5);
         viewportScrollPane.setVvalue(0.5);
 
@@ -126,6 +129,7 @@ public class FXController {
             item.setOnAction(e -> FXHelper.exportFile(format, false));
             menuExport.getItems().add(item);
         }
+        menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExport);
 
         Menu menuExportPerPen = new Menu("Export per/pen");
@@ -134,6 +138,7 @@ public class FXController {
             item.setOnAction(e -> FXHelper.exportFile(format, true));
             menuExportPerPen.getItems().add(item);
         }
+        menuExportPerPen.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExportPerPen);
 
         MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
@@ -142,6 +147,7 @@ public class FXController {
                 vpypeSettingsStage.show();
             }
         });
+        menuExportToVPype.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExportToVPype);
 
         menuFile.getItems().add(new SeparatorMenuItem());
@@ -268,6 +274,29 @@ public class FXController {
             DrawingBotV3.INSTANCE.scaleMultiplier.set(1.0);
         });
 
+        viewportScrollPane.setOnDragOver(event -> {
+
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.LINK);
+            }
+
+            event.consume();
+        });
+
+        viewportScrollPane.setOnDragDropped(event -> {
+
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if(db.hasContent(DataFormat.FILES)){
+                List<File> files = (List<File>) db.getContent(DataFormat.FILES);
+                DrawingBotV3.INSTANCE.openImage(files.get(0), false);
+                success = true;
+            }
+            event.setDropCompleted(success);
+
+            event.consume();
+        });
+
         labelElapsedTime.setText("0 s");
         labelPlottedShapes.setText("0");
         labelPlottedVertices.setText("0");
@@ -282,10 +311,12 @@ public class FXController {
     public Button buttonResetPlotting = null;
 
     public void initPlottingControls(){
-        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
-        buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting);
+        buttonStartPlotting.setOnAction(param -> {
+            DrawingBotV3.INSTANCE.startPlotting();
+        });
+        buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting);
         buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
-        buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.isPlotting.not());
+        buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting.not());
         buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
     }
 
@@ -300,6 +331,9 @@ public class FXController {
     public void initProgressBar(){
         progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
         progressBarLabel.setText("");
+
+        progressBarGeneral.progressProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.progressProperty);
+        progressBarLabel.textProperty().bind(Bindings.createStringBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.getCurrentTaskStatus(), DrawingBotV3.INSTANCE.taskMonitor.messageProperty, DrawingBotV3.INSTANCE.taskMonitor.titleProperty, DrawingBotV3.INSTANCE.taskMonitor.exceptionProperty));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

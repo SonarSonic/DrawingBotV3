@@ -53,6 +53,7 @@ public class SplitPlottingTask extends PlottingTask{
             case DO_PROCESS:
 
                 //generate split images
+                updateMessage("Processing - Splitting Images");
                 List<BufferedImage> subImages = splitter.splitFunction.apply(img_plotting);
 
                 //generate sub tasks
@@ -66,6 +67,7 @@ public class SplitPlottingTask extends PlottingTask{
                 }
 
                 ///start multi-threading
+                updateMessage("Processing - Start Multi-Threading");
                 ExecutorService service = Executors.newFixedThreadPool(splitter.getSplitCount(), r -> {
                     Thread t = new Thread(r, "DrawingBotV3 - Split Plotting Task");
                     t.setDaemon(true);
@@ -91,28 +93,54 @@ public class SplitPlottingTask extends PlottingTask{
                     index++;
                 }
 
+                updateMessage("Processing - Plotting CMYK");
                 try {
                     latch.await();
                 } catch (InterruptedException e) {
                     return false;
                 } finally {
+                    updateMessage("Processing - Stop Multi-Threading");
                     service.shutdown();
                 }
 
+                updateMessage("Processing - Merge Drawings");
                 for(PlottingTask subTask : subTasks){
                     plottedDrawing.addGeometry(subTask.plottedDrawing);
                 }
 
+                subTasks.clear();
                 plottedDrawing.displayedLineCount.set(-1); //sometimes needed
                 finishStage();
                 return true; ///return to override the defaults
             case POST_PROCESSING:
-                DrawingBotV3.INSTANCE.activeTask = this;
+                DrawingBotV3.INSTANCE.activeTask.set(this);
                 //DrawingBotV3.INSTANCE.reRender(); //with darken enabled the render is already accurate
                 finishStage();
                 return true;
         }
         return super.doTask();
+    }
+
+    public int getCurrentGeometryCount(){
+        if(subTasks == null || subTasks.isEmpty()){
+            return plottedDrawing.getGeometryCount();
+        }
+        int count = 0;
+        for(PlottingTask task : subTasks){
+            count += task.plottedDrawing.getGeometryCount();
+        }
+        return count;
+    }
+
+    public long getCurrentVertexCount(){
+        if(subTasks == null || subTasks.isEmpty()){
+            return plottedDrawing.getVertexCount();
+        }
+        long count = 0;
+        for(PlottingTask task : subTasks){
+            count += task.plottedDrawing.getVertexCount();
+        }
+        return count;
     }
 
     public void updateSubTaskProgress(int currentIndex, double workDone, double max){

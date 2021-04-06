@@ -57,7 +57,7 @@ public class BatchProcessing {
             return;
         }
         DrawingBotV3.INSTANCE.batchProcessingTask = new BatchProcessingTask(inputFolder.get(), outputFolder.get());
-        DrawingBotV3.INSTANCE.taskService.submit(DrawingBotV3.INSTANCE.batchProcessingTask);
+        DrawingBotV3.INSTANCE.taskMonitor.queueTask(DrawingBotV3.INSTANCE.batchProcessingTask);
         isBatchProcessing.setValue(true);
     }
 

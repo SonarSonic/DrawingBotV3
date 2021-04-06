@@ -33,7 +33,7 @@ public class VpypeHelper {
 
                 String command = DrawingBotV3.INSTANCE.vPypeExecutable.getValue() + " read " + Matcher.quoteReplacement(tempSVG.toString()) + " " + userCommand;
                 ExportTask task = DrawingBotV3.INSTANCE.createExportTask(ExportFormats.EXPORT_SVG, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, ".svg", tempSVG, false, DrawingBotV3.INSTANCE.vPypeBypassOptimisation.get());
-                task.setOnSucceeded(event -> DrawingBotV3.INSTANCE.taskService.submit(new VpypeTask(command)));
+                task.setOnSucceeded(event -> DrawingBotV3.INSTANCE.taskMonitor.queueTask(new VpypeTask(command)));
             }
         });
     }
