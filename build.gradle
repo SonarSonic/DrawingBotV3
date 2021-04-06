@@ -91,15 +91,19 @@ runtime {
         appVersion = "$app_version"
         installerOptions += ['--resource-dir', "src/main/resources"]
         installerOptions += ['--vendor', 'Ollie Lansdell']
+        installerOutputDir = file("$buildDir/jpackage-installers")
         if(currentOs.windows) {
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut']
+            //installerName = app_name + "-" + app_version + "-" + app_state bug in wix, doesn't allow this
             installerType = 'exe'
         }
         else if (currentOs.linux) {
-            installerOptions += ['--linux-package-name', 'drawingbot','--linux-shortcut']
+            installerOptions += ['--linux-package-name', app_name,'--linux-shortcut']
+            installerName = app_name + "-" + app_version + "-" + app_state + "-linux"
         }
         else if (currentOs.macOsX) {
-            installerOptions += ['--mac-package-name', 'drawingbot']
+            installerOptions += ['--mac-package-name', app_name]
+            installerName = app_name + "-" + app_version + "-" + app_state + "-mac"
         }
     }
 }
@@ -113,7 +117,7 @@ task jpackageImageZip(type: Zip){
 jpackageImageZip.dependsOn jpackageImage
 
 task renameWindowsLauncher (type: Copy) { //temporary, due to bug in wix toolset
-    from ("$buildDir/jpackage")
+    from ("$buildDir/jpackage-installers")
     into ("$buildDir/release")
     def baseName = "$app_name" + "-" + "$app_version"
     include baseName + ".exe"
