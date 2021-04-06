@@ -45,12 +45,10 @@ public class ExportTask extends Task<Boolean> {
     protected void setException(Throwable t) {
         super.setException(t);
         DrawingBotV3.logger.log(Level.SEVERE, "Export Task Failed", t);
-        Platform.runLater(() -> { DrawingBotV3.INSTANCE.setActiveExportTask(null);});
     }
 
     @Override
     protected Boolean call() throws Exception {
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActiveExportTask(this)); //avoid clashing with render thread
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
         error = null;
         if(!seperatePens){
@@ -91,7 +89,6 @@ public class ExportTask extends Task<Boolean> {
             updateMessage("Finished");
         }
         DrawingBotV3.logger.info("Export Task: Finished " + saveLocation.getPath());
-        Platform.runLater(() -> { DrawingBotV3.INSTANCE.updateUI(); DrawingBotV3.INSTANCE.setActiveExportTask(null);});
         return true;
     }
 

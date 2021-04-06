@@ -32,7 +32,7 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         DrawingBotV3.logger.log(Level.SEVERE, "Buffered Image Loader Failed", t);
     }
 
-    public static FilteredBufferedImage loadFilteredImage(String url, boolean internal) {
+    public static FilteredBufferedImage loadFilteredImage(String url, boolean internal) throws IOException {
         BufferedImage source = loadImage(url, internal);
         if(source != null){
             FilteredBufferedImage filtered = new FilteredBufferedImage(source);
@@ -42,20 +42,17 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         return null;
     }
 
-    public static BufferedImage loadImage(String url, boolean internal) {
+    public static BufferedImage loadImage(String url, boolean internal) throws IOException {
+        InputStream stream;
+        if(internal){
+            stream = DrawingBotV3.class.getClassLoader().getResourceAsStream(url);
+        }else{
+            stream = new FileInputStream(url);
+        }
+
         BufferedImage img = null;
-        try {
-            InputStream stream;
-            if(internal){
-                stream = DrawingBotV3.class.getClassLoader().getResourceAsStream(url);
-            }else{
-                stream = new FileInputStream(url);
-            }
-            if(stream != null){
-                img = ImageIO.read(stream);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(stream != null){
+            img = ImageIO.read(stream);
         }
 
         //convert the image to the default ARGB format.
@@ -81,7 +78,20 @@ public class BufferedImageLoader extends Task<BufferedImage> {
 
         @Override
         protected FilteredBufferedImage call() throws Exception {
-            return loadFilteredImage(url, internal);
+
+            updateProgress(-1, 1);
+            updateTitle("Importing Image: " + url);
+
+            updateMessage("Loading");
+            BufferedImage source = loadImage(url, internal);
+
+            updateMessage("Filtering");
+            FilteredBufferedImage filtered = new FilteredBufferedImage(source);
+            filtered.updateAll();
+
+            updateMessage("Finished");
+            updateProgress(1, 1);
+            return filtered;
         }
     }
 }

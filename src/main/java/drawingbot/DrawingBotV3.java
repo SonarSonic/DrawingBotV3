@@ -19,13 +19,14 @@ import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.filters.ObservableImageFilter;
-import drawingbot.integrations.vpype.VpypeTask;
 import drawingbot.javafx.FXController;
+import drawingbot.javafx.TaskMonitor;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -37,6 +38,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
 import org.jfree.fx.FXGraphics2D;
 
 public class DrawingBotV3 {
@@ -45,50 +47,49 @@ public class DrawingBotV3 {
     public static DrawingBotV3 INSTANCE;
 
     //DRAWING AREA
-    public SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
-    public SimpleObjectProperty<EnumScalingMode> scalingMode = new SimpleObjectProperty<>(EnumScalingMode.CROP_TO_FIT);
-    public SimpleObjectProperty<Units> inputUnits = new SimpleObjectProperty<>(Units.MILLIMETRES);
+    public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
+    public final SimpleObjectProperty<EnumScalingMode> scalingMode = new SimpleObjectProperty<>(EnumScalingMode.CROP_TO_FIT);
+    public final SimpleObjectProperty<Units> inputUnits = new SimpleObjectProperty<>(Units.MILLIMETRES);
 
-    public SimpleFloatProperty drawingAreaWidth = new SimpleFloatProperty(0);
-    public SimpleFloatProperty drawingAreaHeight = new SimpleFloatProperty(0);
-    public SimpleFloatProperty drawingAreaPaddingLeft = new SimpleFloatProperty(0);
-    public SimpleFloatProperty drawingAreaPaddingRight = new SimpleFloatProperty(0);
-    public SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
-    public SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
-    public SimpleStringProperty drawingAreaPaddingGang = new SimpleStringProperty("0");
+    public final SimpleFloatProperty drawingAreaWidth = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaHeight = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaPaddingLeft = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaPaddingRight = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
+    public final SimpleStringProperty drawingAreaPaddingGang = new SimpleStringProperty("0");
 
-    public SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
-    public SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
+    public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
+    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
 
     //VPYPE SETTINGS
-    public SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
-    public SimpleStringProperty vPypeCommand = new SimpleStringProperty();
-    public SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
+    public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
+    public final SimpleStringProperty vPypeCommand = new SimpleStringProperty();
+    public final SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
 
     //GCODE SETTINGS
-    public SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
-    public SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
-    public SimpleObjectProperty<EnumDirection> gcodeXDirection = new SimpleObjectProperty<>();
-    public SimpleObjectProperty<EnumDirection> gcodeYDirection = new SimpleObjectProperty<>();
-    public SimpleStringProperty gcodeStartCode = new SimpleStringProperty();
-    public SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
-    public SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
-    public SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
+    public final SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
+    public final SimpleObjectProperty<EnumDirection> gcodeXDirection = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<EnumDirection> gcodeYDirection = new SimpleObjectProperty<>();
+    public final SimpleStringProperty gcodeStartCode = new SimpleStringProperty();
+    public final SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
+    public final SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
+    public final SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
 
     //PRE-PROCESSING\\
-    public ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
+    public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
 
     //PATH FINDING \\
-    public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty(false);
-    public SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
-    public SimpleObjectProperty<EnumColourSplitter> colourSplitter = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<EnumColourSplitter> colourSplitter = new SimpleObjectProperty<>();
 
     // PEN SETS \\
-    public SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
+    public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
     public ObservableDrawingSet observableDrawingSet = null;
 
     // DISPLAY \\
-    public SimpleObjectProperty<EnumDisplayMode> display_mode = new SimpleObjectProperty<>(EnumDisplayMode.IMAGE);
+    public final SimpleObjectProperty<EnumDisplayMode> display_mode = new SimpleObjectProperty<>(EnumDisplayMode.IMAGE);
 
     //VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
@@ -98,8 +99,8 @@ public class DrawingBotV3 {
     public static int defaultMaxTextureSize = 4096;
     public static double minScale = 0.1;
 
-    public SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
-    public SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
+    public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
+    public final SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
     public double canvasScaling = 1F;
     public boolean imageFiltersDirty = false;
     public boolean drawingAreaDirty = false;
@@ -109,18 +110,18 @@ public class DrawingBotV3 {
     // THREADS \\
     public ExecutorService taskService = initTaskService();
     public ExecutorService backgroundService = initBackgroundService();
-    public ExecutorService imageLoadingService = initImageLoadingService();
     public ExecutorService imageFilteringService = initImageFilteringService();
 
+    public TaskMonitor taskMonitor = new TaskMonitor(taskService);
+
     // TASKS \\
-    public PlottingTask activeTask = null;
+    public final SimpleObjectProperty<FilteredBufferedImage> openImage = new SimpleObjectProperty<>(null);
+    public final SimpleObjectProperty<PlottingTask> activeTask = new SimpleObjectProperty<>(null);
+
     public PlottingTask renderedTask = null; //for tasks which generate sub tasks e.g. colour splitter, batch processing
-    public ExportTask exportTask = null;
-    public VpypeTask vPypeTask = null;
-    public BatchProcessingTask batchProcessingTask = null;
+    public BatchProcessingTask batchProcessingTask = null; //TODO REMOVE ME?
 
     public BufferedImageLoader.Filtered loadingImage = null;
-    public FilteredBufferedImage openImage = null;
     public File openFile = null;
     public boolean isUpdatingFilters = false;
 
@@ -201,7 +202,6 @@ public class DrawingBotV3 {
         preRender();
         render();
         postRender();
-
         updateUI();
 
         long endTime = System.currentTimeMillis();
@@ -237,23 +237,23 @@ public class DrawingBotV3 {
             case IMAGE:
                 ///we load the image, resize the canvas and redraw
                 if(loadingImage != null && loadingImage.isDone()){
-                    openImage = loadingImage.getValue();
+                    openImage.set(loadingImage.getValue());
                     shouldRedraw = true;
                     loadingImage = null;
                     canvasNeedsUpdate = true;
                 }
-                if(openImage != null){
+                if(openImage.get() != null){
                     if(imageFiltersDirty || drawingAreaDirty){
                         if(!isUpdatingFilters){
                             isUpdatingFilters = true;
                             imageFiltersDirty = false;
                             drawingAreaDirty = false;
-                            imageFilteringService.submit(new ImageFilteringTask(openImage));
+                            imageFilteringService.submit(new ImageFilteringTask(openImage.get()));
                         }
                     }
                     //resize the canvas
                     if(canvasNeedsUpdate){
-                        updateCanvasSize(openImage.resolution.getScaledWidth(), openImage.resolution.getScaledHeight());
+                        updateCanvasSize(openImage.get().resolution.getScaledWidth(), openImage.get().resolution.getScaledHeight());
                         updateCanvasScaling();
                         canvasNeedsUpdate = false;
                         shouldRedraw = true; //force redraw
@@ -294,12 +294,12 @@ public class DrawingBotV3 {
         PlottingTask renderedTask = getRenderedTask();
         switch (display_mode.get()){
             case IMAGE:
-                if(openImage != null){
+                if(openImage.get() != null){
                     if(shouldRedraw){
                         clearCanvas();
                         graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
-                        graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage.getFiltered(), null), 0, 0);
+                        graphicsFX.translate(openImage.get().resolution.getScaledOffsetX(), openImage.get().resolution.getScaledOffsetY());
+                        graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage.get().getFiltered(), null), 0, 0);
                     }
                 }else{
                     clearCanvas();
@@ -333,7 +333,7 @@ public class DrawingBotV3 {
                     clearCanvas();
                     if(renderedTask != null && renderedTask.getReferenceImage() != null){
                         graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
+                        graphicsFX.translate(openImage.get().resolution.getScaledOffsetX(), openImage.get().resolution.getScaledOffsetY());
                         graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getReferenceImage(), null), 0, 0);
                     }
                 }
@@ -343,7 +343,7 @@ public class DrawingBotV3 {
                     clearCanvas();
                     if(renderedTask != null && renderedTask.getPlottingImage() != null){
                         graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(openImage.resolution.getScaledOffsetX(), openImage.resolution.getScaledOffsetY());
+                        graphicsFX.translate(openImage.get().resolution.getScaledOffsetX(), openImage.get().resolution.getScaledOffsetY());
                         graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getPlottingImage(), null), 0, 0);
                     }
                 }
@@ -488,18 +488,26 @@ public class DrawingBotV3 {
         }
     }
 
+
     public void updateUI(){
 
         //TODO MAKE THIS AUTOMATED PER TASK - KEEP TRACK OF ALL OF THEM MULTIPLE TASKS ON SAME PROGRESS BAR?????
 
-        String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
+        //String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
         if(getActiveTask() != null && getActiveTask().isRunning()){
-            controller.progressBarGeneral.setProgress(getActiveTask().pfm == null ? 0 : getActiveTask().progressProperty().get());
-            controller.progressBarLabel.setText(prefix + getActiveTask().titleProperty().get() + " - " + getActiveTask().messageProperty().get());
-            controller.labelPlottedShapes.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.getGeometryCount()));
-            controller.labelPlottedVertices.setText(Utils.defaultNF.format(getActiveTask().plottedDrawing.getVertexCount()));
+            int geometryCount = getActiveTask().plottedDrawing.getGeometryCount();
+            long vertexCount = getActiveTask().plottedDrawing.getVertexCount();
+
+            if(getActiveTask() instanceof SplitPlottingTask){
+                geometryCount = ((SplitPlottingTask) getActiveTask()).getCurrentGeometryCount();
+                vertexCount = ((SplitPlottingTask) getActiveTask()).getCurrentVertexCount();
+            }
+            controller.labelPlottedShapes.setText(Utils.defaultNF.format(geometryCount));
+            controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
-        }else if(exportTask != null){
+        }
+        /*
+        else if(exportTask != null){
             controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
             controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get());
         }else if(vPypeTask != null){
@@ -515,13 +523,15 @@ public class DrawingBotV3 {
                 localMessage = null;
             }
         }
+         */
     }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ////// EVENTS
 
-    public void onTaskStageFinished(PlottingTask task, EnumTaskStage stage){
+    public void onPlottingTaskStageFinished(PlottingTask task, EnumTaskStage stage){
         switch (stage){
             case QUEUED:
                 break;
@@ -539,16 +549,11 @@ public class DrawingBotV3 {
             case POST_PROCESSING:
                 break;
             case FINISHING:
-                isPlotting.setValue(false);
                 break;
             case FINISHED:
                 break;
         }
        logger.info("Plotting Task: Finished Stage " + stage.name());
-    }
-
-    public void onTaskCancelled(){
-        isPlotting.setValue(false);
     }
 
     public void onDrawingAreaChanged(){
@@ -569,8 +574,8 @@ public class DrawingBotV3 {
     }
 
     public void updatePenDistribution(){
-        if(activeTask != null && activeTask.isTaskFinished()){
-            activeTask.plottedDrawing.updatePenDistribution();
+        if(activeTask.get() != null && activeTask.get().isTaskFinished()){
+            activeTask.get().plottedDrawing.updatePenDistribution();
             reRender();
         }
     }
@@ -589,27 +594,26 @@ public class DrawingBotV3 {
     }
 
     public void startPlotting(){
-        if(activeTask != null){
-            activeTask.cancel();
+        if(activeTask.get() != null){
+            activeTask.get().cancel();
         }
-        if(openImage != null){
-            taskService.submit(initPlottingTask(pfmFactory.get(), observableDrawingSet, openImage.getSource(), openFile, colourSplitter.get()));
-            isPlotting.setValue(true);
+        if(openImage.get() != null){
+            taskMonitor.queueTask(initPlottingTask(pfmFactory.get(), observableDrawingSet, openImage.get().getSource(), openFile, colourSplitter.get()));
         }
     }
 
     public void stopPlotting(){
-        if(activeTask != null){
-            activeTask.stopElegantly();
-            isPlotting.setValue(false);
+        if(activeTask.get() != null){
+            activeTask.get().stopElegantly();
         }
     }
 
     public void resetPlotting(){
         taskService.shutdownNow();
-        isPlotting.setValue(false);
         setActivePlottingTask(null);
         taskService = initTaskService();
+        taskMonitor.resetMonitor(taskService);
+
         localProgress = 0D;
         localMessage = "";
     }
@@ -617,36 +621,36 @@ public class DrawingBotV3 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void openImage(File file, boolean internal){
-        if(activeTask != null){
-            activeTask.cancel();
+        if(activeTask.get() != null){
+            activeTask.get().cancel();
             setActivePlottingTask(null);
-            openImage = null;
+            openImage.set(null);
             loadingImage = null;
         }
         openFile = file;
         loadingImage = new BufferedImageLoader.Filtered(file.getAbsolutePath(), internal);
-        imageLoadingService.submit(loadingImage);
+        taskMonitor.queueTask(loadingImage);
 
         FXApplication.primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
     }
 
     public void setActivePlottingTask(PlottingTask task){
-        if(activeTask != null){
-            activeTask.reset(); //help GC by removing references to PlottedLines
+        if(activeTask.get() != null){
+            activeTask.get().reset(); //help GC by removing references to PlottedLines
         }
-        activeTask = task;
+        activeTask.set(task);
 
-        if(activeTask == null){
+        if(activeTask.get() == null){
             display_mode.setValue(EnumDisplayMode.IMAGE);
         }
     }
 
     public PlottingTask getActiveTask(){
-        return activeTask;
+        return activeTask.get();
     }
 
     public PlottingTask getRenderedTask(){
-        return renderedTask == null ? activeTask : renderedTask;
+        return renderedTask == null ? activeTask.get() : renderedTask;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -655,12 +659,8 @@ public class DrawingBotV3 {
 
     public ExportTask createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
         ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation);
-        taskService.submit(task);
+        taskMonitor.queueTask(task);
         return task;
-    }
-
-    public void setActiveExportTask(ExportTask task){
-        exportTask = task;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

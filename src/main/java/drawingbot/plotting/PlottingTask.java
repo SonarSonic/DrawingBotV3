@@ -6,6 +6,7 @@ import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.geom.PathBuilder;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.*;
+import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -17,6 +18,7 @@ import org.imgscalr.Scalr;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +62,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public int defaultPen = 0;
 
     public PlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
-        updateTitle("Processing Image");
+        updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.img_original = image;
@@ -81,8 +83,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 finishStage();
                 break;
             case PRE_PROCESSING:
-                updateMessage("Pre-Processing Image");
-                //plottingProgress = 0;
+                updateMessage("Pre-Processing - Copying Original Image");
                 plottingFinished = false;
 
                 DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
@@ -101,13 +102,22 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
                 if(enableImageFiltering){
                     DrawingBotV3.logger.fine("Applying Cropping");
+                    updateMessage("Pre-Processing - Cropping");
                     img_plotting = FilteredBufferedImage.applyCropping(img_plotting, resolution);
 
                     DrawingBotV3.logger.fine("Applying Filters");
-                    img_plotting = FilteredBufferedImage.applyFilters(img_plotting);
+                    for(ObservableImageFilter filter : DrawingBotV3.INSTANCE.currentFilters){
+                        if(filter.enable.get()){
+                            BufferedImageOp instance = filter.filterFactory.instance();
+                            filter.filterSettings.forEach(setting -> setting.applySetting(instance));
 
+                            updateMessage("Pre-Processing - " + filter.name.getValue());
+                            img_plotting = instance.filter(img_plotting, null);
+                        }
+                    }
+
+                    updateMessage("Pre-Processing - Resize");
                     img_plotting = Scalr.resize(img_plotting, Scalr.Method.ULTRA_QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
-
                 }
                 img_plotting = pfm.preFilter(img_plotting);
 
@@ -124,9 +134,10 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 pfm.init(this);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");
+                updateMessage("Pre-Processing - PFM");
                 pfm.preProcess();
                 finishStage();
-                updateMessage("Plotting Image: " + pfmFactory.getName()); //here to avoid excessive task updates
+                updateMessage("Processing"); //here to avoid excessive task updates
                 break;
             case DO_PROCESS:
                 if(plottingFinished || isFinished()){
@@ -136,12 +147,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 pfm.doProcess();
                 break;
             case POST_PROCESSING:
+                updateMessage("Post-Processing - PFM");
                 pfm.postProcess();
 
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Started");
+                updateMessage("Post-Processing - Distributing Pens");
                 plottedDrawing.updatePenDistribution();
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
 
+                updateMessage("Post-Processing - Converting Reference Images");
                 img_reference = ImageTools.getBufferedImage(reference);
                 img_plotting = ImageTools.getBufferedImage(plotting);
 
@@ -149,11 +163,11 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 break;
             case FINISHING:
                 finishTime = (System.currentTimeMillis() - startTime);
-                updateMessage("Finished: " + finishTime/1000 + " s");
+                updateMessage("Finished - Elapsed Time: " + finishTime/1000 + " s");
+                updateProgress(1, 1);
                 finishStage();
                 break;
             case FINISHED:
-                //finishStage();
                 break;
         }
         return true;
@@ -173,7 +187,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public void finishStage(){
         if(!isSubTask){
-            DrawingBotV3.INSTANCE.onTaskStageFinished(this, stage);
+            DrawingBotV3.INSTANCE.onPlottingTaskStageFinished(this, stage);
         }
         stage = EnumTaskStage.values()[stage.ordinal()+1];
     }
@@ -204,12 +218,6 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishProcess();
         }
-    }
-
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-        DrawingBotV3.INSTANCE.onTaskCancelled();
-        return super.cancel(mayInterruptIfRunning);
     }
 
     public AffineTransform createPrintTransform(){

@@ -9,6 +9,30 @@
       "data": {
         "settingList": {}
       }
+    },
+    {
+      "presetType": "vpype_settings",
+      "version": 1,
+      "presetSubType": "",
+      "presetName": "Multipass",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "vPypeCommand": "multipass --count 2 write \"%OUTPUT_FILE%.svg\" show"
+        }
+      }
+    },
+    {
+      "presetType": "vpype_settings",
+      "version": 1,
+      "presetSubType": "",
+      "presetName": "Linesort",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "vPypeCommand": "linesort write \"%OUTPUT_FILE%.svg\" show"
+        }
+      }
     }
   ]
 }
