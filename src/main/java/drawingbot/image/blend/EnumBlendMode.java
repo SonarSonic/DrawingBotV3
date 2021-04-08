@@ -250,9 +250,9 @@ public enum EnumBlendMode implements Blender {
 
      */
 
-    public BlendMode javaFXVersion;
-    public boolean additive;
-    public Blender blender;
+    public final BlendMode javaFXVersion;
+    public final boolean additive;
+    public final Blender blender;
 
     EnumBlendMode(BlendMode javaFXVersion, boolean additive, Blender blender) {
         this.javaFXVersion = javaFXVersion;

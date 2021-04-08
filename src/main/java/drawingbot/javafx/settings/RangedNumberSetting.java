@@ -49,13 +49,9 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
         slider.setValue(value.getValue().doubleValue());
 
         //bindings
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            setValue(fromNumber(newValue));
-        });
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> setValue(fromNumber(newValue)));
 
-        value.addListener((observable, oldValue, newValue) -> {
-            slider.setValue(newValue.doubleValue());
-        });
+        value.addListener((observable, oldValue, newValue) -> slider.setValue(newValue.doubleValue()));
 
         return slider;
     }

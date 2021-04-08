@@ -17,5 +17,6 @@ Index
    pensettings
    batchprocessing
    exportsettings
+   vpypesettings
    presets
    changelog

@@ -12,6 +12,7 @@ DrawingBotV3 supports the saving / exporting of presets as .JSONS which can be s
 -   :ref:`gcode-settings`
 -   :ref:`drawing_pen`
 -   :ref:`drawing_set`
+-   :ref:`vpype-settings`
 
 When you see the "Presets" drop-down menu this indicates settings which can be stored as a preset, you will have the following options.
 

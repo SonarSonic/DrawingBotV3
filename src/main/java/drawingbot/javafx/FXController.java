@@ -1,7 +1,6 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
@@ -24,10 +23,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -37,7 +33,6 @@ import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
@@ -45,7 +40,6 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,9 +75,7 @@ public class FXController {
 
         initSeparateStages();
 
-        DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> {
-            DrawingBotV3.INSTANCE.onImageFiltersChanged();
-        });
+        DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> DrawingBotV3.INSTANCE.onImageFiltersChanged());
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
 
@@ -171,9 +163,7 @@ public class FXController {
         }
         for(TitledPane pane : allPanes){
             MenuItem viewButton = new MenuItem(pane.getText());
-            viewButton.setOnAction(e -> {
-                allPanes.forEach(p -> p.expandedProperty().setValue(p == pane));
-            });
+            viewButton.setOnAction(e -> allPanes.forEach(p -> p.expandedProperty().setValue(p == pane)));
             menuView.getItems().add(viewButton);
         }
 
@@ -259,9 +249,7 @@ public class FXController {
         DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
         DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
-        buttonZoomIn.setOnAction(e -> {
-            DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() + 0.1);
-        });
+        buttonZoomIn.setOnAction(e -> DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() + 0.1));
         buttonZoomOut.setOnAction(e -> {
             if(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() > DrawingBotV3.minScale){
                 DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() - 0.1);
@@ -311,9 +299,7 @@ public class FXController {
     public Button buttonResetPlotting = null;
 
     public void initPlottingControls(){
-        buttonStartPlotting.setOnAction(param -> {
-            DrawingBotV3.INSTANCE.startPlotting();
-        });
+        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
         buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting);
         buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
         buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting.not());
@@ -607,9 +593,7 @@ public class FXController {
         tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
         tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> {
-            JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue());
-        });
+        buttonPFMSettingReset.setOnAction(e -> JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(Utils.URL_READ_THE_DOCS_PFMS));

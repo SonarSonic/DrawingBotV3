@@ -12,7 +12,7 @@ public enum EnumDistributionType {
     PRECONFIGURED(PlottedDrawing::updatePreConfiguredPenDistribution),
     SINGLE_PEN(PlottedDrawing::updateSinglePenDistribution);
 
-    public Consumer<PlottedDrawing> distribute;
+    public final Consumer<PlottedDrawing> distribute;
 
     EnumDistributionType(Consumer<PlottedDrawing> distribute){
         this.distribute = distribute;

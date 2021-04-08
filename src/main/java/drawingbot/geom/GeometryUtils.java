@@ -12,22 +12,11 @@ import drawingbot.geom.basic.*;
 import drawingbot.utils.Units;
 import drawingbot.utils.Utils;
 import javafx.scene.canvas.GraphicsContext;
-import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
-import org.locationtech.jts.dissolve.LineDissolver;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.util.LineStringExtracter;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
-import org.locationtech.jts.index.kdtree.KdNode;
-import org.locationtech.jts.index.kdtree.KdTree;
 import org.locationtech.jts.linearref.LinearGeometryBuilder;
-import org.locationtech.jts.noding.*;
-import org.locationtech.jts.noding.snap.SnappingNoder;
-import org.locationtech.jts.operation.linemerge.LineMerger;
-import org.locationtech.jts.operation.linemerge.LineSequencer;
-import org.locationtech.jts.operation.overlay.snap.LineStringSnapper;
-import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.awt.*;
@@ -434,8 +423,8 @@ public class GeometryUtils {
 
     public static void toLineStrings(IGeometry geometry, AffineTransform transform, List<LineString> lineStrings){
         List<Coordinate[]> coordinates = ShapeReader.toCoordinates(new FlatteningPathIterator(geometry.getAWTShape().getPathIterator(transform), 6D));
-        for(int i = 0 ; i < coordinates.size();i ++){
-            lineStrings.add(factory.createLineString(coordinates.get(i)));
+        for (Coordinate[] coordinate : coordinates) {
+            lineStrings.add(factory.createLineString(coordinate));
         }
     }
 

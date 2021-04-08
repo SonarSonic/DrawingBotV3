@@ -1,6 +1,5 @@
 package drawingbot;
 
-import drawingbot.api.IPathFindingModule;
 import drawingbot.files.ExportFormats;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;

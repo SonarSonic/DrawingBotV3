@@ -43,17 +43,13 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
             hbox.getChildren().add(checkBox);
             hbox.setAlignment(Pos.CENTER_LEFT);
 
-            setOnMouseClicked(e -> {
-                DrawingBotV3.INSTANCE.controller.comboBoxDrawingPen.hide();
-            });
-            colour = new Rectangle(20, 12, Color.AQUA);
-            hbox.getChildren().add(colour);
+            setOnMouseClicked(e -> DrawingBotV3.INSTANCE.controller.comboBoxDrawingPen.hide());
 
         } else {
             checkBox = null;
-            colour = new Rectangle(20, 12, Color.AQUA);
-            hbox.getChildren().add(colour);
         }
+        colour = new Rectangle(20, 12, Color.AQUA);
+        hbox.getChildren().add(colour);
     }
 
     @Override

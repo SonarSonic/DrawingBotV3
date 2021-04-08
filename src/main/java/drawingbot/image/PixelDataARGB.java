@@ -10,7 +10,7 @@ public class PixelDataARGB extends PixelDataAbstract {
     public RawData green;
     public RawData blue;
 
-    private int[] cacheARGBtoARGB = new int[4];
+    private final int[] cacheARGBtoARGB = new int[4];
 
     public PixelDataARGB(int width, int height) {
         super(width, height);

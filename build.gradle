@@ -62,7 +62,7 @@ targetCompatibility = "11"
 sourceCompatibility = "11"
 
 project.setArchivesBaseName(app_name + "-" + app_version + "-" + app_state)
-project.setApplicationName(app_name);
+project.setApplicationName(app_name)
 
 application {
     mainClassName  = 'drawingbot.Launcher'
@@ -110,7 +110,7 @@ runtime {
 
 task jpackageImageZip(type: Zip){
     getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state + "-win"}.zip")
-    getDestinationDirectory().set(file("$buildDir/release"));
+    getDestinationDirectory().set(file("$buildDir/release"))
 
     from "$buildDir/jpackage/$app_name"
 }

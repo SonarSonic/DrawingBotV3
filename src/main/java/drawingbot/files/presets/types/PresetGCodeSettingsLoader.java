@@ -29,7 +29,7 @@ public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCod
 
     @Override
     public GenericPreset<PresetGCodeSettings> getDefaultPreset() {
-        return presets.stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
+        return presets.stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
     }
 
 

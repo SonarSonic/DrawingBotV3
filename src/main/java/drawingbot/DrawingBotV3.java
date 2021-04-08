@@ -26,7 +26,6 @@ import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,7 +37,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
 import org.jfree.fx.FXGraphics2D;
 
 public class DrawingBotV3 {
@@ -490,10 +488,6 @@ public class DrawingBotV3 {
 
 
     public void updateUI(){
-
-        //TODO MAKE THIS AUTOMATED PER TASK - KEEP TRACK OF ALL OF THEM MULTIPLE TASKS ON SAME PROGRESS BAR?????
-
-        //String prefix = batchProcessingTask == null ? "" : batchProcessingTask.getTitle() + " - ";
         if(getActiveTask() != null && getActiveTask().isRunning()){
             int geometryCount = getActiveTask().plottedDrawing.getGeometryCount();
             long vertexCount = getActiveTask().plottedDrawing.getVertexCount();
@@ -506,24 +500,6 @@ public class DrawingBotV3 {
             controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
             controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
         }
-        /*
-        else if(exportTask != null){
-            controller.progressBarGeneral.setProgress(exportTask.progressProperty().get());
-            controller.progressBarLabel.setText(prefix + exportTask.titleProperty().get());
-        }else if(vPypeTask != null){
-            controller.progressBarGeneral.setProgress(vPypeTask.progressProperty().get());
-            controller.progressBarLabel.setText(prefix + vPypeTask.titleProperty().get());
-        }else{
-            if(localProgress != null){
-                controller.progressBarGeneral.setProgress(localProgress);
-                localProgress = null;
-            }
-            if(localMessage != null){
-                controller.progressBarLabel.setText(localMessage);
-                localMessage = null;
-            }
-        }
-         */
     }
 
 

@@ -6,7 +6,6 @@ import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.io.File;
@@ -17,14 +16,14 @@ import java.util.logging.Level;
 
 public class ExportTask extends Task<Boolean> {
 
-    public ExportFormats format;
-    public String extension;
-    public PlottingTask plottingTask;
-    public IGeometryFilter pointFilter;
-    public File saveLocation;
-    public boolean seperatePens;
-    public boolean overwrite;
-    public boolean forceBypassOptimisation;
+    public final ExportFormats format;
+    public final String extension;
+    public final PlottingTask plottingTask;
+    public final IGeometryFilter pointFilter;
+    public final File saveLocation;
+    public final boolean seperatePens;
+    public final boolean overwrite;
+    public final boolean forceBypassOptimisation;
 
     private String error = null;
     public int totalGeometries;
@@ -48,7 +47,7 @@ public class ExportTask extends Task<Boolean> {
     }
 
     @Override
-    protected Boolean call() throws Exception {
+    protected Boolean call() {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
         error = null;
         if(!seperatePens){

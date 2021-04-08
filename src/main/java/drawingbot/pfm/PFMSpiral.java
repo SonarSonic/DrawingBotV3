@@ -2,7 +2,6 @@ package drawingbot.pfm;
 
 import drawingbot.geom.basic.GLine;
 import drawingbot.utils.Utils;
-import org.locationtech.jts.algorithm.construct.MaximumInscribedCircle;
 
 import java.awt.geom.Point2D;
 

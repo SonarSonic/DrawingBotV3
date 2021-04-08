@@ -29,7 +29,7 @@ public class PresetDrawingAreaLoader extends AbstractSettingsLoader<PresetDrawin
 
     @Override
     public GenericPreset<PresetDrawingArea> getDefaultPreset() {
-        return presets.stream().filter(p -> p.presetName.equals("Original Sizing")).findFirst().get();
+        return presets.stream().filter(p -> p.presetName.equals("Original Sizing")).findFirst().orElse(null);
     }
 
     @Override
