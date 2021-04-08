@@ -53,9 +53,6 @@ public class PFMSketchSobel extends AbstractSketchPFM {
         float luminance = pixels.getLuminance(x, y);
         float sobel = sobelPixelData.getLuminance(x, y)*sobelIntensity;
         sum_luminance += luminance-sobel;
-        //if(luminance < 200){
-            //sum_sobel += Math.min(255, sobelPixelData.getLuminance(x, y)*sobelIntensity);
-        //}
 
         count_pixels++;
 

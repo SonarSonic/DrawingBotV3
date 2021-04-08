@@ -2,8 +2,6 @@ package drawingbot.pfm.modules.shapes;
 
 import drawingbot.api.IPixelData;
 import drawingbot.geom.basic.GEllipse;
-import drawingbot.geom.basic.GShape;
-import drawingbot.pfm.PFMModular;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.pfm.modules.ShapeEncoder;
 import org.locationtech.jts.algorithm.construct.MaximumInscribedCircle;

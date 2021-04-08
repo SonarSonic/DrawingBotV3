@@ -157,7 +157,7 @@ public enum EnumColourSplitter {
 
     public static class ColourSplitterDrawingSet extends DrawingSet{
 
-        public transient EnumColourSplitter splitter;
+        public final transient EnumColourSplitter splitter;
 
         public ColourSplitterDrawingSet(EnumColourSplitter splitter) {
             super();

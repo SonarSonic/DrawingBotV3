@@ -1,7 +1,5 @@
 package drawingbot.utils;
 
-import drawingbot.files.exporters.GCodeExporter;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,13 +7,13 @@ import java.util.Random;
 
 public class Utils {
 
-    public static Random random = new Random();
-    public static NumberFormat defaultNF = NumberFormat.getNumberInstance();
-    public static String URL_READ_THE_DOCS = "https://drawingbotv3.readthedocs.io";
-    public static String URL_READ_THE_DOCS_HOME = URL_READ_THE_DOCS + "/en/latest/about.html";
-    public static String URL_READ_THE_DOCS_PFMS = URL_READ_THE_DOCS + "/en/latest/pfms.html";
-    public static String URL_GITHUB_REPO = "https://github.com/SonarSonic/DrawingBotV3";
-    public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+    public final static Random random = new Random();
+    public final static NumberFormat defaultNF = NumberFormat.getNumberInstance();
+    public final static String URL_READ_THE_DOCS = "https://drawingbotv3.readthedocs.io";
+    public final static String URL_READ_THE_DOCS_HOME = URL_READ_THE_DOCS + "/en/latest/about.html";
+    public final static String URL_READ_THE_DOCS_PFMS = URL_READ_THE_DOCS + "/en/latest/pfms.html";
+    public final static String URL_GITHUB_REPO = "https://github.com/SonarSonic/DrawingBotV3";
+    public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
     public static NumberFormat gCodeNF;
     public static final int gcode_decimals = 3; // numbers of decimal places used on gcode exports

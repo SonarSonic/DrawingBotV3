@@ -18,11 +18,11 @@ import java.util.List;
 
 public class BatchProcessing {
 
-    public static SimpleBooleanProperty isBatchProcessing = new SimpleBooleanProperty(false);
-    public static SimpleBooleanProperty overwriteExistingFiles = new SimpleBooleanProperty(false);
-    public static SimpleStringProperty inputFolder = new SimpleStringProperty(null);
-    public static SimpleStringProperty outputFolder = new SimpleStringProperty(null);
-    public static ObservableList<BatchExportTask> exportTasks = FXCollections.observableArrayList();
+    public static final SimpleBooleanProperty isBatchProcessing = new SimpleBooleanProperty(false);
+    public static final SimpleBooleanProperty overwriteExistingFiles = new SimpleBooleanProperty(false);
+    public static final SimpleStringProperty inputFolder = new SimpleStringProperty(null);
+    public static final SimpleStringProperty outputFolder = new SimpleStringProperty(null);
+    public static final ObservableList<BatchExportTask> exportTasks = FXCollections.observableArrayList();
 
     static{
         for(ExportFormats exportTask : ExportFormats.values()){
@@ -72,10 +72,10 @@ public class BatchProcessing {
 
     public static class BatchExportTask{
 
-        public ExportFormats format;
-        public FileChooser.ExtensionFilter filter;
-        public SimpleBooleanProperty enablePerDrawing = new SimpleBooleanProperty(false);
-        public SimpleBooleanProperty enablePerPen = new SimpleBooleanProperty(false);
+        public final ExportFormats format;
+        public final FileChooser.ExtensionFilter filter;
+        public final SimpleBooleanProperty enablePerDrawing = new SimpleBooleanProperty(false);
+        public final SimpleBooleanProperty enablePerPen = new SimpleBooleanProperty(false);
 
         public BatchExportTask(ExportFormats format, FileChooser.ExtensionFilter filter){
             this.format = format;

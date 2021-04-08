@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.util.List;
 import java.util.logging.Level;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractJsonLoader<O extends IJsonData> {
 
     public final EnumJsonType type;

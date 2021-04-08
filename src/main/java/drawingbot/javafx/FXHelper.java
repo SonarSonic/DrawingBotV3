@@ -2,9 +2,7 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportFormats;
-import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.IJsonData;
@@ -36,8 +34,6 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;

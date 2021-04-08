@@ -13,7 +13,7 @@ public class ImageFilteringTask extends Task<FilteredBufferedImage> {
     }
 
     @Override
-    protected FilteredBufferedImage call() throws Exception {
+    protected FilteredBufferedImage call() {
         image.updateAll();
         Platform.runLater(() -> {
             DrawingBotV3.INSTANCE.canvasNeedsUpdate = true; //force update canvas

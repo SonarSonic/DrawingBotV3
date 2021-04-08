@@ -193,7 +193,7 @@ public class PFMSineWaves extends AbstractPFM {
             List<Float> xPoints = new ArrayList<>();
             List<Float> yPoints = new ArrayList<>();
 
-            while (finalStep == false) { // Iterate over each each x-step in the row
+            while (!finalStep) { // Iterate over each each x-step in the row
 
                 // Moving right to left:
                 x += xstep;
@@ -203,7 +203,7 @@ public class PFMSineWaves extends AbstractPFM {
                     finalStep = false;
 
 
-                b = (int) task.getPixelData().getBrightness(x, y);
+                b = task.getPixelData().getBrightness(x, y);
                 b = Math.max(minB, b);
                 z = Math.max(maxB - b, 0);        // Brightness trimmed to range.
 

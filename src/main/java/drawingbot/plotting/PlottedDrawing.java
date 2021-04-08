@@ -10,7 +10,6 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class PlottedDrawing {
 

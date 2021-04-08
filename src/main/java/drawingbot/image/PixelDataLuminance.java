@@ -8,8 +8,8 @@ public class PixelDataLuminance extends PixelDataAbstract {
 
     public RawData luminance;
 
-    private float[] hsbCache = new float[3];
-    private int[] argbCache = new int[4];
+    private final float[] hsbCache = new float[3];
+    private final int[] argbCache = new int[4];
 
     public PixelDataLuminance(int width, int height) {
         super(width, height);

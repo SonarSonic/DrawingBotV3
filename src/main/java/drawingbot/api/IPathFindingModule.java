@@ -1,7 +1,5 @@
 package drawingbot.api;
 
-import drawingbot.utils.EnumDistributionType;
-
 import java.awt.image.BufferedImage;
 
 /**

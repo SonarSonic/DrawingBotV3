@@ -18,8 +18,6 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMModular;
 import drawingbot.pfm.PFMSketchLines;
 import drawingbot.pfm.modules.ModularEncoder;
-import drawingbot.pfm.modules.ShapeEncoder;
-import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumFilterTypes;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -76,7 +74,7 @@ public class MasterRegistry {
     }
 
     public GenericPreset<PresetPFMSettings> getDefaultPFMPreset(PFMFactory<?> factory){
-        return pfmPresets.get(factory.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
+        return pfmPresets.get(factory.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
     }
 
     //// IMAGE FILTER: DEFAULTS
@@ -90,7 +88,7 @@ public class MasterRegistry {
     }
 
     public GenericPreset<PresetImageFilters> getDefaultImageFilterPreset(){
-        return imgFilterPresets.stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
+        return imgFilterPresets.stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
     }
 
     //// DRAWING PEN: DEFAULTS

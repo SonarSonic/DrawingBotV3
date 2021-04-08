@@ -61,9 +61,7 @@ public class TaskMonitor {
 
     public void queueTask(Task<?> task){
         Platform.runLater(() -> {
-            task.stateProperty().addListener((observable, oldValue, newValue) -> {
-                onTaskStateChanged(task, observable, oldValue, newValue);
-            });
+            task.stateProperty().addListener((observable, oldValue, newValue) -> onTaskStateChanged(task, observable, oldValue, newValue));
             service.submit(task);
         });
     }

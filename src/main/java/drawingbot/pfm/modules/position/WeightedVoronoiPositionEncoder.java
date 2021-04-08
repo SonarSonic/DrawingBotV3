@@ -3,13 +3,11 @@ package drawingbot.pfm.modules.position;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.GRectangle;
-import drawingbot.geom.basic.GShape;
 import drawingbot.image.ImageTools;
 import drawingbot.image.PixelDataLuminance;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.utils.Utils;
 import org.locationtech.jts.algorithm.locate.SimplePointInAreaLocator;
-import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.triangulate.VoronoiDiagramBuilder;
 
@@ -234,7 +232,7 @@ public class WeightedVoronoiPositionEncoder extends PositionEncoder {
     public enum EnumExportType{
         CENTROIDS,
         VORONOI_GEOMETRIES,
-        VORONOI_EDGES;
+        VORONOI_EDGES
 
     }
 

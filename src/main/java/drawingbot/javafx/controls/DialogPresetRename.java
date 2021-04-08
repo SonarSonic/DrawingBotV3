@@ -15,12 +15,6 @@ public class DialogPresetRename extends Dialog<GenericPreset<?>> {
         super();
         VBox vBox = new VBox();
 
-        //labelPresetSubType = new Label("Preset Subtype: "); //TODO REMOVE???
-        //vBox.getChildren().add(labelTargetPFM);
-
-        //labelPresetType = new Label("Preset Type: ");
-        //vBox.getChildren().add(labelTotalSettings);
-
         Label nameFieldLabel = new Label("Preset Name: ");
         nameField = new TextField();
         nameField.textProperty().addListener((observable, oldValue, newValue) -> editingPreset.presetName = newValue);
@@ -36,7 +30,7 @@ public class DialogPresetRename extends Dialog<GenericPreset<?>> {
     }
 
     public void setEditingPreset(GenericPreset<?> editingPreset) {
-        this.editingPreset = editingPreset;
+        DialogPresetRename.editingPreset = editingPreset;
         nameField.setText(editingPreset.presetName);
     }
 

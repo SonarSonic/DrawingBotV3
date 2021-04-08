@@ -3,17 +3,13 @@ package drawingbot.pfm.modules.shapes;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.GPath;
-import drawingbot.geom.basic.GShape;
-import drawingbot.pfm.PFMModular;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.pfm.modules.ShapeEncoder;
-import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.dissolve.LineDissolver;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GeometryShapeEncoder extends ShapeEncoder {

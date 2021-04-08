@@ -3,7 +3,6 @@ package drawingbot.files.exporters;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
 import drawingbot.files.ExportTask;
-import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
@@ -12,7 +11,6 @@ import drawingbot.plotting.PlottingTask;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Most exporters will use the an implementation of Graphics2D to handle rendering the drawing and can therefore use this universal exporter

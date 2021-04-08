@@ -17,10 +17,10 @@ public enum ExportFormats {
     EXPORT_GCODE("Export GCode File", true, GCodeExporter::exportGCode, FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT),
     EXPORT_GCODE_TEST("Export GCode Test Drawing", true, GCodeExporter::exportGCodeTest, FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT);
 
-    public String displayName;
-    public boolean isVector;
-    public FileChooser.ExtensionFilter[] filters;
-    public IExportMethod exportMethod;
+    public final String displayName;
+    public final boolean isVector;
+    public final FileChooser.ExtensionFilter[] filters;
+    public final IExportMethod exportMethod;
 
     ExportFormats(String displayName, boolean isVector, IExportMethod exportMethod, FileChooser.ExtensionFilter... filters){
         this.displayName = displayName;

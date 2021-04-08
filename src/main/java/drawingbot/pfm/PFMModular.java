@@ -4,7 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPlottingTask;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.pfm.modules.ShapeEncoder;
-import javafx.application.Platform;
 
 /**
  * Designed following the principles outlined here

@@ -22,7 +22,7 @@ public class PresetVpypeSettingsLoader extends AbstractSettingsLoader<PresetVpyp
 
     @Override
     public GenericPreset<PresetVpypeSettings> getDefaultPreset() {
-        return presets.stream().filter(p -> p.presetName.equals("Default")).findFirst().get();
+        return presets.stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
     }
 
     @Override

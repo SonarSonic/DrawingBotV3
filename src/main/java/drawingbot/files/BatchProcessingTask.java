@@ -2,10 +2,8 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.ObservableDrawingSet;
-import drawingbot.api.IPathFindingModule;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.javafx.GenericFactory;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumColourSplitter;
@@ -27,11 +25,11 @@ import java.util.stream.Collectors;
 
 public class BatchProcessingTask extends Task<Boolean> {
 
-    public String inputFolder;
-    public String outputFolder;
-    public PFMFactory<?> pfmFactory;
-    public ObservableDrawingSet drawingPenSet;
-    public EnumColourSplitter splitter;
+    public final String inputFolder;
+    public final String outputFolder;
+    public final PFMFactory<?> pfmFactory;
+    public final ObservableDrawingSet drawingPenSet;
+    public final EnumColourSplitter splitter;
 
     public BatchProcessingTask(String inputFolder, String outputFolder){
         this.inputFolder = inputFolder;

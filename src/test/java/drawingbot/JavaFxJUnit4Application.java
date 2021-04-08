@@ -20,7 +20,7 @@ public class JavaFxJUnit4Application extends FXApplication
     private static final ReentrantLock LOCK = new ReentrantLock();
 
     /** Started flag. */
-    private static AtomicBoolean started = new AtomicBoolean();
+    private static final AtomicBoolean started = new AtomicBoolean();
 
     /**
      * Start JavaFx.

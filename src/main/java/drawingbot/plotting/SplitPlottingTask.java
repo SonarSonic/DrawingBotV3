@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.drawing.ObservableDrawingSet;
@@ -36,7 +37,7 @@ public class SplitPlottingTask extends PlottingTask{
         DrawingSet set = splitter.getDrawingSet();
         float alpha = (pfmFactory.getTransparentCMYK() ? 30 : 255) / 255F;
         for(ObservableDrawingPen pen : drawingPenSet.getPens()){
-            if(set.pens.contains(pen.source)){
+            if(pen.source instanceof DrawingPen && set.pens.contains(pen.source)){
                 Color color = pen.javaFXColour.get();
                 if(color.getOpacity() != alpha){
                     Platform.runLater(() -> pen.javaFXColour.set(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha)));

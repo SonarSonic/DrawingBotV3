@@ -5,8 +5,9 @@ import java.awt.image.BufferedImage;
 public class FilteredBufferedImage {
 
     public final BufferedImage source;
+    public final PrintResolution resolution;
+
     public BufferedImage filtered;
-    public PrintResolution resolution;
 
     public FilteredBufferedImage(BufferedImage source){
         this.source = source;

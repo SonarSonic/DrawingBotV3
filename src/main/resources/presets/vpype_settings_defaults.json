@@ -7,18 +7,20 @@
       "presetName": "Default",
       "userCreated": false,
       "data": {
-        "settingList": {}
+        "settingList": {
+          "vPypeCommand": "linemerge linesimplify -t 0.1mm reloop linesort write \"%OUTPUT_FILE%.svg\""
+        }
       }
     },
     {
       "presetType": "vpype_settings",
       "version": 1,
       "presetSubType": "",
-      "presetName": "Multipass",
+      "presetName": "Show",
       "userCreated": false,
       "data": {
         "settingList": {
-          "vPypeCommand": "multipass --count 2 write \"%OUTPUT_FILE%.svg\" show"
+          "vPypeCommand": "show"
         }
       }
     },
@@ -31,6 +33,18 @@
       "data": {
         "settingList": {
           "vPypeCommand": "linesort write \"%OUTPUT_FILE%.svg\" show"
+        }
+      }
+    },
+    {
+      "presetType": "vpype_settings",
+      "version": 1,
+      "presetSubType": "",
+      "presetName": "Multipass",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "vPypeCommand": "multipass --count 2 write \"%OUTPUT_FILE%.svg\" show"
         }
       }
     }

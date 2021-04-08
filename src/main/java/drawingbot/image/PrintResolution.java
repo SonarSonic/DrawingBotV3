@@ -2,7 +2,6 @@ package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.utils.EnumScalingMode;
-import org.imgscalr.Scalr;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;

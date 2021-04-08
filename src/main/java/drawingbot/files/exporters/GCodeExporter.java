@@ -6,7 +6,6 @@ import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.Limit;
-import drawingbot.utils.Utils;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
