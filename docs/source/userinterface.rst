@@ -46,7 +46,7 @@ This area is split into multiple sections which each control different elements 
 :viewport:`Viewport`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The viewport will show you a live preview of the current drawing, all the controls in this area, are **visual only** and will not affect the exported drawing. It has the following buttons.
+The viewport will show you a live preview of the current drawing, all the controls in this area, are **visual only** and will not affect the exported drawing. You can also drag + drop an image file here to import it. It has the following buttons.
 
 **Display**:
 
