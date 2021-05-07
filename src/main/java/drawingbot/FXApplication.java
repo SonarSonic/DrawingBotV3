@@ -7,6 +7,8 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.DBConstants;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -14,11 +16,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.jfree.fx.FXGraphics2D;
 
 import java.io.*;
 import java.util.logging.Level;
@@ -62,12 +62,7 @@ public class FXApplication extends Application {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //// INIT GUI
-        Canvas canvas = new Canvas(500, 500);
-
         DrawingBotV3.INSTANCE.controller = new FXController();
-        DrawingBotV3.INSTANCE.canvas = canvas;
-        DrawingBotV3.INSTANCE.graphicsFX = canvas.getGraphicsContext2D();
-        DrawingBotV3.INSTANCE.graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
         FXMLLoader uiLoader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
         uiLoader.setController(DrawingBotV3.INSTANCE.controller);
@@ -78,14 +73,18 @@ public class FXApplication extends Application {
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
         primaryStage.setScene(primaryScene);
 
-        primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion);
-        primaryStage.setResizable(true);
-        applyDBIcon(primaryStage);
-        primaryStage.show();
+        ///// INIT RENDERER
+        DrawingBotV3.RENDERER = new JavaFXRenderer();
+        DrawingBotV3.RENDERER.init();
 
         // set up main drawing loop
         DrawTimer timer = new DrawTimer();
         timer.start();
+
+        primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion);
+        primaryStage.setResizable(true);
+        applyDBIcon(primaryStage);
+        primaryStage.show();
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +102,8 @@ public class FXApplication extends Application {
 
         @Override
         public void handle(long now) {
-            DrawingBotV3.INSTANCE.draw();
+            DrawingBotV3.INSTANCE.updateUI();
+            DrawingBotV3.RENDERER.draw();
         }
     }
 }

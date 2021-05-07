@@ -65,10 +65,6 @@ public class FXController {
 
         viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
         viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
-        viewportStackPane.getChildren().add(DrawingBotV3.INSTANCE.canvas);
-
-        viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> DrawingBotV3.INSTANCE.canvas.getWidth() * Math.max(1, DrawingBotV3.INSTANCE.canvas.getScaleX()), DrawingBotV3.INSTANCE.canvas.widthProperty(), DrawingBotV3.INSTANCE.canvas.scaleXProperty()));
-        viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> DrawingBotV3.INSTANCE.canvas.getHeight() * Math.max(1, DrawingBotV3.INSTANCE.canvas.getScaleY()), DrawingBotV3.INSTANCE.canvas.heightProperty(), DrawingBotV3.INSTANCE.canvas.scaleYProperty()));
 
         viewportScrollPane.setHvalue(0.5);
         viewportScrollPane.setVvalue(0.5);

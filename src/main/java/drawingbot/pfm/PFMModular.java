@@ -47,7 +47,7 @@ public class PFMModular extends AbstractPFM{
 
             //clear previous geometries & mark for re-render
             task.plottedDrawing.clearGeometries();
-            DrawingBotV3.INSTANCE.clearProcessRendering();
+            DrawingBotV3.RENDERER.clearProcessRendering();
 
             shapeEncoder.doProcess(task.getPixelData(), positionalEncoder);
             currentIteration++;
