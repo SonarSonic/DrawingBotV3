@@ -1,5 +1,6 @@
 package drawingbot.javafx;
 
+import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -9,6 +10,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
@@ -150,8 +153,22 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         lock.unbind();
     }
 
+    public TextField textField;
     public Node defaultNode;
     public Node labelledNode;
+
+    public TextField getEditableTextField(){
+        if(textField == null){
+            textField = new TextField();
+            textField.setTextFormatter(new TextFormatter<>(new StringConverterGenericSetting<>(() -> this)));
+            textField.setText(getValueAsString());
+            textField.setPrefWidth(80);
+
+            textField.setOnAction(e -> setValueFromString(textField.getText()));
+            value.addListener((observable, oldValue, newValue) -> textField.setText(getValueAsString()));
+        }
+        return textField;
+    }
 
     public Node getJavaFXNode(boolean label){
         if(label){

@@ -40,18 +40,22 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
         Slider slider = new Slider();
         slider.setMin(minValue.doubleValue());
         slider.setMax(maxValue.doubleValue());
-        if(label){
-            slider.setMajorTickUnit(majorTick == null ? Math.min(Integer.MAX_VALUE, Math.abs(maxValue.doubleValue()-minValue.doubleValue())) : majorTick.doubleValue());
-            slider.setShowTickLabels(true);
-            slider.setShowTickMarks(true);
-            slider.setSnapToTicks(snapToTicks);
-        }
         slider.setValue(value.getValue().doubleValue());
 
         //bindings
         slider.valueProperty().addListener((observable, oldValue, newValue) -> setValue(fromNumber(newValue)));
 
-        value.addListener((observable, oldValue, newValue) -> slider.setValue(newValue.doubleValue()));
+        value.addListener((observable, oldValue, newValue) -> {
+            slider.setValue(newValue.doubleValue());
+        });
+
+        if(label){
+            //show markings
+            slider.setMajorTickUnit(majorTick == null ? Math.min(Integer.MAX_VALUE, Math.abs(maxValue.doubleValue()-minValue.doubleValue())) : majorTick.doubleValue());
+            slider.setShowTickLabels(true);
+            slider.setShowTickMarks(true);
+            slider.setSnapToTicks(snapToTicks);
+        }
 
         return slider;
     }
