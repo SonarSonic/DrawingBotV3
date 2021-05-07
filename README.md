@@ -55,10 +55,13 @@ You can choose from the following options.
    
    Includes all required libraries and Java Runtime. No further setup required.
 
-3) **Mac/Linux/Win - Executable** _(.jar)_ 
+3) **Mac (x86)/Linux/Win - Executable** _(.jar)_ 
 
    Includes all required libraries but you must manually install [JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
+   
+4) **Mac M1 (arm64) - Executable** _(.jar)_ 
 
+   The bundled OpenJFX does not work on arm64 processors and using a x86 java build (through Rosetta 2 emulation) has graphical glitches & reduced performance. The best option is to install a JDK build with JFX built in, such as the one provided by Bellsoft: https://github.com/bell-sw/homebrew-liberica just make sure to install the full package or JFX won't be bundled.
 
 ### Running the (.jar) on a MAC
 
