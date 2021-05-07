@@ -119,6 +119,8 @@ public class GCodeExporter {
         builder.movePenUp();
 
         exportTask.updateProgress(1,1);
+
+        builder.close();
     }
 
 

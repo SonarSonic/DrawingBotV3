@@ -228,8 +228,21 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public AffineTransform createGCodeTransform(){
         AffineTransform transform = new AffineTransform();
-        transform.scale(resolution.getPrintScale() * DrawingBotV3.INSTANCE.gcodeXDirection.get().asInteger(), resolution.getPrintScale() * DrawingBotV3.INSTANCE.gcodeYDirection.get().asInteger());
+
+        ///translate by the gcode offset
         transform.translate(getGCodeXOffset(), getGCodeYOffset());
+
+        ///move into print scale
+        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
+
+        //g-code y numbers go the other way
+        transform.translate(0, resolution.getScaledHeight());
+
+        //move with pre-scaled offsets
+        transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
+
+        //flip y coordinates
+        transform.scale(1, -1);
         return transform;
     }
 

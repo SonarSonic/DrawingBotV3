@@ -187,14 +187,6 @@
                                        <children>
                                           <HBox spacing="8.0">
                                              <children>
-                                                <Label contentDisplay="RIGHT" text="X Direction:">
-                                                   <font>
-                                                      <Font name="System Bold" size="12.0" />
-                                                   </font>
-                                                   <graphic>
-                                                      <ChoiceBox fx:id="choiceBoxGCodeXDir" prefWidth="100.0" />
-                                                   </graphic>
-                                                </Label>
                                             <Label contentDisplay="RIGHT" text="X Offset:">
                                                 <graphic>
                                                     <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="100.0" text="0" />
@@ -203,19 +195,6 @@
                                                       <Font name="System Bold" size="12.0" />
                                                    </font>
                                             </Label>
-                                             </children>
-                                          </HBox>
-                                          <Separator prefWidth="200.0" />
-                                          <HBox layoutX="14.0" layoutY="14.0" spacing="8.0">
-                                             <children>
-                                                <Label contentDisplay="RIGHT" graphicTextGap="5.0" text="Y Direction:">
-                                                   <font>
-                                                      <Font name="System Bold" size="12.0" />
-                                                   </font>
-                                                   <graphic>
-                                                      <ChoiceBox fx:id="choiceBoxGCodeYDir" prefWidth="100.0" />
-                                                   </graphic>
-                                                </Label>
                                             <Label contentDisplay="RIGHT" graphicTextGap="5.0" text="Y Offset:">
                                                 <graphic>
                                                     <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="100.0" text="0" />

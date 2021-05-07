@@ -170,6 +170,8 @@ public class FXExportController {
         textAreaGCodePenUp.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodePenUpCode);
         textAreaGCodePenUp.setText(GCodeExporter.defaultPenUpCode);
 
+        /*
+
         choiceBoxGCodeXDir.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeXDirection);
         choiceBoxGCodeXDir.setValue(EnumDirection.POSITIVE);
         choiceBoxGCodeXDir.setItems(FXCollections.observableArrayList(EnumDirection.values()));
@@ -177,6 +179,7 @@ public class FXExportController {
         choiceBoxGCodeYDir.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeYDirection);
         choiceBoxGCodeYDir.setValue(EnumDirection.POSITIVE);
         choiceBoxGCodeYDir.setItems(FXCollections.observableArrayList(EnumDirection.values()));
+         */
 
     }
 
