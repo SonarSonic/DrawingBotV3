@@ -16,7 +16,7 @@ public class ImageFilteringTask extends Task<FilteredBufferedImage> {
     protected FilteredBufferedImage call() {
         image.updateAll();
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.canvasNeedsUpdate = true; //force update canvas
+            DrawingBotV3.RENDERER.forceCanvasUpdate(); //force update canvas
             DrawingBotV3.INSTANCE.isUpdatingFilters = false;
             DrawingBotV3.INSTANCE.reRender();
         });
