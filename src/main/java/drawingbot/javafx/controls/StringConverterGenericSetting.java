@@ -10,6 +10,10 @@ public class StringConverterGenericSetting<V> extends StringConverter<V> {
 
     public Supplier<GenericSetting<?, V>> supplier;
 
+    public StringConverterGenericSetting(GenericSetting settings) {
+        this.supplier = () -> settings;
+    }
+
     public StringConverterGenericSetting(Supplier<GenericSetting<?, V>> supplier) {
         this.supplier = supplier;
     }

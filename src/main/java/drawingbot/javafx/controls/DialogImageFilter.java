@@ -6,7 +6,6 @@ import drawingbot.FXApplication;
 import drawingbot.image.filters.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.RangedNumberSetting;
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -25,7 +24,6 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
         gridPane.setVgap(4);
         gridPane.setHgap(4);
 
-
         CheckBox checkBox = new CheckBox("Enabled");
         checkBox.selectedProperty().bindBidirectional(filter.enable);
 
@@ -38,22 +36,24 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
             Node node = setting.getJavaFXNode(true);
             node.minWidth(200);
             node.prefHeight(30);
+
             if(!(setting instanceof RangedNumberSetting)){
                 //check boxes don't need a value label.
                 gridPane.addRow(i, label, node);
             }else{
-                Label value = new Label();
-                value.setAlignment(Pos.TOP_LEFT);
-                value.setPrefWidth(80);
-                value.textProperty().bind(Bindings.createStringBinding(setting::getValueAsString, setting.value));
-                gridPane.addRow(i, label, node, value);
+                TextField field = setting.getEditableTextField();
+                gridPane.addRow(i, label, node, setting.getEditableTextField());
+                field.setOnAction(e -> {
+                    setting.setValueFromString(field.getText());
+                    DrawingBotV3.INSTANCE.onImageFiltersChanged();
+                });
             }
             node.setOnMouseReleased(e -> DrawingBotV3.INSTANCE.onImageFiltersChanged()); //change on mouse release, not on value change
             i++;
         }
         setGraphic(gridPane);
         setTitle("Image Filter: " + filter.name.getValue());
-        getDialogPane().setPrefWidth(300);
+        getDialogPane().setPrefWidth(400);
         setResultConverter(param -> param == ButtonType.APPLY ? filter : original);
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
