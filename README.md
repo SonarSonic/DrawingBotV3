@@ -55,11 +55,16 @@ You can choose from the following options.
    
    Includes all required libraries and Java Runtime. No further setup required.
 
-3) **Mac/Linux/Win - Executable** _(.jar)_ 
+3) **Mac (x86)/Linux/Win - Executable** _(.jar)_ 
 
    Includes all required libraries but you must manually install [JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
+   
+4) **Mac M1 (arm64) - Executable** _(.jar)_ 
 
-4) **Raspberry PI (ARM32) - Executable** _(.jar)_ 
+   The bundled OpenJFX does not work on arm64 processors and using a x86 java build (through Rosetta 2 emulation) has graphical glitches & reduced performance. 
+   The best option is to install a JDK build with JFX built in, such as the one provided by Bellsoft: https://github.com/bell-sw/homebrew-liberica just make sure to install the full package or JFX won't be bundled.
+
+5) **Raspberry PI (ARM32) - Executable** _(.jar)_ 
 
    As JavaFX is no longer part of the JDK (since JAVA 11), running a JavaFX program on Raspberry Pi will not work.<br>
    BellSoft provides the [Liberica JDK](https://bell-sw.com/pages/downloads/#/java-11-lts). The version dedicated for the Raspberry Pi includes JavaFX. And setting the version by default using the update-alternatives command.<br>
