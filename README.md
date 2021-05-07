@@ -62,7 +62,7 @@ You can choose from the following options.
 4) **Mac M1 (arm64) - Executable** _(.jar)_ 
 
    The bundled OpenJFX does not work on arm64 processors and using a x86 java build (through Rosetta 2 emulation) has graphical glitches & reduced performance. 
-   The best option is to install a JDK build with JFX built in, such as the one provided by Bellsoft: https://github.com/bell-sw/homebrew-liberica just make sure to install the full package or JFX won't be bundled.
+   The best option is to install a JDK build with JFX built in, such as the one provided by [Bellsoft](https://github.com/bell-sw/homebrew-liberica) just make sure to install the full package or JFX won't be bundled.
 
 5) **Raspberry PI (ARM32) - Executable** _(.jar)_ 
 
