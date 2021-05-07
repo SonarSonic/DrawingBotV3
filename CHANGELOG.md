@@ -1,6 +1,5 @@
 # Change Log
-
-### [v1.0.11-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.10-beta)
+### [v1.0.11-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.11-stable)
 - Added: "vpype" integration, automatically open your drawing in vpype + run commands from presets with "File / Export to vpype"
 - Added: New GCode Settings completely customisable GCode Commands / Orientation to support many more types of plotter.
 - Added: You can now drag + drop images into the viewer
