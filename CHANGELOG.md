@@ -1,4 +1,9 @@
 # Change Log
+
+### [v1.0.12-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.12-stable)
+- Added: Text fields for Image Filter options
+- Fixed: GCode Export, files will now have the correct offsets and orientation.
+
 ### [v1.0.11-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.11-stable)
 - Added: "vpype" integration, automatically open your drawing in vpype + run commands from presets with "File / Export to vpype"
 - Added: New GCode Settings completely customisable GCode Commands / Orientation to support many more types of plotter.
