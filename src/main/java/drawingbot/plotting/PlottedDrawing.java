@@ -74,11 +74,9 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public int renderGeometryFX(GraphicsContext graphics, int start, int end, IGeometryFilter pointFilter, int vertexRenderLimit, boolean reverse) {
-        int maxPoints = end-start;
         int renderCount = 0;
-        for (int i = 0; i < maxPoints; i++) {
-            int index = reverse ? end - i : start + i;
-            if(renderCount >= vertexRenderLimit){
+        for (int index = reverse ? end : start; (reverse ? index >= start : index < end); index += reverse ? -1 : 1) {
+            if(index != start && index != end && renderCount >= vertexRenderLimit){
                 return index;
             }
             IGeometry next = geometries.get(index);
@@ -92,11 +90,9 @@ public class PlottedDrawing {
     }
 
     public int renderGeometryAWT(Graphics2D graphics, int start, int end, IGeometryFilter pointFilter, int vertexRenderLimit, boolean reverse) {
-        int maxPoints = end-start;
         int renderCount = 0;
-        for (int i = 0; i < maxPoints; i++) {
-            int index = reverse ? end - i : start + i;
-            if(renderCount >= vertexRenderLimit){
+        for (int index = reverse ? end : start; (reverse ? index >= start : index < end); index += reverse ? -1 : 1) {
+            if(index != start && index != end && renderCount >= vertexRenderLimit){
                 return index;
             }
             IGeometry next = geometries.get(index);

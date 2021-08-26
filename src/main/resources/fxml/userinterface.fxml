@@ -24,7 +24,7 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane text="Drawing Area">
+                              <TitledPane expanded="false" text="Drawing Area">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="423.0">
                                        <children>
@@ -137,7 +137,7 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                              <TitledPane expanded="false" text="Path Finding Controls">
+                              <TitledPane text="Path Finding Controls">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>

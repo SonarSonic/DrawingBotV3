@@ -29,14 +29,14 @@ public class PFMSketchLines extends AbstractSketchPFM {
         float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
 
         if (!enableShading || shadingThreshold > lumProgress) {
-            delta_angle = drawingDeltaAngle / (float)tests;
+            delta_angle = drawingDeltaAngle / (float) lineTests;
         } else {
             delta_angle = shadingDeltaAngle;
         }
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
         resetLuminanceTest();
-        for (int d = 0; d < tests; d ++) {
+        for (int d = 0; d < lineTests; d ++) {
             luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }

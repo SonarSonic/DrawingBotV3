@@ -8,6 +8,7 @@ import drawingbot.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public abstract class AbstractDarkestPFM extends AbstractPFM {
 
@@ -178,6 +179,13 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         return (float) sum_luminance / (float)count_pixels;
     }
 
+    public boolean testAndSetLuminanceTest(){
+        float average = getLuminanceTestAverage();
+        boolean test = test_luminance == -1 || average < test_luminance;
+        test_luminance = average;
+        return test;
+    }
+
     protected int clampX(int x, int width){
         return Utils.clamp(x, 0, width-1);
     }
@@ -201,35 +209,52 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     protected void luminanceTestLine(IPixelData pixels, int x0, int y0, int x1, int y1) {
         resetLuminanceSamples();
 
-        x0 = clampX(x0, pixels.getWidth());
-        y0 = clampY(y0, pixels.getHeight());
+        //x0 = clampX(x0, pixels.getWidth());
+        //y0 = clampY(y0, pixels.getHeight());
 
-        bresenham.line(x0, y0, x1, y1, (x, y) -> luminanceTest(pixels, x, y));
+        bresenham.plotLine(x0, y0, x1, y1, (x, y) -> luminanceTest(pixels, x, y));
     }
 
     /**
-     * luminance test for individual pixels
+     * luminance test for individual pixels and STOPS prematurely
      */
     protected boolean luminanceTest(IPixelData pixels, int x, int y){
         if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
             //if we're off the image we'll take the last result and stop there
-            if(test_luminance == -1){
-                darkest_x = bresenham.lastX;
-                darkest_y = bresenham.lastY;
-                test_luminance = getLuminanceTestAverage();
+            if(test_luminance == -1 && count_pixels > minLineLength()){
+                onLuminanceTestSuccess(pixels, x, y);
             }
             return true;
         }
         sum_luminance += pixels.getLuminance(x, y);
         count_pixels++;
-        if ((test_luminance == -1 || getLuminanceTestAverage() < test_luminance)) {
-            darkest_x = x;
-            darkest_y = y;
-            test_luminance = getLuminanceTestAverage();
+        if ((test_luminance == -1 || getLuminanceTestAverage() < test_luminance) && count_pixels > minLineLength()) {
+            onLuminanceTestSuccess(pixels, x, y);
         }
-        return bresenham.pointCount > maxLineLength();
+        return count_pixels > maxLineLength();
     }
 
+    public void onLuminanceTestSuccess(IPixelData pixels, int x, int y){
+        darkest_x = x;
+        darkest_y = y;
+        test_luminance = getLuminanceTestAverage();
+    }
+
+    protected void luminanceTally(IPixelData pixels, int x, int y){
+        if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
+            return;
+        }
+        sum_luminance += pixels.getLuminance(x, y);
+        count_pixels++;
+    }
+
+
+    /**
+     * Overriding this value will force lines to reach the minimum length provided
+     * Doing this will result in less accurate plots for lines but is generally better for curve PFMS
+     * TODO MAKE THIS AN OPTION ON ALL PFMS???
+     * @return
+     */
     public int minLineLength(){
         return 0;
     }
@@ -240,17 +265,32 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public int adjustLuminanceLine(IPlottingTask task, IPixelData pixels, int x0, int y0, int x1, int y1, int adjustLum) {
+    public void resetColourSamples(){
         sum_red = 0;
         sum_green = 0;
         sum_blue = 0;
         sum_alpha = 0;
         total_pixels = 0;
-        bresenham.line(x0, y0, x1, y1, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
+    }
+
+    public int getColourTestAverage(){
+        if(total_pixels == 0){
+            return 0;
+        }
         return ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels);
     }
 
+    public int adjustLuminanceLine(IPlottingTask task, IPixelData pixels, int x0, int y0, int x1, int y1, int adjustLum) {
+        resetColourSamples();
+        bresenham.plotLine(x0, y0, x1, y1, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
+        return getColourTestAverage();
+    }
+
     public boolean adjustLuminanceColour(IPixelData pixels, int x, int y, int adjustLum){
+
+        if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
+            return false;
+        }
         total_pixels++;
         sum_alpha += pixels.getAlpha(x, y);
         sum_red += pixels.getRed(x, y);
