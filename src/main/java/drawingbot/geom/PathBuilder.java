@@ -2,6 +2,7 @@ package drawingbot.geom;
 
 import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GPath;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ public class PathBuilder {
             task.addGeometry(path);
         }
         path = null;
+        hasMoveTo = false;
     }
 
     public void moveTo(float x, float y) {
@@ -86,57 +88,95 @@ public class PathBuilder {
 
     //// CATMULL ROM CURVES \\\\\
 
-    private List<float[]> curvePath;
-    private float tension = 1;
+    private List<float[]> catmullCurvePath;
+    private float catmullTension = 1;
 
-    public void setCurveTension(float tension){
-        this.tension = tension;
+    public float getCatmullTension(){
+        return catmullTension;
     }
 
-    public void startCurve(){
-        if(curvePath != null){
-            endCurve();
+    public void setCatmullCurveTension(float tension){
+        this.catmullTension = tension;
+    }
+
+    public void startCatmullCurve(){
+        if(catmullCurvePath != null){
+            endCatmullCurve();
         }
         startPath();
-        curvePath = new ArrayList<>();
+        catmullCurvePath = new ArrayList<>();
     }
 
-    public void checkCurve(){
-        if(curvePath == null){
-            startCurve();
+    public void checkCatmullCurve(){
+        if(catmullCurvePath == null){
+            startCatmullCurve();
         }
     }
 
-    public void endCurve(){
-        if(curvePath == null){
+    public void endCatmullCurve(){
+        if(catmullCurvePath == null){
             return;
         }
         float[][] catmull = new float[4][2];
         float[][] bezier = new float[4][2];
 
-        int index = 0;
+
         int curves = 0;
-        for(float[] f : curvePath){
-            catmull[index] = f;
-            index++;
-            if(index == 4){
-                catmullToBezier(catmull, bezier, tension);
+        float[] p0 = null;
+        float[] p1 = null;
+        float[] p2 = null;
+        float[] p3 = null;
+
+
+        for(float[] point : catmullCurvePath){
+            p0 = p1;
+            p1 = p2;
+            p2 = p3;
+            p3 = point;
+
+            if(p0 != null && p1 != null && p2 != null && p3 != null){
+                catmullToBezier(new float[][]{p0, p1, p2, p3}, bezier, catmullTension);
                 if(curves == 0){
-                    moveTo(bezier[0][0], bezier[0][1]);
+                    moveTo(p0[0], p1[1]);
                 }
                 curveTo(bezier[1][0], bezier[1][1], bezier[2][0], bezier[2][1], bezier[3][0], bezier[3][1]);
-                index = 0;
                 curves++;
             }
+
         }
-        curvePath = null;
+
+        catmullCurvePath = null;
         endPath();
     }
 
-    public void addCurveVertex(float x, float y){
-        checkCurve();
-        curvePath.add(new float[]{x, y});
+    public void addCatmullCurveVertex(float x, float y){
+        checkCatmullCurve();
+        catmullCurvePath.add(new float[]{x, y});
     }
+
+    public int getCatmullCurvePointCount(){
+        return catmullCurvePath == null ? 0 : catmullCurvePath.size();
+    }
+
+    public boolean hasCurvePoints(){
+        return getCatmullP0() != null;
+    }
+
+    @Nullable
+    public float[] getCatmullP2(){
+        return catmullCurvePath == null || catmullCurvePath.size() <= 0 ? null : catmullCurvePath.get(catmullCurvePath.size()-1);
+    }
+
+    @Nullable
+    public float[] getCatmullP1(){
+        return catmullCurvePath == null || catmullCurvePath.size() <= 1 ? null : catmullCurvePath.get(catmullCurvePath.size()-2);
+    }
+
+    @Nullable
+    public float[] getCatmullP0(){
+        return catmullCurvePath == null || catmullCurvePath.size() <= 2 ? null : catmullCurvePath.get(catmullCurvePath.size()-3);
+    }
+
 
     //src: https://arxiv.org/abs/2011.08232
     public static float[][] catmullToBezier(float[][] catmull, float[][] bezier, float tension){
@@ -145,8 +185,8 @@ public class PathBuilder {
         bezier[1][0] = catmull[1][0] + ((catmull[2][0]-catmull[0][0]) / (6*tension));
         bezier[1][1] = catmull[1][1] + ((catmull[2][1]-catmull[0][1]) / (6*tension));
 
-        bezier[2][0] = catmull[2][0] + ((catmull[3][0]-catmull[1][0]) / (6*tension));
-        bezier[2][1] = catmull[2][1] + ((catmull[3][1]-catmull[1][1]) / (6*tension));
+        bezier[2][0] = catmull[2][0] - ((catmull[3][0]-catmull[1][0]) / (6*tension));
+        bezier[2][1] = catmull[2][1] - ((catmull[3][1]-catmull[1][1]) / (6*tension));
 
         bezier[3] = catmull[2];
         return bezier;

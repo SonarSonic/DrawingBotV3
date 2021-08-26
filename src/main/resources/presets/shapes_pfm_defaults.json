@@ -1,0 +1,16 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Shapes PFM",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Max Line length": "150"
+        }
+      }
+    }
+  ]
+}

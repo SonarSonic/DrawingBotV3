@@ -1,14 +1,12 @@
-package drawingbot.pfm.wip;
+package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GEllipse;
 import drawingbot.geom.basic.GRectangle;
-import drawingbot.image.ImageTools;
-import drawingbot.pfm.AbstractSketchPFM;
 import drawingbot.utils.EnumSketchShapes;
 
-public class PFMSketchShapes  extends AbstractSketchPFM {
+public class PFMSketchShapes extends AbstractSketchPFM {
 
     public EnumSketchShapes shapes;
     public int startAngleMin;
@@ -28,38 +26,36 @@ public class PFMSketchShapes  extends AbstractSketchPFM {
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
         float start_angle = randomSeedF(startAngleMin, startAngleMax);
-        float delta_angle = drawingDeltaAngle / (float)tests;
+        float delta_angle = drawingDeltaAngle / (float) lineTests;
 
         resetLuminanceTest();
-        for (int d = 0; d < tests; d ++) {
+        for (int d = 0; d < lineTests; d ++) {
             int nextLineLength = randomSeed(minLineLength, maxLineLength);
-
             this.luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }
 
     @Override
     public void addGeometry(IPlottingTask task, int x1, int y1, int x2, int y2, int adjust) {
-        int rgba = adjustLuminanceLine(task, task.getPixelData(), x1, y1, x2, y2, adjust);
+        int shapeX = Math.min(x1, x2);
+        int shapeY = Math.min(y1, y2);
+        int shapeWidth = Math.abs(x2-x1);
+        int shapeHeight = Math.abs(y2-y1);
         switch (shapes){
             case RECTANGLES:
-                task.addGeometry(new GRectangle(x1, y1, x2-x1, y2-y1), null, rgba);
+                resetColourSamples();
+                GRectangle rectangle = new GRectangle(shapeX, shapeY, shapeWidth, shapeHeight);
+                bresenham.plotShape(rectangle, (x, y) -> adjustLuminanceColour(task.getPixelData(), x, y, adjust));
+                task.addGeometry(rectangle, null, getColourTestAverage());
                 break;
             case ELLIPSES:
-                task.addGeometry(new GEllipse(x1, y1, x2-x1, y2-y1), null, rgba);
+                resetColourSamples();
+                GEllipse ellipse = new GEllipse(shapeX, shapeY, shapeWidth, shapeHeight);
+                bresenham.plotShape(ellipse, (x, y) -> adjustLuminanceColour(task.getPixelData(), x, y, adjust));
+                task.addGeometry(ellipse, null, getColourTestAverage());
                 break;
             default:
                 break;
         }
-    }
-
-    public int adjustLuminanceRectangle(IPlottingTask task, IPixelData pixels, int startX, int startY, int endX, int endY, int adjustLum) {
-        sum_red = 0;
-        sum_green = 0;
-        sum_blue = 0;
-        sum_alpha = 0;
-        total_pixels = 0;
-        bresenham.rectangle(startX, startY, endX, endY, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
-        return ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels);
     }
 }

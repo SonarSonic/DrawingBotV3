@@ -151,6 +151,8 @@ public class ImageTools {
                 return new PixelDataARGBY(width, height);
             case 4:
                 return new PixelDataHybrid(width, height);
+            case 5:
+                return new PixelDataBufferedImage(new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
             default:
                 return new PixelDataARGB(width, height);
         }

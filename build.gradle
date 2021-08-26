@@ -23,6 +23,8 @@ javafx {
 }
 
 dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
+
     //test dependencies
     testImplementation "junit:junit:${junit_version}"
 

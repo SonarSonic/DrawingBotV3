@@ -7,7 +7,6 @@ import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
 import drawingbot.image.ImageTools;
 import drawingbot.image.PixelDataLuminance;
-import drawingbot.pfm.AbstractSketchPFM;
 
 import java.awt.image.BufferedImage;
 
@@ -31,11 +30,11 @@ public class PFMSketchSobel extends AbstractSketchPFM {
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
         float start_angle = randomSeedF(0, 45);
-        float delta_angle = 360F / tests;
+        float delta_angle = 360F / lineTests;
         int nextLineLength = randomSeed(20, 30);
 
         resetLuminanceTest();
-        for (int d = 0; d < tests; d ++) {
+        for (int d = 0; d < lineTests; d ++) {
             luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
         }
     }

@@ -1,0 +1,49 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Curves PFM",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Neighbour Tests": "50",
+          "Min Line length": "15",
+          "Start Angle Min": "-360",
+          "Start Angle Max": "360"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Quad Beziers PFM",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Neighbour Tests": "50",
+          "Min Line length": "15",
+          "Start Angle Min": "-360",
+          "Start Angle Max": "360"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Neighbour Tests": "50",
+          "Min Line length": "15",
+          "Start Angle Min": "-360",
+          "Start Angle Max": "360"
+        }
+      }
+    }
+  ]
+}

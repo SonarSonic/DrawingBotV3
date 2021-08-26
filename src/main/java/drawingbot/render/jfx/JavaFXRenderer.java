@@ -49,7 +49,7 @@ public class JavaFXRenderer extends AbstractRenderer {
 
     ///
 
-    private boolean markRenderDirty = true, changedTask, changedMode, changedState, shouldRedraw;
+    private boolean changedTask, changedMode, changedState, shouldRedraw;
 
 
     @Override
@@ -66,8 +66,8 @@ public class JavaFXRenderer extends AbstractRenderer {
 
         DrawingBotV3.INSTANCE.controller.viewportStackPane.getChildren().add(canvas);
 
-        DrawingBotV3.INSTANCE.controller.viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> canvas.getWidth() * Math.max(1, canvas.getScaleX()), canvas.widthProperty(), canvas.scaleXProperty()));
-        DrawingBotV3.INSTANCE.controller.viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> canvas.getHeight() * Math.max(1, canvas.getScaleY()), canvas.heightProperty(), canvas.scaleYProperty()));
+        //DrawingBotV3.INSTANCE.controller.viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> canvas.getWidth() * Math.max(1, canvas.getScaleX()), canvas.widthProperty(), canvas.scaleXProperty()));
+       // DrawingBotV3.INSTANCE.controller.viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> canvas.getHeight() * Math.max(1, canvas.getScaleY()), canvas.heightProperty(), canvas.scaleYProperty()));
 
     }
 

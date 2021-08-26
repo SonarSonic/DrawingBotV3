@@ -1,5 +1,17 @@
 # Change Log
 
+### [v1.0.13-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.13-stable)
+- Added: Four New Path Finding Modules! All of which use much more accurate "Bresenham" calculations this results in longer processing times.
+    - "Sketch Quad Beziers" - Builds the image out of the darkest quadratic curves. By first finding the darkest line and finding the darkest control point.
+    - "Sketch Cubic Beziers" - Builds the image out of the darkest cubic curves. By first finding the darkest line, and then finding the darkest combination of control both points.
+    - "Sketch Catmull-Roms" - Builds the image out of the darkest catmull-rom splines. This works by finding the best possible curve over the next two segments.
+    - "Sketch Shapes" - Builds the image out of either Squares of Ellipses.
+  
+- Changed: The original "Sketch Curves PFM" has had a major revamp and now works almost as well as Catmull Roms, however it uses more basic Bresenham calculations so has a reduced accuracy, but does result in a much faster processing time.
+- Fixed: An issue where when hitting "Reset View", it sometimes had to be hit again.
+- Fixed: An issue where zooming would behave in strange ways.
+- Fixed: Issue where either the last or first shape wasn't drawn, primarily in curve modes.
+
 ### [v1.0.12-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.12-stable)
 - Added: Text fields for Image Filter options
 - Fixed: GCode Export, files will now have the correct offsets and orientation.

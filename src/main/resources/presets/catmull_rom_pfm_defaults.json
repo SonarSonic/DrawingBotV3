@@ -1,0 +1,18 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Sketch Catmull-Roms PFM",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Min Line length": "20",
+          "Start Angle Min": "-360",
+          "Start Angle Max": "360"
+        }
+      }
+    }
+  ]
+}

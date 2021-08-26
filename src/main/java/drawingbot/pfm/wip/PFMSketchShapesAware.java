@@ -25,7 +25,7 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
     public void findDarkestNeighbour(IPixelData pixels, int startX, int startY) {
 
         resetLuminanceTest();
-        for (int d = 0; d < tests; d ++) {
+        for (int d = 0; d < lineTests; d ++) {
             int width = randomSeed(minLineLength, maxLineLength);
             int height = randomSeed(minLineLength, maxLineLength);
             for (int flip = 0; flip < 2; flip ++) {
@@ -69,7 +69,7 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
 
     protected void luminanceTestRectangle(IPixelData pixels, int startX, int startY, int endX, int endY){
         resetLuminanceSamples();
-        bresenham.rectangle(startX, startY, endX, endY, (x, y) -> luminanceTest(pixels, x, y));
+        //bresenham.rectangle(startX, startY, endX, endY, (x, y) -> luminanceTest(pixels, x, y));
     }
 
     public int adjustLuminanceRectangle(IPlottingTask task, IPixelData pixels, int startX, int startY, int endX, int endY, int adjustLum) {
@@ -78,7 +78,7 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
         sum_blue = 0;
         sum_alpha = 0;
         total_pixels = 0;
-        bresenham.rectangle(startX, startY, endX, endY, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
+        //bresenham.rectangle(startX, startY, endX, endY, (x, y) -> adjustLuminanceColour(pixels, x, y, adjustLum));
         return ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels);
     }
 

@@ -28,11 +28,11 @@ public class PFMSketchWaves extends AbstractSketchPFM {
         double yOffset = yWave.waveFunction.apply(Math.toRadians((start_y/waveDivisorY)+waveOffsetY));
 
         float angle = startAngle + (float)Math.toDegrees(xOffset + yOffset);
-        float deltaAngle = 360.0F / (float)tests;
+        float deltaAngle = 360.0F / (float) lineTests;
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
         resetLuminanceTest();
-        for (int d = 0; d < tests; d ++) {
+        for (int d = 0; d < lineTests; d ++) {
             luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (deltaAngle * d) + angle);
         }
     }

@@ -86,7 +86,7 @@ public class PFMSineWaves extends AbstractPFM {
         //strokeWeight(strokeWidth * scaleFactor); //TODO SET STROKE WIDTH
 
         if (connectEnds) {
-            task.getPathBuilder().startCurve();
+            task.getPathBuilder().startCatmullCurve();
         }
 
         boolean oddRow = false;
@@ -110,7 +110,7 @@ public class PFMSineWaves extends AbstractPFM {
 
 
             if (!connectEnds) {
-                task.getPathBuilder().startCurve();
+                task.getPathBuilder().startCatmullCurve();
             }
 
             // Add initial "extra" point to give splines a consistent visual endpoint,
@@ -119,15 +119,15 @@ public class PFMSineWaves extends AbstractPFM {
             if (reverseRow) {
                 if (!connectEnds || y == 0) {
                     // Always add the extra initial point if we're not connecting the ends, or if this is the first row.
-                    task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
+                    task.getPathBuilder().addCatmullCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
                 }
-                task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
+                task.getPathBuilder().addCatmullCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
             } else {
                 if (!connectEnds || y == 0) {
                     // Always add the extra initial point if we're not connecting the ends, or if this is the first row.
-                    task.getPathBuilder().addCurveVertex(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
+                    task.getPathBuilder().addCatmullCurveVertex(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
                 }
-                task.getPathBuilder().addCurveVertex(xOffset, y * scaleFactor);
+                task.getPathBuilder().addCatmullCurveVertex(xOffset, y * scaleFactor);
             }
 
 
@@ -279,42 +279,42 @@ public class PFMSineWaves extends AbstractPFM {
             }
 
             for (int i = 0; i < xPoints.size(); i++) {
-                task.getPathBuilder().addCurveVertex(xPoints.get(i), yPoints.get(i));
+                task.getPathBuilder().addCatmullCurveVertex(xPoints.get(i), yPoints.get(i));
 
             }
 
 
             // Add final "extra" point to give splines a consistent visual endpoint:
             if (reverseRow) {
-                task.getPathBuilder().addCurveVertex(xOffset, y * scaleFactor);
+                task.getPathBuilder().addCatmullCurveVertex(xOffset, y * scaleFactor);
                 if (!connectEnds || finalRow) {
                     // Always add the extra final point if we're not connecting the ends, or if this is the first row.
-                    task.getPathBuilder().addCurveVertex(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
+                    task.getPathBuilder().addCatmullCurveVertex(xOffset - scaleFactor * (0.1F * xstep), y * scaleFactor);
                 }
             } else {
-                task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
+                task.getPathBuilder().addCatmullCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth()), scaleFactor * y);
                 if (!connectEnds || finalRow) {
                     // Always add the extra final point if we're not connecting the ends, or if this is the first row.
-                    task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
+                    task.getPathBuilder().addCatmullCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep), scaleFactor * y);
                 }
             }
 
 
             if (connectEnds && !finalRow){  // Add curvy end connectors
                 if (reverseRow) {
-                    task.getPathBuilder().addCurveVertex(xOffset - scaleFactor * (0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
+                    task.getPathBuilder().addCatmullCurveVertex(xOffset - scaleFactor * (0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
                 } else {
-                    task.getPathBuilder().addCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
+                    task.getPathBuilder().addCatmullCurveVertex(xOffset + scaleFactor * (task.getPixelData().getWidth() + 0.1F * xstep + scaledYstep / 3), (y + scaledYstep / 2) * scaleFactor);
                 }
             }
 
             if (!connectEnds) {
-                task.getPathBuilder().endCurve();
+                task.getPathBuilder().endCatmullCurve();
             }
         }
 
         if (connectEnds) {
-            task.getPathBuilder().endCurve();
+            task.getPathBuilder().endCatmullCurve();
         }
         task.finishProcess();
     }

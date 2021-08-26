@@ -11,7 +11,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public int adjustbrightness;
     public float lineDensity;
 
-    public int tests;
+    public int lineTests;
     public int minLineLength;
     public int maxLineLength;
     public int maxLines;
