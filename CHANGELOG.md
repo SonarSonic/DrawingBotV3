@@ -1,5 +1,11 @@
 # Change Log
 
+### [v1.0.14-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.14-stable)
+- Added: Image Sequences for creating animations of your creations! The duration can be change in Export Settings / Image Sequences
+- Added: GCode "Start Layer" & "End Layer" custom commands
+- Fixed: The new curve PFMs will now bypass plot optimization automatically to avoid curve flattening.
+- Fixed: GCode exports will now include bezier curves, though this requires more testing.
+
 ### [v1.0.13-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.13-stable)
 - Added: Four New Path Finding Modules! All of which use much more accurate "Bresenham" calculations this results in longer processing times.
     - "Sketch Quad Beziers" - Builds the image out of the darkest quadratic curves. By first finding the darkest line and finding the darkest control point.
