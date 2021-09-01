@@ -26,6 +26,8 @@ public class GCodeExporter {
     public static final String defaultEndCode = "";
     public static final String defaultPenDownCode = "G1 Z0";
     public static final String defaultPenUpCode = "G1 Z1";
+    public static final String defaultStartLayerCode = "";
+    public static final String defaultEndLayerCode = "";
 
 
     public static void exportGCode(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
@@ -39,6 +41,7 @@ public class GCodeExporter {
 
         float[] coords = new float[6];
         for(List<IGeometry> geometryList : geometries.values()){
+            builder.startLayer();
             int i = 0;
             for(IGeometry geometry : geometryList){
                 PathIterator iterator = geometry.getAWTShape().getPathIterator(transform);
@@ -50,6 +53,7 @@ public class GCodeExporter {
                 i++;
                 exportTask.updateProgress(i, geometryList.size()-1);
             }
+            builder.endLayer();
         }
         builder.close();
         DrawingBotV3.logger.info("GCode File Created:  " +  saveLocation);
@@ -91,31 +95,31 @@ public class GCodeExporter {
         float test_length = 10;
 
         builder.comment("Upper left");
-        builder.movePen(dx.min, dy.min + test_length);
+        builder.linearMoveG1(dx.min, dy.min + test_length);
         builder.movePenDown();
-        builder.movePen(dx.min, dy.min);
-        builder.movePen(dx.min + test_length, dy.min);
+        builder.linearMoveG1(dx.min, dy.min);
+        builder.linearMoveG1(dx.min + test_length, dy.min);
         builder.movePenUp();
 
         builder.comment("Upper right");
-        builder.movePen(dx.max - test_length, dy.min);
+        builder.linearMoveG1(dx.max - test_length, dy.min);
         builder.movePenDown();
-        builder.movePen(dx.max, dy.min);
-        builder.movePen(dx.max, dy.min + test_length);
+        builder.linearMoveG1(dx.max, dy.min);
+        builder.linearMoveG1(dx.max, dy.min + test_length);
         builder.movePenUp();
 
         builder.comment("Lower right");
-        builder.movePen(dx.max,dy.max - test_length);
+        builder.linearMoveG1(dx.max,dy.max - test_length);
         builder.movePenDown();
-        builder.movePen(dx.max, dy.max);
-        builder.movePen(dx.max - test_length, dy.max);
+        builder.linearMoveG1(dx.max, dy.max);
+        builder.linearMoveG1(dx.max - test_length, dy.max);
         builder.movePenUp();
 
         builder.comment("Lower left");
-        builder.movePen(dx.min + test_length, dy.max);
+        builder.linearMoveG1(dx.min + test_length, dy.max);
         builder.movePenDown();
-        builder.movePen(dx.min, dy.max);
-        builder.movePen(dx.min, dy.max - test_length);
+        builder.linearMoveG1(dx.min, dy.max);
+        builder.linearMoveG1(dx.min, dy.max - test_length);
         builder.movePenUp();
 
         exportTask.updateProgress(1,1);
