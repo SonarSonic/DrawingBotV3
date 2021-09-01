@@ -25,6 +25,8 @@ public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCod
         registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodeEndCode", GCodeExporter.defaultEndCode, false, (app, value) -> app.controller.exportController.textAreaGCodeEnd.setText(value)).setGetter(app -> app.gcodeEndCode.get()));
         registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodePenDownCode", GCodeExporter.defaultPenDownCode, false, (app, value) -> app.controller.exportController.textAreaGCodePenDown.setText(value)).setGetter(app -> app.gcodePenDownCode.get()));
         registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodePenUpCode", GCodeExporter.defaultPenUpCode, false, (app, value) -> app.controller.exportController.textAreaGCodePenUp.setText(value)).setGetter(app -> app.gcodePenUpCode.get()));
+        registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodeStartLayerCode", GCodeExporter.defaultStartLayerCode, false, (app, value) -> app.controller.exportController.textAreaGCodeStartLayer.setText(value)).setGetter(app -> app.gcodeStartLayerCode.get()));
+        registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodeEndLayerCode", GCodeExporter.defaultEndLayerCode, false, (app, value) -> app.controller.exportController.textAreaGCodeEndLayer.setText(value)).setGetter(app -> app.gcodeEndLayerCode.get()));
     }
 
     @Override

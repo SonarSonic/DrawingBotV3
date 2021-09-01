@@ -135,6 +135,8 @@ public class FXExportController {
     public TextArea textAreaGCodeEnd = null;
     public TextArea textAreaGCodePenDown = null;
     public TextArea textAreaGCodePenUp = null;
+    public TextArea textAreaGCodeStartLayer = null;
+    public TextArea textAreaGCodeEndLayer = null;
 
     public ChoiceBox<EnumDirection> choiceBoxGCodeXDir = null;
     public ChoiceBox<EnumDirection> choiceBoxGCodeYDir = null;
@@ -175,6 +177,12 @@ public class FXExportController {
 
         textAreaGCodePenUp.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodePenUpCode);
         textAreaGCodePenUp.setText(GCodeExporter.defaultPenUpCode);
+
+        textAreaGCodeStartLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeStartLayerCode);
+        textAreaGCodeStartLayer.setText(GCodeExporter.defaultStartLayerCode);
+
+        textAreaGCodeEndLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeEndLayerCode);
+        textAreaGCodeEndLayer.setText(GCodeExporter.defaultEndLayerCode);
 
         /*
 

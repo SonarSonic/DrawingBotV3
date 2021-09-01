@@ -68,6 +68,8 @@ public class DrawingBotV3 {
     public final SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
+    public final SimpleStringProperty gcodeStartLayerCode = new SimpleStringProperty();
+    public final SimpleStringProperty gcodeEndLayerCode = new SimpleStringProperty();
 
     //PRE-PROCESSING\\
     public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();

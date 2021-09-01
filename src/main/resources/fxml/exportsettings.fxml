@@ -230,6 +230,18 @@
                                              </font>
                                           </Label>
                                           <TextArea fx:id="textAreaGCodePenUp" layoutX="14.0" layoutY="213.0" prefHeight="44.0" prefWidth="350.0" />
+                                          <Label alignment="TOP_LEFT" contentDisplay="RIGHT" layoutX="14.0" layoutY="287.0" text="GCode - Start Layer">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextArea fx:id="textAreaGCodeStartLayer" layoutX="14.0" layoutY="308.0" prefHeight="44.0" prefWidth="350.0" />
+                                          <Label alignment="TOP_LEFT" contentDisplay="RIGHT" layoutX="14.0" layoutY="356.0" text="GCode - End Layer">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextArea fx:id="textAreaGCodeEndLayer" layoutX="14.0" layoutY="377.0" prefHeight="44.0" prefWidth="350.0" />
                                        </children>
                                        <padding>
                                           <Insets left="4.0" top="4.0" />
