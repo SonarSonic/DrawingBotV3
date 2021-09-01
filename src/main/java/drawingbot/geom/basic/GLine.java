@@ -36,7 +36,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
     public Integer sampledRGBA = null;
 
     @Override
-    public int getVertexCount() {
+    public int getSegmentCount() {
         return 2;
     }
 

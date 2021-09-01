@@ -17,11 +17,11 @@ public class GShape implements IGeometry {
 
     public GShape(Shape shape){
         this.shape = shape;
-        this.vertexCount = GeometryUtils.getVertexCount(shape);
+        this.vertexCount = GeometryUtils.getSegmentCount(shape);
     }
 
     @Override
-    public int getVertexCount() {
+    public int getSegmentCount() {
         return vertexCount;
     }
 

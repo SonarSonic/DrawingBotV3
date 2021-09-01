@@ -51,25 +51,22 @@ public class PFMCatmullRoms extends PFMSketchLines {
             x = darkest_x;
             y = darkest_y;
             if(updateProgress(task) || task.isFinished()){
+                task.getPathBuilder().endCatmullCurve();
                 task.finishProcess();
                 return;
             }
         }
-        task.getPathBuilder().endCatmullCurve();
-        task.getLastGeometry().setCustomRGBA(getCurveARGB());
+        if(shouldLiftPen){
+            task.getPathBuilder().endCatmullCurve();
+            task.getLastGeometry().setCustomRGBA(getCurveARGB());
+        }
     }
 
 
     @Override
     public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
-        float delta_angle;
-        float start_angle = randomSeedF(0, 360) + 0.5F;
-
-        if (!enableShading || shadingThreshold > lumProgress) {
-            delta_angle = drawingDeltaAngle / (float) lineTests;
-        } else {
-            delta_angle = shadingDeltaAngle;
-        }
+        float delta_angle = drawingDeltaAngle / (float) lineTests;
+        float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
 
         float[] p1 = task.getPathBuilder().getCatmullP1();
         float[] p2 = task.getPathBuilder().getCatmullP2();

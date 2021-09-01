@@ -9,7 +9,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.presets.types.ConfigApplicationSettings;
 import drawingbot.geom.basic.*;
-import drawingbot.utils.Units;
+import drawingbot.utils.UnitsLength;
 import drawingbot.utils.Utils;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.awt.ShapeReader;
@@ -63,6 +63,7 @@ public class GeometryUtils {
 
         return combinedGeometry;
     }
+
     public static Map<Integer, List<IGeometry>> getBasicGeometriesForExport(List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet) {
         return combineBasicGeometries(geometryFilter, drawingSet, geometries);
     }
@@ -151,22 +152,22 @@ public class GeometryUtils {
         ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
 
         if(settings.lineSimplifyEnabled){
-            float tolerance = Units.convert(settings.lineSimplifyTolerance, settings.lineSimplifyUnits, Units.MILLIMETRES);
+            float tolerance = UnitsLength.convert(settings.lineSimplifyTolerance, settings.lineSimplifyUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineSimplify(lineStrings, tolerance);
         }
 
         if(settings.lineMergingEnabled){
-            float tolerance = Units.convert(settings.lineMergingTolerance, settings.lineMergingUnits, Units.MILLIMETRES);
+            float tolerance = UnitsLength.convert(settings.lineMergingTolerance, settings.lineMergingUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineMerge(lineStrings, tolerance);
         }
 
         if(settings.lineFilteringEnabled){
-            float tolerance = Units.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, Units.MILLIMETRES);
+            float tolerance = UnitsLength.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineFilter(lineStrings, tolerance);
         }
 
         if(settings.lineSortingEnabled){
-            float tolerance = Units.convert(settings.lineSortingTolerance, settings.lineSortingUnits, Units.MILLIMETRES);
+            float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineSort(lineStrings, tolerance);
         }
 
@@ -438,6 +439,17 @@ public class GeometryUtils {
         return new GPath(new ShapeWriter().toShape(string), transform);
     }
 
+    public static int getSegmentCount(Shape shape){
+        int segmentCount = 0;
+        PathIterator iterator = shape.getPathIterator(null);
+        while(!iterator.isDone()){
+            iterator.next();
+            segmentCount++;
+        }
+        return segmentCount;
+    }
+
+    @Deprecated
     public static int getVertexCount(Shape shape){
         int vertexCount = 0;
         PathIterator iterator = shape.getPathIterator(null);

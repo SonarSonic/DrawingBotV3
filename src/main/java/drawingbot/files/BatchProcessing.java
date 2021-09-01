@@ -29,7 +29,7 @@ public class BatchProcessing {
             for(FileChooser.ExtensionFilter filter : exportTask.filters){
                 BatchExportTask task = new BatchExportTask(exportTask, filter);
                 exportTasks.add(task);
-                if(filter == FileUtils.FILTER_PNG){
+                if(filter == FileUtils.FILTER_PNG && exportTask == ExportFormats.EXPORT_IMAGE){
                     task.enablePerDrawing.setValue(true);
                 }
             }

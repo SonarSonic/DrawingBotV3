@@ -7,7 +7,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.utils.Units;
+import drawingbot.utils.UnitsLength;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
@@ -42,8 +42,8 @@ public class SVGExporter {
             int height = (int)plottingTask.resolution.getScaledHeight();
 
             // Calculate the page size relative to the configured SVG DPI
-            int scaledPageWidth = (int)Math.ceil((plottingTask.resolution.printPageWidth / Units.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
-            int scaledPageHeight = (int)Math.ceil((plottingTask.resolution.printPageHeight / Units.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            int scaledPageWidth = (int)Math.ceil((plottingTask.resolution.printPageWidth / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            int scaledPageHeight = (int)Math.ceil((plottingTask.resolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
             double scale = (double)scaledPageWidth / width;
 
             // Get a DOMImplementation.

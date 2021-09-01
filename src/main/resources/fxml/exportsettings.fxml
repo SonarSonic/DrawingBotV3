@@ -148,7 +148,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab text="SVG Settings">
+            <Tab text="SVG Export">
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
                      <children>
@@ -173,7 +173,7 @@
                      </children></AnchorPane>
                 </content>
             </Tab>
-          <Tab text="GCode Settings">
+          <Tab text="GCode Export">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                 <children>
@@ -243,6 +243,52 @@
                 </AnchorPane>
             </content>
           </Tab>
+           <Tab text="Image Sequences">
+              <content>
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
+                    <children>
+                       <VBox prefHeight="46.0" prefWidth="400.0" spacing="10.0">
+                          <padding>
+                             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                          </padding>
+                          <children>
+                              <Separator layoutX="18.0" layoutY="53.0" prefWidth="200.0" />
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <Label contentDisplay="RIGHT" prefHeight="51.0" prefWidth="245.0" text="FPS: ">
+                                       <graphic>
+                                          <TextField fx:id="textFieldFPS" prefHeight="25.0" prefWidth="87.0" />
+                                       </graphic>
+                                    </Label>
+                                    <Label contentDisplay="RIGHT" prefHeight="30.0" prefWidth="293.0" text="Duration:">
+                                       <graphic>
+                                          <TextField fx:id="textFieldDuration" prefHeight="25.0" prefWidth="114.0" text="60" />
+                                       </graphic>
+                                    </Label>
+                                    <ChoiceBox fx:id="choiceBoxTimeUnits" prefHeight="30.0" prefWidth="205.0" />
+                                 </children>
+                              </HBox>
+                              <Separator prefWidth="200.0" />
+                              <Label contentDisplay="RIGHT" text="Frame Count: ">
+                                 <graphic>
+                                    <Label fx:id="labelFrameCount" contentDisplay="RIGHT" text="Label" />
+                                 </graphic>
+                              </Label>
+                              <Label contentDisplay="RIGHT" text="Geometries per frame: ">
+                                 <graphic>
+                                    <Label fx:id="labelGeometriesPFrame" contentDisplay="RIGHT" text="Label" />
+                                 </graphic>
+                              </Label>
+                              <Label contentDisplay="RIGHT" layoutX="18.0" layoutY="106.0" text="Vertices per frame: ">
+                                 <graphic>
+                                    <Label fx:id="labelVerticesPFrame" contentDisplay="RIGHT" text="Label" />
+                                 </graphic>
+                              </Label>
+                          </children>
+                       </VBox>
+                    </children></AnchorPane>
+              </content>
+           </Tab>
         </tabs>
       </TabPane>
    </children>

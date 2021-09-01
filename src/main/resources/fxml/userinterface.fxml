@@ -24,7 +24,7 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane expanded="false" text="Drawing Area">
+                              <TitledPane text="Drawing Area">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="423.0">
                                        <children>
