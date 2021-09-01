@@ -24,11 +24,11 @@ public class Register {
 
         //operational path finding modules
         MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false, false).setBypassOptimisation(true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMQuadBezier.class, "Sketch Quad Beziers PFM", PFMQuadBezier::new, false, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMCubicBezier.class, "Sketch Cubic Beziers PFM", PFMCubicBezier::new, false, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMCatmullRoms.class, "Sketch Catmull-Roms PFM", PFMCatmullRoms::new, false, false);
+        MasterRegistry.INSTANCE.registerPFM(PFMQuadBezier.class, "Sketch Quad Beziers PFM", PFMQuadBezier::new, false, false).setBypassOptimisation(true);
+        MasterRegistry.INSTANCE.registerPFM(PFMCubicBezier.class, "Sketch Cubic Beziers PFM", PFMCubicBezier::new, false, false).setBypassOptimisation(true);
+        MasterRegistry.INSTANCE.registerPFM(PFMCatmullRoms.class, "Sketch Catmull-Roms PFM", PFMCatmullRoms::new, false, false).setBypassOptimisation(true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, false, false);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel Edges PFM", PFMSketchSobel::new, false, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false, true).setTransparentCMYK(false);
@@ -134,9 +134,11 @@ public class Register {
         MasterRegistry.INSTANCE.registerModularEncoderSetting(TriangulationShapeEncoder.class, GenericSetting.createBooleanSetting(PFMModular.class, "Triangulate Corners", false, false, (pfmSketch, value) -> ((TriangulationShapeEncoder)pfmSketch.shapeEncoder).connectCorners = value));
 
         ///// CATMOLL ROM
-
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMCatmullRoms.class, "Curve tension", 0.5F, 0.01F, 1F, false, (pfmSketch, value) -> pfmSketch.tension = value));
 
+        MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading");
+        MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Threshold");
+        MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Delta Angle");
     }
 
     public static void registerDrawingTools(){

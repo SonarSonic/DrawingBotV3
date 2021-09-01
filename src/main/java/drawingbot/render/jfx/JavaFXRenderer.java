@@ -283,7 +283,7 @@ public class JavaFXRenderer extends AbstractRenderer {
 
                     if(renderedLines == 0){
                         long time = System.currentTimeMillis();
-                        DrawingBotV3.INSTANCE.logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
+                        DrawingBotV3.logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
                         renderedLines = -1;
                     }
                 }

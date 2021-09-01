@@ -138,6 +138,37 @@ public class MasterRegistry {
         }
     }
 
+    public PFMFactory<?> getPFMFactory(String name){
+        for(PFMFactory<?> factory : pfmFactories){
+            if(factory.getName().equals(name)){
+                return factory;
+            }
+        }
+        return null;
+    }
+
+    public PFMFactory<?> getPFMFactory(Class<?> pfmClass){
+        for(PFMFactory<?> factory : pfmFactories){
+            if(factory.getInstanceClass().equals(pfmClass)){
+                return factory;
+            }
+        }
+        return null;
+    }
+
+    public void removePFMSettingByName(Class<?> pfmClass, String name){
+        PFMFactory<?> factory = getPFMFactory(pfmClass);
+        if(factory != null){
+            ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
+            for(GenericSetting<?, ?> setting : settings){
+                if(setting.settingName.getValue().equals(name)){
+                    settings.remove(setting);
+                    return;
+                }
+            }
+        }
+    }
+
     /**
      * Registers an encoder setting for every PFMModular which uses it
      */
