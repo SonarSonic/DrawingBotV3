@@ -45,14 +45,14 @@ public class GPath extends Path2D.Float implements IGeometry {
     public Integer penIndex = null;
     public Integer customRGBA = null;
 
-    public int vertexCount = -1;
+    public int segmentCount = -1;
 
     @Override
-    public int getVertexCount() {
-        if(vertexCount == -1){
-            vertexCount = GeometryUtils.getVertexCount(this);
+    public int getSegmentCount() {
+        if(segmentCount == -1){
+            segmentCount = GeometryUtils.getSegmentCount(this);
         }
-        return vertexCount;
+        return segmentCount;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     public void markPathDirty(){
-        vertexCount = -1;
+        segmentCount = -1;
     }
 
     public static void move(GPath path, float[] coords, int type){

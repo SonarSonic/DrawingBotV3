@@ -13,7 +13,7 @@ public interface IGeometry {
     IGeometryFilter DEFAULT_FILTER = (point, pen) -> pen.isEnabled();
     IGeometryFilter SELECTED_PEN_FILTER = (point, pen) -> pen.isEnabled() && (DrawingBotV3.INSTANCE.controller.getSelectedPen() == null || DrawingBotV3.INSTANCE.controller.getSelectedPen().penNumber.get() == pen.penNumber.get());
 
-    default int getVertexCount(){
+    default int getSegmentCount(){
         return 1;
     }
 

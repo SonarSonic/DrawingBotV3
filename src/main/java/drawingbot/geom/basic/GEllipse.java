@@ -1,6 +1,7 @@
 package drawingbot.geom.basic;
 
 import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.geom.GeometryUtils;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;
@@ -21,6 +22,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
 
     public Integer penIndex = null;
     public Integer sampledRGBA = null;
+
+    @Override
+    public int getSegmentCount() {
+        return 6;
+    }
 
     @Override
     public Shape getAWTShape() {

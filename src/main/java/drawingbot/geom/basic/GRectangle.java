@@ -23,7 +23,7 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     public Integer sampledRGBA = null;
 
     @Override
-    public int getVertexCount() {
+    public int getSegmentCount() {
         return 4;
     }
 

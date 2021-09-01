@@ -52,7 +52,7 @@ public class PlottedDrawing {
 
     public void addGeometry(IGeometry geometry) {
         geometries.add(geometry);
-        vertexCount += geometry.getVertexCount();
+        vertexCount += geometry.getSegmentCount();
     }
 
     public void addGeometry(PlottedDrawing drawing){
@@ -83,7 +83,7 @@ public class PlottedDrawing {
             ObservableDrawingPen pen = drawingPenSet.getPen(next.getPenIndex());
             if(pointFilter.filter(next, pen)){
                 next.renderFX(graphics, pen);
-                renderCount += next.getVertexCount();
+                renderCount += next.getSegmentCount();
             }
         }
         return reverse ? start : end;
@@ -99,7 +99,7 @@ public class PlottedDrawing {
             ObservableDrawingPen pen = drawingPenSet.getPen(next.getPenIndex());
             if(pointFilter.filter(next, pen)){
                 next.renderAWT(graphics, pen);
-                renderCount += next.getVertexCount();
+                renderCount += next.getSegmentCount();
             }
         }
         return reverse ? start : end;

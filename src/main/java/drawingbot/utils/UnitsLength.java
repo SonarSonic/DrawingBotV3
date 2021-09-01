@@ -1,6 +1,6 @@
 package drawingbot.utils;
 
-public enum Units {
+public enum UnitsLength {
 
     MILLIMETRES("mm", 1F),
     CENTIMETRES("cm", 10F),
@@ -9,7 +9,7 @@ public enum Units {
     public String displayName;
     public float convertToMM;
 
-    Units(String displayName, float convertToMM) {
+    UnitsLength(String displayName, float convertToMM) {
         this.displayName = displayName;
         this.convertToMM = convertToMM;
     }
@@ -23,7 +23,7 @@ public enum Units {
         return value * convertToMM;
     }
 
-    public static float convert(float value, Units from, Units to){
+    public static float convert(float value, UnitsLength from, UnitsLength to){
         if(from == to){
             return value;
         }

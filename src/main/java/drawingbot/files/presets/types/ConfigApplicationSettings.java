@@ -1,10 +1,13 @@
 package drawingbot.files.presets.types;
 
+import drawingbot.DrawingBotV3;
+import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.IConfigData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.utils.Units;
+import drawingbot.utils.UnitsLength;
+import drawingbot.utils.UnitsTime;
 
 public class ConfigApplicationSettings implements IConfigData {
 
@@ -16,19 +19,19 @@ public class ConfigApplicationSettings implements IConfigData {
 
     public boolean lineSimplifyEnabled = true;
     public float lineSimplifyTolerance = 0.1F;
-    public Units lineSimplifyUnits = Units.MILLIMETRES;
+    public UnitsLength lineSimplifyUnits = UnitsLength.MILLIMETRES;
 
     public boolean lineMergingEnabled = true;
     public float lineMergingTolerance = 0.5F;
-    public Units lineMergingUnits = Units.MILLIMETRES;
+    public UnitsLength lineMergingUnits = UnitsLength.MILLIMETRES;
 
     public boolean lineFilteringEnabled = true;
     public float lineFilteringTolerance = 0.5F;
-    public Units lineFilteringUnits = Units.MILLIMETRES;
+    public UnitsLength lineFilteringUnits = UnitsLength.MILLIMETRES;
 
     public boolean lineSortingEnabled = true;
     public float lineSortingTolerance = 1F;
-    public Units lineSortingUnits = Units.MILLIMETRES;
+    public UnitsLength lineSortingUnits = UnitsLength.MILLIMETRES;
 
     ///svg settings
     public boolean svgLayerRenaming = false;
@@ -36,6 +39,23 @@ public class ConfigApplicationSettings implements IConfigData {
     ////vpype settings
     public String pathToVPypeExecutable = "";
     public String vPypePresetName = "";
+
+    ////animation settings
+    public float framesPerSecond = 25F;
+    public int duration = 5;
+    public UnitsTime durationUnits = UnitsTime.SECONDS;
+
+    public int getFrameCount(){
+        return (int)(framesPerSecond * durationUnits.toSeconds(duration));
+    }
+
+    public int getGeometriesPerFrame(int count){
+        return Math.max(1, count / getFrameCount());
+    }
+
+    public long getVerticesPerFrame(long count){
+        return Math.max(1, count / getFrameCount());
+    }
 
     @Override
     public EnumJsonType getJsonType() {

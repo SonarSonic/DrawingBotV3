@@ -325,7 +325,7 @@ public class FXController {
 
     /////SIZING OPTIONS
     public CheckBox checkBoxOriginalSizing = null;
-    public ChoiceBox<Units> choiceBoxDrawingUnits = null;
+    public ChoiceBox<UnitsLength> choiceBoxDrawingUnits = null;
     public Pane paneDrawingAreaCustom = null;
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
@@ -366,8 +366,8 @@ public class FXController {
         paneDrawingAreaCustom.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
 
-        choiceBoxDrawingUnits.getItems().addAll(Units.values());
-        choiceBoxDrawingUnits.setValue(Units.MILLIMETRES);
+        choiceBoxDrawingUnits.getItems().addAll(UnitsLength.values());
+        choiceBoxDrawingUnits.setValue(UnitsLength.MILLIMETRES);
         DrawingBotV3.INSTANCE.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
 
         DrawingBotV3.INSTANCE.drawingAreaWidth.bind(Bindings.createFloatBinding(() -> textFieldDrawingWidth.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingWidth.textProperty().get()), textFieldDrawingWidth.textProperty()));

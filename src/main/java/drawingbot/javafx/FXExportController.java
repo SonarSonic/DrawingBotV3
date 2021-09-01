@@ -6,13 +6,16 @@ import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetGCodeSettings;
 import drawingbot.utils.EnumDirection;
-import drawingbot.utils.Units;
+import drawingbot.utils.UnitsLength;
+import drawingbot.utils.UnitsTime;
+import drawingbot.utils.Utils;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.Pane;
 import javafx.util.converter.FloatStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 public class FXExportController {
 
@@ -20,8 +23,11 @@ public class FXExportController {
         initPathOptimisationPane();
         initSVGSettingsPane();
         initGCodeSettingsPane();
+        initImageSequencePane();
 
         DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnHidden(e -> ConfigFileHandler.getApplicationSettings().markDirty());
+
+        DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnShown(e -> updateImageSequenceStats());
     }
 
 
@@ -33,19 +39,19 @@ public class FXExportController {
 
     public CheckBox checkBoxSimplify = null;
     public TextField textFieldSimplifyTolerance = null;
-    public ChoiceBox<Units> choiceBoxSimplifyUnits = null;
+    public ChoiceBox<UnitsLength> choiceBoxSimplifyUnits = null;
 
     public CheckBox checkBoxMerge = null;
     public TextField textFieldMergeTolerance = null;
-    public ChoiceBox<Units> choiceBoxMergeUnits = null;
+    public ChoiceBox<UnitsLength> choiceBoxMergeUnits = null;
 
     public CheckBox checkBoxFilter = null;
     public TextField textFieldFilterTolerance = null;
-    public ChoiceBox<Units> choiceBoxFilterUnits = null;
+    public ChoiceBox<UnitsLength> choiceBoxFilterUnits = null;
 
     public CheckBox checkBoxSort = null;
     public TextField textFieldSortTolerance = null;
-    public ChoiceBox<Units> choiceBoxSortUnits = null;
+    public ChoiceBox<UnitsLength> choiceBoxSortUnits = null;
 
     public void initPathOptimisationPane(){
         checkBoxEnableOptimisation.setSelected(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled);
@@ -63,7 +69,7 @@ public class FXExportController {
         textFieldSimplifyTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSimplifyTolerance = Float.parseFloat(newValue));
 
         choiceBoxSimplifyUnits.setValue(ConfigFileHandler.getApplicationSettings().lineSimplifyUnits);
-        choiceBoxSimplifyUnits.setItems(FXCollections.observableArrayList(Units.values()));
+        choiceBoxSimplifyUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
         choiceBoxSimplifyUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSimplifyUnits = newValue);
 
         ///merge
@@ -76,7 +82,7 @@ public class FXExportController {
         textFieldMergeTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineMergingTolerance = Float.parseFloat(newValue));
 
         choiceBoxMergeUnits.setValue(ConfigFileHandler.getApplicationSettings().lineMergingUnits);
-        choiceBoxMergeUnits.setItems(FXCollections.observableArrayList(Units.values()));
+        choiceBoxMergeUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
         choiceBoxMergeUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineMergingUnits = newValue);
 
         ///filter
@@ -89,7 +95,7 @@ public class FXExportController {
         textFieldFilterTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineFilteringTolerance = Float.parseFloat(newValue));
 
         choiceBoxFilterUnits.setValue(ConfigFileHandler.getApplicationSettings().lineFilteringUnits);
-        choiceBoxFilterUnits.setItems(FXCollections.observableArrayList(Units.values()));
+        choiceBoxFilterUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
         choiceBoxFilterUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineFilteringUnits = newValue);
 
         //sort
@@ -102,7 +108,7 @@ public class FXExportController {
         textFieldSortTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingTolerance = Float.parseFloat(newValue));
 
         choiceBoxSortUnits.setValue(ConfigFileHandler.getApplicationSettings().lineSortingUnits);
-        choiceBoxSortUnits.setItems(FXCollections.observableArrayList(Units.values()));
+        choiceBoxSortUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
         choiceBoxSortUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingUnits = newValue);
     }
 
@@ -181,6 +187,62 @@ public class FXExportController {
         choiceBoxGCodeYDir.setItems(FXCollections.observableArrayList(EnumDirection.values()));
          */
 
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////IMAGE SEQUENCE SETTINGS
+    public TextField textFieldFPS = null;
+    public TextField textFieldDuration = null;
+    public ChoiceBox<UnitsTime> choiceBoxTimeUnits = null;
+
+    public Label labelFrameCount = null;
+    public Label labelGeometriesPFrame = null;
+    public Label labelVerticesPFrame = null;
+
+
+    public void initImageSequencePane(){
+
+        textFieldFPS.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 25F));
+        textFieldFPS.setText("" + ConfigFileHandler.getApplicationSettings().framesPerSecond);
+        textFieldFPS.textProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigFileHandler.getApplicationSettings().framesPerSecond = Float.parseFloat(newValue);
+            updateImageSequenceStats();
+        });
+
+
+        textFieldDuration.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 5));
+        textFieldDuration.setText("" + ConfigFileHandler.getApplicationSettings().duration);
+        textFieldDuration.textProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigFileHandler.getApplicationSettings().duration = Integer.parseInt(newValue);
+
+            updateImageSequenceStats();
+        });
+
+
+        choiceBoxTimeUnits.setValue(ConfigFileHandler.getApplicationSettings().durationUnits);
+        choiceBoxTimeUnits.setItems(FXCollections.observableArrayList(UnitsTime.values()));
+        choiceBoxTimeUnits.valueProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigFileHandler.getApplicationSettings().durationUnits = newValue;
+            updateImageSequenceStats();
+        });
+
+        updateImageSequenceStats();
+
+    }
+
+    public void updateImageSequenceStats(){
+        int frameCount = ConfigFileHandler.getApplicationSettings().getFrameCount();
+        int geometriesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getGeometryCount());
+        long verticesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getVerticesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getVertexCount());
+
+
+        if(verticesPerFrame == 1 && frameCount > verticesPerFrame){
+            frameCount = (int)(DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getVertexCount());
+        }
+
+        labelFrameCount.setText("" + Utils.defaultNF.format(frameCount));
+        labelGeometriesPFrame.setText("" + Utils.defaultNF.format(geometriesPerFrame));
+        labelVerticesPFrame.setText("" + Utils.defaultNF.format(verticesPerFrame));
     }
 
 }

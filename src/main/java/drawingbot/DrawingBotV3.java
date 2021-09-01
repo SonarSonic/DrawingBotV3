@@ -41,7 +41,7 @@ public class DrawingBotV3 {
     //DRAWING AREA
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumScalingMode> scalingMode = new SimpleObjectProperty<>(EnumScalingMode.CROP_TO_FIT);
-    public final SimpleObjectProperty<Units> inputUnits = new SimpleObjectProperty<>(Units.MILLIMETRES);
+    public final SimpleObjectProperty<UnitsLength> inputUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     public final SimpleFloatProperty drawingAreaWidth = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaHeight = new SimpleFloatProperty(0);

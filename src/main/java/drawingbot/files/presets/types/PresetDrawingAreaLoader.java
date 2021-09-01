@@ -6,7 +6,7 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.utils.EnumScalingMode;
-import drawingbot.utils.Units;
+import drawingbot.utils.UnitsLength;
 import java.util.List;
 
 public class PresetDrawingAreaLoader extends AbstractSettingsLoader<PresetDrawingArea> {
@@ -17,7 +17,7 @@ public class PresetDrawingAreaLoader extends AbstractSettingsLoader<PresetDrawin
 
     public void registerSettings(){
         registerSetting(GenericSetting.createBooleanSetting(DrawingBotV3.class, "useOriginalSizing", true, false, (app, value) -> app.useOriginalSizing.set(value)).setGetter(app -> app.useOriginalSizing.get()));
-        registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "inputUnits", List.of(Units.values()), Units.MILLIMETRES, false, (app, value) -> app.inputUnits.set(value)).setGetter(app -> app.inputUnits.get()));
+        registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "inputUnits", List.of(UnitsLength.values()), UnitsLength.MILLIMETRES, false, (app, value) -> app.inputUnits.set(value)).setGetter(app -> app.inputUnits.get()));
         registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "scalingMode", List.of(EnumScalingMode.values()), EnumScalingMode.CROP_TO_FIT, false, (app, value) -> app.scalingMode.set(value)).setGetter(app -> app.scalingMode.get()));
         registerSetting(GenericSetting.createRangedFloatSetting(DrawingBotV3.class, "drawingAreaWidth", 0F, 0F, Float.MAX_VALUE, false, (app, value) -> app.controller.textFieldDrawingWidth.setText(String.valueOf(value))).setGetter(app -> app.drawingAreaWidth.get()));
         registerSetting(GenericSetting.createRangedFloatSetting(DrawingBotV3.class, "drawingAreaHeight", 0F, 0F, Float.MAX_VALUE, false, (app, value) -> app.controller.textFieldDrawingHeight.setText(String.valueOf(value))).setGetter(app -> app.drawingAreaHeight.get()));
