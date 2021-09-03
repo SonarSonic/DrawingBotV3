@@ -44,6 +44,48 @@ Transforms an image into lines in a rectangular pattern using brightness data.
 .. image:: images/sketch_squares_after.jpg
     :width: 250pt
 
+Quad Beziers
+^^^^^^^^^^^^
+Transforms an image into `Quadratic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for one control point. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
+
+.. image:: images/sketch_quad_beziers_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/sketch_quad_beziers_after.jpg
+    :width: 250pt
+
+Cubic Beziers
+^^^^^^^^^^^^^^^^^^^^
+Transforms an image into `Cubic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for the two control points. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
+
+.. image:: images/sketch_cubic_beziers_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/sketch_cubic_beziers_after.jpg
+    :width: 250pt
+
+Catmull-Roms
+^^^^^^^^^^^^
+Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline>`_ using brightness data, by finding the next darkest curve from each point. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
+
+.. image:: images/sketch_catmull_roms_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/sketch_catmull_roms_after.jpg
+    :width: 250pt
+
+
+Shapes
+^^^^^^^^^^^^
+Transforms an image into shapes using brightness data. It has the following modes: Rectangle and Ellipse.
+It uses a more accurate "Bresenham" calculation when considering each shape.
+
+.. image:: images/sketch_shapes_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/sketch_shapes_after.jpg
+    :width: 250pt
+
 Sobel Edges
 ^^^^^^^^^^^^
 Transforms an image into lines using brightness data & edge detection data. By using a `Sobel Operator <https://en.wikipedia.org/wiki/Sobel_operator>`_ to find sharp edges and then using this data in conjunction with the brightness to find the next line.
@@ -87,10 +129,16 @@ Settings: *Lines & Curves Only*
 - **Drawing Delta Angle**: the degrees of rotation that the PFM will use when finding the next line while drawing
 - **Shading Delta Angle**: the degrees of rotation that the PFM will use when finding the next line while shading
 
-Settings: *Curves Only*
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Settings: *Curves & Catmull-Roms Only*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **Curve Tension**: affects the tension of the catmull-rom splines
+
+Settings: *Quad & Cubic Beziers Only*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **Curve Tests**: the number of positions to test for each control point to find the darkest curve, increasing this will result in a more accurate plot.
+- **Curve Variation**: the maximum magnitude of the curve, increasing this will decrease the test accuracy and increase the control points offsets.
 
 Settings: *Sobel Edges Only*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
