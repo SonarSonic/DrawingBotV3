@@ -53,11 +53,19 @@ public class PFMQuadBezier extends PFMSketchLines {
         for (int d = 0; d < lineTests; d ++) {
             int nextLineLength = randomSeed(minLineLength, maxLineLength);
             float degree = (delta_angle * d) + start_angle;
-            int x1 = (int)(Math.cos(Math.toRadians(degree))*nextLineLength) + start_x;
-            int y1 = (int)(Math.sin(Math.toRadians(degree))*nextLineLength) + start_y;
+            int endPointX = (int)(Math.cos(Math.toRadians(degree))*nextLineLength) + start_x;
+            int endPointY = (int)(Math.sin(Math.toRadians(degree))*nextLineLength) + start_y;
+
+            int[] edge = bresenham.findEdge(start_x, start_y, endPointX, endPointY, pixels.getWidth(), pixels.getHeight());
+            endPointX = edge[0];
+            endPointY = edge[1];
+
+            if(endPointX == start_x && endPointY == start_y){
+                continue;
+            }
 
             Vector2i startPoint = new Vector2i(start_x, start_y);
-            Vector2i endPoint = new Vector2i(x1, y1);
+            Vector2i endPoint = new Vector2i(endPointX, endPointY);
             Vector2i midPoint = new Vector2i((startPoint.x+endPoint.x)/2, (startPoint.y+endPoint.y)/2);
 
             Vector2i q = new Vector2i(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
@@ -70,11 +78,11 @@ public class PFMQuadBezier extends PFMSketchLines {
                 int controlPointY = (int) (midPoint.y + n.y*offsetTest);
 
                 resetLuminanceSamples();
-                bresenham.plotQuadBezier(start_x, start_y, controlPointX, controlPointY, x1, y1, (x, y) -> luminanceTally(pixels, x, y));
+                bresenham.plotQuadBezier(start_x, start_y, controlPointX, controlPointY, endPointX, endPointY, (x, y) -> luminanceTally(pixels, x, y));
 
                 if ((test_luminance == -1 || getLuminanceTestAverage() < test_luminance)) {
-                    darkest_x = x1;
-                    darkest_y = y1;
+                    darkest_x = endPointX;
+                    darkest_y = endPointY;
                     darkest_control_x = controlPointX;
                     darkest_control_y= controlPointY;
                     test_luminance = getLuminanceTestAverage();

@@ -57,6 +57,14 @@ public class PFMCubicBezier extends PFMSketchLines {
             int endPointX = (int)(Math.cos(Math.toRadians(degree))*nextLineLength) + start_x;
             int endPointY = (int)(Math.sin(Math.toRadians(degree))*nextLineLength) + start_y;
 
+            int[] edge = bresenham.findEdge(start_x, start_y, endPointX, endPointY, pixels.getWidth(), pixels.getHeight());
+            endPointX = edge[0];
+            endPointY = edge[1];
+
+            if(endPointX == start_x && endPointY == start_y){
+                continue;
+            }
+
             Vector2i startPoint = new Vector2i(start_x, start_y);
             Vector2i endPoint = new Vector2i(endPointX, endPointY);
             Vector2i midPoint = new Vector2i((startPoint.x+endPoint.x)/2, (startPoint.y+endPoint.y)/2);
