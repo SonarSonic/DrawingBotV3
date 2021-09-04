@@ -110,7 +110,6 @@ public class DrawingBotV3 {
 
     public BufferedImageLoader.Filtered loadingImage = null;
     public File openFile = null;
-    public boolean isUpdatingFilters = false;
 
     // GUI \\
     public FXController controller;
