@@ -51,6 +51,8 @@ public class JavaFXRenderer extends AbstractRenderer {
 
     private boolean changedTask, changedMode, changedState, shouldRedraw;
 
+    private ImageFilteringTask filteringTask;
+
 
     @Override
     public void forceCanvasUpdate(){
@@ -114,11 +116,10 @@ public class JavaFXRenderer extends AbstractRenderer {
                 }
                 if(DrawingBotV3.INSTANCE.openImage.get() != null){
                     if(imageFiltersDirty || drawingAreaDirty){
-                        if(!DrawingBotV3.INSTANCE.isUpdatingFilters){
-                            DrawingBotV3.INSTANCE.isUpdatingFilters = true;
+                        if(filteringTask == null || !filteringTask.updating.get()){
                             imageFiltersDirty = false;
                             drawingAreaDirty = false;
-                            DrawingBotV3.INSTANCE.imageFilteringService.submit(new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
+                            DrawingBotV3.INSTANCE.imageFilteringService.submit(filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
                         }
                     }
                     //resize the canvas
