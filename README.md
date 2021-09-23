@@ -14,20 +14,45 @@ Drawing Bot is a free, open source software for converting images to line drawin
 
 It is available for Windows, Mac and Linux.
 
+If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG)
+
 ### Features
 
--  Advanced User Interface with live drawing preview
--  Multiple Path Finding Algorithms - configurable to create unique drawing styles
+-  [15 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html) - all highly configurable to create unique drawing styles
 -  Automatic Path Optimisation for Faster Plots - Line Simplifying, Merging, Filtering, Sorting
--  Pen Settings: configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.
--  60+ Image Filters for altering the input
--  Automated CMYK separation
+-  [Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html): configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.
+-  [Image Sequences](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings): You can export image sequences animations of your creations!
+-  Version Control: Save your favourite versions as you go and reload them.
+-  Project Saving & Loading
+-  [60+ Image Filters](https://drawingbotv3.readthedocs.io/en/latest/preprocessing.html) for pre processing the imported image
+-  Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)
+-  [Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html) with live drawing preview
 -  User configurable Drawing Area, with Padding / Scaling Modes 
--  Special pens for Original Colour/Grayscale Sampling
--  Presets: can be saved/imported/exported for sharing different styles with other users
+-  [Special pens](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html#special-drawing-pens) for Original Colour/Grayscale Sampling
+-  [Presets](https://drawingbotv3.readthedocs.io/en/latest/presets.html): can be saved/imported/exported for sharing different styles with other users
 -  Exports can be exported per/pen or per/drawing in multiple file types
--  Batch Processing: Convert entire folders of images automatically.
--  GCode - configurable Drawing Area, XYZ Offsets / Auto Homing.
+-  [Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html): Convert entire folders of images automatically.
+-  [GCode](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings) - configurable Drawing Area, XYZ Offsets / Auto Homing.
+-  [vpype](https://github.com/abey79/vpype) Integration
+
+### Path Finding Modules
+- Sketch Lines PFM
+- Sketch Curves PFM 
+- Sketch Squares PFM
+- Sketch Quad Beziers PFM
+- Sketch Cubic Beziers PFM
+- Sketch Catmull-Roms PFM
+- Sketch Shapes PFM
+- Sketch Sobel Edges PFM
+- Spiral PFM
+- Voronoi Circles
+- Voronoi Triangulation
+- Voronoi Stippling
+- Voronoi Diagram
+- Mosaic Rectangles
+- Mosaic Voronoi
+
+More info [here](https://drawingbotv3.readthedocs.io/en/latest/pfms.html)
 
 #### Supported File Types
 
@@ -37,7 +62,7 @@ Import Formats:
        
 Export Formats: 
     Vectors: [.svg, .pdf],
-    Images: [.tif, .tga, .png, .jpg, .jpeg]
+    Images/Image Sequences: [.tif, .tga, .png, .jpg, .jpeg]
     GCode: [.gcode, .txt],
 ```
 
@@ -113,6 +138,3 @@ All the dependencies are automatically included and **do not need to be installe
 DrawingBotV3 started as an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**.
 
 Thanks to Scott for allowing me to publish this version!
-
----
-If you want to support my work you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG)
