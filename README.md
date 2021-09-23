@@ -14,7 +14,7 @@ Drawing Bot is a free, open source software for converting images to line drawin
 
 It is available for Windows, Mac and Linux.
 
-If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG)
+If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG) or contribute to the [Drawing Bot Archive](https://github.com/SonarSonic/DrawingBotV3#the-drawing-bot-collection)!
 
 ### Features
 
@@ -115,9 +115,6 @@ Opening the .jar may open it as an archive file, instead you should launch the j
     java -jar DrawingBotV3-X.X.X-XXXX-all.jar
 ```
 
-
-
-
 ### Included Dependencies
 
 All the dependencies are automatically included and **do not need to be installed manually**.
@@ -141,4 +138,19 @@ Thanks to Scott for allowing me to publish this version!
 
 ---
 
-[![Donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.com/donate?hosted_button_id=EVDRMGJSLZFHG)
+
+### The Drawing Bot Collection
+
+I'm starting a collection of both Digital & Physical Artwork created with DrawingBotV3. When the collection reaches a decent size it will be available online (on Instagram & The Drawing Bot Documentation) and potentially in exhibitions in the UK.
+
+If you'd like to contribute to this collection email your artwork [here](mailto:drawingbot@outlook.com?subject=[GitHub]%20Drawing%20Bot%20Collection). Please send as many different pieces as you like, they will not be used for profit and only physically reproduced with your permission for displaying purposes only. For physical artwork contact me and I'll send an address for you to send these too! Please provide the following infomation.
+
+- Title:
+- Description:
+- Date Created: 
+- Additional Tools Used:
+- Your Name:
+- Your Website / Socials:
+
+- Can it be physically reproduced?
+- Can it be displayed digitally?
