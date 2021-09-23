@@ -138,3 +138,7 @@ All the dependencies are automatically included and **do not need to be installe
 DrawingBotV3 started as an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**.
 
 Thanks to Scott for allowing me to publish this version!
+
+---
+
+[![Donate](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.com/donate?hosted_button_id=EVDRMGJSLZFHG)
