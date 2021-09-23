@@ -12,6 +12,7 @@ public class FileUtils {
     public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.gif", "*.bmp", "*.jpeg");
 
     public static final FileChooser.ExtensionFilter FILTER_JSON = new FileChooser.ExtensionFilter("JSON - JavaScript Object Notation", "*.json");
+    public static final FileChooser.ExtensionFilter FILTER_PROJECT = new FileChooser.ExtensionFilter("DrawingBotV3 - Project File", "*.drawingbotv3");
 
     public static final FileChooser.ExtensionFilter FILTER_TIF = new FileChooser.ExtensionFilter("TIF - Tagged Image File", "*.tif");
     public static final FileChooser.ExtensionFilter FILTER_TGA = new FileChooser.ExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");
@@ -32,6 +33,14 @@ public class FileUtils {
     public static String removeExtension(String string){
         string = string.substring(0, string.lastIndexOf('.'));
         return string;
+    }
+
+    public static String getExtension(String string){
+        int begin = string.lastIndexOf(".");
+        if(begin == -1){
+            return "";
+        }
+        return string.substring(begin);
     }
 
     public static boolean hasExtension(String string){
@@ -70,7 +79,11 @@ public class FileUtils {
     }
 
     public static String getUserDataDirectory() {
-        return System.getProperty("user.home") + File.separator + "." + DBConstants.appName + File.separator;
+        return getUserHomeDirectory() + File.separator + "." + DBConstants.appName + File.separator;
+    }
+
+    public static String getUserThumbnailDirectory() {
+        return getUserDataDirectory() + "thumbs" + File.separator;
     }
 
     public static PrintWriter createWriter(File file) {

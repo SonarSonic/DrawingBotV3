@@ -11,15 +11,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.IGeometryFilter;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.FilteredBufferedImage;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.image.PrintResolution;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.FXController;
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.TaskMonitor;
+import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.SplitPlottingTask;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.render.AbstractRenderer;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottingTask;
@@ -81,6 +85,9 @@ public class DrawingBotV3 {
     // PEN SETS \\
     public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
     public ObservableDrawingSet observableDrawingSet = null;
+
+    // VERSION CONTROL \\
+    public final ObservableList<ObservableProjectSettings> projectVersions = FXCollections.observableArrayList();
 
     // DISPLAY \\
     public final SimpleObjectProperty<EnumDisplayMode> display_mode = new SimpleObjectProperty<>(EnumDisplayMode.IMAGE);
@@ -243,7 +250,7 @@ public class DrawingBotV3 {
                 updateDistributionType = null;
             }
         });
-        return colourSplitter.get() == EnumColourSplitter.DEFAULT ? new PlottingTask(pfmFactory, drawingPenSet, image, originalFile) : new SplitPlottingTask(pfmFactory, drawingPenSet, image, originalFile, splitter);
+        return colourSplitter.get() == EnumColourSplitter.DEFAULT ? new PlottingTask(pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile) : new SplitPlottingTask(pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile, splitter);
     }
 
     public void startPlotting(){
@@ -274,6 +281,10 @@ public class DrawingBotV3 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void openImage(File file, boolean internal){
+        if(FileUtils.getExtension(file.toString()).equalsIgnoreCase(".drawingbotv3")){
+            FXHelper.loadPresetFile(EnumJsonType.PROJECT_PRESET, file, true);
+            return;
+        }
         if(activeTask.get() != null){
             activeTask.get().cancel();
             setActivePlottingTask(null);
@@ -311,7 +322,11 @@ public class DrawingBotV3 {
     //// EXPORT TASKS
 
     public ExportTask createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
-        ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation);
+        return createExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, plottingTask.resolution);
+    }
+
+    public ExportTask createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
+        ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, resolution);
         taskMonitor.queueTask(task);
         return task;
     }

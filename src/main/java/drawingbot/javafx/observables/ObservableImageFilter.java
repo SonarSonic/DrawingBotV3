@@ -1,4 +1,4 @@
-package drawingbot.image.filters;
+package drawingbot.javafx.observables;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.GenericFactory;

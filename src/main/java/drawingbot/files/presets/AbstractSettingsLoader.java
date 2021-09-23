@@ -40,7 +40,7 @@ public abstract class AbstractSettingsLoader<O extends AbstractJsonData> extends
     @Override
     public GenericPreset<O> updatePreset(GenericPreset<O> preset) {
         GenericSetting.updateSettingsFromInstance(settings, DrawingBotV3.INSTANCE);
-        preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>());
+        preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
         return preset;
     }
 

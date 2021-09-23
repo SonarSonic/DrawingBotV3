@@ -18,7 +18,7 @@
       "version": 1,
       "presetSubType": "Sketch Squares PFM",
       "presetName": "Waves",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Neighbour Tests": "2",
@@ -33,7 +33,7 @@
       "version": 1,
       "presetSubType": "Sketch Squares PFM",
       "presetName": "Triangles",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Neighbour Tests": "3",

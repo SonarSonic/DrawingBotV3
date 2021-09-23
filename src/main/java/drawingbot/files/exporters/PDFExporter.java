@@ -21,8 +21,8 @@ public class PDFExporter {
 
     public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
         try {
-            int width = (int)plottingTask.resolution.getScaledWidth();
-            int height = (int)plottingTask.resolution.getScaledHeight();
+            int width = (int)exportTask.exportResolution.getScaledWidth();
+            int height = (int)exportTask.exportResolution.getScaledHeight();
 
             Document document = new Document(new Rectangle(width, height));
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));

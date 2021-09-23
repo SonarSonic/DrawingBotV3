@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 public class JsonLoaderManager {
 
+    public static final PresetProjectSettingsLoader PROJECT = new PresetProjectSettingsLoader();
     public static final PresetPFMSettingsLoader PFM = new PresetPFMSettingsLoader();
     public static final PresetImageFiltersLoader FILTERS = new PresetImageFiltersLoader();
     public static final PresetDrawingSetLoader DRAWING_SET = new PresetDrawingSetLoader();
@@ -26,7 +27,7 @@ public class JsonLoaderManager {
     public static final ConfigJsonLoader CONFIGS = new ConfigJsonLoader();
     public static final PresetGCodeSettingsLoader GCODE_SETTINGS = new PresetGCodeSettingsLoader();
     public static final PresetVpypeSettingsLoader VPYPE_SETTINGS = new PresetVpypeSettingsLoader();
-    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS, VPYPE_SETTINGS};
+    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PROJECT, PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS, VPYPE_SETTINGS};
 
     /** used to prevent certain values from being serialized, transient achives the same thing*/
     public static final ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
@@ -75,6 +76,7 @@ public class JsonLoaderManager {
         loadDefaultPresetContainerJSON("square_pfm_defaults.json");
         loadDefaultPresetContainerJSON("shapes_pfm_defaults.json");
         loadDefaultPresetContainerJSON("curves_pfm_defaults.json");
+        loadDefaultPresetContainerJSON("mosaic_pfm_defaults.json");
         loadDefaultPresetContainerJSON("catmull_rom_pfm_defaults.json");
         loadDefaultPresetContainerJSON("drawing_area_defaults.json");
         loadDefaultPresetContainerJSON("gcode_settings_defaults.json");
@@ -101,11 +103,12 @@ public class JsonLoaderManager {
      * @param file the location to load the json from
      * @param targetType the type of preset to import, if null all types will be accepted
      */
-    public static void importPresetFile(File file, EnumJsonType targetType){
+    public static GenericPreset<IJsonData> importPresetFile(File file, EnumJsonType targetType){
         try {
-            importPresetFile(new FileInputStream(file), targetType);
+            return importPresetFile(new FileInputStream(file), targetType);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -114,11 +117,12 @@ public class JsonLoaderManager {
      * @param stream the input stream to load the json from
      * @param targetType the type of preset to import, if null all types will be accepted
      */
-    public static void importPresetFile(InputStream stream, EnumJsonType targetType){
+    public static GenericPreset<IJsonData> importPresetFile(InputStream stream, EnumJsonType targetType){
         GenericPreset<IJsonData> preset = importJsonFile(stream, GenericPreset.class);
         if(preset != null && (targetType == null || targetType == preset.presetType)){
             getManagerForType(preset.presetType).tryRegisterPreset(preset);
         }
+        return preset;
     }
 
     private static void loadDefaultPresetContainerJSON(String json){

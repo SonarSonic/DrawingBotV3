@@ -15,9 +15,11 @@ import drawingbot.utils.GridOverlay;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.jfree.fx.FXGraphics2D;
 

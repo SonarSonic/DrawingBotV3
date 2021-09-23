@@ -1,6 +1,6 @@
 package drawingbot.utils;
 
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottedDrawing;
 import org.jetbrains.annotations.Nullable;

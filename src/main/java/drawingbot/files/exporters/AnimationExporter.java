@@ -1,7 +1,5 @@
 package drawingbot.files.exporters;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.drawing.ObservableDrawingPen;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
@@ -23,8 +21,8 @@ public class AnimationExporter {
     public static DecimalFormat framePaddingFormat = new DecimalFormat("000000");
 
     public static void exportAnimation(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
-        int width = (int)plottingTask.resolution.getScaledWidth();
-        int height = (int)plottingTask.resolution.getScaledHeight();
+        int width = (int)exportTask.exportResolution.getScaledWidth();
+        int height = (int)exportTask.exportResolution.getScaledHeight();
 
         boolean useAlpha = !extension.equals(".jpg");
         BufferedImage image = new BufferedImage(width, height, useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);

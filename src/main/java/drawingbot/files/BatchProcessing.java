@@ -1,8 +1,8 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.drawing.ObservableDrawingPen;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;

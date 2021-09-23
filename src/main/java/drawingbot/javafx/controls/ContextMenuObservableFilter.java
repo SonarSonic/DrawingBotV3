@@ -2,7 +2,7 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;

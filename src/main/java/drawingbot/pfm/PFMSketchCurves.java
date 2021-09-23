@@ -35,6 +35,7 @@ public class PFMSketchCurves extends PFMSketchLines {
     @Override
     public void addGeometry(IPlottingTask task, int x1, int y1, int x2, int y2, int adjust) {
         if(task.getPathBuilder().hasCurvePoints()){
+            resetColourSamples();
             bresenham.plotCatmullRom(task.getPathBuilder().getCatmullP0(), task.getPathBuilder().getCatmullP1(), task.getPathBuilder().getCatmullP2(), new float[]{x2, y2}, task.getPathBuilder().getCatmullTension(), (x, y) -> adjustLuminanceColour(task.getPixelData(), x, y, adjust));
             int argb = getColourTestAverage();
 

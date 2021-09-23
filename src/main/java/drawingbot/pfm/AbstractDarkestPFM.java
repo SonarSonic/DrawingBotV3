@@ -287,7 +287,6 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     }
 
     public boolean adjustLuminanceColour(IPixelData pixels, int x, int y, int adjustLum){
-
         if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
             return false;
         }

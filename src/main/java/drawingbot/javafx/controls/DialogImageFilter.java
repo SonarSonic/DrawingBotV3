@@ -3,7 +3,7 @@ package drawingbot.javafx.controls;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.RangedNumberSetting;
 import javafx.geometry.Pos;

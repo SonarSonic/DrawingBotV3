@@ -18,6 +18,10 @@ public class ConfigFileHandler {
         File userDir = new File(FileUtils.getUserDataDirectory());
         userDir.mkdirs();
 
+        //create the thumbnail directory
+        File userThumbs = new File(FileUtils.getUserThumbnailDirectory());
+        userThumbs.mkdirs();
+
         //load the JSON config files
         JsonLoaderManager.loadConfigFiles();
 

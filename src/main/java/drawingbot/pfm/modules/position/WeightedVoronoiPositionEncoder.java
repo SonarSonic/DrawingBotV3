@@ -76,6 +76,9 @@ public class WeightedVoronoiPositionEncoder extends PositionEncoder {
                 lumData.setLuminance(randX, randY, 255);
                 i++;
             }
+            if(pfmModular.task.isFinished()){
+                break;
+            }
         }
     }
 

@@ -129,7 +129,14 @@ public class PFMCubicBezier extends PFMSketchLines {
 
     @Override
     public void addGeometry(IPlottingTask task, int x1, int y1, int x2, int y2, int adjust) {
+        resetColourSamples();
         bresenham.plotCubicBezier(x1, y1, darkControlPoint1.x, darkControlPoint1.y, darkControlPoint2.x, darkControlPoint2.y, x2, y2, (x, y) -> adjustLuminanceColour(task.getPixelData(), x, y, adjust));
+        int argb = getColourTestAverage();
+        alpha += ImageTools.alpha(argb);
+        red += ImageTools.red(argb);
+        green += ImageTools.green(argb);
+        blue += ImageTools.blue(argb);
+        count ++;
 
         if(!task.getPathBuilder().hasMoveTo){
             task.getPathBuilder().moveTo(x1, y1);

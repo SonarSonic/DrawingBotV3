@@ -9,7 +9,7 @@ import java.util.List;
 //TODO FIXME
 public class PFMSineWaves extends AbstractPFM {
 
-    public int ystep = 160;
+    public int ystep = 100;
     public int ymult = 6;
     public int xstep = 3;
     public float xsmooth = 128.0F;
@@ -41,6 +41,8 @@ public class PFMSineWaves extends AbstractPFM {
     //TODO make it work with curves!!!!
     @Override
     public void doProcess() {
+
+        task.getPathBuilder().setCatmullCurveTension(tension);
 
         ///TODO set stroke width = strokeWidth
         float HALF_PI = (float) (Math.PI / 2.0);

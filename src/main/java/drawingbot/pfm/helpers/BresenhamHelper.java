@@ -11,6 +11,16 @@ import static java.lang.Math.floor;
 
 public class BresenhamHelper {
 
+    public Shape clippingShape = null;
+
+    public Shape getClippingShape() {
+        return clippingShape;
+    }
+
+    public void setClippingShape(Shape clippingShape) {
+        this.clippingShape = clippingShape;
+    }
+
     public BresenhamHelper(){}
 
     @FunctionalInterface
@@ -26,6 +36,21 @@ public class BresenhamHelper {
     @FunctionalInterface
     public interface IPixelSetterAA{
         void setPixelAA(int x, int y, float value);
+    }
+
+    public boolean isInside(int x, int y){
+        return clippingShape == null || clippingShape.contains(x, y);
+    }
+
+    public int[] findEdge(int x0, int y0, int x1, int y1, int width, int height){
+        int[] point = new int[]{x0, y0};
+        plotLine(x0, y0, x1, y1, (x, y) -> {
+            if(x >= 0 && x < width && y >= 0 && y < height){
+                point[0] = x;
+                point[1] = y;
+            }
+        });
+        return point;
     }
 
     public void plotShape(Shape path, IPixelSetter setter){
@@ -101,6 +126,7 @@ public class BresenhamHelper {
     }
 
 
+
     ///SRC: Bresenham Curve Rasterizing Algorithms - https://github.com/zingl/Bresenham by Zingl Alois
     public void plotLine(int x0, int y0, int x1, int y1, IPixelSetter setter)
     {
@@ -109,6 +135,9 @@ public class BresenhamHelper {
         int err = dx+dy, e2;                                  /* error value e_xy */
 
         for (;;) {                                                        /* loop */
+            if(!isInside(x0, y0)){
+                return;
+            }
             setter.setPixel(x0, y0);
             e2 = 2*err;
             if (e2 >= dy) {                                       /* e_xy+e_x > 0 */
@@ -130,7 +159,10 @@ public class BresenhamHelper {
         int dm = dx > dy && dx > dz ? dx : dy > dz ? dy : dz, i = dm; /* max diff */
         x1 = y1 = z1 = dm/2;                                      /* error offset */
 
-        for (;;) {
+        for (;;) {                                                    /* loop */
+            if(!isInside(x0, y0)){
+                return;
+            }
             setter3D.setPixel3D(x0,y0,z0);
             if (i-- == 0) break;
             x1 -= dx; if (x1 < 0) { x1 += dm; x0 += sx; }

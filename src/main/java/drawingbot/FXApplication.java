@@ -2,13 +2,12 @@ package drawingbot;
 
 import drawingbot.api.API;
 import drawingbot.api_impl.DrawingBotV3API;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.render.jfx.JavaFXRenderer;
-import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.DBConstants;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -25,10 +24,12 @@ import java.util.logging.Level;
 
 public class FXApplication extends Application {
 
+    public static String[] launchArgs;
     public static Stage primaryStage;
     public static Scene primaryScene;
 
     public static void main(String[] args) {
+        launchArgs = args;
         launch(args);
     }
 
@@ -85,6 +86,19 @@ public class FXApplication extends Application {
         primaryStage.setResizable(true);
         applyDBIcon(primaryStage);
         primaryStage.show();
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        if(launchArgs.length >= 1){
+            DrawingBotV3.logger.info("Attempting to load file at startup");
+            try {
+                File startupFile =  new File(launchArgs[0]);
+                DrawingBotV3.INSTANCE.openImage(startupFile, false);
+            } catch (Exception e) {
+                DrawingBotV3.logger.log(Level.SEVERE, "Failed to load file at startup", e);
+            }
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

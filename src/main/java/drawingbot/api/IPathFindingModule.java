@@ -68,4 +68,8 @@ public interface IPathFindingModule {
      */
     default void postProcess(){}
 
+    default void onStopped(){}
+
+    default void onReset(){}
+
 }

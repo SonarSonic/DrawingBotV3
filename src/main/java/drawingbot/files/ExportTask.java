@@ -2,9 +2,10 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.image.PrintResolution;
 import drawingbot.plotting.PlottingTask;
 import javafx.concurrent.Task;
 
@@ -29,7 +30,9 @@ public class ExportTask extends Task<Boolean> {
     public int totalGeometries;
     public int renderedGeometries;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation){
+    public PrintResolution exportResolution;
+
+    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation, PrintResolution exportResolution){
         this.format = format;
         this.plottingTask = plottingTask;
         this.pointFilter = pointFilter;
@@ -38,6 +41,7 @@ public class ExportTask extends Task<Boolean> {
         this.seperatePens = seperatePens;
         this.overwrite = overwrite;
         this.forceBypassOptimisation = forceBypassOptimisation;
+        this.exportResolution = exportResolution;
     }
 
     @Override

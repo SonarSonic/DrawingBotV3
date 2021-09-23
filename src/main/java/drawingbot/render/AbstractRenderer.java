@@ -1,5 +1,7 @@
 package drawingbot.render;
 
+import javafx.scene.image.WritableImage;
+
 public abstract class AbstractRenderer {
 
     public boolean imageFiltersDirty = false;

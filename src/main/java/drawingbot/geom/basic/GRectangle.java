@@ -1,6 +1,6 @@
 package drawingbot.geom.basic;
 
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;

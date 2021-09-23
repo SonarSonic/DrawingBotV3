@@ -25,11 +25,13 @@ public class StringConverterGenericSetting<V> extends StringConverter<V> {
 
     public V fromString(String string) {
         GenericSetting<?, V> setting = supplier.get();
-        try {
-            V value = setting.stringConverter.fromString(string);
-            return setting.validator.apply(value);
-        } catch (Exception e) {
-            DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.settingName.getName());
+        if(setting.hasEditableTextField()){
+            try {
+                V value = setting.stringConverter.fromString(string);
+                return setting.validator.apply(value);
+            } catch (Exception e) {
+                DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.settingName.getName());
+            }
         }
         return setting.value.get();
     }

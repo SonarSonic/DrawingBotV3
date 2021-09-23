@@ -1,7 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.FXHelper;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;

@@ -3,8 +3,9 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
-import drawingbot.drawing.ObservableDrawingPen;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.utils.EnumColourSplitter;
 import javafx.application.Platform;
@@ -28,8 +29,8 @@ public class SplitPlottingTask extends PlottingTask{
     public double[] subTaskProgress;
     public int[] renderedLines;
 
-    public SplitPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter) {
-        super(pfmFactory, drawingPenSet, image, originalFile);
+    public SplitPlottingTask(PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter) {
+        super(pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
         this.splitter = splitter;
         this.subTaskProgress = new double[splitter.getSplitCount()];
         this.renderedLines = new int[splitter.getSplitCount()];
@@ -60,7 +61,7 @@ public class SplitPlottingTask extends PlottingTask{
                 //generate sub tasks
                 subTasks = new ArrayList<>();
                 for(BufferedImage img : subImages){
-                    PlottingTask subTask = new PlottingTask(pfmFactory, plottedDrawing.drawingPenSet, img, originalFile);
+                    PlottingTask subTask = new PlottingTask(pfmFactory, pfmSettings, plottedDrawing.drawingPenSet, img, originalFile);
                     subTask.enableImageFiltering = false; //prevent image filtering we will do it here and pass the correct image
                     subTask.isSubTask = true; //prevents some calls
                     subTask.plottedDrawing.ignoreWeightedDistribution = true; // very important, the sub task will call weighted distribution without this.

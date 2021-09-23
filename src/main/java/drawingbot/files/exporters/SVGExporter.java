@@ -1,8 +1,8 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.drawing.ObservableDrawingPen;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
@@ -38,12 +38,12 @@ public class SVGExporter {
 
     public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation, boolean inkscape) {
         try {
-            int width = (int)plottingTask.resolution.getScaledWidth();
-            int height = (int)plottingTask.resolution.getScaledHeight();
+            int width = (int)exportTask.exportResolution.getScaledWidth();
+            int height = (int)exportTask.exportResolution.getScaledHeight();
 
             // Calculate the page size relative to the configured SVG DPI
-            int scaledPageWidth = (int)Math.ceil((plottingTask.resolution.printPageWidth / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
-            int scaledPageHeight = (int)Math.ceil((plottingTask.resolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            int scaledPageWidth = (int)Math.ceil((exportTask.exportResolution.printPageWidth / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            int scaledPageHeight = (int)Math.ceil((exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
             double scale = (double)scaledPageWidth / width;
 
             // Get a DOMImplementation.
@@ -56,8 +56,8 @@ public class SVGExporter {
             Element svgRoot = document.getDocumentElement();
 
             // Set the attributes on the root 'svg' element.
-            svgRoot.setAttributeNS(null, "width", plottingTask.resolution.printPageWidth + "mm");
-            svgRoot.setAttributeNS(null, "height", plottingTask.resolution.printPageHeight + "mm");
+            svgRoot.setAttributeNS(null, "width", exportTask.exportResolution.printPageWidth + "mm");
+            svgRoot.setAttributeNS(null, "height", exportTask.exportResolution.printPageHeight + "mm");
 
             if(inkscape){
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);

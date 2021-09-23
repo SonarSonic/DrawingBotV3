@@ -7,11 +7,13 @@ import drawingbot.files.*;
 import drawingbot.drawing.*;
 import drawingbot.files.presets.*;
 import drawingbot.files.presets.types.*;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.plotting.PlottingTask;
@@ -30,6 +32,8 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -43,6 +47,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class FXController {
 
@@ -52,26 +57,33 @@ public class FXController {
     public void initialize(){
         DrawingBotV3.logger.entering("FX Controller", "initialize");
 
-        initToolbar();
-        initViewport();
-        initPlottingControls();
-        initProgressBar();
-        initDrawingAreaPane();
-        initPreProcessingPane();
-        initPFMControls();
-        initPenSettingsPane();
-        initBatchProcessingPane();
+        try{
+            initToolbar();
+            initViewport();
+            initPlottingControls();
+            initProgressBar();
+            initDrawingAreaPane();
+            initPreProcessingPane();
+            initPFMControls();
+            initPenSettingsPane();
+            initVersionControlPane();
+            initBatchProcessingPane();
 
 
-        viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
-        viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
+            viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
+            viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
 
-        viewportScrollPane.setHvalue(0.5);
-        viewportScrollPane.setVvalue(0.5);
+            viewportScrollPane.setHvalue(0.5);
+            viewportScrollPane.setVvalue(0.5);
 
-        initSeparateStages();
+            initSeparateStages();
 
-        DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> DrawingBotV3.INSTANCE.onImageFiltersChanged());
+            DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> DrawingBotV3.INSTANCE.onImageFiltersChanged());
+
+        }catch (Exception e){
+            DrawingBotV3.logger.log(Level.SEVERE, "Failed to initialize JAVA FX", e);
+        }
+
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
 
@@ -82,9 +94,14 @@ public class FXController {
     public Stage vpypeSettingsStage;
     public FXVPypeController vpypeController;
 
+
+    public Stage mosaicSettingsStage;
+    public FXStylesController mosaicController;
+
     public void initSeparateStages() {
         FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings");
         FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings");
+        FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings");
     }
 
 
@@ -105,7 +122,22 @@ public class FXController {
 
     public void initToolbar(){
         //file
-        MenuItem menuImport = new MenuItem("Import");
+        MenuItem menuOpen = new MenuItem("Open Project");
+        menuOpen.setOnAction(e -> FXHelper.importPreset(EnumJsonType.PROJECT_PRESET, true));
+        menuFile.getItems().add(menuOpen);
+
+        MenuItem menuSave = new MenuItem("Save Project");
+        menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+        menuSave.setOnAction(e -> {
+            GenericPreset<PresetProjectSettings> preset = JsonLoaderManager.PROJECT.createNewPreset();
+            JsonLoaderManager.PROJECT.updatePreset(preset);
+            FXHelper.exportPreset(preset, DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()));
+        });
+        menuFile.getItems().add(menuSave);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
+        MenuItem menuImport = new MenuItem("Import Image");
         menuImport.setOnAction(e -> FXHelper.importFile());
         menuFile.getItems().add(menuImport);
 
@@ -293,6 +325,7 @@ public class FXController {
     public Button buttonStartPlotting = null;
     public Button buttonStopPlotting = null;
     public Button buttonResetPlotting = null;
+    public Button buttonSaveVersion = null;
 
     public void initPlottingControls(){
         buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
@@ -300,6 +333,15 @@ public class FXController {
         buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
         buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting.not());
         buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
+
+        buttonSaveVersion.setOnAction(param -> saveVersion());
+        buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.activeTask.get() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.activeTask));
+    }
+
+    public void saveVersion(){
+        GenericPreset<PresetProjectSettings> preset = JsonLoaderManager.PROJECT.createNewPreset();
+        JsonLoaderManager.PROJECT.updatePreset(preset);
+        DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(preset));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -542,8 +584,7 @@ public class FXController {
         DrawingBotV3.INSTANCE.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
         choiceBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
         choiceBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-        choiceBoxPFM.setOnAction(e -> changePathFinderModule(choiceBoxPFM.getSelectionModel().getSelectedItem()));
-
+        choiceBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> changePathFinderModule(newValue));
 
         comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList());
         comboBoxPFMPreset.setValue(MasterRegistry.INSTANCE.getDefaultPFMPreset());
@@ -792,6 +833,60 @@ public class FXController {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////VERSION CONTROL
+
+    public TableView<ObservableProjectSettings> tableViewVersions = null;
+    public TableColumn<ObservableProjectSettings, ImageView> versionThumbColumn = null;
+    public TableColumn<ObservableProjectSettings, String> versionNameColumn = null;
+    public TableColumn<ObservableProjectSettings, String> versionDateColumn = null;
+
+    public TableColumn<ObservableProjectSettings, String> versionPFMColumn = null;
+    public TableColumn<ObservableProjectSettings, String> versionFileColumn = null;
+
+
+    public Button buttonAddVersion = null;
+    public Button buttonDeleteVersion = null;
+    public Button buttonMoveUpVersion = null;
+    public Button buttonMoveDownVersion = null;
+
+    public void initVersionControlPane() {
+        tableViewVersions.setRowFactory(param -> {
+            TableRow<ObservableProjectSettings> row = new TableRow<>();
+            row.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
+                if(row.getItem() == null){
+                    event.consume();
+                }
+            });
+            row.setContextMenu(new ContextMenuObservableProjectSettings(row));
+            return row;
+        });
+
+        tableViewVersions.setItems(DrawingBotV3.INSTANCE.projectVersions);
+
+        versionThumbColumn.setCellValueFactory(param -> param.getValue().imageView);
+
+        versionNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        versionNameColumn.setCellValueFactory(param -> param.getValue().userDefinedName);
+
+        versionDateColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        versionDateColumn.setCellValueFactory(param -> param.getValue().date);
+        versionDateColumn.setEditable(false);
+
+        versionFileColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        versionFileColumn.setCellValueFactory(param -> param.getValue().file);
+        versionFileColumn.setEditable(false);
+
+        versionPFMColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        versionPFMColumn.setCellValueFactory(param -> param.getValue().pfm);
+        versionPFMColumn.setEditable(false);
+
+        buttonAddVersion.setOnAction(e -> saveVersion());
+        buttonDeleteVersion.setOnAction(e -> FXHelper.deleteItem(tableViewVersions.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.projectVersions));
+        buttonMoveUpVersion.setOnAction(e -> FXHelper.moveItemUp(tableViewVersions.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.projectVersions));
+        buttonMoveDownVersion.setOnAction(e -> FXHelper.moveItemDown(tableViewVersions.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.projectVersions));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////BATCH PROCESSING
 
     public Label labelInputFolder = null;
@@ -842,12 +937,12 @@ public class FXController {
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void changePathFinderModule(PFMFactory<?> pfm){
+    public static void changePathFinderModule(PFMFactory<?> pfm){
         DrawingBotV3.INSTANCE.pfmFactory.set(pfm);
         DrawingBotV3.INSTANCE.updateDistributionType = pfm.getDistributionType();
     }
 
-    public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
+    public static void changeDrawingSet(IDrawingSet<IDrawingPen> set){
         if(set != null){
             DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
             if(set instanceof EnumColourSplitter.ColourSplitterDrawingSet){
