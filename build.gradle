@@ -3,7 +3,7 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.9'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id "org.beryx.runtime" version "1.12.1"
+    id "org.beryx.runtime" version "1.12.5"
 }
 
 apply plugin: 'org.openjfx.javafxplugin'
@@ -134,6 +134,7 @@ runtime {
             installerOptions += ['--mac-package-name', "drawingbotv3"]
             installerName = app_name + "-" + app_version + "-" + app_state + "-mac"
         }
+        installerOptions += ['--file-associations', "src/main/resources/jpackage/FAprojects.properties"]
     }
 }
 

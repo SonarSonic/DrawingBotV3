@@ -65,9 +65,67 @@ public class PrintResolution {
     public double scaledHeight;
     public double scaledWidth;
 
+    public double finalPrintScaleX = 1;
+    public double finalPrintScaleY = 1;
+
     public PrintResolution(BufferedImage src){
-        this.sourceWidth = src.getWidth();
-        this.sourceHeight = src.getHeight();
+        this(src.getWidth(), src.getHeight());
+    }
+
+    public PrintResolution(int width, int height){
+        this.sourceWidth = width;
+        this.sourceHeight = height;
+    }
+
+    public static PrintResolution copy(PrintResolution resolution){
+        PrintResolution copy = new PrintResolution(resolution.sourceWidth, resolution.sourceHeight);
+        copy.plottingResolution = resolution.plottingResolution;
+        copy.plottingTransform = resolution.plottingTransform;
+
+        //// IMAGE RESOLUTION \\\\
+
+        copy.imageCropX = resolution.imageCropX;
+        copy.imageCropY = resolution.imageCropY;
+        copy.imageCropWidth = resolution.imageCropWidth;
+        copy.imageCropHeight = resolution.imageCropHeight;
+        copy.imageOffsetX = resolution.imageOffsetX;
+        copy.imageOffsetY = resolution.imageOffsetY;
+        copy.imageWidth = resolution.imageWidth;
+        copy.imageHeight = resolution.imageHeight;
+
+        copy.imageRenderScale = resolution.imageRenderScale;
+
+
+        //// PRINT RESOLUTION \\\\
+
+        copy.printPageWidth = resolution.printPageWidth;
+        copy.printPageHeight = resolution.printPageHeight;
+        copy.printDrawingWidth = resolution.printDrawingWidth;
+        copy.printDrawingHeight = resolution.printDrawingHeight;
+        copy.printOffsetX = resolution.printOffsetX;
+        copy.printOffsetY = resolution.printOffsetY;
+
+
+        //// IMAGE to PRINT SCALE \\\\
+
+        copy.printScale = resolution.printScale;
+        copy.scaledOffsetX = resolution.scaledOffsetX;
+        copy.scaledOffsetY = resolution.scaledOffsetY;
+        copy.scaledHeight = resolution.scaledHeight;
+        copy.scaledWidth = resolution.scaledWidth;
+        return copy;
+    }
+
+    public void changePrintResolution(int targetWidth, int targetHeight){
+        double changeX = targetWidth / scaledWidth;
+        double changeY = targetHeight / scaledHeight;
+
+        scaledOffsetX *= changeX;
+        scaledOffsetY *= changeY;
+        scaledHeight = targetHeight;
+        scaledWidth = targetWidth;
+        finalPrintScaleX = changeX;
+        finalPrintScaleY = changeY;
     }
 
     public void updateAll(){

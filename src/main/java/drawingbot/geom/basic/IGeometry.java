@@ -2,7 +2,7 @@ package drawingbot.geom.basic;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.drawing.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;

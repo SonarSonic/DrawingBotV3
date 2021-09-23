@@ -2,7 +2,7 @@ package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractPresetLoader;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericFactory;

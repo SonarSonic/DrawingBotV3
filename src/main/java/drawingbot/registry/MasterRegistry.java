@@ -9,7 +9,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetImageFilters;
 import drawingbot.files.presets.types.PresetPFMSettings;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -75,6 +75,12 @@ public class MasterRegistry {
 
     public GenericPreset<PresetPFMSettings> getDefaultPFMPreset(PFMFactory<?> factory){
         return pfmPresets.get(factory.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
+    }
+
+    public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){
+        ObservableList<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), FXCollections.observableArrayList());
+        GenericSetting.applySettings(getDefaultPFMPreset(factory).data.settingList, list);
+        return list;
     }
 
     //// IMAGE FILTER: DEFAULTS
@@ -151,6 +157,19 @@ public class MasterRegistry {
         for(PFMFactory<?> factory : pfmFactories){
             if(factory.getInstanceClass().equals(pfmClass)){
                 return factory;
+            }
+        }
+        return null;
+    }
+
+    public GenericSetting<?, ?> getPFMSettingByName(Class<?> pfmClass, String name){
+        PFMFactory<?> factory = getPFMFactory(pfmClass);
+        if(factory != null){
+            ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
+            for(GenericSetting<?, ?> setting : settings){
+                if(setting.settingName.getValue().equals(name)){
+                    return setting;
+                }
             }
         }
         return null;

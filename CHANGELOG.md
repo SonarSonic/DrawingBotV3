@@ -1,5 +1,20 @@
 # Change Log
 
+### [v1.0.15-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.15-stable)
+- Added: Two New Path Finding Modules for creating Mosaics!
+    - "Mosaic Rectangle" - Creates a mosaic of rectangles out of a set of user configurable styles.
+    - "Mosaic Voronoi" - Creates a mosaic based on the output of a weighted Voronoi Diagram from a set of user configurable styles.
+    - The "User Configurable styles" can have a "weighting" to affect their distribution, there is no limit on the number of different styles per mosaic.
+    - Please note: Using Voronoi PFMs for drawing styles can be tempremental.
+- Added: Version Control! You can now save your favourite versions of your project as you go and experiment with settings without losing your favourites.
+    - There is a "Save Version" button next to the plotting controls, click this when you create something you like, you can then access and reload / save these versions from the "Version Control" panel, which will show a preview of the version the date it was created and the name of the path finding module used.
+- Added: Project Loading & Saving! 
+    - You can now save your projects and reload them as ".drawingbotv3" files from the "File Menu" - you can also save versions in this way.
+    - This saves all elements of the project, like Drawing Size, PFM Settings, Pen Settings & also all of the versions you've created!
+    - It doesn't however save the image used to keep the files small but it will save the path to the image used and reload it if it's still available. 
+- Fixed: Default presets become replicated when saving new presets.
+- Fixed: Broken Sketch PFM Presets, they will now behave as intended again.
+
 ### [v1.0.14-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.14-stable)
 - Added: Image Sequences for creating animations of your creations! The duration can be change in Export Settings / Image Sequences
 - Added: GCode "Start Layer" & "End Layer" custom commands

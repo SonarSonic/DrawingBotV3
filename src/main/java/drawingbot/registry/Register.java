@@ -5,6 +5,7 @@ import drawingbot.drawing.*;
 import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.pfm.*;
 import drawingbot.pfm.modules.position.WeightedVoronoiPositionEncoder;
 import drawingbot.pfm.modules.shapes.GeometryShapeEncoder;
@@ -16,6 +17,7 @@ import drawingbot.utils.*;
 import javafx.scene.paint.Color;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Register {
@@ -36,10 +38,10 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TriangulationShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
         MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new StipplingShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
         MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
-
+        MasterRegistry.INSTANCE.registerPFM(PFMMosaicRectangles.class, "Mosaic Rectangles", PFMMosaicRectangles::new, false, false).setDistributionType(EnumDistributionType.PRECONFIGURED);
+        MasterRegistry.INSTANCE.registerPFM(PFMMosaicVoronoi.class, "Mosaic Voronoi", PFMMosaicVoronoi::new, false, false).setDistributionType(EnumDistributionType.PRECONFIGURED);
 
         //experimental / developer only path finding modules
-
         MasterRegistry.INSTANCE.registerPFM(PFMSketchCurvesV3.class, "Sketch Curves PFM v3.0", PFMSketchCurvesV3::new, true, true);
 
         MasterRegistry.INSTANCE.registerPFM(PFMSketchWaves.class, "Sketch Waves PFM", PFMSketchWaves::new, true, true);
@@ -139,6 +141,22 @@ public class Register {
         MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading");
         MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Threshold");
         MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Delta Angle");
+
+        ///// MOSAIC RECTANGLES
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Columns", 10, 1, 100, false, (pfmSketch, value) -> pfmSketch.columns = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Rows", 10, 1, 100, false, (pfmSketch, value) -> pfmSketch.rows = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Row Padding %", 0, 0, 100, false, (pfmSketch, value) -> pfmSketch.rowPadding = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Column Padding %", 0, 0, 100, false, (pfmSketch, value) -> pfmSketch.columnPadding = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMMosaicRectangles.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
+
+        ///// MOSAIC VORONOI
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Point Count", 20, 10, 1000, true, (pfmSketch, value) -> pfmSketch.pointCount = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Luminance Power", 5, 1, 50, false, (pfmSketch, value) -> pfmSketch.luminancePower = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Density Power", 5, 1, 50, false, (pfmSketch, value) -> pfmSketch.densityPower = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Voronoi Iterations", 1, 1, 10, true, (pfmSketch, value) -> pfmSketch.iterations = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMMosaicVoronoi.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMMosaicVoronoi.class, "Offset Cells", 0, -20, 20, false, (pfmSketch, value) -> pfmSketch.offsetCells = value));
+
     }
 
     public static void registerDrawingTools(){

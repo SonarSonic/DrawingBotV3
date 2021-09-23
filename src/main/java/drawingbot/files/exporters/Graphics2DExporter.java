@@ -1,7 +1,7 @@
 package drawingbot.files.exporters;
 
-import drawingbot.drawing.ObservableDrawingPen;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.BlendComposite;
@@ -24,7 +24,8 @@ public class Graphics2DExporter {
             graphics.drawRect(0, 0, width, height);
         }
         graphics.setComposite(new BlendComposite(blendMode));
-        graphics.translate(plottingTask.resolution.getScaledOffsetX(), plottingTask.resolution.getScaledOffsetY());
+        graphics.translate(exportTask.exportResolution.getScaledOffsetX(), exportTask.exportResolution.getScaledOffsetY());
+        graphics.scale(exportTask.exportResolution.finalPrintScaleX, exportTask.exportResolution.finalPrintScaleY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 

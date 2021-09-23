@@ -1,0 +1,247 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Mosaic Rectangles",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Column Padding %": "5",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {},
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Squares PFM",
+                "pfm": "Sketch Squares PFM",
+                "settings": {
+                  "Neighbour Tests": "4",
+                  "Max Line length": "30"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Curves PFM",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Neighbour Tests": "50",
+                  "Squiggle Length": "20",
+                  "Min Line length": "15",
+                  "Start Angle Min": "-360",
+                  "Start Angle Max": "360"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": false,
+                "name": "Sketch Shapes PFM",
+                "pfm": "Sketch Shapes PFM",
+                "settings": {
+                  "Min Line length": "30",
+                  "Max Line length": "150"
+                },
+                "weight": 100
+              }
+            ]
+          },
+          "Columns": "5",
+          "Rows": "5",
+          "Row Padding %": "5"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Mosaic Voronoi",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {},
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Squares PFM",
+                "pfm": "Sketch Squares PFM",
+                "settings": {
+                  "Neighbour Tests": "4",
+                  "Max Line length": "30"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Curves PFM",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Neighbour Tests": "50",
+                  "Squiggle Length": "20",
+                  "Min Line length": "15",
+                  "Start Angle Min": "-360",
+                  "Start Angle Max": "360"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": false,
+                "name": "Sketch Shapes PFM",
+                "pfm": "Sketch Shapes PFM",
+                "settings": {
+                  "Min Line length": "30",
+                  "Max Line length": "150"
+                },
+                "weight": 100
+              }
+            ]
+          },
+          "Offset Cells": "-2.0",
+          "Density Power": "5",
+          "Luminance Power": "5",
+          "Point Count": "50",
+          "Random Seed": "0",
+          "Voronoi Iterations": "1"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Mosaic Rectangles",
+      "presetName": "Horizontal Stripes",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Column Padding %": "0",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {},
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Squares PFM",
+                "pfm": "Sketch Squares PFM",
+                "settings": {
+                  "Neighbour Tests": "4",
+                  "Max Line length": "30"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Curves PFM",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Neighbour Tests": "50",
+                  "Squiggle Length": "20",
+                  "Min Line length": "15",
+                  "Start Angle Min": "-360",
+                  "Start Angle Max": "360"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": false,
+                "name": "Sketch Shapes PFM",
+                "pfm": "Sketch Shapes PFM",
+                "settings": {
+                  "Min Line length": "30",
+                  "Max Line length": "150"
+                },
+                "weight": 100
+              }
+            ]
+          },
+          "Columns": "1",
+          "Random Seed": "0",
+          "Rows": "30",
+          "Row Padding %": "10"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Mosaic Rectangles",
+      "presetName": "Vertical Stripes",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Column Padding %": "10",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {},
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Squares PFM",
+                "pfm": "Sketch Squares PFM",
+                "settings": {
+                  "Neighbour Tests": "4",
+                  "Max Line length": "30"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Curves PFM",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Neighbour Tests": "50",
+                  "Squiggle Length": "20",
+                  "Min Line length": "15",
+                  "Start Angle Min": "-360",
+                  "Start Angle Max": "360"
+                },
+                "weight": 100
+              },
+              {
+                "enabled": false,
+                "name": "Sketch Shapes PFM",
+                "pfm": "Sketch Shapes PFM",
+                "settings": {
+                  "Min Line length": "30",
+                  "Max Line length": "150"
+                },
+                "weight": 100
+              }
+            ]
+          },
+          "Columns": "30",
+          "Random Seed": "0",
+          "Rows": "1",
+          "Row Padding %": "0"
+        }
+      }
+    }
+  ]
+}

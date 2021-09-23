@@ -1,4 +1,4 @@
-package drawingbot.drawing;
+package drawingbot.javafx.observables;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;

@@ -2,14 +2,13 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
-import drawingbot.drawing.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.geom.PathBuilder;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.*;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
@@ -22,11 +21,13 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
 public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     public PFMFactory<?> pfmFactory;
+    public List<GenericSetting<?, ?>> pfmSettings;
     public PlottedDrawing plottedDrawing;
     public File originalFile;
 
@@ -61,8 +62,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public boolean isSubTask = false;
     public int defaultPen = 0;
 
-    public PlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
+    public PlottingTask(PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
+        this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.img_original = image;
@@ -91,7 +93,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 DrawingBotV3.logger.fine("PFM - Create Instance");
                 pfm = pfmFactory.instance();
                 DrawingBotV3.logger.fine("PFM - Apply Settings");
-                GenericSetting.applySettingsToInstance(MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), pfm);
+                GenericSetting.applySettingsToInstance(pfmSettings, pfm);
+                onPFMSettingsApplied(pfmSettings, pfm);
 
                 DrawingBotV3.logger.fine("Copying Original Image");
                 img_plotting = ImageTools.deepCopy(img_original);
@@ -218,6 +221,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishProcess();
         }
+        pfm.onStopped();
     }
 
     public AffineTransform createPrintTransform(){
@@ -256,7 +260,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
     @Override
     public PlottingTask call() {
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
+        if(!isSubTask){
+            Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
+        }
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){
                 cancel();
@@ -359,6 +365,16 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
         gcode_offset_x = 0;
         gcode_offset_y = 0;
+    }
+
+    //// CALLBACKS
+
+    public BiConsumer<List<GenericSetting<?, ?>>, IPathFindingModule> onPFMSettingsAppliedCallback = null;
+
+    public void onPFMSettingsApplied(List<GenericSetting<?, ?>> src, IPathFindingModule pfm){
+        if(onPFMSettingsAppliedCallback != null){
+            onPFMSettingsAppliedCallback.accept(src, pfm);
+        }
     }
 
 

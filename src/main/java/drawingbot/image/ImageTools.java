@@ -4,7 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 

@@ -1,8 +1,9 @@
 package drawingbot.plotting;
 
 import drawingbot.api.IGeometryFilter;
-import drawingbot.drawing.*;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -58,6 +59,10 @@ public class PlottedDrawing {
     public void addGeometry(PlottedDrawing drawing){
         geometries.addAll(drawing.geometries);
         vertexCount += drawing.vertexCount;
+    }
+
+    public void addGeometry(List<IGeometry> orderedGeometries) {
+        orderedGeometries.forEach(this::addGeometry);
     }
 
     public void clearGeometries(){

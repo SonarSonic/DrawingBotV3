@@ -1,5 +1,8 @@
 package drawingbot.javafx;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
 import javafx.beans.InvalidationListener;
@@ -84,6 +87,20 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         return this.clazz.isAssignableFrom(clazz);
     }
 
+
+
+    public JsonElement getValueAsJsonElement(){
+        return new JsonPrimitive(getValueAsString());
+    }
+
+    public V getValueFromJsonElement(JsonElement element){
+        if(element instanceof JsonPrimitive){
+            JsonPrimitive primitive = (JsonPrimitive) element;
+            return stringConverter.fromString(primitive.getAsString());
+        }
+        return defaultValue;
+    }
+
     public String getValueAsString(){
         return stringConverter.toString(value.get());
     }
@@ -157,13 +174,16 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public Node defaultNode;
     public Node labelledNode;
 
+    public boolean hasEditableTextField(){
+        return true;
+    }
+
     public TextField getEditableTextField(){
         if(textField == null){
             textField = new TextField();
             textField.setTextFormatter(new TextFormatter<>(new StringConverterGenericSetting<>(() -> this)));
             textField.setText(getValueAsString());
             textField.setPrefWidth(80);
-
             textField.setOnAction(e -> setValueFromString(textField.getText()));
             value.addListener((observable, oldValue, newValue) -> textField.setText(getValueAsString()));
         }
@@ -196,10 +216,10 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static HashMap<String, String> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, String> dst){
+    public static HashMap<String, JsonElement> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, JsonElement> dst, boolean changesOnly){
         list.forEach(s -> {
-            if(!s.value.get().equals(s.defaultValue)){
-                dst.put(s.settingName.getValue(), s.getValueAsString());
+            if(!changesOnly || !s.value.get().equals(s.defaultValue)){
+                dst.put(s.settingName.getValue(), s.getValueAsJsonElement());
             }
         });
         return dst;
@@ -230,12 +250,13 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         }
     }
 
-    public static void applySettings(HashMap<String, String> src, List<GenericSetting<?, ?>> dst){
+    public static void applySettings(HashMap<String, JsonElement> src, List<GenericSetting<?, ?>> dst){
         dst: for(GenericSetting<?, ?> settingDst : dst){
 
-            for(Map.Entry<String, String> settingSrc : src.entrySet()){
+            for(Map.Entry<String, JsonElement> settingSrc : src.entrySet()){
                 if(settingSrc.getKey().equals(settingDst.settingName.getValue())){
-                    settingDst.setValueFromString(settingSrc.getValue());
+
+                    settingDst.setValue(settingDst.getValueFromJsonElement(settingSrc.getValue()));
                     continue dst;
                 }
             }

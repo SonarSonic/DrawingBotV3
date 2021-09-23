@@ -113,6 +113,10 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
         return null;
     }
 
+    public final void tryApplyPreset(GenericPreset<O> preset) {
+        applyPreset(preset);
+    }
+
     public abstract JsonElement toJsonElement(Gson gson,  GenericPreset<?> preset);
 
     public abstract O fromJsonElement(Gson gson,  GenericPreset<?> preset, JsonElement element);

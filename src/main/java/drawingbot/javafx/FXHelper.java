@@ -9,7 +9,7 @@ import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.image.filters.ObservableImageFilter;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.controls.DialogColourSeperationMode;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumColourSplitter;
@@ -84,27 +84,34 @@ public class FXHelper {
         });
     }
 
-    public static void importPreset(EnumJsonType presetType){
+    public static void importPreset(EnumJsonType presetType, boolean apply){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().add(FileUtils.FILTER_JSON);
+            d.getExtensionFilters().addAll(presetType.filters);
             d.setTitle("Select a preset to import");
             d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
-                JsonLoaderManager.importPresetFile(file, presetType);
-                FileUtils.updateImportDirectory(file.getParentFile());
+                loadPresetFile(presetType, file, apply);
             }
         });
     }
 
-    public static void exportPreset(GenericPreset<?> preset){
+    public static void loadPresetFile(EnumJsonType presetType, File file, boolean apply){
+        GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
+        FileUtils.updateImportDirectory(file.getParentFile());
+        if(preset != null && apply){
+            JsonLoaderManager.getManagerForType(presetType).tryApplyPreset(preset);
+        }
+    }
+
+    public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(FileUtils.FILTER_JSON);
+            d.getExtensionFilters().addAll(preset.presetType.filters);
             d.setTitle("Save preset");
-            d.setInitialDirectory(FileUtils.getExportDirectory());
-            d.setInitialFileName(preset.presetName + " - Preset");
+            d.setInitialDirectory(initialDirectory);
+            d.setInitialFileName(initialName);
             File file = d.showSaveDialog(null);
             if(file != null){
                 JsonLoaderManager.exportPresetFile(file, preset);
@@ -226,14 +233,14 @@ public class FXHelper {
         });
 
         importPreset.setOnAction(e -> {
-            FXHelper.importPreset(presetManager.type);
+            FXHelper.importPreset(presetManager.type, false);
         });
         exportPreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
                 return;
             }
-            FXHelper.exportPreset(current);
+            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName);
         });
 
         button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), importPreset, exportPreset);
