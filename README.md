@@ -14,7 +14,7 @@ Drawing Bot is a free, open source software for converting images to line drawin
 
 It is available for Windows, Mac and Linux.
 
-If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG) or contribute to the [Drawing Bot Archive](https://github.com/SonarSonic/DrawingBotV3#the-drawing-bot-collection)!
+If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG) or contribute to the [Drawing Bot Collection](https://github.com/SonarSonic/DrawingBotV3#the-drawing-bot-collection)!
 
 ### Features
 
@@ -141,16 +141,10 @@ Thanks to Scott for allowing me to publish this version!
 
 ### The Drawing Bot Collection
 
-I'm starting a collection of both Digital & Physical Artwork created with DrawingBotV3. When the collection reaches a decent size it will be available online (on Instagram & The Drawing Bot Documentation) and potentially in exhibitions in the UK.
+I'm starting a collection of both Digital & Physical Artwork created with DrawingBotV3.
 
-If you'd like to contribute to this collection email your artwork [here](mailto:drawingbot@outlook.com?subject=[GitHub]%20Drawing%20Bot%20Collection). Please send as many different pieces as you like, they will not be used for profit and only physically reproduced with your permission for displaying purposes only. For physical artwork contact me and I'll send an address for you to send these too! Please provide the following infomation.
+When the collection reaches a decent size it will be available online (on Instagram & The Drawing Bot Documentation) and potentially in exhibitions in the UK.
 
-- Title:
-- Description:
-- Date Created: 
-- Additional Tools Used:
-- Your Name:
-- Your Website / Socials:
+If you'd like to contribute to this collection please submit your artwork [here](https://forms.gle/oJFs2f1ApejPdRyb6)!
 
-- Can it be physically reproduced?
-- Can it be displayed digitally?
+If you work is phyisical, please email me [here](mailto:drawingbot@outlook.com?subject=[GitHub]%20Drawing%20Bot%20Collection%20Physical%20Artwork)!
