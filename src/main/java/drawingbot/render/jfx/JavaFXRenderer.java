@@ -107,6 +107,9 @@ public class JavaFXRenderer extends AbstractRenderer {
         shouldRedraw = markRenderDirty || changedTask || changedMode || changedState;
         canvasNeedsUpdate = canvasNeedsUpdate || lastMode == null || lastMode.type != DrawingBotV3.INSTANCE.display_mode.get().type;
 
+        //reset canvas scaling
+        graphicsFX.setTransform(1, 0, 0, 1, 0, 0);
+
         switch (DrawingBotV3.INSTANCE.display_mode.get().type){
             case IMAGE:
                 ///we load the image, resize the canvas and redraw
