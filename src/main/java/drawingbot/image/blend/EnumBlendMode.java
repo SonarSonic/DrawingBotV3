@@ -64,7 +64,7 @@ public enum EnumBlendMode implements Blender {
             Math.min(src[0], dst[0]),
             Math.min(src[1], dst[1]),
             Math.min(src[2], dst[2]),
-            Math.min(255, src[3] + dst[3])
+            Math.min(src[3], src[3] + dst[3])
     }),
     LIGHTEN(BlendMode.LIGHTEN, true, (src, dst) -> new int[]{
             Math.max(src[0], dst[0]),

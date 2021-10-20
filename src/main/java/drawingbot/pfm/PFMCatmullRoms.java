@@ -23,8 +23,10 @@ public class PFMCatmullRoms extends PFMSketchLines {
 
     @Override
     public void postProcess() {
-        task.getPathBuilder().endCatmullCurve();
-        task.getLastGeometry().setCustomRGBA(getCurveARGB());
+        if(count != 0){
+            task.getPathBuilder().endCatmullCurve();
+            task.getLastGeometry().setCustomRGBA(getCurveARGB());
+        }
     }
 
     public void resetLineData(){

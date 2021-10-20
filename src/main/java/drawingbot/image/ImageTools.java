@@ -98,6 +98,18 @@ public class ImageTools {
 
     public static BufferedImage cropToPrintResolution(BufferedImage image, PrintResolution resolution){
 
+        if(resolution.imageFlipHorizontal){
+            image = Scalr.rotate(image, Scalr.Rotation.FLIP_HORZ);
+        }
+
+        if(resolution.imageFlipVertical){
+            image = Scalr.rotate(image, Scalr.Rotation.FLIP_VERT);
+        }
+
+        if(resolution.imageRotation.scalrRotation != null){
+            image = Scalr.rotate(image, resolution.imageRotation.scalrRotation);
+        }
+
         //crop the image in it's original resolution
         if(resolution.imageCropX != 0 || resolution.imageCropY != 0 || resolution.imageCropWidth != resolution.sourceWidth || resolution.imageCropHeight != resolution.sourceHeight){
             switch (DrawingBotV3.INSTANCE.scalingMode.get()){

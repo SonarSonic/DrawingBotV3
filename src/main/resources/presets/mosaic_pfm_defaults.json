@@ -126,7 +126,7 @@
       "version": 1,
       "presetSubType": "Mosaic Rectangles",
       "presetName": "Horizontal Stripes",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -187,7 +187,7 @@
       "version": 1,
       "presetSubType": "Mosaic Rectangles",
       "presetName": "Vertical Stripes",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",

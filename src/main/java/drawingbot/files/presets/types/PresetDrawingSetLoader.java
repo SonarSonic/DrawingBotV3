@@ -5,6 +5,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.presets.AbstractPresetLoader;
+import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumJsonType;
@@ -45,7 +46,7 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
 
     @Override
     public void applyPreset(GenericPreset<PresetDrawingSet> preset) {
-        //nothing to apply
+        FXController.changeDrawingSet(preset.data);
     }
 
     @Override

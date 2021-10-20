@@ -1,5 +1,6 @@
 package drawingbot.utils;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottedDrawing;
@@ -117,15 +118,16 @@ public class VertexIterator implements PathIterator {
                         moveY = lastSegment[1];
                         break;
                     case PathIterator.SEG_QUADTO:
-                        moveX = lastSegment[1];
-                        moveY = lastSegment[2];
-                        break;
-                    case PathIterator.SEG_CUBICTO:
                         moveX = lastSegment[2];
                         moveY = lastSegment[3];
                         break;
+                    case PathIterator.SEG_CUBICTO:
+                        moveX = lastSegment[4];
+                        moveY = lastSegment[5];
+                        break;
                     case PathIterator.SEG_CLOSE:
                         ///NOTE: minor bug, if the last segment was a close it will be ignored currently...
+                        DrawingBotV3.logger.info("Issues may exist in the output, SEG_CLOSE has not been implemented");
                         break;
                 }
 

@@ -20,7 +20,7 @@ public class PFMSketchCurves extends PFMSketchLines {
     @Override
     public void doProcess() {
         super.doProcess();
-        if(shouldLiftPen){
+        if(shouldLiftPen && count != 0){
             task.getPathBuilder().endCatmullCurve();
             task.getLastGeometry().setCustomRGBA(getCurveARGB());
         }
@@ -28,8 +28,10 @@ public class PFMSketchCurves extends PFMSketchLines {
 
     @Override
     public void postProcess() {
-        task.getPathBuilder().endCatmullCurve();
-        task.getLastGeometry().setCustomRGBA(getCurveARGB());
+        if(count != 0){
+            task.getPathBuilder().endCatmullCurve();
+            task.getLastGeometry().setCustomRGBA(getCurveARGB());
+        }
     }
 
     @Override

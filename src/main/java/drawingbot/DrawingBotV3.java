@@ -77,6 +77,9 @@ public class DrawingBotV3 {
 
     //PRE-PROCESSING\\
     public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
+    public final SimpleObjectProperty<EnumImageRotate> imageRotation = new SimpleObjectProperty<>(EnumImageRotate.R0);
+    public final SimpleBooleanProperty imageFlipHorizontal = new SimpleBooleanProperty(false);
+    public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
 
     //PATH FINDING \\
     public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
@@ -152,15 +155,15 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private Double localProgress = null;
-    private String localMessage = null;
+    private SimpleDoubleProperty localProgress = new SimpleDoubleProperty(0);
+    private SimpleStringProperty localMessage = new SimpleStringProperty("");
 
     public void updateLocalMessage(String message){
-        localMessage = message;
+        localMessage.set(message);
     }
 
     public void updateLocalProgress(double progress){
-        localProgress = progress;
+        localProgress.set(progress);
     }
 
     public EnumDistributionType updateDistributionType = null;
@@ -168,18 +171,34 @@ public class DrawingBotV3 {
 
 
     public void updateUI(){
-        if(getActiveTask() != null && getActiveTask().isRunning()){
-            int geometryCount = getActiveTask().plottedDrawing.getGeometryCount();
-            long vertexCount = getActiveTask().plottedDrawing.getVertexCount();
+        if(getActiveTask() != null){
+            if(getActiveTask().isRunning()){
+                int geometryCount = getActiveTask().plottedDrawing.getGeometryCount();
+                long vertexCount = getActiveTask().plottedDrawing.getVertexCount();
 
-            if(getActiveTask() instanceof SplitPlottingTask){
-                geometryCount = ((SplitPlottingTask) getActiveTask()).getCurrentGeometryCount();
-                vertexCount = ((SplitPlottingTask) getActiveTask()).getCurrentVertexCount();
+                if(getActiveTask() instanceof SplitPlottingTask){
+                    geometryCount = ((SplitPlottingTask) getActiveTask()).getCurrentGeometryCount();
+                    vertexCount = ((SplitPlottingTask) getActiveTask()).getCurrentVertexCount();
+                }
+                controller.labelPlottedShapes.setText(Utils.defaultNF.format(geometryCount));
+                controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
+                controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
             }
-            controller.labelPlottedShapes.setText(Utils.defaultNF.format(geometryCount));
-            controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
-            controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
+        }else{
+            controller.labelElapsedTime.setText("0 s");
+            controller.labelPlottedShapes.setText("0");
+            controller.labelPlottedVertices.setText("0");
         }
+
+
+        if(openImage.get() != null){
+            controller.labelImageResolution.setText(openImage.get().getSource().getWidth() + " x " + openImage.get().getSource().getHeight());
+            controller.labelPlottingResolution.setText(openImage.get().resolution.imageWidth + " x " + openImage.get().resolution.imageHeight);
+        }else{
+            controller.labelImageResolution.setText("0 x 0");
+            controller.labelPlottingResolution.setText("0 x 0");
+        }
+
     }
 
 
@@ -214,6 +233,10 @@ public class DrawingBotV3 {
 
     public void onDrawingAreaChanged(){
         RENDERER.drawingAreaDirty = true;
+        //forces "Plotting Size" to stay updated.
+        if(DrawingBotV3.INSTANCE.openImage.get() != null){
+            DrawingBotV3.INSTANCE.openImage.get().resolution.updateAll();
+        }
     }
 
     public void onDrawingPenChanged(){
@@ -274,8 +297,8 @@ public class DrawingBotV3 {
         taskService = initTaskService();
         taskMonitor.resetMonitor(taskService);
 
-        localProgress = 0D;
-        localMessage = "";
+        updateLocalProgress(0D);
+        updateLocalMessage("");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

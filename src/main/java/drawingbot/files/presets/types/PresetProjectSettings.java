@@ -12,10 +12,7 @@ import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.utils.EnumColourSplitter;
-import drawingbot.utils.EnumDistributionOrder;
-import drawingbot.utils.EnumDistributionType;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.utils.*;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -34,6 +31,10 @@ public class PresetProjectSettings extends AbstractJsonData {
     public GenericPreset<PresetImageFilters> imageFilters;
     public GenericPreset<PresetPFMSettings> pfmSettings;
     public GenericPreset<PresetDrawingSet> drawingSet;
+
+    public EnumImageRotate imageRotation = EnumImageRotate.R0;
+    public boolean imageFlipHorizontal = false;
+    public boolean imageFlipVertical = false;
 
     public boolean optimiseForPrint;
     public float targetPenWidth;

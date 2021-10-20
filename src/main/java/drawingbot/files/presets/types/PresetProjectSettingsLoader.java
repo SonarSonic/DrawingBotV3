@@ -8,15 +8,13 @@ import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
+import drawingbot.javafx.FXController;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.GenericSetting;
-import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.EnumColourSplitter;
 import drawingbot.utils.EnumJsonType;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -77,6 +75,10 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         JsonLoaderManager.DRAWING_SET.updatePreset(presetDrawingSet);
         preset.data.drawingSet = presetDrawingSet;
 
+        preset.data.imageRotation = DrawingBotV3.INSTANCE.imageRotation.get();
+        preset.data.imageFlipHorizontal = DrawingBotV3.INSTANCE.imageFlipHorizontal.get();
+        preset.data.imageFlipVertical = DrawingBotV3.INSTANCE.imageFlipVertical.get();
+
         preset.data.optimiseForPrint = DrawingBotV3.INSTANCE.optimiseForPrint.get();
         preset.data.targetPenWidth = DrawingBotV3.INSTANCE.targetPenWidth.get();
         preset.data.colourSplitter = DrawingBotV3.INSTANCE.colourSplitter.get();
@@ -90,14 +92,19 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
     @Override
     public void applyPreset(GenericPreset<PresetProjectSettings> preset) {
 
-        if(!preset.data.imagePath.isEmpty()){
-            Platform.runLater(() -> DrawingBotV3.INSTANCE.openImage(new File(preset.data.imagePath), false));
-        }
-
         JsonLoaderManager.DRAWING_AREA.applyPreset(preset.data.drawingArea);
         JsonLoaderManager.FILTERS.applyPreset(preset.data.imageFilters);
         JsonLoaderManager.PFM.applyPreset(preset.data.pfmSettings);
-        JsonLoaderManager.DRAWING_SET.applyPreset(preset.data.drawingSet);
+
+        if(DrawingBotV3.INSTANCE.colourSplitter.get() != EnumColourSplitter.CMYK){
+            JsonLoaderManager.DRAWING_SET.applyPreset(preset.data.drawingSet);
+        }else{
+            FXController.changeDrawingSet(DrawingBotV3.INSTANCE.colourSplitter.get().drawingSet);
+        }
+
+        DrawingBotV3.INSTANCE.imageRotation.set(preset.data.imageRotation);
+        DrawingBotV3.INSTANCE.imageFlipHorizontal.set(preset.data.imageFlipHorizontal);
+        DrawingBotV3.INSTANCE.imageFlipVertical.set(preset.data.imageFlipVertical);
 
         DrawingBotV3.INSTANCE.optimiseForPrint.set(preset.data.optimiseForPrint);
         DrawingBotV3.INSTANCE.targetPenWidth.set(preset.data.targetPenWidth);
@@ -105,6 +112,10 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.set(preset.data.distributionType);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(preset.data.distributionOrder);
         DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(preset.data.blendMode);
+
+        if(!preset.data.imagePath.isEmpty()){
+            Platform.runLater(() -> DrawingBotV3.INSTANCE.openImage(new File(preset.data.imagePath), false));
+        }
     }
 
     @Override

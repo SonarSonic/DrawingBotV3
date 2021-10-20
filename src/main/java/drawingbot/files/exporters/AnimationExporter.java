@@ -24,15 +24,9 @@ public class AnimationExporter {
         int width = (int)exportTask.exportResolution.getScaledWidth();
         int height = (int)exportTask.exportResolution.getScaledHeight();
 
-        boolean useAlpha = !extension.equals(".jpg");
-        BufferedImage image = new BufferedImage(width, height, useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D graphics = image.createGraphics();
-        if(!useAlpha){
-            graphics.setColor(Color.WHITE);
-            graphics.fillRect(0, 0, width, height);
-            graphics.dispose();
-        }
+        BufferedImage image = ImageExporter.createFreshBufferedImage(exportTask);
+        Graphics2D graphics = ImageExporter.createFreshGraphics2D(exportTask, image);
+        graphics.dispose(); //writes background colour to the image.
 
         int frameCount = 0;
         long totalFrameCount = ConfigFileHandler.getApplicationSettings().getFrameCount();
@@ -46,13 +40,13 @@ public class AnimationExporter {
 
         while(!vertexIterator.isDone()){
             graphics = image.createGraphics();
+            ImageExporter.setBlendMode(exportTask, graphics);
+
             Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
-
             vertexIterator.renderVerticesAWT(plottingTask.plottedDrawing, graphics, frameCount == totalFrameCount - 1 ? Integer.MAX_VALUE : verticesPerFrame);
-
             Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
-            frameCount++;
 
+            frameCount++;
             try {
                 File path = FileUtils.removeExtension(saveLocation);
                 File fileName = new File(path.getPath() + "_F" + framePaddingFormat.format(frameCount) + extension);

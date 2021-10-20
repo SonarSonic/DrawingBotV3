@@ -18,12 +18,6 @@ import java.util.Map;
 public class Graphics2DExporter {
 
     public static void preDraw(ExportTask exportTask, Graphics2D graphics, int width, int height, PlottingTask plottingTask){
-        EnumBlendMode blendMode = plottingTask.plottedDrawing.drawingPenSet.blendMode.get();
-        if(blendMode.additive){
-            graphics.setColor(Color.BLACK);
-            graphics.drawRect(0, 0, width, height);
-        }
-        graphics.setComposite(new BlendComposite(blendMode));
         graphics.translate(exportTask.exportResolution.getScaledOffsetX(), exportTask.exportResolution.getScaledOffsetY());
         graphics.scale(exportTask.exportResolution.finalPrintScaleX, exportTask.exportResolution.finalPrintScaleY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
