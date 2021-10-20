@@ -30,6 +30,26 @@
           }
         ]
       }
+    },
+    {
+      "presetType": "image_filters",
+      "version": 1,
+      "presetSubType": "",
+      "presetName": "Simple Unsharp Mask",
+      "userCreated": false,
+      "data": {
+        "filters": [
+          {
+            "type": "Unsharp Mask",
+            "settings": {
+              "Radius": "6.0",
+              "Premultiply": "true",
+              "Amount": "0.5",
+              "Threshold": "1"
+            }
+          }
+        ]
+      }
     }
   ]
 }

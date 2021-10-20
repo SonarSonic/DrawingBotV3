@@ -1,6 +1,7 @@
 package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.utils.EnumImageRotate;
 import drawingbot.utils.EnumScalingMode;
 
 import java.awt.geom.AffineTransform;
@@ -12,6 +13,13 @@ public class PrintResolution {
     //// SOURCE RESOLUTION \\\\
 
     //the original images dimensions, in PX
+    public final EnumImageRotate imageRotation;
+    public final boolean imageFlipHorizontal;
+    public final boolean imageFlipVertical;
+
+    public final int originalWidth;
+    public final int originalHeight;
+
     public final int sourceWidth;
     public final int sourceHeight;
 
@@ -69,16 +77,27 @@ public class PrintResolution {
     public double finalPrintScaleY = 1;
 
     public PrintResolution(BufferedImage src){
-        this(src.getWidth(), src.getHeight());
+        this(DrawingBotV3.INSTANCE.imageRotation.get(), DrawingBotV3.INSTANCE.imageFlipHorizontal.get(), DrawingBotV3.INSTANCE.imageFlipVertical.get(), src);
     }
 
-    public PrintResolution(int width, int height){
-        this.sourceWidth = width;
-        this.sourceHeight = height;
+    public PrintResolution(EnumImageRotate imageRotation, boolean flipHorizontal, boolean flipVertical, BufferedImage src){
+        this(imageRotation, flipHorizontal, flipVertical, src.getWidth(), src.getHeight());
+    }
+
+    public PrintResolution(EnumImageRotate imageRotation, boolean flipHorizontal, boolean flipVertical, int originalWidth, int originalHeight){
+        this.imageRotation = imageRotation;
+        this.imageFlipHorizontal = flipHorizontal;
+        this.imageFlipVertical = flipVertical;
+
+        this.originalHeight = originalHeight;
+        this.originalWidth = originalWidth;
+
+        this.sourceWidth = imageRotation.flipAxis ? originalHeight : originalWidth;
+        this.sourceHeight = imageRotation.flipAxis ? originalWidth : originalHeight;
     }
 
     public static PrintResolution copy(PrintResolution resolution){
-        PrintResolution copy = new PrintResolution(resolution.sourceWidth, resolution.sourceHeight);
+        PrintResolution copy = new PrintResolution(resolution.imageRotation, resolution.imageFlipHorizontal, resolution.imageFlipVertical, resolution.originalWidth, resolution.originalHeight);
         copy.plottingResolution = resolution.plottingResolution;
         copy.plottingTransform = resolution.plottingTransform;
 

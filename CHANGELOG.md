@@ -1,4 +1,15 @@
 # Change Log
+### [v1.0.16-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.16-stable)
+- Added: Text to display the current images size, and the size it's being plotted at.
+- Added: Rotate / Flip Options for images in Image Processing
+- Fixed: Issue where the viewer would zoom into the top left corner of the image after pre-longed use.
+- Fixed: Drawing Pens / CMYK Settings not loading correctly with project files.
+  - Changed: Renamed the "Pre-Processing" tab to "Image Processing"
+  - Fixed: Image Rendering - Blend Modes will now create a more accurate representation on exports.
+- Fixed: PNG export accuracy, they will now match the JPG exports and only be transparent if the blend mode is "Normal".
+- Fixed: Image Rendering / Image Sequence Rendering - Rendering will now be more accurate when using blend modes or CMYK seperation
+- Fixed: Image Sequence Rendering - Fixes a rare glitch where random lines may appear on an animation.
+- Fixed: Rare bug where Colour Sampling in curve modes would result in the final line being completely transparent.
 
 ### [v1.0.15-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.15-stable)
 - Added: Two New Path Finding Modules for creating Mosaics!

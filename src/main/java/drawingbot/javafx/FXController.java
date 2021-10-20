@@ -33,7 +33,6 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -244,6 +243,8 @@ public class FXController {
     public Label labelElapsedTime = null;
     public Label labelPlottedShapes = null;
     public Label labelPlottedVertices = null;
+    public Label labelImageResolution = null;
+    public Label labelPlottingResolution = null;
 
     public void initViewport(){
 
@@ -316,6 +317,8 @@ public class FXController {
         labelElapsedTime.setText("0 s");
         labelPlottedShapes.setText("0");
         labelPlottedVertices.setText("0");
+        labelImageResolution.setText("0 x 0");
+        labelPlottingResolution.setText("0 x 0");
     }
 
 
@@ -499,6 +502,10 @@ public class FXController {
     public ComboBox<GenericFactory<BufferedImageOp>> comboBoxImageFilter = null;
     public Button buttonAddFilter = null;
 
+    public ChoiceBox<EnumImageRotate> choiceBoxRotation = null;
+    public CheckBox checkBoxFlipX = null;
+    public CheckBox checkBoxFlipY = null;
+
     public void initPreProcessingPane(){
         comboBoxImageFilterPreset.setItems(MasterRegistry.INSTANCE.imgFilterPresets);
         comboBoxImageFilterPreset.setValue(MasterRegistry.INSTANCE.getDefaultImageFilterPreset());
@@ -557,6 +564,20 @@ public class FXController {
                 FXHelper.addImageFilter(comboBoxImageFilter.getValue());
             }
         });
+
+        choiceBoxRotation.setItems(FXCollections.observableArrayList(EnumImageRotate.values()));
+        choiceBoxRotation.setValue(EnumImageRotate.R0);
+        choiceBoxRotation.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.imageRotation);
+
+        checkBoxFlipX.setSelected(false);
+        checkBoxFlipX.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.imageFlipHorizontal);
+
+        checkBoxFlipY.setSelected(false);
+        checkBoxFlipY.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.imageFlipVertical);
+
+        DrawingBotV3.INSTANCE.imageRotation.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.imageFlipHorizontal.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.imageFlipVertical.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
