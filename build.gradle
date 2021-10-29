@@ -29,16 +29,16 @@ dependencies {
     testImplementation "junit:junit:${junit_version}"
 
     //shadowed dependencies
-    compile "org.jfree:org.jfree.fxgraphics2d:${fxgraphics_version}"
-    compile "com.itextpdf:itextpdf:${itext_version}"
-    compile "org.imgscalr:imgscalr-lib:${imgscalr_version}"
-    compile "com.google.code.gson:gson:${gson_version}"
-    compile "org.locationtech.jts:jts-core:${jts_version}"
-    compile "org.apache.xmlgraphics:batik-svggen:${xml_graphics_version}"
-    compile "org.apache.xmlgraphics:batik-dom:${xml_graphics_version}"
+    implementation "org.jfree:org.jfree.fxgraphics2d:${fxgraphics_version}"
+    implementation "com.itextpdf:itextpdf:${itext_version}"
+    implementation "org.imgscalr:imgscalr-lib:${imgscalr_version}"
+    implementation "com.google.code.gson:gson:${gson_version}"
+    implementation "org.locationtech.jts:jts-core:${jts_version}"
+    implementation "org.apache.xmlgraphics:batik-svggen:${xml_graphics_version}"
+    implementation "org.apache.xmlgraphics:batik-dom:${xml_graphics_version}"
     implementation 'com.jhlabs:filters:2.0.235-1'
     implementation 'org.joml:joml:1.10.1'
-    //compile "org.controlsfx:controlsfx:${controlsfx_version}"
+    //implementation "org.controlsfx:controlsfx:${controlsfx_version}"
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
     String javaFxVersion = '15'
@@ -59,32 +59,32 @@ dependencies {
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFxVersion, classifier: 'linux'
 
     //// JOGL
-    compile "org.jogamp.gluegen:gluegen-rt:2.3.1"
-    compile "org.jogamp.jogl:jogl-all:2.3.1"
+    implementation "org.jogamp.gluegen:gluegen-rt:2.3.1"
+    implementation "org.jogamp.jogl:jogl-all:2.3.1"
 
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-android-aarch64"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-android-armv6"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-amd64"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-armv6"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-armv6hf"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-i586"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-macosx-universal"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-solaris-amd64"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-solaris-i586"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-windows-amd64"
-    runtime "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-windows-i586"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-android-aarch64"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-android-armv6"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-amd64"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-armv6"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-armv6hf"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-linux-i586"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-macosx-universal"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-solaris-amd64"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-solaris-i586"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-windows-amd64"
+    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.1:natives-windows-i586"
 
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-android-aarch64"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-android-armv6"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-amd64"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-armv6"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-armv6hf"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-i586"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-macosx-universal"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-solaris-amd64"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-solaris-i586"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-windows-amd64"
-    runtime "org.jogamp.jogl:jogl-all:2.3.1:natives-windows-i586"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-android-aarch64"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-android-armv6"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-amd64"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-armv6"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-armv6hf"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-linux-i586"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-macosx-universal"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-solaris-amd64"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-solaris-i586"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-windows-amd64"
+    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.1:natives-windows-i586"
 }
 
 targetCompatibility = "11"
