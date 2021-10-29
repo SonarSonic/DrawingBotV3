@@ -21,6 +21,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 import org.jfree.fx.FXGraphics2D;
 
 public class JavaFXRenderer extends AbstractRenderer {
@@ -153,6 +155,8 @@ public class JavaFXRenderer extends AbstractRenderer {
 
         updateCanvasScaling();
         graphicsFX.setGlobalBlendMode(BlendMode.SRC_OVER);
+        graphicsFX.setLineCap(StrokeLineCap.ROUND);
+        graphicsFX.setLineJoin(StrokeLineJoin.ROUND);        
         graphicsFX.save();
     }
 
