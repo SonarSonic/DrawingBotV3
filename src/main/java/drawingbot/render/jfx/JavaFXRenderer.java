@@ -282,7 +282,7 @@ public class JavaFXRenderer extends AbstractRenderer {
                 }
                 if(renderedLines != -1){
                     graphicsFX.scale(canvasScaling, canvasScaling);
-                    graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
+                    graphicsFX.translate(renderedTask.resolution.getScaledOffsetX()+0.5, renderedTask.resolution.getScaledOffsetY()+0.5);
                     graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
                     IGeometryFilter pointFilter = DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_FILTER;

@@ -18,7 +18,7 @@ import java.util.Map;
 public class Graphics2DExporter {
 
     public static void preDraw(ExportTask exportTask, Graphics2D graphics, int width, int height, PlottingTask plottingTask){
-        graphics.translate(exportTask.exportResolution.getScaledOffsetX(), exportTask.exportResolution.getScaledOffsetY());
+        graphics.translate(exportTask.exportResolution.getScaledOffsetX()+0.5, exportTask.exportResolution.getScaledOffsetY()+0.5);
         graphics.scale(exportTask.exportResolution.finalPrintScaleX, exportTask.exportResolution.finalPrintScaleY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
