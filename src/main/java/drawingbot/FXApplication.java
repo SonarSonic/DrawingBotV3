@@ -1,5 +1,7 @@
 package drawingbot;
 
+import com.aparapi.Kernel;
+import com.aparapi.Range;
 import drawingbot.api.API;
 import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -8,6 +10,7 @@ import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.DBConstants;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;

@@ -3,6 +3,8 @@ package drawingbot.geom.basic;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.GeometryUtils;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -84,6 +86,14 @@ public class GPath extends Path2D.Float implements IGeometry {
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         GeometryUtils.renderAWTShapeToFX(graphics, getAWTShape());
+    }
+
+    @Override
+    public Coordinate getOriginCoordinate() {
+        PathIterator iterator = this.getPathIterator(null);
+        float[] coords = new float[6];
+        int type = iterator.currentSegment(coords);
+        return new CoordinateXY(coords[0], coords[1]);
     }
 
     public void addToPath(GPath path) {

@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -42,6 +43,11 @@ public interface IGeometry {
     void renderFX(GraphicsContext graphics, ObservableDrawingPen pen);
 
     void transform(AffineTransform transform);
+
+    /**
+     * Used for geometry sorting only
+     */
+    Coordinate getOriginCoordinate();
 
     default void renderAWT(Graphics2D graphics, ObservableDrawingPen pen){
         pen.preRenderAWT(graphics, this);

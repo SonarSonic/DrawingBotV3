@@ -38,6 +38,11 @@ dependencies {
     compile "org.apache.xmlgraphics:batik-dom:${xml_graphics_version}"
     implementation 'com.jhlabs:filters:2.0.235-1'
     implementation 'org.joml:joml:1.10.1'
+    implementation 'org.jcodec:jcodec:0.2.5'
+    implementation 'org.jcodec:jcodec-javase:0.2.5'
+    implementation 'org.apache.bcel:bcel:6.5.0'
+    implementation 'com.aparapi:aparapi:2.0.0'
+
     //compile "org.controlsfx:controlsfx:${controlsfx_version}"
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle

@@ -38,7 +38,7 @@ public enum EnumColourSplitter {
         if(splitter != DEFAULT){
             List<DrawingPen> pens = new ArrayList<>();
             for(int i = 0; i < splitter.outputNames.size(); i++){
-                DrawingPen pen = MasterRegistry.INSTANCE.getDrawingPenFromCodeName(DBConstants.DRAWING_TYPE_SPECIAL + ":" + splitter.outputNames.get(i));
+                DrawingPen pen = MasterRegistry.INSTANCE.getDrawingPenFromRegistryName(DBConstants.DRAWING_TYPE_SPECIAL + ":" + splitter.outputNames.get(i));
                 pens.add(pen);
             }
             return new ColourSplitterDrawingSet(splitter, DBConstants.DRAWING_TYPE_SPECIAL,splitter.name() + " Seperation", pens);

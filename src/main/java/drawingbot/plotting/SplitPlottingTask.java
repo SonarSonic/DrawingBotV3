@@ -56,7 +56,7 @@ public class SplitPlottingTask extends PlottingTask{
 
                 //generate split images
                 updateMessage("Processing - Splitting Images");
-                List<BufferedImage> subImages = splitter.splitFunction.apply(img_plotting);
+                List<BufferedImage> subImages = splitter.splitFunction.apply(imgPlotting);
 
                 //generate sub tasks
                 subTasks = new ArrayList<>();

@@ -3,9 +3,12 @@ package drawingbot.geom.basic;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.GeometryUtils;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 
 /**
  * A wrapper for any other special shape types
@@ -62,5 +65,13 @@ public class GShape implements IGeometry {
     @Override
     public void transform(AffineTransform transform) {
         shape = transform.createTransformedShape(shape);
+    }
+
+    @Override
+    public Coordinate getOriginCoordinate() {
+        PathIterator iterator = shape.getPathIterator(null);
+        float[] coords = new float[6];
+        int type = iterator.currentSegment(coords);
+        return new CoordinateXY(coords[0], coords[1]);
     }
 }

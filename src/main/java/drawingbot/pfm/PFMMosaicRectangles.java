@@ -28,7 +28,7 @@ public class PFMMosaicRectangles extends AbstractMosaicPFM{
 
                 nextDrawingStyle();
 
-                BufferedImage tileImage = Scalr.crop(task.img_plotting, tileXPos, tileYPos, tileWidth - tilePaddingX *2, tileHeight - tilePaddingY *2);
+                BufferedImage tileImage = Scalr.crop(task.imgPlotting, tileXPos, tileYPos, tileWidth - tilePaddingX *2, tileHeight - tilePaddingY *2);
                 PlottingTask tileTask = new PlottingTask(currentDrawingStyle.getFactory(), currentStyleSettings, evenlyDistributedDrawingSet, tileImage, task.originalFile);
                 tileTask.isSubTask = true;
                 tileTask.enableImageFiltering = false;

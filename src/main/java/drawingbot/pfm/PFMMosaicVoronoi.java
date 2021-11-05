@@ -33,7 +33,7 @@ public class PFMMosaicVoronoi extends AbstractMosaicPFM{
     public int calculateTileCount() {
 
         PFMFactory<?> factory = MasterRegistry.INSTANCE.getPFMFactory("Voronoi Diagram");
-        PlottingTask voronoiTask = new PlottingTask(factory, new ArrayList<>(), task.getDrawingSet(), task.img_plotting, task.originalFile);
+        PlottingTask voronoiTask = new PlottingTask(factory, new ArrayList<>(), task.getDrawingSet(), task.imgPlotting, task.originalFile);
         voronoiTask.isSubTask = true;
         voronoiTask.enableImageFiltering = false;
 
@@ -80,7 +80,7 @@ public class PFMMosaicVoronoi extends AbstractMosaicPFM{
                 return;
             }
 
-            BufferedImage scaledImage = Scalr.crop(task.img_plotting, minX, minY, width, height);
+            BufferedImage scaledImage = Scalr.crop(task.imgPlotting, minX, minY, width, height);
             BufferedImage tileImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphics2D = tileImage.createGraphics();
 

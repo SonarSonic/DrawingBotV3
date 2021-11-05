@@ -2,6 +2,8 @@ package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -79,5 +81,10 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
         y1 = coords[1];
         x2 = coords[2];
         y2 = coords[3];
+    }
+
+    @Override
+    public Coordinate getOriginCoordinate() {
+        return new CoordinateXY(x1, y1);
     }
 }

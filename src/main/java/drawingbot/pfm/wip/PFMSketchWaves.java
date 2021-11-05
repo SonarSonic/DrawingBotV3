@@ -2,6 +2,7 @@ package drawingbot.pfm.wip;
 
 import drawingbot.api.IPixelData;
 import drawingbot.pfm.AbstractSketchPFM;
+import drawingbot.pfm.helpers.LuminanceTestLine;
 
 import java.util.function.Function;
 
@@ -22,19 +23,21 @@ public class PFMSketchWaves extends AbstractSketchPFM {
     }
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
+    public boolean findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst){
 
-        double xOffset = xWave.waveFunction.apply(Math.toRadians((start_x/waveDivisorX)+waveOffsetX));
-        double yOffset = yWave.waveFunction.apply(Math.toRadians((start_y/waveDivisorY)+waveOffsetY));
+        double xOffset = xWave.waveFunction.apply(Math.toRadians((point[0]/waveDivisorX)+waveOffsetX));
+        double yOffset = yWave.waveFunction.apply(Math.toRadians((point[1]/waveDivisorY)+waveOffsetY));
 
         float angle = startAngle + (float)Math.toDegrees(xOffset + yOffset);
         float deltaAngle = 360.0F / (float) lineTests;
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
-        resetLuminanceTest();
+        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLineLength, maxLineLength, true);
         for (int d = 0; d < lineTests; d ++) {
-            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (deltaAngle * d) + angle);
+            luminanceTest.resetSamples();
+            bresenham.plotAngledLine(point[0], point[1], nextLineLength, (deltaAngle * d) + angle, (x, y) -> luminanceTest.addSample(pixels, x, y));
         }
+        return luminanceTest.getDarkestSample() < pixels.getAverageLuminance();
     }
 
     public enum WaveType{

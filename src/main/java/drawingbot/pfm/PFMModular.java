@@ -26,6 +26,11 @@ public class PFMModular extends AbstractPFM{
     }
 
     @Override
+    public int getColourMode() {
+        return 3;
+    }
+
+    @Override
     public void init(IPlottingTask task) {
         super.init(task);
     }

@@ -326,7 +326,7 @@ public class FXHelper {
             if(result.isPresent()){
                 if(result.get() != filter){ //if the dialog was cancelled copy the settings of the original
                     GenericSetting.applySettings(result.get().filterSettings, filter.filterSettings);
-                    DrawingBotV3.INSTANCE.onImageFiltersChanged();
+                    DrawingBotV3.INSTANCE.onImageFilterChanged(filter);
                 }
             }
         }

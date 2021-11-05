@@ -25,6 +25,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 
@@ -36,6 +37,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
@@ -209,11 +211,11 @@ public class FXController {
 
         //help
         MenuItem documentation = new MenuItem("View Documentation");
-        documentation.setOnAction(e -> FXHelper.openURL(Utils.URL_READ_THE_DOCS_HOME));
+        documentation.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_HOME));
         menuHelp.getItems().add(documentation);
 
         MenuItem sourceCode = new MenuItem("View Source Code");
-        sourceCode.setOnAction(e -> FXHelper.openURL(Utils.URL_GITHUB_REPO));
+        sourceCode.setOnAction(e -> FXHelper.openURL(DBConstants.URL_GITHUB_REPO));
         menuHelp.getItems().add(sourceCode);
 
         MenuItem configFolder = new MenuItem("Open Configs Folder");
@@ -354,6 +356,8 @@ public class FXController {
     public Pane paneProgressBar = null;
     public ProgressBar progressBarGeneral = null;
     public Label progressBarLabel = null;
+    public Label labelCancelExport = null;
+    public Label labelOpenDestinationFolder = null;
 
     public void initProgressBar(){
         progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
@@ -361,6 +365,26 @@ public class FXController {
 
         progressBarGeneral.progressProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.progressProperty);
         progressBarLabel.textProperty().bind(Bindings.createStringBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.getCurrentTaskStatus(), DrawingBotV3.INSTANCE.taskMonitor.messageProperty, DrawingBotV3.INSTANCE.taskMonitor.titleProperty, DrawingBotV3.INSTANCE.taskMonitor.exceptionProperty));
+
+        labelCancelExport.setOnMouseEntered(event -> labelCancelExport.textFillProperty().setValue(Color.BLANCHEDALMOND));
+        labelCancelExport.setOnMouseExited(event -> labelCancelExport.textFillProperty().setValue(Color.BLACK));
+        labelCancelExport.setOnMouseClicked(event -> {
+            Task<?> task = DrawingBotV3.INSTANCE.taskMonitor.currentTask;
+            if(task instanceof ExportTask){
+                task.cancel(true);
+            }
+        });
+        labelCancelExport.visibleProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isExporting);
+
+        labelOpenDestinationFolder.setOnMouseEntered(event -> labelOpenDestinationFolder.textFillProperty().setValue(Color.BLANCHEDALMOND));
+        labelOpenDestinationFolder.setOnMouseExited(event -> labelOpenDestinationFolder.textFillProperty().setValue(Color.BLACK));
+        labelOpenDestinationFolder.setOnMouseClicked(event -> {
+            ExportTask task = DrawingBotV3.INSTANCE.taskMonitor.getDisplayedExportTask();
+            if(task != null){
+                FXHelper.openFolder(task.saveLocation.getParentFile());
+            }
+        });
+        labelOpenDestinationFolder.visibleProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.wasExporting.get() || DrawingBotV3.INSTANCE.taskMonitor.isExporting.get(), DrawingBotV3.INSTANCE.taskMonitor.isExporting, DrawingBotV3.INSTANCE.taskMonitor.wasExporting));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -654,7 +678,7 @@ public class FXController {
         buttonPFMSettingReset.setOnAction(e -> JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
-        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(Utils.URL_READ_THE_DOCS_PFMS));
+        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));
 
 
         DrawingBotV3.INSTANCE.colourSplitter.bindBidirectional(choiceBoxColourSeperation.valueProperty());

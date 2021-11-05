@@ -2,6 +2,8 @@ package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -66,6 +68,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
         y = coords[1];
         width = coords[2] - x;
         height = coords[3] - y;
+    }
+
+    @Override
+    public Coordinate getOriginCoordinate() {
+        return new CoordinateXY(x, y);
     }
 
     public static class Filled extends GEllipse{

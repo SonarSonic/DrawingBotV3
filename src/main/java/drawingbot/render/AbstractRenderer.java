@@ -1,11 +1,10 @@
 package drawingbot.render;
 
-import javafx.scene.image.WritableImage;
-
 public abstract class AbstractRenderer {
 
-    public boolean imageFiltersDirty = false;
-    public boolean drawingAreaDirty = false;
+    public boolean imageFilterDirty = false;
+    public boolean imageFiltersChanged = false;
+    public boolean croppingDirty = false;
 
     public boolean markRenderDirty = true;
 
