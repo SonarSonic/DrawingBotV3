@@ -5,10 +5,12 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.drawing.DrawingPen;
+import drawingbot.drawing.plugins.AbstractPenPlugin;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetImageFilters;
 import drawingbot.files.presets.types.PresetPFMSettings;
+import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
@@ -23,6 +25,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.Dialog;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImageOp;
 import java.util.*;
@@ -42,6 +45,7 @@ public class MasterRegistry {
 
     //// IMAGE FILTERS \\\\
     public Map<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> imgFilterFactories = FXCollections.observableMap(new LinkedHashMap<>());
+    public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
     public HashMap<Class<? extends BufferedImageOp>, List<GenericSetting<?, ?>>> imgFilterSettings = new LinkedHashMap<>();
     public ObservableList<GenericPreset<PresetImageFilters>> imgFilterPresets = FXCollections.observableArrayList();
 
@@ -51,6 +55,7 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// DRAWING PENS / SETS \\\\
 
+    public List<AbstractPenPlugin> penPlugins = new ArrayList<>();
     public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
 
@@ -188,6 +193,19 @@ public class MasterRegistry {
         }
     }
 
+    public GenericSetting<?, ?> getModularPFMSettingByName(Class<? extends ModularEncoder> pfmClass, String name){
+        PFMFactory<?> factory = getPFMFactory(pfmClass);
+        if(factory != null){
+            ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
+            for(GenericSetting<?, ?> setting : settings){
+                if(setting.settingName.getValue().equals(name)){
+                    return setting;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Registers an encoder setting for every PFMModular which uses it
      */
@@ -225,6 +243,11 @@ public class MasterRegistry {
         imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
     }
 
+    public void registerImageFilterKernelFactory(IKernelFactory factory){
+        DrawingBotV3.logger.finest("Registering Image Filter Kernel Factory: for " + factory.getFactoryName());
+        imgFilterKernelFactories.add(factory);
+    }
+
     public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
         DrawingBotV3.logger.finest("Registering Image Filter: " + setting.settingName.getValue());
         imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
@@ -244,6 +267,12 @@ public class MasterRegistry {
 
 
     //// DRAWING PEN: REGISTERING
+
+    public void registerPenPlugin(AbstractPenPlugin penPlugin){
+        penPlugins.add(penPlugin);
+        penPlugin.registerPens();
+        penPlugin.registerPenSets();
+    }
 
     public void registerDrawingPen(DrawingPen pen){
         if(pen == null){
@@ -340,6 +369,16 @@ public class MasterRegistry {
         return null;
     }
 
+    @Nullable
+    public IKernelFactory getImageFilterKernel(BufferedImageOp op){
+        for(IKernelFactory factory : imgFilterKernelFactories){
+            if(factory.canProcess(op)){
+                return factory;
+            }
+        }
+        return null;
+    }
+
     /**
      * Creates an editable copy of settings available to the given filter factory
      * @param filterFactory the filter factory
@@ -369,15 +408,15 @@ public class MasterRegistry {
 
     //// DRAWING PEN: HELPERS
 
-    public DrawingPen getDrawingPenFromCodeName(String codeName){
+    public DrawingPen getDrawingPenFromRegistryName(String codeName){
         String[] split = codeName.split(":");
         return registeredPens.get(split[0]).stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
     }
 
-    public List<DrawingPen> getDrawingPensFromCodes(String[] codes){
+    public List<DrawingPen> getDrawingPensFromRegistryNames(String[] codes){
         List<DrawingPen> pens = new ArrayList<>();
         for(String code : codes){
-            DrawingPen pen = getDrawingPenFromCodeName(code);
+            DrawingPen pen = getDrawingPenFromRegistryName(code);
             if(pen != null){
                 pens.add(pen);
             }else{
@@ -389,7 +428,7 @@ public class MasterRegistry {
 
     //// DRAWING SET: HELPERS
 
-    public IDrawingSet<IDrawingPen> getDrawingSetFromCodeName(String codeName){
+    public IDrawingSet<IDrawingPen> getDrawingSetFromRegistryName(String codeName){
         String[] split = codeName.split(":");
         return registeredSets.get(split[0]).stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
     }

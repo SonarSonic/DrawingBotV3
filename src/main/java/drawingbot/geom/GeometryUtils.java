@@ -32,13 +32,15 @@ public class GeometryUtils {
     public static GeometryFactory factory = new GeometryFactory();
 
     public static Map<Integer, List<IGeometry>> getGeometriesForExportTask(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
-        if(!task.format.isVector || task.plottingTask.pfmFactory.bypassOptimisation || forceBypassOptimisation){
+        if(!task.format.isVector || forceBypassOptimisation){
             return getBasicGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);
         }
-        return getOptimisedGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);
+        return getOptimisedGeometriesForExport(task, task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet);
     }
 
-    public static Map<Integer, List<IGeometry>> getOptimisedGeometriesForExport(List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet) {
+    public static Map<Integer, List<IGeometry>> getOptimisedGeometriesForExport(ExportTask task, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet) {
+
+
 
         Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(geometryFilter, drawingSet, geometries);
 
@@ -47,14 +49,29 @@ public class GeometryUtils {
             DrawingBotV3.logger.info("--------- Geometry - Pre-Optimisation ---------");
             printEstimatedTravelDistance(combinedGeometry, printTransform);
 
-            AffineTransform toJTS = AffineTransform.getScaleInstance(printTransform.getScaleX(), printTransform.getScaleY());
-            AffineTransform fromJTS = AffineTransform.getScaleInstance(1/printTransform.getScaleX(), 1/printTransform.getScaleY());
-            for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
-                ObservableDrawingPen pen = drawingSet.getPen(entry.getKey());
-                if(!(pen.source instanceof ICustomPen)){
-                    entry.setValue(optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS));
+            if(!task.plottingTask.pfmFactory.bypassOptimisation){
+                AffineTransform toJTS = AffineTransform.getScaleInstance(printTransform.getScaleX(), printTransform.getScaleY());
+                AffineTransform fromJTS = AffineTransform.getScaleInstance(1/printTransform.getScaleX(), 1/printTransform.getScaleY());
+                for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
+                    ObservableDrawingPen pen = drawingSet.getPen(entry.getKey());
+                    if(!(pen.source instanceof ICustomPen)){
+                        entry.setValue(optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS));
+                    }
                 }
+            }else {
+                ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
+
+                if(settings.lineSortingEnabled){
+                    float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
+
+                    for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
+                        TSPSequencerBasicGeometry sequencer = new TSPSequencerBasicGeometry(entry.getValue(), tolerance);
+                        entry.setValue(sequencer.geometrySort());
+                    }
+                }
+                return combinedGeometry;
             }
+
 
             DrawingBotV3.logger.info("--------- Geometry - Post-Optimisation ---------");
             printEstimatedTravelDistance(combinedGeometry, printTransform);
@@ -230,7 +247,7 @@ public class GeometryUtils {
      * Merges lines at their start/end point within the given tolerance.
      */
     public static List<LineString> lineMerge(List<LineString> lineStrings, double tolerance){
-        TSPSequencer sequencer = new TSPSequencer(lineStrings, tolerance);
+        TSPSequencerLineString sequencer = new TSPSequencerLineString(lineStrings, tolerance);
         return sequencer.lineMerge();
     }
 
@@ -239,43 +256,101 @@ public class GeometryUtils {
      * This is a simple version and doesn't provide a perfect solution
      */
     public static List<LineString> lineSort(List<LineString> lineStrings, double allowableDistance){
-        TSPSequencer sequencer = new TSPSequencer(lineStrings, allowableDistance);
-        return sequencer.lineSort();
+        TSPSequencer sequencer = new TSPSequencerLineString(lineStrings, allowableDistance);
+        return sequencer.geometrySort();
     }
 
     /**
      * Not a very good approach to the Travelling Salesman Problem but suits the path finding algorithms currently in use, could definitely be improved, possibly with a nearest neighbour search combined with a KDTree!
      */
-    public static class TSPSequencer {
+    public static abstract class TSPSequencer<T> {
 
-        public List<LineString> lineStrings;
+        public List<T> lineStrings;
         public boolean[] sorted;
         public int sortedCount = 0;
 
         public double measuredDistance;
         public double allowableDistance;
 
-        public TSPSequencer(List<LineString> lineStrings, double allowableDistance){
+        public TSPSequencer(List<T> lineStrings, double allowableDistance){
             this.lineStrings = lineStrings;
             this.sorted = new boolean[lineStrings.size()];
             this.allowableDistance = allowableDistance;
         }
 
-        protected List<LineString> lineSort(){
-            List<LineString> sortedList = new ArrayList<>();
-
-            LineString first = lineStrings.get(0);
+        protected List<T> geometrySort(){
+            List<T> sortedList = new ArrayList<>();
+            if(lineStrings.isEmpty()){
+                return sortedList;
+            }
+            T first = lineStrings.get(0);
             sorted[0] = true;
             sortedCount++;
             sortedList.add(first);
 
             while(sortedCount < lineStrings.size()){
-                LineString last = sortedList.get(sortedList.size()-1);
-                Coordinate endCoord = last.getCoordinateN(last.getNumPoints()-1);
-                LineString nearest = getNearestLineString(endCoord);
+                T last = sortedList.get(sortedList.size()-1);
+                Coordinate endCoord = getOriginFromGeometry(last);
+                T nearest = getNearestGeometry(endCoord);
                 sortedList.add(nearest);
             }
             return sortedList;
+        }
+
+        protected abstract Coordinate getOriginFromGeometry(T geometry);
+
+        protected abstract T getNearestGeometry(Coordinate point);
+
+    }
+
+
+    public static class TSPSequencerBasicGeometry extends TSPSequencer<IGeometry>{
+
+        public TSPSequencerBasicGeometry(List<IGeometry> lineStrings, double allowableDistance) {
+            super(lineStrings, allowableDistance);
+        }
+
+        @Override
+        protected Coordinate getOriginFromGeometry(IGeometry geometry) {
+            return geometry.getOriginCoordinate();
+        }
+
+        @Override
+        protected IGeometry getNearestGeometry(Coordinate point) {
+            IGeometry nearest = null;
+            measuredDistance = -1;
+            int index = 0;
+            for(int i = 0; i < sorted.length; i++){
+                if(!sorted[i]){
+                    IGeometry geometry = lineStrings.get(i);
+                    Coordinate startCoord = geometry.getOriginCoordinate();
+                    double toStart = point.distance(startCoord);
+                    if(measuredDistance == -1 || toStart < measuredDistance){
+                        measuredDistance = toStart;
+                        nearest = geometry;
+                        index = i;
+                        if(measuredDistance <= allowableDistance){
+                            break;
+                        }
+                    }
+                }
+            }
+            sorted[index] = true;
+            sortedCount++;
+            return nearest;
+        }
+    }
+
+    public static class TSPSequencerLineString extends TSPSequencer<LineString>{
+
+        public TSPSequencerLineString(List<LineString> lineStrings, double allowableDistance) {
+            super(lineStrings, allowableDistance);
+        }
+
+        public void mergeLine(LinearGeometryBuilder builder, LineString string){
+            for(Coordinate coordinate : string.getCoordinates()){
+                builder.add(coordinate, false);
+            }
         }
 
         protected List<LineString> lineMerge(){
@@ -287,7 +362,7 @@ public class GeometryUtils {
             mergeLine(builder, first);
 
             while(sortedCount < lineStrings.size()){
-                LineString nearest = getNearestLineString(builder.getLastCoordinate());
+                LineString nearest = getNearestGeometry(builder.getLastCoordinate());
                 if(measuredDistance > allowableDistance){
                     builder.endLine();
                 }
@@ -296,13 +371,13 @@ public class GeometryUtils {
             return LinearComponentExtracter.getLines(builder.getGeometry(), true);
         }
 
-        public void mergeLine(LinearGeometryBuilder builder, LineString string){
-            for(Coordinate coordinate : string.getCoordinates()){
-                builder.add(coordinate, false);
-            }
+        @Override
+        protected Coordinate getOriginFromGeometry(LineString geometry) {
+            return geometry.getCoordinateN(geometry.getNumPoints()-1);
         }
 
-        protected LineString getNearestLineString(Coordinate point){
+        @Override
+        protected LineString getNearestGeometry(Coordinate point){
             LineString nearest = null;
             measuredDistance = -1;
             boolean reversed = false;

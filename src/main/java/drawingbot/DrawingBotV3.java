@@ -5,6 +5,7 @@
 package drawingbot;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -75,6 +76,14 @@ public class DrawingBotV3 {
     public final SimpleStringProperty gcodeStartLayerCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodeEndLayerCode = new SimpleStringProperty();
 
+    //HPGL SETTINGS
+    public final SimpleFloatProperty hpglUnits = new SimpleFloatProperty(40);
+    public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(6);
+    public final SimpleFloatProperty hpglXMin = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty hpglYMin = new SimpleFloatProperty(11040);
+    public final SimpleBooleanProperty hpglYAxisFlip  = new SimpleBooleanProperty(true);
+    public final SimpleObjectProperty<EnumImageRotate> hpglRotation = new SimpleObjectProperty<>(EnumImageRotate.R0);
+
     //PRE-PROCESSING\\
     public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
     public final SimpleObjectProperty<EnumImageRotate> imageRotation = new SimpleObjectProperty<>(EnumImageRotate.R0);
@@ -108,6 +117,7 @@ public class DrawingBotV3 {
     public ExecutorService taskService = initTaskService();
     public ExecutorService backgroundService = initBackgroundService();
     public ExecutorService imageFilteringService = initImageFilteringService();
+    public ExecutorService parallelPlottingService = initParallelPlottingService();
 
     public TaskMonitor taskMonitor = new TaskMonitor(taskService);
 
@@ -169,7 +179,6 @@ public class DrawingBotV3 {
     public EnumDistributionType updateDistributionType = null;
 
 
-
     public void updateUI(){
         if(getActiveTask() != null){
             if(getActiveTask().isRunning()){
@@ -182,7 +191,10 @@ public class DrawingBotV3 {
                 }
                 controller.labelPlottedShapes.setText(Utils.defaultNF.format(geometryCount));
                 controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
-                controller.labelElapsedTime.setText(getActiveTask().getElapsedTime()/1000 + " s");
+
+                long minutes = (getActiveTask().getElapsedTime() / 1000) / 60;
+                long seconds = (getActiveTask().getElapsedTime() / 1000) % 60;
+                controller.labelElapsedTime.setText(minutes + " m " + seconds + " s");
             }
         }else{
             controller.labelElapsedTime.setText("0 s");
@@ -232,7 +244,7 @@ public class DrawingBotV3 {
     }
 
     public void onDrawingAreaChanged(){
-        RENDERER.drawingAreaDirty = true;
+        RENDERER.croppingDirty = true;
         //forces "Plotting Size" to stay updated.
         if(DrawingBotV3.INSTANCE.openImage.get() != null){
             DrawingBotV3.INSTANCE.openImage.get().resolution.updateAll();
@@ -248,8 +260,13 @@ public class DrawingBotV3 {
         observableDrawingSetFlag.set(!observableDrawingSetFlag.get());
     }
 
+    public void onImageFilterChanged(ObservableImageFilter filter){
+        filter.dirty.set(true);
+        RENDERER.imageFilterDirty = true;
+    }
+
     public void onImageFiltersChanged(){
-        RENDERER.imageFiltersDirty = true;
+        RENDERER.imageFiltersChanged = true;
     }
 
     public void updatePenDistribution(){
@@ -446,6 +463,15 @@ public class DrawingBotV3 {
     public ExecutorService initImageFilteringService(){
         return Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "DrawingBotV3 - Image Filtering Thread");
+            t.setDaemon(true);
+            t.setUncaughtExceptionHandler(exceptionHandler);
+            return t;
+        });
+    }
+
+    public ExecutorService initParallelPlottingService(){
+        return Executors.newFixedThreadPool(5, r -> {
+            Thread t = new Thread(r, "DrawingBotV3 - Parallel Plotting Service");
             t.setDaemon(true);
             t.setUncaughtExceptionHandler(exceptionHandler);
             return t;

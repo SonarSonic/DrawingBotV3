@@ -1,4 +1,10 @@
 # Change Log
+
+### [v1.1.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.1.0-stable)
+- Added: Two New Path Finding Modules Voronoi Tree and Voronoi TSP.
+- Added: Video Exporting for Animations in both H.264 and ProRes 422.
+- Changed: Some PFMs which had optimisation disabled by default will now have line sorting enabled to reduce plotting times
+
 ### [v1.0.16-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.16-stable)
 - Added: Text to display the current images size, and the size it's being plotted at.
 - Added: Rotate / Flip Options for images in Image Processing

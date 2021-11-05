@@ -126,6 +126,12 @@ public class BresenhamHelper {
     }
 
 
+    public void plotAngledLine(int originX, int originY, float distance, float degree, IPixelSetter setter){
+        int x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + originX;
+        int y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + originY;
+        plotLine(originX, originY, x1, y1, setter);
+    }
+
 
     ///SRC: Bresenham Curve Rasterizing Algorithms - https://github.com/zingl/Bresenham by Zingl Alois
     public void plotLine(int x0, int y0, int x1, int y1, IPixelSetter setter)

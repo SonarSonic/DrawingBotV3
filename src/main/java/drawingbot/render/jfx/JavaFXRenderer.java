@@ -13,14 +13,13 @@ import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 import org.jfree.fx.FXGraphics2D;
 
 public class JavaFXRenderer extends AbstractRenderer {
@@ -120,10 +119,13 @@ public class JavaFXRenderer extends AbstractRenderer {
                     canvasNeedsUpdate = true;
                 }
                 if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                    if(imageFiltersDirty || drawingAreaDirty){
+                    if(imageFiltersChanged || imageFilterDirty || croppingDirty){
                         if(filteringTask == null || !filteringTask.updating.get()){
-                            imageFiltersDirty = false;
-                            drawingAreaDirty = false;
+                            DrawingBotV3.INSTANCE.openImage.get().updateCropping = croppingDirty;
+                            DrawingBotV3.INSTANCE.openImage.get().updateAllFilters = imageFiltersChanged;
+                            imageFiltersChanged = false;
+                            imageFilterDirty = false;
+                            croppingDirty = false;
                             DrawingBotV3.INSTANCE.imageFilteringService.submit(filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
                         }
                     }
@@ -152,6 +154,9 @@ public class JavaFXRenderer extends AbstractRenderer {
         }
 
         updateCanvasScaling();
+        graphicsFX.setImageSmoothing(false);
+        graphicsFX.setLineCap(StrokeLineCap.ROUND);
+        graphicsFX.setLineJoin(StrokeLineJoin.ROUND);
         graphicsFX.setGlobalBlendMode(BlendMode.SRC_OVER);
         graphicsFX.save();
     }
@@ -193,8 +198,8 @@ public class JavaFXRenderer extends AbstractRenderer {
                 if(shouldRedraw){
                     clearCanvas();
                     if(renderedTask != null && renderedTask.getOriginalImage() != null){
-                        float screen_scale_x = (float)renderedTask.img_plotting.getWidth() / (float)renderedTask.img_original.getWidth();
-                        float screen_scale_y = (float)renderedTask.img_plotting.getHeight() / (float)renderedTask.img_original.getHeight();
+                        float screen_scale_x = (float)renderedTask.imgPlotting.getWidth() / (float)renderedTask.imgOriginal.getWidth();
+                        float screen_scale_y = (float)renderedTask.imgPlotting.getHeight() / (float)renderedTask.imgOriginal.getHeight();
                         float screen_scale = Math.min(screen_scale_x, screen_scale_y);
 
                         graphicsFX.scale(canvasScaling, canvasScaling);
@@ -305,7 +310,9 @@ public class JavaFXRenderer extends AbstractRenderer {
             }else{
                 renderedLines = 0;
             }
-            clearCanvas();
+            if(lastMode == EnumDisplayMode.DRAWING){
+                clearCanvas();
+            }
         });
     }
 

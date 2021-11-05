@@ -7,7 +7,11 @@ public class FilteredBufferedImage {
     public final BufferedImage source;
     public PrintResolution resolution;
 
+    public BufferedImage cropped;
     public BufferedImage filtered;
+
+    public boolean updateCropping = true;
+    public boolean updateAllFilters = true;
 
     public FilteredBufferedImage(BufferedImage source){
         this.source = source;
@@ -24,9 +28,12 @@ public class FilteredBufferedImage {
     }
 
     public void updateAll(){
-        resolution = new PrintResolution(source);
-        resolution.updateAll();
-        filtered = applyAll(source, resolution);
+        if(cropped == null || updateCropping){
+            resolution = new PrintResolution(source);
+            resolution.updateAll();
+            cropped = ImageTools.cropToPrintResolution(source, resolution);
+        }
+        filtered = ImageTools.applyCurrentImageFilters(cropped, updateCropping || updateAllFilters);
     }
 
     public static BufferedImage applyAll(BufferedImage src, PrintResolution resolution){
@@ -36,7 +43,7 @@ public class FilteredBufferedImage {
     }
 
     public static BufferedImage applyFilters(BufferedImage src){
-        return ImageTools.applyCurrentImageFilters(src);
+        return ImageTools.applyCurrentImageFilters(src, true);
     }
 
     public static BufferedImage applyCropping(BufferedImage src, PrintResolution resolution){

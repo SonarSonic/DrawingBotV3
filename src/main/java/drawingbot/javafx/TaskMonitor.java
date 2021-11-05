@@ -1,6 +1,7 @@
 package drawingbot.javafx;
 
 import drawingbot.files.BatchProcessingTask;
+import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -13,7 +14,11 @@ import java.util.concurrent.ExecutorService;
 public class TaskMonitor {
 
     public ExecutorService service;
+    public Task<?> currentTask;
+    public Task<?> completedTask;
 
+    public SimpleBooleanProperty isExporting = new SimpleBooleanProperty();
+    public SimpleBooleanProperty wasExporting = new SimpleBooleanProperty();
     public SimpleBooleanProperty isPlotting = new SimpleBooleanProperty();
     public SimpleIntegerProperty processingCount = new SimpleIntegerProperty();
     public SimpleDoubleProperty progressProperty = new SimpleDoubleProperty(0);
@@ -23,6 +28,16 @@ public class TaskMonitor {
 
     public TaskMonitor(ExecutorService service){
         this.service = service;
+    }
+
+    public ExportTask getDisplayedExportTask(){
+        if(currentTask instanceof ExportTask){
+            return (ExportTask) currentTask;
+        }
+        if(wasExporting.get() && completedTask instanceof ExportTask){
+            return (ExportTask) completedTask;
+        }
+        return null;
     }
 
     public void resetMonitor(ExecutorService service){
@@ -74,9 +89,12 @@ public class TaskMonitor {
                 processingCount.setValue(processingCount.getValue() + 1);
                 break;
             case RUNNING:
-                if(task instanceof PlottingTask || task instanceof BatchProcessingTask){
-                    isPlotting.set(true);
-                }
+                currentTask = task;
+
+                isPlotting.set(task instanceof PlottingTask || task instanceof BatchProcessingTask);
+                isExporting.set(task instanceof ExportTask);
+                wasExporting.set(false);
+
                 progressProperty.unbind();
                 progressProperty.bind(task.progressProperty());
 
@@ -92,9 +110,11 @@ public class TaskMonitor {
             case SUCCEEDED:
             case CANCELLED:
             case FAILED:
-                if(task instanceof PlottingTask || task instanceof BatchProcessingTask){
-                    isPlotting.set(false);
-                }
+                completedTask = currentTask;
+                currentTask = null;
+                isPlotting.set(false);
+                isExporting.set(false);
+                wasExporting.set(task instanceof ExportTask);
                 processingCount.setValue(processingCount.getValue() - 1);
                 break;
         }

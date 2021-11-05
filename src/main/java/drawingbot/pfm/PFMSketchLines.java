@@ -2,8 +2,11 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
+import drawingbot.pfm.helpers.LuminanceTestLine;
 
 public class PFMSketchLines extends AbstractSketchPFM {
+
+    private LuminanceTestLine luminanceTest;
 
     public int startAngleMin;
     public int startAngleMax;
@@ -16,6 +19,7 @@ public class PFMSketchLines extends AbstractSketchPFM {
     @Override
     public void init(IPlottingTask task) {
         super.init(task);
+        luminanceTest = new LuminanceTestLine(darkest, minLineLength, maxLineLength, true);
         if(startAngleMax < startAngleMin){
             int value = startAngleMin;
             startAngleMin = startAngleMax;
@@ -24,7 +28,7 @@ public class PFMSketchLines extends AbstractSketchPFM {
     }
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
+    protected boolean findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
         float delta_angle;
         float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
 
@@ -35,10 +39,13 @@ public class PFMSketchLines extends AbstractSketchPFM {
         }
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
-        resetLuminanceTest();
+
+        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkest, minLineLength, maxLineLength, true);
         for (int d = 0; d < lineTests; d ++) {
-            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (delta_angle * d) + start_angle);
+            luminanceTest.resetSamples();
+            bresenham.plotAngledLine(point[0], point[1], nextLineLength, (delta_angle * d) + start_angle, (x, y) -> luminanceTest.addSample(pixels, x, y));
         }
+        return luminanceTest.getDarkestSample() < pixels.getAverageLuminance();
     }
 
 }

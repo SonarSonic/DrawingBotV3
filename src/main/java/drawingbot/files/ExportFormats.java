@@ -16,7 +16,9 @@ public enum ExportFormats {
     EXPORT_PDF("Export PDF", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF),
     EXPORT_GCODE("Export GCode File", true, GCodeExporter::exportGCode, FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT),
     EXPORT_GCODE_TEST("Export GCode Test Drawing", true, GCodeExporter::exportGCodeTest, FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT),
-    EXPORT_IMAGE_SEQUENCE("Export Image Sequence", false, AnimationExporter::exportAnimation, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA);
+    EXPORT_IMAGE_SEQUENCE("Export Animation - (Image Sequence)", false, AnimationExporter::exportAnimation, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA),
+    EXPORT_MP4("Export Animation - (H.264, .mp4)", false, VideoExporter::exportMP4, FileUtils.FILTER_MP4),
+    EXPORT_PRORES("Export Animation - (ProRes 422, .mov)", false, VideoExporter::exportProRes, FileUtils.FILTER_MOV);
 
     public final String displayName;
     public final boolean isVector;

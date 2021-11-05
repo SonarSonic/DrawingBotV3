@@ -7,6 +7,7 @@ import drawingbot.plotting.PlottingTask;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
+    //user settings
     public int squiggle_length;
     public int adjustbrightness;
     public float lineDensity;
@@ -18,12 +19,10 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     public boolean shouldLiftPen;
 
-    protected int squiggle_count;
-
+    //process specific
     protected double initialLuminance;
 
-    protected int x = -1;
-    protected int y = -1;
+    protected int squiggle_count;
 
     public final float desiredLuminance = 253.5F;
 
@@ -49,23 +48,36 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    int[] current = new int[]{-1, -1};
+    int[] darkest = new int[]{-1, -1};
+    int neighbourFails = 0;
+    int maxNeighbourFails = 20;
+
     @Override
     public void doProcess() {
-        findDarkestArea(task.getPixelData());
+        findDarkestArea(task.getPixelData(), darkest);
 
-        if(!shouldLiftPen && x != -1){
-            addGeometry(task, x, y, darkest_x, darkest_y, adjustbrightness);
+        if(!shouldLiftPen && current[0] != -1){
+            addGeometry(task, current[0], current[1], darkest[0], darkest[1], adjustbrightness);
         }
 
-        x = darkest_x;
-        y = darkest_y;
+        current[0] = darkest[0];
+        current[1] = darkest[1];
+
         squiggle_count++;
 
         for (int s = 0; s < squiggle_length; s++) {
-            findDarkestNeighbour(task.getPixelData(), x, y);
-            addGeometry(task, x, y, darkest_x, darkest_y, adjustbrightness);
-            x = darkest_x;
-            y = darkest_y;
+            if(!findDarkestNeighbour(task.getPixelData(), current, darkest) && neighbourFails < maxNeighbourFails){
+                neighbourFails++;
+                return;
+            }
+            neighbourFails = 0;
+            addGeometry(task, current[0], current[1], darkest[0], darkest[1], adjustbrightness);
+
+            current[0] = darkest[0];
+            current[1] = darkest[1];
+
             if(updateProgress(task) || task.isFinished()){
                 task.finishProcess();
                 return;
@@ -73,6 +85,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         }
     }
 
+    //TODO CHANGE ORDER OF ADDED GEOMETRIES!!!
     public void addGeometry(IPlottingTask task, int x1, int y1, int x2, int y2, int adjust){
         int rgba = adjustLuminanceLine(task, task.getPixelData(), x1, y1, x2, y2, adjust);
         task.addGeometry(new GLine(x1, y1, x2, y2), null, rgba);
@@ -89,7 +102,10 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         return actualProgress >= 1;
     }
 
-    protected abstract void findDarkestNeighbour(IPixelData pixels, int x, int y);
+    /**
+     * @return returns false if the only line available isn't dark enough
+     */
+    protected abstract boolean findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst);
 
     @Override
     public int minLineLength() {

@@ -4,35 +4,53 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
+import drawingbot.registry.MasterRegistry;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 public class ImageTools {
 
-    public static BufferedImage applyCurrentImageFilters(BufferedImage image){
-        for(BufferedImageOp filter : ImageTools.createBufferedImageOps(DrawingBotV3.INSTANCE.currentFilters)){
-            image = filter.filter(image, null);
+    public static BufferedImage applyCurrentImageFilters(BufferedImage image, boolean forceUpdate){
+        for(ObservableImageFilter filter : DrawingBotV3.INSTANCE.currentFilters){
+            if(filter.enable.get()){
+                if(forceUpdate || filter.dirty.get()){
+                    BufferedImageOp imageOp = filter.filterFactory.instance();
+                    filter.filterSettings.forEach(setting -> setting.applySetting(imageOp));
+
+                    IKernelFactory kernelFactory = MasterRegistry.INSTANCE.getImageFilterKernel(imageOp);
+                    if(kernelFactory != null){
+                        BufferedImage dstImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                        image = kernelFactory.doProcess(imageOp, image, dstImage);
+                    }else{
+                        image = imageOp.filter(image, null);
+                    }
+                    filter.dirty.set(false);
+                    filter.cached.set(image);
+                    forceUpdate = true; //one of the filters has changed, so all the ones after this need to be updated to
+                }else{
+                    image = filter.cached.get();
+                }
+            }
         }
         return image;
     }
 
-    public static List<BufferedImageOp> createBufferedImageOps(List<ObservableImageFilter> observableImageFilters){
-        List<BufferedImageOp> filters = new ArrayList<>();
-        for(ObservableImageFilter filter : observableImageFilters){
-            if(filter.enable.get()){
-                BufferedImageOp instance = filter.filterFactory.instance();
-                filter.filterSettings.forEach(setting -> setting.applySetting(instance));
-                filters.add(instance);
-            }
-        }
-        return filters;
+    public static int getArrayIndex(int x, int y, int width){
+        return y*width + x;
+    }
+
+    public static int getIndexX(int index, int width){
+        return index % width;
+    }
+
+    public static int getIndexY(int index, int width){
+        return index / width;
     }
 
 

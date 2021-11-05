@@ -45,16 +45,24 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
                 gridPane.addRow(i, label, node, setting.getEditableTextField());
                 field.setOnAction(e -> {
                     setting.setValueFromString(field.getText());
-                    DrawingBotV3.INSTANCE.onImageFiltersChanged();
+                    DrawingBotV3.INSTANCE.onImageFilterChanged(filter);
                 });
             }
-            node.setOnMouseReleased(e -> DrawingBotV3.INSTANCE.onImageFiltersChanged()); //change on mouse release, not on value change
+            node.setOnMouseReleased(e -> DrawingBotV3.INSTANCE.onImageFilterChanged(filter)); //change on mouse release, not on value change
             i++;
         }
         setGraphic(gridPane);
         setTitle("Image Filter: " + filter.name.getValue());
         getDialogPane().setPrefWidth(400);
-        setResultConverter(param -> param == ButtonType.APPLY ? filter : original);
+        setResultConverter(param -> {
+            if(param == ButtonType.APPLY){
+                return filter;
+            }else{
+                original.dirty.set(true);
+                return original;
+            }
+        });
+
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
         FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
