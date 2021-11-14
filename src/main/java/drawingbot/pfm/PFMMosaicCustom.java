@@ -3,6 +3,7 @@ package drawingbot.pfm;
 import com.jhlabs.image.GaussianFilter;
 import com.jhlabs.image.PointFilter;
 import drawingbot.image.BufferedImageLoader;
+import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageTools;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
@@ -29,7 +30,8 @@ public class PFMMosaicCustom extends AbstractMosaicPFM {
             e.printStackTrace();
         }
 
-        BufferedImage scaledMaskImage =  maskImage != null ? Scalr.resize(maskImage, Scalr.Method.SPEED, task.imgPlotting.getWidth(),  task.imgPlotting.getHeight()) : null;
+        BufferedImage scaledMaskImage = maskImage != null ? FilteredBufferedImage.applyCropping(maskImage, task.resolution) : null;
+        scaledMaskImage =  scaledMaskImage != null ? Scalr.resize(scaledMaskImage, Scalr.Method.SPEED, task.imgPlotting.getWidth(),  task.imgPlotting.getHeight()) : null;
 
         int tileCount = activeStyles.size();
 
