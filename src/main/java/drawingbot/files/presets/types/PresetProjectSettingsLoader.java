@@ -86,6 +86,11 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         preset.data.distributionOrder = DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.get();
         preset.data.blendMode = DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.get();
 
+        preset.data.cyanMultiplier = DrawingBotV3.INSTANCE.cyanMultiplier.get();
+        preset.data.magentaMultiplier = DrawingBotV3.INSTANCE.magentaMultiplier.get();
+        preset.data.yellowMultiplier = DrawingBotV3.INSTANCE.yellowMultiplier.get();
+        preset.data.keyMultiplier = DrawingBotV3.INSTANCE.keyMultiplier.get();
+
         return preset;
     }
 
@@ -112,6 +117,11 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.set(preset.data.distributionType);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(preset.data.distributionOrder);
         DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(preset.data.blendMode);
+
+        DrawingBotV3.INSTANCE.cyanMultiplier.set(preset.data.cyanMultiplier);
+        DrawingBotV3.INSTANCE.magentaMultiplier.set(preset.data.magentaMultiplier);
+        DrawingBotV3.INSTANCE.yellowMultiplier.set(preset.data.yellowMultiplier);
+        DrawingBotV3.INSTANCE.keyMultiplier.set(preset.data.keyMultiplier);
 
         if(!preset.data.imagePath.isEmpty()){
             Platform.runLater(() -> DrawingBotV3.INSTANCE.openImage(new File(preset.data.imagePath), false));

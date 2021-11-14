@@ -21,11 +21,11 @@ public class PresetImageFilters implements IJsonData {
     }
 
     public void addFilter(GenericFactory<BufferedImageOp> factory, HashMap<String, JsonElement> settings) {
-        filters.add(new Filter(factory.getName(), settings));
+        filters.add(new Filter(true, factory.getName(), settings));
     }
 
     public void copyFilter(ObservableImageFilter filter) {
-        filters.add(new Filter(filter.filterFactory.getName(), GenericSetting.toJsonMap(filter.filterSettings, new HashMap<>(), false)));
+        filters.add(new Filter(filter.enable.get(), filter.filterFactory.getName(), GenericSetting.toJsonMap(filter.filterSettings, new HashMap<>(), false)));
     }
 
     @Override
@@ -33,13 +33,17 @@ public class PresetImageFilters implements IJsonData {
         return EnumJsonType.IMAGE_FILTER_PRESET;
     }
 
+
     public static class Filter {
+
+        public boolean isEnabled = true;
         public String type;
         public HashMap<String, JsonElement> settings;
 
         public Filter() {}
 
-        public Filter(String type, HashMap<String, JsonElement> settings) {
+        public Filter(boolean isEnabled, String type, HashMap<String, JsonElement> settings) {
+            this.isEnabled = isEnabled;
             this.type = type;
             this.settings = settings;
         }

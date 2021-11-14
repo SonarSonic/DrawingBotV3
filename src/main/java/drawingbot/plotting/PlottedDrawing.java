@@ -1,9 +1,11 @@
 package drawingbot.plotting;
 
 import drawingbot.api.IGeometryFilter;
+import drawingbot.drawing.DrawingStyle;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.pfm.PFMFactory;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -23,6 +25,8 @@ public class PlottedDrawing {
 
     public PlottedDrawing(ObservableDrawingSet penSet){
         this.geometries = Collections.synchronizedList(new ArrayList<>());
+        this.groups = Collections.synchronizedMap(new HashMap<>());
+        this.groupPFMType = new HashMap<>();
         this.drawingPenSet = penSet;
         this.vertexCount = 0;
     }
@@ -54,16 +58,37 @@ public class PlottedDrawing {
     public void addGeometry(IGeometry geometry) {
         geometries.add(geometry);
         vertexCount += geometry.getSegmentCount();
+
+        addGeometryToGroups(geometry);
     }
 
     public void addGeometry(PlottedDrawing drawing){
-        geometries.addAll(drawing.geometries);
-        vertexCount += drawing.vertexCount;
+        addGeometry(drawing.geometries);
     }
 
     public void addGeometry(List<IGeometry> orderedGeometries) {
         orderedGeometries.forEach(this::addGeometry);
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public final Map<Integer, List<IGeometry>> groups;
+    public final Map<Integer, PFMFactory<?>> groupPFMType;
+
+    public void addGeometryToGroups(IGeometry geometry){
+        groups.putIfAbsent(geometry.getGroupID(), new ArrayList<>());
+        groups.get(geometry.getGroupID()).add(geometry);
+    }
+
+    public void addGroupPFMType(int groupID, PFMFactory<?> factory){
+        groupPFMType.put(groupID, factory);
+    }
+
+    public PFMFactory<?> getGroupPFMType(int groupID){
+        return groupPFMType.get(groupID);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void clearGeometries(){
         geometries.clear();

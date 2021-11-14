@@ -130,7 +130,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     }
 
     public void randomiseSetting(ThreadLocalRandom random){
-        if(lock.get()){
+        if(lock.get() || randomiser == null){
             return;
         }
         value.setValue(validator.apply(randomiser.apply(random)));

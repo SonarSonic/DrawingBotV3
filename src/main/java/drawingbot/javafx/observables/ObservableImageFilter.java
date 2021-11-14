@@ -24,9 +24,12 @@ public class ObservableImageFilter {
     public SimpleBooleanProperty dirty;
     public SimpleObjectProperty<BufferedImage> cached;
 
-
     public ObservableImageFilter(GenericFactory<BufferedImageOp> filterFactory) {
-        this(true, filterFactory.getName(), filterFactory, MasterRegistry.INSTANCE.createObservableImageFilterSettings(filterFactory));
+        this(true, filterFactory);
+    }
+
+    public ObservableImageFilter(boolean enable, GenericFactory<BufferedImageOp> filterFactory) {
+        this(enable, filterFactory.getName(), filterFactory, MasterRegistry.INSTANCE.createObservableImageFilterSettings(filterFactory));
     }
 
     public ObservableImageFilter(ObservableImageFilter duplicate) {

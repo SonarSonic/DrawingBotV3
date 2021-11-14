@@ -103,6 +103,7 @@ public class SVGExporter {
 
             // Finally, stream out SVG to the standard output using UTF-8 encoding.
             exportTask.updateMessage("Encoding SVG");
+            exportTask.updateProgress(-1, 1);
 
             SVGGraphics2D generator = new SVGGraphics2D(document);
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(saveLocation.toString()), SVGGraphics2D.DEFAULT_XML_ENCODING);

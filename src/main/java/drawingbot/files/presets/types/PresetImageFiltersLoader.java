@@ -53,7 +53,7 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
         for (int i = 0; i < preset.data.filters.size(); i++) {
             PresetImageFilters.Filter filter = preset.data.filters.get(i);
             GenericFactory<BufferedImageOp> factory = MasterRegistry.INSTANCE.getImageFilterFactory(filter.type);
-            ObservableImageFilter observableImageFilter = new ObservableImageFilter(factory);
+            ObservableImageFilter observableImageFilter = new ObservableImageFilter(filter.isEnabled, factory);
             GenericSetting.applySettings(filter.settings, observableImageFilter.filterSettings);
             DrawingBotV3.INSTANCE.currentFilters.add(observableImageFilter);
         }

@@ -36,6 +36,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
 
     public Integer penIndex = null;
     public Integer sampledRGBA = null;
+    public int groupID = -1;
 
     @Override
     public int getSegmentCount() {
@@ -58,6 +59,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
     }
 
     @Override
+    public int getGroupID() {
+        return groupID;
+    }
+
+    @Override
     public void setPenIndex(Integer index) {
         penIndex = index;
     }
@@ -65,6 +71,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
     @Override
     public void setCustomRGBA(Integer rgba) {
         sampledRGBA = rgba;
+    }
+
+    @Override
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
     }
 
     @Override

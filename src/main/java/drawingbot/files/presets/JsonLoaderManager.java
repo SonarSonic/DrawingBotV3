@@ -78,6 +78,7 @@ public class JsonLoaderManager {
         loadDefaultPresetContainerJSON("curves_pfm_defaults.json");
         loadDefaultPresetContainerJSON("mosaic_pfm_defaults.json");
         loadDefaultPresetContainerJSON("catmull_rom_pfm_defaults.json");
+        loadDefaultPresetContainerJSON("voronoi_pfm_defaults.json");
         loadDefaultPresetContainerJSON("drawing_area_defaults.json");
         loadDefaultPresetContainerJSON("gcode_settings_defaults.json");
         loadDefaultPresetContainerJSON("vpype_settings_defaults.json");

@@ -37,8 +37,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -139,7 +139,7 @@ public class FXController {
         menuFile.getItems().add(new SeparatorMenuItem());
 
         MenuItem menuImport = new MenuItem("Import Image");
-        menuImport.setOnAction(e -> FXHelper.importFile());
+        menuImport.setOnAction(e -> FXHelper.importImageFile());
         menuFile.getItems().add(menuImport);
 
         menuFile.getItems().add(new SeparatorMenuItem());
@@ -622,6 +622,7 @@ public class FXController {
     public Button buttonPFMSettingHelp = null;
 
     public ChoiceBox<EnumColourSplitter> choiceBoxColourSeperation = null;
+    public Button buttonConfigureSplitter = null;
 
     public void initPFMControls(){
 
@@ -686,6 +687,8 @@ public class FXController {
         choiceBoxColourSeperation.setValue(EnumColourSplitter.DEFAULT);
         choiceBoxColourSeperation.setOnAction(e -> FXHelper.openColourSeperationDialog(choiceBoxColourSeperation.getValue()));
 
+        buttonConfigureSplitter.setOnAction(e -> FXHelper.openColourSeperationConfigureDialog(choiceBoxColourSeperation.getValue()));
+        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.colourSplitter.get() != EnumColourSplitter.CMYK, DrawingBotV3.INSTANCE.colourSplitter));
     }
 
 

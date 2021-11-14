@@ -31,6 +31,12 @@ public interface IGeometry {
     Integer getCustomRGBA();
 
     /**
+     * @return the group id, geometries with the same group id are considered to be from the same section of the drawing
+     * therefore when optimising the drawing, geometries with matching group ids, will be optimised together and not mixed with other groups
+     */
+    int getGroupID();
+
+    /**
      * @param index may be null
      */
     void setPenIndex(Integer index);
@@ -39,6 +45,11 @@ public interface IGeometry {
      * @param rgba may be null
      */
     void setCustomRGBA(Integer rgba);
+
+    /**
+     * @param groupID sets the geometries group id
+     */
+    void setGroupID(int groupID);
 
     void renderFX(GraphicsContext graphics, ObservableDrawingPen pen);
 
