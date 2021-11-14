@@ -1,5 +1,6 @@
 package drawingbot.utils;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.image.ImageTools;
@@ -66,10 +67,18 @@ public enum EnumColourSplitter {
                 int argb = pixels[index];
                 ImageTools.getRGBFloatFromARGB(argb, rgb);
                 ImageTools.RGBtoCMYK(rgb, cymk);
-                cyanImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, 1-cymk[0], 1-cymk[0], 1-cymk[0]));
-                magentaImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, 1-cymk[1], 1-cymk[1], 1-cymk[1]));
-                yellowImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, 1-cymk[2], 1-cymk[2], 1-cymk[2]));
-                keyImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, 1-cymk[3], 1-cymk[3], 1-cymk[3]));
+
+                float cyanOffset = 1 - (cymk[0] * DrawingBotV3.INSTANCE.cyanMultiplier.get());
+                cyanImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, cyanOffset, cyanOffset, cyanOffset));
+
+                float magentaOffset = 1 - (cymk[1] * DrawingBotV3.INSTANCE.magentaMultiplier.get());
+                magentaImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, magentaOffset, magentaOffset, magentaOffset));
+
+                float yellowOffset = 1 - (cymk[2] * DrawingBotV3.INSTANCE.yellowMultiplier.get());
+                yellowImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, yellowOffset, yellowOffset, yellowOffset));
+
+                float keyOffset = 1 - (cymk[3] * DrawingBotV3.INSTANCE.keyMultiplier.get());
+                keyImage.setRGB(x, y, ImageTools.getARGBFromFloat(1F, keyOffset, keyOffset, keyOffset));
                 index++;
             }
         }

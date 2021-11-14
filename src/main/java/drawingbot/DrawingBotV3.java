@@ -93,6 +93,10 @@ public class DrawingBotV3 {
     //PATH FINDING \\
     public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<EnumColourSplitter> colourSplitter = new SimpleObjectProperty<>();
+    public final SimpleFloatProperty cyanMultiplier = new SimpleFloatProperty(1F);
+    public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
+    public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
+    public final SimpleFloatProperty keyMultiplier = new SimpleFloatProperty(0.75F);
 
     // PEN SETS \\
     public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded

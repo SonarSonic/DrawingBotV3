@@ -66,6 +66,9 @@ public class WeightedVoronoiPositionEncoder extends PositionEncoder {
             }
         }
 
+        int timeout = Math.max(pointCount*100, 10000);
+        int fails = 0;
+
         while (i < pointCount) {
             int randX = pfmModular.randomSeed(0, data.getWidth() - 1);
             int randY = pfmModular.randomSeed(0, data.getHeight() - 1);
@@ -76,8 +79,12 @@ public class WeightedVoronoiPositionEncoder extends PositionEncoder {
                 pfmModular.task.addGeometry(new GEllipse.Filled((float)randX - 1/2F, (float)randY - 1/2F, 1, 1));
                 lumData.setLuminance(randX, randY, 255);
                 i++;
+                fails = 0;
+            }else{
+                fails++;
             }
-            if(pfmModular.task.isFinished()){
+
+            if(pfmModular.task.isFinished() || fails > timeout){
                 break;
             }
         }

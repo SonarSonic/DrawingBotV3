@@ -38,6 +38,11 @@ public class TriangulationShapeEncoder extends ShapeEncoder {
         ShapeWriter shapeWriter = new ShapeWriter();
         for (int g = 0; g < collection.getNumGeometries(); g++) {
             Geometry geometry = collection.getGeometryN(g);
+            Geometry intersectionGeometry = geometry.intersection(pfmModular.task.clippingShape);
+            if(!intersectionGeometry.isEmpty()) {
+                geometry = intersectionGeometry;
+            }
+
             List list = LinearComponentExtracter.getLines(geometry, true);
             for(Object obj : list){
                 pfmModular.task.addGeometry(new GShape(shapeWriter.toShape((LineString)obj)));

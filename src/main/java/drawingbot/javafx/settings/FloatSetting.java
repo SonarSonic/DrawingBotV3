@@ -14,6 +14,11 @@ public class FloatSetting<C> extends RangedNumberSetting<C, Float> {
         super(pfmClass, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
+    @Override
+    public void setRandomizerRange(Float safeMinValue, Float safeMaxValue) {
+        this.randomiser = rand -> (float)rand.nextDouble(safeMinValue, safeMaxValue);
+    }
+
     public FloatSetting<C> setPrecision(int precision){
         this.precision = precision;
         return this;
@@ -26,6 +31,6 @@ public class FloatSetting<C> extends RangedNumberSetting<C, Float> {
 
     @Override
     public GenericSetting<C, Float> copy() {
-        return new FloatSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks);
+        return new FloatSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
     }
 }

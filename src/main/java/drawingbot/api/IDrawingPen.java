@@ -20,6 +20,11 @@ public interface IDrawingPen {
     }
 
     /**
+     * @return if the user has currently selected this pen for use
+     */
+    boolean isEnabled();
+
+    /**
      * @return typically the pens manufacturer or custom sub type
      */
     String getType();

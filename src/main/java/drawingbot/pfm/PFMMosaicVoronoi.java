@@ -6,9 +6,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
 import org.imgscalr.Scalr;
 import org.locationtech.jts.awt.ShapeWriter;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.*;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -92,12 +90,19 @@ public class PFMMosaicVoronoi extends AbstractMosaicPFM{
 
             graphics2D.drawImage(scaledImage, null, 0, 0);
 
-
             graphics2D.dispose();
+
+            Geometry clippingGeometry = geometry.copy();
+            clippingGeometry.apply((CoordinateFilter) coord -> {
+                coord.x -= minX;
+                coord.y -= minY;
+                //coord.y = Utils.mapDouble(coord.y - minY, 0, minY, maxY, 0);
+            });
 
             PlottingTask tileTask = new PlottingTask(currentDrawingStyle.getFactory(), currentStyleSettings, evenlyDistributedDrawingSet, tileImage, task.originalFile);
             tileTask.isSubTask = true;
             tileTask.enableImageFiltering = false;
+            tileTask.clippingShape = clippingGeometry;
             mosaicTasks.add(new MosaicTask(currentDrawingStyle, tileTask, AffineTransform.getTranslateInstance(minX, minY)));
         }
     }

@@ -14,6 +14,9 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
     public V minValue;
     public V maxValue;
 
+    public V safeMinValue;
+    public V safeMaxValue;
+
     public V majorTick;
     public boolean snapToTicks;
 
@@ -22,6 +25,17 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
+        this.safeMinValue = minValue;
+        this.safeMaxValue = maxValue;
+    }
+
+    public abstract void setRandomizerRange(V safeMinValue, V safeMaxValue);
+
+    public RangedNumberSetting<C, V> setSafeRange(V safeMinValue, V safeMaxValue){
+        this.safeMinValue = safeMinValue;
+        this.safeMaxValue = safeMaxValue;
+        this.setRandomizerRange(safeMinValue, safeMaxValue);
+        return this;
     }
 
     public RangedNumberSetting<C, V> setMajorTick(V majorTick){
@@ -38,8 +52,8 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
     public Node createJavaFXNode(boolean label) {
         //graphics
         Slider slider = new Slider();
-        slider.setMin(minValue.doubleValue());
-        slider.setMax(maxValue.doubleValue());
+        slider.setMin(safeMinValue.doubleValue());
+        slider.setMax(safeMaxValue.doubleValue());
         slider.setValue(value.getValue().doubleValue());
 
         //bindings
@@ -51,7 +65,7 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
 
         if(label){
             //show markings
-            slider.setMajorTickUnit(majorTick == null ? Math.min(Integer.MAX_VALUE, Math.abs(maxValue.doubleValue()-minValue.doubleValue())) : majorTick.doubleValue());
+            slider.setMajorTickUnit(majorTick == null ? Math.min(Integer.MAX_VALUE, Math.abs(safeMaxValue.doubleValue()-safeMinValue.doubleValue())) : majorTick.doubleValue());
             slider.setShowTickLabels(true);
             slider.setShowTickMarks(true);
             slider.setSnapToTicks(snapToTicks);

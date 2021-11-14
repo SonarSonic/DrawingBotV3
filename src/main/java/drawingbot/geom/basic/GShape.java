@@ -30,6 +30,7 @@ public class GShape implements IGeometry {
 
     public Integer penIndex = null;
     public Integer customRGBA = null;
+    public int groupID = -1;
 
     @Override
     public Shape getAWTShape() {
@@ -47,6 +48,11 @@ public class GShape implements IGeometry {
     }
 
     @Override
+    public int getGroupID() {
+        return groupID;
+    }
+
+    @Override
     public void setPenIndex(Integer index) {
         penIndex = index;
     }
@@ -54,6 +60,11 @@ public class GShape implements IGeometry {
     @Override
     public void setCustomRGBA(Integer rgba) {
         customRGBA = rgba;
+    }
+
+    @Override
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
     }
 
     @Override

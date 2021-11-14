@@ -9,6 +9,7 @@ import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.javafx.controls.DialogColourSeperationConfiguration;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.controls.DialogColourSeperationMode;
 import drawingbot.registry.MasterRegistry;
@@ -44,7 +45,11 @@ import java.util.logging.Level;
  */
 public class FXHelper {
 
-    public static void importFile(){
+    public static void importImageFile(){
+        importFile(file -> DrawingBotV3.INSTANCE.openImage(file, false));
+    }
+
+    public static void importFile(Consumer<File> callback){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().add(FileUtils.IMPORT_IMAGES);
@@ -52,8 +57,8 @@ public class FXHelper {
             d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
-                DrawingBotV3.INSTANCE.openImage(file, false);
                 FileUtils.updateImportDirectory(file.getParentFile());
+                callback.accept(file);
             }
         });
     }
@@ -171,7 +176,7 @@ public class FXHelper {
 
     public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> presetManager, MenuButton button, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
 
-        MenuItem newPreset = new MenuItem("New Preset");
+        MenuItem newPreset = new MenuItem("Save Preset");
         MenuItem updatePreset = new MenuItem("Update Preset");
         MenuItem renamePreset = new MenuItem("Rename Preset");
         MenuItem deletePreset = new MenuItem("Delete Preset");
@@ -308,6 +313,11 @@ public class FXHelper {
             }
             DrawingBotV3.INSTANCE.colourSplitter.set(splitter);
         }
+    }
+
+    public static void openColourSeperationConfigureDialog(EnumColourSplitter splitter){
+        DialogColourSeperationConfiguration dialog = new DialogColourSeperationConfiguration(splitter);
+        dialog.showAndWait();
     }
 
     public static void addImageFilter(GenericFactory<BufferedImageOp> filterFactory){

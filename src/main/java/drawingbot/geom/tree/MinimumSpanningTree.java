@@ -222,7 +222,18 @@ public class MinimumSpanningTree{
 
     //// TSP HELPERS \\\\
 
-    public void setupForTSP(int neighbours){
+
+    public void setupForLK(int neighbours){
+        initDistanceTable();
+        List<MSTVertex> sortableList = new ArrayList<>(vertices);
+
+        for(MSTVertex origin : vertices){
+            sortableList.sort(Comparator.comparingDouble(o -> distanceTable[o.id][origin.id]));
+            origin.nearestVertices = new ArrayList<>(sortableList.subList(0, neighbours));
+        }
+    }
+
+    public void setupForLKH(int neighbours){
         initDistanceTable();
         initNearnessTable();
         List<MSTVertex> sortableList = new ArrayList<>(vertices);

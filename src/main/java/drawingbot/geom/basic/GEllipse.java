@@ -23,6 +23,7 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
 
     public Integer penIndex = null;
     public Integer sampledRGBA = null;
+    public int groupID = -1;
 
     @Override
     public int getSegmentCount() {
@@ -45,6 +46,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     }
 
     @Override
+    public int getGroupID() {
+        return groupID;
+    }
+
+    @Override
     public void setPenIndex(Integer index) {
         penIndex = index;
     }
@@ -52,6 +58,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     @Override
     public void setCustomRGBA(Integer rgba) {
         sampledRGBA = rgba;
+    }
+
+    @Override
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
     }
 
     @Override

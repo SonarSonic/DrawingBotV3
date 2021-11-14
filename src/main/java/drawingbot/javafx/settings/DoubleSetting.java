@@ -14,6 +14,11 @@ public class DoubleSetting<C> extends RangedNumberSetting<C, Double> {
         super(pfmClass, settingName, defaultValue, minValue, maxValue, new DoubleStringConverter(), rand -> rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
+    @Override
+    public void setRandomizerRange(Double safeMinValue, Double safeMaxValue) {
+        this.randomiser = rand -> rand.nextDouble(safeMinValue, safeMaxValue);
+    }
+
     public DoubleSetting<C> setPrecision(int precision){
         this.precision = precision;
         return this;
@@ -26,6 +31,6 @@ public class DoubleSetting<C> extends RangedNumberSetting<C, Double> {
 
     @Override
     public GenericSetting<C, Double> copy() {
-        return new DoubleSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks);
+        return new DoubleSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
     }
 }

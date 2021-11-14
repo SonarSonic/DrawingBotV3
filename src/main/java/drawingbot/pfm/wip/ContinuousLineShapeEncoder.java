@@ -8,7 +8,7 @@ import drawingbot.geom.basic.GEllipse;
 import drawingbot.image.PixelDataARGBY;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.LuminanceTest;
-import drawingbot.pfm.helpers.TSPHelper;
+import drawingbot.geom.tsp.TSPAlgorithmGenetic;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.pfm.modules.ShapeEncoder;
 import org.locationtech.jts.geom.Coordinate;
@@ -35,7 +35,7 @@ public class ContinuousLineShapeEncoder extends ShapeEncoder {
         pfmModular.task.updateMessage("Comparing Lines");
         List<Coordinate> coordinateList = positionEncoder.getCoordinates();
 
-        TSPHelper tspHelper = TSPHelper.getInstance();
+        TSPAlgorithmGenetic tspHelper = TSPAlgorithmGenetic.getInstance();
         float[][] lineBrightnessGPU = getLineBrightnessFromCoordinatesAccelerated(coordinateList);
         int[] best = tspHelper.tsp(lineBrightnessGPU);
 
@@ -86,7 +86,7 @@ public class ContinuousLineShapeEncoder extends ShapeEncoder {
         float[][] dist = new float[points.size()][points.size()];
         for (int i = 0; i < points.size(); i++) {
             for (int j = 0; j < points.size(); j++) {
-                float distance = TSPHelper.distanceFromCoordinates(points.get(i), points.get(j));
+                float distance = TSPAlgorithmGenetic.distanceFromCoordinates(points.get(i), points.get(j));
                 luminanceTest.resetSamples();
                 bresenham.plotLine((int)points.get(i).x, (int)points.get(i).y, (int)points.get(j).x, (int)points.get(j).y, (x, y) -> luminanceTest.addSample(pfmModular.task.getPixelData(), x, y));
                 dist[i][j] = (distance*2) * luminanceTest.getCurrentSample();

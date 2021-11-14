@@ -46,6 +46,7 @@ public class GPath extends Path2D.Float implements IGeometry {
 
     public Integer penIndex = null;
     public Integer customRGBA = null;
+    public int groupID = -1;
 
     public int segmentCount = -1;
 
@@ -73,6 +74,11 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     @Override
+    public int getGroupID() {
+        return groupID;
+    }
+
+    @Override
     public void setPenIndex(Integer index) {
         penIndex = index;
     }
@@ -83,17 +89,27 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     @Override
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
+    }
+
+    @Override
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         GeometryUtils.renderAWTShapeToFX(graphics, getAWTShape());
     }
 
+    private Coordinate origin = null;
+
     @Override
     public Coordinate getOriginCoordinate() {
-        PathIterator iterator = this.getPathIterator(null);
-        float[] coords = new float[6];
-        int type = iterator.currentSegment(coords);
-        return new CoordinateXY(coords[0], coords[1]);
+        if(origin == null){
+            PathIterator iterator = this.getPathIterator(null);
+            float[] coords = new float[6];
+            int type = iterator.currentSegment(coords);
+            origin = new CoordinateXY(coords[0], coords[1]);
+        }
+        return origin;
     }
 
     public void addToPath(GPath path) {

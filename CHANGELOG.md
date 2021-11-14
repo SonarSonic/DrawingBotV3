@@ -1,9 +1,28 @@
 # Change Log
 
 ### [v1.1.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.1.0-stable)
-- Added: Two New Path Finding Modules Voronoi Tree and Voronoi TSP.
+- Added: Three New Path Finding Modules Mosaic Custom, Voronoi Tree and Voronoi TSP.
+  - "Mosaic Custom" - Allows you to create your own Custom Mosaic, using an image mask. 
+    This opens up many creative possibilities combining the effects of multiple PFMs to create more complex pieces. 
+    This is very easy to do, you first need to create an image mask in an image editor which has the same resolution as the original image which contains a unique block colour for each drawing style you plan to use.
+    Then you can import this mask as one of the settings, and for each Drawing Style define a "Mask Colour" which matches the one you used in the mask image.
+    You can also feather the mask in the settings.
+  - "Voronoi Tree" - Creates a "Minimum Spanning Tree" using Prim's algorithm, using the points generated from a Weighted Voronoi Diagram, it creates artwork similar to the classic TSP art but in a fraction of the time.
+  - "Voronoi TSP" - Creates a solution to the "Travelling Salesman Problem" for the points generated from a Weighted Vornoi Diagram, if you're serious about using this PFM with a high point count expect to wait many hours or days to get the final result, optimisations are very welcome! 
+    There are currently 3 algorithms, a Lazy 2-Opt Approach which is very fast and inaccurate, then an implementation of the classic Lin-Kernighan, and an attempt to implement the Lin-Kernighan-Helsgaun algorithm. 2-Opt is the most stable and the one I recommend.
+- Added: CMYK Configuration, next to the colour seperation drop-down you now have the option to configure the weighting of the CMYK plot to allow you to fine tune the density to your specific pens, as many users reported their K layer being too strong, the default for K is now x0.75. This option works with every PFM.
 - Added: Video Exporting for Animations in both H.264 and ProRes 422.
-- Changed: Some PFMs which had optimisation disabled by default will now have line sorting enabled to reduce plotting times
+- Changed: "Randomise" will now produce more stable results and should be able to run in most instances
+- Changed: The min/max of a few key variables have been changed.
+- Changed: Values can now be set outside of the range of the min/max for more advanced users, in some instances this may cause the plot to crash or not start at all.
+- Changed: Some PFMs which had optimisation disabled by default will now have as a minimum geometry sorting enabled to reduce plotting times
+- Changed: Mosaics now optimise the outputs of each tile individually to speed up optimisation times.
+- Changed: Raster export dimensions will now be multiples of 2
+- Fixed: Padding not being saved properly with Drawing Area presets.
+- Fixed: De-activated pens being re-activated in presets
+- Fixed: Voronoi Circles and Voronoi Diagram PFMs will now stay within the bounds of the image.
+- Fixed: A bug where videos would not export if either of the image dimensions are odd.
+
 
 ### [v1.0.16-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.0.16-stable)
 - Added: Text to display the current images size, and the size it's being plotted at.

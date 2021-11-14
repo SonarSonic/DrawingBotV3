@@ -2,6 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.geom.PathBuilder;
 import drawingbot.geom.basic.IGeometry;
@@ -14,8 +15,11 @@ import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
+import org.locationtech.jts.awt.ShapeReader;
+import org.locationtech.jts.geom.Geometry;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
@@ -65,9 +69,14 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public boolean isSubTask = false;
     public int defaultPen = 0;
 
+    public int groupID = 0;
+
     // SPECIAL \\
     public boolean useLowQuality = false;
     public int parallelPlots = 3;
+
+    // CLIPPING \\
+    public Geometry clippingShape = null;
 
     public PlottingTask(PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
@@ -139,6 +148,9 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 DrawingBotV3.logger.fine("Setting Pixel Data");
                 ImageTools.copyToPixelData(imgPlotting, pixelDataReference);
                 ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
+
+                clippingShape = clippingShape != null ? clippingShape : ShapeReader.read(new Rectangle2D.Double(0, -imgPlotting.getHeight(), imgPlotting.getWidth(), imgPlotting.getHeight()), 6F, GeometryUtils.factory);
+                plottedDrawing.addGroupPFMType(groupID, pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Init");
                 pfm.init(this);
@@ -253,12 +265,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public void stopElegantly(){
+        DrawingBotV3.logger.info(stage.toString());
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishProcess();
         }
-        pfm.onStopped();
+        if(pfm != null){ //rare case for mosaic tasks where stopElegantly can be called on already finished pfms
+            pfm.onStopped();
+        }
     }
 
     public AffineTransform createPrintTransform(){
@@ -358,11 +373,17 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         if(geometry.getPenIndex() == null){
             geometry.setPenIndex(penIndex == null ? defaultPen : penIndex);
         }
+        geometry.setGroupID(groupID);
+
         //transform geometry back to the images size
         if(resolution.plottingResolution != 1F){
             geometry.transform(resolution.plottingTransform);
         }
         plottedDrawing.addGeometry(geometry);
+    }
+
+    public void pushGroup(){
+        groupID++;
     }
 
     @Override

@@ -21,11 +21,21 @@ public class ImageExporter {
     }
 
     public static int getRasterWidth(ExportTask exportTask){
-        return (int)exportTask.exportResolution.getScaledWidth();
+        int width= (int) exportTask.exportResolution.getScaledWidth();
+        if(width % 2 == 1){
+            width-=1;
+        }
+        return width;
     }
 
     public static int getRasterHeight(ExportTask exportTask){
-        return (int)exportTask.exportResolution.getScaledHeight();
+        int height = (int)exportTask.exportResolution.getScaledHeight();
+
+        if(height % 2 == 1){
+            height-=1;
+        }
+
+        return height;
     }
 
     public static BufferedImage createFreshBufferedImage(ExportTask exportTask){

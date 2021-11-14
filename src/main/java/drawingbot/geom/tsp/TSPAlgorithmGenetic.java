@@ -1,7 +1,6 @@
-package drawingbot.pfm.helpers;
+package drawingbot.geom.tsp;
 
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ import java.util.Random;
 
 ///https://mathworld.wolfram.com/JordanCurveTheorem.html
     //USE CONCORDE TSP SOLVER.
-public class TSPHelper {
+public class TSPAlgorithmGenetic {
 
     private static final float DEFAULT_CROSSOVER_PROBABILITY = 0.9f;
     private static final float DEFAULT_MUTATION_PROBABILITY = 0.01f;
@@ -46,12 +45,12 @@ public class TSPHelper {
 
     private boolean isAutoNextGeneration = false;
 
-    public static TSPHelper getInstance() {
+    public static TSPAlgorithmGenetic getInstance() {
         return GeneticAlgorithmHolder.instance;
     }
 
     private static class GeneticAlgorithmHolder {
-        private static TSPHelper instance = new TSPHelper();
+        private static TSPAlgorithmGenetic instance = new TSPAlgorithmGenetic();
     }
 
     /**

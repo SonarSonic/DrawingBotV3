@@ -37,8 +37,8 @@ public class VideoExporter {
 
     public static void exportVideo(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation, Format format, Codec codec){
 
-        int width = (int)exportTask.exportResolution.getScaledWidth();
-        int height = (int)exportTask.exportResolution.getScaledHeight();
+        int width = ImageExporter.getRasterWidth(exportTask);
+        int height = ImageExporter.getRasterHeight(exportTask);
 
         BufferedImage image = ImageExporter.createFreshBufferedImage(exportTask);
         Graphics2D graphics = ImageExporter.createFreshGraphics2D(exportTask, image);

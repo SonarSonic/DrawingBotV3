@@ -3,7 +3,6 @@ package drawingbot.geom.tsp;
 import drawingbot.geom.tree.MSTVertex;
 import drawingbot.geom.tree.MinimumSpanningTree;
 import drawingbot.geom.tree.NodeEdge;
-import drawingbot.pfm.helpers.TSPHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -18,10 +17,6 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
 	public List<TSPNode> orderedNodes;
 	public List<NodeEdge> orderedEdges;
 
-
-    // The number of cities of this instance
-    private int size;
-
     // How many times the tour has been improved
 	public int currentIteration = 0;
 	public int currentImprovement = 0;
@@ -31,25 +26,24 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
     // When set to something other than -1 and findOptimalRoute is disabled the algorithm will stop when the iterations have been reached
     public int targetIterations = -1;
 
-    // A function which is called every time an improvement has been attempted in the current iteration, a progress of -1 means the end is undefined
-    public Consumer<Float> progressCallback = null;
-
-	// A function which is called every time an improvement has been made in the current iteration
-	public Consumer<TSPAlgorithmLKH> improvementCallback = null;
-
-    // A function which should return true if the process has been cancelled
-    public Supplier<Boolean> cancelCallback = null;
-
     /**
      * Constructor that creates an instance of the Lin-Kerninghan problem without
      * the optimizations. (Basically the tour it has is the drunken sailor)
      */
     public TSPAlgorithmLKH(MinimumSpanningTree mst) {
-		super(mst.coordinateList, mst.createNodes(mst));
+		super(mst.coordinateList);
 		this.mst = mst;
-        this.orderedNodes = nodes;
-        this.mst.setupForTSP(10);
     }
+
+    @Override
+    public void run(){
+    	init();
+		try {
+			runFullTSP();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
     /**
      * Runs the tour until it is complete
@@ -74,11 +68,18 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
 	double oldDistance = 0;
 
 	public void init(){
+
+		nodes = mst.createNodes(mst);
+		orderedNodes = nodes;
+		mst.setupForLKH(5);
+		initTour();
+
 		oldDistance = getDistance();
 		currentImprovement = 0;
 		currentIteration = 0;
 		currentChanges = 0;
 		totalGain = 0;
+
 	}
 
 	/**
@@ -122,6 +123,7 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
     	for(currentImprovement = 0; currentImprovement < size; ++currentImprovement) {
     		improveTour(currentImprovement);
 			progressCallback.accept((float)currentImprovement / size);
+			improvementCallback.accept(this);
 			if(cancelCallback.get()){
 				break;
 			}
@@ -153,7 +155,7 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
 
     	for(MSTVertex vertex : node.vertexData.nearestVertices){
     		int t3 = getIndex(vertex.id);
-			if(t3 != t2 && t3 != -1 && getDistance(t2, t3) < getDistance(cityIndex, t2)) { // Implementing the gain criteria
+			if(t3 != t2 && t3 != -1 && getDistanceFromIndex(t2, t3) < getDistanceFromIndex(cityIndex, t2)) { // Implementing the gain criteria
 				startAlgorithm(cityIndex, t2, t3);
 			}
 		}
@@ -174,7 +176,7 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
 		for(MSTVertex vertex : node.vertexData.nearestVertices){
 			int i = vertex.node.id;
 
-			double length = getDistance(node.id, i);
+			double length = getDistanceFromIndex(node.id, i);
 			if(length < minLength && i != node.id){
 				minLength = length;
 				dest = vertex;
@@ -200,7 +202,7 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
     	tIndex.add(1, t1);
     	tIndex.add(2, t2);
     	tIndex.add(3, t3);
-    	double initialGain = getDistance(t2, t1) - getDistance(t3, t2); // |x1| - |y1|
+    	double initialGain = getDistanceFromIndex(t2, t1) - getDistanceFromIndex(t3, t2); // |x1| - |y1|
     	double GStar = 0;
     	double Gi = initialGain;
     	int k = 3;
@@ -210,19 +212,19 @@ public class TSPAlgorithmLKH extends TSPAlgorithmAbstract {
     			break; // This should not happen according to the paper
     		}
     		tIndex.add(i, newT);
-    		int tiplus1 = getNextPossibleY(tIndex);
+    		int tiplus1 = getNextPossibleYFromMST(tIndex);
     		if(tiplus1 == -1) {
     			break;
     		}
     		// Step 4.f from the paper
-    		Gi += getDistance(tIndex.get(tIndex.size()-2), newT);
-    		if(Gi - getDistance(newT, t1) > GStar) {
-    			GStar = Gi - getDistance(newT, t1);
+    		Gi += getDistanceFromIndex(tIndex.get(tIndex.size()-2), newT);
+    		if(Gi - getDistanceFromIndex(newT, t1) > GStar) {
+    			GStar = Gi - getDistanceFromIndex(newT, t1);
     			k = i;
     		}
     		
     		tIndex.add(tiplus1);
-    		Gi -= getDistance(newT, tiplus1);
+    		Gi -= getDistanceFromIndex(newT, tiplus1);
     		
     	}
     	if(GStar > 0) {

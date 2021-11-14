@@ -1,7 +1,7 @@
 package drawingbot.pfm.wip;
 
 import drawingbot.pfm.AbstractDarkestPFM;
-import drawingbot.pfm.helpers.TSPHelper;
+import drawingbot.geom.tsp.TSPAlgorithmGenetic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +25,8 @@ public class PFMContinuousCurve extends AbstractDarkestPFM {
                 }
             }
 
-            TSPHelper ga = new TSPHelper();
-            int[] best = ga.tsp(TSPHelper.getDist(points));
+            TSPAlgorithmGenetic ga = new TSPAlgorithmGenetic();
+            int[] best = ga.tsp(TSPAlgorithmGenetic.getDist(points));
 
             int n = 0;
             while (n++ < 4) {

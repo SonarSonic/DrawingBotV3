@@ -27,7 +27,7 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     public ObservableDrawingPen(int penNumber, IDrawingPen source){
         this.source = source;
         this.penNumber = new SimpleIntegerProperty(penNumber);
-        this.enable = new SimpleBooleanProperty(true);
+        this.enable = new SimpleBooleanProperty(source.isEnabled());
         this.type = new SimpleStringProperty(source.getType());
         this.name = new SimpleStringProperty(source.getName());
         this.javaFXColour = new SimpleObjectProperty<>(ImageTools.getColorFromARGB(source.getARGB()));
@@ -44,7 +44,8 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
         this.strokeSize.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtStroke = null;});
     }
 
-    public boolean isEnabled(){
+    @Override
+    public boolean isEnabled() {
         return enable.get();
     }
 

@@ -13,6 +13,7 @@
                          <TableColumn fx:id="styleEnableColumn" minWidth="7.0" prefWidth="28.0" />
                          <TableColumn fx:id="styleNameColumn" prefWidth="184.0" sortable="false" text="Name" />
                          <TableColumn fx:id="styleWeightColumn" minWidth="0.0" prefWidth="122.0" sortable="false" text="Weight" />
+                         <TableColumn fx:id="styleMaskColorColumn" minWidth="0.0" prefWidth="122.0" sortable="false" text="Mask Colour" />
                          <!--
                          <TableColumn fx:id="styleTypeColumn" prefWidth="109.0" sortable="false" text="Type" />
                          <TableColumn fx:id="stylePercentageColumn" editable="false" minWidth="0.0" prefWidth="46.0" sortable="false" text="\%" />

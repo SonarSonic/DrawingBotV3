@@ -2,15 +2,16 @@ package drawingbot.geom.tsp;
 
 import drawingbot.geom.tree.MSTVertex;
 import drawingbot.geom.tree.NodeEdge;
-import drawingbot.pfm.helpers.TSPHelper;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class TSPAlgorithmAbstract {
+public abstract class TSPAlgorithmAbstract {
 
     // all the coordinates in the order of their id
     public List<Coordinate> coordinates;
@@ -27,13 +28,26 @@ public class TSPAlgorithmAbstract {
     // The number of cities of this instance
     public int size;
 
-    public TSPAlgorithmAbstract(List<Coordinate> coordinates, List<TSPNode> nodes) {
+    // A function which is called every time an improvement has been attempted in the current iteration, a progress of -1 means the end is undefined
+    public Consumer<Float> progressCallback = null;
+
+    // A function which is called every time an improvement has been made in the current iteration
+    public Consumer<TSPAlgorithmAbstract> improvementCallback = null;
+
+    // A function which should return true if the process has been cancelled
+    public Supplier<Boolean> cancelCallback = null;
+
+    public TSPAlgorithmAbstract(List<Coordinate> coordinates) {
         this.coordinates = coordinates;
-        this.nodes = nodes;
-        this.size = nodes.size();
+        this.size = coordinates.size();
+    }
+
+    public void initTour(){
         this.tour = createRandomTour();
         this.distanceTable = initDistanceTable();
     }
+
+    public abstract void run();
 
     /**
      * This functions creates a table with the distances of all the cities
@@ -89,7 +103,7 @@ public class TSPAlgorithmAbstract {
                 for(int p2 = 0; p2 < size; p2++){
                     if(!sorted[p2] && p2 != p1){
                         TSPNode point2 = nodes.get(p2);
-                        float testDistance = TSPHelper.distanceFromCoordinates(point1.vertexData.coordinate, point2.vertexData.coordinate);
+                        float testDistance = TSPAlgorithmGenetic.distanceFromCoordinates(point1.vertexData.coordinate, point2.vertexData.coordinate);
                         if(distance == -1 || testDistance < distance){
                             distance = testDistance;
                             nearestP2 = p2;
@@ -136,8 +150,12 @@ public class TSPAlgorithmAbstract {
      * @param n2 index of the second node
      * @return double the distance from node 1 to node 2
      */
-    public double getDistance(int n1, int n2) {
+    public double getDistanceFromIndex(int n1, int n2) {
         return distanceTable[tour.get(n1).id][tour.get(n2).id];
+    }
+
+    public double getDistanceFromNodeId(int n1, int n2) {
+        return distanceTable[n1][n2];
     }
 
     /**
@@ -161,13 +179,46 @@ public class TSPAlgorithmAbstract {
     }
 
 
-
     /**
      * This function gets all the ys that fit the criterion for step 4
      * @param tIndex the list of t's
      * @return an array with all the possible y's
      */
     public int getNextPossibleY(List<Integer> tIndex) {
+
+        int ti = tIndex.get(tIndex.size() - 1);
+
+        double minLength = Double.MAX_VALUE;
+        int dest = -1;
+
+        for(int i = 0; i < size; ++i) {
+
+            if(!isDisjunctive(tIndex, i, ti)) {
+                continue; // Disjunctive criteria
+            }
+            if(!isPositiveGain(tIndex, i)) {
+                continue; // Gain criteria
+            };
+            if(!nextXPossible(tIndex, i)) {
+                continue; // Step 4.f.
+            }
+
+            double length = getDistanceFromIndex(ti, i);
+            if(length < minLength){
+                minLength = length;
+                dest = i;
+            }
+        }
+
+        return dest;
+    }
+
+    /**
+     * This function gets all the ys that fit the criterion for step 4
+     * @param tIndex the list of t's
+     * @return an array with all the possible y's
+     */
+    public int getNextPossibleYFromMST(List<Integer> tIndex) {
 
         int ti = tIndex.get(tIndex.size() - 1);
         TSPNode node = nodes.get(ti);
@@ -188,7 +239,7 @@ public class TSPAlgorithmAbstract {
                 continue; // Step 4.f.
             }
 
-            double length = getDistance(node.id, i);
+            double length = getDistanceFromIndex(node.id, i);
             if(length < minLength){
                 minLength = length;
                 dest = vertex;
@@ -196,8 +247,6 @@ public class TSPAlgorithmAbstract {
         }
 
         return dest == null ? -1 : dest.node.id;
-
-
     }
 
     /**
@@ -248,7 +297,7 @@ public class TSPAlgorithmAbstract {
             int t2 = tIndex.get(i + 1);
             int t3 = i == tIndex.size() - 3 ? ti :tIndex.get(i + 2);
 
-            gain += getDistance(t2, t3) - getDistance(t1, t2); // |yi| - |xi|
+            gain += getDistanceFromIndex(t2, t3) - getDistanceFromIndex(t1, t2); // |yi| - |xi|
 
         }
         return gain > 0;
