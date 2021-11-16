@@ -1,5 +1,6 @@
 package drawingbot.pfm.modules.shapes;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.basic.GEllipse;
 import drawingbot.geom.basic.GLine;
@@ -27,6 +28,9 @@ public class TreeShapeEncoder extends ShapeEncoder {
             }
             return;
         }
+
+        pfmModular.task.plottedDrawing.clearGeometries();
+        DrawingBotV3.RENDERER.clearProcessRendering();
 
         pfmModular.task.updateProgress(-1 , 1);
 

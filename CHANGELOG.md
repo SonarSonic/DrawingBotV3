@@ -1,5 +1,9 @@
 # Change Log
 
+
+### [v1.1.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.1.1-stable)
+- Fixed: Previous iterations of Voronoi Diagrams showing up in SVG exports.
+
 ### [v1.1.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.1.0-stable)
 - Added: Three New Path Finding Modules Mosaic Custom, Voronoi Tree and Voronoi TSP.
   - "Mosaic Custom" - Allows you to create your own Custom Mosaic, using an image mask. 
