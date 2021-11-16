@@ -93,6 +93,9 @@ public class PlottedDrawing {
     public void clearGeometries(){
         geometries.clear();
         vertexCount = 0;
+
+        groups.clear();
+        //groupPFMType.clear(); this would probably break something
     }
 
     public void reset(){
