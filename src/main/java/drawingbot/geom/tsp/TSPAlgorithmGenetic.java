@@ -1,7 +1,7 @@
-package drawingbot.pfm.helpers;
+package drawingbot.geom.tsp;
 
 import org.joml.Vector2f;
-import org.joml.Vector2i;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,10 @@ import java.util.Random;
  * @author: onlylemi
  * SRC: https://raw.githubusercontent.com/onlylemi/GeneticTSP/master/src/com/onlylemi/genetictsp/GeneticAlgorithm.java
  */
-public class TSPHelper {
+
+///https://mathworld.wolfram.com/JordanCurveTheorem.html
+    //USE CONCORDE TSP SOLVER.
+public class TSPAlgorithmGenetic {
 
     private static final float DEFAULT_CROSSOVER_PROBABILITY = 0.9f;
     private static final float DEFAULT_MUTATION_PROBABILITY = 0.01f;
@@ -42,12 +45,12 @@ public class TSPHelper {
 
     private boolean isAutoNextGeneration = false;
 
-    public static TSPHelper getInstance() {
+    public static TSPAlgorithmGenetic getInstance() {
         return GeneticAlgorithmHolder.instance;
     }
 
     private static class GeneticAlgorithmHolder {
-        private static TSPHelper instance = new TSPHelper();
+        private static TSPAlgorithmGenetic instance = new TSPAlgorithmGenetic();
     }
 
     /**
@@ -114,7 +117,7 @@ public class TSPHelper {
 
         setRoulette();
         for (int i = initnum; i < populationSize; i++) {
-            parents[i] = population[wheelOut((int) Math.random())];
+            parents[i] = population[wheelOut((int) (Math.random()*roulette.length))];
         }
         population = parents;
     }
@@ -442,11 +445,25 @@ public class TSPHelper {
         return dist;
     }
 
-    public static float distance(Vector2f p1, Vector2f p2) {
-        return (float) Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+    public static float[][] getDistFromCoordinates(List<Coordinate> points) {
+        float[][] dist = new float[points.size()][points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            for (int j = 0; j < points.size(); j++) {
+                dist[i][j] = distanceFromCoordinates(points.get(i), points.get(j));
+            }
+        }
+        return dist;
     }
 
     public static float distance(int[] p1, int[] p2) {
         return (float) Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[0] - p2[0]) * (p1[0] - p2[0]));
+    }
+
+    public static float distance(Vector2f p1, Vector2f p2) {
+        return (float) Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+    }
+
+    public static float distanceFromCoordinates(Coordinate p1, Coordinate p2) {
+        return (float) Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
     }
 }

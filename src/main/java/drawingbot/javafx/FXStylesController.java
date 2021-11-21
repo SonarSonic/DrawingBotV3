@@ -3,17 +3,15 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingStyle;
 import drawingbot.drawing.DrawingStyleSet;
-import drawingbot.javafx.controls.ContextMenuObservablePen;
+import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetPFMSettings;
-import drawingbot.javafx.controls.ContextMenuPFMSetting;
-import drawingbot.javafx.controls.StringConverterGenericSetting;
-import drawingbot.javafx.controls.TableCellSettingControl;
 import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.pfm.PFMMosaicCustom;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.utils.Utils;
+import drawingbot.utils.DBConstants;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -25,6 +23,7 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -70,6 +69,13 @@ public class FXStylesController {
             masterStyles.clear();
             masterStyles.addAll(editingStyles);
         }
+        boolean isLayeredPFM = DrawingBotV3.INSTANCE.pfmFactory.get().getInstanceClass() == PFMMosaicCustom.class;
+
+        DrawingBotV3.INSTANCE.controller.mosaicSettingsStage.setTitle("Editing Drawing Styles" + (master != null ? ": Editing Slave" : ": Editing Master"));
+
+        styleWeightColumn.setVisible(!isLayeredPFM);
+        styleMaskColorColumn.setVisible(isLayeredPFM);
+
         editingStyles.clear();
         set.styles.forEach(style ->  editingStyles.add(new ObservableDrawingStyle(style)));
         editing = stylesSetting;
@@ -89,6 +95,8 @@ public class FXStylesController {
     public TableColumn<ObservableDrawingStyle, Boolean> styleEnableColumn = null;
     public TableColumn<ObservableDrawingStyle, String> styleNameColumn = null;
     public TableColumn<ObservableDrawingStyle, Integer> styleWeightColumn = null;
+    public TableColumn<ObservableDrawingStyle, Color> styleMaskColorColumn = null;
+
     // public TableColumn<ObservableDrawingStyle, String> styleTypeColumn = null;
     //public TableColumn<ObservableDrawingStyle, String> penPercentageColumn = null;
     //public TableColumn<ObservableDrawingStyle, Integer> penLinesColumn = null;
@@ -140,6 +148,9 @@ public class FXStylesController {
 
         styleWeightColumn.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
         styleWeightColumn.setCellValueFactory(param -> param.getValue().distributionWeight.asObject());
+
+        styleMaskColorColumn.setCellFactory(TableCellColorPicker::new);
+        styleMaskColorColumn.setCellValueFactory(param -> param.getValue().maskColor);
 
         //penPercentageColumn.setCellValueFactory(param -> param.getValue().currentPercentage);
         //penLinesColumn.setCellValueFactory(param -> param.getValue().currentGeometries.asObject());
@@ -248,7 +259,7 @@ public class FXStylesController {
         buttonPFMSettingReset.setOnAction(e -> JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
-        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(Utils.URL_READ_THE_DOCS_PFMS));
+        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));
 
     }
 

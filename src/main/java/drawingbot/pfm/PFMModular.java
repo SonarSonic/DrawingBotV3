@@ -26,6 +26,11 @@ public class PFMModular extends AbstractPFM{
     }
 
     @Override
+    public int getColourMode() {
+        return 3;
+    }
+
+    @Override
     public void init(IPlottingTask task) {
         super.init(task);
     }
@@ -61,7 +66,7 @@ public class PFMModular extends AbstractPFM{
     }
 
     public void updateShapeEncoderProgess(double progress, double max){
-        task.updatePlottingProgress(currentIteration + 0.5D + ((progress / max)/2), targetIteration);
+        //task.updatePlottingProgress(currentIteration + 0.5D + ((progress / max)/2), targetIteration);
     }
 
 }

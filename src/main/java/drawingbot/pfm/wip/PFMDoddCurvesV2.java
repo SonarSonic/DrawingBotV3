@@ -1,5 +1,5 @@
 package drawingbot.pfm.wip;
-
+/*
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.image.ImageTools;
@@ -10,7 +10,6 @@ import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 public class PFMDoddCurvesV2 extends PFMSketchLines {
 
@@ -59,7 +58,7 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
     }
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
+    public void findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst){
         float delta_angle;
         float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
         float avoidanceAngle = 320F;
@@ -72,7 +71,7 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
 
         resetLineData();
         List<Vector2i> points = new ArrayList<>();
-        points.add(new Vector2i(start_x, start_y));
+        points.add(new Vector2i(point[0], point[1]));
         float lastAngle = -1F;
         for(int i = 0; i < curveLength; i++){
             Vector2i previousPoint = points.get(points.size()-1);
@@ -88,14 +87,14 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
                 }
                 testAngle = ((delta_angle * d) + start_angle);
 
-                luminanceTestAngledLine(brightenedLineData, previousPoint.x, previousPoint.y, nextLineLength, testAngle);
+                luminanceTestAngledLine(brightenedLineData, previousPoint.x, previousPoint.y, nextLineLength, testAngle, darkestDst);
             }
 
             if(i == 0)
                 lastAngle = darkestAngle;
 
-            bresenham.plotLine(previousPoint.x, previousPoint.y, darkest_x, darkest_y, (x, y) -> adjustLuminanceColour(brightenedLineData, x, y, adjustbrightness));
-            points.add(new Vector2i(darkest_x, darkest_y));
+            bresenham.plotLine(previousPoint.x, previousPoint.y, darkestDst[0], darkestDst[1], (x, y) -> adjustLuminanceColour(brightenedLineData, x, y, adjustbrightness));
+            points.add(new Vector2i(darkestDst[0], darkestDst[1]));
         }
         task.finishProcess();
 
@@ -105,10 +104,10 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
 
         /// optimise the curves
 
-        for(Vector2i point : points){
+        for(Vector2i p : points){
             p1 = p2;
             p2 = p3;
-            p3 = point;
+            p3 = p;
 
             if(p1  != null && p2  != null && p3 != null){
                 Vector2i q = new Vector2i(p3.x - p1.x, p3.y - p1.y);
@@ -138,8 +137,8 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
 
 
         lastCurve = points;
-        darkest_x = lastCurve.get(lastCurve.size()-1).x;
-        darkest_y = lastCurve.get(lastCurve.size()-1).y;
+        darkestDst[0] = lastCurve.get(lastCurve.size()-1).x;
+        darkestDst[1] = lastCurve.get(lastCurve.size()-1).y;
     }
 
     @Override
@@ -148,8 +147,8 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
     }
 
     @Override
-    public void onLuminanceTestSuccess(IPixelData pixels, int x, int y) {
-        super.onLuminanceTestSuccess(pixels, x, y);
+    public void onLuminanceTestSuccess(IPixelData pixels, int x, int y, int[] dest) {
+        super.onLuminanceTestSuccess(pixels, x, y, dest);
         darkestAngle = testAngle;
     }
 
@@ -159,8 +158,9 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
             for(Vector2i point : lastCurve){
                 task.getPathBuilder().addCatmullCurveVertex(point.x, point.y);
             }
-            bresenham.plotCatmullRom(lastCurve, 90F, (x, y) -> adjustLuminanceColour(task.getPixelData(), x, y, adjust));
-            int argb = getColourTestAverage();
+            defaultColourTest.resetColourSamples(adjust);
+            bresenham.plotCatmullRom(lastCurve, 90F, (xT, yT)-> defaultColourTest.testPixel(task.getPixelData(), xT, yT));
+            int argb = defaultColourTest.getCurrentAverage();
 
             alpha += ImageTools.alpha(argb);
             red += ImageTools.red(argb);
@@ -176,3 +176,4 @@ public class PFMDoddCurvesV2 extends PFMSketchLines {
         return argb;
     }
 }
+*/

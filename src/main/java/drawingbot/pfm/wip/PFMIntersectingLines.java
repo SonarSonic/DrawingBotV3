@@ -1,5 +1,5 @@
 package drawingbot.pfm.wip;
-
+/*
 import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
 import drawingbot.image.ImageTools;
@@ -33,18 +33,24 @@ public class PFMIntersectingLines extends AbstractDarkestPFM {
 
     @Override
     public void doProcess() {
+
+        int[] current = new int[]{-1, -1};
+        int[] darkest = new int[]{-1, -1};
+
         for(int i = 0; i < maxLines; i ++){
-            findDarkestPixel(task.getPixelData());
-            int startX = darkest_x;
-            int startY = darkest_y;
+            findDarkestPixel(task.getPixelData(), darkest);
+
+            current = darkest;
+            darkest = new int[2];
+
             float darkestLineAvg = 0;
             int[] line = null;
 
             for (int d = 0; d < tests; d ++) {
 
-                int[] testLine = getIntersectingLine(task.getPixelData(), startX, startY, randomSeedF(0, 360));
+                int[] testLine = getIntersectingLine(task.getPixelData(), current[0], current[1], randomSeedF(0, 360));
 
-                luminanceTestLine(task.getPixelData(), testLine[0], testLine[1], testLine[2], testLine[3]);
+                luminanceTestLine(task.getPixelData(), testLine[0], testLine[1], testLine[2], testLine[3], darkest);
 
                 float averageBrightness = (float) sum_luminance /(float) count_pixels;
 
@@ -71,3 +77,4 @@ public class PFMIntersectingLines extends AbstractDarkestPFM {
     }
 
 }
+*/

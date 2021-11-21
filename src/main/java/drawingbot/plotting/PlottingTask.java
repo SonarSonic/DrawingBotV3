@@ -2,6 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.geom.PathBuilder;
 import drawingbot.geom.basic.IGeometry;
@@ -14,13 +15,19 @@ import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
+import org.locationtech.jts.awt.ShapeReader;
+import org.locationtech.jts.geom.Geometry;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
@@ -38,13 +45,13 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public List<String> comments = new ArrayList<>();
 
     // IMAGES \\
-    public BufferedImage img_original;              // The original image
-    public BufferedImage img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
-    public BufferedImage img_plotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
+    public BufferedImage imgOriginal;              // The original image
+    public BufferedImage imgReference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw.
+    public BufferedImage imgPlotting;              // Used during drawing for current brightness levels.  Gets damaged during drawing.
 
     // PIXEL DATA \\
-    public IPixelData reference;
-    public IPixelData plotting;
+    public IPixelData pixelDataReference;
+    public IPixelData pixelDataPlotting;
 
     // PATH FINDING \\
     public IPathFindingModule pfm;
@@ -62,12 +69,21 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     public boolean isSubTask = false;
     public int defaultPen = 0;
 
+    public int groupID = 0;
+
+    // SPECIAL \\
+    public boolean useLowQuality = false;
+    public int parallelPlots = 3;
+
+    // CLIPPING \\
+    public Geometry clippingShape = null;
+
     public PlottingTask(PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
-        this.img_original = image;
+        this.imgOriginal = image;
         this.originalFile = originalFile;
         this.resolution = new PrintResolution(image);
     }
@@ -97,7 +113,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 onPFMSettingsApplied(pfmSettings, pfm);
 
                 DrawingBotV3.logger.fine("Copying Original Image");
-                img_plotting = ImageTools.deepCopy(img_original);
+                imgPlotting = ImageTools.deepCopy(imgOriginal);
 
                 DrawingBotV3.logger.fine("Updating Resolution");
                 resolution.plottingResolution = pfm.getPlottingResolution();
@@ -106,7 +122,7 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 if(enableImageFiltering){
                     DrawingBotV3.logger.fine("Applying Cropping");
                     updateMessage("Pre-Processing - Cropping");
-                    img_plotting = FilteredBufferedImage.applyCropping(img_plotting, resolution);
+                    imgPlotting = FilteredBufferedImage.applyCropping(imgPlotting, resolution);
 
                     DrawingBotV3.logger.fine("Applying Filters");
                     for(ObservableImageFilter filter : DrawingBotV3.INSTANCE.currentFilters){
@@ -115,23 +131,26 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                             filter.filterSettings.forEach(setting -> setting.applySetting(instance));
 
                             updateMessage("Pre-Processing - " + filter.name.getValue());
-                            img_plotting = instance.filter(img_plotting, null);
+                            imgPlotting = instance.filter(imgPlotting, null);
                         }
                     }
 
                     updateMessage("Pre-Processing - Resize");
-                    img_plotting = Scalr.resize(img_plotting, Scalr.Method.ULTRA_QUALITY, (int)(img_plotting.getWidth() * pfm.getPlottingResolution()), (int)(img_plotting.getHeight()* pfm.getPlottingResolution()));
+                    imgPlotting = Scalr.resize(imgPlotting, Scalr.Method.ULTRA_QUALITY, (int)(imgPlotting.getWidth() * pfm.getPlottingResolution()), (int)(imgPlotting.getHeight()* pfm.getPlottingResolution()));
                 }
-                img_plotting = pfm.preFilter(img_plotting);
+                imgPlotting = pfm.preFilter(imgPlotting);
 
                 DrawingBotV3.logger.fine("Creating Pixel Data");
-                reference = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
-                plotting = ImageTools.newPixelData(img_plotting.getWidth(), img_plotting.getHeight(), pfm.getColourMode());
-                plotting.setTransparentARGB(pfm.getTransparentARGB());
+                pixelDataReference = ImageTools.newPixelData(imgPlotting.getWidth(), imgPlotting.getHeight(), pfm.getColourMode());
+                pixelDataPlotting = ImageTools.newPixelData(imgPlotting.getWidth(), imgPlotting.getHeight(), pfm.getColourMode());
+                pixelDataPlotting.setTransparentARGB(pfm.getTransparentARGB());
 
                 DrawingBotV3.logger.fine("Setting Pixel Data");
-                ImageTools.copyToPixelData(img_plotting, reference);
-                ImageTools.copyToPixelData(img_plotting, plotting);
+                ImageTools.copyToPixelData(imgPlotting, pixelDataReference);
+                ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
+
+                clippingShape = clippingShape != null ? clippingShape : ShapeReader.read(new Rectangle2D.Double(0, -imgPlotting.getHeight(), imgPlotting.getWidth(), imgPlotting.getHeight()), 6F, GeometryUtils.factory);
+                plottedDrawing.addGroupPFMType(groupID, pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Init");
                 pfm.init(this);
@@ -147,7 +166,37 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                     finishStage();
                     break;
                 }
-                pfm.doProcess();
+
+                if(useLowQuality){
+                    final CountDownLatch latch = new CountDownLatch(parallelPlots);
+
+                    ExecutorService newService = Executors.newFixedThreadPool(parallelPlots, r -> {
+                        Thread t = new Thread(r, "DrawingBotV3 - Parallel Plotting Service v2");
+                        t.setDaemon(true);
+                        return t;
+                    });
+
+                    for(int i = 0; i < parallelPlots; i ++){
+                        newService.submit(() -> {
+                            while(!plottingFinished && !isFinished()){
+                                pfm.doProcess();
+                            }
+                            latch.countDown();
+                        });
+                    }
+
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        return false;
+                    } finally {
+                        newService.shutdown();
+                    }
+
+                    finishStage();
+                }else{
+                    pfm.doProcess();
+                }
                 break;
             case POST_PROCESSING:
                 updateMessage("Post-Processing - PFM");
@@ -159,8 +208,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
                 DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
 
                 updateMessage("Post-Processing - Converting Reference Images");
-                img_reference = ImageTools.getBufferedImage(reference);
-                img_plotting = ImageTools.getBufferedImage(plotting);
+                imgReference = ImageTools.getBufferedImage(pixelDataReference);
+                imgPlotting = ImageTools.getBufferedImage(pixelDataPlotting);
 
                 finishStage();
                 break;
@@ -200,15 +249,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public BufferedImage getOriginalImage() {
-        return img_original;
+        return imgOriginal;
     }
 
     public BufferedImage getReferenceImage() {
-        return img_reference;
+        return imgReference;
     }
 
     public BufferedImage getPlottingImage() {
-        return img_plotting;
+        return imgPlotting;
     }
 
     public PrintResolution getResolution(){
@@ -216,12 +265,15 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
     }
 
     public void stopElegantly(){
+        DrawingBotV3.logger.info(stage.toString());
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishProcess();
         }
-        pfm.onStopped();
+        if(pfm != null){ //rare case for mosaic tasks where stopElegantly can be called on already finished pfms
+            pfm.onStopped();
+        }
     }
 
     public AffineTransform createPrintTransform(){
@@ -247,6 +299,24 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
 
         //flip y coordinates
         transform.scale(1, -1);
+        return transform;
+    }
+
+    public AffineTransform createHPGLTransform(){
+        AffineTransform transform = new AffineTransform();
+
+        ///move into print scale
+        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
+
+        //g-code y numbers go the other way
+        transform.translate(0, resolution.getScaledHeight());
+
+        //move with pre-scaled offsets
+        transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
+
+        //flip y coordinates
+        transform.scale(1, -1);
+
         return transform;
     }
 
@@ -303,6 +373,8 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         if(geometry.getPenIndex() == null){
             geometry.setPenIndex(penIndex == null ? defaultPen : penIndex);
         }
+        geometry.setGroupID(groupID);
+
         //transform geometry back to the images size
         if(resolution.plottingResolution != 1F){
             geometry.transform(resolution.plottingTransform);
@@ -310,14 +382,18 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         plottedDrawing.addGeometry(geometry);
     }
 
+    public void pushGroup(){
+        groupID++;
+    }
+
     @Override
     public IPixelData getPixelData() {
-        return plotting;
+        return pixelDataPlotting;
     }
 
     @Override
     public IPixelData getReferencePixelData() {
-        return reference;
+        return pixelDataReference;
     }
 
     @Override
@@ -351,12 +427,12 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         finishTime = -1;
         comments.clear();
 
-        img_original = null;
-        img_reference = null;
-        img_plotting = null;
+        imgOriginal = null;
+        imgReference = null;
+        imgPlotting = null;
 
-        reference = null;
-        plotting = null;
+        pixelDataReference = null;
+        pixelDataPlotting = null;
 
         pfm = null;
         plottingFinished = false;

@@ -1,0 +1,22 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Voronoi TSP",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Density Power": "5",
+          "Luminance Power": "5",
+          "Point Count": "2500",
+          "Random Seed": "0",
+          "Voronoi Iterations": "5",
+          "TSP Algorithm": "2-Opt"
+        }
+      }
+    }
+  ]
+}

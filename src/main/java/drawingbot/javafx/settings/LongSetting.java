@@ -13,13 +13,18 @@ public class LongSetting<C> extends RangedNumberSetting<C, Long> {
     }
 
     @Override
+    public void setRandomizerRange(Long safeMinValue, Long safeMaxValue) {
+        this.randomiser = rand -> rand.nextLong(safeMinValue, safeMaxValue);
+    }
+
+    @Override
     public Long fromNumber(Number number) {
         return number.longValue();
     }
 
     @Override
     public GenericSetting<C, Long> copy() {
-        return new LongSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks);
+        return new LongSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
     }
 
 }

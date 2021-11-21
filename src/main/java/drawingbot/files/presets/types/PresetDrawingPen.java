@@ -25,8 +25,8 @@ public class PresetDrawingPen extends DrawingPen implements IJsonData {
     }
 
     @Override
-    public void update(String type, String name, int argb, int distributionWeight, float strokeSize) {
-        super.update(type, name, argb, distributionWeight, strokeSize);
+    public void update(String type, String name, int argb, int distributionWeight, float strokeSize, boolean active) {
+        super.update(type, name, argb, distributionWeight, strokeSize, active);
         this.type = DBConstants.DRAWING_TYPE_USER;
     }
 

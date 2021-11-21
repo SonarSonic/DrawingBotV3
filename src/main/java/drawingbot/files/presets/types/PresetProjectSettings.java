@@ -44,6 +44,11 @@ public class PresetProjectSettings extends AbstractJsonData {
     public EnumDistributionOrder distributionOrder;
     public EnumBlendMode blendMode;
 
+    public float cyanMultiplier = 1F;
+    public float magentaMultiplier = 1F;
+    public float yellowMultiplier = 1F;
+    public float keyMultiplier = 0.75F;
+
     public PresetProjectSettings(){
         super();
     }

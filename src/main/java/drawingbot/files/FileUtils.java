@@ -10,6 +10,7 @@ import java.util.zip.GZIPOutputStream;
 public class FileUtils {
 
     public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.gif", "*.bmp", "*.jpeg");
+    public static final FileChooser.ExtensionFilter IMPORT_VIDEOS = new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.mov", "*.avi", "*.jpg", "*.gif", "*.bmp", "*.jpeg");
 
     public static final FileChooser.ExtensionFilter FILTER_JSON = new FileChooser.ExtensionFilter("JSON - JavaScript Object Notation", "*.json");
     public static final FileChooser.ExtensionFilter FILTER_PROJECT = new FileChooser.ExtensionFilter("DrawingBotV3 - Project File", "*.drawingbotv3");
@@ -18,6 +19,8 @@ public class FileUtils {
     public static final FileChooser.ExtensionFilter FILTER_TGA = new FileChooser.ExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");
     public static final FileChooser.ExtensionFilter FILTER_PNG = new FileChooser.ExtensionFilter("PNG - Portable Network Graphics", "*.png");
     public static final FileChooser.ExtensionFilter FILTER_JPG = new FileChooser.ExtensionFilter("JPG - Joint Photographic Experts Group", "*.jpg");
+    public static final FileChooser.ExtensionFilter FILTER_MP4 = new FileChooser.ExtensionFilter("MP4 - MPEG-4", "*.mp4");
+    public static final FileChooser.ExtensionFilter FILTER_MOV = new FileChooser.ExtensionFilter("MOV - QuickTime File Format", "*.mov");
 
     public static final FileChooser.ExtensionFilter FILTER_PDF = new FileChooser.ExtensionFilter("PDF - Portable Document Format", "*.pdf");
     public static final FileChooser.ExtensionFilter FILTER_SVG = new FileChooser.ExtensionFilter("SVG", "*.svg");
@@ -46,6 +49,10 @@ public class FileUtils {
     public static boolean hasExtension(String string){
         int begin = string.lastIndexOf(".");
         return begin != -1;
+    }
+
+    public static boolean matchesExtensionFilter(String extension, FileChooser.ExtensionFilter extensionFilter){
+        return extensionFilter.getExtensions().contains("*" + extension.toLowerCase()) || extensionFilter.getExtensions().contains(extension.toLowerCase()) ;
     }
 
     private static File importDirectory = null;

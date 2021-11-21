@@ -1,5 +1,5 @@
 package drawingbot.pfm.wip;
-
+/*
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.image.ImageTools;
@@ -40,7 +40,7 @@ public class PFMSketchCurvesV3 extends PFMSketchLines {
     }
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
+    protected void findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
         float delta_angle = 360 / (float) lineTests;
         float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
         float ignoreAngle = 90F;
@@ -69,17 +69,17 @@ public class PFMSketchCurvesV3 extends PFMSketchLines {
             float degree = (delta_angle * d) + start_angle;
             float distance = randomSeed(minLineLength, maxLineLength);
 
-            int x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + start_x;
-            int y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + start_y;
+            int x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + point[0];
+            int y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + point[1];
 
             ///TODO PREVENT CURVE GOING BACK ON ITSELF!
 
             resetLuminanceSamples();
 
-            bresenham.plotLine(start_x, start_y, x1, y1, (x, y) -> luminanceTest(pixels, x, y));
+            bresenham.plotLine(point[0], point[1], x1, y1, (x, y) -> luminanceTest(pixels, x, y, darkestDst));
 
             if(task.pathBuilder.hasCurvePoints()){
-                bresenham.plotCatmullRom(catmullP0, catmullP1, catmullP2, new float[]{x1, y1}, task.getPathBuilder().getCatmullTension(), (x, y) -> luminanceTest(pixels, x, y));
+                bresenham.plotCatmullRom(catmullP0, catmullP1, catmullP2, new float[]{x1, y1}, task.getPathBuilder().getCatmullTension(), (x, y) -> luminanceTest(pixels, x, y, darkestDst));
                 //TODO CHECK BEAUTY RATING OF CURVE??? and NOT brightness
             }
 
@@ -87,12 +87,12 @@ public class PFMSketchCurvesV3 extends PFMSketchLines {
             float luminanceTest = getLuminanceTestAverage();
             if(darkestValue == -1F || luminanceTest < darkestValue){
                 darkestValue = luminanceTest;
-                bestX = darkest_x;
-                bestY = darkest_y;
+                bestX = darkestDst[0];
+                bestY = darkestDst[1];
             }
         }
-        darkest_x = bestX;
-        darkest_y = bestY;
+        darkestDst[0] = bestX;
+        darkestDst[1] = bestY;
         //TODO MAKE VERSION WHERE CURVES CAN'T GO BACK ON THEMSELVES
     }
 
@@ -118,3 +118,4 @@ public class PFMSketchCurvesV3 extends PFMSketchLines {
         return argb;
     }
 }
+*/

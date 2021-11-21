@@ -112,7 +112,6 @@ public class OpenGLRenderer extends AbstractRenderer implements GLEventListener 
         gl.glRectd(0, 0, width, height);
 
 
-
         gl.glPointSize(4f);
         gl.glColor4f(0f, 1f, 0f, 1F);
         gl.glRectd(5,5,100,100);

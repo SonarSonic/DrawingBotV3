@@ -2,6 +2,8 @@ package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -21,6 +23,7 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
 
     public Integer penIndex = null;
     public Integer sampledRGBA = null;
+    public int groupID = -1;
 
     @Override
     public int getSegmentCount() {
@@ -43,6 +46,11 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     }
 
     @Override
+    public int getGroupID() {
+        return groupID;
+    }
+
+    @Override
     public void setPenIndex(Integer index) {
         penIndex = index;
     }
@@ -50,6 +58,11 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     @Override
     public void setCustomRGBA(Integer rgba) {
         sampledRGBA = rgba;
+    }
+
+    @Override
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
     }
 
     @Override
@@ -66,5 +79,10 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
         y = coords[1];
         width = coords[2] - x;
         height = coords[3] - y;
+    }
+
+    @Override
+    public Coordinate getOriginCoordinate() {
+        return new CoordinateXY(x, y);
     }
 }

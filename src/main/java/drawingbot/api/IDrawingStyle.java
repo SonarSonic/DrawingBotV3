@@ -2,6 +2,7 @@ package drawingbot.api;
 
 import com.google.gson.JsonElement;
 import drawingbot.pfm.PFMFactory;
+import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 
@@ -18,5 +19,7 @@ public interface IDrawingStyle {
     HashMap<String, JsonElement> getSaveableSettings();
 
     int getDistributionWeight();
+
+    Color getMaskColor();
 
 }

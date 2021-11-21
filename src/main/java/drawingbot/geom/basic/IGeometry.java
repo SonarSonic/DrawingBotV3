@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -30,6 +31,12 @@ public interface IGeometry {
     Integer getCustomRGBA();
 
     /**
+     * @return the group id, geometries with the same group id are considered to be from the same section of the drawing
+     * therefore when optimising the drawing, geometries with matching group ids, will be optimised together and not mixed with other groups
+     */
+    int getGroupID();
+
+    /**
      * @param index may be null
      */
     void setPenIndex(Integer index);
@@ -39,9 +46,19 @@ public interface IGeometry {
      */
     void setCustomRGBA(Integer rgba);
 
+    /**
+     * @param groupID sets the geometries group id
+     */
+    void setGroupID(int groupID);
+
     void renderFX(GraphicsContext graphics, ObservableDrawingPen pen);
 
     void transform(AffineTransform transform);
+
+    /**
+     * Used for geometry sorting only
+     */
+    Coordinate getOriginCoordinate();
 
     default void renderAWT(Graphics2D graphics, ObservableDrawingPen pen){
         pen.preRenderAWT(graphics, this);

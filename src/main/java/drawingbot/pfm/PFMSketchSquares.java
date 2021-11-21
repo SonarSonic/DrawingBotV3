@@ -1,6 +1,7 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
+import drawingbot.pfm.helpers.LuminanceTestLine;
 
 public class PFMSketchSquares extends AbstractSketchPFM {
 
@@ -11,14 +12,17 @@ public class PFMSketchSquares extends AbstractSketchPFM {
     }
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
-        float angle = startAngle + (float)Math.toDegrees((Math.sin(Math.toRadians((start_x/9D))) + Math.cos(Math.toRadians((start_y/9D)+26D))));
+    protected boolean findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
+        float angle = startAngle + (float)Math.toDegrees((Math.sin(Math.toRadians((point[0]/9D))) + Math.cos(Math.toRadians((point[1]/9D)+26D))));
         float deltaAngle = 360.0F / (float) lineTests;
 
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
-        resetLuminanceTest();
+        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLineLength, maxLineLength, true);
+        luminanceTest.resetTest();
         for (int d = 0; d < lineTests; d ++) {
-            luminanceTestAngledLine(pixels, start_x, start_y, nextLineLength, (deltaAngle * d) + angle);
+            luminanceTest.resetSamples();
+            bresenham.plotAngledLine(point[0], point[1], nextLineLength, (deltaAngle * d) + angle, (x, y) -> luminanceTest.addSample(pixels, x, y));
         }
+        return luminanceTest.getDarkestSample() < pixels.getAverageLuminance();
     }
 }

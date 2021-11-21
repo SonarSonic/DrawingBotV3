@@ -15,6 +15,7 @@ public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> 
     public List<Class<? extends IPFMModule>> encoders;
     public boolean bypassOptimisation = false;
     public boolean transparentColourSeperation = true;
+    public boolean isBeta = false;
 
     public PFMFactory(Class<C> clazz, String name, Supplier<C> create, boolean isHidden) {
         super(clazz, name, create, isHidden);
@@ -55,6 +56,15 @@ public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> 
 
     public PFMFactory<C> setTransparentCMYK(boolean transparentCMYK) {
         this.transparentColourSeperation = transparentCMYK;
+        return this;
+    }
+
+    public boolean isBeta() {
+        return isBeta;
+    }
+
+    public PFMFactory<C> setIsBeta(boolean isBeta) {
+        this.isBeta = isBeta;
         return this;
     }
 }

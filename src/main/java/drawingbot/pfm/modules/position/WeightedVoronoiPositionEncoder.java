@@ -2,6 +2,7 @@ package drawingbot.pfm.modules.position;
 
 import drawingbot.api.IPixelData;
 import drawingbot.geom.GeometryUtils;
+import drawingbot.geom.basic.GEllipse;
 import drawingbot.geom.basic.GRectangle;
 import drawingbot.image.ImageTools;
 import drawingbot.image.PixelDataLuminance;
@@ -65,6 +66,9 @@ public class WeightedVoronoiPositionEncoder extends PositionEncoder {
             }
         }
 
+        int timeout = Math.max(pointCount*100, 10000);
+        int fails = 0;
+
         while (i < pointCount) {
             int randX = pfmModular.randomSeed(0, data.getWidth() - 1);
             int randY = pfmModular.randomSeed(0, data.getHeight() - 1);
@@ -72,11 +76,15 @@ public class WeightedVoronoiPositionEncoder extends PositionEncoder {
             if (pfmModular.randomSeedF(minLum, maxLum) <= Math.pow(255 - lum, luminancePower) / Math.pow(255, luminancePower-1)) {
                 coordinates.add(new CoordinateXY(randX, randY));
                 luminance.add(0);
-                pfmModular.task.addGeometry(new GRectangle(randX, randY, 1, 1));
+                pfmModular.task.addGeometry(new GEllipse.Filled((float)randX - 1/2F, (float)randY - 1/2F, 1, 1));
                 lumData.setLuminance(randX, randY, 255);
                 i++;
+                fails = 0;
+            }else{
+                fails++;
             }
-            if(pfmModular.task.isFinished()){
+
+            if(pfmModular.task.isFinished() || fails > timeout){
                 break;
             }
         }

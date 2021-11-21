@@ -1,5 +1,7 @@
 package drawingbot.utils;
 
+import drawingbot.DrawingBotV3;
+
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,10 +11,6 @@ public class Utils {
 
     public final static Random random = new Random();
     public final static NumberFormat defaultNF = NumberFormat.getNumberInstance();
-    public final static String URL_READ_THE_DOCS = "https://drawingbotv3.readthedocs.io";
-    public final static String URL_READ_THE_DOCS_HOME = URL_READ_THE_DOCS + "/en/latest/about.html";
-    public final static String URL_READ_THE_DOCS_PFMS = URL_READ_THE_DOCS + "/en/latest/pfms.html";
-    public final static String URL_GITHUB_REPO = "https://github.com/SonarSonic/DrawingBotV3";
     public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
     public static NumberFormat gCodeNF;
@@ -33,6 +31,10 @@ public class Utils {
         s = s.replace(',', gcode_decimal_seperator);
 
         return s;
+    }
+
+    public static String hpglValue(float f){
+        return String.valueOf((int)(f * DrawingBotV3.INSTANCE.hpglUnits.get()));
     }
 
     public static String capitalize(String name) {
@@ -135,4 +137,7 @@ public class Utils {
         return (double) Math.round(value * scale) / scale;
     }
 
+    public static double distance(int x1, int y1, int x2, int y2){
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
 }

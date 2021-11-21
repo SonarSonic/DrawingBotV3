@@ -1,5 +1,14 @@
 package drawingbot.pfm.wip;
+/*
+import drawingbot.api.IPixelData;
+import drawingbot.api.IPlottingTask;
+import drawingbot.geom.basic.GEllipse;
+import drawingbot.geom.basic.GRectangle;
+import drawingbot.image.ImageTools;
+import drawingbot.pfm.AbstractSketchPFM;
+import drawingbot.utils.EnumSketchShapes;
 
+/*
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GEllipse;
@@ -11,7 +20,7 @@ import drawingbot.utils.EnumSketchShapes;
 /**
  * An attempt at a PFM which uses rectangles instead of lines & importantly finds the next darkest rectangle.
  * If doesn't work however as the next darkest rectangle will pretty much always be the one which is one pixel over from another...so maybe they have to be randomly rotated??
- */
+
 public class PFMSketchShapesAware extends AbstractSketchPFM {
 
     public EnumSketchShapes shapes;
@@ -22,17 +31,17 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
     public int darkestRectEndY = 0;
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int startX, int startY) {
+    protected void findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
 
         resetLuminanceTest();
         for (int d = 0; d < lineTests; d ++) {
             int width = randomSeed(minLineLength, maxLineLength);
             int height = randomSeed(minLineLength, maxLineLength);
             for (int flip = 0; flip < 2; flip ++) {
-                startX = clampX(flip == 0 ? startX : startX-width, pixels.getWidth());
-                startY = clampY(flip == 0 ? startY : startY-height, pixels.getHeight());
-                int endX = clampX(flip == 0 ? startX+width : startX, pixels.getWidth());
-                int endY = clampY(flip == 0 ? startY+height : startY, pixels.getHeight());
+                int startX = point[0] = clampX(flip == 0 ? point[0] : point[0]-width, pixels.getWidth());
+                int startY = point[1] = clampY(flip == 0 ? point[1] : point[1]-height, pixels.getHeight());
+                int endX = clampX(flip == 0 ? point[0]+width : point[0], pixels.getWidth());
+                int endY = clampY(flip == 0 ? point[1]+height : point[1], pixels.getHeight());
 
                 this.luminanceTestRectangle(pixels, startX, startY, endX, endY);
                 if(test_luminance == -1 || getLuminanceTestAverage() < test_luminance){
@@ -43,8 +52,8 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
                     darkestRectEndX = endX;
                     darkestRectEndY = endY;
 
-                    darkest_x = flip == 0 ? endX : startX;
-                    darkest_y = flip == 0 ? endY : startY;
+                    darkestDst[0] = flip == 0 ? endX : startX;
+                    darkestDst[1] = flip == 0 ? endY : startY;
                 }
             }
         }
@@ -83,7 +92,7 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
     }
 
     @Override
-    protected boolean luminanceTest(IPixelData pixels, int x, int y){
+    protected boolean luminanceTest(IPixelData pixels, int x, int y, int[] dest){
         if(x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight()){
             return true;
         }
@@ -93,3 +102,4 @@ public class PFMSketchShapesAware extends AbstractSketchPFM {
         return false;
     }
 }
+*/

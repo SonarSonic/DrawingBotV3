@@ -3,14 +3,14 @@ package drawingbot.pfm;
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.image.ImageTools;
+import drawingbot.pfm.helpers.ColourSampleTest;
+import drawingbot.pfm.helpers.LuminanceTest;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
 
 public class PFMQuadBezier extends PFMSketchLines {
 
-    ///rgba samples
-    private long red, green, blue, alpha;
-    private int count;
+    private final ColourSampleTest curveColourSamples = new ColourSampleTest();
 
     protected int darkest_control_x;
     protected int darkest_control_y;
@@ -26,22 +26,22 @@ public class PFMQuadBezier extends PFMSketchLines {
     @Override
     public void doProcess() {
         super.doProcess();
-        if(shouldLiftPen && count != 0){
+        if(shouldLiftPen && curveColourSamples.getSampleCount() != 0){
             task.getPathBuilder().endPath();
-            task.getLastGeometry().setCustomRGBA(getCurveARGB());
+            task.getLastGeometry().setCustomRGBA(curveColourSamples.getAndResetColourSamples());
         }
     }
 
     @Override
     public void postProcess() {
-        if(count != 0){
+        if(curveColourSamples.getSampleCount() != 0){
             task.getPathBuilder().endPath();
-            task.getLastGeometry().setCustomRGBA(getCurveARGB());
+            task.getLastGeometry().setCustomRGBA(curveColourSamples.getAndResetColourSamples());
         }
     }
 
     @Override
-    public void findDarkestNeighbour(IPixelData pixels, int start_x, int start_y) {
+    protected boolean findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
         float delta_angle;
         float start_angle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
 
@@ -51,22 +51,22 @@ public class PFMQuadBezier extends PFMSketchLines {
             delta_angle = shadingDeltaAngle;
         }
 
-        resetLuminanceTest();
+        LuminanceTest curveTest = new LuminanceTest();
         for (int d = 0; d < lineTests; d ++) {
             int nextLineLength = randomSeed(minLineLength, maxLineLength);
             float degree = (delta_angle * d) + start_angle;
-            int endPointX = (int)(Math.cos(Math.toRadians(degree))*nextLineLength) + start_x;
-            int endPointY = (int)(Math.sin(Math.toRadians(degree))*nextLineLength) + start_y;
+            int endPointX = (int)(Math.cos(Math.toRadians(degree))*nextLineLength) + point[0];
+            int endPointY = (int)(Math.sin(Math.toRadians(degree))*nextLineLength) + point[1];
 
-            int[] edge = bresenham.findEdge(start_x, start_y, endPointX, endPointY, pixels.getWidth(), pixels.getHeight());
+            int[] edge = bresenham.findEdge(point[0], point[1], endPointX, endPointY, pixels.getWidth(), pixels.getHeight());
             endPointX = edge[0];
             endPointY = edge[1];
 
-            if(endPointX == start_x && endPointY == start_y){
+            if(endPointX == point[0] && endPointY == point[1]){
                 continue;
             }
 
-            Vector2i startPoint = new Vector2i(start_x, start_y);
+            Vector2i startPoint = new Vector2i(point[0], point[1]);
             Vector2i endPoint = new Vector2i(endPointX, endPointY);
             Vector2i midPoint = new Vector2i((startPoint.x+endPoint.x)/2, (startPoint.y+endPoint.y)/2);
 
@@ -79,39 +79,27 @@ public class PFMQuadBezier extends PFMSketchLines {
                 int controlPointX = (int) (midPoint.x + n.x*offsetTest);
                 int controlPointY = (int) (midPoint.y + n.y*offsetTest);
 
-                resetLuminanceSamples();
-                bresenham.plotQuadBezier(start_x, start_y, controlPointX, controlPointY, endPointX, endPointY, (x, y) -> luminanceTally(pixels, x, y));
+                curveTest.resetSamples();
+                bresenham.plotQuadBezier(point[0], point[1], controlPointX, controlPointY, endPointX, endPointY, (x, y) -> curveTest.addSample(pixels, x, y));
 
-                if ((test_luminance == -1 || getLuminanceTestAverage() < test_luminance)) {
-                    darkest_x = endPointX;
-                    darkest_y = endPointY;
+                if(curveTest.getAndSetTestResult()){
+                    darkestDst[0] = endPointX;
+                    darkestDst[1] = endPointY;
                     darkest_control_x = controlPointX;
                     darkest_control_y= controlPointY;
-                    test_luminance = getLuminanceTestAverage();
                 }
             }
         }
+        return curveTest.getDarkestSample() < pixels.getAverageLuminance();
     }
 
     @Override
     public void addGeometry(IPlottingTask task, int x1, int y1, int x2, int y2, int adjust) {
         task.getPathBuilder().quadTo(darkest_control_x, darkest_control_y, x2, y2);
 
-        resetColourSamples();
-        bresenham.plotQuadBezier(x1, y1, darkest_control_x, darkest_control_y, x2, y2, (x, y) -> adjustLuminanceColour(task.getPixelData(), x, y, adjust));
-        int argb = getColourTestAverage();
-
-        alpha += ImageTools.alpha(argb);
-        red += ImageTools.red(argb);
-        green += ImageTools.green(argb);
-        blue += ImageTools.blue(argb);
-        count ++;
-    }
-
-    public int getCurveARGB(){
-        int argb = ImageTools.getARGB((int)((float)alpha/count), (int)((float)red/count), (int)((float)green/count), (int)((float)blue/count));
-        red = green = blue = alpha = count = 0;
-        return argb;
+        defaultColourTest.resetColourSamples(adjust);
+        bresenham.plotQuadBezier(x1, y1, darkest_control_x, darkest_control_y, x2, y2, (x, y) -> defaultColourTest.addSample(task.getPixelData(), x, y));
+        curveColourSamples.addSample(defaultColourTest.getCurrentAverage());
     }
 
     @Override

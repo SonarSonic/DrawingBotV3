@@ -13,13 +13,18 @@ public class IntegerSetting<C> extends RangedNumberSetting<C, Integer> {
     }
 
     @Override
+    public void setRandomizerRange(Integer safeMinValue, Integer safeMaxValue) {
+        this.randomiser = rand -> rand.nextInt(safeMinValue, safeMaxValue);
+    }
+
+    @Override
     public Integer fromNumber(Number number) {
         return number.intValue();
     }
 
     @Override
     public GenericSetting<C, Integer> copy() {
-        return new IntegerSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks);
+        return new IntegerSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
     }
 
 }

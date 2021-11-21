@@ -30,9 +30,9 @@ public class ObservableProjectSettings {
         this.file = new SimpleStringProperty(preset.data.imagePath);
         this.preset = new SimpleObjectProperty<>(preset);
 
-        imageView.get().imageProperty().bind(thumbnail);
-        imageView.get().preserveRatioProperty().set(true);
-        imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty());
+        this.imageView.get().imageProperty().bind(thumbnail);
+        this.imageView.get().preserveRatioProperty().set(true);
+        this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty());
 
         BufferedImageLoader loader = new BufferedImageLoader(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg", false);
         DrawingBotV3.INSTANCE.backgroundService.submit(loader);

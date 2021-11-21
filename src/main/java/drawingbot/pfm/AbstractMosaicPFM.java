@@ -57,6 +57,7 @@ public abstract class AbstractMosaicPFM extends AbstractPFM{
         }
     }
 
+
     @Override
     public void preProcess() {
 
@@ -72,7 +73,6 @@ public abstract class AbstractMosaicPFM extends AbstractPFM{
 
     @Override
     public void doProcess() {
-        int tileCount = calculateTileCount();
 
         int totalWeight = 0;
         for(DrawingStyle style : drawingStyles.styles){
@@ -82,6 +82,7 @@ public abstract class AbstractMosaicPFM extends AbstractPFM{
             }
         }
 
+        int tileCount = calculateTileCount();
         int styleIndex = 0;
         int activeCount = 0;
         int highestCount = 0;
@@ -139,10 +140,21 @@ public abstract class AbstractMosaicPFM extends AbstractPFM{
             final int subTaskIndex = index;
             mosaicTask.task.progressProperty().addListener((observable, oldValue, newValue) -> updateSubTaskProgress(subTaskIndex, newValue.doubleValue(), 1D));
             service.submit(() -> {
+
+                //very important for allowing the groups to be considered together when optimising
+                mosaicTask.task.groupID = subTaskIndex;
+
+                //mark the group type in the MAIN drawing, not the mosaic drawing, there it doesn't really matter since we're not optimising, but we'll set it anyway...
+                task.plottedDrawing.addGroupPFMType(subTaskIndex, mosaicTask.task.pfmFactory);
+                mosaicTask.task.plottedDrawing.addGroupPFMType(subTaskIndex, mosaicTask.task.pfmFactory);
+
                 while(!mosaicTask.task.isTaskFinished() && !task.plottingFinished && !task.isFinished()){
                     mosaicTask.task.doTask();
                 }
-                mosaicTask.task.plottedDrawing.updatePenDistribution();
+
+                if(!mosaicTask.task.plottedDrawing.ignoreWeightedDistribution){
+                    mosaicTask.task.pfmFactory.distributionType.distribute.accept(mosaicTask.task.plottedDrawing);
+                }
 
                 geometriesPerPFM.putIfAbsent(mosaicTask.style, new ArrayList<>());
                 List<IGeometry> pfmGeometryList = geometriesPerPFM.get(mosaicTask.style);
@@ -170,15 +182,17 @@ public abstract class AbstractMosaicPFM extends AbstractPFM{
         //a cheeky method of obtaining a even distribution across the entire image, relies on the PFM implementing CustomRGBA note.
         //note even though we copy to another drawing, however are still affecting the original drawings geometries, so the path order is actually unaffected!
         for(Map.Entry<DrawingStyle, List<IGeometry>> entry : geometriesPerPFM.entrySet()){
-            PlottedDrawing drawing = new PlottedDrawing(evenlyDistributedDrawingSet);
-            EnumDistributionType distributionType = entry.getKey().getFactory().getDistributionType();
-            if(AbstractMosaicPFM.class.isAssignableFrom(entry.getKey().getFactory().getInstanceClass())){
-                distributionType = EnumDistributionType.EVEN_WEIGHTED;
+            if(entry.getValue() != null){
+                PlottedDrawing drawing = new PlottedDrawing(evenlyDistributedDrawingSet);
+                EnumDistributionType distributionType = entry.getKey().getFactory().getDistributionType();
+                if(AbstractMosaicPFM.class.isAssignableFrom(entry.getKey().getFactory().getInstanceClass())){
+                    distributionType = EnumDistributionType.EVEN_WEIGHTED;
+                }
+                evenlyDistributedDrawingSet.distributionType.set(distributionType);
+                entry.getValue().sort(Comparator.comparingInt(o -> ImageTools.getPerceivedLuminanceFromRGB(o.getCustomRGBA() == null ? 0 : o.getCustomRGBA())));
+                drawing.addGeometry(entry.getValue());
+                drawing.updatePenDistribution();
             }
-            evenlyDistributedDrawingSet.distributionType.set(distributionType);
-            entry.getValue().sort(Comparator.comparingInt(o -> ImageTools.getPerceivedLuminanceFromRGB(o.getCustomRGBA() == null ? 0 : o.getCustomRGBA())));
-            drawing.addGeometry(entry.getValue());
-            drawing.updatePenDistribution();
         }
 
 

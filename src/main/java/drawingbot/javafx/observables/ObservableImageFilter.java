@@ -5,10 +5,12 @@ import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 
 public class ObservableImageFilter {
@@ -19,8 +21,15 @@ public class ObservableImageFilter {
     public ObservableList<GenericSetting<?, ?>> filterSettings;
     public SimpleStringProperty settingsString; //settings as a string
 
+    public SimpleBooleanProperty dirty;
+    public SimpleObjectProperty<BufferedImage> cached;
+
     public ObservableImageFilter(GenericFactory<BufferedImageOp> filterFactory) {
-        this(true, filterFactory.getName(), filterFactory, MasterRegistry.INSTANCE.createObservableImageFilterSettings(filterFactory));
+        this(true, filterFactory);
+    }
+
+    public ObservableImageFilter(boolean enable, GenericFactory<BufferedImageOp> filterFactory) {
+        this(enable, filterFactory.getName(), filterFactory, MasterRegistry.INSTANCE.createObservableImageFilterSettings(filterFactory));
     }
 
     public ObservableImageFilter(ObservableImageFilter duplicate) {
@@ -35,8 +44,11 @@ public class ObservableImageFilter {
         this.settingsString = new SimpleStringProperty(filterSettings.toString());
 
         this.filterSettings.forEach(s -> s.addListener((observable, oldValue, newValue) -> onSettingChanged()));
-        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onImageFiltersChanged());
+        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onImageFilterChanged(this));
         //changes to filter settings are called from the FXController
+
+        this.dirty = new SimpleBooleanProperty(true);
+        this.cached = new SimpleObjectProperty<>(null);
     }
 
     public void onSettingChanged() {

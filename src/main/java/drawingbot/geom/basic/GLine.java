@@ -2,6 +2,8 @@ package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -34,6 +36,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
 
     public Integer penIndex = null;
     public Integer sampledRGBA = null;
+    public int groupID = -1;
 
     @Override
     public int getSegmentCount() {
@@ -56,6 +59,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
     }
 
     @Override
+    public int getGroupID() {
+        return groupID;
+    }
+
+    @Override
     public void setPenIndex(Integer index) {
         penIndex = index;
     }
@@ -63,6 +71,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
     @Override
     public void setCustomRGBA(Integer rgba) {
         sampledRGBA = rgba;
+    }
+
+    @Override
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
     }
 
     @Override
@@ -79,5 +92,10 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement{
         y1 = coords[1];
         x2 = coords[2];
         y2 = coords[3];
+    }
+
+    @Override
+    public Coordinate getOriginCoordinate() {
+        return new CoordinateXY(x1, y1);
     }
 }

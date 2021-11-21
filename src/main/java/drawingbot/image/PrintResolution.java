@@ -276,6 +276,14 @@ public class PrintResolution {
         return printOffsetY;
     }
 
+    public int getImageWidth(){
+        return imageWidth;
+    }
+
+    public int getImageHeight(){
+        return imageHeight;
+    }
+
     public int getImageCropWidth(){
         return imageCropWidth;
     }
