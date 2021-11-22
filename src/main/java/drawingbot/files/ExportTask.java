@@ -73,7 +73,7 @@ public class ExportTask extends Task<Boolean> {
                 updateTitle(format.displayName + ": " + (p+1) + " / " + plottingTask.plottedDrawing.getPenCount() + " - " + saveLocation.getPath());
                 ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(p);
                 File fileName = new File(path.getPath() + "_pen" + p + "_" + drawingPen.getName() + extension);
-                if(drawingPen.isEnabled() || (overwrite || Files.notExists(fileName.toPath()))){
+                if(drawingPen.isEnabled() && (overwrite || Files.notExists(fileName.toPath()))){
                     updateMessage("Optimising Paths");
 
                     Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen, forceBypassOptimisation);
