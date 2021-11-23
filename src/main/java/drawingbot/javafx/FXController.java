@@ -409,9 +409,14 @@ public class FXController {
 
     public CheckBox checkBoxOptimiseForPrint = null;
     public TextField textFieldPenWidth = null;
+    
+    public ColorPicker colorPickerCanvas = null;
 
     public void initDrawingAreaPane(){
 
+        colorPickerCanvas.setValue(Color.WHITE);
+        DrawingBotV3.INSTANCE.canvasColor.bindBidirectional(colorPickerCanvas.valueProperty());
+        
         comboBoxDrawingAreaPreset.setItems(JsonLoaderManager.DRAWING_AREA.presets);
         comboBoxDrawingAreaPreset.setValue(JsonLoaderManager.DRAWING_AREA.getDefaultPreset());
         comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -491,6 +496,7 @@ public class FXController {
         DrawingBotV3.INSTANCE.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.canvasColor.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
     }
 
