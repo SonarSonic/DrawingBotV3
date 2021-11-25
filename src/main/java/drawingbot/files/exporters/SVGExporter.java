@@ -82,7 +82,7 @@ public class SVGExporter {
             backgroundGraphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
             backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
-            Graphics2DExporter.drawBackground(exportTask, backgroundGraphics, width, height, plottingTask);
+            Graphics2DExporter.drawBackground(exportTask, backgroundGraphics, width, height);
             Graphics2DExporter.preDraw(exportTask, backgroundGraphics, width, height, plottingTask);
             Graphics2DExporter.postDraw(exportTask, backgroundGraphics, width, height, plottingTask);
 

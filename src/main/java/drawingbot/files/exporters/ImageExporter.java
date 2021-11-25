@@ -49,15 +49,8 @@ public class ImageExporter {
         int width = getRasterWidth(exportTask);
         int height = getRasterHeight(exportTask);
         Graphics2D graphics = image.createGraphics();
-        EnumBlendMode blendMode = exportTask.plottingTask.plottedDrawing.drawingPenSet.blendMode.get();
-        if(!useAlphaChannelOnRaster(exportTask) || blendMode != EnumBlendMode.NORMAL){
-            if(blendMode.additive){
-                graphics.setColor(Color.BLACK);
-                graphics.drawRect(0, 0, width, height);
-            }else{
-                graphics.setColor(Color.WHITE);
-                graphics.fillRect(0, 0, width, height);
-            }
+        if(!useAlphaChannelOnRaster(exportTask)){
+            Graphics2DExporter.drawBackground(exportTask, graphics, width, height);
         }
         setBlendMode(exportTask, graphics);
         return graphics;
