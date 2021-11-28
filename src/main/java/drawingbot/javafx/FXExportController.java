@@ -203,10 +203,13 @@ public class FXExportController {
     ////IMAGE SEQUENCE SETTINGS
     public AnchorPane anchorPaneImgSeqSettings = null;
 
+    public TextField textFieldDPI = null;
     public TextField textFieldFPS = null;
     public TextField textFieldDuration = null;
     public ChoiceBox<UnitsTime> choiceBoxTimeUnits = null;
 
+    
+    public Label labelExportSize = null;
     public Label labelFrameCount = null;
     public Label labelGeometriesPFrame = null;
     public Label labelVerticesPFrame = null;
@@ -214,6 +217,13 @@ public class FXExportController {
 
     public void initImageSequencePane(){
 
+        textFieldDPI.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 300F));
+        textFieldDPI.setText("" + ConfigFileHandler.getApplicationSettings().exportDPI);
+        textFieldDPI.textProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigFileHandler.getApplicationSettings().exportDPI = Float.parseFloat(newValue);
+            updateImageSequenceStats();
+        });
+        
         textFieldFPS.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 25F));
         textFieldFPS.setText("" + ConfigFileHandler.getApplicationSettings().framesPerSecond);
         textFieldFPS.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -251,7 +261,22 @@ public class FXExportController {
         if(verticesPerFrame == 1 && frameCount > verticesPerFrame){
             frameCount = (int)(DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getVertexCount());
         }
-
+        
+        if(DrawingBotV3.INSTANCE.openImage.get() != null){
+            if (!DrawingBotV3.INSTANCE.useOriginalSizing.get() && DrawingBotV3.INSTANCE.optimiseForPrint.get() && DrawingBotV3.INSTANCE.targetPenWidth.get() > 0){
+                int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
+                int exportWidth = (int)Math.ceil((DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintPageWidth() / UnitsLength.INCHES.convertToMM) * DPI);
+                int exportHeight = (int)Math.ceil((DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintPageHeight() / UnitsLength.INCHES.convertToMM) * DPI);            
+                labelExportSize.setText(exportWidth + " x " + exportHeight);
+            }else{
+                int exportWidth = (int)DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledWidth();
+                int exportHeight = (int)DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledHeight();
+                labelExportSize.setText(exportWidth + " x " + exportHeight);
+            }
+        }else{
+            labelExportSize.setText("0 x 0");
+        }
+        
         labelFrameCount.setText("" + Utils.defaultNF.format(frameCount));
         labelGeometriesPFrame.setText("" + Utils.defaultNF.format(geometriesPerFrame));
         labelVerticesPFrame.setText("" + Utils.defaultNF.format(verticesPerFrame));

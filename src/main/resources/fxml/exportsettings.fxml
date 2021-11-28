@@ -414,7 +414,7 @@
                 </AnchorPane>
             </content>
           </Tab>
-           <Tab text="Image Sequences">
+           <Tab text="Image &amp; Animation">
               <content>
                  <AnchorPane fx:id="anchorPaneImgSeqSettings" minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
                     <children>
@@ -423,6 +423,22 @@
                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                           </padding>
                           <children>
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="105.0" text="Export Resolution:" />
+                                    <TextField fx:id="textFieldDPI" prefHeight="25.0" prefWidth="56.0" />
+                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="40.0" text="PPI">
+                                       <padding>
+                                          <Insets left="5.0" />
+                                       </padding>
+                                    </Label>
+                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="190.0" text="Image Export Size: ">
+                                       <graphic>
+                                          <Label fx:id="labelExportSize" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="84.0" text="10000 x 10000" />
+                                       </graphic>
+                                    </Label>
+                                 </children>
+                              </HBox>
                               <Separator layoutX="18.0" layoutY="53.0" prefWidth="200.0" />
                               <HBox prefHeight="100.0" prefWidth="200.0">
                                  <children>
