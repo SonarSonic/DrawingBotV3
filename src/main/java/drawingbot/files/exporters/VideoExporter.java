@@ -1,10 +1,12 @@
 package drawingbot.files.exporters;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.utils.UnitsLength;
 import drawingbot.utils.VertexIterator;
 import org.jcodec.api.SequenceEncoder;
 import org.jcodec.api.awt.AWTSequenceEncoder;
@@ -36,12 +38,17 @@ public class VideoExporter {
     }
 
     public static void exportVideo(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation, Format format, Codec codec){
+        if (!exportTask.exportResolution.useOriginalSizing() && DrawingBotV3.INSTANCE.optimiseForPrint.get() && DrawingBotV3.INSTANCE.targetPenWidth.get() > 0){
+            int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
+            int exportWidth = (int)Math.ceil((exportTask.exportResolution.printPageWidth / UnitsLength.INCHES.convertToMM) * DPI);
+            int exportHeight = (int)Math.ceil((exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DPI);
+            exportTask.exportResolution.changePrintResolution(exportWidth, exportHeight);
+        }
+        int width = ImageExporter.getRasterWidth(exportTask, true);
+        int height = ImageExporter.getRasterHeight(exportTask, true);
 
-        int width = ImageExporter.getRasterWidth(exportTask);
-        int height = ImageExporter.getRasterHeight(exportTask);
-
-        BufferedImage image = ImageExporter.createFreshBufferedImage(exportTask);
-        Graphics2D graphics = ImageExporter.createFreshGraphics2D(exportTask, image);
+        BufferedImage image = ImageExporter.createFreshBufferedImage(exportTask, true);
+        Graphics2D graphics = ImageExporter.createFreshGraphics2D(exportTask, image, true);
         graphics.dispose(); //writes background colour to the image.
 
         int frameCount = 0;
@@ -78,6 +85,7 @@ public class VideoExporter {
         } finally {
             NIOUtils.closeQuietly(out);
         }
+        exportTask.exportResolution.updatePrintScale();
     }
 
 }
