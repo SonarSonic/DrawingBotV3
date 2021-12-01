@@ -6,11 +6,14 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
+import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.utils.UnitsLength;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,12 +27,18 @@ public class PDFExporter {
             int width = (int)exportTask.exportResolution.getScaledWidth();
             int height = (int)exportTask.exportResolution.getScaledHeight();
 
-            Document document = new Document(new Rectangle(width, height));
+            // Calculate the page size relative to the configured SVG DPI
+            float scaledPageWidth = exportTask.exportResolution.printPageWidth / UnitsLength.INCHES.convertToMM * DrawingBotV3.PDF_DPI;
+            float scaledPageHeight = exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM * DrawingBotV3.PDF_DPI;
+            double scale = (double)scaledPageWidth / width;
+
+            Document document = new Document(new Rectangle(scaledPageWidth, scaledPageHeight));
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));
 
             document.open();
             PdfContentByte content = writer.getDirectContent();
-            Graphics2D graphics = new PdfGraphics2D(content, width, height);
+            Graphics2D graphics = new PdfGraphics2D(content, scaledPageWidth, scaledPageHeight);
+            graphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
             Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
             Graphics2DExporter.drawGeometryWithDrawingSet(exportTask, graphics, plottingTask.getDrawingSet(), geometries);

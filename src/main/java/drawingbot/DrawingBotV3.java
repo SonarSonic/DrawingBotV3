@@ -110,6 +110,7 @@ public class DrawingBotV3 {
 
     //VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
+    public static int PDF_DPI = 72;
 
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public final SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
