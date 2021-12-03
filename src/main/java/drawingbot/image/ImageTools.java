@@ -302,6 +302,10 @@ public class ImageTools {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
+    public static java.awt.Color getAWTFromFXColor(Color color){
+        return new java.awt.Color((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), (float) color.getOpacity());
+    }
+    
     public static String toHex(int argb){
         int r = (argb>>16)&0xff;
         int g = (argb>>8)&0xff;

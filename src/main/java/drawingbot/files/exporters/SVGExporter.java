@@ -63,6 +63,37 @@ public class SVGExporter {
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
             }
 
+            /////BACKGROUND
+            // Create a fresh document to draw background
+            Document backgroundGraphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
+
+            // Create a new instance of the SVG Generator for the new background document
+            SVGGraphics2D backgroundGraphics = new SVGGraphics2D(backgroundGraphicsDocument);
+            Element background = backgroundGraphicsDocument.createElementNS(SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG);
+
+            background.setAttribute("id", "Background");
+            if(inkscape){
+                background.setAttribute("inkscape:groupmode", "layer");
+                background.setAttribute("inkscape:label", "Background");
+            }
+
+            // Draw the background
+            backgroundGraphics.setTopLevelGroup(background);
+            backgroundGraphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
+            backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
+
+            Graphics2DExporter.drawBackground(exportTask, backgroundGraphics, width, height);
+            Graphics2DExporter.preDraw(exportTask, backgroundGraphics, width, height, plottingTask);
+            Graphics2DExporter.postDraw(exportTask, backgroundGraphics, width, height, plottingTask);
+
+            // Transfer the background graphics document into the host document
+            if(background.hasChildNodes()){
+                Node graphicsNode = document.importNode(background, true);
+                svgRoot.appendChild(graphicsNode);
+                backgroundGraphics.dispose();
+            }
+
+            /////PENS            
             ObservableDrawingSet drawingSet = plottingTask.plottedDrawing.drawingPenSet;
             int[] renderOrder = drawingSet.calculateRenderOrder();
             for (int p = renderOrder.length-1; p >= 0; p --) {
