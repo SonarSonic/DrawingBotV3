@@ -275,7 +275,7 @@ public class JavaFXRenderer extends AbstractRenderer {
             case FINISHED:
                 EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
                 if(shouldRedraw){
-                    clearCanvas(blendMode.additive ? Color.BLACK : Color.WHITE);
+                    clearCanvas();
                     renderedLines = renderedTask.plottedDrawing.getDisplayedGeometryCount()-1;
                     DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
                     DrawingBotV3.INSTANCE.updateLocalProgress(0);
@@ -317,7 +317,7 @@ public class JavaFXRenderer extends AbstractRenderer {
     }
 
     public void clearCanvas(){
-        clearCanvas(Color.WHITE);
+        clearCanvas(DrawingBotV3.INSTANCE.canvasColor.getValue());
     }
 
     public void clearCanvas(Color color){

@@ -35,6 +35,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 public class DrawingBotV3 {
 
@@ -58,6 +59,8 @@ public class DrawingBotV3 {
 
     public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
     public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
+    
+    public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
 
     //VPYPE SETTINGS
     public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
