@@ -1,11 +1,18 @@
 package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.FileUtils;
 import javafx.concurrent.Task;
+import org.jcodec.api.FrameGrab;
+import org.jcodec.api.JCodecException;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.common.model.Picture;
+import org.jcodec.scale.AWTUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +50,17 @@ public class BufferedImageLoader extends Task<BufferedImage> {
     }
 
     public static BufferedImage loadImage(String url, boolean internal) throws IOException {
+
+        boolean isVideo = FileUtils.matchesExtensionFilter(FileUtils.getExtension(url), FileUtils.IMPORT_VIDEOS);
+        if(isVideo){
+            try {
+                return loadImageFromVideo(url);
+            } catch (JCodecException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
         InputStream stream;
         if(internal){
             stream = DrawingBotV3.class.getClassLoader().getResourceAsStream(url);
@@ -55,7 +73,18 @@ public class BufferedImageLoader extends Task<BufferedImage> {
             img = ImageIO.read(stream);
         }
 
-        //convert the image to the default ARGB format.
+        return convertToARGB(img);
+    }
+
+    /**
+     * Loads the first image from a video
+     */
+    public static BufferedImage loadImageFromVideo(String url) throws IOException, JCodecException {
+        Picture picture = FrameGrab.getFrameFromFile(new File(url), 0);
+        return convertToARGB(AWTUtil.toBufferedImage(picture));
+    }
+
+    public static BufferedImage convertToARGB(BufferedImage img){
         if(img != null){
             BufferedImage optimalImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphics = optimalImg.createGraphics();

@@ -52,7 +52,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
             PrintResolution thumbnailResolution = PrintResolution.copy(DrawingBotV3.INSTANCE.getActiveTask().resolution);
             thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(ExportFormats.EXPORT_IMAGE, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, ".jpg", saveLocation, false, true, true, thumbnailResolution);
+            ExportTask task = new ExportTask(ExportFormats.EXPORT_IMAGE, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
             DrawingBotV3.INSTANCE.backgroundService.submit(task);
         }else{
             preset.data.thumbnailID = "";
@@ -112,7 +112,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.imageFlipVertical.set(preset.data.imageFlipVertical);
 
         DrawingBotV3.INSTANCE.optimiseForPrint.set(preset.data.optimiseForPrint);
-        DrawingBotV3.INSTANCE.targetPenWidth.set(preset.data.targetPenWidth);
+        DrawingBotV3.INSTANCE.controller.textFieldPenWidth.setText("" + preset.data.targetPenWidth); //works but ugly!
         DrawingBotV3.INSTANCE.colourSplitter.set(preset.data.colourSplitter);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.set(preset.data.distributionType);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(preset.data.distributionOrder);
@@ -124,7 +124,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.keyMultiplier.set(preset.data.keyMultiplier);
 
         if(!preset.data.imagePath.isEmpty()){
-            Platform.runLater(() -> DrawingBotV3.INSTANCE.openImage(new File(preset.data.imagePath), false));
+            Platform.runLater(() -> DrawingBotV3.INSTANCE.openFile(new File(preset.data.imagePath), false));
         }
     }
 

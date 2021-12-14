@@ -30,7 +30,7 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
      * @return a default method for creating a new preset
      */
     public GenericPreset<O> createNewPreset(){
-        return createNewPreset("", "New Preset", true);
+        return createNewPreset("User", "New Preset", true);
     }
 
     /**

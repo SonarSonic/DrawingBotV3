@@ -7,12 +7,16 @@ import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
 import drawingbot.plotting.PlottingTask;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.control.Dialog;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 public class ExportTask extends Task<Boolean> {
@@ -25,6 +29,7 @@ public class ExportTask extends Task<Boolean> {
     public final boolean seperatePens;
     public final boolean overwrite;
     public final boolean forceBypassOptimisation;
+    public final boolean isSubTask;
 
     private String error = null;
     public int totalGeometries;
@@ -32,7 +37,7 @@ public class ExportTask extends Task<Boolean> {
 
     public PrintResolution exportResolution;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation, PrintResolution exportResolution){
+    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask, PrintResolution exportResolution){
         this.format = format;
         this.plottingTask = plottingTask;
         this.pointFilter = pointFilter;
@@ -41,6 +46,7 @@ public class ExportTask extends Task<Boolean> {
         this.seperatePens = seperatePens;
         this.overwrite = overwrite;
         this.forceBypassOptimisation = forceBypassOptimisation;
+        this.isSubTask = isSubTask;
         this.exportResolution = exportResolution;
     }
 
@@ -51,8 +57,32 @@ public class ExportTask extends Task<Boolean> {
     }
 
     @Override
-    protected Boolean call() {
+    protected Boolean call() throws InterruptedException {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
+
+        if(!isSubTask){
+            //show confirmation dialog, for special formats
+            if(format.confirmDialog != null){
+                CountDownLatch latch = new CountDownLatch(1);
+                AtomicReference<Boolean> result = new AtomicReference<>(false);
+                Platform.runLater(() -> {
+                    Dialog<Boolean> hpglDialog = format.confirmDialog.apply(this);
+                    hpglDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
+                    hpglDialog.setOnHidden(e -> latch.countDown());
+                    hpglDialog.showAndWait();
+                });
+
+                latch.await();
+
+                if(!result.get()){
+                    DrawingBotV3.logger.info("Export Task: Cancelled " + saveLocation.getPath());
+                    updateProgress(1,1);
+                    return false;
+                }
+            }
+        }
+
+
         error = null;
         if(!seperatePens){
             updateTitle(format.displayName + ": 1 / 1" + " - " + saveLocation.getPath());

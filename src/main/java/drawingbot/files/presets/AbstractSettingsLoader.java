@@ -10,10 +10,12 @@ import javafx.collections.ObservableList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractSettingsLoader<O extends AbstractJsonData> extends AbstractPresetLoader<O> {
 
     public ObservableList<GenericPreset<O>> presets = FXCollections.observableArrayList();
+
     public List<GenericSetting<?, ?>> settings = new ArrayList<>();
 
     public AbstractSettingsLoader(Class<O> dataType, EnumJsonType type, String configFile) {
@@ -66,5 +68,33 @@ public abstract class AbstractSettingsLoader<O extends AbstractJsonData> extends
         return userCreated;
     }
 
+    public List<String> getPresetSubTypes(){
+        List<String> subTypes = new ArrayList<>();
+        for (GenericPreset<O> preset : presets) {
+            if (!preset.presetSubType.isEmpty() && !subTypes.contains(preset.presetSubType)) {
+                subTypes.add(preset.presetSubType);
+            }
+        }
+        return subTypes;
+    }
+
+    public List<GenericPreset<O>> getPresetsForSubType(String subType){
+        List<GenericPreset<O>> subPresets = new ArrayList<>();
+        for (GenericPreset<O> preset : presets) {
+            if (preset.presetSubType.equals(subType)) {
+                subPresets.add(preset);
+            }
+        }
+        return subPresets;
+    }
+
+    public GenericPreset<O> getDefaultPresetsForSubType(String subType){
+        for (GenericPreset<O> preset : presets) {
+            if (preset.presetSubType.equals(subType)) {
+                return preset;
+            }
+        }
+        return null;
+    }
 
 }

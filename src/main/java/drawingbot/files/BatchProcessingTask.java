@@ -85,11 +85,11 @@ public class BatchProcessingTask extends Task<Boolean> {
                             if(BatchProcessing.overwriteExistingFiles.get() || task.hasMissingFiles(outputFolder, simpleFileName, drawingPenSet)){
                                 File saveLocation = new File(outputFolder + "\\" + simpleFileName + task.getCleanExtension());
                                 if(task.enablePerDrawing.get()){
-                                    tasks.add(new ExportTask(task.format, internalTask, IGeometry.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, false, BatchProcessing.overwriteExistingFiles.get(), false, internalTask.resolution));
+                                    tasks.add(new ExportTask(task.format, internalTask, IGeometry.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, false, BatchProcessing.overwriteExistingFiles.get(), false, true, internalTask.resolution));
 
                                 }
                                 if(task.enablePerPen.get()){
-                                    tasks.add(new ExportTask(task.format, internalTask, IGeometry.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, true, BatchProcessing.overwriteExistingFiles.get(), false, internalTask.resolution));
+                                    tasks.add(new ExportTask(task.format, internalTask, IGeometry.DEFAULT_FILTER, task.getCleanExtension(), saveLocation, true, BatchProcessing.overwriteExistingFiles.get(), false, true, internalTask.resolution));
                                 }
                             }
                         }

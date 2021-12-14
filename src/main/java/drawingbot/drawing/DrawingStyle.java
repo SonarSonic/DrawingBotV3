@@ -2,6 +2,7 @@ package drawingbot.drawing;
 
 import com.google.gson.JsonElement;
 import drawingbot.api.IDrawingStyle;
+import drawingbot.image.ImageTools;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import javafx.scene.paint.Color;
@@ -16,7 +17,8 @@ public class DrawingStyle implements IDrawingStyle {
     public String pfm;
     public HashMap<String, JsonElement> settings;
     public int weight;
-    public Color maskColor = null; // could be null
+    public int argb = -1;
+    public transient Color maskColor = null; // could be null
 
     public DrawingStyle(){}
 
@@ -35,6 +37,7 @@ public class DrawingStyle implements IDrawingStyle {
         this.settings = settings;
         this.weight = weight;
         this.maskColor = maskColor;
+        this.argb = ImageTools.getARGBFromColor(maskColor);
     }
 
     @Override
@@ -69,6 +72,9 @@ public class DrawingStyle implements IDrawingStyle {
 
     @Override
     public Color getMaskColor() {
+        if(maskColor == null){
+            maskColor = ImageTools.getColorFromARGB(argb);
+        }
         return maskColor;
     }
 

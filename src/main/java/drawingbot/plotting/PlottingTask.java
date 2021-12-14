@@ -2,6 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.files.exporters.HPGLBuilder;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.geom.PathBuilder;
@@ -10,6 +11,7 @@ import drawingbot.image.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
@@ -302,20 +304,26 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         return transform;
     }
 
-    public AffineTransform createHPGLTransform(){
+    public AffineTransform createHPGLTransform(EnumRotation rotation){
         AffineTransform transform = new AffineTransform();
-
-        ///move into print scale
         transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
 
-        //g-code y numbers go the other way
-        transform.translate(0, resolution.getScaledHeight());
-
-        //move with pre-scaled offsets
-        transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
-
-        //flip y coordinates
-        transform.scale(1, -1);
+        switch (rotation){
+            case R0:
+                break;
+            case R90:
+                transform.rotate(Math.toRadians(90), 0, 0);
+                transform.translate(resolution.getScaledHeight()-resolution.getScaledWidth(), -resolution.getScaledHeight());
+                break;
+            case R180:
+                transform.rotate(Math.toRadians(180), 0, 0);
+                transform.translate(-resolution.getScaledWidth(), -resolution.getScaledHeight());
+                break;
+            case R270:
+                transform.rotate(Math.toRadians(270));
+                transform.translate(-resolution.getScaledHeight(), 0);
+                break;
+        }
 
         return transform;
     }

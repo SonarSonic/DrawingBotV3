@@ -57,6 +57,7 @@ public class Register {
         //MasterRegistry.INSTANCE.registerPFM(PFMDoddCurvesV2.class, "Dodd Curve V2 PFM", PFMDoddCurvesV2::new, true, true);
         MasterRegistry.INSTANCE.registerPFM(PFMContinuousCurve.class, "Continuous Curve PFM", PFMContinuousCurve::new, true, true);
         //MasterRegistry.INSTANCE.registerPFM(PFMContinousSplineTest.class, "PFMContinousSplineTest", PFMContinousSplineTest::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
 
         ////GENERAL
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value));

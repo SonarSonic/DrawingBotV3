@@ -24,6 +24,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -46,14 +48,18 @@ import java.util.logging.Level;
 public class FXHelper {
 
     public static void importImageFile(){
-        importFile(file -> DrawingBotV3.INSTANCE.openImage(file, false));
+        importFile(file -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_IMAGES);
     }
 
-    public static void importFile(Consumer<File> callback){
+    public static void importVideoFile(){
+        importFile(file -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_VIDEOS);
+    }
+
+    public static void importFile(Consumer<File> callback, FileChooser.ExtensionFilter filter){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().add(FileUtils.IMPORT_IMAGES);
-            d.setTitle("Select an image file to sketch");
+            d.getExtensionFilters().add(filter);
+            d.setTitle("Select an image file to import");
             d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
@@ -174,7 +180,7 @@ public class FXHelper {
         }
     }
 
-    public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> presetManager, MenuButton button, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
+    public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> presetManager, MenuButton button, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
 
         MenuItem newPreset = new MenuItem("Save Preset");
         MenuItem updatePreset = new MenuItem("Update Preset");
@@ -191,7 +197,7 @@ public class FXHelper {
             }
             editingPreset = presetManager.tryUpdatePreset(editingPreset);
             if(editingPreset != null){
-                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset);
+                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
                 DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
                 Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
                 if(result.isPresent()){
@@ -218,7 +224,7 @@ public class FXHelper {
             if(current == null || !current.userCreated){
                 return;
             }
-            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current);
+            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current, editableCategory);
             DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Rename preset");
             Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
             if(result.isPresent()){
@@ -340,6 +346,19 @@ public class FXHelper {
                 }
             }
         }
+    }
+
+
+    public static void addText(TextFlow flow, String style, String text){
+        Text textNode = new Text(text);
+        textNode.setStyle(style);
+        flow.getChildren().add(textNode);
+    }
+
+    public static void addText(TextFlow flow, int size, String weight, String text){
+        Text textNode = new Text(text);
+        textNode.setStyle("-fx-font-size: "+ size +"px; -fx-font-weight: " + weight);
+        flow.getChildren().add(textNode);
     }
 
 }

@@ -50,7 +50,7 @@ public class FXVPypeController {
         });
         comboBoxVPypePreset.setValue(PresetVpypeSettingsLoader.getPresetOrDefault(ConfigFileHandler.getApplicationSettings().vPypePresetName));
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.VPYPE_SETTINGS, menuButtonVPypePresets, comboBoxVPypePreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.VPYPE_SETTINGS, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
             comboBoxVPypePreset.setValue(preset);
 
             ///force update rendering

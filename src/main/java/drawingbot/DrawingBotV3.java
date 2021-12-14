@@ -5,13 +5,13 @@
 package drawingbot;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.IGeometryFilter;
+import drawingbot.files.serial.SerialConnection;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
@@ -32,6 +32,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -80,16 +81,29 @@ public class DrawingBotV3 {
     public final SimpleStringProperty gcodeEndLayerCode = new SimpleStringProperty();
 
     //HPGL SETTINGS
-    public final SimpleFloatProperty hpglUnits = new SimpleFloatProperty(40);
-    public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(6);
-    public final SimpleFloatProperty hpglXMin = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty hpglYMin = new SimpleFloatProperty(11040);
-    public final SimpleBooleanProperty hpglYAxisFlip  = new SimpleBooleanProperty(true);
-    public final SimpleObjectProperty<EnumImageRotate> hpglRotation = new SimpleObjectProperty<>(EnumImageRotate.R0);
+    public final SimpleIntegerProperty hpglUnits = new SimpleIntegerProperty(40);
+
+    public final SimpleIntegerProperty hpglXMin = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty hpglXMax = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty hpglYMin = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty hpglYMax = new SimpleIntegerProperty(0);
+
+    public final SimpleBooleanProperty hpglXAxisMirror = new SimpleBooleanProperty(false);
+    public final SimpleBooleanProperty hpglYAxisMirror = new SimpleBooleanProperty(true);
+
+    public final SimpleObjectProperty<EnumAlignment> hpglAlignX = new SimpleObjectProperty<>(EnumAlignment.CENTER);
+    public final SimpleObjectProperty<EnumAlignment> hpglAlignY = new SimpleObjectProperty<>(EnumAlignment.CENTER);
+
+    public final SimpleObjectProperty<EnumRotation> hpglRotation = new SimpleObjectProperty<>(EnumRotation.AUTO);
+    public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(6F);
+
+    public final SimpleIntegerProperty hpglPenSpeed = new SimpleIntegerProperty(0);
+
+
 
     //PRE-PROCESSING\\
     public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
-    public final SimpleObjectProperty<EnumImageRotate> imageRotation = new SimpleObjectProperty<>(EnumImageRotate.R0);
+    public final SimpleObjectProperty<EnumRotation> imageRotation = new SimpleObjectProperty<>(EnumRotation.R0);
     public final SimpleBooleanProperty imageFlipHorizontal = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
 
@@ -126,6 +140,7 @@ public class DrawingBotV3 {
     public ExecutorService backgroundService = initBackgroundService();
     public ExecutorService imageFilteringService = initImageFilteringService();
     public ExecutorService parallelPlottingService = initParallelPlottingService();
+    public ExecutorService serialConnectionWriteService = initSerialConnectionService();
 
     public TaskMonitor taskMonitor = new TaskMonitor(taskService);
 
@@ -138,6 +153,8 @@ public class DrawingBotV3 {
 
     public BufferedImageLoader.Filtered loadingImage = null;
     public File openFile = null;
+
+    public SerialConnection serialConnection = new SerialConnection();
 
     // GUI \\
     public FXController controller;
@@ -218,6 +235,8 @@ public class DrawingBotV3 {
             controller.labelImageResolution.setText("0 x 0");
             controller.labelPlottingResolution.setText("0 x 0");
         }
+
+        controller.serialConnectionController.tick();
 
     }
 
@@ -328,11 +347,13 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void openImage(File file, boolean internal){
-        if(FileUtils.getExtension(file.toString()).equalsIgnoreCase(".drawingbotv3")){
+    public void openFile(File file, boolean internal){
+        String extension = FileUtils.getExtension(file.toString());
+        if(extension.equalsIgnoreCase(".drawingbotv3")){
             FXHelper.loadPresetFile(EnumJsonType.PROJECT_PRESET, file, true);
             return;
         }
+
         if(activeTask.get() != null){
             activeTask.get().cancel();
             setActivePlottingTask(null);
@@ -345,6 +366,7 @@ public class DrawingBotV3 {
 
         FXApplication.primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
     }
+
 
     public void setActivePlottingTask(PlottingTask task){
         if(activeTask.get() != null){
@@ -369,14 +391,21 @@ public class DrawingBotV3 {
 
     //// EXPORT TASKS
 
-    public ExportTask createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
+    public Task<?> createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
         return createExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, plottingTask.resolution);
     }
 
-    public ExportTask createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
-        ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, resolution);
-        taskMonitor.queueTask(task);
-        return task;
+    public Task<?> createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
+        boolean isVideo = FileUtils.matchesExtensionFilter(FileUtils.getExtension(plottingTask.originalFile.toString()), FileUtils.IMPORT_VIDEOS);
+        if(isVideo){
+            VideoProcessingTask task = new VideoProcessingTask(plottingTask.originalFile, format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, resolution);
+            taskMonitor.queueTask(task);
+            return task;
+        }else{
+            ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, false, resolution);
+            taskMonitor.queueTask(task);
+            return task;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -480,6 +509,15 @@ public class DrawingBotV3 {
     public ExecutorService initParallelPlottingService(){
         return Executors.newFixedThreadPool(5, r -> {
             Thread t = new Thread(r, "DrawingBotV3 - Parallel Plotting Service");
+            t.setDaemon(true);
+            t.setUncaughtExceptionHandler(exceptionHandler);
+            return t;
+        });
+    }
+
+    public ExecutorService initSerialConnectionService(){
+        return Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "DrawingBotV3 - Serial Connection Writing Service");
             t.setDaemon(true);
             t.setUncaughtExceptionHandler(exceptionHandler);
             return t;

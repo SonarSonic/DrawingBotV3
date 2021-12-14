@@ -1,7 +1,7 @@
 package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.utils.EnumImageRotate;
+import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumScalingMode;
 
 import java.awt.geom.AffineTransform;
@@ -13,7 +13,7 @@ public class PrintResolution {
     //// SOURCE RESOLUTION \\\\
 
     //the original images dimensions, in PX
-    public final EnumImageRotate imageRotation;
+    public final EnumRotation imageRotation;
     public final boolean imageFlipHorizontal;
     public final boolean imageFlipVertical;
 
@@ -80,11 +80,11 @@ public class PrintResolution {
         this(DrawingBotV3.INSTANCE.imageRotation.get(), DrawingBotV3.INSTANCE.imageFlipHorizontal.get(), DrawingBotV3.INSTANCE.imageFlipVertical.get(), src);
     }
 
-    public PrintResolution(EnumImageRotate imageRotation, boolean flipHorizontal, boolean flipVertical, BufferedImage src){
+    public PrintResolution(EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical, BufferedImage src){
         this(imageRotation, flipHorizontal, flipVertical, src.getWidth(), src.getHeight());
     }
 
-    public PrintResolution(EnumImageRotate imageRotation, boolean flipHorizontal, boolean flipVertical, int originalWidth, int originalHeight){
+    public PrintResolution(EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical, int originalWidth, int originalHeight){
         this.imageRotation = imageRotation;
         this.imageFlipHorizontal = flipHorizontal;
         this.imageFlipVertical = flipVertical;
