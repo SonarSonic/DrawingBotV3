@@ -33,10 +33,6 @@ public class Utils {
         return s;
     }
 
-    public static String hpglValue(float f){
-        return String.valueOf((int)(f * DrawingBotV3.INSTANCE.hpglUnits.get()));
-    }
-
     public static String capitalize(String name) {
         if (name != null && name.length() != 0) {
             char[] chars = name.toLowerCase().toCharArray();

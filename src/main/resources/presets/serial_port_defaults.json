@@ -1,0 +1,21 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "serial_port_config",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "baudRate": "9600",
+          "stopBits": "1 bit",
+          "parity": "None",
+          "dataBits": "8 bits",
+          "portName": "COM9",
+          "flowControl": "RTS/CTS"
+        }
+      }
+    }
+  ]
+}

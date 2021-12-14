@@ -38,7 +38,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -99,10 +98,14 @@ public class FXController {
     public Stage mosaicSettingsStage;
     public FXStylesController mosaicController;
 
+    public Stage serialConnectionSettingsStage;
+    public FXSerialConnectionController serialConnectionController;
+
     public void initSeparateStages() {
         FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings");
         FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings");
         FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings");
+        FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", serialConnectionSettingsStage = new Stage(), serialConnectionController = new FXSerialConnectionController(), "Plotting / Serial Port Connection");
     }
 
 
@@ -142,6 +145,10 @@ public class FXController {
         menuImport.setOnAction(e -> FXHelper.importImageFile());
         menuFile.getItems().add(menuImport);
 
+        MenuItem menuVideo = new MenuItem("Import Video");
+        menuVideo.setOnAction(e -> FXHelper.importVideoFile());
+        menuFile.getItems().add(menuVideo);
+
         menuFile.getItems().add(new SeparatorMenuItem());
 
         Menu menuExport = new Menu("Export per/drawing");
@@ -162,6 +169,12 @@ public class FXController {
         menuExportPerPen.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExportPerPen);
 
+        menuFile.getItems().add(new SeparatorMenuItem());
+
+        MenuItem serialPortExport = new MenuItem("Export to Serial Port");
+        serialPortExport.setOnAction(e -> serialConnectionSettingsStage.show());
+        menuFile.getItems().add(serialPortExport);
+
         MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
         menuExportToVPype.setOnAction(e -> {
             if(DrawingBotV3.INSTANCE.getActiveTask() != null){
@@ -169,6 +182,7 @@ public class FXController {
             }
         });
         menuExportToVPype.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+
         menuFile.getItems().add(menuExportToVPype);
 
         menuFile.getItems().add(new SeparatorMenuItem());
@@ -298,7 +312,6 @@ public class FXController {
             if (event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.LINK);
             }
-
             event.consume();
         });
 
@@ -306,9 +319,9 @@ public class FXController {
 
             Dragboard db = event.getDragboard();
             boolean success = false;
-            if(db.hasContent(DataFormat.FILES)){
-                List<File> files = (List<File>) db.getContent(DataFormat.FILES);
-                DrawingBotV3.INSTANCE.openImage(files.get(0), false);
+            if(db.hasFiles()){
+                List<File> files = db.getFiles();
+                DrawingBotV3.INSTANCE.openFile(files.get(0), false);
                 success = true;
             }
             event.setDropCompleted(success);
@@ -425,7 +438,7 @@ public class FXController {
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_AREA, menuButtonDrawingAreaPresets, comboBoxDrawingAreaPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_AREA, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
             comboBoxDrawingAreaPreset.setValue(preset);
 
             ///force update rendering
@@ -532,7 +545,7 @@ public class FXController {
     public ComboBox<GenericFactory<BufferedImageOp>> comboBoxImageFilter = null;
     public Button buttonAddFilter = null;
 
-    public ChoiceBox<EnumImageRotate> choiceBoxRotation = null;
+    public ChoiceBox<EnumRotation> choiceBoxRotation = null;
     public CheckBox checkBoxFlipX = null;
     public CheckBox checkBoxFlipY = null;
 
@@ -545,7 +558,7 @@ public class FXController {
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.FILTERS, menuButtonFilterPresets, comboBoxImageFilterPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.FILTERS, menuButtonFilterPresets, false, comboBoxImageFilterPreset::getValue, (preset) -> {
             comboBoxImageFilterPreset.setValue(preset);
 
             ///force update rendering
@@ -595,8 +608,8 @@ public class FXController {
             }
         });
 
-        choiceBoxRotation.setItems(FXCollections.observableArrayList(EnumImageRotate.values()));
-        choiceBoxRotation.setValue(EnumImageRotate.R0);
+        choiceBoxRotation.setItems(FXCollections.observableArrayList(EnumRotation.DEFAULTS));
+        choiceBoxRotation.setValue(EnumRotation.R0);
         choiceBoxRotation.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.imageRotation);
 
         checkBoxFlipX.setSelected(false);
@@ -646,7 +659,7 @@ public class FXController {
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.PFM, menuButtonPFMPresets, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering
@@ -748,7 +761,7 @@ public class FXController {
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet());
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_SET, menuButtonDrawingSetPresets,
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_SET, menuButtonDrawingSetPresets, false,
             () -> {
             if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
                 PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
@@ -837,7 +850,7 @@ public class FXController {
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(true));
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(false));
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_PENS, menuButtonDrawingPenPresets,
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_PENS, menuButtonDrawingPenPresets, false,
             () -> {
                 if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
                     PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();

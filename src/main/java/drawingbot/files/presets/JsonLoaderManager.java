@@ -27,7 +27,9 @@ public class JsonLoaderManager {
     public static final ConfigJsonLoader CONFIGS = new ConfigJsonLoader();
     public static final PresetGCodeSettingsLoader GCODE_SETTINGS = new PresetGCodeSettingsLoader();
     public static final PresetVpypeSettingsLoader VPYPE_SETTINGS = new PresetVpypeSettingsLoader();
-    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PROJECT, PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS, VPYPE_SETTINGS};
+    public static final PresetHPGLSettingsLoader HPGL_SETTINGS = new PresetHPGLSettingsLoader();
+    public static final PresetSerialPortSettingsLoader SERIAL_PORT_CONFIGS = new PresetSerialPortSettingsLoader();
+    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PROJECT, PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS, VPYPE_SETTINGS, HPGL_SETTINGS, SERIAL_PORT_CONFIGS};
 
     /** used to prevent certain values from being serialized, transient achives the same thing*/
     public static final ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
@@ -82,6 +84,8 @@ public class JsonLoaderManager {
         loadDefaultPresetContainerJSON("drawing_area_defaults.json");
         loadDefaultPresetContainerJSON("gcode_settings_defaults.json");
         loadDefaultPresetContainerJSON("vpype_settings_defaults.json");
+        loadDefaultPresetContainerJSON("hpgl_settings_defaults.json");
+        loadDefaultPresetContainerJSON("serial_port_defaults.json");
 
         //load user presets
         for(AbstractJsonLoader<?> manager : LOADERS){

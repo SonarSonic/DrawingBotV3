@@ -1,0 +1,378 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7440",
+      "presetName": "MET A4",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7650",
+          "hpglXMax": "10900",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7440",
+      "presetName": "US A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7650",
+          "hpglXMax": "10300",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7475",
+      "presetName": "MET A3",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "11040",
+          "hpglXMax": "16158",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7475",
+      "presetName": "MET A4",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7721",
+          "hpglXMax": "11040",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7475",
+      "presetName": "US A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7962",
+          "hpglXMax": "10365",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7475",
+      "presetName": "US B",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "10365",
+          "hpglXMax": "16640",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7550",
+      "presetName": "MET A3",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "10870",
+          "hpglXMax": "15970",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7550",
+      "presetName": "MET A4",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7600",
+          "hpglXMax": "10870",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7550",
+      "presetName": "US B",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "10170",
+          "hpglXMax": "16540",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "HP 7550",
+      "presetName": "US A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7840",
+          "hpglXMax": "10170",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "MET A1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-11880",
+          "hpglXMin": "-17300",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "11880",
+          "hpglXMax": "16340",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "MET A2",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-8400",
+          "hpglXMin": "-12360",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "8400",
+          "hpglXMax": "11400",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "MET A3",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-5940",
+          "hpglXMin": "-8880",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "5940",
+          "hpglXMax": "3720",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "MET A4",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-5940",
+          "hpglXMin": "-4680",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "5940",
+          "hpglXMax": "3720",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "US D",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-11180",
+          "hpglXMin": "-17750",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "11180",
+          "hpglXMax": "16790",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "US C",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-8640",
+          "hpglXMin": "-11660",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "8640",
+          "hpglXMax": "10700",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "US B",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-5590",
+          "hpglXMin": "-9120",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "5590",
+          "hpglXMax": "8160",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DPX 3300",
+      "presetName": "US A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "-5590",
+          "hpglXMin": "-4800",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "5590",
+          "hpglXMax": "3840",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DXY 1XXX",
+      "presetName": "MET A3",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "11040",
+          "hpglXMax": "16158",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DXY 1XXX",
+      "presetName": "MET A4",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7721",
+          "hpglXMax": "11040",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DXY 1XXX",
+      "presetName": "US B",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "10365",
+          "hpglXMax": "16640",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    },
+    {
+      "presetType": "hpgl_settings",
+      "version": 1,
+      "presetSubType": "Roland DXY 1XXX",
+      "presetName": "US A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "hpglYMin": "0",
+          "hpglXMin": "0",
+          "hpglYAxisMirror": "false",
+          "hpglYMax": "7962",
+          "hpglXMax": "10365",
+          "hpglXAxisMirror": "false"
+        }
+      }
+    }
+  ]
+}

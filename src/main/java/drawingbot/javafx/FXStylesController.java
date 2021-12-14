@@ -225,7 +225,7 @@ public class FXStylesController {
 
 
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.PFM, menuButtonPFMPresets, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(JsonLoaderManager.PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering

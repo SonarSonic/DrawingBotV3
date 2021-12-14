@@ -291,6 +291,9 @@ public class ImageTools {
     }
 
     public static int getARGBFromColor(Color color){
+        if(color == null){
+            return -1;
+        }
         return getARGB((int)(color.getOpacity() * 255F), (int)(color.getRed() * 255F), (int)(color.getGreen() * 255F), (int)(color.getBlue() * 255F));
     }
 

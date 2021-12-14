@@ -1,6 +1,7 @@
 package drawingbot.javafx.settings;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.FileUtils;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericSetting;
@@ -39,9 +40,7 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
         Button button = new Button("Select Image");
 
-        button.setOnAction(event -> FXHelper.importFile(file -> {
-            value.set(file.getPath());
-        }));
+        button.setOnAction(event -> FXHelper.importFile(file -> value.set(file.getPath()), FileUtils.IMPORT_IMAGES));
 
         value.addListener((observable, oldValue, newValue) -> {
             BufferedImageLoader loader = new BufferedImageLoader(newValue, false);

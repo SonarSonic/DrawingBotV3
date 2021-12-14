@@ -42,6 +42,7 @@ dependencies {
     implementation 'org.jcodec:jcodec-javase:0.2.5'
     implementation 'org.apache.bcel:bcel:6.5.0'
     implementation 'com.aparapi:aparapi:2.0.0'
+    implementation "com.fazecast:jSerialComm:2.7.0"
 
     //compile "org.controlsfx:controlsfx:${controlsfx_version}"
 

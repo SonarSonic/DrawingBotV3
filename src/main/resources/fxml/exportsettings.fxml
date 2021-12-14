@@ -7,7 +7,7 @@
 
 <AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TabPane minHeight="400.0" minWidth="400.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane minHeight="400.0" minWidth="400.0" rotateGraphic="true" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="Path Optimisation">
             <content>
@@ -148,7 +148,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab text="SVG Export">
+            <Tab text="SVG">
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
                      <children>
@@ -173,9 +173,160 @@
                      </children></AnchorPane>
                 </content>
             </Tab>
-          <Tab text="GCode Export">
+           <Tab text="HPGL">
+              <content>
+                 <AnchorPane fx:id="anchorPaneHPGLSettings" minHeight="180.0" minWidth="200.0" prefHeight="180.0" prefWidth="200.0">
+                    <children>
+                       <ComboBox fx:id="comboBoxHPGLPreset" layoutX="166.0" layoutY="9.0" prefHeight="25.0" prefWidth="150.0" promptText="New Preset Name" />
+                       <MenuButton fx:id="menuButtonHPGLPresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
+                        <VBox layoutX="11.0" layoutY="37.0" spacing="10.0">
+                           <children>
+                             <ScrollPane hbarPolicy="NEVER">
+                                <content>
+                                   <AnchorPane minHeight="0.0" minWidth="0.0">
+                                      <children>
+                                         <VBox prefHeight="101.0" prefWidth="379.0" spacing="4.0">
+                                            <children>
+                                               <HBox spacing="8.0">
+                                                  <children>
+                                                     <Label contentDisplay="RIGHT" text="Min:">
+                                                        <font>
+                                                           <Font name="System Bold" size="12.0" />
+                                                        </font>
+                                                         <graphic>
+                                                           <TextField fx:id="textFieldHPGLXMin" prefHeight="25.0" prefWidth="64.0" promptText="Min X" text="0" />
+                                                         </graphic>
+                                                     </Label>
+                                                      <TextField fx:id="textFieldHPGLYMin" prefHeight="25.0" prefWidth="64.0" promptText="Minx Y" text="0" />
+                                                      <Label contentDisplay="RIGHT" layoutX="131.0" layoutY="10.0" text="Max:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <TextField fx:id="textFieldHPGLXMax" prefHeight="25.0" prefWidth="64.0" promptText="Max X" text="0" />
+                                                         </graphic>
+                                                         <padding>
+                                                            <Insets left="15.0" />
+                                                         </padding>
+                                                      </Label>
+                                                      <TextField fx:id="textFieldHPGLYMax" prefHeight="25.0" prefWidth="64.0" promptText="Max Y" text="0" />
+                                                  </children>
+                                                   <padding>
+                                                      <Insets top="10.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <Separator prefHeight="20.0" prefWidth="200.0" />
+                                                <HBox spacing="88.0">
+                                                   <children>
+                                                      <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" text="X Axis Mirror :">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <CheckBox fx:id="checkBoxHPGLMirrorX" mnemonicParsing="false" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" text="Y Axis Mirror:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <CheckBox fx:id="checkBoxHPGLMirrorY" mnemonicParsing="false" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                </HBox>
+                                            </children>
+                                            <padding>
+                                               <Insets left="4.0" top="4.0" />
+                                            </padding>
+                                         </VBox>
+                                      </children>
+                                   </AnchorPane>
+                                </content>
+                             </ScrollPane>
+                              <ScrollPane prefHeight="160.0" prefWidth="381.0">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="153.0" prefWidth="361.0">
+                                       <children>
+                                          <VBox prefHeight="153.0" prefWidth="361.0" spacing="4.0">
+                                             <children>
+                                                <HBox spacing="42.0">
+                                                   <children>
+                                                      <Label contentDisplay="RIGHT" text="X Align:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <ChoiceBox fx:id="choiceBoxHPGLAlignX" prefWidth="100.0" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" text="Y Align:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <ChoiceBox fx:id="choiceBoxHPGLAlignY" prefWidth="100.0" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                   <padding>
+                                                      <Insets top="10.0" />
+                                                   </padding>
+                                                </HBox>
+                                                <Separator minHeight="20.0" prefHeight="20.0" prefWidth="20.0" />
+                                                <HBox spacing="40.0">
+                                                   <children>
+                                                      <Label contentDisplay="RIGHT" text="Rotation">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <ChoiceBox fx:id="choiceBoxHPGLRotation" prefWidth="100.0" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" text="Curve Flatness:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <TextField fx:id="textFieldHPGLCurveFlatness" prefHeight="25.0" prefWidth="60.0" text="0" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                </HBox>
+                                                <Separator minHeight="20.0" prefHeight="20.0" prefWidth="20.0" />
+                                                <HBox spacing="56.0">
+                                                   <children>
+                                                      <Label contentDisplay="RIGHT" text="Default Pen Speed:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <TextField fx:id="textFieldHPGLPenSpeed" prefHeight="25.0" prefWidth="60.0" text="0" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                             <padding>
+                                                <Insets left="4.0" top="4.0" />
+                                             </padding>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                        <ComboBox fx:id="comboBoxHPGLPresetCategory" layoutX="11.0" layoutY="9.0" prefHeight="25.0" prefWidth="150.0" promptText="New Preset Name" />
+                    </children>
+                 </AnchorPane>
+              </content>
+           </Tab>
+          <Tab text="GCode">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane fx:id="anchorPaneGCodeSettings" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                 <children>
                     <ComboBox fx:id="comboBoxGCodePreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
                     <MenuButton fx:id="menuButtonGCodePresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
@@ -257,7 +408,7 @@
           </Tab>
            <Tab text="Image Sequences">
               <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
+                 <AnchorPane fx:id="anchorPaneImgSeqSettings" minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="400.0">
                     <children>
                        <VBox prefHeight="46.0" prefWidth="400.0" spacing="10.0">
                           <padding>

@@ -80,6 +80,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
             if(updateProgress(task) || task.isFinished()){
                 task.finishProcess();
+
+/*
+                //TODO DELETE ME //FIXME
+                task.addGeometry(new GLine(-10 + task.getPixelData().getWidth()/2F, task.getPixelData().getHeight()/2F, 10 + task.getPixelData().getWidth()/2F, task.getPixelData().getHeight()/2F));
+
+                task.addGeometry(new GLine(task.getPixelData().getWidth()/2F, -10 + task.getPixelData().getHeight()/2F, task.getPixelData().getWidth()/2F, 10 + task.getPixelData().getHeight()/2F));
+*/
                 return;
             }
         }

@@ -13,7 +13,9 @@ public enum EnumJsonType {
     DRAWING_AREA("drawing_area"),
     GCODE_SETTINGS("gcode_settings"),
     VPYPE_SETTINGS("vpype_settings"),
-    PROJECT_PRESET("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT});
+    PROJECT_PRESET("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}),
+    HPGL_SETTINGS("hpgl_settings"),
+    SERIAL_PORT_CONFIG("serial_port_config");
 
     public final String id;
     public final FileChooser.ExtensionFilter[] filters;
