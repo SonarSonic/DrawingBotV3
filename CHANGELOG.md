@@ -2,7 +2,7 @@
 
 
 ### [v1.2.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.0-stable)
-- Added: HPGL Export - Export your images to in HPGL for sending to plotters.
+- Added: HPGL Export - Export your images to HPGL for sending to plotters.
     - You can configure your HPGL files with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.
     - If you're inputted the Hard-Clip limits you can use "Auto" rotation, to position your image correctly for you so you don't need to worry about if it's landscape or portrait!
     - Choose from presets for different plotter models and paper sizes

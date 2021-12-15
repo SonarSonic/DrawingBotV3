@@ -22,17 +22,20 @@ If you want to support the development of DrawingBotV3 you can [donate here](htt
 -  Automatic Path Optimisation for Faster Plots - Line Simplifying, Merging, Filtering, Sorting
 -  [Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html): configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.
 -  [Image Sequences](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings): You can export image sequences animations of your creations!
--  Version Control: Save your favourite versions as you go and reload them.
--  Project Saving & Loading
 -  [60+ Image Filters](https://drawingbotv3.readthedocs.io/en/latest/preprocessing.html) for pre processing the imported image
 -  Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)
--  [Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html) with live drawing preview
--  User configurable Drawing Area, with Padding / Scaling Modes 
+-  Plotter / Serial Port Connection: Connect to HPGL based plotters and control them of the serial port.
+-  [Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html) with live drawing preview 
+-  User configurable Drawing Area, with Padding / Scaling Modes
+-  Version Control: Save your favourite versions as you go and reload them.
+-  Project Saving & Loading
 -  [Special pens](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html#special-drawing-pens) for Original Colour/Grayscale Sampling
 -  [Presets](https://drawingbotv3.readthedocs.io/en/latest/presets.html): can be saved/imported/exported for sharing different styles with other users
 -  Exports can be exported per/pen or per/drawing in multiple file types
 -  [Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html): Convert entire folders of images automatically.
--  [GCode](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings) - configurable Drawing Area, XYZ Offsets / Auto Homing.
+-  Video Processing: Convert every frame from imported video files automatically
+-  HPGL Export - Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.
+-  [GCode Export](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings) - configurable Drawing Area, XYZ Offsets / Auto Homing.
 -  [vpype](https://github.com/abey79/vpype) Integration
 
 ### Path Finding Modules
@@ -62,11 +65,13 @@ More info [here](https://drawingbotv3.readthedocs.io/en/latest/pfms.html)
 ```text
 Import Formats: 
     Images: [.tif, .tga, .png, .jpg, .gif, .bmp, .jpeg] 
+    Videos: [.mp4, .mov, .avi]
        
 Export Formats: 
-    Vectors: [.svg, .pdf],
-    Images/Image Sequences: [.tif, .tga, .png, .jpg, .jpeg]
-    GCode: [.gcode, .txt],
+    Vectors: [.svg, .hpgl, .pdf],
+    Images/Image Sequences: [.png, .jpg, .jpeg, .tif, .tga]
+    Videos: [.mp4, .mov]
+    GCode: [.gcode, .txt],    
 ```
 
 # Installation
