@@ -85,7 +85,6 @@ public class VideoExporter {
         } finally {
             NIOUtils.closeQuietly(out);
         }
-        exportTask.exportResolution.updatePrintScale();
     }
 
 }

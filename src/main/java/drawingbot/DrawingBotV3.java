@@ -393,7 +393,7 @@ public class DrawingBotV3 {
     //// EXPORT TASKS
 
     public Task<?> createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
-        return createExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, plottingTask.resolution);
+        return createExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, PrintResolution.copy(plottingTask.resolution));
     }
 
     public Task<?> createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
