@@ -1,8 +1,32 @@
 # Change Log
 
 
+### [v1.2.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.0-stable)
+- Added: HPGL Export - Export your images to in HPGL for sending to plotters.
+    - You can configure your HPGL files with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.
+    - If you're inputted the Hard-Clip limits you can use "Auto" rotation, to position your image correctly for you so you don't need to worry about if it's landscape or portrait!
+    - Choose from presets for different plotter models and paper sizes
+    - When the export is complete you'll see a dialog indicating where pens should be loaded and the size of the HPGL File.
+    - If the drawing exceeds the Plotter's Hard-Clip limits you'll be notified.
+- Added: Serial Port Connection for Plotters! Send HPGL Files and commands directly from DrawingBotV3.
+    - Allows you to set the Serial Port, Baud Rate, Data Bits, Stop Bits, Parity and Flow Control
+    - Also including monitoring of the Progress, Bytes Sent, Elapsed Time, Remaining Time and the Plotters own buffer.
+    - Sending can also be paused when needed and resumed.
+    - Ability to detect the plotter being used and apply the recommended settings!
+    - The serial port connection runs in a seperate thread so you can continue using DrawingBot while your Drawing is plotting.
+    - It can also be used to send files not generated with DrawingBot and in fact will stream any .txt file over the serial port!
+- Added: Video Import - You can now import videos and process every frame automatically
+    - When you choose your export option this will apply to every frame in the video
+- Added: Configurable Canvas Colour - HanzPetrov
+- Added: Right-Click menu for Drawing Styles
+- Changed: Stroke end-caps will now default to ROUND - HanzPetrov
+- Changed: PDF exports will now match the print resolution not the image resolution - HanzPetrov
+- Fixed: Disabled pens will not output a file when exporting "per/pen"
+- Fixed: Mosaic Custom being uneditable when loaded from a preset
+- Fixed: Pen Width not being loaded with projects, or preventing them loading entirely.
+
 ### [v1.1.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.1.1-stable)
-- Fixed: Previous iterations of Voronoi Diagrams showing up in SVG exports.
+- Fixed: Previous iterations of Voronoi Diagrams showing up in SVG exports. (Random dots on the export)
 
 ### [v1.1.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.1.0-stable)
 - Added: Three New Path Finding Modules Mosaic Custom, Voronoi Tree and Voronoi TSP.

@@ -163,13 +163,13 @@ public class FXHelper {
         return null;
     }
 
-    public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle){
+    public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
         try {
             FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource(fmxlPath));
             exportUILoader.setController(controller);
 
             Scene scene = new Scene(exportUILoader.load());
-            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initModality(modality);
             stage.setScene(scene);
             stage.hide();
             stage.setTitle(stageTitle);

@@ -60,7 +60,9 @@ public class ExportTask extends Task<Boolean> {
     protected Boolean call() throws InterruptedException {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
 
+        //TODO FIX ISSUE WITH DIALOGS TURNING INVISIBLE IN THEIR ORIGINAL POSITION.
         if(!isSubTask){
+            updateTitle(format.displayName + ": " + saveLocation.getPath());
             //show confirmation dialog, for special formats
             if(format.confirmDialog != null){
                 CountDownLatch latch = new CountDownLatch(1);
@@ -75,8 +77,9 @@ public class ExportTask extends Task<Boolean> {
                 latch.await();
 
                 if(!result.get()){
+                    updateMessage("Cancelled");
                     DrawingBotV3.logger.info("Export Task: Cancelled " + saveLocation.getPath());
-                    updateProgress(1,1);
+                    updateProgress(0,1);
                     return false;
                 }
             }

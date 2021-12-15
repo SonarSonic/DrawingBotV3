@@ -20,8 +20,8 @@
                         <children>
                            <HBox layoutX="30.0" layoutY="255.0" prefHeight="30.0" prefWidth="220.0" spacing="4.0">
                               <children>
-                               <Button fx:id="buttonClosePort" cancelButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Close Port" />
-                                 <Button fx:id="buttonOpenPort" defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="126.0" text="Open Port" />
+                               <Button fx:id="buttonClosePort" cancelButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Close Port" />
+                                 <Button fx:id="buttonOpenPort" defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Open Port" />
                               </children>
                            </HBox>
                            <VBox fx:id="vBoxPortSettings" prefHeight="225.0" prefWidth="289.0" spacing="8.0">
@@ -77,7 +77,7 @@
                                       <TextArea fx:id="textAreaSerialOutput" editable="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="113.0" prefWidth="322.0" promptText="Serial Port Output" wrapText="true" />
                                  <HBox layoutX="34.0" layoutY="10.0" maxWidth="-Infinity" minWidth="200.0" prefHeight="25.0" prefWidth="370.0">
                                     <children>
-                                       <TextField fx:id="textFieldCommand" prefHeight="25.0" prefWidth="298.0" promptText="Send Command" />
+                                       <TextField fx:id="textFieldCommand" prefWidth="298.0" promptText="Send Command" />
                                        <Button fx:id="buttonSendCommand" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" text="Send" />
                                     </children>
                                     <padding>
@@ -101,8 +101,9 @@
                                  </HBox>
                                  <HBox alignment="CENTER" prefHeight="49.0" prefWidth="297.0" spacing="4.0">
                                     <children>
-                                       <Button fx:id="buttonCancelFile" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="126.0" text="Cancel" />
-                                       <Button fx:id="buttonSendFile" defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="126.0" text="Send File" />
+                                       <Button fx:id="buttonCancelFile" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Cancel" />
+                                       <Button fx:id="buttonDetectPlotter" layoutX="43.0" layoutY="22.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Detect Plotter" />
+                                       <Button fx:id="buttonSendFile" defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Send File" />
                                     </children>
                                     <VBox.margin>
                                        <Insets top="10.0" />
@@ -210,20 +211,26 @@
                               <font>
                                  <Font name="System Bold" size="12.0" />
                               </font>
-                              <graphic>
-                                 <ProgressBar fx:id="progressBarBuffer" prefHeight="23.0" prefWidth="73.0" progress="0.0" />
-                              </graphic>
                            </Label>
                            <Label layoutX="14.0" layoutY="267.0" />
                         </children>
                      </Pane>
                   </items>
                </SplitPane>
-               <Label fx:id="labelProgressBarLabel" contentDisplay="CENTER" text="Label">
-                  <graphic>
-                     <ProgressBar fx:id="progressBarSerialWrite" prefHeight="24.0" prefWidth="756.0" progress="0.0" />
-                  </graphic>
-               </Label>
+               <HBox spacing="6.0">
+                  <children>
+                     <Label fx:id="labelProgressBarLabel" contentDisplay="CENTER" text="Label">
+                        <graphic>
+                           <ProgressBar fx:id="progressBarSerialWrite" prefHeight="24.0" prefWidth="642.0" progress="0.0" />
+                        </graphic>
+                     </Label>
+                     <Label fx:id="progressBarBufferLabel" contentDisplay="CENTER" text="Label">
+                        <graphic>
+                           <ProgressBar fx:id="progressBarBuffer" prefHeight="23.0" prefWidth="110.0" progress="0.0" />
+                        </graphic>
+                     </Label>
+                  </children>
+               </HBox>
                 </children>
             </VBox>
         </children></AnchorPane>
