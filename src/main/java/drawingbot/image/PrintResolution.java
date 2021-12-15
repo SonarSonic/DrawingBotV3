@@ -246,6 +246,8 @@ public class PrintResolution {
         scaledOffsetY = (imageOffsetY) + (getPrintOffsetY() / getPrintScale());
         scaledWidth = getPrintPageWidth() / getPrintScale();
         scaledHeight = getPrintPageHeight() / getPrintScale();
+        finalPrintScaleX = 1;
+        finalPrintScaleY = 1;
     }
 
     public boolean useOriginalSizing(){
