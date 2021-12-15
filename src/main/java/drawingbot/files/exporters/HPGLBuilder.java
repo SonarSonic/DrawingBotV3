@@ -1,6 +1,7 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.Limit;
@@ -9,7 +10,9 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /// W.I.P
 public class HPGLBuilder {
@@ -32,6 +35,8 @@ public class HPGLBuilder {
     public float lastX = 0, lastY = 0;
     public float lastMoveX = 0, lastMoveY = 0;
     public Limit dx = new Limit(), dy = new Limit();
+
+    public Map<Integer, ObservableDrawingPen> drawingPenMap = new HashMap<>();
 
     public HPGLBuilder(PlottingTask task, PrintWriter output, EnumRotation hpglRotation) {
         this.task = task;
@@ -136,11 +141,12 @@ public class HPGLBuilder {
         }
     }
 
-    public void startLayer(int pen) {
+    public void startLayer(int pen, ObservableDrawingPen drawingPen) {
         command(HPGLDictionary.SELECT_PEN, pen);
+        drawingPenMap.put(pen, drawingPen);
     }
 
-    public void endLayer(int pen) {
+    public void endLayer(int pen, ObservableDrawingPen drawingPen) {
         movePenUp();
     }
 
@@ -155,10 +161,8 @@ public class HPGLBuilder {
                 move(coords[0], coords[1]);
                 break;
             case PathIterator.SEG_QUADTO:
-                //quadCurveG5(coords[0], coords[1], coords[2], coords[3]);
-                break;
             case PathIterator.SEG_CUBICTO:
-                //bezierCurveG5(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                //not supported by hpgl
                 break;
             case PathIterator.SEG_CLOSE:
                 move(lastMoveX, lastMoveY);
@@ -205,7 +209,6 @@ public class HPGLBuilder {
         for(int i = 0; i < values.length; i++){
             builder.append(i == 0 ? command : ",");
             builder.append(values[i]);
-            //TODO if value is an array make it display with brackets.
         }
         builder.append(";");
         output.print(builder.toString());

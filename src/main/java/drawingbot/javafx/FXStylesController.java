@@ -119,7 +119,7 @@ public class FXStylesController {
                     event.consume();
                 }
             });
-            // row.setContextMenu(new ContextMenuObservablePen(row)); //TODO
+            row.setContextMenu(new ContextMenuDrawingStyle(row)); //TODO
             return row;
         });
 

@@ -24,7 +24,7 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane expanded="false" prefWidth="425.0" text="Drawing Area">
+                              <TitledPane prefWidth="425.0" text="Drawing Area">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -285,7 +285,7 @@
                                     </AnchorPane>
                               </content>
                             </TitledPane>
-                              <TitledPane layoutX="10.0" layoutY="739.0" prefWidth="428.0" text="Version Control">
+                              <TitledPane expanded="false" layoutX="10.0" layoutY="739.0" prefWidth="428.0" text="Version Control">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -448,28 +448,28 @@
             </VBox>
          </children>
       </HBox>
-  <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
-         <children>
-            <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="1.0" />
-            <Label fx:id="labelOpenDestinationFolder" layoutX="995.0" layoutY="8.0" prefHeight="17.0" prefWidth="154.0" text="Open Destination Folder">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <Label fx:id="labelCancelExport" layoutX="1184.0" layoutY="8.0" prefHeight="17.0" prefWidth="88.0" text="Cancel Export">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
-               <font>
-                  <Font size="14.0" />
-               </font>
-               <effect>
-                  <Blend mode="DIFFERENCE" />
-               </effect>
-            </Label>
-         </children>
-      </Pane>
+     <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
+        <children>
+           <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="1.0" />
+           <Label fx:id="labelOpenDestinationFolder" layoutX="995.0" layoutY="8.0" prefHeight="17.0" prefWidth="154.0" text="Open Destination Folder">
+              <font>
+                 <Font name="System Bold" size="12.0" />
+              </font>
+           </Label>
+           <Label fx:id="labelCancelExport" layoutX="1184.0" layoutY="8.0" prefHeight="17.0" prefWidth="88.0" text="Cancel Export">
+              <font>
+                 <Font name="System Bold" size="12.0" />
+              </font>
+           </Label>
+           <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
+              <font>
+                 <Font size="14.0" />
+              </font>
+              <effect>
+                 <Blend mode="DIFFERENCE" />
+              </effect>
+           </Label>
+        </children>
+     </Pane>
   </children>
 </VBox>

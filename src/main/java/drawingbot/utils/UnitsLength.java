@@ -4,8 +4,7 @@ public enum UnitsLength {
 
     MILLIMETRES("mm", 1F),
     CENTIMETRES("cm", 10F),
-    INCHES("inches", 25.4F),
-    PLOTTER_UNITS("HPGL Units", 1F/40F);
+    INCHES("inches", 25.4F);
 
     public String displayName;
     public float convertToMM;

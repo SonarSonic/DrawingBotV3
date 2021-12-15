@@ -281,6 +281,7 @@ public class FXExportController {
     public TextField textFieldHPGLCurveFlatness = null;
 
     public TextField textFieldHPGLPenSpeed = null;
+    public TextField textFieldHPGLPenNumber = null;
 
 
     public void initHPGLSettingsPane(){
@@ -318,8 +319,11 @@ public class FXExportController {
         DrawingBotV3.INSTANCE.hpglCurveFlatness.bind(Bindings.createFloatBinding(() -> textFieldHPGLCurveFlatness.textProperty().get().isEmpty() ? 6F : Float.parseFloat(textFieldHPGLCurveFlatness.textProperty().get()), textFieldHPGLCurveFlatness.textProperty()));
         textFieldHPGLCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 6F));
 
-        DrawingBotV3.INSTANCE.hpglPenSpeed.bind(Bindings.createIntegerBinding(() -> textFieldHPGLPenSpeed.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLPenSpeed.textProperty().get()), textFieldHPGLCurveFlatness.textProperty()));
+        DrawingBotV3.INSTANCE.hpglPenSpeed.bind(Bindings.createIntegerBinding(() -> textFieldHPGLPenSpeed.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLPenSpeed.textProperty().get()), textFieldHPGLPenSpeed.textProperty()));
         textFieldHPGLPenSpeed.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
+
+        DrawingBotV3.INSTANCE.hpglPenNumber.bind(Bindings.createIntegerBinding(() -> textFieldHPGLPenNumber.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLPenNumber.textProperty().get()), textFieldHPGLPenNumber.textProperty()));
+        textFieldHPGLPenNumber.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
 
 
         //setup presets last, so the settings get applied

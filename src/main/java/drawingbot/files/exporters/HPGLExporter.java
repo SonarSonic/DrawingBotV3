@@ -6,6 +6,7 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.serial.SerialWriteTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.controls.DialogExportHPGLComplete;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.EnumRotation;
 import javafx.application.Platform;
@@ -14,6 +15,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,12 +32,19 @@ public class HPGLExporter {
         AffineTransform transform = plottingTask.createHPGLTransform(getHPGLRotation(plottingTask));
 
         float[] coords = new float[6];
-        int penCount = 1;
-        for(Map.Entry<Integer, List<IGeometry>> entry : geometries.entrySet()){
-            if(!entry.getValue().isEmpty()){
-                builder.startLayer(penCount);
+        int hpglPenCount = DrawingBotV3.INSTANCE.hpglPenNumber.get() == 0 ? 1 : DrawingBotV3.INSTANCE.hpglPenNumber.get();
+
+        int[] renderOrder = plottingTask.getDrawingSet().calculateRenderOrder();
+        for(int p = 0; p < renderOrder.length; p++) {
+            int penIndex = renderOrder[renderOrder.length - 1 - p];
+            ObservableDrawingPen pen = plottingTask.getDrawingSet().getPen(penIndex);
+
+            List<IGeometry> geometryList = geometries.get(penIndex);
+
+            if(!geometryList.isEmpty()){
+                builder.startLayer(hpglPenCount, pen);
                 int i = 0;
-                for(IGeometry geometry : entry.getValue()){
+                for(IGeometry geometry : geometryList){
                     PathIterator iterator = geometry.getAWTShape().getPathIterator(transform, DrawingBotV3.INSTANCE.hpglCurveFlatness.get());
                     while(!iterator.isDone()){
                         int type = iterator.currentSegment(coords);
@@ -43,27 +52,38 @@ public class HPGLExporter {
                         iterator.next();
                     }
                     i++;
-                    exportTask.updateProgress(i, entry.getValue().size()-1);
+                    exportTask.updateProgress(i, geometryList.size()-1);
                 }
-                builder.endLayer(penCount);
-                penCount++;
+                builder.endLayer(hpglPenCount, pen);
+                hpglPenCount++;
             }
+
         }
 
         builder.close();
+
+        DrawingBotV3.logger.info("HPGL File Created:  " +  saveLocation);
+        DrawingBotV3.INSTANCE.controller.serialConnectionController.outputHPGLFiles.add(0, saveLocation.toString());
 
         Platform.runLater(() -> {
             DialogExportHPGLComplete dialogExportHPGLComplete = new DialogExportHPGLComplete(builder);
             dialogExportHPGLComplete.resultProperty().addListener((observable, oldValue, newValue) -> {
                 if(newValue){
-                    DrawingBotV3.INSTANCE.taskMonitor.queueTask(new SerialWriteTask(saveLocation));
+                    if(DrawingBotV3.INSTANCE.serialConnection.portOpen.get()){
+                        int[] hardLimits = DrawingBotV3.INSTANCE.serialConnection.checkHardClipLimits();
+                        if(hardLimits != null){
+                            DrawingBotV3.INSTANCE.controller.serialConnectionController.showHPGLHardLimitsDialog(hardLimits);
+                        }
+                    }else{
+                        DrawingBotV3.INSTANCE.serialConnection.checkHardClipLimits = true;
+                    }
+                    DrawingBotV3.INSTANCE.controller.serialConnectionController.comboBoxHPGLFile.setValue(saveLocation.toString());
+                    DrawingBotV3.INSTANCE.controller.serialConnectionSettingsStage.show();
                 }
             });
             dialogExportHPGLComplete.show();
 
         });
-
-        DrawingBotV3.logger.info("HPGL File Created:  " +  saveLocation);
     }
 
     public static EnumRotation getHPGLRotation(PlottingTask plottingTask){

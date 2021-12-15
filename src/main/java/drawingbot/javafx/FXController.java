@@ -37,6 +37,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
@@ -102,10 +103,10 @@ public class FXController {
     public FXSerialConnectionController serialConnectionController;
 
     public void initSeparateStages() {
-        FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings");
-        FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings");
-        FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings");
-        FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", serialConnectionSettingsStage = new Stage(), serialConnectionController = new FXSerialConnectionController(), "Plotting / Serial Port Connection");
+        FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings", Modality.APPLICATION_MODAL);
+        FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings", Modality.APPLICATION_MODAL);
+        FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings", Modality.APPLICATION_MODAL);
+        FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", serialConnectionSettingsStage = new Stage(), serialConnectionController = new FXSerialConnectionController(), "Plotter / Serial Port Connection", Modality.NONE);
     }
 
 
@@ -171,7 +172,7 @@ public class FXController {
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
-        MenuItem serialPortExport = new MenuItem("Export to Serial Port");
+        MenuItem serialPortExport = new MenuItem("Connect to Plotter / Serial Port");
         serialPortExport.setOnAction(e -> serialConnectionSettingsStage.show());
         menuFile.getItems().add(serialPortExport);
 

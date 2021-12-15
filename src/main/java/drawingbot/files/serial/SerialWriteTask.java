@@ -35,14 +35,14 @@ public class SerialWriteTask extends Task<Boolean> {
     @Override
     protected void setException(Throwable t) {
         super.setException(t);
-        DrawingBotV3.INSTANCE.serialConnection.closePort();
-        error = t.getMessage();
+        //DrawingBotV3.INSTANCE.serialConnection.closePort();
+        error = t.getMessage() + t.getMessage();
     }
 
     @Override
     protected void cancelled() {
         super.cancelled();
-        DrawingBotV3.INSTANCE.serialConnection.closePort();
+        //DrawingBotV3.INSTANCE.serialConnection.closePort();
         error = "CANCELLED";
     }
 
@@ -61,14 +61,15 @@ public class SerialWriteTask extends Task<Boolean> {
             }
 
             if(error == null){
-                if(!DrawingBotV3.INSTANCE.serialConnection.writeAllData(bytes, 512)){
+                if(!DrawingBotV3.INSTANCE.serialConnection.writeAllData(bytes, 64)){
                     error = "PORT DISCONNECTED OR TASK CANCELLED";
                 }
             }
-
+            /*
             if(!DrawingBotV3.INSTANCE.serialConnection.closePort()){
                 error = "FAILED TO CLOSE SERIAL CONNECTION";
             }
+            */
         }
 
         Platform.runLater(() -> {

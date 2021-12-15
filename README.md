@@ -14,11 +14,11 @@ Drawing Bot is a free, open source software for converting images to line drawin
 
 It is available for Windows, Mac and Linux.
 
-If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG) or contribute to the [Drawing Bot Collection](https://github.com/SonarSonic/DrawingBotV3#the-drawing-bot-collection)!
+If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG)
 
 ### Features
 
--  [15 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html) - all highly configurable to create unique drawing styles
+-  [18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html) - all highly configurable to create unique drawing styles
 -  Automatic Path Optimisation for Faster Plots - Line Simplifying, Merging, Filtering, Sorting
 -  [Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html): configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.
 -  [Image Sequences](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings): You can export image sequences animations of your creations!
@@ -47,10 +47,13 @@ If you want to support the development of DrawingBotV3 you can [donate here](htt
 - Spiral PFM
 - Voronoi Circles
 - Voronoi Triangulation
+- Voronoi Tree
 - Voronoi Stippling
 - Voronoi Diagram
+- Voronoi TSP
 - Mosaic Rectangles
 - Mosaic Voronoi
+- Mosaic Custom
 
 More info [here](https://drawingbotv3.readthedocs.io/en/latest/pfms.html)
 
@@ -127,6 +130,9 @@ All the dependencies are automatically included and **do not need to be installe
 - [iText](https://github.com/itext/itextpdf) - for PDF Rendering
 - [FXGraphics2D](https://github.com/jfree/fxgraphics2d) - for Swing/JavaFX Compatibility
 - [JHLabs](http://www.jhlabs.com/) - for Image Filters / Effects
+- [JOML](https://github.com/jcodec/jcodec) - for Video Import and Export
+- [JCodec](https://github.com/jcodec/jcodec) - for Video Import and Export
+- [jSerialComm](https://github.com/Fazecast/jSerialComm) - for Serial Port Communication
 
 ---
 

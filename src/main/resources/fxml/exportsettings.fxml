@@ -298,12 +298,20 @@
                                                 <Separator minHeight="20.0" prefHeight="20.0" prefWidth="20.0" />
                                                 <HBox spacing="56.0">
                                                    <children>
-                                                      <Label contentDisplay="RIGHT" text="Default Pen Speed:">
+                                                      <Label contentDisplay="RIGHT" text="Pen Velocity:">
                                                          <font>
                                                             <Font name="System Bold" size="12.0" />
                                                          </font>
                                                          <graphic>
                                                             <TextField fx:id="textFieldHPGLPenSpeed" prefHeight="25.0" prefWidth="60.0" text="0" />
+                                                         </graphic>
+                                                      </Label>
+                                                      <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" text="Pen Number">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <TextField fx:id="textFieldHPGLPenNumber" prefHeight="25.0" prefWidth="60.0" text="0" />
                                                          </graphic>
                                                       </Label>
                                                    </children>

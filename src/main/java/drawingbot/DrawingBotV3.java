@@ -98,6 +98,7 @@ public class DrawingBotV3 {
     public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(6F);
 
     public final SimpleIntegerProperty hpglPenSpeed = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty hpglPenNumber = new SimpleIntegerProperty(0);
 
 
 
