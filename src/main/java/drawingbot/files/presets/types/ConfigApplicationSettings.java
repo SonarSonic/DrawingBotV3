@@ -40,6 +40,9 @@ public class ConfigApplicationSettings implements IConfigData {
     public String pathToVPypeExecutable = "";
     public String vPypePresetName = "";
 
+    ////image settings
+    public float exportDPI = 300F;
+
     ////animation settings
     public float framesPerSecond = 25F;
     public int duration = 5;
