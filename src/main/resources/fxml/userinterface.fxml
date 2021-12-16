@@ -124,6 +124,12 @@
                                                                <children>
                                                                   <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="82.0" text="Canvas Color:" translateX="3.0" />
                                                                   <ColorPicker fx:id="colorPickerCanvas" />
+                                                                  <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="91.0" text="Import DPI:">
+                                                                     <padding>
+                                                                        <Insets left="20.0" />
+                                                                     </padding>
+                                                                  </Label>
+                                                                  <TextField fx:id="textFieldImportDPI" prefHeight="25.0" prefWidth="52.0" text="0" />
                                                                </children>
                                                             </HBox>
                                                          </children>

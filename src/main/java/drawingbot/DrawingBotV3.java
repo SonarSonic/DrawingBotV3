@@ -62,6 +62,7 @@ public class DrawingBotV3 {
     public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
     
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
+    public final SimpleFloatProperty importDPI = new SimpleFloatProperty(25.4F);
 
     //VPYPE SETTINGS
     public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty();

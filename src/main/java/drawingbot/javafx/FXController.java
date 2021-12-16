@@ -455,6 +455,7 @@ public class FXController {
     public TextField textFieldPenWidth = null;
     
     public ColorPicker colorPickerCanvas = null;
+    public TextField textFieldImportDPI = null;
 
     public void initDrawingAreaPane(){
 
@@ -527,6 +528,9 @@ public class FXController {
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
         textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
 
+        DrawingBotV3.INSTANCE.importDPI.bind(Bindings.createFloatBinding(() -> textFieldImportDPI.textProperty().get().isEmpty() ? 25.4F : Float.parseFloat(textFieldImportDPI.textProperty().get()), textFieldImportDPI.textProperty()));
+        textFieldImportDPI.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 25.4F));       
+        textFieldImportDPI.disableProperty().bind(DrawingBotV3.INSTANCE.controller.checkBoxOriginalSizing.selectedProperty().not());
 
         ///generic listeners
         DrawingBotV3.INSTANCE.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
@@ -541,6 +545,7 @@ public class FXController {
         DrawingBotV3.INSTANCE.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
         DrawingBotV3.INSTANCE.canvasColor.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
+        DrawingBotV3.INSTANCE.importDPI.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
 
     }
 

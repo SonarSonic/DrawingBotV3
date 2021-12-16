@@ -3,6 +3,7 @@ package drawingbot.image;
 import drawingbot.DrawingBotV3;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.UnitsLength;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -161,11 +162,11 @@ public class PrintResolution {
     public void updatePrintResolution(){
         boolean useOriginal = useOriginalSizing();
 
-        this.printPageWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
-        this.printPageHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
+        this.printPageWidth = useOriginal ? sourceWidth / DrawingBotV3.INSTANCE.importDPI.get() * UnitsLength.INCHES.convertToMM : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
+        this.printPageHeight = useOriginal ? sourceHeight / DrawingBotV3.INSTANCE.importDPI.get() * UnitsLength.INCHES.convertToMM : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
 
-        this.printDrawingWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingWidthMM();
-        this.printDrawingHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingHeightMM();
+        this.printDrawingWidth = useOriginal ? printPageWidth : DrawingBotV3.INSTANCE.getDrawingWidthMM();
+        this.printDrawingHeight = useOriginal ? printPageHeight : DrawingBotV3.INSTANCE.getDrawingHeightMM();
 
         this.printOffsetX = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetXMM();
         this.printOffsetY = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetYMM();
@@ -229,8 +230,8 @@ public class PrintResolution {
             }
 
         }else{
-            imageWidth = imageCropWidth;
-            imageHeight = imageCropHeight;
+            imageWidth = (int)getPrintDrawingWidth();
+            imageHeight = (int)getPrintDrawingHeight();
         }
 
 
