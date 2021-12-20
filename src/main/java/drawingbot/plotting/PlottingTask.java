@@ -2,7 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
-import drawingbot.files.exporters.HPGLBuilder;
+import drawingbot.utils.DBTask;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.geom.PathBuilder;
@@ -15,7 +15,6 @@ import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import org.imgscalr.Scalr;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.Geometry;
@@ -33,7 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
-public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
+public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask {
 
     public PFMFactory<?> pfmFactory;
     public List<GenericSetting<?, ?>> pfmSettings;
@@ -459,28 +458,5 @@ public class PlottingTask extends Task<PlottingTask> implements IPlottingTask {
         if(onPFMSettingsAppliedCallback != null){
             onPFMSettingsAppliedCallback.accept(src, pfm);
         }
-    }
-
-
-    ///MAKE UPDATE METHODS ACCESSIBLE TO PFMS
-
-    @Override
-    public void updateProgress(long workDone, long max) {
-        super.updateProgress(workDone, max);
-    }
-
-    @Override
-    public void updateProgress(double workDone, double max) {
-        super.updateProgress(workDone, max);
-    }
-
-    @Override
-    public void updateMessage(String message) {
-        super.updateMessage(message);
-    }
-
-    @Override
-    public void updateTitle(String title) {
-        super.updateTitle(title);
     }
 }

@@ -1,7 +1,5 @@
 package drawingbot.files.presets.types;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.IConfigData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.utils.EnumJsonType;

@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/// W.I.P
 public class HPGLBuilder {
 
     public final PlottingTask task;
@@ -221,6 +220,7 @@ public class HPGLBuilder {
     public static int toHPGL(float f){
         return (int) (f * getHPGLUnits());
     }
+
     public static float fromHPGL(int f){
         return (float) f / getHPGLUnits();
     }

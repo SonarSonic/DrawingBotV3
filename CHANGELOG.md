@@ -1,5 +1,19 @@
 # Change Log
 
+### [v1.2.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.0-stable)
+- Added: Option to specify the PPI to render Images/Animations at higher resolutions, in the Export Settings menu  - HanzPetrov
+- Added: Replaced the Displayed Shapes slider with a Range Slider
+- Added: "Apply to export" checkbox to enable the Ranges selected on the exported files
+- Added: A "Task Monitor" to monitor background tasks, accessed via File/Open Task Monitor
+- Changed: Removed the "Zoom In" and "Zoom Out", the viewport can now be zoomed with the scroll wheel.
+- Changed: Line Merging/Sorting Algorithms now use an STRTree which results in better optimisation in 1/10th of the time, particularly on Voronoi Triangulation PFMS.
+- Changed: The progress of Optimization Algorithms will now be shown in the progress bar.
+- Changed: The default "Curve Flatness" for HPGL from 6 to 0.1
+- Changed: The default "target pen width" from 0.5 to 0.3
+- Changed: The default rotation for HPGL from 90 to 270, when using AUTO which requires rotation
+- Changed: Improved the monitoring of progress during Geometry Optimization
+- Fixed: Bug where the Serial Connection Menu would fail to load when less than 2 Serial Ports were available.
+- Fixed: The viewport will now behave as expected when zooming in and out.
 
 ### [v1.2.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.0-stable)
 - Added: HPGL Export - Export your images to HPGL for sending to plotters.

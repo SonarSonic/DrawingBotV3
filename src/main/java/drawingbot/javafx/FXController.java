@@ -42,6 +42,8 @@ import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import org.controlsfx.control.RangeSlider;
+import org.controlsfx.control.TaskProgressView;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
@@ -71,8 +73,8 @@ public class FXController {
             initBatchProcessingPane();
 
 
-            viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
-            viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
+            //viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
+           // viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
 
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
@@ -91,10 +93,8 @@ public class FXController {
     public Stage exportSettingsStage;
     public FXExportController exportController;
 
-
     public Stage vpypeSettingsStage;
     public FXVPypeController vpypeController;
-
 
     public Stage mosaicSettingsStage;
     public FXStylesController mosaicController;
@@ -102,11 +102,16 @@ public class FXController {
     public Stage serialConnectionSettingsStage;
     public FXSerialConnectionController serialConnectionController;
 
+    public Stage taskMonitorStage;
+    public FXTaskMonitorController taskMonitorController;
+
     public void initSeparateStages() {
         FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", serialConnectionSettingsStage = new Stage(), serialConnectionController = new FXSerialConnectionController(), "Plotter / Serial Port Connection", Modality.NONE);
+        FXHelper.initSeparateStage("/fxml/taskmonitor.fxml", taskMonitorStage = new Stage(), taskMonitorController = new FXTaskMonitorController(), "Task Monitor", Modality.NONE);
+
     }
 
 
@@ -194,6 +199,12 @@ public class FXController {
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
+        MenuItem taskMonitor = new MenuItem("Open Task Monitor");
+        taskMonitor.setOnAction(e -> taskMonitorStage.show());
+        menuFile.getItems().add(taskMonitor);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
         MenuItem menuQuit = new MenuItem("Quit");
         menuQuit.setOnAction(e -> Platform.exit());
         menuFile.getItems().add(menuQuit);
@@ -243,17 +254,17 @@ public class FXController {
 
     ////VIEWPORT WINDOW
     public VBox vBoxViewportContainer = null;
-    public ScrollPane viewportScrollPane = null;
-    public StackPane viewportStackPane = null;
+    public ZoomableScrollPane viewportScrollPane = null;
 
     ////VIEWPORT SETTINGS
-    public Slider sliderDisplayedLines = null;
-    public TextField textFieldDisplayedLines = null;
+    public RangeSlider rangeSliderDisplayedLines = null;
+    public TextField textFieldDisplayedShapesMin = null;
+    public TextField textFieldDisplayedShapesMax = null;
+
+    public CheckBox checkBoxApplyToExport = null;
 
     public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
     public CheckBox checkBoxShowGrid = null;
-    public Button buttonZoomIn = null;
-    public Button buttonZoomOut = null;
     public Button buttonResetView = null;
 
     ////PLOT DETAILS
@@ -265,28 +276,53 @@ public class FXController {
 
     public void initViewport(){
 
+        //viewportStackPane.minWidthProperty().bind(viewportScrollPane.widthProperty());
+        //viewportStackPane.minHeightProperty().bind(viewportScrollPane.heightProperty());
+
         ////VIEWPORT SETTINGS
-        sliderDisplayedLines.setMax(1);
-        sliderDisplayedLines.valueProperty().addListener((observable, oldValue, newValue) -> {
+        rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
             PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
-                task.plottedDrawing.displayedLineCount.setValue(lines);
-                textFieldDisplayedLines.setText(String.valueOf(lines));
+                task.plottedDrawing.displayedShapeMax.setValue(lines);
+                textFieldDisplayedShapesMax.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
-        textFieldDisplayedLines.setOnAction(e -> {
+        rangeSliderDisplayedLines.lowValueProperty().addListener((observable, oldValue, newValue) -> {
             PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedLines.getText())));
-                task.plottedDrawing.displayedLineCount.setValue(lines);
-                textFieldDisplayedLines.setText(String.valueOf(lines));
-                sliderDisplayedLines.setValue((double)lines / task.plottedDrawing.getGeometryCount());
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
+                task.plottedDrawing.displayedShapeMin.setValue(lines);
+                textFieldDisplayedShapesMin.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
+
+        textFieldDisplayedShapesMax.setOnAction(e -> {
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            if(task != null){
+                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
+                task.plottedDrawing.displayedShapeMax.setValue(lines);
+                textFieldDisplayedShapesMax.setText(String.valueOf(lines));
+                rangeSliderDisplayedLines.setHighValue((double)lines / task.plottedDrawing.getGeometryCount());
+                DrawingBotV3.INSTANCE.reRender();
+            }
+        });
+
+        textFieldDisplayedShapesMin.setOnAction(e -> {
+            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            if(task != null){
+                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
+                task.plottedDrawing.displayedShapeMin.setValue(lines);
+                textFieldDisplayedShapesMin.setText(String.valueOf(lines));
+                rangeSliderDisplayedLines.setLowValue((double)lines / task.plottedDrawing.getGeometryCount());
+                DrawingBotV3.INSTANCE.reRender();
+            }
+        });
+
+        checkBoxApplyToExport.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.exportRange);
 
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
         choiceBoxDisplayMode.setValue(EnumDisplayMode.IMAGE);
@@ -295,17 +331,11 @@ public class FXController {
         DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
         DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
-        buttonZoomIn.setOnAction(e -> DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() + 0.1));
-        buttonZoomOut.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() > DrawingBotV3.minScale){
-                DrawingBotV3.INSTANCE.scaleMultiplier.set(DrawingBotV3.INSTANCE.scaleMultiplier.getValue() - 0.1);
-            }
-        });
-
         buttonResetView.setOnAction(e -> {
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
-            DrawingBotV3.INSTANCE.scaleMultiplier.set(1.0);
+            viewportScrollPane.scaleValue = 1;
+            viewportScrollPane.updateScale();
         });
 
         viewportScrollPane.setOnDragOver(event -> {
@@ -385,7 +415,7 @@ public class FXController {
         labelCancelExport.setOnMouseClicked(event -> {
             Task<?> task = DrawingBotV3.INSTANCE.taskMonitor.currentTask;
             if(task instanceof ExportTask){
-                task.cancel(true);
+                DrawingBotV3.INSTANCE.resetTaskService();
             }
         });
         labelCancelExport.visibleProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isExporting);
@@ -493,8 +523,8 @@ public class FXController {
 
         DrawingBotV3.INSTANCE.optimiseForPrint.bindBidirectional(checkBoxOptimiseForPrint.selectedProperty());
 
-        DrawingBotV3.INSTANCE.targetPenWidth.bind(Bindings.createFloatBinding(() -> textFieldPenWidth.textProperty().get().isEmpty() ? 0.5F : Float.parseFloat(textFieldPenWidth.textProperty().get()), textFieldPenWidth.textProperty()));
-        textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.5F));
+        DrawingBotV3.INSTANCE.targetPenWidth.bind(Bindings.createFloatBinding(() -> textFieldPenWidth.textProperty().get().isEmpty() ? 0.3F : Float.parseFloat(textFieldPenWidth.textProperty().get()), textFieldPenWidth.textProperty()));
+        textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
         textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
 
 

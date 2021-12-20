@@ -3,7 +3,6 @@ package drawingbot.pfm.modules.position;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.GEllipse;
-import drawingbot.geom.basic.GRectangle;
 import drawingbot.image.ImageTools;
 import drawingbot.image.PixelDataLuminance;
 import drawingbot.pfm.modules.PositionEncoder;

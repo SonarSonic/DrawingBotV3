@@ -97,7 +97,7 @@ public class HPGLExporter {
             boolean drawingLandscape = plottingTask.resolution.getScaledWidth() >= plottingTask.resolution.getScaledHeight();
 
             if(plotterLandscape != drawingLandscape){
-                rotation = EnumRotation.R90;
+                rotation = EnumRotation.R270;
             }else{
                 rotation = EnumRotation.R0;
             }

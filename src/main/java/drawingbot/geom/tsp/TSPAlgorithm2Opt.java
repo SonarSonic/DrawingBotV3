@@ -114,7 +114,7 @@ public class TSPAlgorithm2Opt extends TSPAlgorithmAbstract {
 	}
 
 	public void findNextBestTourSlow(int i){
-		for ( int k = i + 1; k < size; k++){
+		for (int k = i + 1; k < size; k++){
 			if(getDistanceFromIndex(i, k) < getDistanceFromIndex(i, i-1) || getDistanceFromIndex(i, k) < getDistanceFromIndex(i, i+1)){
 				List<TSPNode> newTour = new ArrayList<>(tour);
 

@@ -90,7 +90,7 @@ public class FXSerialConnectionController {
         updateSerialPorts();
         comboBoxSerialPort.onMouseClickedProperty().addListener((observable, oldValue, newValue) -> updateSerialPorts());
         comboBoxSerialPort.setItems(serialPorts);
-        comboBoxSerialPort.setValue(serialPorts.isEmpty() ? "COM9" : serialPorts.get(1));
+        comboBoxSerialPort.setValue(serialPorts.isEmpty() ? "COM9" : serialPorts.get(0));
         comboBoxSerialPort.valueProperty().bindBidirectional(SerialConnection.getInstance().portName);
 
         choiceBoxBaudRate.setItems(FXCollections.observableArrayList(EnumBaudRate.values()));
@@ -162,7 +162,7 @@ public class FXSerialConnectionController {
             if(SerialConnection.getInstance().portWriting.get()){
                 SerialConnection.getInstance().shouldPause.set(!SerialConnection.getInstance().shouldPause.get());
             }else if(!comboBoxHPGLFile.getValue().isEmpty() && Files.exists(new File(comboBoxHPGLFile.getValue()).toPath())){
-                DrawingBotV3.INSTANCE.serialConnectionWriteService.submit(new SerialWriteTask(new File(comboBoxHPGLFile.getValue())));
+                DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.serialConnectionWriteService, new SerialWriteTask(new File(comboBoxHPGLFile.getValue())));
             }
         });
 

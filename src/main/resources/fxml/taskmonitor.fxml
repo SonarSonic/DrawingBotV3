@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <AnchorPane>
+      <children>
+         <TaskProgressView fx:id="taskProgressView" prefHeight="267.0" prefWidth="599.0" />
+      </children></AnchorPane>
+
+</AnchorPane>

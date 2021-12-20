@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import drawingbot.javafx.controls.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import org.controlsfx.control.*?>
 
 <VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
@@ -373,11 +375,14 @@
                         </Label>
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
                         <Label contentDisplay="RIGHT" text="Displayed Shapes:" />
-                        <Slider fx:id="sliderDisplayedLines" prefHeight="14.0" prefWidth="117.0" />
-                        <TextField fx:id="textFieldDisplayedLines" prefHeight="25.0" prefWidth="75.0" />
-                        <Separator prefHeight="25.0" prefWidth="21.0" />
-                        <Button fx:id="buttonZoomIn" mnemonicParsing="false" text="Zoom In" />
-                        <Button fx:id="buttonZoomOut" mnemonicParsing="false" text="Zoom Out" />
+                        <TextField fx:id="textFieldDisplayedShapesMin" prefHeight="20.0" prefWidth="68.0" promptText="Min" />
+                        <RangeSlider fx:id="rangeSliderDisplayedLines" prefHeight="24.0" prefWidth="160.0" />
+                        <TextField fx:id="textFieldDisplayedShapesMax" layoutX="294.0" layoutY="13.0" prefHeight="25.0" prefWidth="68.0" promptText="Max" />
+                        <CheckBox fx:id="checkBoxApplyToExport" mnemonicParsing="false" prefHeight="24.0" prefWidth="124.0" text="Apply to export">
+                           <padding>
+                              <Insets left="10.0" right="10.0" />
+                           </padding>
+                        </CheckBox>
                         <Separator layoutX="244.0" layoutY="10.0" prefHeight="30.0" prefWidth="14.0" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                         <Separator layoutX="351.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
@@ -436,14 +441,7 @@
                         <Insets left="10.0" />
                      </padding>
                   </HBox>
-                  <ScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" hvalue="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS" vvalue="0.5" VBox.vgrow="ALWAYS">
-                     <content>
-                        <StackPane fx:id="viewportStackPane" prefHeight="742.0" prefWidth="1003.0">
-                           <children>
-                              <DialogPane />
-                           </children></StackPane>
-                     </content>
-                  </ScrollPane>
+                  <ZoomableScrollPane fx:id="viewportScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" hvalue="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS" vvalue="0.5" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
          </children>

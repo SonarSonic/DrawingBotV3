@@ -28,6 +28,7 @@ public class GShape implements IGeometry {
         return vertexCount;
     }
 
+    public int geometryIndex = -1;
     public Integer penIndex = null;
     public Integer customRGBA = null;
     public int groupID = -1;
@@ -35,6 +36,11 @@ public class GShape implements IGeometry {
     @Override
     public Shape getAWTShape() {
         return shape;
+    }
+
+    @Override
+    public Integer getGeometryIndex() {
+        return geometryIndex;
     }
 
     @Override
@@ -50,6 +56,11 @@ public class GShape implements IGeometry {
     @Override
     public int getGroupID() {
         return groupID;
+    }
+
+    @Override
+    public void setGeometryIndex(Integer index) {
+        geometryIndex = index;
     }
 
     @Override

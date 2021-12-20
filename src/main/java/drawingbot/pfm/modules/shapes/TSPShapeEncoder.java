@@ -8,7 +8,6 @@ import drawingbot.geom.tsp.*;
 import drawingbot.pfm.PFMModular;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.pfm.modules.ShapeEncoder;
-import drawingbot.utils.Utils;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.List;

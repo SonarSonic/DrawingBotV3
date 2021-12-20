@@ -35,7 +35,7 @@ public class ObservableProjectSettings {
         this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty());
 
         BufferedImageLoader loader = new BufferedImageLoader(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg", false);
-        DrawingBotV3.INSTANCE.backgroundService.submit(loader);
+        DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
         loader.setOnSucceeded(e -> thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null)));
     }
 

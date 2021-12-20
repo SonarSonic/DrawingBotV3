@@ -2,53 +2,42 @@ package drawingbot.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ProgressCallback {
 
     public float currentProgress = 0F;
     public String currentMessage = "";
+    public String currentTitle = "";
 
     public float storedProgress = 0F;
     public float layerMultiplier = 1F;
-    public List<String> prefixMessages = new ArrayList<>();
-    public String fullPrefixMessage = "";
     public String previousMessage = "";
+
+    public Consumer<String> messageCallback;
+    public Consumer<Float> progressCallback;
 
     public void reset(){
         storedProgress = 0F;
         layerMultiplier = 1F;
-        prefixMessages.clear();
+    }
+
+    public void updateTitle(String title){
+        currentTitle = title;
     }
 
     public void updateMessage(String message){
         previousMessage = message;
-        currentMessage = fullPrefixMessage + message;
+        currentMessage = currentTitle + message;
+        messageCallback.accept(currentMessage);
     }
 
     public void pushLayers(int tasks){
         layerMultiplier /= tasks;
-        if(!prefixMessages.isEmpty()){
-            prefixMessages.add(previousMessage);
-        }
     }
 
     public void popLayers(int tasks){
-
         layerMultiplier *= tasks;
-
-        if(!prefixMessages.isEmpty()){
-            prefixMessages.remove(prefixMessages.get(prefixMessages.size()-1));
-        }
-        fullPrefixMessage = getPrefixMessage();
-    }
-
-    public String getPrefixMessage(){
-        StringBuilder builder = new StringBuilder();
-        for(String s : prefixMessages){
-            builder.append(s);
-            builder.append(" | ");
-        }
-        return builder.toString();
     }
 
     public void startTask(){
@@ -61,10 +50,12 @@ public class ProgressCallback {
 
     public void updateProgress(float progress){
         currentProgress = storedProgress + (progress * layerMultiplier);
+        progressCallback.accept(currentProgress);
     }
 
     public void setTotalProgress(float totalProgress){
         currentProgress = totalProgress;
+        progressCallback.accept(currentProgress);
     }
 
 }

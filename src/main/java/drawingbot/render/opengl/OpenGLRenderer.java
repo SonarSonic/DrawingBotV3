@@ -7,17 +7,20 @@ import drawingbot.DrawingBotV3;
 import drawingbot.render.AbstractRenderer;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
 import org.jfree.fx.FXGraphics2D;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
+//W.I.P
 public class OpenGLRenderer extends AbstractRenderer implements GLEventListener {
 
     int width = 500;
@@ -62,10 +65,11 @@ public class OpenGLRenderer extends AbstractRenderer implements GLEventListener 
         graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
 
-        DrawingBotV3.INSTANCE.controller.viewportStackPane.getChildren().add(canvas);
+        Group canvasGroup = new Group(canvas);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(new StackPane(canvasGroup));
 
-        DrawingBotV3.INSTANCE.controller.viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> canvas.getWidth() * Math.max(1, canvas.getScaleX()), canvas.widthProperty(), canvas.scaleXProperty()));
-        DrawingBotV3.INSTANCE.controller.viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> canvas.getHeight() * Math.max(1, canvas.getScaleY()), canvas.heightProperty(), canvas.scaleYProperty()));
+        //DrawingBotV3.INSTANCE.controller.viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> canvas.getWidth() * Math.max(1, canvas.getScaleX()), canvas.widthProperty(), canvas.scaleXProperty()));
+        //DrawingBotV3.INSTANCE.controller.viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> canvas.getHeight() * Math.max(1, canvas.getScaleY()), canvas.heightProperty(), canvas.scaleYProperty()));
 
 
     }

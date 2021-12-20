@@ -223,6 +223,7 @@ public class FXExportController {
             ConfigFileHandler.getApplicationSettings().exportDPI = Float.parseFloat(newValue);
             updateImageSequenceStats();
         });
+        textFieldDPI.disableProperty().bind(DrawingBotV3.INSTANCE.controller.checkBoxOriginalSizing.selectedProperty());
         
         textFieldFPS.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 25F));
         textFieldFPS.setText("" + ConfigFileHandler.getApplicationSettings().framesPerSecond);
@@ -341,8 +342,8 @@ public class FXExportController {
         choiceBoxHPGLRotation.setValue(EnumRotation.AUTO);
         choiceBoxHPGLRotation.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.hpglRotation);
 
-        DrawingBotV3.INSTANCE.hpglCurveFlatness.bind(Bindings.createFloatBinding(() -> textFieldHPGLCurveFlatness.textProperty().get().isEmpty() ? 6F : Float.parseFloat(textFieldHPGLCurveFlatness.textProperty().get()), textFieldHPGLCurveFlatness.textProperty()));
-        textFieldHPGLCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 6F));
+        DrawingBotV3.INSTANCE.hpglCurveFlatness.bind(Bindings.createFloatBinding(() -> textFieldHPGLCurveFlatness.textProperty().get().isEmpty() ? 0.1F : Float.parseFloat(textFieldHPGLCurveFlatness.textProperty().get()), textFieldHPGLCurveFlatness.textProperty()));
+        textFieldHPGLCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
 
         DrawingBotV3.INSTANCE.hpglPenSpeed.bind(Bindings.createIntegerBinding(() -> textFieldHPGLPenSpeed.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLPenSpeed.textProperty().get()), textFieldHPGLPenSpeed.textProperty()));
         textFieldHPGLPenSpeed.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));

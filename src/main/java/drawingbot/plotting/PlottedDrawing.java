@@ -1,7 +1,6 @@
 package drawingbot.plotting;
 
 import drawingbot.api.IGeometryFilter;
-import drawingbot.drawing.DrawingStyle;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -13,6 +12,7 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class PlottedDrawing {
 
@@ -20,7 +20,8 @@ public class PlottedDrawing {
     public long vertexCount;
 
     public ObservableDrawingSet drawingPenSet;
-    public SimpleIntegerProperty displayedLineCount = new SimpleIntegerProperty(-1);
+    public SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);
+    public SimpleIntegerProperty displayedShapeMax = new SimpleIntegerProperty(-1);
     public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
     public PlottedDrawing(ObservableDrawingSet penSet){
@@ -38,10 +39,10 @@ public class PlottedDrawing {
     }
 
     public int getDisplayedGeometryCount(){
-        if(displayedLineCount.get() == -1){
+        if(displayedShapeMax.get() == -1){
             return getGeometryCount();
         }
-        return displayedLineCount.get();
+        return displayedShapeMax.get();
     }
 
     public int getGeometryCount(){
@@ -56,6 +57,7 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void addGeometry(IGeometry geometry) {
+        geometry.setGeometryIndex(geometries.size());
         geometries.add(geometry);
         vertexCount += geometry.getSegmentCount();
 
@@ -101,28 +103,20 @@ public class PlottedDrawing {
     public void reset(){
         clearGeometries();
         drawingPenSet = null;
-        displayedLineCount = null;
+        displayedShapeMax = null;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public int renderGeometryFX(GraphicsContext graphics, int start, int end, IGeometryFilter pointFilter, int vertexRenderLimit, boolean reverse) {
-        int renderCount = 0;
-        for (int index = reverse ? end : start; (reverse ? index >= start : index < end); index += reverse ? -1 : 1) {
-            if(index != start && index != end && renderCount >= vertexRenderLimit){
-                return index;
-            }
-            IGeometry next = geometries.get(index);
-            ObservableDrawingPen pen = drawingPenSet.getPen(next.getPenIndex());
-            if(pointFilter.filter(next, pen)){
-                next.renderFX(graphics, pen);
-                renderCount += next.getSegmentCount();
-            }
-        }
-        return reverse ? start : end;
+        return renderGeometry(start, end, pointFilter, vertexRenderLimit, reverse, (geometry, drawingPen) -> geometry.renderFX(graphics, drawingPen));
     }
 
     public int renderGeometryAWT(Graphics2D graphics, int start, int end, IGeometryFilter pointFilter, int vertexRenderLimit, boolean reverse) {
+        return renderGeometry(start, end, pointFilter, vertexRenderLimit, reverse, (geometry, drawingPen) -> geometry.renderAWT(graphics, drawingPen));
+    }
+
+    public int renderGeometry(int start, int end, IGeometryFilter pointFilter, int vertexRenderLimit, boolean reverse, BiConsumer<IGeometry, ObservableDrawingPen> render) {
         int renderCount = 0;
         for (int index = reverse ? end : start; (reverse ? index >= start : index < end); index += reverse ? -1 : 1) {
             if(index != start && index != end && renderCount >= vertexRenderLimit){
@@ -130,8 +124,8 @@ public class PlottedDrawing {
             }
             IGeometry next = geometries.get(index);
             ObservableDrawingPen pen = drawingPenSet.getPen(next.getPenIndex());
-            if(pointFilter.filter(next, pen)){
-                next.renderAWT(graphics, pen);
+            if(pointFilter.filter(this, next, pen)){
+                render.accept(next, pen);
                 renderCount += next.getSegmentCount();
             }
         }

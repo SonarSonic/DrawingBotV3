@@ -44,7 +44,7 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
         value.addListener((observable, oldValue, newValue) -> {
             BufferedImageLoader loader = new BufferedImageLoader(newValue, false);
-            DrawingBotV3.INSTANCE.backgroundService.submit(loader);
+            DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
             loader.setOnSucceeded(e -> thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null)));
             loader.setOnFailed(e -> thumbnail.set(null));
         });

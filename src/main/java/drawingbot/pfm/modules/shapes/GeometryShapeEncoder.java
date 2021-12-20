@@ -5,14 +5,11 @@ import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.GPath;
 import drawingbot.pfm.modules.PositionEncoder;
 import drawingbot.pfm.modules.ShapeEncoder;
-import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.dissolve.LineDissolver;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.IntersectionMatrix;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
 
-import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 public class GeometryShapeEncoder extends ShapeEncoder {
