@@ -1,8 +1,10 @@
 package drawingbot.javafx;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.utils.DBTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
@@ -25,6 +27,8 @@ public class TaskMonitor {
     public SimpleStringProperty titleProperty = new SimpleStringProperty("");
     public SimpleStringProperty messageProperty = new SimpleStringProperty("");
     public SimpleObjectProperty<Throwable> exceptionProperty = new SimpleObjectProperty<>(null);
+
+
 
     public TaskMonitor(ExecutorService service){
         this.service = service;
@@ -78,8 +82,16 @@ public class TaskMonitor {
         Platform.runLater(() -> {
             task.stateProperty().addListener((observable, oldValue, newValue) -> onTaskStateChanged(task, observable, oldValue, newValue));
             service.submit(task);
+            logTask(task);
         });
     }
+
+    public void logTask(Task<?> task){
+        Platform.runLater(() -> {
+            DrawingBotV3.INSTANCE.controller.taskMonitorController.taskProgressView.getTasks().add(task);
+        });
+    }
+
     //TODO BATCH PROCESSING?
     public void onTaskStateChanged(Task<?> task, ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue){
         switch (newValue){
@@ -117,6 +129,14 @@ public class TaskMonitor {
                 wasExporting.set(task instanceof ExportTask);
                 processingCount.setValue(processingCount.getValue() - 1);
                 break;
+        }
+    }
+
+    public void tick(){
+        if(currentTask instanceof DBTask){
+            ((DBTask<?>) currentTask).tick();
+        }else if(completedTask instanceof DBTask){
+            ((DBTask<?>) completedTask).tick();
         }
     }
 

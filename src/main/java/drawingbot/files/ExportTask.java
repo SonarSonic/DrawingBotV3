@@ -7,8 +7,8 @@ import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.utils.DBTask;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.scene.control.Dialog;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
-public class ExportTask extends Task<Boolean> {
+public class ExportTask extends DBTask<Boolean> {
 
     public final ExportFormats format;
     public final String extension;
@@ -109,7 +109,7 @@ public class ExportTask extends Task<Boolean> {
                 if(drawingPen.isEnabled() && (overwrite || Files.notExists(fileName.toPath()))){
                     updateMessage("Optimising Paths");
 
-                    Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (line, pen) -> pointFilter.filter(line, pen) && pen == drawingPen, forceBypassOptimisation);
+                    Map<Integer, List<IGeometry>> geometries = GeometryUtils.getGeometriesForExportTask(this, (drawing, line, pen) -> pointFilter.filter(drawing, line, pen) && pen == drawingPen, forceBypassOptimisation);
 
                     totalGeometries = GeometryUtils.getTotalGeometries(geometries);
                     renderedGeometries = 0;
@@ -131,32 +131,6 @@ public class ExportTask extends Task<Boolean> {
     public void onGeometryRendered(){
         renderedGeometries++;
         updateProgress(renderedGeometries, totalGeometries);
-    }
-
-    ///MAKE UPDATE METHODS ACCESSIBLE TO EXPORTERS
-
-    public void setError(String error){
-        this.error = error;
-    }
-
-    @Override
-    public void updateProgress(long workDone, long max) {
-        super.updateProgress(workDone, max);
-    }
-
-    @Override
-    public void updateProgress(double workDone, double max) {
-        super.updateProgress(workDone, max);
-    }
-
-    @Override
-    public void updateMessage(String message) {
-        super.updateMessage(message);
-    }
-
-    @Override
-    public void updateTitle(String title) {
-        super.updateTitle(title);
     }
 
 }

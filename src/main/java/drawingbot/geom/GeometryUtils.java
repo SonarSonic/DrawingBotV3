@@ -3,6 +3,9 @@ package drawingbot.geom;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IGeometryFilter;
+import drawingbot.geom.spatial.STRTreeSequencer;
+import drawingbot.geom.spatial.STRTreeSequencerLineString;
+import drawingbot.geom.spatial.TSPSequencerLineString;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
@@ -19,7 +22,6 @@ import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
-import org.locationtech.jts.linearref.LinearGeometryBuilder;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.awt.*;
@@ -38,18 +40,18 @@ public class GeometryUtils {
 
         ProgressCallback progressCallback = new ProgressCallback();
 
+        progressCallback.progressCallback = p -> task.updateProgress(p, 1);
+        progressCallback.messageCallback = task::updateMessage;
 
         if(!task.format.isVector || forceBypassOptimisation){
-            return getBasicGeometriesForExport(task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
+            return getBasicGeometriesForExport(task, task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
         }
 
         Map<Integer, List<List<IGeometry>>> perGroupOptimisedGeometries = new HashMap<>(); //pen id -> list of geometries with matching group and pen id
 
-        progressCallback.pushLayers(task.plottingTask.plottedDrawing.groups.size());
         for(Map.Entry<Integer, List<IGeometry>> groupEntry : task.plottingTask.plottedDrawing.groups.entrySet()){
-            progressCallback.updateMessage("Optimising Geometries" + (task.plottingTask.plottedDrawing.groups.size() > 1 ? " - Group: " + (groupEntry.getKey()+1) +  " / " + task.plottingTask.plottedDrawing.groups.size() + "" : ""));
            // progressCallback.startTask();
-            Map<Integer, List<IGeometry>> optimisedGeometries = getOptimisedGeometriesForExport(task.plottingTask.plottedDrawing.getGroupPFMType(groupEntry.getKey()), groupEntry.getValue(), filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
+            Map<Integer, List<IGeometry>> optimisedGeometries = getOptimisedGeometriesForExport(task, task.plottingTask.plottedDrawing.getGroupPFMType(groupEntry.getKey()), groupEntry.getValue(), filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
             for(Map.Entry<Integer, List<IGeometry>> penGroupEntry : optimisedGeometries.entrySet()){
                 if(!penGroupEntry.getValue().isEmpty()){
                     perGroupOptimisedGeometries.putIfAbsent(penGroupEntry.getKey(), new ArrayList<>());
@@ -58,7 +60,6 @@ public class GeometryUtils {
             }
             //progressCallback.finishTask();
         }
-        progressCallback.popLayers(task.plottingTask.plottedDrawing.groups.size());
 
         Map<Integer, List<IGeometry>> optimisedGeometries = new HashMap<>();
 
@@ -68,14 +69,17 @@ public class GeometryUtils {
         }
 
         progressCallback.updateMessage("Optimising Geometry Groups");
-        progressCallback.reset();
-        progressCallback.pushLayers(perGroupOptimisedGeometries.size());
         for(Map.Entry<Integer, List<List<IGeometry>>> groupEntry : perGroupOptimisedGeometries.entrySet()){
             progressCallback.startTask();
 
-            TSPSequencerBasic<List<IGeometry>> sequencer = new TSPSequencerBasic<>(groupEntry.getValue(), 0) {
+            STRTreeSequencer<List<IGeometry>> sequencer = new STRTreeSequencer<>(groupEntry.getValue(), 0) {
                 @Override
-                protected Coordinate getCoordinateFromCity(List<IGeometry> geometry) {
+                protected Coordinate getStartCoordinateFromGeometry(List<drawingbot.geom.basic.IGeometry> geometry) {
+                    return geometry.get(0).getOriginCoordinate();
+                }
+
+                @Override
+                protected Coordinate getEndCoordinateFromGeometry(List<drawingbot.geom.basic.IGeometry> geometry) {
                     return geometry.get(0).getOriginCoordinate();
                 }
             };
@@ -89,15 +93,14 @@ public class GeometryUtils {
 
             progressCallback.finishTask();
         }
-        progressCallback.popLayers(perGroupOptimisedGeometries.size());
 
         return optimisedGeometries;
     }
 
-    public static Map<Integer, List<IGeometry>> getOptimisedGeometriesForExport(@Nullable PFMFactory<?> factory, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback progressCallback) {
+    public static Map<Integer, List<IGeometry>> getOptimisedGeometriesForExport(ExportTask task, @Nullable PFMFactory<?> factory, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback progressCallback) {
 
 
-        Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(geometryFilter, drawingSet, geometries, progressCallback);
+        Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(task, geometryFilter, drawingSet, geometries, progressCallback);
 
         if(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
 
@@ -107,14 +110,12 @@ public class GeometryUtils {
             if(factory != null && !factory.bypassOptimisation){
                 AffineTransform toJTS = AffineTransform.getScaleInstance(printTransform.getScaleX(), printTransform.getScaleY());
                 AffineTransform fromJTS = AffineTransform.getScaleInstance(1/printTransform.getScaleX(), 1/printTransform.getScaleY());
-                progressCallback.pushLayers(combinedGeometry.size());
                 for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
                     ObservableDrawingPen pen = drawingSet.getPen(entry.getKey());
                     if(!(pen.source instanceof ICustomPen)){
                         entry.setValue(optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback));
                     }
                 }
-                progressCallback.popLayers(combinedGeometry.size());
             }else {
                 ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
 
@@ -122,7 +123,7 @@ public class GeometryUtils {
                     float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
 
                     for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
-                        TSPSequencerBasicGeometry sequencer = new TSPSequencerBasicGeometry(entry.getValue(), tolerance);
+                        STRTreeSequencer.IGeometry sequencer = new STRTreeSequencer.IGeometry(entry.getValue(), tolerance);
                         entry.setValue(sequencer.sort());
                     }
                 }
@@ -138,14 +139,14 @@ public class GeometryUtils {
         return combinedGeometry;
     }
 
-    public static Map<Integer, List<IGeometry>> getBasicGeometriesForExport(List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback callback) {
-        return combineBasicGeometries(geometryFilter, drawingSet, geometries, callback);
+    public static Map<Integer, List<IGeometry>> getBasicGeometriesForExport(ExportTask task, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback callback) {
+        return combineBasicGeometries(task, geometryFilter, drawingSet, geometries, callback);
     }
 
     /**
      * Combines any obvious path elements with obvious continuity
      */
-    private static Map<Integer, List<IGeometry>> combineBasicGeometries(IGeometryFilter geometryFilter, ObservableDrawingSet drawingSet, List<IGeometry> geometries, ProgressCallback callback){
+    private static Map<Integer, List<IGeometry>> combineBasicGeometries(ExportTask task, IGeometryFilter geometryFilter, ObservableDrawingSet drawingSet, List<IGeometry> geometries, ProgressCallback callback){
         Map<Integer, List<IGeometry>> optimised = new HashMap<>();
 
         for(ObservableDrawingPen set : drawingSet.getPens()){
@@ -156,7 +157,7 @@ public class GeometryUtils {
         for(IGeometry geometry : geometries){
             List<IGeometry> subList = optimised.get(geometry.getPenIndex());
             ObservableDrawingPen pen = drawingSet.getPen(geometry.getPenIndex());
-            if(geometryFilter.filter(geometry, pen)){
+            if(geometryFilter.filter(task.plottingTask.plottedDrawing, geometry, pen)){
                 if(geometry instanceof IPathElement){
                     IPathElement element = (IPathElement) geometry;
                     IGeometry lastGeometry = subList.isEmpty() ? null : subList.get(subList.size()-1);
@@ -228,42 +229,29 @@ public class GeometryUtils {
         }
         ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
 
-        progressCallback.pushLayers(4);
-
-        progressCallback.startTask();
         if(settings.lineSimplifyEnabled){
-            progressCallback.updateMessage("Simplifying");
+            progressCallback.updateTitle("Line Simplifying: ");
             float tolerance = UnitsLength.convert(settings.lineSimplifyTolerance, settings.lineSimplifyUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineSimplify(lineStrings, tolerance, progressCallback);
         }
-        progressCallback.finishTask();
 
-        progressCallback.startTask();
         if(settings.lineMergingEnabled){
-            progressCallback.updateMessage("Merging");
+            progressCallback.updateTitle("Line Merging: ");
             float tolerance = UnitsLength.convert(settings.lineMergingTolerance, settings.lineMergingUnits, UnitsLength.MILLIMETRES);
-            lineStrings = lineMerge(lineStrings, tolerance, progressCallback);
+            lineStrings = lineMerge(lineStrings, tolerance, progressCallback, 3);
         }
-        progressCallback.finishTask();
 
-        progressCallback.startTask();
         if(settings.lineFilteringEnabled){
-            progressCallback.updateMessage("Filtering");
+            progressCallback.updateTitle("Line Filtering: ");
             float tolerance = UnitsLength.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineFilter(lineStrings, tolerance, progressCallback);
         }
-        progressCallback.finishTask();
 
-        progressCallback.startTask();
         if(settings.lineSortingEnabled){
-            progressCallback.updateMessage("Sorting");
+            progressCallback.updateTitle("Line Sorting: ");
             float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineSort(lineStrings, tolerance, progressCallback);
         }
-        progressCallback.finishTask();
-
-        progressCallback.popLayers(4);
-
         return lineStrings;
     }
 
@@ -328,10 +316,14 @@ public class GeometryUtils {
     /**
      * Merges lines at their start/end point within the given tolerance.
      */
-    public static List<LineString> lineMerge(List<LineString> lineStrings, double tolerance, ProgressCallback progressCallback){
-        TSPSequencerLineString sequencer = new TSPSequencerLineString(lineStrings, tolerance);
-        sequencer.setProgressCallback(progressCallback);
-        return sequencer.lineMerge();
+    public static List<LineString> lineMerge(List<LineString> lineStrings, double tolerance, ProgressCallback progressCallback, int pass){
+        for(int i = 0; i < pass; i++){
+            progressCallback.updateTitle("Line Merging " + (i+1) + " of " + pass + ": ");
+            STRTreeSequencerLineString sequencer = new STRTreeSequencerLineString(lineStrings, tolerance);
+            sequencer.setProgressCallback(progressCallback);
+            lineStrings = sequencer.merge();
+        }
+        return lineStrings;
     }
 
     /**
@@ -339,190 +331,12 @@ public class GeometryUtils {
      * This is a simple version and doesn't provide a perfect solution
      */
     public static List<LineString> lineSort(List<LineString> lineStrings, double allowableDistance, ProgressCallback progressCallback){
-        TSPSequencer sequencer = new TSPSequencerLineString(lineStrings, allowableDistance);
+        STRTreeSequencerLineString sequencer = new STRTreeSequencerLineString(lineStrings, allowableDistance);
         sequencer.setProgressCallback(progressCallback);
         return sequencer.sort();
-    }
-
-    /**
-     * Not a very good approach to the Travelling Salesman Problem but suits the path finding algorithms currently in use, could definitely be improved, possibly with a nearest neighbour search combined with a KDTree!
-     */
-    public static abstract class TSPSequencer<T> {
-
-        public List<T> cities;
-        public boolean[] sorted;
-        public int sortedCount = 0;
-
-        public double measuredDistance;
-        public double allowableDistance;
-
-        public ProgressCallback progressCallback;
-
-        public TSPSequencer(List<T> cities, double allowableDistance){
-            this.cities = cities;
-            this.sorted = new boolean[cities.size()];
-            this.allowableDistance = allowableDistance;
-        }
-
-        public void setProgressCallback(ProgressCallback progressCallback){
-            this.progressCallback = progressCallback;
-        }
-
-        protected List<T> sort(){
-            List<T> sortedList = new ArrayList<>();
-            if(cities.isEmpty()){
-                return sortedList;
-            }
-            T first = cities.get(0);
-            sorted[0] = true;
-            sortedCount++;
-            sortedList.add(first);
-
-            while(sortedCount < cities.size()){
-                T last = sortedList.get(sortedList.size()-1);
-                Coordinate endCoord = getCoordinateFromCity(last);
-                T nearest = getNearestGeometry(endCoord);
-                sortedList.add(nearest);
-
-                if(progressCallback != null){
-                    progressCallback.updateProgress((float)sortedCount / cities.size());
-                    progressCallback.updateMessage(sortedCount + " / "  + cities.size());
-                }
-            }
-            return sortedList;
-        }
-
-        protected abstract Coordinate getCoordinateFromCity(T geometry);
-
-        protected abstract T getNearestGeometry(Coordinate point);
 
     }
 
-
-    public static abstract class TSPSequencerBasic<T> extends TSPSequencer<T>{
-
-        public TSPSequencerBasic(List<T> lineStrings, double allowableDistance) {
-            super(lineStrings, allowableDistance);
-        }
-
-        @Override
-        protected T getNearestGeometry(Coordinate point) {
-            T nearest = null;
-            measuredDistance = -1;
-            int index = 0;
-            for(int i = 0; i < sorted.length; i++){
-                if(!sorted[i]){
-                    T geometry = cities.get(i);
-                    Coordinate startCoord = getCoordinateFromCity(geometry);
-                    double toStart = point.distance(startCoord);
-                    if(measuredDistance == -1 || toStart < measuredDistance){
-                        measuredDistance = toStart;
-                        nearest = geometry;
-                        index = i;
-                        if(measuredDistance <= allowableDistance){
-                            break;
-                        }
-                    }
-                }
-            }
-            sorted[index] = true;
-            sortedCount++;
-            return nearest;
-        }
-    }
-
-    public static class TSPSequencerBasicGeometry extends TSPSequencerBasic<IGeometry>{
-
-        public TSPSequencerBasicGeometry(List<IGeometry> lineStrings, double allowableDistance) {
-            super(lineStrings, allowableDistance);
-        }
-
-        @Override
-        protected Coordinate getCoordinateFromCity(IGeometry geometry) {
-            return geometry.getOriginCoordinate();
-        }
-    }
-
-    public static class TSPSequencerLineString extends TSPSequencer<LineString>{
-
-        public TSPSequencerLineString(List<LineString> lineStrings, double allowableDistance) {
-            super(lineStrings, allowableDistance);
-        }
-
-        public void mergeLine(LinearGeometryBuilder builder, LineString string){
-            for(Coordinate coordinate : string.getCoordinates()){
-                builder.add(coordinate, false);
-            }
-        }
-
-        protected List<LineString> lineMerge(){
-            LinearGeometryBuilder builder = new LinearGeometryBuilder(factory);
-            builder.setIgnoreInvalidLines(true);
-            LineString first = cities.get(0);
-            sorted[0] = true;
-            sortedCount++;
-            mergeLine(builder, first);
-
-            while(sortedCount < cities.size()){
-                LineString nearest = getNearestGeometry(builder.getLastCoordinate());
-                if(measuredDistance > allowableDistance){
-                    builder.endLine();
-                }
-                mergeLine(builder, nearest);
-
-                if(progressCallback != null){
-                    progressCallback.updateProgress((float)sortedCount / cities.size());
-                    progressCallback.updateMessage(sortedCount + " / "  + cities.size());
-                }
-            }
-
-            return LinearComponentExtracter.getLines(builder.getGeometry(), true);
-        }
-
-        @Override
-        protected Coordinate getCoordinateFromCity(LineString geometry) {
-            return geometry.getCoordinateN(geometry.getNumPoints()-1);
-        }
-
-        @Override
-        protected LineString getNearestGeometry(Coordinate point){
-            LineString nearest = null;
-            measuredDistance = -1;
-            boolean reversed = false;
-            int index = 0;
-            for(int i = 0; i < sorted.length; i++){
-                if(!sorted[i]){
-                    LineString lineString = cities.get(i);
-                    Coordinate startCoord = lineString.getCoordinateN(0);
-                    double toStart = point.distance(startCoord);
-                    if(measuredDistance == -1 || toStart < measuredDistance){
-                        measuredDistance = toStart;
-                        nearest = lineString;
-                        reversed = false;
-                        index = i;
-                        if(measuredDistance <= allowableDistance){
-                            break;
-                        }
-                    }
-                    Coordinate endCoord = lineString.getCoordinateN(lineString.getNumPoints()-1);
-                    double toEnd = point.distance(endCoord);
-                    if(measuredDistance == -1 || toEnd < measuredDistance){
-                        measuredDistance = toEnd;
-                        nearest = lineString;
-                        reversed = true;
-                        index = i;
-                        if(measuredDistance <= allowableDistance){
-                            break;
-                        }
-                    }
-                }
-            }
-            sorted[index] = true;
-            sortedCount++;
-            return reversed ? nearest.reverse() : nearest;
-        }
-
-    }
 
     public static void printEstimatedTravelDistance(Map<Integer, List<IGeometry>> geometries, AffineTransform printTransform){
         double distanceUp = 0;

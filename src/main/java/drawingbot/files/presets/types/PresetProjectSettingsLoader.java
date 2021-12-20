@@ -53,7 +53,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             PrintResolution thumbnailResolution = PrintResolution.copy(DrawingBotV3.INSTANCE.getActiveTask().resolution);
             thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
             ExportTask task = new ExportTask(ExportFormats.EXPORT_IMAGE, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
-            DrawingBotV3.INSTANCE.backgroundService.submit(task);
+            DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }else{
             preset.data.thumbnailID = "";
         }

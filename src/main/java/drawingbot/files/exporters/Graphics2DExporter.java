@@ -31,7 +31,6 @@ public class Graphics2DExporter {
     }
 
     public static void drawGeometryWithDrawingSet(ExportTask exportTask, Graphics2D graphics, ObservableDrawingSet drawingSet, Map<Integer, List<IGeometry>> geometries){
-
         int[] renderOrder = drawingSet.calculateRenderOrder();
         for(int i = 0; i < renderOrder.length; i++){
             int penIndex = renderOrder[renderOrder.length-1-i];

@@ -59,7 +59,7 @@ public class DrawingBotV3 {
     public final SimpleStringProperty drawingAreaPaddingGang = new SimpleStringProperty("0");
 
     public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
-    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.5F);
+    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
     
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
 
@@ -95,7 +95,7 @@ public class DrawingBotV3 {
     public final SimpleObjectProperty<EnumAlignment> hpglAlignY = new SimpleObjectProperty<>(EnumAlignment.CENTER);
 
     public final SimpleObjectProperty<EnumRotation> hpglRotation = new SimpleObjectProperty<>(EnumRotation.AUTO);
-    public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(6F);
+    public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(0.1F);
 
     public final SimpleIntegerProperty hpglPenSpeed = new SimpleIntegerProperty(0);
     public final SimpleIntegerProperty hpglPenNumber = new SimpleIntegerProperty(0);
@@ -130,6 +130,7 @@ public class DrawingBotV3 {
     public static int SVG_DPI = 96;
     public static int PDF_DPI = 72;
 
+    public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
     public final SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
     public static double minScale = 0.1;
@@ -206,6 +207,8 @@ public class DrawingBotV3 {
 
 
     public void updateUI(){
+        taskMonitor.tick();
+
         if(getActiveTask() != null){
             if(getActiveTask().isRunning()){
                 int geometryCount = getActiveTask().plottedDrawing.getGeometryCount();
@@ -255,8 +258,10 @@ public class DrawingBotV3 {
                 break;
             case DO_PROCESS:
                 Platform.runLater(() -> {
-                    controller.sliderDisplayedLines.setValue(1.0F);
-                    controller.textFieldDisplayedLines.setText(String.valueOf(task.plottedDrawing.getGeometryCount()));
+                    controller.rangeSliderDisplayedLines.setLowValue(0.0F);
+                    controller.rangeSliderDisplayedLines.setHighValue(1.0F);
+                    controller.textFieldDisplayedShapesMin.setText(String.valueOf(0));
+                    controller.textFieldDisplayedShapesMax.setText(String.valueOf(task.plottedDrawing.getGeometryCount()));
                     controller.labelPlottedShapes.setText(Utils.defaultNF.format(task.plottedDrawing.getGeometryCount()));
                     controller.labelPlottedVertices.setText(Utils.defaultNF.format(task.plottedDrawing.getVertexCount()));
                 });
@@ -337,13 +342,14 @@ public class DrawingBotV3 {
     }
 
     public void resetPlotting(){
-        taskService.shutdownNow();
+        resetTaskService();
         setActivePlottingTask(null);
+    }
+
+    public void resetTaskService(){
+        taskService.shutdownNow();
         taskService = initTaskService();
         taskMonitor.resetMonitor(taskService);
-
-        updateLocalProgress(0D);
-        updateLocalMessage("");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -450,22 +456,32 @@ public class DrawingBotV3 {
     double locY = 0;
 
     public void mousePressedJavaFX(MouseEvent event) {    // record a delta distance for the drag and drop operation.
+        /*
         pressX = event.getX();
         pressY = event.getY();
         locX = controller.viewportScrollPane.getHvalue();
         locY = controller.viewportScrollPane.getVvalue();
+         */
     }
 
     public void mouseDraggedJavaFX(MouseEvent event) {
+        /*
+
         double relativeX = (pressX - event.getX()) / controller.viewportStackPane.getWidth();
         double relativeY = (pressY - event.getY()) / controller.viewportStackPane.getHeight();
         controller.viewportScrollPane.setHvalue(locX + relativeX);
         controller.viewportScrollPane.setVvalue(locY + relativeY);
+         */
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// SERVICES
+
+    public void startTask(ExecutorService service, Task<?> task){
+        service.submit(task);
+        taskMonitor.logTask(task);
+    }
 
     public final Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
         DrawingBotV3.logger.log(Level.SEVERE, "Thread Exception: " + thread.getName(), throwable);

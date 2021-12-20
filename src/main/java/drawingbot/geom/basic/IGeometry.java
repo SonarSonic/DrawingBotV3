@@ -11,14 +11,16 @@ import java.awt.geom.AffineTransform;
 
 public interface IGeometry {
 
-    IGeometryFilter DEFAULT_FILTER = (point, pen) -> pen.isEnabled();
-    IGeometryFilter SELECTED_PEN_FILTER = (point, pen) -> pen.isEnabled() && (DrawingBotV3.INSTANCE.controller.getSelectedPen() == null || DrawingBotV3.INSTANCE.controller.getSelectedPen().penNumber.get() == pen.penNumber.get());
+    IGeometryFilter DEFAULT_FILTER = (drawing, geometry, pen) -> pen.isEnabled() && (!DrawingBotV3.INSTANCE.exportRange.get() || geometry.getGeometryIndex() >= drawing.displayedShapeMin.get() && geometry.getGeometryIndex() <= drawing.displayedShapeMax.get());
+    IGeometryFilter SELECTED_PEN_FILTER = (drawing, geometry, pen) -> DEFAULT_FILTER.filter(drawing, geometry, pen) && (DrawingBotV3.INSTANCE.controller.getSelectedPen() == null || DrawingBotV3.INSTANCE.controller.getSelectedPen().penNumber.get() == pen.penNumber.get());
 
     default int getSegmentCount(){
         return 1;
     }
 
     Shape getAWTShape();
+
+    Integer getGeometryIndex();
 
     /**
      * @return the pen index, may be null
@@ -35,6 +37,11 @@ public interface IGeometry {
      * therefore when optimising the drawing, geometries with matching group ids, will be optimised together and not mixed with other groups
      */
     int getGroupID();
+
+    /**
+     * @param index may be null
+     */
+    void setGeometryIndex(Integer index);
 
     /**
      * @param index may be null

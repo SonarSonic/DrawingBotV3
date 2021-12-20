@@ -14,9 +14,11 @@ import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
@@ -66,12 +68,8 @@ public class JavaFXRenderer extends AbstractRenderer {
         graphicsFX = canvas.getGraphicsContext2D();
         graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
-
-        DrawingBotV3.INSTANCE.controller.viewportStackPane.getChildren().add(canvas);
-
-        //DrawingBotV3.INSTANCE.controller.viewportStackPane.minWidthProperty().bind(Bindings.createDoubleBinding(() -> canvas.getWidth() * Math.max(1, canvas.getScaleX()), canvas.widthProperty(), canvas.scaleXProperty()));
-       // DrawingBotV3.INSTANCE.controller.viewportStackPane.minHeightProperty().bind(Bindings.createDoubleBinding(() -> canvas.getHeight() * Math.max(1, canvas.getScaleY()), canvas.heightProperty(), canvas.scaleYProperty()));
-
+        Group canvasGroup = new Group(canvas);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(new StackPane(canvasGroup));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +124,7 @@ public class JavaFXRenderer extends AbstractRenderer {
                             imageFiltersChanged = false;
                             imageFilterDirty = false;
                             croppingDirty = false;
-                            DrawingBotV3.INSTANCE.imageFilteringService.submit(filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
+                            DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.imageFilteringService, filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
                         }
                     }
                     //resize the canvas
@@ -287,12 +285,12 @@ public class JavaFXRenderer extends AbstractRenderer {
                     graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
                     IGeometryFilter pointFilter = DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_FILTER;
-                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, 0, renderedLines, pointFilter, getVertexRenderLimit(),true);
+                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedTask.plottedDrawing.displayedShapeMin.get(), renderedLines, pointFilter, getVertexRenderLimit(),true);
 
                     int end = renderedTask.plottedDrawing.getDisplayedGeometryCount()-1;
                     DrawingBotV3.INSTANCE.updateLocalProgress((float)(end-renderedLines) / end);
 
-                    if(renderedLines == 0){
+                    if(renderedLines == renderedTask.plottedDrawing.displayedShapeMin.get()){
                         long time = System.currentTimeMillis();
                         DrawingBotV3.logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
                         renderedLines = -1;
@@ -366,8 +364,15 @@ public class JavaFXRenderer extends AbstractRenderer {
         double screen_scale_y = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());
         double screen_scale = Math.min(screen_scale_x, screen_scale_y) * DrawingBotV3.INSTANCE.scaleMultiplier.doubleValue();
         if(canvas.getScaleX() != screen_scale){
+            double oldScale = canvas.getScaleX();
+
+            //DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
+            //DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
+
+
             canvas.setScaleX(screen_scale);
             canvas.setScaleY(screen_scale);
+
         }
     }
 

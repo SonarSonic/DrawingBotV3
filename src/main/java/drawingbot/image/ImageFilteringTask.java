@@ -17,6 +17,7 @@ public class ImageFilteringTask extends Task<FilteredBufferedImage> {
 
     @Override
     protected FilteredBufferedImage call() {
+        updateTitle("Image Filtering");
         image.updateAll();
         updating.set(true);
         Platform.runLater(() -> {

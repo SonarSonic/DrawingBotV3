@@ -8,6 +8,7 @@ import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.DBConstants;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
