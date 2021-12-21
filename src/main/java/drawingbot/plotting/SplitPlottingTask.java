@@ -111,6 +111,7 @@ public class SplitPlottingTask extends PlottingTask{
                 }
 
                 subTasks.clear();
+                plottedDrawing.displayedShapeMin.set(-1); //sometimes needed
                 plottedDrawing.displayedShapeMax.set(-1); //sometimes needed
                 finishStage();
                 return true; ///return to override the defaults

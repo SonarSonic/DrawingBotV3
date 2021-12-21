@@ -274,7 +274,7 @@ public class JavaFXRenderer extends AbstractRenderer {
                 EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
                 if(shouldRedraw){
                     clearCanvas();
-                    renderedLines = renderedTask.plottedDrawing.getDisplayedGeometryCount()-1;
+                    renderedLines = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
                     DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
                     DrawingBotV3.INSTANCE.updateLocalProgress(0);
                     drawingTime = System.currentTimeMillis();
@@ -285,12 +285,12 @@ public class JavaFXRenderer extends AbstractRenderer {
                     graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
                     IGeometryFilter pointFilter = DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_FILTER;
-                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedTask.plottedDrawing.displayedShapeMin.get(), renderedLines, pointFilter, getVertexRenderLimit(),true);
+                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedTask.plottedDrawing.getDisplayedShapeMin(), renderedLines, pointFilter, getVertexRenderLimit(),true);
 
-                    int end = renderedTask.plottedDrawing.getDisplayedGeometryCount()-1;
+                    int end = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
                     DrawingBotV3.INSTANCE.updateLocalProgress((float)(end-renderedLines) / end);
 
-                    if(renderedLines == renderedTask.plottedDrawing.displayedShapeMin.get()){
+                    if(renderedLines == renderedTask.plottedDrawing.getDisplayedShapeMin()){
                         long time = System.currentTimeMillis();
                         DrawingBotV3.logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
                         renderedLines = -1;

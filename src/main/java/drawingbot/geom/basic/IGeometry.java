@@ -11,7 +11,7 @@ import java.awt.geom.AffineTransform;
 
 public interface IGeometry {
 
-    IGeometryFilter DEFAULT_FILTER = (drawing, geometry, pen) -> pen.isEnabled() && (!DrawingBotV3.INSTANCE.exportRange.get() || geometry.getGeometryIndex() >= drawing.displayedShapeMin.get() && geometry.getGeometryIndex() <= drawing.displayedShapeMax.get());
+    IGeometryFilter DEFAULT_FILTER = (drawing, geometry, pen) -> pen.isEnabled() && (!DrawingBotV3.INSTANCE.exportRange.get() || geometry.getGeometryIndex() >= drawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= drawing.getDisplayedShapeMax());
     IGeometryFilter SELECTED_PEN_FILTER = (drawing, geometry, pen) -> DEFAULT_FILTER.filter(drawing, geometry, pen) && (DrawingBotV3.INSTANCE.controller.getSelectedPen() == null || DrawingBotV3.INSTANCE.controller.getSelectedPen().penNumber.get() == pen.penNumber.get());
 
     default int getSegmentCount(){
