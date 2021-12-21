@@ -1,6 +1,9 @@
 # Change Log
 
-### [v1.2.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.0-stable)
+### [v1.2.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.2-stable)
+- Fixed: Fixes UI Hanging after re-processing image
+
+### [v1.2.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.1-stable)
 - Added: Option to specify the PPI to render Images/Animations at higher resolutions, in the Export Settings menu  - HanzPetrov
 - Added: Replaced the Displayed Shapes slider with a Range Slider
 - Added: "Apply to export" checkbox to enable the Ranges selected on the exported files
