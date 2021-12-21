@@ -38,7 +38,14 @@ public class PlottedDrawing {
         return drawingPenSet.getPens().size();
     }
 
-    public int getDisplayedGeometryCount(){
+    public int getDisplayedShapeMin(){
+        if(displayedShapeMin.get() == -1){
+            return 0;
+        }
+        return displayedShapeMin.get();
+    }
+
+    public int getDisplayedShapeMax(){
         if(displayedShapeMax.get() == -1){
             return getGeometryCount();
         }
@@ -104,6 +111,7 @@ public class PlottedDrawing {
         clearGeometries();
         drawingPenSet = null;
         displayedShapeMax = null;
+        displayedShapeMin = null;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
