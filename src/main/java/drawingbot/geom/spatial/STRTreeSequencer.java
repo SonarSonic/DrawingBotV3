@@ -68,6 +68,9 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
     }
 
     public void sequence(BiConsumer<STRNode<T>, STRNode<T>> consumer){
+        if(cities.isEmpty()){
+            return;
+        }
         STRNode<T> last = nodes.get(0);
         consumer.accept(null, last);
         sorted[0] = true;
