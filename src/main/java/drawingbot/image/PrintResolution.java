@@ -242,8 +242,8 @@ public class PrintResolution {
         print_scale_y = printDrawingHeight / (imageHeight * imageRenderScale);
         printScale = Math.min(print_scale_x, print_scale_y);
 
-        scaledOffsetX = (imageOffsetX)  + (getPrintOffsetX() / getPrintScale());
-        scaledOffsetY = (imageOffsetY) + (getPrintOffsetY() / getPrintScale());
+        scaledOffsetX = (imageOffsetX + 0.5)  + (getPrintOffsetX() / getPrintScale());
+        scaledOffsetY = (imageOffsetY + 0.5) + (getPrintOffsetY() / getPrintScale());
         scaledWidth = getPrintPageWidth() / getPrintScale();
         scaledHeight = getPrintPageHeight() / getPrintScale();
         finalPrintScaleX = 1;
