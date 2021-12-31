@@ -3,6 +3,7 @@ package drawingbot.image;
 import drawingbot.DrawingBotV3;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumDisplayMode;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -241,9 +242,15 @@ public class PrintResolution {
         print_scale_x = printDrawingWidth / (imageWidth * imageRenderScale);
         print_scale_y = printDrawingHeight / (imageHeight * imageRenderScale);
         printScale = Math.min(print_scale_x, print_scale_y);
-
-        scaledOffsetX = (imageOffsetX + 0.5)  + (getPrintOffsetX() / getPrintScale());
-        scaledOffsetY = (imageOffsetY + 0.5) + (getPrintOffsetY() / getPrintScale());
+        
+        //0.5 offset needed to align origin of drawing geometry with centre of pixel
+        if(DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.DRAWING || DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN) {
+            scaledOffsetX = (imageOffsetX + 0.5)  + (getPrintOffsetX() / getPrintScale());
+            scaledOffsetY = (imageOffsetY + 0.5) + (getPrintOffsetY() / getPrintScale());
+        } else {
+            scaledOffsetX = (imageOffsetX)  + (getPrintOffsetX() / getPrintScale());
+            scaledOffsetY = (imageOffsetY) + (getPrintOffsetY() / getPrintScale());
+        }
         scaledWidth = getPrintPageWidth() / getPrintScale();
         scaledHeight = getPrintPageHeight() / getPrintScale();
         finalPrintScaleX = 1;

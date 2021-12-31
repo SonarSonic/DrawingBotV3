@@ -318,6 +318,7 @@ public class DrawingBotV3 {
     public PlottingTask initPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         Platform.runLater(() -> {
+            display_mode.setValue(EnumDisplayMode.DRAWING);
             if(updateDistributionType != null && colourSplitter.get() == EnumColourSplitter.DEFAULT){
                 drawingPenSet.distributionType.set(updateDistributionType);
                 updateDistributionType = null;
