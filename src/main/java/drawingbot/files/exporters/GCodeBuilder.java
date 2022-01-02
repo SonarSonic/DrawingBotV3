@@ -129,7 +129,7 @@ public class GCodeBuilder {
     }
 
     public void bezierCurveG5(float controlP1X, float controlP1Y, float controlP2X, float controlP2Y, float endX, float endY){
-        output.println("G5 I" + Utils.gcodeFloat(controlP1X - lastX) + " J" + Utils.gcodeFloat(controlP1Y - lastY) + " P" + Utils.gcodeFloat(controlP2X - lastX) + " Q" + Utils.gcodeFloat(controlP2Y - lastY) + " X" + Utils.gcodeFloat(endX) + " Y" + Utils.gcodeFloat(endY));
+        output.println("G5 I" + Utils.gcodeFloat(controlP1X - lastX) + " J" + Utils.gcodeFloat(controlP1Y - lastY) + " P" + Utils.gcodeFloat(controlP2X - endX) + " Q" + Utils.gcodeFloat(controlP2Y - endY) + " X" + Utils.gcodeFloat(endX) + " Y" + Utils.gcodeFloat(endY));
         logMove(controlP1X, controlP1Y);
         logMove(controlP2X, controlP2Y);
         logMove(endX, endY);
