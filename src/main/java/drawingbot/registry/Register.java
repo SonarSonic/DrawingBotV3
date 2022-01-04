@@ -25,6 +25,10 @@ public class Register {
     public static void registerPFMs(){
 
         //operational path finding modules
+        
+        ////experimental - placed here for quick access
+        MasterRegistry.INSTANCE.registerPFM(PFMLayers.class, "Layers PFM", PFMLayers::new, false, true).setIsBeta(true);
+
         MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false, false).setBypassOptimisation(true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false, false);
@@ -170,6 +174,9 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMMosaicCustom.class, "Mask Feather Radius", 0F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.featherRadius = value));
         MasterRegistry.INSTANCE.registerPFMSetting(new ImageSetting<>(PFMMosaicCustom.class, "Mask Image", "", true, (pfmSketch, value) -> pfmSketch.maskImagePath = value));
 
+        ///// LAYERS PFM
+        MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMLayers.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
+        MasterRegistry.INSTANCE.removePFMSettingByName(PFMLayers.class, "Plotting Resolution");
     }
 
     public static void registerDrawingTools(){
