@@ -203,6 +203,16 @@ Transforms an image into a series of connected triangles joining all the *centro
 .. image:: images/voronoi_triangulation_after.jpg
     :width: 250pt
 
+Tree
+^^^^^^^^^^^^^^^^
+Transforms an image into a Minimum Spanning Tree, which connects all the *centroids* in the voronoi diagram into a minimum length tree.
+
+.. image:: images/voronoi_tree_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/voronoi_tree_after.jpg
+    :width: 250pt
+
 Stippling
 ^^^^^^^^^^^^^^^^
 Transforms an image into a series of filled circles for each *centroid* in the voronoi diagram, the size of the "stipple" is relative to the sampled brightness of the cell the centroid belongs to.
@@ -222,6 +232,17 @@ Transforms an image into a Voronoi Diagram
 
 .. image:: images/voronoi_diagram_after.jpg
     :width: 250pt
+
+TSP
+^^^^^^^^^^^^^^^^
+Transforms an image into a series of connected lines for each *centroid* in the voronoi diagram with the shortest distance. By solving the Travelling Salesman Problem.
+
+.. image:: images/voronoi_tsp_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/voronoi_tsp_after.jpg
+    :width: 250pt
+
 
 How they work
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -256,3 +277,27 @@ Settings: *Stippling Only*
 
 
 
+Mosaic PFMs
+------------------------------------------------------------
+
+Mosaic PFMs offer different ways to split an image into different sections which can then be passed through different PFMs to create a Mosaic effect.
+
+Rectangles
+^^^^^^^^^^^
+Divides an image into a series of rectangles which can are then distributed randomly amongst the enabled Drawing Styles
+
+.. image:: images/mosaic_rectangles_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/mosaic_rectangles_after.jpg
+    :width: 250pt
+
+Voronoi
+^^^^^^^^^^^
+Divides an image into a Voronoi Diagram, each cell is distributed randomly amongst the enabled Drawing Styles
+
+.. image:: images/mosaic_voronoi_eye_after.jpg
+    :width: 250pt
+
+.. image:: images/mosaic_voronoi_after.jpg
+    :width: 250pt
