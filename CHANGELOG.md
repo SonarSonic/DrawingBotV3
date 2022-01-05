@@ -1,4 +1,8 @@
 # Change Log
+### [v1.2.3-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.2-stable)
+- Fixed: Drawings randomly failing to export when Path Optimization is enabled.
+- Fixed: GCode Bezier Curves not matching the drawing properly. -Triod-project
+- Changed: Geometries will now start from the middle of the pixel and not the top left - HanzPetrov
 
 ### [v1.2.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.2-stable)
 - Fixed: Fixes UI Hanging after re-processing image
