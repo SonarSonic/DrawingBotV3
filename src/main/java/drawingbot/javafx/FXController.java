@@ -286,6 +286,7 @@ public class FXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
                 task.plottedDrawing.displayedShapeMax.setValue(lines);
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
+                task.plottedDrawing.updatePenDistribution();
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
@@ -296,6 +297,7 @@ public class FXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
                 task.plottedDrawing.displayedShapeMin.setValue(lines);
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
+                task.plottedDrawing.updatePenDistribution();
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
@@ -307,6 +309,7 @@ public class FXController {
                 task.plottedDrawing.displayedShapeMax.setValue(lines);
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
                 rangeSliderDisplayedLines.setHighValue((double)lines / task.plottedDrawing.getGeometryCount());
+                task.plottedDrawing.updatePenDistribution();
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
@@ -318,6 +321,7 @@ public class FXController {
                 task.plottedDrawing.displayedShapeMin.setValue(lines);
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
                 rangeSliderDisplayedLines.setLowValue((double)lines / task.plottedDrawing.getGeometryCount());
+                task.plottedDrawing.updatePenDistribution();
                 DrawingBotV3.INSTANCE.reRender();
             }
         });

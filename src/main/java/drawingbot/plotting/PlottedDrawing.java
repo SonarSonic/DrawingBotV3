@@ -1,5 +1,6 @@
 package drawingbot.plotting;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -195,8 +196,19 @@ public class PlottedDrawing {
                     float percentage = (weighted ? (float)pen.distributionWeight.get() : 100) / totalWeight;
                     pen.currentPercentage.set(NumberFormat.getPercentInstance().format(percentage));
 
-                    //update geometry count
-                    int geometriesPerPen = (int)(percentage * getGeometryCount());
+                    //update geometry count                    
+                    int min = getDisplayedShapeMin();
+                    int max = getDisplayedShapeMax();
+                    int displayedGeometryCount = max - min;
+                    int geometriesPerPen;
+                    
+                    if (i == 0) {
+                        geometriesPerPen = (int)(percentage * displayedGeometryCount) + min;
+                    } else if (i == renderOrder.length - 1) {
+                        geometriesPerPen = (int)(percentage * displayedGeometryCount) + max - displayedGeometryCount;
+                    } else {
+                        geometriesPerPen = (int)(percentage * displayedGeometryCount);
+                    }
                     pen.currentGeometries.set(geometriesPerPen);
 
                     //set pen references
