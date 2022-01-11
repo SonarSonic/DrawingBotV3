@@ -170,6 +170,8 @@ public class PlottedDrawing {
         }
     }
 
+    //TODO DISTRIBUTE BASED ON BRIGHTNESS!
+
     /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
     public void updateEvenDistribution(boolean weighted, boolean random){
         int currentGeometry = 0;

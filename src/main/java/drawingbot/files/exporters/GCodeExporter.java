@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.image.PrintResolution;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.Limit;
 
@@ -30,6 +31,34 @@ public class GCodeExporter {
     public static final String defaultEndLayerCode = "";
 
 
+    public static float getGCodeXOffset(){
+        return DrawingBotV3.INSTANCE.gcodeOffsetX.get();
+    }
+
+    public static float getGCodeYOffset(){
+        return DrawingBotV3.INSTANCE.gcodeOffsetY.get();
+    }
+
+    public static AffineTransform createGCodeTransform(PrintResolution resolution){
+        AffineTransform transform = new AffineTransform();
+
+        ///translate by the gcode offset
+        transform.translate(getGCodeXOffset(), getGCodeYOffset());
+
+        ///move into print scale
+        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
+
+        //g-code y numbers go the other way
+        transform.translate(0, resolution.getScaledHeight());
+
+        //move with pre-scaled offsets
+        transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
+
+        //flip y coordinates
+        transform.scale(1, -1);
+        return transform;
+    }
+
     public static void exportGCode(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
         PrintWriter output = FileUtils.createWriter(saveLocation);
         GCodeBuilder builder = new GCodeBuilder(plottingTask, output);
@@ -37,7 +66,7 @@ public class GCodeExporter {
         plottingTask.comments.forEach(builder::comment);
         builder.open();
 
-        AffineTransform transform = plottingTask.createGCodeTransform();
+        AffineTransform transform = createGCodeTransform(plottingTask.resolution);
 
         float[] coords = new float[6];
         for(List<IGeometry> geometryList : geometries.values()){
@@ -60,7 +89,7 @@ public class GCodeExporter {
     }
 
     public static void exportGCodeTest(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
-        AffineTransform transform = plottingTask.createGCodeTransform();
+        AffineTransform transform = createGCodeTransform(plottingTask.resolution);
 
         Limit dx = new Limit(), dy = new Limit();
 

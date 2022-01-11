@@ -1,7 +1,6 @@
 package drawingbot.geom.spatial;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.utils.LazyTimer;
 import drawingbot.utils.ProgressCallback;
 import org.locationtech.jts.geom.Coordinate;
@@ -13,7 +12,6 @@ import org.locationtech.jts.index.strtree.STRtree;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public abstract class STRTreeSequencer<T> implements ItemDistance {
 
@@ -54,7 +52,8 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         LazyTimer buildTimer = new LazyTimer();
         buildTimer.start();
         this.tree.build();
-        DrawingBotV3.logger.info("Build: " + buildTimer.finish());
+        buildTimer.finish();
+        DrawingBotV3.logger.info("Build: " + buildTimer.getElapsedTimeFormatted());
     }
 
     public void rebuild(){

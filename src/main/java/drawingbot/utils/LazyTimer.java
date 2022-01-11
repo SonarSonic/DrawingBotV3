@@ -6,6 +6,8 @@ package drawingbot.utils;
 public class LazyTimer {
 
     public long startTime;
+    public long endTime;
+
 
     public LazyTimer(){}
 
@@ -16,11 +18,18 @@ public class LazyTimer {
         startTime = System.currentTimeMillis();
     }
 
+    public void finish(){
+        endTime = System.currentTimeMillis();
+    }
+
+    public long getElapsedTime(){
+        return endTime - startTime;
+    }
+
     /**
      * Prints out the finishing time
      */
-    public String finish(){
-        long endTime = System.currentTimeMillis();
+    public String getElapsedTimeFormatted(){
 
         long elapsedTime = (endTime - startTime);
 

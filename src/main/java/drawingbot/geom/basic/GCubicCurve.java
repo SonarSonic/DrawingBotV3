@@ -1,28 +1,28 @@
 package drawingbot.geom.basic;
 
+import drawingbot.geom.PathBuilder;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
+import java.awt.geom.CubicCurve2D;
 
-public class GLine extends Line2D.Float implements IGeometry, IPathElement {
+public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathElement {
 
-    public GLine() {
-        super();
+    public GCubicCurve(float[] p0, float[] p1, float[] p2, float[] p3) {
+        setCurve(p0[0], p0[1], p1[0], p1[1], p2[0], p2[1], p3[0], p3[1]);
     }
 
-    public GLine(float x1, float y1, float x2, float y2) {
-        super(x1, y1, x2, y2);
+    public GCubicCurve(float[] p0, float[] p1, float[] p2, float[] p3, float catmullTension) {
+        float[][] bezier = PathBuilder.catmullToBezier(new float[][]{p0, p1, p2, p3}, new float[4][2], catmullTension);
+        setCurve(bezier[0][0], bezier[0][1], bezier[1][0], bezier[1][1], bezier[2][0], bezier[2][1], bezier[3][0], bezier[3][1]);
     }
 
-    public GLine(Point2D p1, Point2D p2) {
-        super(p1, p2);
+    public GCubicCurve(int x1, int y1, int ctrl1X, int ctrl1Y, int ctrl2X, int ctrl2Y, int x2, int y2) {
+        setCurve(x1, y1, ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, x2, y2);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
         if(addMove){
             path.moveTo(x1, y1);
         }
-        path.lineTo(x2, y2);
+        path.curveTo(ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2);
     }
 
     //// IGeometry \\\\
@@ -42,7 +42,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
 
     @Override
     public int getSegmentCount() {
-        return 2;
+        return 4;
     }
 
     @Override
@@ -93,22 +93,24 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     @Override
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
-        graphics.strokeLine(x1, y1, x2, y2);
-    }
-
-    @Override
-    public void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter) {
-        helper.plotLine((int)x1, (int)y1, (int)x2, (int)y2, setter);
+        graphics.beginPath();
+        graphics.moveTo(x1, y1);
+        graphics.bezierCurveTo(ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2);
+        graphics.stroke();
     }
 
     @Override
     public void transform(AffineTransform transform) {
-        float[] coords = new float[]{x1, y1, x2, y2};
-        transform.transform(coords, 0, coords, 0, 2);
+        float[] coords = new float[]{x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2};
+        transform.transform(coords, 0, coords, 0, 4);
         x1 = coords[0];
         y1 = coords[1];
-        x2 = coords[2];
-        y2 = coords[3];
+        ctrlx1 = coords[2];
+        ctrly1 = coords[3];
+        ctrlx2 = coords[4];
+        ctrly2 = coords[5];
+        x2 = coords[6];
+        y2 = coords[7];
     }
 
     @Override

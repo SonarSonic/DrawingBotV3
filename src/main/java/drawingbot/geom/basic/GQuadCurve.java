@@ -1,5 +1,6 @@
 package drawingbot.geom.basic;
 
+import drawingbot.geom.PathBuilder;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
@@ -8,21 +9,13 @@ import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
+import java.awt.geom.CubicCurve2D;
+import java.awt.geom.QuadCurve2D;
 
-public class GLine extends Line2D.Float implements IGeometry, IPathElement {
+public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathElement {
 
-    public GLine() {
-        super();
-    }
-
-    public GLine(float x1, float y1, float x2, float y2) {
-        super(x1, y1, x2, y2);
-    }
-
-    public GLine(Point2D p1, Point2D p2) {
-        super(p1, p2);
+    public GQuadCurve(float x1, float y1, float ctrlx, float ctrly, float x2, float y2) {
+        super(x1, y1, ctrlx, ctrly, x2, y2);
     }
 
     @Override
@@ -30,7 +23,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
         if(addMove){
             path.moveTo(x1, y1);
         }
-        path.lineTo(x2, y2);
+        path.quadTo(ctrlx, ctrly, x2, y2);
     }
 
     //// IGeometry \\\\
@@ -42,7 +35,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
 
     @Override
     public int getSegmentCount() {
-        return 2;
+        return 4;
     }
 
     @Override
@@ -93,22 +86,27 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     @Override
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
-        graphics.strokeLine(x1, y1, x2, y2);
+        graphics.beginPath();
+        graphics.moveTo(x1, y1);
+        graphics.quadraticCurveTo(ctrlx, ctrly, x2, y2);
+        graphics.stroke();
     }
 
     @Override
     public void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter) {
-        helper.plotLine((int)x1, (int)y1, (int)x2, (int)y2, setter);
+        helper.plotQuadBezier((int)x1, (int)y1, (int)ctrlx, (int)ctrly, (int)x2, (int)y2, setter);
     }
 
     @Override
     public void transform(AffineTransform transform) {
-        float[] coords = new float[]{x1, y1, x2, y2};
-        transform.transform(coords, 0, coords, 0, 2);
+        float[] coords = new float[]{x1, y1, ctrlx, ctrly, x2, y2};
+        transform.transform(coords, 0, coords, 0, 3);
         x1 = coords[0];
         y1 = coords[1];
-        x2 = coords[2];
-        y2 = coords[3];
+        ctrlx = coords[2];
+        ctrly = coords[3];
+        x2 = coords[6];
+        y2 = coords[7];
     }
 
     @Override

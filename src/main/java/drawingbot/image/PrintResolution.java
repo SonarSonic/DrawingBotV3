@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 
 public class PrintResolution {
 
-
     //// SOURCE RESOLUTION \\\\
 
     //the original images dimensions, in PX
@@ -23,6 +22,7 @@ public class PrintResolution {
     public final int sourceWidth;
     public final int sourceHeight;
 
+
     //// PLOTTING RESOLUTION \\\\
 
     //the resolution the PFM is plotting the image at
@@ -30,6 +30,7 @@ public class PrintResolution {
 
     //for transforming from the plotting resolution to the image resolution
     public AffineTransform plottingTransform;
+
 
     //// IMAGE RESOLUTION \\\\
 
@@ -132,6 +133,7 @@ public class PrintResolution {
         copy.scaledOffsetY = resolution.scaledOffsetY;
         copy.scaledHeight = resolution.scaledHeight;
         copy.scaledWidth = resolution.scaledWidth;
+
         return copy;
     }
 
@@ -242,6 +244,7 @@ public class PrintResolution {
         print_scale_y = printDrawingHeight / (imageHeight * imageRenderScale);
         printScale = Math.min(print_scale_x, print_scale_y);
 
+        //0.5 offset moves origin of geometry to the centre of pixel
         scaledOffsetX = (imageOffsetX + 0.5)  + (getPrintOffsetX() / getPrintScale());
         scaledOffsetY = (imageOffsetY + 0.5) + (getPrintOffsetY() / getPrintScale());
         scaledWidth = getPrintPageWidth() / getPrintScale();
@@ -253,6 +256,28 @@ public class PrintResolution {
     public boolean useOriginalSizing(){
         return DrawingBotV3.INSTANCE.useOriginalSizing.get() || DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() == 0 || DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() == 0;
     }
+
+    //// IMAGE RESOLUTION \\\\
+
+    public int getImageWidth(){
+        return imageWidth;
+    }
+
+    public int getImageHeight(){
+        return imageHeight;
+    }
+
+    public int getImageCropWidth(){
+        return imageCropWidth;
+    }
+
+    public int getImageCropHeight(){
+        return imageCropHeight;
+    }
+
+
+    //// PRINT RESOLUTION \\\\
+
 
     public float getPrintPageWidth() {
         return printPageWidth;
@@ -278,21 +303,9 @@ public class PrintResolution {
         return printOffsetY;
     }
 
-    public int getImageWidth(){
-        return imageWidth;
-    }
 
-    public int getImageHeight(){
-        return imageHeight;
-    }
+    //// IMAGE to PRINT SCALE \\\\
 
-    public int getImageCropWidth(){
-        return imageCropWidth;
-    }
-
-    public int getImageCropHeight(){
-        return imageCropHeight;
-    }
 
     public double getScaledWidth(){
         return scaledWidth;

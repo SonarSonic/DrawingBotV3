@@ -10,6 +10,8 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.javafx.settings.ImageSetting;
 import drawingbot.pfm.*;
+import drawingbot.pfm.modules.position.EnumVoronoiExportType;
+import drawingbot.pfm.modules.position.StructureAwareStipplingPositionEncoder;
 import drawingbot.pfm.modules.position.WeightedVoronoiPositionEncoder;
 import drawingbot.pfm.modules.shapes.*;
 import drawingbot.pfm.wip.*;
@@ -34,21 +36,34 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, false, false);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel Edges PFM", PFMSketchSobel::new, false, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false, true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Circles", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TriangulationShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Tree", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TreeShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TreeShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new StipplingShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi TSP", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new TSPShapeEncoder()), false, false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TSPShapeEncoder.class)).setTransparentCMYK(false);
+
+
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Circles", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TriangulationShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Tree", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TreeShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TreeShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new StipplingShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi TSP", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TSPShapeEncoder()), false, false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TSPShapeEncoder.class)).setTransparentCMYK(false);
+
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Circles", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Triangulation", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TriangulationShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Tree", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TreeShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, TreeShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Stippling", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new StipplingShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Diagram", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware TSP", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TSPShapeEncoder()), true, false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, TSPShapeEncoder.class)).setTransparentCMYK(false);
+
+
         MasterRegistry.INSTANCE.registerPFM(PFMMosaicRectangles.class, "Mosaic Rectangles", PFMMosaicRectangles::new, false, false).setDistributionType(EnumDistributionType.PRECONFIGURED).setBypassOptimisation(true);
         MasterRegistry.INSTANCE.registerPFM(PFMMosaicVoronoi.class, "Mosaic Voronoi", PFMMosaicVoronoi::new, false, false).setDistributionType(EnumDistributionType.PRECONFIGURED).setBypassOptimisation(true);
         MasterRegistry.INSTANCE.registerPFM(PFMMosaicCustom.class, "Mosaic Custom", PFMMosaicCustom::new, false, true).setDistributionType(EnumDistributionType.PRECONFIGURED).setBypassOptimisation(true).setIsBeta(true);
 
         //experimental / developer only path finding modules
         //MasterRegistry.INSTANCE.registerPFM(PFMSketchCurvesV3.class, "Sketch Curves PFM v3.0", PFMSketchCurvesV3::new, true, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Continuous Line", () -> new PFMModular(new WeightedVoronoiPositionEncoder(WeightedVoronoiPositionEncoder.EnumExportType.CENTROIDS), new ContinuousLineShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Continuous Line", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new ContinuousLineShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
 
         MasterRegistry.INSTANCE.registerPFM(PFMSketchWaves.class, "Sketch Waves PFM", PFMSketchWaves::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchNoise.class, "Sketch Noise PFM", PFMSketchNoise::new, true, true);
+
         //MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true, true);
         //MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSineWaves.class, "Sine Waves PFM (Experimental)", PFMSineWaves::new, true, true);
@@ -60,7 +75,7 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
 
         ////GENERAL
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 1.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 10.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value).setSafeRange(0.1F, 1.0F));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.seed = value));
 
         ////SKETCH PFM
@@ -124,8 +139,11 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 2, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value).setSafeRange(2, 500));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value).setSafeRange(2, 500));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.maxLines = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggle_length = value).setSafeRange(1, 5000));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggleLength = value).setSafeRange(1, 5000));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Squiggle Max Deviation", 25, 0, 100, false, (pfmSketch, value) -> pfmSketch.squiggleDeviation = value/100F));
+
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 50, 1, 255, false, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Unlimited Tests", false, true, (pfmSketch, value) -> pfmSketch.unlimitedTests = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 3200, false, (pfmSketch, value) -> pfmSketch.lineTests = value).setSafeRange(0, 360));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
@@ -141,10 +159,20 @@ public class Register {
         MasterRegistry.INSTANCE.registerModularEncoderSetting(TriangulationShapeEncoder.class, GenericSetting.createBooleanSetting(PFMModular.class, "Triangulate Corners", false, false, (pfmSketch, value) -> ((TriangulationShapeEncoder)pfmSketch.shapeEncoder).connectCorners = value));
         MasterRegistry.INSTANCE.registerModularEncoderSetting(TSPShapeEncoder.class, GenericSetting.createOptionSetting(PFMModular.class, "TSP Algorithm", List.of(TSPShapeEncoder.EnumTSPAlgorithm.values()), TSPShapeEncoder.EnumTSPAlgorithm.TWO_OPT, false, (pfmSketch, value) -> ((TSPShapeEncoder)pfmSketch.shapeEncoder).algorithmFactory = value));
 
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Shrink", 5, 1, 1000, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).shrink = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Expand", 5, 1, 1000, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).expand = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Mask Size", 7, 1, 1000, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).maskSize = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Threshold", 127, 0, 255, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).threshold = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Min Stipple Size", 1, 1, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).minStippleSize = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Max Stipple Size", 2, 1, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).maxStippleSize = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Distribution Power", 2, 0, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).distributionPower = value));
+        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Error Offset", 0.1F, 0, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).errorOffset = value));
+
 
 
         ///// CATMOLL ROM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMCatmullRoms.class, "Curve tension", 0.5F, 0.01F, 1F, false, (pfmSketch, value) -> pfmSketch.tension = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMCatmullRoms.class, "Curve refinement", false, false, (pfmSketch, value) -> pfmSketch.curveRefinement = value));
+
 
         MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading");
         MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Threshold");

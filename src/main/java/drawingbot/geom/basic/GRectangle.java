@@ -1,6 +1,7 @@
 package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -80,6 +81,14 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         graphics.strokeRect(x, y, width, height);
+    }
+
+    @Override
+    public void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter) {
+        helper.plotLine((int)x, (int)y, (int)(x + width), (int)y, setter);
+        helper.plotLine((int)x, (int)(y + height), (int)(x + width), (int)(y + height), setter);
+        helper.plotLine((int)x, (int)y, (int)(x), (int)(y + height), setter);
+        helper.plotLine((int)(x + width), (int)y, (int)(x + width), (int)(y + height), setter);
     }
 
     @Override

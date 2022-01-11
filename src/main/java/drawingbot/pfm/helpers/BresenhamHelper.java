@@ -1,10 +1,10 @@
 package drawingbot.pfm.helpers;
 
 import drawingbot.geom.PathBuilder;
-import org.joml.Vector2i;
 
 import java.awt.*;
 import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.floor;
@@ -92,26 +92,32 @@ public class BresenhamHelper {
         plotCatmullRom(new float[]{x0, y0}, new float[]{x1, y1}, new float[]{x2, y2}, new float[]{x3, y3}, tension, setter);
     }
 
-    public void plotCatmullRom(List<Vector2i> points, float tension, IPixelSetter setter){
-        float[][] bezier = new float[4][2];
+    public void plotCatmullRom(List<int[]> points, float tension, IPixelSetter setter){
+        float[][] bezier;
 
-        Vector2i p0;
-        Vector2i p1 = null;
-        Vector2i p2 = null;
-        Vector2i p3 = null;
+        int[] p0;
+        int[] p1 = null;
+        int[] p2 = null;
+        int[] p3 = null;
 
 
-        for(Vector2i point : points){
+        for(int[] point : points){
             p0 = p1;
             p1 = p2;
             p2 = p3;
             p3 = point;
 
             if(p0 != null && p1 != null && p2 != null && p3 != null){
-                PathBuilder.catmullToBezier(new float[][]{new float[]{p0.x, p0.y}, new float[]{p1.x, p1.y}, new float[]{p2.x, p2.y}, new float[]{p3.x, p3.y}}, bezier, tension);
+                bezier = PathBuilder.catmullToBezier(new float[][]{new float[]{p0[0], p0[1]}, new float[]{p1[0], p1[1]}, new float[]{p2[0], p2[1]}, new float[]{p3[0], p3[1]}}, new float[4][2], tension);
                 plotCubicBezier((int)bezier[0][0], (int)bezier[0][1], (int)bezier[1][0], (int)bezier[1][1], (int)bezier[2][0], (int)bezier[2][1], (int)bezier[3][0], (int)bezier[3][1], setter);
             }
         }
+    }
+
+    public void plotCatmullRomI(int[] p1, int[] p2, int[] p3, int[] p4, float tension, IPixelSetter setter){
+        float[][] bezier = PathBuilder.catmullToBezier(new float[][]{new float[]{p1[0], p1[1]}, new float[]{p2[0], p2[1]}, new float[]{p3[0], p3[1]}, new float[]{p4[0], p4[1]}}, new float[4][2], tension);
+        plotCubicBezier((int)bezier[0][0], (int)bezier[0][1], (int)bezier[1][0], (int)bezier[1][1], (int)bezier[2][0], (int)bezier[2][1], (int)bezier[3][0], (int)bezier[3][1], setter);
+        //line((int)p2[0], (int)p2[1], (int)p3[0], (int)p3[1], (x, y) -> {setter.setPixel(x,y); return false; });
     }
 
     public void plotCatmullRom(float[] p1, float[] p2, float[] p3, float[] p4, float tension, IPixelSetter setter){
@@ -127,8 +133,8 @@ public class BresenhamHelper {
 
 
     public void plotAngledLine(int originX, int originY, float distance, float degree, IPixelSetter setter){
-        int x1 = (int)(Math.cos(Math.toRadians(degree))*distance) + originX;
-        int y1 = (int)(Math.sin(Math.toRadians(degree))*distance) + originY;
+        int x1 = (int)Math.ceil((Math.cos(Math.toRadians(degree))*distance) + originX);
+        int y1 = (int)Math.ceil((Math.sin(Math.toRadians(degree))*distance) + originY);
         plotLine(originX, originY, x1, y1, setter);
     }
 
@@ -221,6 +227,35 @@ public class BresenhamHelper {
             setter.setPixel(xm, ym+y);                        /* -> finish tip of ellipse */
             setter.setPixel(xm, ym-y);
         }
+    }
+
+    /**the number of pixels covered by a bresenham circle for each radius*/
+    private static int[] BRESENHAM_CIRCLE_SIZES = null;
+    private static final int maxCalculatedRadius = 1024;
+
+    public int getBresenhamCircleSize(int radius){
+        initBresenhamCircleSizes();
+        if(radius < maxCalculatedRadius){
+            return BRESENHAM_CIRCLE_SIZES[radius];
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    private void initBresenhamCircleSizes(){
+        if(BRESENHAM_CIRCLE_SIZES == null){
+            int[] SIZES = new int[maxCalculatedRadius];
+            SIZES[0] = 0;
+            for(int i = 1; i < maxCalculatedRadius; i++){
+                SIZES[i] = getBresenhamCirclePoints(0, 0, i).size();
+            }
+            BRESENHAM_CIRCLE_SIZES = SIZES;
+        }
+    }
+
+    public List<int[]> getBresenhamCirclePoints(int startX, int startY, int radius){
+        List<int[]> points = new ArrayList<>();
+        plotCircle(startX, startY, radius, (x, y) -> points.add(new int[]{x,y}));
+        return points;
     }
 
     public void plotCircle(int xm, int ym, int r, IPixelSetter setter)

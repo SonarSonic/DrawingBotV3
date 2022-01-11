@@ -62,10 +62,6 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
     // RENDERING \\\
     public PrintResolution resolution;
 
-    // GCODE \\
-    private float gcode_offset_x;
-    private float gcode_offset_y;
-
     public boolean enableImageFiltering = true;
     public boolean isSubTask = false;
     public int defaultPen = 0;
@@ -283,58 +279,6 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
         return transform;
     }
 
-    public AffineTransform createGCodeTransform(){
-        AffineTransform transform = new AffineTransform();
-
-        ///translate by the gcode offset
-        transform.translate(getGCodeXOffset(), getGCodeYOffset());
-
-        ///move into print scale
-        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
-
-        //g-code y numbers go the other way
-        transform.translate(0, resolution.getScaledHeight());
-
-        //move with pre-scaled offsets
-        transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
-
-        //flip y coordinates
-        transform.scale(1, -1);
-        return transform;
-    }
-
-    public AffineTransform createHPGLTransform(EnumRotation rotation){
-        AffineTransform transform = new AffineTransform();
-        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
-
-        switch (rotation){
-            case R0:
-                break;
-            case R90:
-                transform.rotate(Math.toRadians(90), 0, 0);
-                transform.translate(resolution.getScaledHeight()-resolution.getScaledWidth(), -resolution.getScaledHeight());
-                break;
-            case R180:
-                transform.rotate(Math.toRadians(180), 0, 0);
-                transform.translate(-resolution.getScaledWidth(), -resolution.getScaledHeight());
-                break;
-            case R270:
-                transform.rotate(Math.toRadians(270));
-                transform.translate(-resolution.getScaledHeight(), 0);
-                break;
-        }
-
-        return transform;
-    }
-
-    public float getGCodeXOffset(){
-        return gcode_offset_x + DrawingBotV3.INSTANCE.gcodeOffsetX.get();
-    }
-
-    public float getGCodeYOffset(){
-        return gcode_offset_y + DrawingBotV3.INSTANCE.gcodeOffsetY.get();
-    }
-
     @Override
     public PlottingTask call() {
         if(!isSubTask){
@@ -445,9 +389,6 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
         plottingFinished = false;
 
         resolution = null;
-
-        gcode_offset_x = 0;
-        gcode_offset_y = 0;
     }
 
     //// CALLBACKS

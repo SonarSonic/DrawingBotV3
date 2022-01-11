@@ -1,6 +1,7 @@
 package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -80,6 +81,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         graphics.strokeOval(x, y, width, height);
+    }
+
+    @Override
+    public void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter) {
+        helper.plotEllipseRect((int)x, (int)y, (int)(x + width), (int)(y + height), setter);
     }
 
     @Override

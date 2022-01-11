@@ -50,7 +50,7 @@ public abstract class PixelDataAbstract implements IPixelData {
 
     @Override
     public void setLuminance(int x, int y, int luminance) {
-        setARGB(x, y, luminance, luminance, luminance, luminance);
+        setARGB(x, y, getAlpha(x, y), luminance, luminance, luminance);
     }
 
     @Override

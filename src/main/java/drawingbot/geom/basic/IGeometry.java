@@ -3,6 +3,7 @@ package drawingbot.geom.basic;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -60,6 +61,15 @@ public interface IGeometry {
 
     void renderFX(GraphicsContext graphics, ObservableDrawingPen pen);
 
+    default void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter){
+        helper.plotShape(getAWTShape(), setter);
+    }
+
+    default void renderAWT(Graphics2D graphics, ObservableDrawingPen pen){
+        pen.preRenderAWT(graphics, this);
+        graphics.draw(getAWTShape());
+    }
+
     void transform(AffineTransform transform);
 
     /**
@@ -67,8 +77,5 @@ public interface IGeometry {
      */
     Coordinate getOriginCoordinate();
 
-    default void renderAWT(Graphics2D graphics, ObservableDrawingPen pen){
-        pen.preRenderAWT(graphics, this);
-        graphics.draw(getAWTShape());
-    }
+
 }
