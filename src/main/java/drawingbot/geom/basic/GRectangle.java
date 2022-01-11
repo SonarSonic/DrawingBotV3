@@ -28,7 +28,7 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     public int groupID = -1;
 
     @Override
-    public int getSegmentCount() {
+    public int getVertexCount() {
         return 4;
     }
 

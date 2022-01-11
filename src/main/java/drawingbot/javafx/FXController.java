@@ -1,6 +1,7 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
@@ -21,11 +22,13 @@ import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 
@@ -72,12 +75,10 @@ public class FXController {
             initVersionControlPane();
             initBatchProcessingPane();
 
-
-            //viewportStackPane.setOnMousePressed(DrawingBotV3.INSTANCE::mousePressedJavaFX);
-           // viewportStackPane.setOnMouseDragged(DrawingBotV3.INSTANCE::mouseDraggedJavaFX);
-
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
+
+            viewportScrollPane.setOnMouseMoved(DrawingBotV3.INSTANCE::onMouseMoved);
 
             initSeparateStages();
 
@@ -273,6 +274,7 @@ public class FXController {
     public Label labelPlottedVertices = null;
     public Label labelImageResolution = null;
     public Label labelPlottingResolution = null;
+    public Label labelCurrentPosition = null;
 
     public void initViewport(){
 
@@ -336,6 +338,7 @@ public class FXController {
             viewportScrollPane.setVvalue(0.5);
             viewportScrollPane.scaleValue = 1;
             viewportScrollPane.updateScale();
+            viewportScrollPane.layout();
         });
 
         viewportScrollPane.setOnDragOver(event -> {
@@ -365,6 +368,7 @@ public class FXController {
         labelPlottedVertices.setText("0");
         labelImageResolution.setText("0 x 0");
         labelPlottingResolution.setText("0 x 0");
+        labelCurrentPosition.setText("0 x 0 y");
     }
 
 

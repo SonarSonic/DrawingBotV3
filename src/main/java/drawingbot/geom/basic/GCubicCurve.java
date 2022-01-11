@@ -41,7 +41,7 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     public int groupID = -1;
 
     @Override
-    public int getSegmentCount() {
+    public int getVertexCount() {
         return 4;
     }
 

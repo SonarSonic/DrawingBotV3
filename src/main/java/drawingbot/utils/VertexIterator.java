@@ -104,9 +104,9 @@ public class VertexIterator implements PathIterator {
         int segments = 0;
         while(!isDone() && segments < maxSegments){
             ObservableDrawingPen pen = drawing.drawingPenSet.getPen(currentGeometry.getPenIndex());
-            if(geometryVertexCount == 0 && currentGeometry.getSegmentCount() + segments < maxSegments){
+            if(geometryVertexCount == 0 && currentGeometry.getVertexCount() + segments < maxSegments){
                 currentGeometry.renderAWT(graphics, pen);
-                segments += currentGeometry.getSegmentCount();
+                segments += currentGeometry.getVertexCount();
                 nextGeometry();
             }else{
                 double moveX = 0;

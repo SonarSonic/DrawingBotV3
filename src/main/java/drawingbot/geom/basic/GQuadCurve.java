@@ -34,7 +34,7 @@ public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathEle
     public int groupID = -1;
 
     @Override
-    public int getSegmentCount() {
+    public int getVertexCount() {
         return 4;
     }
 

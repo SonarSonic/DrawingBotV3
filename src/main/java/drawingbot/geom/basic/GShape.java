@@ -24,7 +24,7 @@ public class GShape implements IGeometry {
     }
 
     @Override
-    public int getSegmentCount() {
+    public int getVertexCount() {
         return vertexCount;
     }
 

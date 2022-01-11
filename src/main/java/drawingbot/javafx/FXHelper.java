@@ -89,7 +89,7 @@ public class FXHelper {
                     //linux doesn't add file extensions so we add the default selected one
                     fileName += extension;
                 }
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, extension, new File(fileName), seperatePens, false);
+                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(fileName), seperatePens, false);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });

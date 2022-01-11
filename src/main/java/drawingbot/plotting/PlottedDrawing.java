@@ -66,7 +66,7 @@ public class PlottedDrawing {
     public void addGeometry(IGeometry geometry) {
         geometry.setGeometryIndex(geometries.size());
         geometries.add(geometry);
-        vertexCount += geometry.getSegmentCount();
+        vertexCount += geometry.getVertexCount();
 
         addGeometryToGroups(geometry);
     }
@@ -134,7 +134,7 @@ public class PlottedDrawing {
             ObservableDrawingPen pen = drawingPenSet.getPen(next.getPenIndex());
             if(pointFilter.filter(this, next, pen)){
                 render.accept(next, pen);
-                renderCount += next.getSegmentCount();
+                renderCount += next.getVertexCount();
             }
         }
         return reverse ? start : end;

@@ -122,6 +122,10 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
         return awtStroke;
     }
 
+    public Color getFXColor(){
+        return javaFXColour.get();
+    }
+
     public Color getFXColor(Integer pfmARGB){
         if(pfmARGB != null && source instanceof ICustomPen){
             return ImageTools.getColorFromARGB(((ICustomPen) source).getCustomARGB(pfmARGB));

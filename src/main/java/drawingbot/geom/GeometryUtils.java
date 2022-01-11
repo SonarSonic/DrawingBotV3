@@ -31,6 +31,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class GeometryUtils {
 
@@ -196,10 +197,43 @@ public class GeometryUtils {
         return false;
     }
 
-    public static boolean comparePathContinuity(GPath path, IPathElement element){
-        return path.getCurrentPoint().equals(element.getP1());
+    public static boolean comparePathContinuity(IGeometry lastGeometry, IGeometry nextGeometry, boolean flipped){
+        return flipped ? comparePathContinuity(nextGeometry, lastGeometry) : comparePathContinuity(lastGeometry, nextGeometry);
     }
 
+    public static boolean comparePathContinuity(IGeometry lastGeometry, IGeometry nextGeometry){
+        if(lastGeometry == null){
+            return false;
+        }
+        if(nextGeometry instanceof IPathElement){
+            IPathElement element = (IPathElement) nextGeometry;
+            if(lastGeometry instanceof IPathElement){
+                return ((IPathElement) lastGeometry).getP2().equals(element.getP1());
+            }
+            if(lastGeometry instanceof GPath){
+                Coordinate coordinate = lastGeometry.getOriginCoordinate();
+                return ((float)coordinate.x) == element.getP1().getX() && ((float)coordinate.y) == element.getP1().getY();
+            }
+        }
+        return false;
+    }
+
+    public static boolean comparePathContinuityFlipped(IGeometry lastGeometry, IGeometry nextGeometry){
+        if(lastGeometry == null){
+            return false;
+        }
+        if(nextGeometry instanceof IPathElement){
+            IPathElement element = (IPathElement) nextGeometry;
+            if(lastGeometry instanceof IPathElement){
+                return ((IPathElement) lastGeometry).getP1().equals(element.getP2());
+            }
+            if(lastGeometry instanceof GPath){
+                Coordinate coordinate = ((GPath) lastGeometry).getEndCoordinate();
+                return ((float)coordinate.x) == element.getP2().getX() && ((float)coordinate.y) == element.getP2().getY();
+            }
+        }
+        return false;
+    }
 
     public static List<IGeometry> optimiseBasicGeometry(List<IGeometry> geometries, AffineTransform toJTS, AffineTransform fromJTS, ProgressCallback progressCallback) {
         if(geometries.isEmpty()){
@@ -430,6 +464,16 @@ public class GeometryUtils {
         GShape shape = new GShape(new ShapeWriter().toShape(string));
         shape.transform(transform);
         return shape;
+    }
+
+    public static void lineStringToGLines(LineString lineString, Consumer<GLine> consumer){
+        for(int i = 0; i < lineString.getNumPoints(); i++){
+            Coordinate last = i == 0 ? null : lineString.getCoordinateN(i-1);
+            Coordinate next = lineString.getCoordinateN(i);
+            if(last != null && next != null){
+                consumer.accept(new GLine((float)last.x, (float)last.y, (float)next.x, (float)next.y));
+            }
+        }
     }
 
     public static GPath geometryToGPath(Geometry string, AffineTransform transform){

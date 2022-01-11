@@ -3,6 +3,7 @@
   Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
  */
 package drawingbot;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -34,10 +35,13 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class DrawingBotV3 {
 
@@ -103,7 +107,6 @@ public class DrawingBotV3 {
     public final SimpleIntegerProperty hpglPenNumber = new SimpleIntegerProperty(0);
 
 
-
     //PRE-PROCESSING\\
     public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
     public final SimpleObjectProperty<EnumRotation> imageRotation = new SimpleObjectProperty<>(EnumRotation.R0);
@@ -134,7 +137,6 @@ public class DrawingBotV3 {
 
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
-    public static double minScale = 0.1;
 
     //// VARIABLES \\\\
 
@@ -241,7 +243,18 @@ public class DrawingBotV3 {
             controller.labelPlottingResolution.setText("0 x 0");
         }
 
+
         controller.serialConnectionController.tick();
+
+        ///we load the image, resize the canvas and redraw
+        if(DrawingBotV3.INSTANCE.loadingImage != null && DrawingBotV3.INSTANCE.loadingImage.isDone()){
+            DrawingBotV3.INSTANCE.openImage.set(DrawingBotV3.INSTANCE.loadingImage.getValue());
+            DrawingBotV3.INSTANCE.display_mode.set(EnumDisplayMode.IMAGE);
+
+            DrawingBotV3.RENDERER.shouldRedraw = true;
+            DrawingBotV3.RENDERER.canvasNeedsUpdate = true;
+            DrawingBotV3.INSTANCE.loadingImage = null;
+        }
 
     }
 
@@ -451,28 +464,63 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    double pressX = 0;
-    double pressY = 0;
-    double locX = 0;
-    double locY = 0;
+    //// MOUSE EVENTS
 
-    public void mousePressedJavaFX(MouseEvent event) {    // record a delta distance for the drag and drop operation.
-        /*
-        pressX = event.getX();
-        pressY = event.getY();
-        locX = controller.viewportScrollPane.getHvalue();
-        locY = controller.viewportScrollPane.getVvalue();
-         */
+    public Point2D sceneToJFX(Point2D point2D){
+        Point2D dst = RENDERER.canvas.sceneToLocal(point2D);
+        dst = new Point2D(dst.getX()/RENDERER.canvasScaling, dst.getY()/ RENDERER.canvasScaling);
+        return dst;
     }
 
-    public void mouseDraggedJavaFX(MouseEvent event) {
-        /*
+    public Point2D jfxToScene(Point2D point2D){
+        Point2D dst = new Point2D(point2D.getX()*RENDERER.canvasScaling, point2D.getY() * RENDERER.canvasScaling);
+        dst = RENDERER.canvas.localToScene(dst);
+        return dst;
+    }
 
-        double relativeX = (pressX - event.getX()) / controller.viewportStackPane.getWidth();
-        double relativeY = (pressY - event.getY()) / controller.viewportStackPane.getHeight();
-        controller.viewportScrollPane.setHvalue(locX + relativeX);
-        controller.viewportScrollPane.setVvalue(locY + relativeY);
-         */
+    public Point2D sceneToOpenGL(Point2D point2D){
+        Point2D dst = OPENGL_RENDERER.canvas.sceneToLocal(point2D);
+
+        Vector3f origin = OPENGL_RENDERER.TO_FX.transformPosition(0, 0, 0, new Vector3f());
+        Vector3f scaled = OPENGL_RENDERER.TO_FX.getScale(new Vector3f());
+
+        dst = new Point2D((dst.getX()-origin.x) / scaled.x, (dst.getY()-origin.y) / scaled.y);
+
+        return dst;
+    }
+
+    public Point2D openGLToScene(Point2D point2D){
+        Vector3f scaled = OPENGL_RENDERER.TO_FX.getScale(new Vector3f());
+        Vector3f origin = OPENGL_RENDERER.TO_FX.invert(new Matrix4f()).transformPosition(0, 0, 0, new Vector3f());
+        Point2D dst = new Point2D((point2D.getX() * scaled.x)-origin.x, (point2D.getY() * scaled.y)-origin.y);
+
+        dst = OPENGL_RENDERER.canvas.localToScene(dst);
+
+        return dst;
+    }
+
+
+    public void onMouseMoved(MouseEvent event){
+        Point2D mouse = new Point2D(500, 500);//new Point2D(event.getSceneX(), event.getSceneY());
+        Point2D position = !display_mode.get().isOpenGL() ? jfxToScene(mouse) : openGLToScene(mouse);
+
+        if(useOriginalSizing.get()){
+            controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " px");
+        }else{
+            double printScale = 1;
+
+            if(display_mode.get() != EnumDisplayMode.IMAGE && getActiveTask() != null){
+                printScale = getActiveTask().resolution.getPrintScale();
+            }
+            if(display_mode.get() == EnumDisplayMode.IMAGE && openImage.get() != null){
+                printScale = openImage.get().resolution.getPrintScale();
+            }
+
+            position = position.multiply(printScale);
+
+            controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " mm");
+        }
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

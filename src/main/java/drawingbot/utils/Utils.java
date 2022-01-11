@@ -5,6 +5,7 @@ import drawingbot.DrawingBotV3;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class Utils {
@@ -46,6 +47,16 @@ public class Utils {
     public static String getDateAndTime(){
         Date date = new Date(System.currentTimeMillis());
         return dateFormat.format(date);
+    }
+
+    public static <T> void addAllReverse(List<T> src, List<T> dst, boolean reverse){
+        if(reverse){
+            for(int i = src.size()-1; i >= 0; i--){
+                dst.add(src.get(i));
+            }
+        }else{
+            dst.addAll(src);
+        }
     }
 
     public static long clamp(long value, long min, long max){

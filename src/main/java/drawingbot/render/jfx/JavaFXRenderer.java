@@ -8,10 +8,10 @@ import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.SplitPlottingTask;
+import drawingbot.render.opengl.VertexBuffer;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
-import drawingbot.utils.LazyTimer;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
@@ -59,7 +59,7 @@ public class JavaFXRenderer {
 
     ///
 
-    private boolean changedTask, changedMode, changedState, shouldRedraw;
+    public boolean changedTask, changedMode, changedState, shouldRedraw;
 
     private ImageFilteringTask filteringTask;
 
@@ -103,15 +103,9 @@ public class JavaFXRenderer {
         //reset canvas scaling
         graphicsFX.setTransform(1, 0, 0, 1, 0, 0);
 
+
         switch (DrawingBotV3.INSTANCE.display_mode.get().type){
             case IMAGE:
-                ///we load the image, resize the canvas and redraw
-                if(DrawingBotV3.INSTANCE.loadingImage != null && DrawingBotV3.INSTANCE.loadingImage.isDone()){
-                    DrawingBotV3.INSTANCE.openImage.set(DrawingBotV3.INSTANCE.loadingImage.getValue());
-                    shouldRedraw = true;
-                    DrawingBotV3.INSTANCE.loadingImage = null;
-                    canvasNeedsUpdate = true;
-                }
                 if(DrawingBotV3.INSTANCE.openImage.get() != null){
                     if(imageFiltersChanged || imageFilterDirty || croppingDirty){
                         if(filteringTask == null || !filteringTask.updating.get()){
@@ -244,7 +238,7 @@ public class JavaFXRenderer {
                     if(renderedTask.plottedDrawing.getGeometryCount() != 0){
                         graphicsFX.scale(canvasScaling, canvasScaling);
                         graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                        renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_FILTER, getVertexRenderLimit(), false);
+                        renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_EXPORT_FILTER, getVertexRenderLimit(), false);
                     }
                 }else{
                     SplitPlottingTask splitPlottingTask = (SplitPlottingTask) renderedTask;
@@ -257,7 +251,7 @@ public class JavaFXRenderer {
                         graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
                         for(int i = 0; i < splitPlottingTask.splitter.getSplitCount(); i ++){
                             PlottingTask task = splitPlottingTask.subTasks.get(i);
-                            splitPlottingTask.renderedLines[i] = task.plottedDrawing.renderGeometryFX(graphicsFX, splitPlottingTask.renderedLines[i], task.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_FILTER, getVertexRenderLimit() / splitPlottingTask.splitter.getSplitCount(), false);
+                            splitPlottingTask.renderedLines[i] = task.plottedDrawing.renderGeometryFX(graphicsFX, splitPlottingTask.renderedLines[i], task.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_EXPORT_FILTER, getVertexRenderLimit() / splitPlottingTask.splitter.getSplitCount(), false);
                         }
                     }
                 }
@@ -280,7 +274,7 @@ public class JavaFXRenderer {
                     graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
                     graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
-                    IGeometryFilter pointFilter = DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_FILTER;
+                    IGeometryFilter pointFilter = DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_EXPORT_FILTER;
                     renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedTask.plottedDrawing.getDisplayedShapeMin(), renderedLines, pointFilter, getVertexRenderLimit(),true);
 
                     int end = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
@@ -372,8 +366,6 @@ public class JavaFXRenderer {
         }
     }
 
-
-
     public int getMinTextureSize(){
         return defaultMinTextureSize;
     }
@@ -392,5 +384,6 @@ public class JavaFXRenderer {
 
     public final void reRender(){
         markRenderDirty = true;
+        VertexBuffer.INSTANCE.markVertexDirty();
     }
 }

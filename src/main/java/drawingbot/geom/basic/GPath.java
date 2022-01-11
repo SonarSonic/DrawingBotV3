@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 
 public class GPath extends Path2D.Float implements IGeometry {
 
@@ -52,7 +53,7 @@ public class GPath extends Path2D.Float implements IGeometry {
     public int segmentCount = -1;
 
     @Override
-    public int getSegmentCount() {
+    public int getVertexCount() {
         if(segmentCount == -1){
             segmentCount = GeometryUtils.getSegmentCount(this);
         }
@@ -111,6 +112,15 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     private Coordinate origin = null;
+    private Coordinate endCoord = null;
+
+    public Coordinate getEndCoordinate() {
+        if(origin == null){
+            Point2D point2D = getCurrentPoint();
+            origin = new CoordinateXY(point2D.getX(), point2D.getY());
+        }
+        return origin;
+    }
 
     @Override
     public Coordinate getOriginCoordinate() {

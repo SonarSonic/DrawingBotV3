@@ -2,7 +2,6 @@ package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportFormats;
-import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import javafx.application.Platform;
@@ -33,7 +32,7 @@ public class VpypeHelper {
                 }
 
                 String command = DrawingBotV3.INSTANCE.vPypeExecutable.getValue() + " read " + Matcher.quoteReplacement(tempSVG.toString()) + " " + userCommand;
-                Task<?> task = DrawingBotV3.INSTANCE.createExportTask(ExportFormats.EXPORT_SVG, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_FILTER, ".svg", tempSVG, false, DrawingBotV3.INSTANCE.vPypeBypassOptimisation.get());
+                Task<?> task = DrawingBotV3.INSTANCE.createExportTask(ExportFormats.EXPORT_SVG, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, ".svg", tempSVG, false, DrawingBotV3.INSTANCE.vPypeBypassOptimisation.get());
                 task.setOnSucceeded(event -> DrawingBotV3.INSTANCE.taskMonitor.queueTask(new VpypeTask(command)));
             }
         });

@@ -363,7 +363,7 @@
                   </Pane>
                </children>
             </VBox>
-            <VBox HBox.hgrow="ALWAYS">
+            <VBox fx:id="vBoxViewportContainer" HBox.hgrow="ALWAYS">
                <children>
                   <ToolBar prefHeight="40.0">
                      <items>
@@ -431,6 +431,14 @@
                         <Label contentDisplay="RIGHT" layoutX="160.0" layoutY="10.0" text="Plotted Vertices:">
                            <graphic>
                               <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" layoutX="673.0" layoutY="10.0" text="Position">
+                           <graphic>
+                              <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
                            </graphic>
                            <padding>
                               <Insets top="4.0" />
