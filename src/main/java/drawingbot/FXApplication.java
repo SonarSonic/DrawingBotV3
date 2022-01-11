@@ -10,6 +10,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.DBConstants;
+import drawingbot.utils.LazyTimer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -75,9 +76,13 @@ public class FXApplication extends Application {
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
         primaryStage.setScene(primaryScene);
 
-        ///// INIT RENDERER
+        // INIT JAVAFX RENDERER
         DrawingBotV3.RENDERER = new JavaFXRenderer();
         DrawingBotV3.RENDERER.init();
+
+        // INIT OPENGL RENDERER
+        DrawingBotV3.OPENGL_RENDERER = new OpenGLRenderer(Screen.getPrimary().getBounds());
+        DrawingBotV3.OPENGL_RENDERER.init();
 
         // set up main drawing loop
         DrawTimer timer = new DrawTimer();
@@ -115,10 +120,25 @@ public class FXApplication extends Application {
 
     private static class DrawTimer extends AnimationTimer{
 
+        private final LazyTimer timer = new LazyTimer();
+
         @Override
         public void handle(long now) {
             DrawingBotV3.INSTANCE.updateUI();
-            DrawingBotV3.RENDERER.draw();
+
+            timer.start();
+
+            if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
+                DrawingBotV3.RENDERER.draw();
+            }else{
+                DrawingBotV3.OPENGL_RENDERER.draw();
+            }
+
+            timer.finish();
+
+            if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL() && timer.getElapsedTime() > 1000/60){
+                DrawingBotV3.logger.finest("RENDERER TOOK: " + timer.getElapsedTimeFormatted() + " milliseconds" + " expected " + 1000/60);
+            }
         }
     }
 }

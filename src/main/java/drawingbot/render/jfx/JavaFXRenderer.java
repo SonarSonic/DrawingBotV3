@@ -8,10 +8,10 @@ import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.SplitPlottingTask;
-import drawingbot.render.AbstractRenderer;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
+import drawingbot.utils.LazyTimer;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
@@ -24,7 +24,13 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import org.jfree.fx.FXGraphics2D;
 
-public class JavaFXRenderer extends AbstractRenderer {
+public class JavaFXRenderer {
+
+    public boolean imageFilterDirty = false;
+    public boolean imageFiltersChanged = false;
+    public boolean croppingDirty = false;
+
+    public boolean markRenderDirty = true;
 
     ///
 
@@ -38,6 +44,7 @@ public class JavaFXRenderer extends AbstractRenderer {
     ///
 
     public Canvas canvas;
+    public StackPane canvasStack;
     public GraphicsContext graphicsFX;
     public FXGraphics2D graphicsAWT;
 
@@ -56,20 +63,19 @@ public class JavaFXRenderer extends AbstractRenderer {
 
     private ImageFilteringTask filteringTask;
 
-
-    @Override
     public void forceCanvasUpdate(){
         canvasNeedsUpdate = true;
     }
 
-    @Override
     public void init(){
         canvas = new Canvas(500, 500);
         graphicsFX = canvas.getGraphicsContext2D();
         graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
         Group canvasGroup = new Group(canvas);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(new StackPane(canvasGroup));
+        canvasStack = new StackPane(canvasGroup);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(canvasStack);
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,20 +83,10 @@ public class JavaFXRenderer extends AbstractRenderer {
     //// RENDERING
 
     public void draw() {
-        long startTime = System.currentTimeMillis();
-
         preRender();
         render();
         postRender();
-
-        long endTime = System.currentTimeMillis();
-        long lastDrawTick = (endTime - startTime);
-        if(lastDrawTick > 1000/60){
-            DrawingBotV3.logger.finest("DRAWING PHASE TOOK TOO LONG: " + lastDrawTick + " milliseconds" + " expected " + 1000/60);
-        }
     }
-
-
     ///
 
     private void preRender(){
@@ -362,7 +358,7 @@ public class JavaFXRenderer extends AbstractRenderer {
     public void updateCanvasScaling(){
         double screen_scale_x = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth() / ((float) canvas.getWidth());
         double screen_scale_y = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());
-        double screen_scale = Math.min(screen_scale_x, screen_scale_y) * DrawingBotV3.INSTANCE.scaleMultiplier.doubleValue();
+        double screen_scale = Math.min(screen_scale_x, screen_scale_y);
         if(canvas.getScaleX() != screen_scale){
             double oldScale = canvas.getScaleX();
 
@@ -393,4 +389,8 @@ public class JavaFXRenderer extends AbstractRenderer {
         return graphicsFX.getGlobalBlendMode() == BlendMode.SRC_OVER ? vertexRenderLimitNormal : vertexRenderLimitBlendMode;
     }
 
+
+    public final void reRender(){
+        markRenderDirty = true;
+    }
 }

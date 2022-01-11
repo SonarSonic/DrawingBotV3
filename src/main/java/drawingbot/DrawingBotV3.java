@@ -25,7 +25,8 @@ import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.render.AbstractRenderer;
+import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
@@ -43,7 +44,8 @@ public class DrawingBotV3 {
     public static final Logger logger = Logger.getLogger("DrawingBotV3");
     public static DrawingBotV3 INSTANCE;
 
-    public static AbstractRenderer RENDERER;
+    public static JavaFXRenderer RENDERER;
+    public static OpenGLRenderer OPENGL_RENDERER;
 
     //DRAWING AREA
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
@@ -132,7 +134,6 @@ public class DrawingBotV3 {
 
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
-    public final SimpleDoubleProperty scaleMultiplier = new SimpleDoubleProperty(1.0F);
     public static double minScale = 0.1;
 
     //// VARIABLES \\\\

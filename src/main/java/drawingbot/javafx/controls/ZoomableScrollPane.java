@@ -49,6 +49,13 @@ public class ZoomableScrollPane extends ScrollPane {
     public void updateScale() {
         target.setScaleX(scaleValue);
         target.setScaleY(scaleValue);
+        if(DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
+            OpenGLRenderer.scaleX = scaleValue;
+            OpenGLRenderer.scaleY = scaleValue;
+        }else{
+            target.setScaleX(scaleValue);
+            target.setScaleY(scaleValue);
+        }
     }
 
     public void onScroll(double wheelDelta, Point2D mousePoint) {
