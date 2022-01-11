@@ -501,7 +501,7 @@ public class DrawingBotV3 {
 
 
     public void onMouseMoved(MouseEvent event){
-        Point2D mouse = new Point2D(500, 500);//new Point2D(event.getSceneX(), event.getSceneY());
+        Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
         Point2D position = !display_mode.get().isOpenGL() ? jfxToScene(mouse) : openGLToScene(mouse);
 
         if(useOriginalSizing.get()){
