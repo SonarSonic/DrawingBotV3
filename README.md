@@ -7,7 +7,6 @@
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/SonarSonic/DrawingBotV3?include_prereleases&style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
 ![GitHub all releases](https://img.shields.io/github/downloads/SonarSonic/DrawingBotV3/total?style=flat-square)
 [![Documentation Status](https://readthedocs.org/projects/drawingbotv3/badge/?version=latest)](https://drawingbotv3.readthedocs.io/en/latest/?badge=latest)
-[![Documentation Status](https://readthedocs.org/projects/drawingbotv3/badge/?version=latest)](https://drawingbotv3.readthedocs.io/en/latest/?badge=latest)
 [![Discord Shield](https://discordapp.com/api/guilds/929089222118359100/widget.png?style=shield)](https://discord.com/invite/pwNdjYxrM9)
 
 
