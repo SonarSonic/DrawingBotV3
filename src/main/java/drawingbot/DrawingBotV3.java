@@ -3,7 +3,7 @@
   Original by Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
  */
 package drawingbot;
-import java.awt.*;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -137,6 +137,9 @@ public class DrawingBotV3 {
 
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
+
+    //the default JFX background colour
+    public Color backgroundColour = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
 
     //// VARIABLES \\\\
 
@@ -466,6 +469,14 @@ public class DrawingBotV3 {
 
     //// MOUSE EVENTS
 
+    public void resetView(){
+        controller.viewportScrollPane.scaleValue = 1;
+        controller.viewportScrollPane.updateScale();
+        controller.viewportScrollPane.setHvalue(0.5);
+        controller.viewportScrollPane.setVvalue(0.5);
+        FXApplication.drawTimer.resetLayoutTimer = 2;
+    }
+
     public Point2D sceneToJFX(Point2D point2D){
         Point2D dst = RENDERER.canvas.sceneToLocal(point2D);
         dst = new Point2D(dst.getX()/RENDERER.canvasScaling, dst.getY()/ RENDERER.canvasScaling);
@@ -481,8 +492,10 @@ public class DrawingBotV3 {
     public Point2D sceneToOpenGL(Point2D point2D){
         Point2D dst = OPENGL_RENDERER.canvas.sceneToLocal(point2D);
 
-        Vector3f origin = OPENGL_RENDERER.TO_FX.transformPosition(0, 0, 0, new Vector3f());
-        Vector3f scaled = OPENGL_RENDERER.TO_FX.getScale(new Vector3f());
+        Matrix4f matrix4f = OPENGL_RENDERER.getToFXMatrix();
+
+        Vector3f origin = matrix4f.transformPosition(0, 0, 0, new Vector3f());
+        Vector3f scaled = matrix4f.getScale(new Vector3f());
 
         dst = new Point2D((dst.getX()-origin.x) / scaled.x, (dst.getY()-origin.y) / scaled.y);
 
@@ -490,19 +503,41 @@ public class DrawingBotV3 {
     }
 
     public Point2D openGLToScene(Point2D point2D){
-        Vector3f scaled = OPENGL_RENDERER.TO_FX.getScale(new Vector3f());
-        Vector3f origin = OPENGL_RENDERER.TO_FX.invert(new Matrix4f()).transformPosition(0, 0, 0, new Vector3f());
-        Point2D dst = new Point2D((point2D.getX() * scaled.x)-origin.x, (point2D.getY() * scaled.y)-origin.y);
+        //Warning: possibly broken
 
-        dst = OPENGL_RENDERER.canvas.localToScene(dst);
+        Matrix4f matrix4f = OPENGL_RENDERER.getToFXMatrix();
 
-        return dst;
+        Vector3f origin = matrix4f.transformPosition(0, 0, 0, new Vector3f());
+        Vector3f scaled = matrix4f.getScale(new Vector3f());
+
+        matrix4f = matrix4f.scale(1F/scaled.x, 1F/scaled.y, 0);
+        matrix4f = matrix4f.translate(-origin.x, -origin.y, 0, new Matrix4f());
+
+        Vector3f translate2 = matrix4f.getTranslation(new Vector3f());
+        Vector3f scaled2 = matrix4f.getScale(new Vector3f());
+
+        ///equivilant of transform position
+        point2D = point2D.multiply(scaled2.x);
+        point2D = point2D.add(translate2.x, translate2.y);
+
+        point2D = OPENGL_RENDERER.canvas.localToScene(point2D);
+
+        return point2D;
     }
 
+    /**
+     * The viewport centre relative to the scene
+     */
+    public Point2D getViewportCentre(){
+
+        return DrawingBotV3.INSTANCE.controller.viewportScrollPane.localToScene(
+                DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth()/2,
+                DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight()/2);
+    }
 
     public void onMouseMoved(MouseEvent event){
         Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
-        Point2D position = !display_mode.get().isOpenGL() ? jfxToScene(mouse) : openGLToScene(mouse);
+        Point2D position = !display_mode.get().isOpenGL() ? sceneToJFX(mouse) : sceneToOpenGL(mouse);
 
         if(useOriginalSizing.get()){
             controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " px");

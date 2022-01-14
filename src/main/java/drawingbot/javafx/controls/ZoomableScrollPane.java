@@ -1,7 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.render.opengl.OpenGLRenderer;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.BoundingBox;
@@ -59,10 +58,7 @@ public class ZoomableScrollPane extends ScrollPane {
     public void updateScale() {
 
         scaleProperty.set(scaleValue);
-        if(DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
-            OpenGLRenderer.scaleX = scaleValue;
-            OpenGLRenderer.scaleY = scaleValue;
-        }else{
+        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
             target.setScaleX(scaleValue);
             target.setScaleY(scaleValue);
         }
@@ -76,7 +72,7 @@ public class ZoomableScrollPane extends ScrollPane {
         if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()) {
             innerBounds = zoomNode.getLayoutBounds();
         }else{
-            innerBounds = new BoundingBox(0, 0, DrawingBotV3.OPENGL_RENDERER.getCanvasScaledWidth(), DrawingBotV3.OPENGL_RENDERER.getCanvasScaledHeight());
+            innerBounds = new BoundingBox(0, 0, DrawingBotV3.OPENGL_RENDERER.getPaneScaledWidth(), DrawingBotV3.OPENGL_RENDERER.getPaneScaledHeight());
         }
 
         // calculate pixel offsets from [0, 1] range
@@ -107,7 +103,7 @@ public class ZoomableScrollPane extends ScrollPane {
         if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
             updatedInnerBounds = zoomNode.getBoundsInLocal();
         }else{
-            updatedInnerBounds = new BoundingBox(0, 0, DrawingBotV3.OPENGL_RENDERER.getCanvasScaledWidth(), DrawingBotV3.OPENGL_RENDERER.getCanvasScaledHeight());
+            updatedInnerBounds = new BoundingBox(0, 0, DrawingBotV3.OPENGL_RENDERER.getPaneScaledWidth(), DrawingBotV3.OPENGL_RENDERER.getPaneScaledHeight());
         }
 
         this.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));

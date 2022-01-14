@@ -333,13 +333,7 @@ public class FXController {
         DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
         DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
-        buttonResetView.setOnAction(e -> {
-            viewportScrollPane.setHvalue(0.5);
-            viewportScrollPane.setVvalue(0.5);
-            viewportScrollPane.scaleValue = 1;
-            viewportScrollPane.updateScale();
-            viewportScrollPane.layout();
-        });
+        buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
         viewportScrollPane.setOnDragOver(event -> {
 

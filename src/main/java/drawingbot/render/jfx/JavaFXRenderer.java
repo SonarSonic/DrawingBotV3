@@ -8,23 +8,29 @@ import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.plotting.SplitPlottingTask;
+import drawingbot.render.AbstractRenderer;
 import drawingbot.render.opengl.VertexBuffer;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import org.jfree.fx.FXGraphics2D;
 
-public class JavaFXRenderer {
+public class JavaFXRenderer extends AbstractRenderer {
 
     public boolean imageFilterDirty = false;
     public boolean imageFiltersChanged = false;
@@ -43,8 +49,8 @@ public class JavaFXRenderer {
 
     ///
 
+    public Pane pane;
     public Canvas canvas;
-    public StackPane canvasStack;
     public GraphicsContext graphicsFX;
     public FXGraphics2D graphicsAWT;
 
@@ -63,6 +69,10 @@ public class JavaFXRenderer {
 
     private ImageFilteringTask filteringTask;
 
+    public JavaFXRenderer(Rectangle2D screenBounds) {
+        super(screenBounds);
+    }
+
     public void forceCanvasUpdate(){
         canvasNeedsUpdate = true;
     }
@@ -72,15 +82,21 @@ public class JavaFXRenderer {
         graphicsFX = canvas.getGraphicsContext2D();
         graphicsAWT = new FXGraphics2D(canvas.getGraphicsContext2D());
 
-        Group canvasGroup = new Group(canvas);
-        canvasStack = new StackPane(canvasGroup);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(canvasStack);
+        pane = new Pane();
+        pane.getChildren().add(canvas);
+        updateCanvasPosition();
+
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(pane);
 
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// RENDERING
+
+    public void clear() {
+        clearCanvas(DrawingBotV3.INSTANCE.backgroundColour);
+    }
 
     public void draw() {
         preRender();
@@ -89,7 +105,25 @@ public class JavaFXRenderer {
     }
     ///
 
+    private void updateCanvasPosition(){
+
+        pane.setMinWidth(getPaneScaledWidth());
+        pane.setMinHeight(getPaneScaledHeight());
+
+        pane.setMaxWidth(getPaneScaledWidth());
+        pane.setMaxHeight(getPaneScaledHeight());
+
+        pane.setPrefWidth(getPaneScaledWidth());
+        pane.setPrefHeight(getPaneScaledHeight());
+
+
+        double offsetX = pane.getWidth()/2 - canvas.getWidth()/2;
+        double offsetY = pane.getHeight()/2 - canvas.getHeight()/2;
+        canvas.relocate(offsetX, offsetY);
+    }
+
     private void preRender(){
+        updateCanvasPosition();
 
         PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
 
@@ -342,10 +376,7 @@ public class JavaFXRenderer {
         canvas.widthProperty().setValue(width);
         canvas.heightProperty().setValue(height);
 
-        Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
-            DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
-        });
+        DrawingBotV3.INSTANCE.resetView();
         clearCanvas();//wipe the canvas
     }
 
@@ -355,10 +386,6 @@ public class JavaFXRenderer {
         double screen_scale = Math.min(screen_scale_x, screen_scale_y);
         if(canvas.getScaleX() != screen_scale){
             double oldScale = canvas.getScaleX();
-
-            //DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
-            //DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
-
 
             canvas.setScaleX(screen_scale);
             canvas.setScaleY(screen_scale);

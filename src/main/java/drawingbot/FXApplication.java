@@ -29,6 +29,7 @@ public class FXApplication extends Application {
     public static String[] launchArgs;
     public static Stage primaryStage;
     public static Scene primaryScene;
+    public static DrawTimer drawTimer;
 
     public static void main(String[] args) {
         launchArgs = args;
@@ -77,7 +78,7 @@ public class FXApplication extends Application {
         primaryStage.setScene(primaryScene);
 
         // INIT JAVAFX RENDERER
-        DrawingBotV3.RENDERER = new JavaFXRenderer();
+        DrawingBotV3.RENDERER = new JavaFXRenderer(Screen.getPrimary().getBounds());
         DrawingBotV3.RENDERER.init();
 
         // INIT OPENGL RENDERER
@@ -85,8 +86,8 @@ public class FXApplication extends Application {
         DrawingBotV3.OPENGL_RENDERER.init();
 
         // set up main drawing loop
-        DrawTimer timer = new DrawTimer();
-        timer.start();
+        drawTimer = new DrawTimer();
+        drawTimer.start();
 
         primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion);
         primaryStage.setResizable(true);
@@ -118,13 +119,30 @@ public class FXApplication extends Application {
         }
     }
 
-    private static class DrawTimer extends AnimationTimer{
+    public static class DrawTimer extends AnimationTimer{
 
         private final LazyTimer timer = new LazyTimer();
+        public int resetLayoutTimer = 0;
+
+        private boolean isFirstTick = true;
 
         @Override
         public void handle(long now) {
+            if(isFirstTick){
+                DrawingBotV3.INSTANCE.resetView();
+                isFirstTick = false;
+                return;
+            }
+
             DrawingBotV3.INSTANCE.updateUI();
+
+            if(resetLayoutTimer > 0){
+                resetLayoutTimer--;
+                if(resetLayoutTimer == 0) {
+                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
+                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
+                }
+            }
 
             timer.start();
 

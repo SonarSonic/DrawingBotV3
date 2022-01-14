@@ -50,6 +50,13 @@ public abstract class DBTask<V> extends Task<V> {
     }
 
     //called on JAVA FX Thread
+
+    /**
+     * By avoiding calling the super methods straight away we avoid a performance issue with JavaFX
+     * In which progress updates are sent repeatedly, wrapped in runnables.
+     * If the JavaFX thread runs behind or the progress updates are too frequent this has a massive impact on performance, so instead we call this method.
+     * This allows us to update progress / message / title of a task as many times as we wish without a performance impact.
+     */
     public void tick(){
         super.updateProgress(workDone, max);
         super.updateMessage(message);
