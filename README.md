@@ -18,6 +18,7 @@ Drawing Bot is a free, open source software for converting images to line drawin
 It is available for Windows, Mac and Linux.
 
 If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG)
+
 Also feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxrM9) to chat all things DrawingBotV3!
 
 ### Features
