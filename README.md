@@ -50,12 +50,12 @@ Feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxr
 
 ### Path Finding Modules
 
-####Free
+#### Free
 - Sketch Lines PFM
 - Sketch Squares PFM
 - Spiral PFM
   
-####Premium
+#### Premium
 - Sketch Curves PFM 
 - Sketch Quad Beziers PFM
 - Sketch Cubic Beziers PFM
