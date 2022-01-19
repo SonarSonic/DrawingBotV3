@@ -9,8 +9,8 @@ import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetPFMSettings;
 import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.pfm.PFMMosaicCustom;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.utils.DBConstants;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -69,7 +69,7 @@ public class FXStylesController {
             masterStyles.clear();
             masterStyles.addAll(editingStyles);
         }
-        boolean isLayeredPFM = DrawingBotV3.INSTANCE.pfmFactory.get().getInstanceClass() == PFMMosaicCustom.class;
+        boolean isLayeredPFM = DrawingBotV3.INSTANCE.pfmFactory.get().isLayeredPFM();
 
         DrawingBotV3.INSTANCE.controller.mosaicSettingsStage.setTitle("Editing Drawing Styles" + (master != null ? ": Editing Slave" : ": Editing Master"));
 
@@ -225,7 +225,7 @@ public class FXStylesController {
 
 
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering
@@ -256,7 +256,7 @@ public class FXStylesController {
         tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
         tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue()));
+        buttonPFMSettingReset.setOnAction(e -> Register.PRESET_LOADER_PFM.applyPreset(comboBoxPFMPreset.getValue()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));

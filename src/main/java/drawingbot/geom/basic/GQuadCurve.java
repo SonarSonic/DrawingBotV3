@@ -1,6 +1,5 @@
 package drawingbot.geom.basic;
 
-import drawingbot.geom.PathBuilder;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,7 +8,6 @@ import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.CubicCurve2D;
 import java.awt.geom.QuadCurve2D;
 
 public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathElement {

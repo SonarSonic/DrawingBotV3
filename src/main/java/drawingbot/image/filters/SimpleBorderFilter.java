@@ -6,6 +6,7 @@ import drawingbot.image.ImageTools;
 import drawingbot.image.blend.EnumBlendMode;
 import org.imgscalr.Scalr;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -43,7 +44,12 @@ public class SimpleBorderFilter extends AbstractBufferedImageOp{
         }
 
         if(borderImg != null){
-            ImageTools.drawImage(src, dest);
+
+            ///starting with white allows us to use images with an alpha layer
+            dest = ImageTools.lazyBackground(dest, Color.WHITE);
+
+            dest = ImageTools.drawImage(src, dest);
+
 
             borderImg = Scalr.resize(borderImg, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, src.getWidth(), src.getHeight());
             borderImg = ImageTools.lazyRGBFilter(borderImg, ImageTools::invertFilter);

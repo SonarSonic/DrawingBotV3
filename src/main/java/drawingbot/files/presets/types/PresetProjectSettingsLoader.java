@@ -1,17 +1,16 @@
 package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.ExportFormats;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.presets.PresetType;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.utils.EnumColourSplitter;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.registry.Register;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -22,8 +21,8 @@ import java.util.*;
 
 public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProjectSettings> {
 
-    public PresetProjectSettingsLoader() {
-        super(PresetProjectSettings.class, EnumJsonType.PROJECT_PRESET, "projects.json");
+    public PresetProjectSettingsLoader(PresetType presetType) {
+        super(PresetProjectSettings.class, presetType, "projects.json");
     }
 
     @Override
@@ -52,27 +51,27 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
             PrintResolution thumbnailResolution = PrintResolution.copy(DrawingBotV3.INSTANCE.getActiveTask().resolution);
             thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(ExportFormats.EXPORT_IMAGE, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }else{
             preset.data.thumbnailID = "";
         }
 
-        GenericPreset<PresetDrawingArea> presetDrawingArea = JsonLoaderManager.DRAWING_AREA.createNewPreset();
-        JsonLoaderManager.DRAWING_AREA.updatePreset(presetDrawingArea);
+        GenericPreset<PresetDrawingArea> presetDrawingArea = Register.PRESET_LOADER_DRAWING_AREA.createNewPreset();
+        Register.PRESET_LOADER_DRAWING_AREA.updatePreset(presetDrawingArea);
         preset.data.drawingArea = presetDrawingArea;
 
-        GenericPreset<PresetImageFilters> presetImageFilters = JsonLoaderManager.FILTERS.createNewPreset();
-        JsonLoaderManager.FILTERS.updatePreset(presetImageFilters);
+        GenericPreset<PresetImageFilters> presetImageFilters = Register.PRESET_LOADER_FILTERS.createNewPreset();
+        Register.PRESET_LOADER_FILTERS.updatePreset(presetImageFilters);
         preset.data.imageFilters = presetImageFilters;
 
-        GenericPreset<PresetPFMSettings> presetPFMSettings = JsonLoaderManager.PFM.createNewPreset();
-        JsonLoaderManager.PFM.updatePreset(presetPFMSettings);
+        GenericPreset<PresetPFMSettings> presetPFMSettings = Register.PRESET_LOADER_PFM.createNewPreset();
+        Register.PRESET_LOADER_PFM.updatePreset(presetPFMSettings);
         preset.data.pfmSettings = presetPFMSettings;
         preset.data.name = preset.data.pfmSettings.presetSubType;
 
-        GenericPreset<PresetDrawingSet> presetDrawingSet = JsonLoaderManager.DRAWING_SET.createNewPreset();
-        JsonLoaderManager.DRAWING_SET.updatePreset(presetDrawingSet);
+        GenericPreset<PresetDrawingSet> presetDrawingSet = Register.PRESET_LOADER_DRAWING_SET.createNewPreset();
+        Register.PRESET_LOADER_DRAWING_SET.updatePreset(presetDrawingSet);
         preset.data.drawingSet = presetDrawingSet;
 
         preset.data.imageRotation = DrawingBotV3.INSTANCE.imageRotation.get();
@@ -97,12 +96,12 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
     @Override
     public void applyPreset(GenericPreset<PresetProjectSettings> preset) {
 
-        JsonLoaderManager.DRAWING_AREA.applyPreset(preset.data.drawingArea);
-        JsonLoaderManager.FILTERS.applyPreset(preset.data.imageFilters);
-        JsonLoaderManager.PFM.applyPreset(preset.data.pfmSettings);
+        Register.PRESET_LOADER_DRAWING_AREA.applyPreset(preset.data.drawingArea);
+        Register.PRESET_LOADER_FILTERS.applyPreset(preset.data.imageFilters);
+        Register.PRESET_LOADER_PFM.applyPreset(preset.data.pfmSettings);
 
-        if(DrawingBotV3.INSTANCE.colourSplitter.get() != EnumColourSplitter.CMYK){
-            JsonLoaderManager.DRAWING_SET.applyPreset(preset.data.drawingSet);
+        if(DrawingBotV3.INSTANCE.colourSplitter.get().isDefault()){
+            Register.PRESET_LOADER_DRAWING_SET.applyPreset(preset.data.drawingSet);
         }else{
             FXController.changeDrawingSet(DrawingBotV3.INSTANCE.colourSplitter.get().drawingSet);
         }

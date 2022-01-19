@@ -3,14 +3,12 @@ package drawingbot.files.presets;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.utils.EnumJsonType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractSettingsLoader<O extends AbstractJsonData> extends AbstractPresetLoader<O> {
 
@@ -18,7 +16,7 @@ public abstract class AbstractSettingsLoader<O extends AbstractJsonData> extends
 
     public List<GenericSetting<?, ?>> settings = new ArrayList<>();
 
-    public AbstractSettingsLoader(Class<O> dataType, EnumJsonType type, String configFile) {
+    public AbstractSettingsLoader(Class<O> dataType, PresetType type, String configFile) {
         super(dataType, type, configFile);
         registerSettings();
     }

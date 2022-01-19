@@ -3,16 +3,17 @@ package drawingbot.integrations.vpype;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractSettingsLoader;
 import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.registry.Register;
 
 import java.util.Optional;
 
 public class PresetVpypeSettingsLoader extends AbstractSettingsLoader<PresetVpypeSettings> {
 
-    public PresetVpypeSettingsLoader() {
-        super(PresetVpypeSettings.class, EnumJsonType.VPYPE_SETTINGS, "user_vpype_presets.json");
+    public PresetVpypeSettingsLoader(PresetType presetType) {
+        super(PresetVpypeSettings.class, presetType, "user_vpype_presets.json");
     }
 
     public void registerSettings(){
@@ -31,7 +32,7 @@ public class PresetVpypeSettingsLoader extends AbstractSettingsLoader<PresetVpyp
     }
 
     public static GenericPreset<PresetVpypeSettings> getPresetOrDefault(String presetName){
-        Optional<GenericPreset<PresetVpypeSettings>> preset = JsonLoaderManager.VPYPE_SETTINGS.presets.stream().filter(p -> p.presetName.equals(presetName)).findFirst();
-        return preset.orElseGet(JsonLoaderManager.VPYPE_SETTINGS::getDefaultPreset);
+        Optional<GenericPreset<PresetVpypeSettings>> preset = Register.PRESET_LOADER_VPYPE_SETTINGS.presets.stream().filter(p -> p.presetName.equals(presetName)).findFirst();
+        return preset.orElseGet(Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultPreset);
     }
 }

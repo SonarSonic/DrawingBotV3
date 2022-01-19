@@ -1,4 +1,4 @@
-package drawingbot.drawing.plugins;
+package drawingbot.plugins;
 
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
@@ -6,6 +6,11 @@ import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
 
 public class StaedtlerPenPlugin extends AbstractPenPlugin {
+
+    @Override
+    public String getPluginName() {
+        return "Staedtler Pen Plugin";
+    }
 
     @Override
     public void registerPens() {
@@ -78,7 +83,6 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         registerPenWithCode("86", new DrawingPen("Staedtler Fineliner", "85 Stone Grey", ImageTools.getARGB(255, 165, 161, 160)));
 
         registerPenWithCode("9", new DrawingPen("Staedtler Fineliner", "9 Black", ImageTools.getARGB(255, 1, 1, 1)));
-
 
     }
 

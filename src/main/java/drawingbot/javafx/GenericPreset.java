@@ -3,12 +3,12 @@ package drawingbot.javafx;
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonAdapterGenericPreset;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.files.presets.PresetType;
 
 @JsonAdapter(JsonAdapterGenericPreset.class)
 public class GenericPreset<O extends IJsonData> {
 
-    public EnumJsonType presetType; //preset type, which defines the PresetManager and IPresetData types
+    public PresetType presetType; //preset type, which defines the PresetManager and IPresetData types
     public int version; //the major version of this preset
     public String presetSubType; //only needed by some presets, e.g. PFMPresets have different presets for each PFM
     public String presetName; //the presets name as it should show up in the user interface
@@ -18,7 +18,7 @@ public class GenericPreset<O extends IJsonData> {
 
     public GenericPreset(){}
 
-    public GenericPreset(EnumJsonType presetType, String presetSubType, String presetName, boolean userCreated){
+    public GenericPreset(PresetType presetType, String presetSubType, String presetName, boolean userCreated){
         this.version = 1; //current major version
         this.presetType = presetType;
         this.presetSubType = presetSubType;

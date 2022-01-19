@@ -11,6 +11,10 @@ public abstract class DBTask<V> extends Task<V> {
     public double workDone = -1;
     public double max = 1;
 
+    public boolean isPlottingTask(){
+        return false;
+    }
+
     public void setError(String error){
         this.error = error;
     }

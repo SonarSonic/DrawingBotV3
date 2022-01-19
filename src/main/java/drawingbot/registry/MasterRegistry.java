@@ -4,10 +4,15 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IPathFindingModule;
+import drawingbot.api.IPlugin;
+import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.drawing.plugins.AbstractPenPlugin;
+import drawingbot.plugins.AbstractPenPlugin;
 import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.presets.AbstractJsonLoader;
+import drawingbot.files.presets.IJsonData;
+import drawingbot.files.presets.PresetType;
 import drawingbot.files.presets.types.PresetImageFilters;
 import drawingbot.files.presets.types.PresetPFMSettings;
 import drawingbot.image.kernels.IKernelFactory;
@@ -17,9 +22,7 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogImageFilter;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.pfm.PFMModular;
 import drawingbot.pfm.PFMSketchLines;
-import drawingbot.pfm.modules.ModularEncoder;
 import drawingbot.utils.EnumFilterTypes;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,7 +37,8 @@ import java.util.function.Supplier;
 
 public class MasterRegistry {
 
-    public static MasterRegistry INSTANCE;
+    public static List<IPlugin> PLUGINS = new ArrayList<>(List.of(Register.INSTANCE));
+    public static MasterRegistry INSTANCE = new MasterRegistry();
 
     //// PATH FINDING MODULES \\\\
     public List<PFMFactory> pfmFactories = new ArrayList<>();
@@ -55,15 +59,58 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// DRAWING PENS / SETS \\\\
 
-    public List<AbstractPenPlugin> penPlugins = new ArrayList<>();
     public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// EXPORTERS \\\\
+
+    public List<DrawingExportHandler> drawingExportHandlers = new ArrayList<>();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// COLOUR SPLITTERS \\\\
+
+    public ObservableList<ColourSplitterHandler> colourSplitterHandlers = FXCollections.observableArrayList();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// JSON LOADERS \\\\
+
+    public List<PresetType> presetTypes = new ArrayList<>();
+    public List<AbstractJsonLoader<IJsonData>> presetLoaders = new ArrayList<>();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static void findPlugins(){
+        findPlugins(PLUGINS);
+    }
+
+    private static void findPlugins(List<IPlugin> plugins){
+        List<IPlugin> newPlugins = new ArrayList<>();
+        for(IPlugin plugin : plugins){
+            plugin.registerPlugins(newPlugins);
+        }
+        if(!newPlugins.isEmpty()){
+            PLUGINS.addAll(newPlugins);
+            findPlugins(newPlugins);
+        }
+    }
+
     public static void init(){
-        INSTANCE = new MasterRegistry();
-        Register.registerPFMs();
-        Register.registerDrawingTools();
-        Register.registerImageFilters();
+
+        PLUGINS.forEach(IPlugin::registerPFMS);
+        PLUGINS.forEach(IPlugin::registerPFMSettings);
+        PLUGINS.forEach(IPlugin::registerDrawingTools);
+        PLUGINS.forEach(IPlugin::registerImageFilters);
+        PLUGINS.forEach(IPlugin::registerDrawingExportHandlers);
+        PLUGINS.forEach(IPlugin::registerColourSplitterHandlers);
+
+        for(ColourSplitterHandler splitter : MasterRegistry.INSTANCE.colourSplitterHandlers){
+            splitter.drawingSet = splitter.createDrawingSet.apply(splitter);
+            MasterRegistry.INSTANCE.registerDrawingSet(splitter.drawingSet);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +180,7 @@ public class MasterRegistry {
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
         pfmFactories.add(factory);
         if(registerDefaultPreset){
-            registerPFMPreset(JsonLoaderManager.PFM.createNewPreset(name, "Default", false));
+            registerPFMPreset(Register.PRESET_LOADER_PFM.createNewPreset(name, "Default", false));
         }
         return factory;
     }
@@ -193,41 +240,6 @@ public class MasterRegistry {
         }
     }
 
-    public GenericSetting<?, ?> getModularPFMSettingByName(Class<? extends ModularEncoder> pfmClass, String name){
-        PFMFactory<?> factory = getPFMFactory(pfmClass);
-        if(factory != null){
-            ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
-            for(GenericSetting<?, ?> setting : settings){
-                if(setting.settingName.getValue().equals(name)){
-                    return setting;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Registers an encoder setting for every PFMModular which uses it
-     */
-    public void registerModularEncoderSetting(Class<? extends ModularEncoder> shapeEncoder, GenericSetting<? extends PFMModular, ?> setting){
-        DrawingBotV3.logger.finest("Registering Global Encoder Setting: " + setting.settingName.getValue());
-        for(PFMFactory<?> factory : pfmFactories){
-            if(factory.encoders.contains(shapeEncoder)){
-                pfmSettings.putIfAbsent(factory, FXCollections.observableArrayList());
-                pfmSettings.get(factory).add(setting);
-            }
-        }
-    }
-
-    /**
-     * Registers an encoder setting for the specified PFMModular only
-     */
-    public void registerModularEncoderSetting(PFMFactory<?> loader, GenericSetting<? extends PFMModular, ?> setting){
-        DrawingBotV3.logger.finest("Registering Special Encoder Setting: " + setting.settingName.getValue());
-        pfmSettings.putIfAbsent(loader, FXCollections.observableArrayList());
-        pfmSettings.get(loader).add(setting);
-    }
-
     public void registerPFMPreset(GenericPreset<PresetPFMSettings> preset){
         DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.presetName);
         pfmPresets.putIfAbsent(preset.presetSubType, FXCollections.observableArrayList());
@@ -267,12 +279,6 @@ public class MasterRegistry {
 
 
     //// DRAWING PEN: REGISTERING
-
-    public void registerPenPlugin(AbstractPenPlugin penPlugin){
-        penPlugins.add(penPlugin);
-        penPlugin.registerPens();
-        penPlugin.registerPenSets();
-    }
 
     public void registerDrawingPen(DrawingPen pen){
         if(pen == null){
@@ -408,9 +414,14 @@ public class MasterRegistry {
 
     //// DRAWING PEN: HELPERS
 
+    @Nullable
     public DrawingPen getDrawingPenFromRegistryName(String codeName){
         String[] split = codeName.split(":");
-        return registeredPens.get(split[0]).stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
+        ObservableList<DrawingPen> pens = registeredPens.get(split[0]);
+        if(pens == null){
+            return null;
+        }
+        return pens.stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
     }
 
     public List<DrawingPen> getDrawingPensFromRegistryNames(String[] codes){
@@ -431,6 +442,63 @@ public class MasterRegistry {
     public IDrawingSet<IDrawingPen> getDrawingSetFromRegistryName(String codeName){
         String[] split = codeName.split(":");
         return registeredSets.get(split[0]).stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// EXPORTERS \\\\
+
+    public DrawingExportHandler registerDrawingExportHandler(DrawingExportHandler exportHandler){
+        DrawingBotV3.logger.finest("Registering Export Handler: " + exportHandler.displayName);
+        this.drawingExportHandlers.add(exportHandler);
+        return exportHandler;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// COLOUR SPLITTERS \\\\
+
+    public ColourSplitterHandler registerColourSplitter(ColourSplitterHandler colourSplitter){
+        DrawingBotV3.logger.finest("Registering Colour Splitter: " + colourSplitter.name);
+        this.colourSplitterHandlers.add(colourSplitter);
+        return colourSplitter;
+    }
+
+    public ColourSplitterHandler getColourSplitter(String name){
+        for(ColourSplitterHandler colourSplitter : colourSplitterHandlers){
+            if(colourSplitter.name.equals(name)){
+                return colourSplitter;
+            }
+        }
+        return Register.DEFAULT_COLOUR_SPLITTER;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PRESET LOADERS \\\\
+
+    public AbstractJsonLoader<IJsonData> registerPresetLoaders(AbstractJsonLoader presetLoader){
+        DrawingBotV3.logger.finest("Registering Preset Loader: " + presetLoader.type.id);
+        this.presetLoaders.add(presetLoader);
+        return presetLoader;
+    }
+
+    public PresetType registerPresetType(PresetType presetType){
+        DrawingBotV3.logger.finest("Registering Json Type: " + presetType.id);
+        this.presetTypes.add(presetType);
+        return presetType;
+    }
+
+    public PresetType getPresetType(String name){
+        for(PresetType presetType : presetTypes){
+            if(presetType.id.equals(name)){
+                return presetType;
+            }
+        }
+        return null;
     }
 
 }

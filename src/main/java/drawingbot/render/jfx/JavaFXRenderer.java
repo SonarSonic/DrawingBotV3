@@ -7,31 +7,26 @@ import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.ImageFilteringTask;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.plotting.SplitPlottingTask;
-import drawingbot.render.AbstractRenderer;
-import drawingbot.render.opengl.VertexBuffer;
+import drawingbot.render.IRenderer;
 import drawingbot.utils.EnumDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import org.jfree.fx.FXGraphics2D;
 
-public class JavaFXRenderer extends AbstractRenderer {
+public class JavaFXRenderer implements IRenderer {
 
+    public final Rectangle2D screenBounds;
     public boolean imageFilterDirty = false;
     public boolean imageFiltersChanged = false;
     public boolean croppingDirty = false;
@@ -70,7 +65,7 @@ public class JavaFXRenderer extends AbstractRenderer {
     private ImageFilteringTask filteringTask;
 
     public JavaFXRenderer(Rectangle2D screenBounds) {
-        super(screenBounds);
+        this.screenBounds = screenBounds;
     }
 
     public void forceCanvasUpdate(){
@@ -98,6 +93,7 @@ public class JavaFXRenderer extends AbstractRenderer {
         clearCanvas(DrawingBotV3.INSTANCE.backgroundColour);
     }
 
+    @Override
     public void draw() {
         preRender();
         render();
@@ -105,7 +101,8 @@ public class JavaFXRenderer extends AbstractRenderer {
     }
     ///
 
-    private void updateCanvasPosition(){
+    @Override
+    public void updateCanvasPosition(){
 
         pane.setMinWidth(getPaneScaledWidth());
         pane.setMinHeight(getPaneScaledHeight());
@@ -264,7 +261,9 @@ public class JavaFXRenderer extends AbstractRenderer {
             case PRE_PROCESSING:
                 break;
             case DO_PROCESS:
-                if(!(renderedTask instanceof SplitPlottingTask)){
+                if(renderedTask.handlesProcessRendering()){
+                    renderedTask.renderProcessing(this, renderedTask);
+                }else{
                     if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
                         clearCanvas();
                         renderedLines = 0;
@@ -273,20 +272,6 @@ public class JavaFXRenderer extends AbstractRenderer {
                         graphicsFX.scale(canvasScaling, canvasScaling);
                         graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
                         renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_EXPORT_FILTER, getVertexRenderLimit(), false);
-                    }
-                }else{
-                    SplitPlottingTask splitPlottingTask = (SplitPlottingTask) renderedTask;
-                    if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
-                        clearCanvas();
-                        splitPlottingTask.renderedLines = new int[splitPlottingTask.splitter.getSplitCount()];
-                    }
-                    if(splitPlottingTask.subTasks != null){
-                        graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                        for(int i = 0; i < splitPlottingTask.splitter.getSplitCount(); i ++){
-                            PlottingTask task = splitPlottingTask.subTasks.get(i);
-                            splitPlottingTask.renderedLines[i] = task.plottedDrawing.renderGeometryFX(graphicsFX, splitPlottingTask.renderedLines[i], task.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_EXPORT_FILTER, getVertexRenderLimit() / splitPlottingTask.splitter.getSplitCount(), false);
-                        }
                     }
                 }
                 break;
@@ -326,9 +311,8 @@ public class JavaFXRenderer extends AbstractRenderer {
 
     public void clearProcessRendering(){
         Platform.runLater(() -> {
-            if(DrawingBotV3.INSTANCE.getRenderedTask() instanceof SplitPlottingTask){
-                SplitPlottingTask splitPlottingTask = (SplitPlottingTask) DrawingBotV3.INSTANCE.getRenderedTask();
-                splitPlottingTask.renderedLines = new int[splitPlottingTask.splitter.getSplitCount()];
+            if(DrawingBotV3.INSTANCE.getRenderedTask().handlesProcessRendering()){
+                DrawingBotV3.INSTANCE.getRenderedTask().clearProcessingRender(DrawingBotV3.RENDERER, DrawingBotV3.INSTANCE.getRenderedTask());
             }else{
                 renderedLines = 0;
             }
@@ -408,9 +392,34 @@ public class JavaFXRenderer extends AbstractRenderer {
         return graphicsFX.getGlobalBlendMode() == BlendMode.SRC_OVER ? vertexRenderLimitNormal : vertexRenderLimitBlendMode;
     }
 
+    //// IRENDERER \\\\
+
+    @Override
+    public Rectangle2D getScreenBounds() {
+        return screenBounds;
+    }
+
+    @Override
+    public Pane getPane() {
+        return pane;
+    }
 
     public final void reRender(){
         markRenderDirty = true;
-        VertexBuffer.INSTANCE.markVertexDirty();
+        DrawingBotV3.OPENGL_RENDERER.reRender();
+    }
+
+    @Override
+    public Point2D sceneToRenderer(Point2D point2D) {
+        Point2D dst = canvas.sceneToLocal(point2D);
+        dst = new Point2D(dst.getX()/canvasScaling, dst.getY()/ canvasScaling);
+        return dst;
+    }
+
+    @Override
+    public Point2D rendererToScene(Point2D point2D) {
+        Point2D dst = new Point2D(point2D.getX()*canvasScaling, point2D.getY() * canvasScaling);
+        dst = canvas.localToScene(dst);
+        return dst;
     }
 }

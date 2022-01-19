@@ -140,7 +140,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
             bresenham.plotCircle(startX, startY, maxLength, (x1, y1) -> processSafePixels(pixels, startX, startY, x1, y1, safe, consumer));
         }else{
             float deltaAngle = shading ? drawingDeltaAngle : drawingDeltaAngle / (float) maxTests;
-            for (int d = 0; d < (shading && drawingDeltaAngle == 180 ? 2 : maxTests); d ++) {
+            for (int d = 0; d < (shading ? 2 : maxTests); d ++) {
                 int x1 = (int)Math.ceil((Math.cos(Math.toRadians((deltaAngle * d) + startAngle))*maxLength) + startX);
                 int y1 = (int)Math.ceil((Math.sin(Math.toRadians((deltaAngle * d) + startAngle))*maxLength) + startY);
                 processSafePixels(pixels, startX, startY, x1, y1, safe, consumer);

@@ -2,6 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.DBTask;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -11,7 +12,6 @@ import drawingbot.image.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
@@ -399,5 +399,34 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
         if(onPFMSettingsAppliedCallback != null){
             onPFMSettingsAppliedCallback.accept(src, pfm);
         }
+    }
+
+    //// GEOMETRY UI HOOKS \\\\
+
+    public int getCurrentGeometryCount(){
+        return plottedDrawing.getGeometryCount();
+    }
+
+    public long getCurrentVertexCount(){
+        return plottedDrawing.getVertexCount();
+    }
+
+    @Override
+    public boolean isPlottingTask() {
+        return true;
+    }
+
+    //// CUSTOM RENDERING \\\\
+
+    public boolean handlesProcessRendering(){
+        return false;
+    }
+
+    public void renderProcessing(JavaFXRenderer renderer, PlottingTask renderedTask){
+        //NOP
+    }
+
+    public void clearProcessingRender(JavaFXRenderer renderer, PlottingTask renderedTask){
+        //NOP
     }
 }

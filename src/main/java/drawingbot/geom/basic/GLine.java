@@ -2,7 +2,6 @@ package drawingbot.geom.basic;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
-import drawingbot.render.opengl.VertexBuilder;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -95,12 +94,6 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         graphics.strokeLine(x1, y1, x2, y2);
-    }
-
-    @Override
-    public void renderVertices(VertexBuilder vertexBuilder, ObservableDrawingPen pen) {
-        vertexBuilder.addVertex(0, x1, y1);
-        vertexBuilder.addVertex(1, x2, y2);
     }
 
     @Override

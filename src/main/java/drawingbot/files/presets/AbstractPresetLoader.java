@@ -2,14 +2,13 @@ package drawingbot.files.presets;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 
 public abstract class AbstractPresetLoader<O extends IJsonData> extends AbstractJsonLoader<O>{
 
     public final Class<O> dataType;
 
-    public AbstractPresetLoader(Class<O> dataType, EnumJsonType type, String configFile) {
+    public AbstractPresetLoader(Class<O> dataType, PresetType type, String configFile) {
         super(type, configFile);
         this.dataType = dataType;
     }

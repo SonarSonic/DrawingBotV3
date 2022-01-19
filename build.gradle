@@ -42,7 +42,6 @@ dependencies {
     implementation "org.jcodec:jcodec-javase:${jcodec_version}"
     implementation "org.apache.bcel:bcel:${bcel_version}"
     implementation "com.aparapi:aparapi:${aparapi_version}"
-    implementation "com.fazecast:jSerialComm:${jserialcomm_version}"
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle

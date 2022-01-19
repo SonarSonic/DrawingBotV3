@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 import javafx.application.Platform;
 
@@ -17,10 +16,10 @@ import java.util.logging.Level;
 @SuppressWarnings("unchecked")
 public abstract class AbstractJsonLoader<O extends IJsonData> {
 
-    public final EnumJsonType type;
+    public final PresetType type;
     public final File configFile;
 
-    public AbstractJsonLoader(EnumJsonType type, String configFile) {
+    public AbstractJsonLoader(PresetType type, String configFile) {
         this.type = type;
         this.configFile = new File(FileUtils.getUserDataDirectory(), configFile);
     }

@@ -3,17 +3,14 @@ package drawingbot.files.presets.types;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.presets.AbstractSettingsLoader;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.utils.EnumDirection;
-import drawingbot.utils.EnumJsonType;
-
-import java.util.List;
 
 public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCodeSettings> {
 
-    public PresetGCodeSettingsLoader() {
-        super(PresetGCodeSettings.class, EnumJsonType.GCODE_SETTINGS, "user_gcode_presets.json");
+    public PresetGCodeSettingsLoader(PresetType presetType) {
+        super(PresetGCodeSettings.class, presetType, "user_gcode_presets.json");
     }
 
     public void registerSettings(){

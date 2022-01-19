@@ -21,7 +21,7 @@ import java.util.logging.Level;
 
 public class ExportTask extends DBTask<Boolean> {
 
-    public final ExportFormats format;
+    public final DrawingExportHandler exportHandler;
     public final String extension;
     public final PlottingTask plottingTask;
     public final IGeometryFilter pointFilter;
@@ -37,8 +37,8 @@ public class ExportTask extends DBTask<Boolean> {
 
     public PrintResolution exportResolution;
 
-    public ExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask, PrintResolution exportResolution){
-        this.format = format;
+    public ExportTask(DrawingExportHandler exportHandler, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask, PrintResolution exportResolution){
+        this.exportHandler = exportHandler;
         this.plottingTask = plottingTask;
         this.pointFilter = pointFilter;
         this.extension = extension;
@@ -62,13 +62,13 @@ public class ExportTask extends DBTask<Boolean> {
 
         //TODO FIX ISSUE WITH DIALOGS TURNING INVISIBLE IN THEIR ORIGINAL POSITION.
         if(!isSubTask){
-            updateTitle(format.displayName + ": " + saveLocation.getPath());
+            updateTitle(exportHandler.displayName + ": " + saveLocation.getPath());
             //show confirmation dialog, for special formats
-            if(format.confirmDialog != null){
+            if(exportHandler.confirmDialog != null){
                 CountDownLatch latch = new CountDownLatch(1);
                 AtomicReference<Boolean> result = new AtomicReference<>(false);
                 Platform.runLater(() -> {
-                    Dialog<Boolean> hpglDialog = format.confirmDialog.apply(this);
+                    Dialog<Boolean> hpglDialog = exportHandler.confirmDialog.apply(this);
                     hpglDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
                     hpglDialog.setOnHidden(e -> latch.countDown());
                     hpglDialog.showAndWait();
@@ -88,7 +88,7 @@ public class ExportTask extends DBTask<Boolean> {
 
         error = null;
         if(!seperatePens){
-            updateTitle(format.displayName + ": 1 / 1" + " - " + saveLocation.getPath());
+            updateTitle(exportHandler.displayName + ": 1 / 1" + " - " + saveLocation.getPath());
             if(overwrite || Files.notExists(saveLocation.toPath())){
 
                 updateMessage("Optimising Paths");
@@ -98,12 +98,12 @@ public class ExportTask extends DBTask<Boolean> {
                 renderedGeometries = 0;
 
                 updateMessage("Exporting Paths");
-                format.exportMethod.export(this, plottingTask, geometries, extension, saveLocation);
+                exportHandler.exportMethod.export(this, plottingTask, geometries, extension, saveLocation);
             }
         }else{
             File path = FileUtils.removeExtension(saveLocation);
             for (int p = 0; p < plottingTask.plottedDrawing.getPenCount(); p ++) {
-                updateTitle(format.displayName + ": " + (p+1) + " / " + plottingTask.plottedDrawing.getPenCount() + " - " + saveLocation.getPath());
+                updateTitle(exportHandler.displayName + ": " + (p+1) + " / " + plottingTask.plottedDrawing.getPenCount() + " - " + saveLocation.getPath());
                 ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(p);
                 File fileName = new File(path.getPath() + "_pen" + p + "_" + drawingPen.getName() + extension);
                 if(drawingPen.isEnabled() && (overwrite || Files.notExists(fileName.toPath()))){
@@ -115,7 +115,7 @@ public class ExportTask extends DBTask<Boolean> {
                     renderedGeometries = 0;
 
                     updateMessage("Exporting Paths");
-                    format.exportMethod.export(this, plottingTask, geometries,  extension, fileName);
+                    exportHandler.exportMethod.export(this, plottingTask, geometries,  extension, fileName);
                 }
             }
         }

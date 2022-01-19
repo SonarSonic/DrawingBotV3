@@ -5,6 +5,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.registry.Register;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
 
@@ -38,10 +39,10 @@ public class FXVPypeController {
 
     public void initVPypeSettingsPane(){
 
-        comboBoxVPypePreset.setItems(JsonLoaderManager.VPYPE_SETTINGS.presets);
+        comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
         comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                JsonLoaderManager.VPYPE_SETTINGS.applyPreset(newValue);
+                Register.PRESET_LOADER_VPYPE_SETTINGS.applyPreset(newValue);
                 if(!ConfigFileHandler.getApplicationSettings().vPypePresetName.equals(newValue.presetName)){
                     ConfigFileHandler.getApplicationSettings().vPypePresetName = newValue.presetName;
                     ConfigFileHandler.getApplicationSettings().markDirty();
@@ -50,11 +51,11 @@ public class FXVPypeController {
         });
         comboBoxVPypePreset.setValue(PresetVpypeSettingsLoader.getPresetOrDefault(ConfigFileHandler.getApplicationSettings().vPypePresetName));
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.VPYPE_SETTINGS, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_VPYPE_SETTINGS, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
             comboBoxVPypePreset.setValue(preset);
 
             ///force update rendering
-            comboBoxVPypePreset.setItems(JsonLoaderManager.VPYPE_SETTINGS.presets);
+            comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
             comboBoxVPypePreset.setButtonCell(new ComboBoxListCell<>());
         });
 

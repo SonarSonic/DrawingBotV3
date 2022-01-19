@@ -2,8 +2,8 @@ package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractPresetLoader;
+import drawingbot.files.presets.PresetType;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import javafx.collections.ObservableList;
@@ -15,8 +15,8 @@ import java.util.Map;
 
 public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSettings> {
 
-    public PresetPFMSettingsLoader() {
-        super(PresetPFMSettings.class, EnumJsonType.PFM_PRESET, "user_pfm_presets.json");
+    public PresetPFMSettingsLoader(PresetType presetType) {
+        super(PresetPFMSettings.class, presetType, "user_pfm_presets.json");
     }
 
     @Override

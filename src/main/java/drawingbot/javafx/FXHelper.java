@@ -2,21 +2,15 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.files.ExportFormats;
+import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.presets.PresetType;
 import drawingbot.geom.basic.IGeometry;
-import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.javafx.controls.DialogColourSeperationConfiguration;
 import drawingbot.javafx.observables.ObservableImageFilter;
-import drawingbot.javafx.controls.DialogColourSeperationMode;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.utils.EnumColourSplitter;
-import drawingbot.utils.EnumDistributionOrder;
-import drawingbot.utils.EnumDistributionType;
-import drawingbot.utils.EnumJsonType;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -69,15 +63,15 @@ public class FXHelper {
         });
     }
 
-    public static void exportFile(ExportFormats format, boolean seperatePens){
+    public static void exportFile(DrawingExportHandler exportHandler, boolean seperatePens){
         if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
         }
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(format.filters);
-            d.setSelectedExtensionFilter(format.filters[0]);
-            d.setTitle(format.getDialogTitle());
+            d.getExtensionFilters().addAll(exportHandler.filters);
+            d.setSelectedExtensionFilter(exportHandler.filters[0]);
+            d.setTitle(exportHandler.getDialogTitle());
             d.setInitialDirectory(FileUtils.getExportDirectory());
             d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getName()) + "_plotted");
             File file = d.showSaveDialog(null);
@@ -89,13 +83,13 @@ public class FXHelper {
                     //linux doesn't add file extensions so we add the default selected one
                     fileName += extension;
                 }
-                DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(fileName), seperatePens, false);
+                DrawingBotV3.INSTANCE.createExportTask(exportHandler, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(fileName), seperatePens, false);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });
     }
 
-    public static void importPreset(EnumJsonType presetType, boolean apply){
+    public static void importPreset(PresetType presetType, boolean apply){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(presetType.filters);
@@ -108,7 +102,7 @@ public class FXHelper {
         });
     }
 
-    public static void loadPresetFile(EnumJsonType presetType, File file, boolean apply){
+    public static void loadPresetFile(PresetType presetType, File file, boolean apply){
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
@@ -301,30 +295,6 @@ public class FXHelper {
         list.remove(item);
     }
 
-    public static void openColourSeperationDialog(EnumColourSplitter splitter){
-
-        DialogColourSeperationMode dialog = new DialogColourSeperationMode(splitter);
-        Optional<Boolean> result = dialog.showAndWait();
-        if(result.isPresent() && result.get()){
-            if(splitter != EnumColourSplitter.DEFAULT){
-                DrawingBotV3.INSTANCE.updateDistributionType = EnumDistributionType.PRECONFIGURED;
-                DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
-                DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.DARKEN);
-                DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(splitter.drawingSet);
-            }else{
-                DrawingBotV3.INSTANCE.updateDistributionType = DrawingBotV3.INSTANCE.pfmFactory.get().getDistributionType();
-                DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
-                DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(EnumBlendMode.NORMAL);
-                DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
-            }
-            DrawingBotV3.INSTANCE.colourSplitter.set(splitter);
-        }
-    }
-
-    public static void openColourSeperationConfigureDialog(EnumColourSplitter splitter){
-        DialogColourSeperationConfiguration dialog = new DialogColourSeperationConfiguration(splitter);
-        dialog.showAndWait();
-    }
 
     public static void addImageFilter(GenericFactory<BufferedImageOp> filterFactory){
         ObservableImageFilter filter = new ObservableImageFilter(filterFactory);

@@ -1,88 +1,114 @@
 package drawingbot.registry;
 
 import com.jhlabs.image.*;
+import drawingbot.api.IPlugin;
 import drawingbot.drawing.*;
-import drawingbot.drawing.plugins.CopicPenPlugin;
-import drawingbot.drawing.plugins.StaedtlerPenPlugin;
+import drawingbot.plugins.CopicPenPlugin;
+import drawingbot.plugins.SpecialPenPlugin;
+import drawingbot.plugins.StaedtlerPenPlugin;
+import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.FileUtils;
+import drawingbot.files.exporters.*;
+import drawingbot.files.presets.PresetType;
+import drawingbot.files.presets.types.*;
 import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
+import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controls.DialogExportGCodeBegin;
 import drawingbot.javafx.settings.DrawingStylesSetting;
-import drawingbot.javafx.settings.ImageSetting;
 import drawingbot.pfm.*;
-import drawingbot.pfm.modules.position.EnumVoronoiExportType;
-import drawingbot.pfm.modules.position.StructureAwareStipplingPositionEncoder;
-import drawingbot.pfm.modules.position.WeightedVoronoiPositionEncoder;
-import drawingbot.pfm.modules.shapes.*;
-import drawingbot.pfm.wip.*;
 import drawingbot.utils.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Register {
+public class Register implements IPlugin {
 
-    public static void registerPFMs(){
+    public static Register INSTANCE = new Register();
 
-        //operational path finding modules
-        
-        ////experimental - placed here for quick access
-        MasterRegistry.INSTANCE.registerPFM(PFMLayers.class, "Layers PFM", PFMLayers::new, false, true).setIsBeta(true);
+    //// PRESET LOADERS \\\\
+    public static PresetType PRESET_TYPE_CONFIGS;
+    public static ConfigJsonLoader PRESET_LOADER_CONFIGS;
 
+    public static PresetType PRESET_TYPE_PROJECT;
+    public static PresetProjectSettingsLoader PRESET_LOADER_PROJECT;
+
+    public static PresetType PRESET_TYPE_PFM;
+    public static PresetPFMSettingsLoader PRESET_LOADER_PFM;
+
+    public static PresetType PRESET_TYPE_FILTERS;
+    public static PresetImageFiltersLoader PRESET_LOADER_FILTERS;
+
+    public static PresetType PRESET_TYPE_DRAWING_SET;
+    public static PresetDrawingSetLoader PRESET_LOADER_DRAWING_SET;
+
+    public static PresetType PRESET_TYPE_DRAWING_PENS;
+    public static PresetDrawingPenLoader PRESET_LOADER_DRAWING_PENS;
+
+    public static PresetType PRESET_TYPE_DRAWING_AREA;
+    public static PresetDrawingAreaLoader PRESET_LOADER_DRAWING_AREA;
+
+    public static PresetType PRESET_TYPE_GCODE_SETTINGS;
+    public static PresetGCodeSettingsLoader PRESET_LOADER_GCODE_SETTINGS;
+
+    public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
+    public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
+    @Override
+    public String getPluginName() {
+        return "Default";
+    }
+
+    @Override
+    public void registerPlugins(List<IPlugin> newPlugins) {
+        newPlugins.add(new CopicPenPlugin());
+        newPlugins.add(new StaedtlerPenPlugin());
+        newPlugins.add(new SpecialPenPlugin());
+    }
+
+    @Override
+    public void preInit() {
+
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_CONFIGS = new PresetType("config_settings"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings"));
+
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_CONFIGS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PFM = new PresetPFMSettingsLoader(PRESET_TYPE_PFM));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_FILTERS = new PresetImageFiltersLoader(PRESET_TYPE_FILTERS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_SET = new PresetDrawingSetLoader(PRESET_TYPE_DRAWING_SET));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_PENS = new PresetDrawingPenLoader(PRESET_TYPE_DRAWING_PENS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_AREA = new PresetDrawingAreaLoader(PRESET_TYPE_DRAWING_AREA));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_GCODE_SETTINGS = new PresetGCodeSettingsLoader(PRESET_TYPE_GCODE_SETTINGS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
+    }
+
+    @Override
+    public void registerPFMS() {
         MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchCurves.class, "Sketch Curves PFM", PFMSketchCurves::new, false, false).setBypassOptimisation(true);
         MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMQuadBezier.class, "Sketch Quad Beziers PFM", PFMQuadBezier::new, false, false).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMCubicBezier.class, "Sketch Cubic Beziers PFM", PFMCubicBezier::new, false, false).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMCatmullRoms.class, "Sketch Catmull-Roms PFM", PFMCatmullRoms::new, false, false).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchShapes.class, "Sketch Shapes PFM", PFMSketchShapes::new, false, false);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchSobel.class, "Sketch Sobel Edges PFM", PFMSketchSobel::new, false, true);
         MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false, true).setTransparentCMYK(false);
-
-
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Circles", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Triangulation", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TriangulationShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Tree", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TreeShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TreeShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Stippling", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new StipplingShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Diagram", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), false, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi TSP", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TSPShapeEncoder()), false, false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, TSPShapeEncoder.class)).setTransparentCMYK(false);
-
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Circles", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new InscribedCircleShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, InscribedCircleShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Triangulation", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TriangulationShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, TriangulationShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Tree", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TreeShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, TreeShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Stippling", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new StipplingShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, StipplingShapeEncoder.class)).setBypassOptimisation(true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware Diagram", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.VORONOI_GEOMETRIES), new GeometryShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Structure-Aware TSP", () -> new PFMModular(new StructureAwareStipplingPositionEncoder(EnumVoronoiExportType.CENTROIDS), new TSPShapeEncoder()), true, false).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(StructureAwareStipplingPositionEncoder.class, TSPShapeEncoder.class)).setTransparentCMYK(false);
-
-
-        MasterRegistry.INSTANCE.registerPFM(PFMMosaicRectangles.class, "Mosaic Rectangles", PFMMosaicRectangles::new, false, false).setDistributionType(EnumDistributionType.PRECONFIGURED).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMMosaicVoronoi.class, "Mosaic Voronoi", PFMMosaicVoronoi::new, false, false).setDistributionType(EnumDistributionType.PRECONFIGURED).setBypassOptimisation(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMMosaicCustom.class, "Mosaic Custom", PFMMosaicCustom::new, false, true).setDistributionType(EnumDistributionType.PRECONFIGURED).setBypassOptimisation(true).setIsBeta(true);
-
-        //experimental / developer only path finding modules
-        //MasterRegistry.INSTANCE.registerPFM(PFMSketchCurvesV3.class, "Sketch Curves PFM v3.0", PFMSketchCurvesV3::new, true, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMModular.class, "Voronoi Continuous Line", () -> new PFMModular(new WeightedVoronoiPositionEncoder(EnumVoronoiExportType.CENTROIDS), new ContinuousLineShapeEncoder()), true, true).setDistributionType(EnumDistributionType.SINGLE_PEN).setEncoders(List.of(WeightedVoronoiPositionEncoder.class, GeometryShapeEncoder.class)).setTransparentCMYK(false);
-
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchWaves.class, "Sketch Waves PFM", PFMSketchWaves::new, true, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchNoise.class, "Sketch Noise PFM", PFMSketchNoise::new, true, true);
-
-        //MasterRegistry.INSTANCE.registerPFM(PFMSketchShapesAware.class, "Sketch Shapes Aware PFM (Experimental)", PFMSketchShapesAware::new, true, true);
-        //MasterRegistry.INSTANCE.registerPFM(PFMIntersectingLines.class, "Intersecting Lines PFM (Experimental)", PFMIntersectingLines::new, true, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSineWaves.class, "Sine Waves PFM (Experimental)", PFMSineWaves::new, true, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSobelLines.class, "Sobel Lines PFM (Experimental)", PFMSobelLines::new, true, true);
-        //MasterRegistry.INSTANCE.registerPFM(PFMDoddCurve.class, "Dodd Curve PFM", PFMDoddCurve::new, true, true);
-        //MasterRegistry.INSTANCE.registerPFM(PFMDoddCurvesV2.class, "Dodd Curve V2 PFM", PFMDoddCurvesV2::new, true, true);
-        MasterRegistry.INSTANCE.registerPFM(PFMContinuousCurve.class, "Continuous Curve PFM", PFMContinuousCurve::new, true, true);
-        //MasterRegistry.INSTANCE.registerPFM(PFMContinousSplineTest.class, "PFMContinousSplineTest", PFMContinousSplineTest::new, true, true);
+        MasterRegistry.INSTANCE.registerPFM(PFMLayers.class, "Layers PFM", PFMLayers::new, true, true).setIsBeta(true);
         MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
+    }
 
-        ////GENERAL
+    @Override
+    public void registerPFMSettings(){
+        //// GENERAL \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 10.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value).setSafeRange(0.1F, 1.0F));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.seed = value));
 
-        ////SKETCH PFM
+        //// SKETCH LINES \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
@@ -90,45 +116,10 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Threshold", 50, 0, 100, false, (pfmSketch, value) -> pfmSketch.shadingThreshold = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
 
-        ////SQUARES PFM
+        //// SKETCH SQUARES \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquares.class, "Start Angle", 45, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngle = value));
 
-        ////CURVES PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchCurves.class, "Curve tension", 0.5F, 0.01F, 1F, false, (pfmSketch, value) -> pfmSketch.tension = value));
-
-        //// QUAD BEZIER PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMQuadBezier.class, "Curve Tests", 10, 1, 360, false, (pfmSketch, value) -> pfmSketch.curveTests = value).setSafeRange(1, 45));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMQuadBezier.class, "Curve Variation", 50, 1, 1000, false, (pfmSketch, value) -> pfmSketch.curveVariation = value));
-
-        //// CUBIC BEZIER PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMCubicBezier.class, "Curve Tests", 10, 1, 90, false, (pfmSketch, value) -> pfmSketch.curveTests = value).setSafeRange(1, 45));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMCubicBezier.class, "Curve Variation", 50, 1, 1000, false, (pfmSketch, value) -> pfmSketch.curveVariation = value));
-
-        ////WAVES PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchWaves.class, "Start Angle", 45, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngle = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Offset X", 45, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveOffsetX = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Offset Y", 45, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveOffsetY = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Divisor X", 9, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveDivisorX = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchWaves.class, "Wave Divisor Y", 9, -1000, 1000, false, (pfmSketch, value) -> pfmSketch.waveDivisorY = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchWaves.class, "Wave Type X", List.of(PFMSketchWaves.WaveType.values()), PFMSketchWaves.WaveType.SIN, false, (pfmSketch, value) -> pfmSketch.xWave = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchWaves.class, "Wave Type Y", List.of(PFMSketchWaves.WaveType.values()), PFMSketchWaves.WaveType.COS, false, (pfmSketch, value) -> pfmSketch.yWave = value));
-
-
-        ////SOBEL PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchSobel.class, "Sobel Intensity", 1.5F, 0, 10, false, (pfmSketch, value) -> pfmSketch.sobelIntensity = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSobel.class, "Sobel Adjust", 10, 0, 255, false, (pfmSketch, value) -> pfmSketch.adjustSobel = value));
-
-        ////SHAPES PFM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchShapes.class, "Shape Type", List.of(EnumSketchShapes.values()), EnumSketchShapes.RECTANGLES, false, (pfmSketch, value) -> pfmSketch.shapes = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchShapes.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchShapes.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchShapes.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
-
-
-        ////SHAPES AWARE PFM
-        //MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSketchShapesAware.class, "Shape Type", List.of(EnumSketchShapes.values()), EnumSketchShapes.RECTANGLES, false, (pfmSketch, value) -> pfmSketch.shapes = value));
-
-        ////SPIRAL PFM
+        //// SPIRAL \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Spiral Size", 100F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.fillPercentage = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Centre X", 50F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.centreXScale = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Centre Y", 50F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.centreYScale = value/100));
@@ -136,9 +127,7 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, 50F, false, (pfmSketch, value) -> pfmSketch.ampScale = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, 1000F, false, (pfmSketch, value) -> pfmSketch.density = value));
 
-
-
-        ////ABSTRACT SKETCH PFM - register these last so unique settings are more obvious
+        //// ABSTRACT SKETCH PFM \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Line Density", 75F, 0F, 100F, true, (pfmSketch, value) -> pfmSketch.lineDensity = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 2, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value).setSafeRange(2, 500));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value).setSafeRange(2, 500));
@@ -151,140 +140,22 @@ public class Register {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 3200, false, (pfmSketch, value) -> pfmSketch.lineTests = value).setSafeRange(0, 360));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
 
-        ////MODULAR ENCODERS
-
-        ////WEIGHTED VORONOI
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Point Count", 10000, 100, Integer.MAX_VALUE, false, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).pointCount = value).setSafeRange(100, 100000));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Luminance Power", 5, 1, 50, false, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).luminancePower = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Density Power", 5, 1, 50, false, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).densityPower = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(WeightedVoronoiPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Voronoi Iterations", 5, 1, Integer.MAX_VALUE, true, (pfmSketch, value) -> ((WeightedVoronoiPositionEncoder)pfmSketch.positionalEncoder).iterations = value).setSafeRange(1, 50));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StipplingShapeEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Stipple Size", 80, 1, 100, false, (pfmSketch, value) -> ((StipplingShapeEncoder)pfmSketch.shapeEncoder).stippleSize = value/100D));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(InscribedCircleShapeEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Circle Size", 80, 1, 100, false, (pfmSketch, value) -> ((InscribedCircleShapeEncoder)pfmSketch.shapeEncoder).circleSize = value/100D));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(TriangulationShapeEncoder.class, GenericSetting.createBooleanSetting(PFMModular.class, "Triangulate Corners", false, false, (pfmSketch, value) -> ((TriangulationShapeEncoder)pfmSketch.shapeEncoder).connectCorners = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(TSPShapeEncoder.class, GenericSetting.createOptionSetting(PFMModular.class, "TSP Algorithm", List.of(TSPShapeEncoder.EnumTSPAlgorithm.values()), TSPShapeEncoder.EnumTSPAlgorithm.TWO_OPT, false, (pfmSketch, value) -> ((TSPShapeEncoder)pfmSketch.shapeEncoder).algorithmFactory = value));
-
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Shrink", 5, 1, 1000, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).shrink = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Expand", 5, 1, 1000, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).expand = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Mask Size", 7, 1, 1000, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).maskSize = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedIntSetting(PFMModular.class, "Threshold", 127, 0, 255, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).threshold = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Min Stipple Size", 1, 1, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).minStippleSize = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Max Stipple Size", 2, 1, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).maxStippleSize = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Distribution Power", 2, 0, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).distributionPower = value));
-        MasterRegistry.INSTANCE.registerModularEncoderSetting(StructureAwareStipplingPositionEncoder.class, GenericSetting.createRangedFloatSetting(PFMModular.class, "Error Offset", 0.1F, 0, 500, false, (pfmSketch, value) -> ((StructureAwareStipplingPositionEncoder)pfmSketch.positionalEncoder).errorOffset = value));
 
 
 
-        ///// CATMOLL ROM
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMCatmullRoms.class, "Curve refinement", false, false, (pfmSketch, value) -> pfmSketch.curveRefinement = value));
-
-
-        MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading");
-        MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Threshold");
-        MasterRegistry.INSTANCE.removePFMSettingByName(PFMCatmullRoms.class, "Shading Delta Angle");
-
-        ///// MOSAIC RECTANGLES
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Columns", 10, 1, 1000, false, (pfmSketch, value) -> pfmSketch.columns = value).setSafeRange(1, 64));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Rows", 10, 1, 1000, false, (pfmSketch, value) -> pfmSketch.rows = value).setSafeRange(1, 64));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Row Padding %", 0, 0, 100, false, (pfmSketch, value) -> pfmSketch.rowPadding = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicRectangles.class, "Column Padding %", 0, 0, 100, false, (pfmSketch, value) -> pfmSketch.columnPadding = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMMosaicRectangles.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
-
-        ///// MOSAIC VORONOI
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Point Count", 20, 10, 10000, false, (pfmSketch, value) -> pfmSketch.pointCount = value).setSafeRange(10, 1000));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Luminance Power", 5, 1, 50, false, (pfmSketch, value) -> pfmSketch.luminancePower = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Density Power", 5, 1, 50, false, (pfmSketch, value) -> pfmSketch.densityPower = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMMosaicVoronoi.class, "Voronoi Iterations", 1, 1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.iterations = value).setSafeRange(1, 50));
-        MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMMosaicVoronoi.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMMosaicVoronoi.class, "Offset Cells", 0, -20, 20, false, (pfmSketch, value) -> pfmSketch.offsetCells = value));
-
-        ///// MOSAIC CUSTOM
-        MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMMosaicCustom.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMMosaicCustom.class, "Mask Feather Radius", 0F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.featherRadius = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(new ImageSetting<>(PFMMosaicCustom.class, "Mask Image", "", true, (pfmSketch, value) -> pfmSketch.maskImagePath = value));
-
-        ///// LAYERS PFM
+        //// LAYERS PFM \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(new DrawingStylesSetting<>(PFMLayers.class, "Drawing Styles", new DrawingStyleSet(new ArrayList<>()), true, (pfmSketch, value) -> pfmSketch.drawingStyles = value));
         MasterRegistry.INSTANCE.removePFMSettingByName(PFMLayers.class, "Plotting Resolution");
     }
 
-    public static void registerDrawingTools(){
+    @Override
+    public void registerDrawingTools(){
 
-        MasterRegistry.INSTANCE.registerPenPlugin(new CopicPenPlugin());
-        MasterRegistry.INSTANCE.registerPenPlugin(new StaedtlerPenPlugin());
-
-        //// ORIGINAL COLOURS \\\\
-
-        DrawingPen originalColourPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", -1){
-            @Override
-            public int getCustomARGB(int pfmARGB) {
-                return pfmARGB;
-            }
-        };
-        MasterRegistry.INSTANCE.registerDrawingPen(originalColourPen);
-
-        DrawingPen originalGrayscalePen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale", -1){
-            @Override
-            public int getCustomARGB(int pfmARGB) {
-                return ImageTools.grayscaleFilter(pfmARGB);
-            }
-        };
-        MasterRegistry.INSTANCE.registerDrawingPen(originalGrayscalePen);
-
-        DrawingPen originalRedPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Red", ImageTools.getARGB(255, 255, 0, 0)){
-            @Override
-            public int getCustomARGB(int pfmARGB) {
-                int red = ImageTools.red(pfmARGB);
-                return ImageTools.getARGB(255, red, 0, 0);
-            }
-        };
-        MasterRegistry.INSTANCE.registerDrawingPen(originalRedPen);
-
-        DrawingPen originalGreenPen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Green", ImageTools.getARGB(255, 0, 255, 0)){
-            @Override
-            public int getCustomARGB(int pfmARGB) {
-                int green = ImageTools.green(pfmARGB);
-                return ImageTools.getARGB(255, 0, green, 0);
-            }
-        };
-        MasterRegistry.INSTANCE.registerDrawingPen(originalGreenPen);
-
-        DrawingPen originalBluePen = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Blue", ImageTools.getARGB(255, 0, 0, 255)){
-            @Override
-            public int getCustomARGB(int pfmARGB) {
-                int blue = ImageTools.blue(pfmARGB);
-                return ImageTools.getARGB(255, 0, 0, blue);
-            }
-        };
-        MasterRegistry.INSTANCE.registerDrawingPen(originalBluePen);
-
-        DrawingSet originalColourSet = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Colour", List.of(originalColourPen));
-        MasterRegistry.INSTANCE.registerDrawingSet(originalColourSet);
-
-        DrawingSet originalGrayscaleSet = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Grayscale", List.of(originalGrayscalePen));
-        MasterRegistry.INSTANCE.registerDrawingSet(originalGrayscaleSet);
-
-        //// CYMK COLOURS \\\\
-
-        DrawingPen cyanTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Cyan", ImageTools.getARGB(255, 0, 255, 255));
-        MasterRegistry.INSTANCE.registerDrawingPen(cyanTransparent);
-
-        DrawingPen magentaTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Magenta", ImageTools.getARGB(255, 255, 0, 255));
-        MasterRegistry.INSTANCE.registerDrawingPen(magentaTransparent);
-
-        DrawingPen yellowTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Yellow", ImageTools.getARGB(255, 255, 255, 0));
-        MasterRegistry.INSTANCE.registerDrawingPen(yellowTransparent);
-
-        DrawingPen keyTransparent = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Key", ImageTools.getARGB(255, 0, 0, 0));
-        MasterRegistry.INSTANCE.registerDrawingPen(keyTransparent);
-
-        for(EnumColourSplitter splitter : EnumColourSplitter.values()){
-            splitter.drawingSet = splitter.createDrawingSet.apply(splitter);
-            MasterRegistry.INSTANCE.registerDrawingSet(splitter.drawingSet);
-        }
 
     }
 
-    public static void registerImageFilters(){
+    @Override
+    public void registerImageFilters(){
 
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.class, "Dirty Border", SimpleBorderFilter::new, false);
@@ -730,5 +601,24 @@ public class Register {
 
         //MasterRegistry.INSTANCE.registerImageFilterKernelFactory(new AbstractKernelFactory());
     }
+
+    public static DrawingExportHandler EXPORT_SVG, EXPORT_INKSCAPE_SVG, EXPORT_IMAGE, EXPORT_HPGL, EXPORT_PDF, EXPORT_GCODE, EXPORT_GCODE_TEST;
+
+    @Override
+    public void registerDrawingExportHandlers(){
+        EXPORT_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "Export SVG (.svg)", true, SVGExporter::exportBasicSVG, FileUtils.FILTER_SVG));
+        EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "Export Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
+        EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "Export Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA));
+        EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
+        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+     }
+
+    public static ColourSplitterHandler DEFAULT_COLOUR_SPLITTER;
+
+    @Override
+    public void registerColourSplitterHandlers(){
+        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSplitterHandler("Default", List::of, ColourSplitterHandler::createDefaultDrawingSet, List.of("Original")));
+     }
 
 }

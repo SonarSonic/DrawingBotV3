@@ -4,9 +4,9 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.presets.AbstractPresetLoader;
+import drawingbot.files.presets.PresetType;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 import javafx.collections.ObservableList;
 
@@ -15,8 +15,8 @@ import java.util.List;
 
 public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPen> {
 
-    public PresetDrawingPenLoader() {
-        super(PresetDrawingPen.class, EnumJsonType.DRAWING_PEN, "user_pen_presets.json");
+    public PresetDrawingPenLoader(PresetType presetType) {
+        super(PresetDrawingPen.class, presetType, "user_pen_presets.json");
     }
 
     @Override
@@ -42,8 +42,8 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
             return null; // can't save the preset
         }
         DrawingPen pen = new DrawingPen(selectedPen);
-        preset.presetName = pen.getDisplayName();
-        //preset.presetSubType = DrawingRegistry.userType;
+        preset.presetSubType = pen.getType();
+        preset.presetName = pen.getName();
         preset.data.update(pen);
         return preset;
     }

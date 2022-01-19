@@ -36,6 +36,10 @@ public class ImageTools {
                 }else{
                     image = filter.cached.get();
                 }
+            }else if(filter.dirty.get()){
+                //the filter has just been disabled, so update downstream filters
+                forceUpdate = true;
+                filter.dirty.set(false);
             }
         }
         return image;
@@ -109,9 +113,26 @@ public class ImageTools {
         g.setComposite(new BlendComposite(blendMode));
         g.drawImage(overlay, 0, 0, null);
 
-        g.dispose();
 
         return combined;
+    }
+
+    public static BufferedImage lazyBackground(BufferedImage image, java.awt.Color color){
+        Graphics2D graphics2D = image.createGraphics();
+        graphics2D.setBackground(color);
+        graphics2D.clearRect(0, 0, image.getWidth(), image.getHeight());
+        graphics2D.dispose();
+        return image;
+    }
+
+    public static BufferedImage lazyBackgroundWithForeground(BufferedImage foreground, java.awt.Color color){
+        BufferedImage freshImage = new BufferedImage(foreground.getWidth(), foreground.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics2D = freshImage.createGraphics();
+        graphics2D.setBackground(color);
+        graphics2D.clearRect(0, 0, freshImage.getWidth(), freshImage.getHeight());
+        graphics2D.drawImage(foreground, null, 0, 0);
+        graphics2D.dispose();
+        return freshImage;
     }
 
     public static BufferedImage cropToPrintResolution(BufferedImage image, PrintResolution resolution){

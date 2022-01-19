@@ -1,10 +1,15 @@
-package drawingbot.drawing.plugins;
+package drawingbot.plugins;
 
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.registry.MasterRegistry;
 
 public class CopicPenPlugin extends AbstractPenPlugin {
+
+    @Override
+    public String getPluginName() {
+        return "Copic Pen Plugin";
+    }
 
     @Override
     public void registerPens() {

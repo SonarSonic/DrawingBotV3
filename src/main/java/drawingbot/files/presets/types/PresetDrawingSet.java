@@ -3,8 +3,9 @@ package drawingbot.files.presets.types;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.files.presets.IJsonData;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.registry.Register;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class PresetDrawingSet extends DrawingSet implements IJsonData {
     }
 
     @Override
-    public EnumJsonType getJsonType() {
-        return EnumJsonType.DRAWING_SET;
+    public PresetType getPresetType() {
+        return Register.PRESET_TYPE_DRAWING_SET;
     }
 }

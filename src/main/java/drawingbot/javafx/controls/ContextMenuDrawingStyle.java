@@ -2,9 +2,7 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
-import drawingbot.pfm.PFMMosaicCustom;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -15,11 +13,10 @@ public class ContextMenuDrawingStyle extends ContextMenu {
     public ContextMenuDrawingStyle(TableRow<ObservableDrawingStyle> row) {
         super();
 
-        if(DrawingBotV3.INSTANCE.pfmFactory.get().getInstanceClass() == PFMMosaicCustom.class){
+        if(DrawingBotV3.INSTANCE.pfmFactory.get().isLayeredPFM()){
             MenuItem clearMaskColour = new MenuItem("Clear Mask Colour");
             clearMaskColour.setOnAction(e -> row.getItem().maskColor.set(null));
             getItems().add(clearMaskColour);
-
         }else{
             MenuItem increaseWeight = new MenuItem("Increase Weight");
             increaseWeight.setOnAction(e -> row.getItem().distributionWeight.set(row.getItem().distributionWeight.get() + 10));

@@ -5,7 +5,6 @@ import drawingbot.api.ICustomPen;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.spatial.STRTreeSequencer;
 import drawingbot.geom.spatial.STRTreeSequencerLineString;
-import drawingbot.geom.spatial.TSPSequencerLineString;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
@@ -44,7 +43,7 @@ public class GeometryUtils {
         progressCallback.progressCallback = p -> task.updateProgress(p, 1);
         progressCallback.messageCallback = task::updateMessage;
 
-        if(!task.format.isVector || forceBypassOptimisation){
+        if(!task.exportHandler.isVector || forceBypassOptimisation){
             return getBasicGeometriesForExport(task, task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
         }
 

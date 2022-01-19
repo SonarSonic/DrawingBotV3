@@ -1,9 +1,12 @@
 package drawingbot.files.presets.types;
 
 import com.google.gson.JsonElement;
+import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.files.presets.AbstractJsonData;
+import drawingbot.files.presets.PresetType;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.registry.Register;
 import drawingbot.utils.*;
 
 import java.util.HashMap;
@@ -27,7 +30,7 @@ public class PresetProjectSettings extends AbstractJsonData {
     public boolean optimiseForPrint;
     public float targetPenWidth;
 
-    public EnumColourSplitter colourSplitter;
+    public ColourSplitterHandler colourSplitter;
     public EnumDistributionType distributionType;
     public EnumDistributionOrder distributionOrder;
     public EnumBlendMode blendMode;
@@ -46,7 +49,7 @@ public class PresetProjectSettings extends AbstractJsonData {
     }
 
     @Override
-    public EnumJsonType getJsonType() {
-        return EnumJsonType.PROJECT_PRESET;
+    public PresetType getPresetType() {
+        return Register.PRESET_TYPE_PROJECT;
     }
 }

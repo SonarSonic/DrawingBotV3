@@ -1,5 +1,6 @@
-package drawingbot.drawing.plugins;
+package drawingbot.plugins;
 
+import drawingbot.api.IPlugin;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.registry.MasterRegistry;
@@ -9,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractPenPlugin {
+public abstract class AbstractPenPlugin implements IPlugin {
 
     public Map<String, DrawingPen> manufacturerCodes = new HashMap<>();
 
@@ -31,6 +32,12 @@ public abstract class AbstractPenPlugin {
             }
         }
         return drawingPenList;
+    }
+
+    @Override
+    public void registerDrawingTools() {
+        registerPens();
+        registerPenSets();
     }
 
     public abstract void registerPens();

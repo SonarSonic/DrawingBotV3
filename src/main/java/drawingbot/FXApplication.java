@@ -1,6 +1,7 @@
 package drawingbot;
 
 import drawingbot.api.API;
+import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
@@ -8,7 +9,7 @@ import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.render.jfx.JavaFXRenderer;
-import drawingbot.render.opengl.OpenGLRenderer;
+import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
 import javafx.animation.AnimationTimer;
@@ -22,14 +23,17 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 public class FXApplication extends Application {
 
-    public static String[] launchArgs;
+    public static String[] launchArgs = new String[0];
     public static Stage primaryStage;
     public static Scene primaryScene;
     public static DrawTimer drawTimer;
+    public static boolean isPremiumEnabled;
 
     public static void main(String[] args) {
         launchArgs = args;
@@ -43,6 +47,15 @@ public class FXApplication extends Application {
         FXApplication.primaryStage = primaryStage;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        DrawingBotV3.logger.info("Find Plugins");
+        MasterRegistry.findPlugins();
+
+        DrawingBotV3.logger.info("Found " + MasterRegistry.PLUGINS.size() + " Plugins");
+        MasterRegistry.PLUGINS.forEach(plugin -> DrawingBotV3.logger.info("Plugin: " + plugin.getPluginName()));
+
+        DrawingBotV3.logger.info("Plugins Pre Init");
+        MasterRegistry.PLUGINS.forEach(IPlugin::preInit);
 
         //// PRE-INIT
         DrawingBotV3.logger.info("Loading Configuration");
@@ -82,14 +95,17 @@ public class FXApplication extends Application {
         DrawingBotV3.RENDERER.init();
 
         // INIT OPENGL RENDERER
-        DrawingBotV3.OPENGL_RENDERER = new OpenGLRenderer(Screen.getPrimary().getBounds());
+        DrawingBotV3.OPENGL_RENDERER = new OpenGLRendererImpl(Screen.getPrimary().getBounds());
         DrawingBotV3.OPENGL_RENDERER.init();
 
         // set up main drawing loop
-        drawTimer = new DrawTimer();
+        drawTimer = new DrawTimer(this);
         drawTimer.start();
 
-        primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion);
+        DrawingBotV3.logger.info("Plugins Post Init");
+        MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
+
+        primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion);
         primaryStage.setResizable(true);
         applyDBIcon(primaryStage);
         primaryStage.show();
@@ -119,18 +135,28 @@ public class FXApplication extends Application {
         }
     }
 
+    public void onFirstTick(){
+        //NOP
+    }
+
     public static class DrawTimer extends AnimationTimer{
 
+        public final FXApplication fxApplication;
         private final LazyTimer timer = new LazyTimer();
         public int resetLayoutTimer = 0;
 
         private boolean isFirstTick = true;
+
+        public DrawTimer(FXApplication fxApplication){
+            this.fxApplication = fxApplication;
+        }
 
         @Override
         public void handle(long now) {
             if(isFirstTick){
                 DrawingBotV3.INSTANCE.resetView();
                 isFirstTick = false;
+                fxApplication.onFirstTick();
                 return;
             }
 

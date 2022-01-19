@@ -4,14 +4,11 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
-import drawingbot.render.opengl.VertexBufferType;
-import drawingbot.render.opengl.VertexBuilder;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
 
 public interface IGeometry {
 
@@ -80,52 +77,6 @@ public interface IGeometry {
     default void renderAWT(Graphics2D graphics, ObservableDrawingPen pen){
         pen.preRenderAWT(graphics, this);
         graphics.draw(getAWTShape());
-    }
-
-    /**
-     * Render the Geometry in OpenGL
-     */
-    default void renderVertices(VertexBuilder vertexBuilder, ObservableDrawingPen pen){
-        PathIterator iterator = getAWTShape().getPathIterator(null, 0.1F);
-
-        float[] coords = new float[6];
-
-        float lastMoveX = -1;
-        float lastMoveY = -1;
-
-        int vertexPos = 0;
-        while(!iterator.isDone()){
-            int type = iterator.currentSegment(coords);
-            iterator.next();
-
-            boolean duplicate = iterator.isDone();
-
-            switch (type){
-                case PathIterator.SEG_MOVETO:
-                    //vertexBuilder.addVertexBreak(getVertexBufferType());
-                    vertexBuilder.addVertex(vertexPos, coords[0], coords[1]);
-                    vertexBuilder.addVertex(vertexPos, coords[0], coords[1]);
-                    lastMoveX = coords[0];
-                    lastMoveY = coords[1];
-                    break;
-                case PathIterator.SEG_LINETO:
-                    vertexBuilder.addVertex(vertexPos, coords[0], coords[1]);
-                    if(duplicate){
-                        vertexBuilder.addVertex(vertexPos, coords[0], coords[1]);
-                    }
-                    break;
-                case PathIterator.SEG_CLOSE:
-                    vertexBuilder.addVertex(vertexPos, lastMoveX, lastMoveY);
-                    if(duplicate){
-                        vertexBuilder.addVertex(vertexPos, lastMoveX, lastMoveY);
-                    }
-                    break;
-            }
-        }
-    }
-
-    default VertexBufferType getVertexBufferType(){
-        return VertexBufferType.LINE_XY_RGBA_WIDTH;
     }
 
     /**

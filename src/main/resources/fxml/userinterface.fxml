@@ -8,7 +8,7 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -202,7 +202,7 @@
                                           <MenuButton fx:id="menuButtonPFMPresets" layoutX="320.0" layoutY="52.0" mnemonicParsing="false" text="Presets" />
                                           <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="16.0" layoutY="7.0" text="Path Finding Module: ">
                                              <graphic>
-                                                  <ChoiceBox fx:id="choiceBoxPFM" prefHeight="25.0" prefWidth="246.0" />
+                                                  <ComboBox fx:id="comboBoxPFM" prefHeight="25.0" prefWidth="246.0" visibleRowCount="100" />
                                              </graphic></Label>
                                           <Separator layoutX="-6.0" layoutY="42.0" prefHeight="3.0" prefWidth="412.0" />
                                           <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="16.0" layoutY="351.0" text="Colour Separation:">
@@ -312,9 +312,9 @@
                                     </AnchorPane>
                                  </content>
                               </TitledPane>
-                              <TitledPane expanded="false" text="Batch Processing">
+                              <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" text="Batch Processing">
                                 <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
+                                  <AnchorPane fx:id="anchorPaneBatchProcessing" minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
                                        <children>
                                           <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="49.0" text="Input Folder:">
                                              <graphic>

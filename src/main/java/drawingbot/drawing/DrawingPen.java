@@ -1,7 +1,10 @@
 package drawingbot.drawing;
 
+import com.google.gson.annotations.JsonAdapter;
 import drawingbot.api.IDrawingPen;
+import drawingbot.files.presets.JsonAdapterDrawingPen;
 
+@JsonAdapter(JsonAdapterDrawingPen.class)
 public class DrawingPen implements IDrawingPen {
 
     public String type; //the pen's type
@@ -22,7 +25,11 @@ public class DrawingPen implements IDrawingPen {
     }
 
     public DrawingPen(String type, String name, int argb, int distributionWeight, float strokeSize){
-        update(type, name, argb, distributionWeight, strokeSize, true);
+        this(type, name, argb, distributionWeight, strokeSize, true);
+    }
+
+    public DrawingPen(String type, String name, int argb, int distributionWeight, float strokeSize, boolean active){
+        update(type, name, argb, distributionWeight, strokeSize, active);
     }
 
     public void update(String type, String name, int argb, int distributionWeight, float strokeSize, boolean active){
@@ -73,4 +80,13 @@ public class DrawingPen implements IDrawingPen {
         return getName();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof IDrawingPen){
+            IDrawingPen otherPen = (IDrawingPen) obj;
+            return otherPen.getType().equals(getType()) && otherPen.getName().equals(getName()) && otherPen.isEnabled() == isEnabled()  && otherPen.getARGB() == getARGB() && otherPen.getStrokeSize() == getStrokeSize() && otherPen.getDistributionWeight() == getDistributionWeight();
+        }
+
+        return super.equals(obj);
+    }
 }

@@ -2,11 +2,11 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
+import drawingbot.api.Hooks;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
 import drawingbot.drawing.*;
-import drawingbot.files.presets.*;
 import drawingbot.files.presets.types.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
@@ -18,17 +18,15 @@ import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 
@@ -46,13 +44,13 @@ import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import org.controlsfx.control.RangeSlider;
-import org.controlsfx.control.TaskProgressView;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class FXController {
@@ -64,6 +62,7 @@ public class FXController {
         DrawingBotV3.logger.entering("FX Controller", "initialize");
 
         try{
+            Hooks.runHook(Hooks.FX_CONTROLLER_PRE_INIT, this);
             initToolbar();
             initViewport();
             initPlottingControls();
@@ -74,6 +73,7 @@ public class FXController {
             initPenSettingsPane();
             initVersionControlPane();
             initBatchProcessingPane();
+            Hooks.runHook(Hooks.FX_CONTROLLER_POST_INIT, this);
 
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
@@ -100,9 +100,6 @@ public class FXController {
     public Stage mosaicSettingsStage;
     public FXStylesController mosaicController;
 
-    public Stage serialConnectionSettingsStage;
-    public FXSerialConnectionController serialConnectionController;
-
     public Stage taskMonitorStage;
     public FXTaskMonitorController taskMonitorController;
 
@@ -110,9 +107,8 @@ public class FXController {
         FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings", Modality.APPLICATION_MODAL);
-        FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", serialConnectionSettingsStage = new Stage(), serialConnectionController = new FXSerialConnectionController(), "Plotter / Serial Port Connection", Modality.NONE);
+        FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
         FXHelper.initSeparateStage("/fxml/taskmonitor.fxml", taskMonitorStage = new Stage(), taskMonitorController = new FXTaskMonitorController(), "Task Monitor", Modality.NONE);
-
     }
 
 
@@ -134,14 +130,14 @@ public class FXController {
     public void initToolbar(){
         //file
         MenuItem menuOpen = new MenuItem("Open Project");
-        menuOpen.setOnAction(e -> FXHelper.importPreset(EnumJsonType.PROJECT_PRESET, true));
+        menuOpen.setOnAction(e -> FXHelper.importPreset(Register.PRESET_TYPE_PROJECT, true));
         menuFile.getItems().add(menuOpen);
 
         MenuItem menuSave = new MenuItem("Save Project");
         menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuSave.setOnAction(e -> {
-            GenericPreset<PresetProjectSettings> preset = JsonLoaderManager.PROJECT.createNewPreset();
-            JsonLoaderManager.PROJECT.updatePreset(preset);
+            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+            Register.PRESET_LOADER_PROJECT.updatePreset(preset);
             FXHelper.exportPreset(preset, DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()));
         });
         menuFile.getItems().add(menuSave);
@@ -159,28 +155,46 @@ public class FXController {
         menuFile.getItems().add(new SeparatorMenuItem());
 
         Menu menuExport = new Menu("Export per/drawing");
-        for(ExportFormats format : ExportFormats.values()){
-            MenuItem item = new MenuItem(format.displayName);
-            item.setOnAction(e -> FXHelper.exportFile(format, false));
-            menuExport.getItems().add(item);
+        Menu menuExportPerPen = new Menu("Export per/pen");
+
+        for(DrawingExportHandler.Category category : DrawingExportHandler.Category.values()){
+            for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
+                if(format.category != category){
+                    continue;
+                }
+                if(format.isPremium && !FXApplication.isPremiumEnabled){
+                    MenuItem item = new MenuItem(format.displayName + " (Premium)");
+                    item.setOnAction(e -> showPremiumFeatureDialog());
+                    menuExport.getItems().add(item);
+
+                    MenuItem itemPerPen = new MenuItem(format.displayName + " (Premium)");
+                    itemPerPen.setOnAction(e -> showPremiumFeatureDialog());
+                    menuExportPerPen.getItems().add(itemPerPen);
+                }else{
+                    MenuItem item = new MenuItem(format.displayName);
+                    item.setOnAction(e -> FXHelper.exportFile(format, false));
+                    menuExport.getItems().add(item);
+
+                    MenuItem itemPerPen = new MenuItem(format.displayName);
+                    itemPerPen.setOnAction(e -> FXHelper.exportFile(format, true));
+                    menuExportPerPen.getItems().add(itemPerPen);
+                }
+            }
+            if(category != DrawingExportHandler.Category.values()[DrawingExportHandler.Category.values().length-1]){
+                menuExport.getItems().add(new SeparatorMenuItem());
+                menuExportPerPen.getItems().add(new SeparatorMenuItem());
+            }
         }
+
         menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExport);
 
-        Menu menuExportPerPen = new Menu("Export per/pen");
-        for(ExportFormats format : ExportFormats.values()){
-            MenuItem item = new MenuItem(format.displayName);
-            item.setOnAction(e -> FXHelper.exportFile(format, true));
-            menuExportPerPen.getItems().add(item);
-        }
         menuExportPerPen.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExportPerPen);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
-        MenuItem serialPortExport = new MenuItem("Connect to Plotter / Serial Port");
-        serialPortExport.setOnAction(e -> serialConnectionSettingsStage.show());
-        menuFile.getItems().add(serialPortExport);
+        Hooks.runHook(Hooks.FILE_MENU, menuFile);
 
         MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
         menuExportToVPype.setOnAction(e -> {
@@ -219,7 +233,9 @@ public class FXController {
         }
         for(TitledPane pane : allPanes){
             MenuItem viewButton = new MenuItem(pane.getText());
-            viewButton.setOnAction(e -> allPanes.forEach(p -> p.expandedProperty().setValue(p == pane)));
+            viewButton.setOnAction(e -> {
+                Platform.runLater(() -> allPanes.forEach(p -> p.expandedProperty().setValue(p == pane)));
+            });
             menuView.getItems().add(viewButton);
         }
 
@@ -237,6 +253,13 @@ public class FXController {
         }
 
         //help
+        if(!FXApplication.isPremiumEnabled){
+            MenuItem upgrade = new MenuItem("Upgrade");
+            upgrade.setOnAction(e -> FXHelper.openURL(DBConstants.URL_UPGRADE));
+            menuHelp.getItems().add(upgrade);
+            menuHelp.getItems().add(new SeparatorMenuItem());
+        }
+
         MenuItem documentation = new MenuItem("View Documentation");
         documentation.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_HOME));
         menuHelp.getItems().add(documentation);
@@ -386,8 +409,8 @@ public class FXController {
     }
 
     public void saveVersion(){
-        GenericPreset<PresetProjectSettings> preset = JsonLoaderManager.PROJECT.createNewPreset();
-        JsonLoaderManager.PROJECT.updatePreset(preset);
+        GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+        Register.PRESET_LOADER_PROJECT.updatePreset(preset);
         DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(preset));
     }
 
@@ -459,19 +482,19 @@ public class FXController {
         colorPickerCanvas.setValue(Color.WHITE);
         DrawingBotV3.INSTANCE.canvasColor.bindBidirectional(colorPickerCanvas.valueProperty());
         
-        comboBoxDrawingAreaPreset.setItems(JsonLoaderManager.DRAWING_AREA.presets);
-        comboBoxDrawingAreaPreset.setValue(JsonLoaderManager.DRAWING_AREA.getDefaultPreset());
+        comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
+        comboBoxDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
         comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                JsonLoaderManager.DRAWING_AREA.applyPreset(newValue);
+                Register.PRESET_LOADER_DRAWING_AREA.applyPreset(newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_AREA, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_AREA, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
             comboBoxDrawingAreaPreset.setValue(preset);
 
             ///force update rendering
-            comboBoxDrawingAreaPreset.setItems(JsonLoaderManager.DRAWING_AREA.presets);
+            comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
             comboBoxDrawingAreaPreset.setButtonCell(new ComboBoxListCell<>());
         });
 
@@ -583,11 +606,11 @@ public class FXController {
         comboBoxImageFilterPreset.setValue(MasterRegistry.INSTANCE.getDefaultImageFilterPreset());
         comboBoxImageFilterPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                JsonLoaderManager.FILTERS.applyPreset(newValue);
+                Register.PRESET_LOADER_FILTERS.applyPreset(newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.FILTERS, menuButtonFilterPresets, false, comboBoxImageFilterPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_FILTERS, menuButtonFilterPresets, false, comboBoxImageFilterPreset::getValue, (preset) -> {
             comboBoxImageFilterPreset.setValue(preset);
 
             ///force update rendering
@@ -654,7 +677,7 @@ public class FXController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////PATH FINDING CONTROLS
-    public ChoiceBox<PFMFactory<?>> choiceBoxPFM = null;
+    public ComboBox<PFMFactory<?>> comboBoxPFM = null;
 
     public ComboBox<GenericPreset<PresetPFMSettings>> comboBoxPFMPreset = null;
     public MenuButton menuButtonPFMPresets = null;
@@ -669,26 +692,28 @@ public class FXController {
     public Button buttonPFMSettingRandom = null;
     public Button buttonPFMSettingHelp = null;
 
-    public ChoiceBox<EnumColourSplitter> choiceBoxColourSeperation = null;
+    public ChoiceBox<ColourSplitterHandler> choiceBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
     public void initPFMControls(){
 
         ////PATH FINDING CONTROLS
-        DrawingBotV3.INSTANCE.pfmFactory.bindBidirectional(choiceBoxPFM.valueProperty());
-        choiceBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
-        choiceBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-        choiceBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> changePathFinderModule(newValue));
+        DrawingBotV3.INSTANCE.pfmFactory.bindBidirectional(comboBoxPFM.valueProperty());
+        comboBoxPFM.setCellFactory(param -> new ComboCellPFM());
+        comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
+        comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+        comboBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> changePathFinderModule(newValue));
+
 
         comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList());
         comboBoxPFMPreset.setValue(MasterRegistry.INSTANCE.getDefaultPFMPreset());
         comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                JsonLoaderManager.PFM.applyPreset(newValue);
+                Register.PRESET_LOADER_PFM.applyPreset(newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering
@@ -724,19 +749,18 @@ public class FXController {
         tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
         tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> JsonLoaderManager.PFM.applyPreset(comboBoxPFMPreset.getValue()));
+        buttonPFMSettingReset.setOnAction(e -> Register.PRESET_LOADER_PFM.applyPreset(comboBoxPFMPreset.getValue()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));
 
-
         DrawingBotV3.INSTANCE.colourSplitter.bindBidirectional(choiceBoxColourSeperation.valueProperty());
-        choiceBoxColourSeperation.setItems(FXCollections.observableArrayList(EnumColourSplitter.values()));
-        choiceBoxColourSeperation.setValue(EnumColourSplitter.DEFAULT);
-        choiceBoxColourSeperation.setOnAction(e -> FXHelper.openColourSeperationDialog(choiceBoxColourSeperation.getValue()));
 
-        buttonConfigureSplitter.setOnAction(e -> FXHelper.openColourSeperationConfigureDialog(choiceBoxColourSeperation.getValue()));
-        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.colourSplitter.get() != EnumColourSplitter.CMYK, DrawingBotV3.INSTANCE.colourSplitter));
+        choiceBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
+        choiceBoxColourSeperation.setValue(Register.DEFAULT_COLOUR_SPLITTER);
+
+        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.colourSplitter.get().isDefault(), DrawingBotV3.INSTANCE.colourSplitter));
+
     }
 
 
@@ -790,7 +814,7 @@ public class FXController {
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet());
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_SET, menuButtonDrawingSetPresets, false,
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_SET, menuButtonDrawingSetPresets, true,
             () -> {
             if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
                 PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
@@ -879,7 +903,7 @@ public class FXController {
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(true));
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(false));
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.DRAWING_PENS, menuButtonDrawingPenPresets, false,
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_PENS, menuButtonDrawingPenPresets, true,
             () -> {
                 if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
                     PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();
@@ -985,6 +1009,9 @@ public class FXController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////BATCH PROCESSING
 
+    public TitledPane titledPaneBatchProcessing = null;
+    public AnchorPane anchorPaneBatchProcessing = null;
+
     public Label labelInputFolder = null;
     public Label labelOutputFolder = null;
 
@@ -995,54 +1022,41 @@ public class FXController {
 
     public CheckBox checkBoxOverwrite = null;
 
-    public TableView<BatchProcessing.BatchExportTask> tableViewBatchExport = null;
-    public TableColumn<BatchProcessing.BatchExportTask, String> tableColumnFileFormat = null;
-    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerDrawing = null;
-    public TableColumn<BatchProcessing.BatchExportTask, Boolean> tableColumnPerPen = null;
+    public TableView<?> tableViewBatchExport = null;
+    public TableColumn<?, String> tableColumnFileFormat = null;
+    public TableColumn<?, Boolean> tableColumnPerDrawing = null;
+    public TableColumn<?, Boolean> tableColumnPerPen = null;
 
     public void initBatchProcessingPane(){
-
-        labelInputFolder.textProperty().bindBidirectional(BatchProcessing.inputFolder);
-        labelOutputFolder.textProperty().bindBidirectional(BatchProcessing.outputFolder);
-
-        buttonSelectInputFolder.setOnAction(e -> BatchProcessing.selectFolder(true));
-        buttonSelectInputFolder.disableProperty().bind(BatchProcessing.isBatchProcessing);
-
-        buttonSelectOutputFolder.setOnAction(e -> BatchProcessing.selectFolder(false));
-        buttonSelectOutputFolder.disableProperty().bind(BatchProcessing.isBatchProcessing);
-
-        buttonStartBatchProcessing.setOnAction(e -> BatchProcessing.startProcessing());
-        buttonStartBatchProcessing.disableProperty().bind(BatchProcessing.isBatchProcessing);
-
-        buttonStopBatchProcessing.setOnAction(e -> BatchProcessing.finishProcessing());
-        buttonStopBatchProcessing.disableProperty().bind(BatchProcessing.isBatchProcessing.not());
-
-        checkBoxOverwrite.selectedProperty().bindBidirectional(BatchProcessing.overwriteExistingFiles);
-        checkBoxOverwrite.disableProperty().bind(BatchProcessing.isBatchProcessing);
-
-        tableViewBatchExport.setItems(BatchProcessing.exportTasks);
-        tableViewBatchExport.disableProperty().bind(BatchProcessing.isBatchProcessing);
-
-        tableColumnFileFormat.setCellValueFactory(task -> new SimpleStringProperty(task.getValue().formatName()));
-
-        tableColumnPerDrawing.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerDrawing.getCellObservableValue(index)));
-        tableColumnPerDrawing.setCellValueFactory(param -> param.getValue().enablePerDrawing);
-
-        tableColumnPerPen.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnPerPen.getCellObservableValue(index)));
-        tableColumnPerPen.setCellValueFactory(param -> param.getValue().enablePerPen);
+        ///NOP
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public static void showPremiumFeatureDialog(){
+        DialogPremiumFeature premiumFeature = new DialogPremiumFeature();
+
+        Optional<Boolean> upgrade = premiumFeature.showAndWait();
+        if(upgrade.isPresent() && upgrade.get()){
+            FXHelper.openURL(DBConstants.URL_UPGRADE);
+        }
+    }
+
     public static void changePathFinderModule(PFMFactory<?> pfm){
-        DrawingBotV3.INSTANCE.pfmFactory.set(pfm);
-        DrawingBotV3.INSTANCE.updateDistributionType = pfm.getDistributionType();
+        if(pfm.isPremium() && !FXApplication.isPremiumEnabled){
+            DrawingBotV3.INSTANCE.controller.comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+            showPremiumFeatureDialog();
+        }else{
+            DrawingBotV3.INSTANCE.pfmFactory.set(pfm);
+            DrawingBotV3.INSTANCE.updateDistributionType = pfm.getDistributionType();
+        }
+
     }
 
     public static void changeDrawingSet(IDrawingSet<IDrawingPen> set){
         if(set != null){
             DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
-            if(set instanceof EnumColourSplitter.ColourSplitterDrawingSet){
-                EnumColourSplitter.ColourSplitterDrawingSet splitterDrawingSet = (EnumColourSplitter.ColourSplitterDrawingSet) set;
+            if(set instanceof ColourSplitterHandler.ColourSplitterDrawingSet){
+                ColourSplitterHandler.ColourSplitterDrawingSet splitterDrawingSet = (ColourSplitterHandler.ColourSplitterDrawingSet) set;
                 DrawingBotV3.INSTANCE.colourSplitter.set(splitterDrawingSet.splitter);
             }
         }
@@ -1053,6 +1067,14 @@ public class FXController {
     }
 
     //// PRESET MENU BUTTON \\\\
+
+    public static class DummyController {
+
+        public void initialize(){
+            ///NOP
+        }
+
+    }
 
 
 }

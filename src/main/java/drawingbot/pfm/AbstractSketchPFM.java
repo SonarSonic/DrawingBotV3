@@ -4,7 +4,6 @@ import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.utils.Utils;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
@@ -50,22 +49,17 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    int[] current = new int[]{-1, -1};
-    int[] darkest = new int[]{-1, -1};
-    int neighbourFails = 0;
-    int maxNeighbourFails = 20;
+    public int[] current = new int[]{-1, -1};
+    public int[] darkest = new int[]{-1, -1};
 
     @Override
     public void doProcess() {
 
+        findDarkestArea(task.getPixelData(), darkest);
 
-        /* TODO ADD BACK PEN LIFTS
         if(!shouldLiftPen && current[0] != -1){
             addGeometry(task, current[0], current[1], darkest[0], darkest[1], adjustbrightness);
         }
-         */
-
-        findDarkestArea(task.getPixelData(), darkest);
 
         float initialDarkness = task.getPixelData().getLuminance(darkest[0], darkest[1]);
         float allowableDarkness = initialDarkness + Math.max(1, 255*squiggleDeviation);

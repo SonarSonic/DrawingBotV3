@@ -5,11 +5,12 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
+import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.presets.types.*;
-import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.javafx.GenericPreset;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -17,19 +18,6 @@ import java.util.function.Function;
 import java.util.logging.Level;
 
 public class JsonLoaderManager {
-
-    public static final PresetProjectSettingsLoader PROJECT = new PresetProjectSettingsLoader();
-    public static final PresetPFMSettingsLoader PFM = new PresetPFMSettingsLoader();
-    public static final PresetImageFiltersLoader FILTERS = new PresetImageFiltersLoader();
-    public static final PresetDrawingSetLoader DRAWING_SET = new PresetDrawingSetLoader();
-    public static final PresetDrawingPenLoader DRAWING_PENS = new PresetDrawingPenLoader();
-    public static final PresetDrawingAreaLoader DRAWING_AREA = new PresetDrawingAreaLoader();
-    public static final ConfigJsonLoader CONFIGS = new ConfigJsonLoader();
-    public static final PresetGCodeSettingsLoader GCODE_SETTINGS = new PresetGCodeSettingsLoader();
-    public static final PresetVpypeSettingsLoader VPYPE_SETTINGS = new PresetVpypeSettingsLoader();
-    public static final PresetHPGLSettingsLoader HPGL_SETTINGS = new PresetHPGLSettingsLoader();
-    public static final PresetSerialPortSettingsLoader SERIAL_PORT_CONFIGS = new PresetSerialPortSettingsLoader();
-    public static final AbstractJsonLoader<IJsonData>[] LOADERS = new AbstractJsonLoader[]{PROJECT, PFM, FILTERS, DRAWING_SET, DRAWING_PENS, DRAWING_AREA, CONFIGS, GCODE_SETTINGS, VPYPE_SETTINGS, HPGL_SETTINGS, SERIAL_PORT_CONFIGS};
 
     /** used to prevent certain values from being serialized, transient achives the same thing*/
     public static final ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
@@ -49,25 +37,27 @@ public class JsonLoaderManager {
         builder.setExclusionStrategies(exclusionStrategy);
         builder.setPrettyPrinting();
         builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
-        builder.registerTypeAdapter(IDrawingPen.class, (InstanceCreator<IDrawingPen>) type -> new DrawingPen());
+        builder.registerTypeAdapter(ColourSplitterHandler.class, new JsonAdapterColourSplitter());
+        builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
         return builder.create();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static AbstractJsonLoader<IJsonData> getManagerForType(EnumJsonType type) {
-        for(AbstractJsonLoader<IJsonData> manager : LOADERS){
+    @Nullable
+    public static AbstractJsonLoader<IJsonData> getManagerForType(PresetType type) {
+        for(AbstractJsonLoader<IJsonData> manager : MasterRegistry.INSTANCE.presetLoaders){
             if(manager.type == type){
                 return manager;
             }
         }
-        throw new NullPointerException("NO PRESET MANAGER for " + type);
+        return null;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void loadConfigFiles(){
-        CONFIGS.loadFromJSON();
+        Register.PRESET_LOADER_CONFIGS.loadFromJSON();
     }
 
     public static void loadJSONFiles(){
@@ -88,8 +78,8 @@ public class JsonLoaderManager {
         loadDefaultPresetContainerJSON("serial_port_defaults.json");
 
         //load user presets
-        for(AbstractJsonLoader<?> manager : LOADERS){
-            if(manager != CONFIGS){
+        for(AbstractJsonLoader<?> manager : MasterRegistry.INSTANCE.presetLoaders){
+            if(manager != Register.PRESET_LOADER_CONFIGS){
                 manager.loadFromJSON();
             }
         }
@@ -108,7 +98,7 @@ public class JsonLoaderManager {
      * @param file the location to load the json from
      * @param targetType the type of preset to import, if null all types will be accepted
      */
-    public static GenericPreset<IJsonData> importPresetFile(File file, EnumJsonType targetType){
+    public static GenericPreset<IJsonData> importPresetFile(File file, PresetType targetType){
         try {
             return importPresetFile(new FileInputStream(file), targetType);
         } catch (FileNotFoundException e) {
@@ -122,10 +112,14 @@ public class JsonLoaderManager {
      * @param stream the input stream to load the json from
      * @param targetType the type of preset to import, if null all types will be accepted
      */
-    public static GenericPreset<IJsonData> importPresetFile(InputStream stream, EnumJsonType targetType){
+    public static GenericPreset<IJsonData> importPresetFile(InputStream stream, PresetType targetType){
         GenericPreset<IJsonData> preset = importJsonFile(stream, GenericPreset.class);
         if(preset != null && (targetType == null || targetType == preset.presetType)){
-            getManagerForType(preset.presetType).tryRegisterPreset(preset);
+
+            AbstractJsonLoader<IJsonData> manager = getManagerForType(preset.presetType);
+            if(manager != null){
+                manager.tryRegisterPreset(preset);
+            }
         }
         return preset;
     }
@@ -147,7 +141,14 @@ public class JsonLoaderManager {
 
     public static void importPresetContainerFile(InputStream stream){
         PresetContainerJsonFile<IJsonData> container = importJsonFile(stream, PresetContainerJsonFile.class);
-        container.jsonMap.forEach(preset -> getManagerForType(preset.presetType).registerPreset(preset));
+        container.jsonMap.forEach(preset -> {
+            if(preset != null){
+                AbstractJsonLoader<IJsonData> manager = getManagerForType(preset.presetType);
+                if(manager != null){
+                    manager.registerPreset(preset);
+                }
+            }
+        });
     }
 
     public static <T> T importJsonFile(InputStream stream, Class<T> type){

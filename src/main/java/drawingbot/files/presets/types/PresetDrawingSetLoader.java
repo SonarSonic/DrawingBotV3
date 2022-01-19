@@ -5,10 +5,10 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.presets.AbstractPresetLoader;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericPreset;
 import javafx.collections.ObservableList;
 
@@ -17,8 +17,8 @@ import java.util.List;
 
 public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSet> {
 
-    public PresetDrawingSetLoader() {
-        super(PresetDrawingSet.class, EnumJsonType.DRAWING_SET,"user_set_presets.json");
+    public PresetDrawingSetLoader(PresetType presetType) {
+        super(PresetDrawingSet.class, presetType,"user_set_presets.json");
     }
 
     @Override

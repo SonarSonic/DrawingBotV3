@@ -1,5 +1,7 @@
 package drawingbot.utils;
 
+import drawingbot.FXApplication;
+
 public enum EnumDisplayMode {
 
     IMAGE(EnumDisplayModeType.IMAGE),
@@ -23,9 +25,8 @@ public enum EnumDisplayMode {
     @Override
     public String toString() {
         if(this == DRAWING_HARDWARE_ACCELERATED){
-            return "Drawing (Hardware Accelerated)";
+            return "Drawing (Hardware Accelerated)" + (!FXApplication.isPremiumEnabled ? " (Premium)" : "");
         }
-
         return Utils.capitalize(name());
     }
 }

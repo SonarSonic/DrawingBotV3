@@ -7,6 +7,7 @@ import drawingbot.javafx.FXController;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableProjectSettings;
+import drawingbot.registry.Register;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -20,7 +21,7 @@ public class ContextMenuObservableProjectSettings extends ContextMenu {
         super();
 
         MenuItem menuLoad = new MenuItem("Load Version");
-        menuLoad.setOnAction(e -> JsonLoaderManager.PROJECT.applyPreset(row.getItem().preset.get()));
+        menuLoad.setOnAction(e -> Register.PRESET_LOADER_PROJECT.applyPreset(row.getItem().preset.get()));
         getItems().add(menuLoad);
 
         MenuItem menuSave = new MenuItem("Save as project");

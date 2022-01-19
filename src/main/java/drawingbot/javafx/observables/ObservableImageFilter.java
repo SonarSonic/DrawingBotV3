@@ -34,6 +34,7 @@ public class ObservableImageFilter {
 
     public ObservableImageFilter(ObservableImageFilter duplicate) {
         this(duplicate.enable.get(), duplicate.name.get(), duplicate.filterFactory, GenericSetting.copy(duplicate.filterSettings, FXCollections.observableArrayList()));
+        GenericSetting.applySettings(duplicate.filterSettings, this.filterSettings);
     }
 
     public ObservableImageFilter(boolean enable, String name, GenericFactory<BufferedImageOp> filterFactory, ObservableList<GenericSetting<?, ?>> filterSettings) {

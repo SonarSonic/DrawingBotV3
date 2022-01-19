@@ -2,7 +2,8 @@ package drawingbot.integrations.vpype;
 
 import com.google.gson.JsonElement;
 import drawingbot.files.presets.AbstractJsonData;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.files.presets.PresetType;
+import drawingbot.registry.Register;
 
 import java.util.HashMap;
 
@@ -17,7 +18,7 @@ public class PresetVpypeSettings extends AbstractJsonData {
     }
 
     @Override
-    public EnumJsonType getJsonType() {
-        return EnumJsonType.VPYPE_SETTINGS;
+    public PresetType getPresetType() {
+        return Register.PRESET_TYPE_VPYPE_SETTINGS;
     }
 }

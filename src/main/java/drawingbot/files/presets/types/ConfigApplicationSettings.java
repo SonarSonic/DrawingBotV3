@@ -1,9 +1,9 @@
 package drawingbot.files.presets.types;
 
 import drawingbot.files.presets.IConfigData;
-import drawingbot.files.presets.JsonLoaderManager;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.registry.Register;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.UnitsTime;
 
@@ -59,8 +59,8 @@ public class ConfigApplicationSettings implements IConfigData {
     }
 
     @Override
-    public EnumJsonType getJsonType() {
-        return EnumJsonType.CONFIG_SETTINGS;
+    public PresetType getPresetType() {
+        return Register.PRESET_TYPE_CONFIGS;
     }
 
     @Override
@@ -72,6 +72,6 @@ public class ConfigApplicationSettings implements IConfigData {
     public void applyPreset(GenericPreset<IConfigData> preset) {}
 
     public void markDirty(){
-        JsonLoaderManager.CONFIGS.queueJsonUpdate();
+        Register.PRESET_LOADER_CONFIGS.queueJsonUpdate();
     }
 }

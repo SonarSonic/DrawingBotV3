@@ -1,7 +1,6 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
-import drawingbot.pfm.helpers.LuminanceTestLine;
 
 public class PFMSketchSquares extends AbstractSketchPFM {
 

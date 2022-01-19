@@ -1,20 +1,17 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.Hooks;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.exporters.GCodeExporter;
-import drawingbot.files.presets.JsonLoaderManager;
-import drawingbot.files.presets.types.PresetDrawingPen;
 import drawingbot.files.presets.types.PresetGCodeSettings;
-import drawingbot.files.presets.types.PresetHPGLSettings;
-import drawingbot.javafx.controls.ComboCellDrawingPen;
-import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.util.converter.FloatStringConverter;
@@ -23,6 +20,8 @@ import javafx.util.converter.IntegerStringConverter;
 public class FXExportController {
 
     public void initialize(){
+        Hooks.runHook(Hooks.FX_EXPORT_CONTROLLER_PRE_INIT, this);
+
         initPathOptimisationPane();
         initSVGSettingsPane();
         initGCodeSettingsPane();
@@ -32,6 +31,9 @@ public class FXExportController {
         DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnHidden(e -> ConfigFileHandler.getApplicationSettings().markDirty());
 
         DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnShown(e -> updateImageSequenceStats());
+
+
+        Hooks.runHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this);
     }
 
 
@@ -146,19 +148,19 @@ public class FXExportController {
 
     public void initGCodeSettingsPane(){
 
-        comboBoxGCodePreset.setItems(JsonLoaderManager.GCODE_SETTINGS.presets);
-        comboBoxGCodePreset.setValue(JsonLoaderManager.GCODE_SETTINGS.getDefaultPreset());
+        comboBoxGCodePreset.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
+        comboBoxGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
         comboBoxGCodePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                JsonLoaderManager.GCODE_SETTINGS.applyPreset(newValue);
+                Register.PRESET_LOADER_GCODE_SETTINGS.applyPreset(newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.GCODE_SETTINGS, menuButtonGCodePresets, false, comboBoxGCodePreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_GCODE_SETTINGS, menuButtonGCodePresets, false, comboBoxGCodePreset::getValue, (preset) -> {
             comboBoxGCodePreset.setValue(preset);
 
             ///force update rendering
-            comboBoxGCodePreset.setItems(JsonLoaderManager.GCODE_SETTINGS.presets);
+            comboBoxGCodePreset.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
             comboBoxGCodePreset.setButtonCell(new ComboBoxListCell<>());
         });
 
@@ -285,10 +287,11 @@ public class FXExportController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////HPGL SETTINGS
+    public Tab tabHPGLSettings = null;
     public AnchorPane anchorPaneHPGLSettings = null;
 
     public ComboBox<String> comboBoxHPGLPresetCategory = null;
-    public ComboBox<GenericPreset<PresetHPGLSettings>> comboBoxHPGLPreset = null;
+    public ComboBox<GenericPreset<?>> comboBoxHPGLPreset = null;
     public MenuButton menuButtonHPGLPresets = null;
 
     public TextField textFieldHPGLXMin = null;
@@ -311,80 +314,6 @@ public class FXExportController {
 
 
     public void initHPGLSettingsPane(){
-
-        DrawingBotV3.INSTANCE.hpglXMin.bind(Bindings.createIntegerBinding(() -> textFieldHPGLXMin.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLXMin.textProperty().get()), textFieldHPGLXMin.textProperty()));
-        textFieldHPGLXMin.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
-
-        DrawingBotV3.INSTANCE.hpglXMax.bind(Bindings.createIntegerBinding(() -> textFieldHPGLXMax.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLXMax.textProperty().get()), textFieldHPGLXMax.textProperty()));
-        textFieldHPGLXMax.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
-
-        DrawingBotV3.INSTANCE.hpglYMin.bind(Bindings.createIntegerBinding(() -> textFieldHPGLYMin.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLYMin.textProperty().get()), textFieldHPGLYMin.textProperty()));
-        textFieldHPGLYMin.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
-
-        DrawingBotV3.INSTANCE.hpglYMax.bind(Bindings.createIntegerBinding(() -> textFieldHPGLYMax.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLYMax.textProperty().get()), textFieldHPGLYMax.textProperty()));
-        textFieldHPGLYMax.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
-
-        checkBoxHPGLMirrorY.setSelected(DrawingBotV3.INSTANCE.hpglXAxisMirror.getValue());
-        DrawingBotV3.INSTANCE.hpglXAxisMirror.bindBidirectional(checkBoxHPGLMirrorX.selectedProperty());
-
-        checkBoxHPGLMirrorY.setSelected(DrawingBotV3.INSTANCE.hpglYAxisMirror.getValue());
-        DrawingBotV3.INSTANCE.hpglYAxisMirror.bindBidirectional(checkBoxHPGLMirrorY.selectedProperty());
-
-        choiceBoxHPGLAlignX.setItems(FXCollections.observableArrayList(EnumAlignment.xAxis));
-        choiceBoxHPGLAlignX.setValue(EnumAlignment.CENTER);
-        choiceBoxHPGLAlignX.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.hpglAlignX);
-
-        choiceBoxHPGLAlignY.setItems(FXCollections.observableArrayList(EnumAlignment.yAxis));
-        choiceBoxHPGLAlignY.setValue(EnumAlignment.CENTER);
-        choiceBoxHPGLAlignY.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.hpglAlignY);
-
-        choiceBoxHPGLRotation.setItems(FXCollections.observableArrayList(EnumRotation.values()));
-        choiceBoxHPGLRotation.setValue(EnumRotation.AUTO);
-        choiceBoxHPGLRotation.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.hpglRotation);
-
-        DrawingBotV3.INSTANCE.hpglCurveFlatness.bind(Bindings.createFloatBinding(() -> textFieldHPGLCurveFlatness.textProperty().get().isEmpty() ? 0.1F : Float.parseFloat(textFieldHPGLCurveFlatness.textProperty().get()), textFieldHPGLCurveFlatness.textProperty()));
-        textFieldHPGLCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
-
-        DrawingBotV3.INSTANCE.hpglPenSpeed.bind(Bindings.createIntegerBinding(() -> textFieldHPGLPenSpeed.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLPenSpeed.textProperty().get()), textFieldHPGLPenSpeed.textProperty()));
-        textFieldHPGLPenSpeed.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
-
-        DrawingBotV3.INSTANCE.hpglPenNumber.bind(Bindings.createIntegerBinding(() -> textFieldHPGLPenNumber.textProperty().get().isEmpty() ? 0 : Integer.parseInt(textFieldHPGLPenNumber.textProperty().get()), textFieldHPGLPenNumber.textProperty()));
-        textFieldHPGLPenNumber.textFormatterProperty().setValue(new TextFormatter<>(new IntegerStringConverter(), 0));
-
-
-        //setup presets last, so the settings get applied
-
-        comboBoxHPGLPresetCategory.valueProperty().addListener((observable, oldValue, newValue) -> {
-            comboBoxHPGLPreset.setItems(FXCollections.observableArrayList(JsonLoaderManager.HPGL_SETTINGS.getPresetsForSubType(comboBoxHPGLPresetCategory.getValue())));
-            comboBoxHPGLPreset.setValue(JsonLoaderManager.HPGL_SETTINGS.getDefaultPresetsForSubType(comboBoxHPGLPresetCategory.getValue()));
-        });
-        comboBoxHPGLPresetCategory.setItems(FXCollections.observableArrayList(JsonLoaderManager.HPGL_SETTINGS.getPresetSubTypes()));
-        comboBoxHPGLPresetCategory.setValue("HP 7440");
-
-
-        comboBoxHPGLPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                JsonLoaderManager.HPGL_SETTINGS.applyPreset(newValue);
-            }
-        });
-        comboBoxHPGLPreset.setItems(FXCollections.observableArrayList(JsonLoaderManager.HPGL_SETTINGS.getPresetsForSubType(comboBoxHPGLPresetCategory.getValue())));
-        comboBoxHPGLPreset.setValue(JsonLoaderManager.HPGL_SETTINGS.getDefaultPresetsForSubType(comboBoxHPGLPresetCategory.getValue()));
-
-        FXHelper.setupPresetMenuButton(JsonLoaderManager.HPGL_SETTINGS, menuButtonHPGLPresets, true, comboBoxHPGLPreset::getValue,
-                (preset) -> {
-                    //force update rendering
-                    comboBoxHPGLPresetCategory.setItems(FXCollections.observableArrayList(JsonLoaderManager.HPGL_SETTINGS.getPresetSubTypes()));
-                    comboBoxHPGLPreset.setItems(FXCollections.observableArrayList(JsonLoaderManager.HPGL_SETTINGS.getPresetsForSubType(comboBoxHPGLPresetCategory.getValue())));
-
-                    if(preset != null){
-                        comboBoxHPGLPresetCategory.setValue(preset.presetSubType);
-                        comboBoxHPGLPreset.setValue(preset);
-                    }else{
-                        comboBoxHPGLPresetCategory.setValue("HP 7440");
-                        comboBoxHPGLPreset.setValue(JsonLoaderManager.HPGL_SETTINGS.getDefaultPresetsForSubType(comboBoxHPGLPresetCategory.getValue()));
-                    }
-                });
-        JsonLoaderManager.HPGL_SETTINGS.applyPreset(comboBoxHPGLPreset.getValue());
 
     }
 

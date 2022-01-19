@@ -9,11 +9,14 @@ public class DBConstants {
     public static final String patchVersion = "0";
     public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
 
+    public static String versionName = appName + " Free";
+
     // KEYWORDS \\
     public static final String DRAWING_TYPE_SPECIAL = "Special";
     public static final String DRAWING_TYPE_USER = "User";
 
     // WEBSITES \\
+    public static final String URL_UPGRADE = "https://drawingbotv3.ollielansdell.co.uk/downloads/";
     public static final String URL_READ_THE_DOCS = "https://drawingbotv3.readthedocs.io";
     public static final String URL_READ_THE_DOCS_HOME = URL_READ_THE_DOCS + "/en/latest/about.html";
     public static final String URL_READ_THE_DOCS_PFMS = URL_READ_THE_DOCS + "/en/latest/pfms.html";

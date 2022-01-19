@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <TabPane minHeight="400.0" minWidth="400.0" rotateGraphic="true" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -173,7 +173,7 @@
                      </children></AnchorPane>
                 </content>
             </Tab>
-           <Tab text="HPGL">
+           <Tab fx:id="tabHPGLSettings" text="HPGL">
               <content>
                  <AnchorPane fx:id="anchorPaneHPGLSettings" minHeight="180.0" minWidth="200.0" prefHeight="180.0" prefWidth="200.0">
                     <children>

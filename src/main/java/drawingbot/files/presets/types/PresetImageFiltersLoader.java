@@ -2,9 +2,9 @@ package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractPresetLoader;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -15,8 +15,8 @@ import java.util.List;
 
 public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFilters> {
 
-    public PresetImageFiltersLoader() {
-        super(PresetImageFilters.class, EnumJsonType.IMAGE_FILTER_PRESET, "user_filter_presets.json");
+    public PresetImageFiltersLoader(PresetType presetType) {
+        super(PresetImageFilters.class, presetType, "user_filter_presets.json");
     }
 
     @Override

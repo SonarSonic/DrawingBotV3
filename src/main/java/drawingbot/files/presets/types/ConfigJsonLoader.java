@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.IConfigData;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 
@@ -18,8 +18,8 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     public HashMap<String, GenericFactory<IConfigData>> configFactories = new HashMap<>();
     public HashMap<Class<? extends IConfigData>, GenericPreset<IConfigData>> configs = new HashMap<>();
 
-    public ConfigJsonLoader() {
-        super(EnumJsonType.CONFIG_SETTINGS, "config_settings.json");
+    public ConfigJsonLoader(PresetType presetType) {
+        super(presetType, "config_settings.json");
         registerTypes();
     }
 

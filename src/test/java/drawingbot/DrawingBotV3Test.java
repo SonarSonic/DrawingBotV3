@@ -1,6 +1,6 @@
 package drawingbot;
 
-import drawingbot.files.ExportFormats;
+import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
@@ -18,9 +18,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(JavaFxJUnit4ClassRunner.class)
 public class DrawingBotV3Test {
+
+    public static void loadTestImage() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        Platform.runLater(() -> {
+            DrawingBotV3.INSTANCE.openFile(new File("images/testimage.jpg"), true);
+
+            DrawingBotV3.INSTANCE.loadingImage.setOnSucceeded(e -> {
+                DrawingBotV3.INSTANCE.tryLoadImage();
+                latch.countDown();
+            });
+        });
+        latch.await();
+    }
 
     @Test
     public void testImageFilters() throws IOException {
@@ -38,16 +53,13 @@ public class DrawingBotV3Test {
     @Test
     public void testPathFindingModules() throws InterruptedException, IOException {
 
+        loadTestImage();
         for(final PFMFactory factory : MasterRegistry.INSTANCE.pfmFactories){
             System.out.println("Started PFM Test: " + factory.getName());
             final CountDownLatch latch = new CountDownLatch(1);
 
-            FilteredBufferedImage filteredImage = BufferedImageLoader.loadFilteredImage("images/testimage.jpg", true);
-            assert filteredImage != null;
-
             Platform.runLater(() -> {
                 DrawingBotV3.INSTANCE.pfmFactory.setValue(factory);
-                DrawingBotV3.INSTANCE.openImage.set(filteredImage);
                 DrawingBotV3.INSTANCE.startPlotting();
                 DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                     if(newValue.intValue() == 0){
@@ -59,25 +71,30 @@ public class DrawingBotV3Test {
             System.out.println("Finished PFM Test: " + factory.getName());
         }
     }
+
     @Test
     public void textExport() throws InterruptedException, IOException {
         final CountDownLatch latch = new CountDownLatch(1);
-
-        FilteredBufferedImage filteredImage = BufferedImageLoader.loadFilteredImage("images/testimage.jpg", true);
-        assert filteredImage != null;
-
+        final AtomicBoolean triggered = new AtomicBoolean(false);
+        loadTestImage();
         Platform.runLater(() -> {
             DrawingBotV3.INSTANCE.pfmFactory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-            DrawingBotV3.INSTANCE.openImage.set(filteredImage);
             DrawingBotV3.INSTANCE.startPlotting();
+
+
+
             DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                 if(newValue.intValue() == 0){ //when the value changes we add export tasks for every type
-                    for(ExportFormats format : ExportFormats.values()){
-                        String extension = format.filters[0].getExtensions().get(0).substring(1);
-                        DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), true, false);
-                        DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false, false);
+                    if(triggered.get()){
+                        latch.countDown();
+                    }else{
+                        for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
+                            String extension = format.filters[0].getExtensions().get(0).substring(1);
+                            DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), true, false);
+                            DrawingBotV3.INSTANCE.createExportTask(format, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false, false);
+                        }
+                        triggered.set(true);
                     }
-                    DrawingBotV3.INSTANCE.taskService.submit(latch::countDown); //we add a final task to the exporter service, when this is reached we know the other export tasks are down also. note we don't add it via the TaskMonitor so it is ignored by the progress bars
                 }
             });
         });

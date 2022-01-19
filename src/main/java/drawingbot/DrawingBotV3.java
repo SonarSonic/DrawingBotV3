@@ -11,8 +11,10 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import drawingbot.api.Hooks;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.files.serial.SerialConnection;
+import drawingbot.api.IPlugin;
+import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
@@ -24,10 +26,10 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.TaskMonitor;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.plotting.SplitPlottingTask;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
+import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
-import drawingbot.render.opengl.OpenGLRenderer;
 import drawingbot.utils.*;
 import drawingbot.plotting.PlottingTask;
 import javafx.application.Platform;
@@ -40,8 +42,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 public class DrawingBotV3 {
 
@@ -49,7 +49,7 @@ public class DrawingBotV3 {
     public static DrawingBotV3 INSTANCE;
 
     public static JavaFXRenderer RENDERER;
-    public static OpenGLRenderer OPENGL_RENDERER;
+    public static IRenderer OPENGL_RENDERER;
 
     //DRAWING AREA
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
@@ -115,7 +115,7 @@ public class DrawingBotV3 {
 
     //PATH FINDING \\
     public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<EnumColourSplitter> colourSplitter = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ColourSplitterHandler> colourSplitter = new SimpleObjectProperty<>();
     public final SimpleFloatProperty cyanMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
@@ -157,12 +157,9 @@ public class DrawingBotV3 {
     public final SimpleObjectProperty<PlottingTask> activeTask = new SimpleObjectProperty<>(null);
 
     public PlottingTask renderedTask = null; //for tasks which generate sub tasks e.g. colour splitter, batch processing
-    public BatchProcessingTask batchProcessingTask = null; //TODO REMOVE ME?
 
     public BufferedImageLoader.Filtered loadingImage = null;
     public File openFile = null;
-
-    public SerialConnection serialConnection = new SerialConnection();
 
     // GUI \\
     public FXController controller;
@@ -213,17 +210,14 @@ public class DrawingBotV3 {
 
 
     public void updateUI(){
+
         taskMonitor.tick();
 
         if(getActiveTask() != null){
             if(getActiveTask().isRunning()){
-                int geometryCount = getActiveTask().plottedDrawing.getGeometryCount();
-                long vertexCount = getActiveTask().plottedDrawing.getVertexCount();
+                int geometryCount = getActiveTask().getCurrentGeometryCount();
+                long vertexCount = getActiveTask().getCurrentVertexCount();
 
-                if(getActiveTask() instanceof SplitPlottingTask){
-                    geometryCount = ((SplitPlottingTask) getActiveTask()).getCurrentGeometryCount();
-                    vertexCount = ((SplitPlottingTask) getActiveTask()).getCurrentVertexCount();
-                }
                 controller.labelPlottedShapes.setText(Utils.defaultNF.format(geometryCount));
                 controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
 
@@ -246,19 +240,10 @@ public class DrawingBotV3 {
             controller.labelPlottingResolution.setText("0 x 0");
         }
 
+        tryLoadImage();
 
-        controller.serialConnectionController.tick();
-
-        ///we load the image, resize the canvas and redraw
-        if(DrawingBotV3.INSTANCE.loadingImage != null && DrawingBotV3.INSTANCE.loadingImage.isDone()){
-            DrawingBotV3.INSTANCE.openImage.set(DrawingBotV3.INSTANCE.loadingImage.getValue());
-            DrawingBotV3.INSTANCE.display_mode.set(EnumDisplayMode.IMAGE);
-
-            DrawingBotV3.RENDERER.shouldRedraw = true;
-            DrawingBotV3.RENDERER.canvasNeedsUpdate = true;
-            DrawingBotV3.INSTANCE.loadingImage = null;
-        }
-
+        //tick all plugins
+        MasterRegistry.PLUGINS.forEach(IPlugin::tick);
     }
 
 
@@ -332,15 +317,18 @@ public class DrawingBotV3 {
 
     //// PLOTTING TASKS
 
-    public PlottingTask initPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, EnumColourSplitter splitter){
+    public PlottingTask initPlottingTask(PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, ColourSplitterHandler splitter){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         Platform.runLater(() -> {
-            if(updateDistributionType != null && colourSplitter.get() == EnumColourSplitter.DEFAULT){
+            if(updateDistributionType != null && splitter.isDefault()){
                 drawingPenSet.distributionType.set(updateDistributionType);
                 updateDistributionType = null;
             }
         });
-        return colourSplitter.get() == EnumColourSplitter.DEFAULT ? new PlottingTask(pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile) : new SplitPlottingTask(pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile, splitter);
+
+        PlottingTask task = new PlottingTask(pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile);
+        Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
+        return (PlottingTask) hookReturn[0];
     }
 
     public void startPlotting(){
@@ -374,7 +362,7 @@ public class DrawingBotV3 {
     public void openFile(File file, boolean internal){
         String extension = FileUtils.getExtension(file.toString());
         if(extension.equalsIgnoreCase(".drawingbotv3")){
-            FXHelper.loadPresetFile(EnumJsonType.PROJECT_PRESET, file, true);
+            FXHelper.loadPresetFile(Register.PRESET_TYPE_PROJECT, file, true);
             return;
         }
 
@@ -385,10 +373,22 @@ public class DrawingBotV3 {
             loadingImage = null;
         }
         openFile = file;
-        loadingImage = new BufferedImageLoader.Filtered(file.getAbsolutePath(), internal);
+        loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
         taskMonitor.queueTask(loadingImage);
 
-        FXApplication.primaryStage.setTitle(DBConstants.appName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
+        FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
+    }
+
+    public void tryLoadImage(){
+        ///we load the image, resize the canvas and redraw
+        if(DrawingBotV3.INSTANCE.loadingImage != null && DrawingBotV3.INSTANCE.loadingImage.isDone()){
+            DrawingBotV3.INSTANCE.openImage.set(DrawingBotV3.INSTANCE.loadingImage.getValue());
+            DrawingBotV3.INSTANCE.display_mode.set(EnumDisplayMode.IMAGE);
+
+            DrawingBotV3.RENDERER.shouldRedraw = true;
+            DrawingBotV3.RENDERER.canvasNeedsUpdate = true;
+            DrawingBotV3.INSTANCE.loadingImage = null;
+        }
     }
 
 
@@ -415,21 +415,15 @@ public class DrawingBotV3 {
 
     //// EXPORT TASKS
 
-    public Task<?> createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
-        return createExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, PrintResolution.copy(plottingTask.resolution));
+    public Task<?> createExportTask(DrawingExportHandler exportHandler, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
+        return createExportTask(exportHandler, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, PrintResolution.copy(plottingTask.resolution));
     }
 
-    public Task<?> createExportTask(ExportFormats format, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
-        boolean isVideo = FileUtils.matchesExtensionFilter(FileUtils.getExtension(plottingTask.originalFile.toString()), FileUtils.IMPORT_VIDEOS);
-        if(isVideo){
-            VideoProcessingTask task = new VideoProcessingTask(plottingTask.originalFile, format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, resolution);
-            taskMonitor.queueTask(task);
-            return task;
-        }else{
-            ExportTask task = new ExportTask(format, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, false, resolution);
-            taskMonitor.queueTask(task);
-            return task;
-        }
+    public Task<?> createExportTask(DrawingExportHandler exportHandler, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
+        ExportTask task = new ExportTask(exportHandler, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, false, resolution);
+        Object[] hookReturn = Hooks.runHook(Hooks.NEW_EXPORT_TASK, task);
+        taskMonitor.queueTask((Task<?>) hookReturn[0]);
+        return task;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -477,54 +471,6 @@ public class DrawingBotV3 {
         FXApplication.drawTimer.resetLayoutTimer = 2;
     }
 
-    public Point2D sceneToJFX(Point2D point2D){
-        Point2D dst = RENDERER.canvas.sceneToLocal(point2D);
-        dst = new Point2D(dst.getX()/RENDERER.canvasScaling, dst.getY()/ RENDERER.canvasScaling);
-        return dst;
-    }
-
-    public Point2D jfxToScene(Point2D point2D){
-        Point2D dst = new Point2D(point2D.getX()*RENDERER.canvasScaling, point2D.getY() * RENDERER.canvasScaling);
-        dst = RENDERER.canvas.localToScene(dst);
-        return dst;
-    }
-
-    public Point2D sceneToOpenGL(Point2D point2D){
-        Point2D dst = OPENGL_RENDERER.canvas.sceneToLocal(point2D);
-
-        Matrix4f matrix4f = OPENGL_RENDERER.getToFXMatrix();
-
-        Vector3f origin = matrix4f.transformPosition(0, 0, 0, new Vector3f());
-        Vector3f scaled = matrix4f.getScale(new Vector3f());
-
-        dst = new Point2D((dst.getX()-origin.x) / scaled.x, (dst.getY()-origin.y) / scaled.y);
-
-        return dst;
-    }
-
-    public Point2D openGLToScene(Point2D point2D){
-        //Warning: possibly broken
-
-        Matrix4f matrix4f = OPENGL_RENDERER.getToFXMatrix();
-
-        Vector3f origin = matrix4f.transformPosition(0, 0, 0, new Vector3f());
-        Vector3f scaled = matrix4f.getScale(new Vector3f());
-
-        matrix4f = matrix4f.scale(1F/scaled.x, 1F/scaled.y, 0);
-        matrix4f = matrix4f.translate(-origin.x, -origin.y, 0, new Matrix4f());
-
-        Vector3f translate2 = matrix4f.getTranslation(new Vector3f());
-        Vector3f scaled2 = matrix4f.getScale(new Vector3f());
-
-        ///equivilant of transform position
-        point2D = point2D.multiply(scaled2.x);
-        point2D = point2D.add(translate2.x, translate2.y);
-
-        point2D = OPENGL_RENDERER.canvas.localToScene(point2D);
-
-        return point2D;
-    }
-
     /**
      * The viewport centre relative to the scene
      */
@@ -537,7 +483,7 @@ public class DrawingBotV3 {
 
     public void onMouseMoved(MouseEvent event){
         Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
-        Point2D position = !display_mode.get().isOpenGL() ? sceneToJFX(mouse) : sceneToOpenGL(mouse);
+        Point2D position = !display_mode.get().isOpenGL() ? RENDERER.sceneToRenderer(mouse) : OPENGL_RENDERER.sceneToRenderer(mouse);
 
         if(useOriginalSizing.get()){
             controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " px");

@@ -2,8 +2,11 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
+import javafx.scene.Parent;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class DialogExportSequenceBegin extends Dialog<Boolean> {
@@ -12,7 +15,9 @@ public class DialogExportSequenceBegin extends Dialog<Boolean> {
         super();
         setTitle("Confirm Image Sequence Settings");
 
-        getDialogPane().setContent(DrawingBotV3.INSTANCE.controller.exportController.anchorPaneImgSeqSettings);
+        AnchorPane pane = DrawingBotV3.INSTANCE.controller.exportController.anchorPaneImgSeqSettings;
+        Parent oldParent = pane.getParent();
+        getDialogPane().setContent(pane);
         getDialogPane().setPrefWidth(420);
         getDialogPane().setPrefHeight(360);
 
@@ -20,6 +25,11 @@ public class DialogExportSequenceBegin extends Dialog<Boolean> {
         getDialogPane().getButtonTypes().add(ButtonType.OK);
         setResultConverter(param -> param == ButtonType.OK);
         FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
+        setOnCloseRequest(e -> {
+            if(oldParent instanceof Pane){
+                ((Pane)oldParent).getChildren().add(pane);
+            }
+        });
     }
 
 }

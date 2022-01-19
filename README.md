@@ -12,46 +12,56 @@
 
 ### About
 
-Drawing Bot is a free, open source software for converting images to line drawings for Plotters / Drawing Machines / 3D printers. It also serves as an application for visual artists to create stylised line drawings from images / video. You can find the full documentation [here](https://drawingbotv3.readthedocs.io/en/latest/). 
+DrawingBotV3 is a software for converting images to line drawings for Plotters / Drawing Machines / 3D printers. It also serves as an application for visual artists to create stylised line drawings from images / video. You can find the full documentation [here](https://drawingbotv3.readthedocs.io/en/latest/). 
 
-It is available for Windows, Mac and Linux.
+There are two versions, **Free** and **Premium**. 
+- The **Free** version is Open-Source and can be downloaded [here](https://github.com/SonarSonic/DrawingBotV3/releases/latest). 
+- The **Premium** version is Closed-Source and can be purchased [here](http://drawingbotv3.ollielansdell.co.uk/downloads/)
 
-If you want to support the development of DrawingBotV3 you can [donate here](https://www.paypal.com/donate?hosted_button_id=ZFNJF2R4J87DG)
+Both versions are available for Windows, Mac and Linux.
 
-Also feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxrM9) to chat all things DrawingBotV3!
+Feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxrM9) to chat all things DrawingBotV3!
 
-### Features
+### Features - *Free Version*
+-  **[3 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html):** *all highly configurable to create unique drawing styles*.
+-  **Automatic Path Optimisation for Faster Plots:** *Line Simplifying, Merging, Filtering, Sorting*
+-  **[Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html):** *configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots*.
+-  **[60+ Image Filters](https://drawingbotv3.readthedocs.io/en/latest/preprocessing.html):** *for pre processing the imported image*
+-  **[Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html):** *with live drawing preview* 
+-  **User configurable Drawing Area**, *with Padding / Scaling Modes*
+-  **Version Control:** *Save your favourite versions as you go and reload them.*
+-  **Project Saving & Loading:** *save your work and continue where you left off!* 
+-  **[Special pens](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html#special-drawing-pens):** *for Original Colour/Grayscale Sampling*
+-  **[Presets](https://drawingbotv3.readthedocs.io/en/latest/presets.html):** *can be saved/imported/exported for sharing different styles with other users*
+-  **Multiple Export Options** *can be exported per/pen or per/drawing in multiple file types*
+-  **[GCode Export](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings):** *configurable Drawing Area, XYZ Offsets / Auto Homing.*
+-  **[vpype](https://github.com/abey79/vpype) Integration:** *automatically send plots to vpype for further optimization and processing*
 
--  [18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html) - all highly configurable to create unique drawing styles
--  Automatic Path Optimisation for Faster Plots - Line Simplifying, Merging, Filtering, Sorting
--  [Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html): configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.
--  [Image Sequences](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings): You can export image sequences animations of your creations!
--  [60+ Image Filters](https://drawingbotv3.readthedocs.io/en/latest/preprocessing.html) for pre processing the imported image
--  Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)
--  Plotter / Serial Port Connection: Connect to HPGL based plotters and control them of the serial port.
--  [Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html) with live drawing preview 
--  User configurable Drawing Area, with Padding / Scaling Modes
--  Version Control: Save your favourite versions as you go and reload them.
--  Project Saving & Loading
--  [Special pens](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html#special-drawing-pens) for Original Colour/Grayscale Sampling
--  [Presets](https://drawingbotv3.readthedocs.io/en/latest/presets.html): can be saved/imported/exported for sharing different styles with other users
--  Exports can be exported per/pen or per/drawing in multiple file types
--  [Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html): Convert entire folders of images automatically.
--  Video Processing: Convert every frame from imported video files automatically
--  HPGL Export - Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.
--  [GCode Export](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings) - configurable Drawing Area, XYZ Offsets / Auto Homing.
--  [vpype](https://github.com/abey79/vpype) Integration
+### Features - *Premium Version*
+-  **All the features included in the Free Version**
+-  **[18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html):** *includes 15 more Path Finding Modules!*
+-  **Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)**
+-  **[Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html):** *Convert entire folders of images automatically.*
+-  **[Image Sequences](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings):** *You can export image sequences animations of your creations!*
+-  **Plotter / Serial Port Connection:** *Connect to HPGL based plotters and control them of the serial port.*
+-  **Video Processing:** *Convert every frame from imported video files automatically*
+-  **HPGL Export:** *Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.*
+-  **Hardware Accelerated Renderer:** Fast OpenGL Based Renderer to preview drawings in higher clarity and speed!
 
 ### Path Finding Modules
+
+####Free
 - Sketch Lines PFM
-- Sketch Curves PFM 
 - Sketch Squares PFM
+- Spiral PFM
+  
+####Premium
+- Sketch Curves PFM 
 - Sketch Quad Beziers PFM
 - Sketch Cubic Beziers PFM
 - Sketch Catmull-Roms PFM
 - Sketch Shapes PFM
 - Sketch Sobel Edges PFM
-- Spiral PFM
 - Voronoi Circles
 - Voronoi Triangulation
 - Voronoi Tree
@@ -72,15 +82,15 @@ Import Formats:
     Videos: [.mp4, .mov, .avi]
        
 Export Formats: 
-    Vectors: [.svg, .hpgl, .pdf],
+    Vectors: [.svg, .pdf, .hpgl (Premium)],
     Images/Image Sequences: [.png, .jpg, .jpeg, .tif, .tga]
-    Videos: [.mp4, .mov]
+    Videos: [.mp4 (Premium), .mov (Premium)]
     GCode: [.gcode, .txt],    
 ```
 
 # Installation
 
-Downloads: [Latest Release](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
+Downloads: [Premium Versions](http://drawingbotv3.ollielansdell.co.uk/downloads/) or [Free Versions](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
 
 You can choose from the following options.
 

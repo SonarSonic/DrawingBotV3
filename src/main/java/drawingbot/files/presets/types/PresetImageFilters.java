@@ -2,10 +2,11 @@ package drawingbot.files.presets.types;
 
 import com.google.gson.JsonElement;
 import drawingbot.files.presets.IJsonData;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.observables.ObservableImageFilter;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.registry.Register;
 
 import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ public class PresetImageFilters implements IJsonData {
     }
 
     @Override
-    public EnumJsonType getJsonType() {
-        return EnumJsonType.IMAGE_FILTER_PRESET;
+    public PresetType getPresetType() {
+        return Register.PRESET_TYPE_FILTERS;
     }
 
 

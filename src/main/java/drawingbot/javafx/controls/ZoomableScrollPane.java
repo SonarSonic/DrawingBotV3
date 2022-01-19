@@ -1,7 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.render.opengl.OpenGLRenderer;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -90,7 +89,7 @@ public class ZoomableScrollPane extends ScrollPane {
         if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()) {
             posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
         }else{
-            posInZoomTarget = DrawingBotV3.OPENGL_RENDERER.pane.sceneToLocal(mousePoint);
+            posInZoomTarget = DrawingBotV3.OPENGL_RENDERER.getPane().sceneToLocal(mousePoint);
         }
 
         // calculate adjustment of scroll position (pixels)

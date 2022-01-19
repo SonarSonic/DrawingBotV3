@@ -2,17 +2,17 @@ package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractSettingsLoader;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.utils.EnumJsonType;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 import java.util.List;
 
 public class PresetDrawingAreaLoader extends AbstractSettingsLoader<PresetDrawingArea> {
 
-    public PresetDrawingAreaLoader() {
-        super(PresetDrawingArea.class, EnumJsonType.DRAWING_AREA, "user_page_presets.json");
+    public PresetDrawingAreaLoader(PresetType presetType) {
+        super(PresetDrawingArea.class, presetType, "user_page_presets.json");
     }
 
     public void registerSettings(){

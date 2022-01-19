@@ -1,4 +1,28 @@
-# Change Log
+### [v1.3.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.3-stable)
+- DrawingBotV3 now comes in two version **Free** and **Premium**, find out more [here](https://drawingbotv3.ollielansdell.co.uk/premium-version/)
+- Added: New Hardware Accelerated Renderer, to activate go to Display Mode : "Drawing (Hardware Accelerated)"
+- Added: "Squiggle Deviation" Slider to Sketch PFMs, this allows you to decide how far a squiggle is allowed to deviate in brightness before it is ended prematurely, this has the result of making shorter squiggles which are more accurate and less likely to cross over brighter areas of the image. 
+- Added: "Unlimited Tests" Option to a few Sketch PFMs, this will run as many tests as required to find the "best" line possible, resulting in more accurate drawings with longer processing times.
+- Added: "Curve Refinement" Option to Catmull-Roms, this will add an additional pass after the curves have been found to see if minor adjustments to the curves points will improve the accuracy.
+- Added: Blend Mode compatibility to PDF export - HanzPetrov
+- Added: Live updating "Position", above the viewport you'll be able to see where you mouse is relative to your drawings size!
+- Changed: Batch Processing will now display the current drawing, and give more useful progress messages and updates
+- Changed: Sketch Curves/Beziers/Catmull-Roms now render as individual curves rather than grouped shapes, allowing finer control over the curves rendered, and resulting in a more accurate mapping of the colour values to the pens enabled.
+- Changed: Shading Options are now also available on Sketch Shapes and Sketch Sobel Edges
+- Changed: Improved the accuracy of Sketch PFMs
+- Changed: Sketch PFMs now use the Bresenham Midpoint Circle Algorithm to reduce the number of neighbour tests required.
+- Changed: Allow Customizable Drawing Pen & Drawing Set Categories rather than just "User"
+- Changed: Voronoi Default Settings: Point Count now defaults to 50000 instead of 10000 and Luminance Power / Density Power default to 3 instead of 5
+- Fixed: When creating new Pen Presets, the type name will be used instead of defaulting to "User".
+- Fixed: Image Filters losing their settings when using "Edit Settings" and not hitting apply.
+- Fixed: Image Filters not updating when an earlier filter in the chain is disabled.
+- Fixed: Sobel Edges PFM not working properly on images with Alpha Channels
+- Fixed: Dirty Border Filter not working properly on images with Alpha Channels
+- Fixed: CMYK Separation not working properly on images with Alpha Channels
+- Fixed: View menu will now work as expected and not glitch out the settings panels
+- Fixed: Export settings panels disappearing after being displayed while exporting for HPGL, Image Sequences and GCode
+- Fixed: "Special" Pens can now be saved in Drawing Set Presets without losing their functionality.
+
 ### [v1.2.3-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.2.2-stable)
 - Fixed: Drawings randomly failing to export when Path Optimization is enabled.
 - Fixed: GCode Bezier Curves not matching the drawing properly. -Triod-project

@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import drawingbot.plugins.PremiumPluginDummy;
+import drawingbot.registry.MasterRegistry;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -58,14 +60,9 @@ public class JavaFxJUnit4Application extends FXApplication
         Application.launch();
     }
 
-    /**
-     * An empty start method.
-     *
-     * @param stage The stage
-     */
     @Override
-    public void start(final Stage stage) throws IOException {
-        super.start(stage);
+    public void onFirstTick() {
+        super.onFirstTick();
         started.set(Boolean.TRUE);
     }
 }

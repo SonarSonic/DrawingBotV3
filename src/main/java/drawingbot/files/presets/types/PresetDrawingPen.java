@@ -3,9 +3,9 @@ package drawingbot.files.presets.types;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.presets.IJsonData;
-import drawingbot.utils.DBConstants;
-import drawingbot.utils.EnumJsonType;
+import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.registry.Register;
 
 public class PresetDrawingPen extends DrawingPen implements IJsonData {
 
@@ -27,17 +27,17 @@ public class PresetDrawingPen extends DrawingPen implements IJsonData {
     @Override
     public void update(String type, String name, int argb, int distributionWeight, float strokeSize, boolean active) {
         super.update(type, name, argb, distributionWeight, strokeSize, active);
-        this.type = DBConstants.DRAWING_TYPE_USER;
+        this.type = type;
     }
 
     @Override
     public void update(IDrawingPen pen) {
         super.update(pen);
-        this.type = DBConstants.DRAWING_TYPE_USER;
+        this.type = pen.getType();
     }
 
     @Override
-    public EnumJsonType getJsonType() {
-        return EnumJsonType.DRAWING_PEN;
+    public PresetType getPresetType() {
+        return Register.PRESET_TYPE_DRAWING_PENS;
     }
 }

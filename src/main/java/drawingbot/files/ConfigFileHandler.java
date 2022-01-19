@@ -3,6 +3,7 @@ package drawingbot.files;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.ConfigApplicationSettings;
+import drawingbot.registry.Register;
 
 import java.io.*;
 import java.util.*;
@@ -26,7 +27,7 @@ public class ConfigFileHandler {
         JsonLoaderManager.loadConfigFiles();
 
         //load any config objects for use during the loading phases
-        applicationSettings = JsonLoaderManager.CONFIGS.getConfigData(ConfigApplicationSettings.class);
+        applicationSettings = Register.PRESET_LOADER_CONFIGS.getConfigData(ConfigApplicationSettings.class);
 
         //setup any console output files, now that we know what settings they require
         ConfigFileHandler.setupConsoleOutputFile();

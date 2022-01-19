@@ -7,7 +7,6 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import javafx.scene.paint.Color;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 public class DrawingStyle implements IDrawingStyle {

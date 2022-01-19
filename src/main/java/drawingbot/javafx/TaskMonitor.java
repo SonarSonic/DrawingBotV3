@@ -1,9 +1,7 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.BatchProcessingTask;
 import drawingbot.files.ExportTask;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.DBTask;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -80,6 +78,7 @@ public class TaskMonitor {
 
     public void queueTask(Task<?> task){
         Platform.runLater(() -> {
+            processingCount.setValue(processingCount.getValue() + 1);
             task.stateProperty().addListener((observable, oldValue, newValue) -> onTaskStateChanged(task, observable, oldValue, newValue));
             service.submit(task);
             logTask(task);
@@ -98,12 +97,11 @@ public class TaskMonitor {
             case READY:
                 break;
             case SCHEDULED:
-                processingCount.setValue(processingCount.getValue() + 1);
                 break;
             case RUNNING:
                 currentTask = task;
 
-                isPlotting.set(task instanceof PlottingTask || task instanceof BatchProcessingTask);
+                isPlotting.set(task instanceof DBTask && ((DBTask<?>) task).isPlottingTask());
                 isExporting.set(task instanceof ExportTask);
                 wasExporting.set(false);
 
