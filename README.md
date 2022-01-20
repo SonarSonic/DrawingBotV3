@@ -41,8 +41,8 @@ Feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxr
 -  **[18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html):** *includes 15 more Path Finding Modules!*
 -  **Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)**
 -  **[Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html):** *Convert entire folders of images automatically.*
--  **[Image Sequences](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings):** *You can export image sequences animations of your creations!*
--  **Plotter / Serial Port Connection:** *Connect to HPGL based plotters and control them of the serial port.*
+-  **[Export Animations](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings):** *You can export animations of your creations as Image Sequences or MP4/MOV files!*
+-  **Plotter / Serial Port Connection:** *Connect to HPGL based plotters and control them over the serial port.*
 -  **Video Processing:** *Convert every frame from imported video files automatically*
 -  **HPGL Export:** *Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.*
 -  **Hardware Accelerated Renderer:** Fast OpenGL Based Renderer to preview drawings in higher clarity and speed!
