@@ -14,14 +14,13 @@ public class JsonAdapterDrawingPen implements JsonSerializer<IDrawingPen>, JsonD
     public IDrawingPen deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
 
-        DrawingPen drawingPen = new DrawingPen(
-            jsonObject.get("type").getAsString(),
-            jsonObject.get("name").getAsString(),
-            jsonObject.get("argb").getAsInt(),
-            jsonObject.get("distributionWeight").getAsInt(),
-            jsonObject.get("strokeSize").getAsFloat(),
-            jsonObject.get("isEnabled").getAsBoolean()
-        );
+        DrawingPen drawingPen = new DrawingPen();
+        drawingPen.type = jsonObject.get("type").getAsString();
+        drawingPen.name = jsonObject.get("name").getAsString();
+        drawingPen.argb = jsonObject.get("argb").getAsInt();
+        drawingPen.distributionWeight = jsonObject.has("distributionWeight") ? jsonObject.get("distributionWeight").getAsInt() : 100;
+        drawingPen.strokeSize = jsonObject.has("strokeSize") ? jsonObject.get("strokeSize").getAsFloat() : 1F;
+        drawingPen.isEnabled = !jsonObject.has("isEnabled") || jsonObject.get("isEnabled").getAsBoolean();
 
         DrawingPen actualPen = MasterRegistry.INSTANCE.getDrawingPenFromRegistryName(drawingPen.getCodeName());
         if(actualPen instanceof CustomPen){

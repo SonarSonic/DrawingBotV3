@@ -46,6 +46,8 @@ public class ConfigApplicationSettings implements IConfigData {
     public int duration = 5;
     public UnitsTime durationUnits = UnitsTime.SECONDS;
 
+    public boolean disableOpenGLRenderer = false;
+
     public int getFrameCount(){
         return (int)(framesPerSecond * durationUnits.toSeconds(duration));
     }
