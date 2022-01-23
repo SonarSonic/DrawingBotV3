@@ -206,12 +206,14 @@ public class GeometryUtils {
         }
         if(nextGeometry instanceof IPathElement){
             IPathElement element = (IPathElement) nextGeometry;
+
+            if(lastGeometry instanceof GPath){
+                GPath path = (GPath) lastGeometry;
+                return path.getCurrentPoint().equals(element.getP1());
+            }
+
             if(lastGeometry instanceof IPathElement){
                 return ((IPathElement) lastGeometry).getP2().equals(element.getP1());
-            }
-            if(lastGeometry instanceof GPath){
-                Coordinate coordinate = lastGeometry.getOriginCoordinate();
-                return ((float)coordinate.x) == element.getP1().getX() && ((float)coordinate.y) == element.getP1().getY();
             }
         }
         return false;

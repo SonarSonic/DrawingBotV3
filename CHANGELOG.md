@@ -1,10 +1,14 @@
-### [v1.3.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.1-stable)
+### [v1.3.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.2-stable-free)
+- Hot-Fix: Exports missing some geometries, in particular Voronoi Triangulation.
+- Fixed: Imported Presets not saving properly.
+
+### [v1.3.1-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.1-stable-free)
 - Added: New option in config "disableOpenGLRenderer", some systems are incompatible with the Hardware Accelerated Renderer, if DrawingBotV3 fails to start, try changing this value to true.
 - Fixed: Batch Processing on MAC and Linux will now use the correct File Seperator.
 - Fixed: SVG Exporting
 - Fixed: Drawing Pen / Drawing Set preset loading.
 
-### [v1.3.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.0-stable)
+### [v1.3.0-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.0-stable-free)
 - DrawingBotV3 now comes in two version **Free** and **Premium**, find out more [here](https://drawingbotv3.ollielansdell.co.uk/premium-version/)
 - Added: New Hardware Accelerated Renderer, to activate go to Display Mode : "Drawing (Hardware Accelerated)"
 - Added: "Squiggle Deviation" Slider to Sketch PFMs, this allows you to decide how far a squiggle is allowed to deviate in brightness before it is ended prematurely, this has the result of making shorter squiggles which are more accurate and less likely to cross over brighter areas of the image. 

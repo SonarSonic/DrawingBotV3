@@ -79,9 +79,11 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     }
 
     public final void trySavePreset(GenericPreset<O> preset) {
-        registerPreset(preset);
-        if (preset.userCreated) {
-            queueJsonUpdate();
+        if (preset != null){
+            registerPreset(preset);
+            if (preset.userCreated) {
+                queueJsonUpdate();
+            }
         }
     }
 

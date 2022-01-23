@@ -115,10 +115,9 @@ public class JsonLoaderManager {
     public static GenericPreset<IJsonData> importPresetFile(InputStream stream, PresetType targetType){
         GenericPreset<IJsonData> preset = importJsonFile(stream, GenericPreset.class);
         if(preset != null && (targetType == null || targetType == preset.presetType)){
-
             AbstractJsonLoader<IJsonData> manager = getManagerForType(preset.presetType);
             if(manager != null){
-                manager.tryRegisterPreset(preset);
+                manager.trySavePreset(preset);
             }
         }
         return preset;
