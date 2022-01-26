@@ -130,7 +130,7 @@ public class FXController {
     public void initToolbar(){
         //file
         MenuItem menuOpen = new MenuItem("Open Project");
-        menuOpen.setOnAction(e -> FXHelper.importPreset(Register.PRESET_TYPE_PROJECT, true));
+        menuOpen.setOnAction(e -> FXHelper.importPreset(Register.PRESET_TYPE_PROJECT, true, false));
         menuFile.getItems().add(menuOpen);
 
         MenuItem menuSave = new MenuItem("Save Project");

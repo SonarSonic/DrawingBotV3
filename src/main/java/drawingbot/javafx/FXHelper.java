@@ -9,6 +9,8 @@ import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.PresetType;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.javafx.controls.DialogExportPreset;
+import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
 import javafx.application.Platform;
@@ -89,7 +91,7 @@ public class FXHelper {
         });
     }
 
-    public static void importPreset(PresetType presetType, boolean apply){
+    public static void importPreset(PresetType presetType, boolean apply, boolean showDialog){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(presetType.filters);
@@ -97,17 +99,23 @@ public class FXHelper {
             d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
-                loadPresetFile(presetType, file, apply);
+                GenericPreset<IJsonData> preset = loadPresetFile(presetType, file, apply);
+
+                if(showDialog){
+                    DialogImportPreset importPreset = new DialogImportPreset(preset);
+                    importPreset.show();
+                }
             }
         });
     }
 
-    public static void loadPresetFile(PresetType presetType, File file, boolean apply){
+    public static GenericPreset<IJsonData> loadPresetFile(PresetType presetType, File file, boolean apply){
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
             JsonLoaderManager.getJsonLoaderForPresetType(presetType).tryApplyPreset(preset);
         }
+        return preset;
     }
 
     public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName){
@@ -121,6 +129,12 @@ public class FXHelper {
             if(file != null){
                 JsonLoaderManager.exportPresetFile(file, preset);
                 FileUtils.updateExportDirectory(file.getParentFile());
+
+                DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
+                Optional<Boolean> openFolder = exportPreset.showAndWait();
+                if(openFolder.isPresent() && openFolder.get()){
+                    FXHelper.openFolder(file.getParentFile());
+                }
             }
         });
     }
@@ -252,7 +266,7 @@ public class FXHelper {
         });
 
         importPreset.setOnAction(e -> {
-            FXHelper.importPreset(presetManager.type, false);
+            FXHelper.importPreset(presetManager.type, false, true);
         });
         exportPreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
