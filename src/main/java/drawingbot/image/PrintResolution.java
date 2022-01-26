@@ -247,8 +247,10 @@ public class PrintResolution {
         //0.5 offset moves origin of geometry to the centre of pixel
         scaledOffsetX = (imageOffsetX + 0.5)  + (getPrintOffsetX() / getPrintScale());
         scaledOffsetY = (imageOffsetY + 0.5) + (getPrintOffsetY() / getPrintScale());
+
         scaledWidth = getPrintPageWidth() / getPrintScale();
         scaledHeight = getPrintPageHeight() / getPrintScale();
+
         finalPrintScaleX = 1;
         finalPrintScaleY = 1;
     }

@@ -198,7 +198,7 @@ public class JavaFXRenderer implements IRenderer {
                     if(shouldRedraw){
                         clearCanvas();
                         graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX(), DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY());
+                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
                         graphicsFX.drawImage(SwingFXUtils.toFXImage(DrawingBotV3.INSTANCE.openImage.get().getFiltered(), null), 0, 0);
                     }
                 }else{
@@ -233,7 +233,7 @@ public class JavaFXRenderer implements IRenderer {
                     clearCanvas();
                     if(renderedTask != null && renderedTask.getReferenceImage() != null){
                         graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX(), DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY());
+                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
                         graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getReferenceImage(), null), 0, 0);
                     }
                 }
@@ -243,7 +243,7 @@ public class JavaFXRenderer implements IRenderer {
                     clearCanvas();
                     if(renderedTask != null && renderedTask.getPlottingImage() != null){
                         graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX(), DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY());
+                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
                         graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getPlottingImage(), null), 0, 0);
                     }
                 }
