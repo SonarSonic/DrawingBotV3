@@ -98,6 +98,7 @@ public class MasterRegistry {
 
     public static void init(){
 
+        PLUGINS.forEach(IPlugin::init);
         PLUGINS.forEach(IPlugin::registerPFMS);
         PLUGINS.forEach(IPlugin::registerPFMSettings);
         PLUGINS.forEach(IPlugin::registerDrawingTools);

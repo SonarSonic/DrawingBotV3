@@ -12,6 +12,8 @@ public interface IPlugin {
 
     default void preInit(){}
 
+    default void init(){}
+
     default void postInit(){}
 
     default void registerPFMS(){}

@@ -4,7 +4,7 @@
 - Added: Export / Import Preset Dialogs, the export dialog gives you the option of opening the folder you saved the preset too.
 - Changed: Versions will now be saved in project files.
 - Fixed: For now by default the OpenGLRenderer will be disabled on MacOS to prevent issues at startup, if you think your MAC is compatible you can change "enableOpenGLMacOS" to "true" in the config but this may cause DBV3 to not start properly.
-- Fixed: Voronoi Circles we now produce a useful output if it's stopped early.
+- Fixed: Voronoi Circles will now produce a useful output if it's stopped early.
 - Fixed: Half-pixel offset showing up on the following Display Modes: "Image", "Reference", "Lightened"
 
 ### [v1.3.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.2-stable-free)
