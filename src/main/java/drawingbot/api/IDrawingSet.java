@@ -11,7 +11,7 @@ public interface IDrawingSet<P extends IDrawingPen> {
      * @return the pens full name, unique to each pen
      */
     default String getCodeName(){
-        return getType() + " " + getName();
+        return getType() + ":" + getName();
     }
 
     /**

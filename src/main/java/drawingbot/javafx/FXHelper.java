@@ -106,7 +106,7 @@ public class FXHelper {
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
-            JsonLoaderManager.getManagerForType(presetType).tryApplyPreset(preset);
+            JsonLoaderManager.getJsonLoaderForPresetType(presetType).tryApplyPreset(preset);
         }
     }
 
@@ -183,6 +183,7 @@ public class FXHelper {
 
         MenuItem importPreset = new MenuItem("Import Preset");
         MenuItem exportPreset = new MenuItem("Export Preset");
+        MenuItem setDefault = new MenuItem("Set As Default");
 
         newPreset.setOnAction(e -> {
             GenericPreset<O> editingPreset = presetManager.createNewPreset();
@@ -207,9 +208,15 @@ public class FXHelper {
             if(current == null){
                 return;
             }
+            String originalName = current.presetName;
+            boolean isDefault = current == presetManager.getDefaultPreset();
             GenericPreset<O> preset = presetManager.tryUpdatePreset(current);
             if(preset != null){
                 setter.accept(preset);
+
+                if(isDefault && !originalName.equals(preset.presetName)){
+                    MasterRegistry.INSTANCE.setDefaultPreset(preset);
+                }
             }
         });
 
@@ -218,12 +225,19 @@ public class FXHelper {
             if(current == null || !current.userCreated){
                 return;
             }
+            String originalName = current.presetName;
+            boolean isDefault = current == presetManager.getDefaultPreset();
+
             DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current, editableCategory);
             DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Rename preset");
             Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
             if(result.isPresent()){
                 presetManager.tryEditPreset(current);
                 setter.accept(current);
+
+                if(isDefault && !originalName.equals(current.presetName)){
+                    MasterRegistry.INSTANCE.setDefaultPreset(current);
+                }
             }
         });
 
@@ -248,7 +262,14 @@ public class FXHelper {
             FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName);
         });
 
-        button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), importPreset, exportPreset);
+        setDefault.setOnAction(e -> {
+            GenericPreset<O> current = getter.get();
+            if(current != null){
+                MasterRegistry.INSTANCE.setDefaultPreset(current);
+            }
+        });
+
+        button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
     }
 
     public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, ObservableList<O> list, Consumer<O> duplicate){

@@ -7,13 +7,13 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.plugins.AbstractPenPlugin;
+import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.PresetType;
-import drawingbot.files.presets.types.PresetImageFilters;
+import drawingbot.files.presets.types.PresetDrawingSet;
 import drawingbot.files.presets.types.PresetPFMSettings;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
@@ -43,7 +43,6 @@ public class MasterRegistry {
     //// PATH FINDING MODULES \\\\
     public List<PFMFactory> pfmFactories = new ArrayList<>();
     public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
-    public HashMap<String, ObservableList<GenericPreset<PresetPFMSettings>>> pfmPresets = new LinkedHashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +50,6 @@ public class MasterRegistry {
     public Map<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> imgFilterFactories = FXCollections.observableMap(new LinkedHashMap<>());
     public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
     public HashMap<Class<? extends BufferedImageOp>, List<GenericSetting<?, ?>>> imgFilterSettings = new LinkedHashMap<>();
-    public ObservableList<GenericPreset<PresetImageFilters>> imgFilterPresets = FXCollections.observableArrayList();
 
     public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
 
@@ -115,23 +113,71 @@ public class MasterRegistry {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Nullable
+    public String getDefaultPresetName(PresetType presetType, String presetSubType){
+        return ConfigFileHandler.getApplicationSettings().defaultPresets.get(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
+    }
+
+    @Nullable
+    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String fallbackName){
+        return getDefaultPreset(jsonLoader, "", fallbackName, "", true);
+    }
+
+    @Nullable
+    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName){
+        return getDefaultPreset(jsonLoader, presetSubType, fallbackName, presetSubType, true);
+    }
+
+    @Nullable
+    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, boolean orFirst){
+        return getDefaultPreset(jsonLoader, presetSubType, fallbackName, presetSubType, orFirst);
+    }
+
+    @Nullable
+    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, String fallbackSubType, boolean orFirst){
+        Collection<GenericPreset<O>> presets = jsonLoader.type.defaultsPerSubType ? jsonLoader.getPresetsForSubType(presetSubType) : jsonLoader.getAllPresets();
+        String defaultName = getDefaultPresetName(jsonLoader.type, presetSubType);
+        if(defaultName != null){
+            GenericPreset<O> preset = presets.stream().filter(p -> p.presetName.equals(defaultName) && (presetSubType.isEmpty() || p.presetSubType.equals(presetSubType))).findFirst().orElse(null);
+            if(preset != null){
+                return preset;
+            }
+        }
+        if(fallbackName != null && !fallbackName.isEmpty()){
+            GenericPreset<O> preset = presets.stream().filter(p -> p.presetName.equals(fallbackName) && (fallbackSubType.isEmpty() || p.presetSubType.equals(fallbackSubType))).findFirst().orElse(null);
+            if(preset != null){
+                return preset;
+            }
+        }
+
+        if(orFirst){
+            return presets.stream().filter(p -> (presetSubType.isEmpty() || p.presetSubType.equals(presetSubType))).findFirst().orElse(null);
+        }
+
+        return null;
+    }
+
+    public void setDefaultPreset(GenericPreset<?> preset){
+        if(preset.presetType.defaultsPerSubType){
+            ConfigFileHandler.getApplicationSettings().defaultPresets.put(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
+            ConfigFileHandler.getApplicationSettings().markDirty();
+        }else{
+            ConfigFileHandler.getApplicationSettings().defaultPresets.put(preset.presetType.id, preset.presetName);
+            ConfigFileHandler.getApplicationSettings().markDirty();
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     //// PATH FINDING MODULES: DEFAULTS
 
     public PFMFactory<?> getDefaultPFM(){
         return pfmFactories.stream().filter(factory -> factory.getInstanceClass().equals(PFMSketchLines.class)).findFirst().orElse(null);
     }
 
-    public GenericPreset<PresetPFMSettings> getDefaultPFMPreset(){
-        return getDefaultPFMPreset(DrawingBotV3.INSTANCE.pfmFactory.get());
-    }
-
-    public GenericPreset<PresetPFMSettings> getDefaultPFMPreset(PFMFactory<?> factory){
-        return pfmPresets.get(factory.getName()).stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
-    }
-
     public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){
         ObservableList<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), FXCollections.observableArrayList());
-        GenericSetting.applySettings(getDefaultPFMPreset(factory).data.settingList, list);
+        GenericSetting.applySettings(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList, list);
         return list;
     }
 
@@ -145,14 +191,21 @@ public class MasterRegistry {
         return imgFilterFactories.get(type).stream().findFirst().orElse(null);
     }
 
-    public GenericPreset<PresetImageFilters> getDefaultImageFilterPreset(){
-        return imgFilterPresets.stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
-    }
-
     //// DRAWING PEN: DEFAULTS
 
-    public String getDefaultPenType(){
-        return "Copic Original";
+    public String getDefaultPenCode(){
+        return "Copic Original:100 Black";
+    }
+
+    public DrawingPen getDefaultDrawingPen(){
+        String defaultPen = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_PENS, "");
+        if(defaultPen != null){
+            DrawingPen pen = getDrawingPenFromRegistryName(defaultPen);
+            if(pen != null){
+                return pen;
+            }
+        }
+        return getDrawingPenFromRegistryName(getDefaultPenCode());
     }
 
     public DrawingPen getDefaultPen(String type){
@@ -162,8 +215,19 @@ public class MasterRegistry {
 
     //// DRAWING SET: DEFAULTS
 
-    public String getDefaultSetType(){
-        return "Copic";
+    public String getDefaultSetCode(){
+        return "Copic:Dark Greys";
+    }
+
+    public IDrawingSet<IDrawingPen> getDefaultDrawingSet(){
+        String defaultSet = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_SET, "");
+        if(defaultSet != null){
+            IDrawingSet<IDrawingPen> set = getDrawingSetFromRegistryName(defaultSet);
+            if(set != null){
+                return set;
+            }
+        }
+        return getDrawingSetFromRegistryName(getDefaultSetCode());
     }
 
     public IDrawingSet<IDrawingPen> getDefaultSet(String type){
@@ -180,7 +244,7 @@ public class MasterRegistry {
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
         pfmFactories.add(factory);
         if(registerDefaultPreset){
-            registerPFMPreset(Register.PRESET_LOADER_PFM.createNewPreset(name, "Default", false));
+            Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(name, "Default", false));
         }
         return factory;
     }
@@ -240,13 +304,6 @@ public class MasterRegistry {
         }
     }
 
-    public void registerPFMPreset(GenericPreset<PresetPFMSettings> preset){
-        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.presetName);
-        pfmPresets.putIfAbsent(preset.presetSubType, FXCollections.observableArrayList());
-        pfmPresets.get(preset.presetSubType).add(preset);
-    }
-
-
     //// IMAGE FILTERS: REGISTERING
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
@@ -270,11 +327,6 @@ public class MasterRegistry {
         DrawingBotV3.logger.finest("Registering Image Filter Dialog: " + filterClass);
         imgFilterSettings.putIfAbsent(filterClass, new ArrayList<>());
         imgFilterDialogs.put(filterClass, dialog);
-    }
-
-    public void registerImageFilterPreset(GenericPreset<PresetImageFilters> preset){
-        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.presetName);
-        imgFilterPresets.add(preset);
     }
 
 
@@ -326,7 +378,6 @@ public class MasterRegistry {
         }
     }
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PATH FINDING MODULES: GETTERS
@@ -354,7 +405,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(PFMFactory<?> loader){
-        return pfmPresets.get(loader.getName());
+        return Register.PRESET_LOADER_PFM.presetsByType.get(loader.getName());
     }
 
 
@@ -416,6 +467,9 @@ public class MasterRegistry {
 
     @Nullable
     public DrawingPen getDrawingPenFromRegistryName(String codeName){
+        if(!codeName.contains(":")){
+            return null;
+        }
         String[] split = codeName.split(":");
         ObservableList<DrawingPen> pens = registeredPens.get(split[0]);
         if(pens == null){
@@ -440,8 +494,15 @@ public class MasterRegistry {
     //// DRAWING SET: HELPERS
 
     public IDrawingSet<IDrawingPen> getDrawingSetFromRegistryName(String codeName){
+        if(!codeName.contains(":")){
+            return null;
+        }
         String[] split = codeName.split(":");
-        return registeredSets.get(split[0]).stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
+        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(split[0]);
+        if(sets == null){
+            return null;
+        }
+        return sets.stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
     }
 
 

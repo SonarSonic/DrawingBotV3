@@ -26,12 +26,14 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
 
     @Override
     public void registerPreset(GenericPreset<PresetDrawingPen> preset) {
+        super.registerPreset(preset);
         MasterRegistry.INSTANCE.registerDrawingPen(preset.data);
         preset.data.preset = preset; //set transient binding
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetDrawingPen> preset) {
+        super.unregisterPreset(preset);
         MasterRegistry.INSTANCE.unregisterDrawingPen(preset.data);
     }
 
@@ -62,7 +64,7 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
 
     @Override
     public GenericPreset<PresetDrawingPen> getDefaultPreset() {
-        return null;
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, "", "", "", true);
     }
 
     @Override
@@ -83,4 +85,6 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
         }
         return userCreated;
     }
+
+
 }

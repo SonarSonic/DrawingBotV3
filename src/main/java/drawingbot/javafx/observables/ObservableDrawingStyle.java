@@ -5,6 +5,7 @@ import drawingbot.api.IDrawingStyle;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -28,7 +29,7 @@ public class ObservableDrawingStyle implements IDrawingStyle {
 
     public ObservableDrawingStyle(PFMFactory<?> factory){
         init();
-        update(true, factory.getName(), factory, 100, null, MasterRegistry.INSTANCE.getDefaultPFMPreset(factory).data.settingList);
+        update(true, factory.getName(), factory, 100, null, Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList);
     }
 
     public ObservableDrawingStyle(IDrawingStyle style){

@@ -28,12 +28,14 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
 
     @Override
     public void registerPreset(GenericPreset<PresetDrawingSet> preset) {
+        super.registerPreset(preset);
         MasterRegistry.INSTANCE.registerDrawingSet(preset.data);
         preset.data.preset = preset; //set transient binding
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetDrawingSet> preset) {
+        super.unregisterPreset(preset);
         MasterRegistry.INSTANCE.unregisterDrawingSet(preset.data);
     }
 
@@ -58,7 +60,7 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
 
     @Override
     public GenericPreset<PresetDrawingSet> getDefaultPreset() {
-        return null;
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, "", "", "", true);
     }
 
     @Override
@@ -78,6 +80,11 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
             }
         }
         return userCreated;
+    }
+
+    @Override
+    public void loadDefaults() {
+        //don't load the default preset, only User Generated Drawing Sets are "presets"
     }
 
 }

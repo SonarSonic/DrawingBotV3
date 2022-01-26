@@ -6,6 +6,7 @@ import drawingbot.files.presets.AbstractSettingsLoader;
 import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.registry.MasterRegistry;
 
 public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCodeSettings> {
 
@@ -28,7 +29,7 @@ public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCod
 
     @Override
     public GenericPreset<PresetGCodeSettings> getDefaultPreset() {
-        return presets.stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, "Default");
     }
 
 

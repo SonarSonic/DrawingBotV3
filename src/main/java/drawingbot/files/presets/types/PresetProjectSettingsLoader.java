@@ -148,4 +148,9 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
          */
         return new ArrayList<>();
     }
+
+    @Override
+    public Collection<GenericPreset<PresetProjectSettings>> getAllPresets() {
+        return new ArrayList<>();
+    }
 }

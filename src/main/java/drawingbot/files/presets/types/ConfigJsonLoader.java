@@ -8,6 +8,7 @@ import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +70,11 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     @Override
     public List<GenericPreset<?>> getUserCreatedPresets() {
         return List.copyOf(configs.values());
+    }
+
+    @Override
+    public Collection<GenericPreset<IConfigData>> getAllPresets() {
+        return configs.values();
     }
 
     @Override

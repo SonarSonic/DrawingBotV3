@@ -5,6 +5,7 @@ import drawingbot.files.presets.AbstractSettingsLoader;
 import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 import java.util.List;
@@ -30,7 +31,7 @@ public class PresetDrawingAreaLoader extends AbstractSettingsLoader<PresetDrawin
 
     @Override
     public GenericPreset<PresetDrawingArea> getDefaultPreset() {
-        return presets.stream().filter(p -> p.presetName.equals("Original Sizing")).findFirst().orElse(null);
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, "Original Sizing");
     }
 
     @Override

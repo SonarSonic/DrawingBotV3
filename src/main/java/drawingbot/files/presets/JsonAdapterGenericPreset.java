@@ -33,7 +33,7 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
             preset.userCreated = jsonObject.get(USER_CREATED).getAsBoolean();
 
             Gson gson = JsonLoaderManager.createDefaultGson();
-            AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getManagerForType(preset.presetType);
+            AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(preset.presetType);
             if(manager != null){
                 preset.data = manager.fromJsonElement(gson, preset, jsonObject.get(JSON_DATA));
                 return preset;
@@ -52,7 +52,7 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
         jsonObject.addProperty(USER_CREATED, src.userCreated);
 
         Gson gson = JsonLoaderManager.createDefaultGson();
-        AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getManagerForType(src.presetType);
+        AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(src.presetType);
         if(manager != null){
             jsonObject.add(JSON_DATA, manager.toJsonElement(gson, src));
             return jsonObject;

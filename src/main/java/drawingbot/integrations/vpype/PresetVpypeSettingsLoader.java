@@ -6,6 +6,7 @@ import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 
 import java.util.Optional;
@@ -23,7 +24,7 @@ public class PresetVpypeSettingsLoader extends AbstractSettingsLoader<PresetVpyp
 
     @Override
     public GenericPreset<PresetVpypeSettings> getDefaultPreset() {
-        return presets.stream().filter(p -> p.presetName.equals("Default")).findFirst().orElse(null);
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, "Default");
     }
 
     @Override

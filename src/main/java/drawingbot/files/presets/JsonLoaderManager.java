@@ -6,7 +6,6 @@ import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColourSplitterHandler;
-import drawingbot.drawing.DrawingPen;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.javafx.GenericPreset;
@@ -45,7 +44,7 @@ public class JsonLoaderManager {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Nullable
-    public static AbstractJsonLoader<IJsonData> getManagerForType(PresetType type) {
+    public static AbstractJsonLoader<IJsonData> getJsonLoaderForPresetType(PresetType type) {
         for(AbstractJsonLoader<IJsonData> manager : MasterRegistry.INSTANCE.presetLoaders){
             if(manager.type == type){
                 return manager;
@@ -85,6 +84,13 @@ public class JsonLoaderManager {
         }
 
     }
+    public static void loadDefaults(){
+        for(AbstractJsonLoader<?> manager : MasterRegistry.INSTANCE.presetLoaders){
+            if(manager != Register.PRESET_LOADER_CONFIGS){
+                manager.loadDefaults();
+            }
+        }
+    }
 
     private static void loadDefaultPresetJSON(String json){
         InputStream stream = JsonLoaderManager.class.getResourceAsStream("/presets/" + json);
@@ -115,7 +121,7 @@ public class JsonLoaderManager {
     public static GenericPreset<IJsonData> importPresetFile(InputStream stream, PresetType targetType){
         GenericPreset<IJsonData> preset = importJsonFile(stream, GenericPreset.class);
         if(preset != null && (targetType == null || targetType == preset.presetType)){
-            AbstractJsonLoader<IJsonData> manager = getManagerForType(preset.presetType);
+            AbstractJsonLoader<IJsonData> manager = getJsonLoaderForPresetType(preset.presetType);
             if(manager != null){
                 manager.trySavePreset(preset);
             }
@@ -142,7 +148,7 @@ public class JsonLoaderManager {
         PresetContainerJsonFile<IJsonData> container = importJsonFile(stream, PresetContainerJsonFile.class);
         container.jsonMap.forEach(preset -> {
             if(preset != null){
-                AbstractJsonLoader<IJsonData> manager = getManagerForType(preset.presetType);
+                AbstractJsonLoader<IJsonData> manager = getJsonLoaderForPresetType(preset.presetType);
                 if(manager != null){
                     manager.registerPreset(preset);
                 }

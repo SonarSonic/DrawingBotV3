@@ -8,10 +8,7 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSettings> {
 
@@ -26,12 +23,14 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public void registerPreset(GenericPreset<PresetPFMSettings> preset) {
-        MasterRegistry.INSTANCE.registerPFMPreset(preset);
+        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.presetName);
+        super.registerPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetPFMSettings> preset) {
-        MasterRegistry.INSTANCE.pfmPresets.get(preset.presetSubType).remove(preset);
+        DrawingBotV3.logger.finest("Unregistering PFM Preset: " + preset.presetName);
+        super.unregisterPreset(preset);
     }
 
     @Override
@@ -49,13 +48,13 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public GenericPreset<PresetPFMSettings> getDefaultPreset() {
-        return MasterRegistry.INSTANCE.getDefaultPFMPreset();
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, DrawingBotV3.INSTANCE.pfmFactory.get().getName(), "Default");
     }
 
     @Override
     public List<GenericPreset<?>> getUserCreatedPresets() {
         List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (Map.Entry<String, ObservableList<GenericPreset<PresetPFMSettings>>> entry : MasterRegistry.INSTANCE.pfmPresets.entrySet()) {
+        for (Map.Entry<String, ObservableList<GenericPreset<PresetPFMSettings>>> entry : presetsByType.entrySet()) {
             for (GenericPreset<PresetPFMSettings> preset : entry.getValue()) {
                 if (preset.userCreated) {
                     userCreated.add(preset);
@@ -64,4 +63,6 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
         }
         return userCreated;
     }
+
+
 }

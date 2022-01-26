@@ -25,19 +25,15 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
     }
 
     @Override
-    public void onJSONLoaded() {
-        super.onJSONLoaded();
-        applyPreset(MasterRegistry.INSTANCE.getDefaultImageFilterPreset());
-    }
-
-    @Override
     public void registerPreset(GenericPreset<PresetImageFilters> preset) {
-        MasterRegistry.INSTANCE.registerImageFilterPreset(preset);
+        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.presetName);
+        super.registerPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetImageFilters> preset) {
-        MasterRegistry.INSTANCE.imgFilterPresets.remove(preset);
+        DrawingBotV3.logger.finest("Unregistering Image Filter Preset: " + preset.presetName);
+        super.unregisterPreset(preset);
     }
 
     @Override
@@ -61,17 +57,6 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
 
     @Override
     public GenericPreset<PresetImageFilters> getDefaultPreset() {
-        return MasterRegistry.INSTANCE.getDefaultImageFilterPreset();
-    }
-
-    @Override
-    public List<GenericPreset<?>> getUserCreatedPresets() {
-        List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (GenericPreset<PresetImageFilters> preset : MasterRegistry.INSTANCE.imgFilterPresets) {
-            if (preset.userCreated) {
-                userCreated.add(preset);
-            }
-        }
-        return userCreated;
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, "Default");
     }
 }

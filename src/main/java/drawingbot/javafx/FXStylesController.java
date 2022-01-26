@@ -204,7 +204,7 @@ public class FXStylesController {
         choiceBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
         choiceBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> {
             comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
-            comboBoxPFMPreset.setValue(MasterRegistry.INSTANCE.getDefaultPFMPreset(newValue));
+            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getName()));
             if(editingDrawingStyle.get() != null && editingDrawingStyle.get().pfmFactory.get() != newValue){
                 editingDrawingStyle.get().pfmFactory.set(newValue);
                 editingDrawingStyle.get().pfmSettings = MasterRegistry.INSTANCE.getNewObservableSettingsList(newValue);
@@ -213,16 +213,14 @@ public class FXStylesController {
             }
         });
 
-
         comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList());
-        comboBoxPFMPreset.setValue(MasterRegistry.INSTANCE.getDefaultPFMPreset());
+        comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
         comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null && !switchingStyle && editingDrawingStyle.get() != null){ //messy but needed to prevent it resetting the style's configuration
                //JsonLoaderManager.PFM.applyPreset(newValue);
                 GenericSetting.applySettings(newValue.data.settingList, editingDrawingStyle.get().pfmSettings);
             }
         });
-
 
 
         FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_PFM, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {

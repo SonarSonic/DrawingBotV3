@@ -23,8 +23,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 public class FXApplication extends Application {
@@ -71,7 +69,7 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
         DrawingBotV3.logger.info("Init Observable Drawing Set");
-        DrawingBotV3.INSTANCE.observableDrawingSet = new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultSet(MasterRegistry.INSTANCE.getDefaultSetType()));
+        DrawingBotV3.INSTANCE.observableDrawingSet = new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet());
 
         DrawingBotV3.logger.info("Loading Json Files");
         JsonLoaderManager.loadJSONFiles();
@@ -104,6 +102,9 @@ public class FXApplication extends Application {
 
         DrawingBotV3.logger.info("Plugins Post Init");
         MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
+
+        DrawingBotV3.logger.info("Load Default Presets");
+        JsonLoaderManager.loadDefaults();
 
         primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion);
         primaryStage.setResizable(true);

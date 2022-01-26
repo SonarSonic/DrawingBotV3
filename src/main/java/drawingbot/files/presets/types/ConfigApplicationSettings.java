@@ -7,6 +7,9 @@ import drawingbot.registry.Register;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.UnitsTime;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ConfigApplicationSettings implements IConfigData {
 
     public boolean isDeveloperMode;
@@ -46,6 +49,9 @@ public class ConfigApplicationSettings implements IConfigData {
     public int duration = 5;
     public UnitsTime durationUnits = UnitsTime.SECONDS;
 
+    ////preset settings
+    public Map<String, String> defaultPresets = new HashMap<>();
+
     public boolean disableOpenGLRenderer = false;
 
     public int getFrameCount(){
@@ -59,6 +65,7 @@ public class ConfigApplicationSettings implements IConfigData {
     public long getVerticesPerFrame(long count){
         return Math.max(1, count / getFrameCount());
     }
+
 
     @Override
     public PresetType getPresetType() {

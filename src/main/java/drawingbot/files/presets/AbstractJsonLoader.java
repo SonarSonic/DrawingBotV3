@@ -5,11 +5,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
+import drawingbot.files.presets.types.PresetDrawingArea;
 import drawingbot.javafx.GenericPreset;
 import javafx.application.Platform;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -61,6 +64,26 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
      * @return all the presets created by users that are currently registered, to be saved to the json
      */
     public abstract List<GenericPreset<?>> getUserCreatedPresets();
+
+
+    /**
+     * @return all registered presets
+     */
+    public Collection<GenericPreset<O>> getAllPresets(){
+        return new ArrayList<>();
+    }
+
+    public List<String> getPresetSubTypes(){
+        return new ArrayList<>();
+    }
+
+    public List<GenericPreset<O>> getPresetsForSubType(String subType){
+        return new ArrayList<>();
+    }
+
+    public GenericPreset<O> getDefaultPresetForSubType(String subType){
+        return null;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -146,5 +169,9 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
         }catch (Exception e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error updating preset json");
         }
+    }
+
+    public void loadDefaults(){
+
     }
 }

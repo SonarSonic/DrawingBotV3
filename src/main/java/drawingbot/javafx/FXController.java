@@ -602,8 +602,8 @@ public class FXController {
     public CheckBox checkBoxFlipY = null;
 
     public void initPreProcessingPane(){
-        comboBoxImageFilterPreset.setItems(MasterRegistry.INSTANCE.imgFilterPresets);
-        comboBoxImageFilterPreset.setValue(MasterRegistry.INSTANCE.getDefaultImageFilterPreset());
+        comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
+        comboBoxImageFilterPreset.setValue(Register.PRESET_LOADER_FILTERS.getDefaultPreset());
         comboBoxImageFilterPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Register.PRESET_LOADER_FILTERS.applyPreset(newValue);
@@ -614,7 +614,7 @@ public class FXController {
             comboBoxImageFilterPreset.setValue(preset);
 
             ///force update rendering
-            comboBoxImageFilterPreset.setItems(MasterRegistry.INSTANCE.imgFilterPresets);
+            comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
             comboBoxImageFilterPreset.setButtonCell(new ComboBoxListCell<>());
         });
 
@@ -706,7 +706,7 @@ public class FXController {
 
 
         comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList());
-        comboBoxPFMPreset.setValue(MasterRegistry.INSTANCE.getDefaultPFMPreset());
+        comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
         comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Register.PRESET_LOADER_PFM.applyPreset(newValue);
@@ -723,7 +723,7 @@ public class FXController {
 
         DrawingBotV3.INSTANCE.pfmFactory.addListener((observable, oldValue, newValue) -> {
             comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
-            comboBoxPFMPreset.setValue(MasterRegistry.INSTANCE.getDefaultPFMPreset(newValue));
+            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getName()));
         });
 
         tableViewAdvancedPFMSettings.setItems(MasterRegistry.INSTANCE.getObservablePFMSettingsList());
@@ -801,14 +801,14 @@ public class FXController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         comboBoxSetType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredSets.keySet()));
-        comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultSetType());
+        comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet().getType());
         comboBoxSetType.valueProperty().addListener((observable, oldValue, newValue) -> {
             comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(newValue));
             comboBoxDrawingSet.setValue(null);
         });
 
         comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
-        comboBoxDrawingSet.setValue(null);
+        comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet());
         comboBoxDrawingSet.valueProperty().addListener((observable, oldValue, newValue) -> changeDrawingSet(newValue));
         comboBoxDrawingSet.setCellFactory(param -> new ComboCellDrawingSet());
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet());
@@ -838,6 +838,14 @@ public class FXController {
             }
              */
         });
+
+        Optional<MenuItem> setAsDefaultSet = menuButtonDrawingSetPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
+        setAsDefaultSet.ifPresent(menuItem -> menuItem.setOnAction(e -> {
+            if (comboBoxDrawingSet.getValue() != null) {
+                ConfigFileHandler.getApplicationSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingSet.getValue().getCodeName());
+                ConfigFileHandler.getApplicationSettings().markDirty();
+            }
+        }));
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -887,7 +895,7 @@ public class FXController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         comboBoxPenType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredPens.keySet()));
-        comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultPenType());
+        comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());
 
         comboBoxPenType.valueProperty().addListener((observable, oldValue, newValue) -> {
             comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(newValue));
@@ -899,7 +907,7 @@ public class FXController {
         comboBoxDrawingPen.setSkin(comboBoxDrawingPenSkin);
 
         comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(comboBoxPenType.getValue()));
-        comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultPen(comboBoxPenType.getValue()));
+        comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(true));
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(false));
 
@@ -920,10 +928,18 @@ public class FXController {
                     comboBoxPenType.setValue(preset.presetSubType);
                     comboBoxDrawingPen.setValue(preset.data);
                 }else{
-                    comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultPenType());
-                    comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultPen(comboBoxPenType.getValue()));
+                    comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());
+                    comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
                 }
             });
+
+        Optional<MenuItem> setAsDefaultPen = menuButtonDrawingPenPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
+        setAsDefaultPen.ifPresent(menuItem -> menuItem.setOnAction(e -> {
+            if (comboBoxDrawingPen.getValue() != null) {
+                ConfigFileHandler.getApplicationSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
+                ConfigFileHandler.getApplicationSettings().markDirty();
+            }
+        }));
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
