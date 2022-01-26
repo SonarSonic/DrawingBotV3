@@ -118,7 +118,7 @@ public class FXHelper {
         return preset;
     }
 
-    public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName){
+    public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().addAll(preset.presetType.filters);
@@ -130,10 +130,12 @@ public class FXHelper {
                 JsonLoaderManager.exportPresetFile(file, preset);
                 FileUtils.updateExportDirectory(file.getParentFile());
 
-                DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
-                Optional<Boolean> openFolder = exportPreset.showAndWait();
-                if(openFolder.isPresent() && openFolder.get()){
-                    FXHelper.openFolder(file.getParentFile());
+                if(showDialog){
+                    DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
+                    Optional<Boolean> openFolder = exportPreset.showAndWait();
+                    if(openFolder.isPresent() && openFolder.get()){
+                        FXHelper.openFolder(file.getParentFile());
+                    }
                 }
             }
         });
@@ -273,7 +275,7 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName);
+            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
         });
 
         setDefault.setOnAction(e -> {

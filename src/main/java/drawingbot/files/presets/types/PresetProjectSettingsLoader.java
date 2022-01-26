@@ -4,12 +4,12 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
-import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.PresetType;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.registry.Register;
 import javafx.application.Platform;
 
@@ -90,6 +90,11 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         preset.data.yellowMultiplier = DrawingBotV3.INSTANCE.yellowMultiplier.get();
         preset.data.keyMultiplier = DrawingBotV3.INSTANCE.keyMultiplier.get();
 
+        preset.data.projectVersions = new ArrayList<>();
+        for(ObservableProjectSettings projectVersion : DrawingBotV3.INSTANCE.projectVersions){
+            preset.data.projectVersions.add(projectVersion.preset.get().data);
+        }
+
         return preset;
     }
 
@@ -121,6 +126,15 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.magentaMultiplier.set(preset.data.magentaMultiplier);
         DrawingBotV3.INSTANCE.yellowMultiplier.set(preset.data.yellowMultiplier);
         DrawingBotV3.INSTANCE.keyMultiplier.set(preset.data.keyMultiplier);
+
+        DrawingBotV3.INSTANCE.projectVersions.clear();
+        if(preset.data.projectVersions != null){
+            for(PresetProjectSettings projectVersion : preset.data.projectVersions){
+                GenericPreset<PresetProjectSettings> newPreset = createNewPreset();
+                newPreset.data = projectVersion;
+                DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(newPreset));
+            }
+        }
 
         if(!preset.data.imagePath.isEmpty()){
             Platform.runLater(() -> DrawingBotV3.INSTANCE.openFile(new File(preset.data.imagePath), false));

@@ -25,7 +25,7 @@ public class ContextMenuObservableProjectSettings extends ContextMenu {
         getItems().add(menuLoad);
 
         MenuItem menuSave = new MenuItem("Save as project");
-        menuSave.setOnAction(e -> FXHelper.exportPreset(row.getItem().preset.get(), new File(row.getItem().preset.get().data.imagePath).getParentFile(), row.getItem().userDefinedName.get()));
+        menuSave.setOnAction(e -> FXHelper.exportPreset(row.getItem().preset.get(), new File(row.getItem().preset.get().data.imagePath).getParentFile(), row.getItem().userDefinedName.get(), false));
         getItems().add(menuSave);
 
 

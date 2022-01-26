@@ -9,7 +9,9 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class PresetProjectSettings extends AbstractJsonData {
 
@@ -39,6 +41,8 @@ public class PresetProjectSettings extends AbstractJsonData {
     public float magentaMultiplier = 1F;
     public float yellowMultiplier = 1F;
     public float keyMultiplier = 0.75F;
+
+    public List<PresetProjectSettings> projectVersions;
 
     public PresetProjectSettings(){
         super();

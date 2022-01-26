@@ -103,12 +103,16 @@ public class FXController {
     public Stage taskMonitorStage;
     public FXTaskMonitorController taskMonitorController;
 
+    public Stage projectManagerStage;
+    public FXProjectManagerController projectManagerController;
+
     public void initSeparateStages() {
         FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
         FXHelper.initSeparateStage("/fxml/taskmonitor.fxml", taskMonitorStage = new Stage(), taskMonitorController = new FXTaskMonitorController(), "Task Monitor", Modality.NONE);
+        FXHelper.initSeparateStage("/fxml/projectmanager.fxml", projectManagerStage = new Stage(), projectManagerController = new FXProjectManagerController(), "Project Manager", Modality.NONE);
     }
 
 
@@ -141,6 +145,11 @@ public class FXController {
             FXHelper.exportPreset(preset, DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()));
         });
         menuFile.getItems().add(menuSave);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+        MenuItem projectManager = new MenuItem("Open Project Manager");
+        projectManager.setOnAction(e -> projectManagerStage.show());
+        menuFile.getItems().add(projectManager);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 

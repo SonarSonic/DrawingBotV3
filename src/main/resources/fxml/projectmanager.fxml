@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+    <AnchorPane>
+      <children>
+         <Pane>
+            <children>
+               <HBox>
+                  <children>
+                     <TableView fx:id="tableViewProjects" prefHeight="435.0" prefWidth="527.0" tableMenuButtonVisible="true">
+                       <columns>
+                         <TableColumn fx:id="projectThumbColumn" prefWidth="40.0" />
+                         <TableColumn fx:id="projectNameColumn" prefWidth="140.0" text="Name" />
+                           <TableColumn fx:id="projectDateColumn" prefWidth="140.0" text="Date" />
+                           <TableColumn fx:id="projectFileColumn" prefWidth="140.0" text="File" />
+                           <TableColumn fx:id="projectPFMColumn" prefWidth="140.0" text="PFM" />
+                       </columns>
+                     </TableView>
+                     <VBox>
+                        <children>
+                           <StackPane prefHeight="400.0" prefWidth="400.0">
+                              <children>
+                                 <ImageView fx:id="projectPreviewImageView" fitHeight="400.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+                              </children>
+                              <VBox.margin>
+                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                              </VBox.margin>
+                           </StackPane>
+                           <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                             <buttons>
+                                 <Button fx:id="removeProject" layoutX="72.0" layoutY="10.0" mnemonicParsing="false" text="Remove Project" />
+                                 <Button fx:id="importProject" mnemonicParsing="false" text="Import As Version" />
+                               <Button fx:id="openProject" defaultButton="true" mnemonicParsing="false" text="Open Project" />
+                             </buttons>
+                              <VBox.margin>
+                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                              </VBox.margin>
+                           </ButtonBar>
+                        </children>
+                     </VBox>
+                  </children>
+               </HBox>
+            </children>
+         </Pane>
+      </children></AnchorPane>
+
+</AnchorPane>
