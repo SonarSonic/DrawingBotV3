@@ -63,32 +63,8 @@ dependencies {
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFX_version, classifier: 'linux'
 
     //// JOGL
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}"
-
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-android-aarch64"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-android-armv6"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-linux-amd64"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-linux-armv6"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-linux-armv6hf"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-linux-i586"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-macosx-universal"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-solaris-amd64"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-solaris-i586"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-windows-amd64"
-    implementation "org.jogamp.gluegen:gluegen-rt:${jogl_version}:natives-windows-i586"
-
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-android-aarch64"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-android-armv6"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-linux-amd64"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-linux-armv6"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-linux-armv6hf"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-linux-i586"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-macosx-universal"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-solaris-amd64"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-solaris-i586"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-windows-amd64"
-    implementation "org.jogamp.jogl:jogl-all:${jogl_version}:natives-windows-i586"
+    implementation "org.jogamp.gluegen:gluegen-rt-main:${jogl_version}"
+    implementation "org.jogamp.jogl:jogl-all-main:${jogl_version}"
 }
 
 targetCompatibility = "11"

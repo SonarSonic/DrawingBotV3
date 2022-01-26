@@ -142,16 +142,20 @@ public class FXController {
         menuSave.setOnAction(e -> {
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
             Register.PRESET_LOADER_PROJECT.updatePreset(preset);
-            FXHelper.exportPreset(preset, DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()));
+            FXHelper.exportPreset(preset, DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()), false);
         });
         menuFile.getItems().add(menuSave);
 
         menuFile.getItems().add(new SeparatorMenuItem());
+        /*
         MenuItem projectManager = new MenuItem("Open Project Manager");
         projectManager.setOnAction(e -> projectManagerStage.show());
         menuFile.getItems().add(projectManager);
 
         menuFile.getItems().add(new SeparatorMenuItem());
+
+         */
+
 
         MenuItem menuImport = new MenuItem("Import Image");
         menuImport.setOnAction(e -> FXHelper.importImageFile());
