@@ -22,30 +22,31 @@ Both versions are available for Windows, Mac and Linux.
 Feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxrM9) to chat all things DrawingBotV3!
 
 ### Features - *Free Version*
--  **[3 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html):** *all highly configurable to create unique drawing styles*.
--  **Automatic Path Optimisation for Faster Plots:** *Line Simplifying, Merging, Filtering, Sorting*
--  **[Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html):** *configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots*.
--  **[60+ Image Filters](https://drawingbotv3.readthedocs.io/en/latest/preprocessing.html):** *for pre processing the imported image*
--  **[Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html):** *with live drawing preview* 
--  **User configurable Drawing Area**, *with Padding / Scaling Modes*
--  **Version Control:** *Save your favourite versions as you go and reload them.*
--  **Project Saving & Loading:** *save your work and continue where you left off!* 
--  **[Special pens](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html#special-drawing-pens):** *for Original Colour/Grayscale Sampling*
--  **[Presets](https://drawingbotv3.readthedocs.io/en/latest/presets.html):** *can be saved/imported/exported for sharing different styles with other users*
--  **Multiple Export Options** *can be exported per/pen or per/drawing in multiple file types*
--  **[GCode Export](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings):** *configurable Drawing Area, XYZ Offsets / Auto Homing.*
--  **[vpype](https://github.com/abey79/vpype) Integration:** *automatically send plots to vpype for further optimization and processing*
+
+-  [3 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html): *all highly configurable to create unique drawing styles.*
+-  Automatic Path Optimisation for Faster Plots: *Line Simplifying, Merging, Filtering, Sorting*   
+-  [Pen Settings](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html): *configurable colour / stroke width / distribution weight / blend modes - perfect for multi-layered plots.*
+-  [60+ Image Filters](https://drawingbotv3.readthedocs.io/en/latest/preprocessing.html): *for pre processing the imported image*
+-  [Advanced User Interface](https://drawingbotv3.readthedocs.io/en/latest/userinterface.html): *with live drawing preview* 
+-  User configurable Drawing Area, *with Padding / Scaling Modes*
+-  Version Control: *Save your favourite versions as you go and reload them.*
+-  Project Saving & Loading: *save your work and continue where you left off!* 
+-  [Special pens](https://drawingbotv3.readthedocs.io/en/latest/pensettings.html#special-drawing-pens): *for Original Colour/Grayscale Sampling*
+-  [Presets](https://drawingbotv3.readthedocs.io/en/latest/presets.html): *can be saved/imported/exported for sharing different styles with other users*
+-  Multiple Export Options: *can be exported per/pen or per/drawing in multiple file types*
+-  [GCode Export](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#gcode-settings): *configurable Drawing Area, XYZ Offsets / Auto Homing.*
+-  [vpype](https://github.com/abey79/vpype) Integration: *automatically send plots to vpype for further optimization and processing*
 
 ### Features - *Premium Version*
 -  **All the features included in the Free Version**
--  **[18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html):** *includes 15 more Path Finding Modules!*
--  **Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)**
--  **[Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html):** *Convert entire folders of images automatically.*
--  **[Export Animations](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings):** *You can export animations of your creations as Image Sequences or MP4/MOV files!*
--  **Plotter / Serial Port Connection:** *Connect to HPGL based plotters and control them over the serial port.*
--  **Video Processing:** *Convert every frame from imported video files automatically*
--  **HPGL Export:** *Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.*
--  **Hardware Accelerated Renderer:** Fast OpenGL Based Renderer to preview drawings in higher clarity and speed!
+-  [18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html): *includes 15 more Path Finding Modules!*
+-  Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)
+-  [Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html): *Convert entire folders of images automatically.*
+-  [Export Animations](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings):** *You can export animations of your creations as Image Sequences or MP4/MOV files!*
+-  Plotter / Serial Port Connection: *Connect to HPGL based plotters and control them over the serial port.*
+-  Video Processing: *Convert every frame from imported video files automatically*
+-  HPGL Export: *Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.*
+-  Hardware Accelerated Renderer: Fast OpenGL Based Renderer to preview drawings in higher clarity and speed!
 
 ### Path Finding Modules
 
@@ -100,17 +101,21 @@ You can choose from the following options.
 2) **Windows - Portable** _(.zip)_
    
    Includes all required libraries and Java Runtime. No further setup required.
+   
+3) **Mac - Installer** _(.pkg)_
 
-3) **Mac (x86)/Linux/Win - Executable** _(.jar)_ 
+   Includes all required libraries and Java Runtime. No further setup required.
+
+4) **Mac (x86)/Linux/Win - Executable** _(.jar)_ 
 
    Includes all required libraries but you must manually install [JAVA 11+](https://www.oracle.com/java/technologies/javase-downloads.html)
    
-4) **Mac M1 (arm64) - Executable** _(.jar)_ 
+5) **Mac M1 (arm64) - Executable** _(.jar)_ 
 
    The bundled OpenJFX does not work on arm64 processors and using a x86 java build (through Rosetta 2 emulation) has graphical glitches & reduced performance. 
    The best option is to install a JDK build with JFX built in, such as the one provided by [Bellsoft](https://github.com/bell-sw/homebrew-liberica) just make sure to install the full package or JFX won't be bundled.
 
-5) **Raspberry PI (ARM32) - Executable** _(.jar)_ 
+6) **Raspberry PI (ARM32) - Executable** _(.jar)_ 
 
    As JavaFX is no longer part of the JDK (since JAVA 11), running a JavaFX program on Raspberry Pi will not work.<br>
    BellSoft provides the [Liberica JDK](https://bell-sw.com/pages/downloads/#/java-11-lts). The version dedicated for the Raspberry Pi includes JavaFX. And setting the version by default using the update-alternatives command.<br>
@@ -123,15 +128,9 @@ You can choose from the following options.
     $ sudo update-alternatives --config java
 ```
 
-### Running the (.jar) on a MAC
+### Running the (.jar)
 
-Sometimes opening the .jar normally won't work on MAC, instead you should launch the jar from the terminal with the following command. Swapping in the correct file name
-```text
-    java -jar DrawingBotV3-X.X.X-XXXX-all.jar
-```
-### Running the (.jar) on a Raspberry PI
-
-Opening the .jar may open it as an archive file, instead you should launch the jar from the terminal with the following command. Swapping in the correct file name
+Opening the .jar may open it as an archive file, instead you should launch the jar from the terminal with the following command. Swapping in the correct file name.
 ```text
     java -jar DrawingBotV3-X.X.X-XXXX-all.jar
 ```
