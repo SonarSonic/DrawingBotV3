@@ -260,7 +260,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.COLOURS, GammaFilter.class, "Gamma", GammaFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(GammaFilter.class, "Gamma", 1F, 0, 3F, false, GammaFilter::setGamma));
 
-        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.COLOURS, GrayFilter.class, "Gray Out", GrayFilter::new, false);
+        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.COLOURS, GrayscaleFilter.class, "Grayscale", GrayscaleFilter::new, false);
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.COLOURS, InvertFilter.class, "Invert", InvertFilter::new, false);
 
