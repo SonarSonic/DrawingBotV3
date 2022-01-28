@@ -69,7 +69,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
                 return pen;
             }
         }
-        return null;
+        return DrawingBotV3.INSTANCE.invisibleDrawingPen;
     }
 
     public boolean containsPen(IDrawingPen pen){
