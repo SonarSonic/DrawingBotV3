@@ -15,6 +15,7 @@ import drawingbot.api.Hooks;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColourSplitterHandler;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
@@ -123,6 +124,7 @@ public class DrawingBotV3 {
 
     // PEN SETS \\
     public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
+    public ObservableDrawingPen invisibleDrawingPen = null;
     public ObservableDrawingSet observableDrawingSet = null;
 
     // VERSION CONTROL \\
