@@ -1,3 +1,6 @@
+### [v1.3.4-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.4-stable-free)
+- Fixed: Windows .zip and .exe Installers not running for some configurations.
+
 ### [v1.3.3-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.3-stable-free)
 - Added: New Installer Type: .pkg for MacOS Users, this is considered Beta!
 - Added: "Set As Default" option to all preset menus, the selected default preset will load when DBV3 is started.
