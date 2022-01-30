@@ -241,7 +241,7 @@ public class MasterRegistry {
     //// PATH FINDING MODULES: REGISTERING
 
     public <C extends IPathFindingModule> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
-        DrawingBotV3.logger.finest("Registering PFM: " + name);
+        DrawingBotV3.logger.fine("Registering PFM: " + name);
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
         pfmFactories.add(factory);
         if(registerDefaultPreset){
@@ -251,7 +251,7 @@ public class MasterRegistry {
     }
 
     public <C, V> void registerPFMSetting(GenericSetting<C, V> setting){
-        DrawingBotV3.logger.finest("Registering PFM Setting: " + setting.settingName.getValue());
+        DrawingBotV3.logger.fine("Registering PFM Setting: " + setting.settingName.getValue());
         for(PFMFactory<?> factory : pfmFactories){
             if(setting.isAssignableFrom(factory.getInstanceClass())){
                 GenericSetting<C,V> copy = setting.copy();
@@ -308,7 +308,7 @@ public class MasterRegistry {
     //// IMAGE FILTERS: REGISTERING
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
-        DrawingBotV3.logger.finest("Registering Image Filter: " + name);
+        DrawingBotV3.logger.fine("Registering Image Filter: " + name);
         imgFilterFactories.putIfAbsent(filterType, FXCollections.observableArrayList());
         imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
     }
@@ -512,7 +512,7 @@ public class MasterRegistry {
     //// EXPORTERS \\\\
 
     public DrawingExportHandler registerDrawingExportHandler(DrawingExportHandler exportHandler){
-        DrawingBotV3.logger.finest("Registering Export Handler: " + exportHandler.displayName);
+        DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.displayName);
         this.drawingExportHandlers.add(exportHandler);
         return exportHandler;
     }
@@ -523,7 +523,7 @@ public class MasterRegistry {
     //// COLOUR SPLITTERS \\\\
 
     public ColourSplitterHandler registerColourSplitter(ColourSplitterHandler colourSplitter){
-        DrawingBotV3.logger.finest("Registering Colour Splitter: " + colourSplitter.name);
+        DrawingBotV3.logger.fine("Registering Colour Splitter: " + colourSplitter.name);
         this.colourSplitterHandlers.add(colourSplitter);
         return colourSplitter;
     }
@@ -543,13 +543,13 @@ public class MasterRegistry {
     //// PRESET LOADERS \\\\
 
     public AbstractJsonLoader<IJsonData> registerPresetLoaders(AbstractJsonLoader presetLoader){
-        DrawingBotV3.logger.finest("Registering Preset Loader: " + presetLoader.type.id);
+        DrawingBotV3.logger.fine("Registering Preset Loader: " + presetLoader.type.id);
         this.presetLoaders.add(presetLoader);
         return presetLoader;
     }
 
     public PresetType registerPresetType(PresetType presetType){
-        DrawingBotV3.logger.finest("Registering Json Type: " + presetType.id);
+        DrawingBotV3.logger.fine("Registering Json Type: " + presetType.id);
         this.presetTypes.add(presetType);
         return presetType;
     }

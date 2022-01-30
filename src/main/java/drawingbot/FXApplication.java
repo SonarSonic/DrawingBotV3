@@ -40,7 +40,10 @@ public class FXApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        DrawingBotV3.logger.setLevel(Level.ALL);
+        DrawingBotV3.logger.setLevel(Level.FINE);
+        ConfigFileHandler.setupConsoleOutputFile();
+        ConfigFileHandler.logApplicationStatus();
+
         DrawingBotV3.logger.entering("FXApplication", "start");
         FXApplication.primaryStage = primaryStage;
 

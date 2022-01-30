@@ -28,9 +28,6 @@ public class ConfigFileHandler {
 
         //load any config objects for use during the loading phases
         applicationSettings = Register.PRESET_LOADER_CONFIGS.getConfigData(ConfigApplicationSettings.class);
-
-        //setup any console output files, now that we know what settings they require
-        ConfigFileHandler.setupConsoleOutputFile();
     }
 
     public static ConfigApplicationSettings getApplicationSettings(){
@@ -39,9 +36,10 @@ public class ConfigFileHandler {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void setupConsoleOutputFile(){
+    public static void setupConsoleOutputFile(){
         try {
-            if(!applicationSettings.isDeveloperMode){
+            String developerLogging = System.getProperty("drawingbot.DrawingBotV3.dLogging");
+            if(developerLogging == null || !developerLogging.equals("true")){
                 File outputFile = new File(FileUtils.getUserDataDirectory(), "latest_output.txt");
                 File logFile = new File(FileUtils.getUserDataDirectory(), "latest_log.txt");
 
@@ -57,8 +55,11 @@ public class ConfigFileHandler {
                     }
                 }
 
-                System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(outputFile)), true));
-                System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true));
+                PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(outputFile)), false);
+                PrintStream err = new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), false);
+
+                System.setOut(out);
+                System.setErr(err);
             }
             //send the logger to the System.err print stream
             ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -68,6 +69,12 @@ public class ConfigFileHandler {
         } catch (Exception e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error setting up console output");
         }
+    }
+
+    public static void logApplicationStatus(){
+        DrawingBotV3.logger.info("Java Home: " + System.getProperty("java.home"));
+        DrawingBotV3.logger.info("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
+        DrawingBotV3.logger.info("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
     }
 
 
