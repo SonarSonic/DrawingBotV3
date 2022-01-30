@@ -13,6 +13,7 @@ import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -26,9 +27,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
+import java.awt.Desktop;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
@@ -145,6 +144,8 @@ public class FXHelper {
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(URI.create(url));
+            }else if(Utils.getOS().isMac()){
+                Runtime.getRuntime().exec("open " + url);
             }
         } catch (IOException e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening webpage: " + url);
@@ -155,22 +156,12 @@ public class FXHelper {
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
                 Desktop.getDesktop().open(directory);
+            }else if(Utils.getOS().isMac()){
+                Runtime.getRuntime().exec("open " + directory.getPath());
             }
         } catch (IOException e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening directory: " + directory);
         }
-    }
-
-    public String getClipboardString(){
-        try {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            if(clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)){
-                return (String) clipboard.getData(DataFlavor.stringFlavor);
-            }
-        } catch (Exception e) {
-            //
-        }
-        return null;
     }
 
     public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){

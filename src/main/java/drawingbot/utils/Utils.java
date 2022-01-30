@@ -163,4 +163,42 @@ public class Utils {
     public static double distance(int x1, int y1, int x2, int y2){
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
+
+    public enum OS {
+        WINDOWS, LINUX, MAC, SOLARIS;
+
+        public boolean isMac(){
+            return this == MAC;
+        }
+
+        public boolean isWindows(){
+            return this == WINDOWS;
+        }
+
+        public boolean isLinux(){
+            return this == LINUX;
+        }
+
+        public boolean isSolaris(){
+            return this == SOLARIS;
+        }
+    };
+
+    private static OS os = null;
+
+    public static OS getOS() {
+        if (os == null) {
+            String osName = System.getProperty("os.name").toLowerCase();
+            if (osName.contains("win")) {
+                os = OS.WINDOWS;
+            } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+                os = OS.LINUX;
+            } else if (osName.contains("mac")) {
+                os = OS.MAC;
+            } else if (osName.contains("sunos")) {
+                os = OS.SOLARIS;
+            }
+        }
+        return os;
+    }
 }

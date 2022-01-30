@@ -85,6 +85,14 @@ public class TaskMonitor {
         });
     }
 
+    public void queueExternalTask(Task<?> task){
+        task.stateProperty().addListener((observable, oldValue, newValue) -> {
+            if(currentTask == null && newValue == Worker.State.RUNNING){
+                onTaskStateChanged(task, observable, oldValue, newValue);
+            }
+        });
+    }
+
     public void logTask(Task<?> task){
         Platform.runLater(() -> {
             DrawingBotV3.INSTANCE.controller.taskMonitorController.taskProgressView.getTasks().add(task);
