@@ -289,7 +289,7 @@ public class ImageTools {
     }
 
     public static float[] getARGBFloatFromARGB(int argb, float[] array){
-        array[0] = (argb>>24)&0xff; //alpha
+        array[0] = ((argb>>24)&0xff) / 255F; //alpha
         array[1] = ((argb>>16)&0xff) / 255F; //red
         array[2] = ((argb>>8)&0xff) / 255F; //green
         array[3] = (argb&0xff) / 255F; //blue

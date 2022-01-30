@@ -158,7 +158,6 @@ public class DrawingBotV3 {
 
     public PlottingTask renderedTask = null; //for tasks which generate sub tasks e.g. colour splitter, batch processing
 
-    public BufferedImageLoader.Filtered loadingImage = null;
     public File openFile = null;
 
     // GUI \\
@@ -239,8 +238,6 @@ public class DrawingBotV3 {
             controller.labelImageResolution.setText("0 x 0");
             controller.labelPlottingResolution.setText("0 x 0");
         }
-
-        tryLoadImage();
 
         //tick all plugins
         MasterRegistry.PLUGINS.forEach(IPlugin::tick);
@@ -370,27 +367,22 @@ public class DrawingBotV3 {
             activeTask.get().cancel();
             setActivePlottingTask(null);
             openImage.set(null);
-            loadingImage = null;
         }
         openFile = file;
-        loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
-        taskMonitor.queueTask(loadingImage);
-
-        FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
-    }
-
-    public void tryLoadImage(){
-        ///we load the image, resize the canvas and redraw
-        if(DrawingBotV3.INSTANCE.loadingImage != null && DrawingBotV3.INSTANCE.loadingImage.isDone()){
-            DrawingBotV3.INSTANCE.openImage.set(DrawingBotV3.INSTANCE.loadingImage.getValue());
+        BufferedImageLoader.Filtered loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
+        loadingImage.setOnSucceeded(e -> {
+            DrawingBotV3.INSTANCE.openImage.set((FilteredBufferedImage) e.getSource().getValue());
             DrawingBotV3.INSTANCE.display_mode.set(EnumDisplayMode.IMAGE);
 
             DrawingBotV3.RENDERER.shouldRedraw = true;
             DrawingBotV3.RENDERER.canvasNeedsUpdate = true;
-            DrawingBotV3.INSTANCE.loadingImage = null;
-        }
-    }
 
+        });
+        taskMonitor.queueTask(loadingImage);
+
+
+        FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
+    }
 
     public void setActivePlottingTask(PlottingTask task){
         if(activeTask.get() != null){
