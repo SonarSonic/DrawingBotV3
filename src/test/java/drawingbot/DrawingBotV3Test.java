@@ -28,11 +28,7 @@ public class DrawingBotV3Test {
 
         Platform.runLater(() -> {
             DrawingBotV3.INSTANCE.openFile(new File("images/testimage.jpg"), true);
-
-            DrawingBotV3.INSTANCE.loadingImage.setOnSucceeded(e -> {
-                DrawingBotV3.INSTANCE.tryLoadImage();
-                latch.countDown();
-            });
+            DrawingBotV3.INSTANCE.openImage.addListener((observable, oldValue, newValue) -> latch.countDown());
         });
         latch.await();
     }
@@ -51,7 +47,7 @@ public class DrawingBotV3Test {
     }
 
     @Test
-    public void testPathFindingModules() throws InterruptedException, IOException {
+    public void testPathFindingModules() throws InterruptedException {
 
         loadTestImage();
         for(final PFMFactory factory : MasterRegistry.INSTANCE.pfmFactories){

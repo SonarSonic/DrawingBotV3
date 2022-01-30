@@ -21,7 +21,7 @@ public class ZoomableScrollPane extends ScrollPane {
     public Node target;
     public Node zoomNode;
 
-    public ZoomableScrollPane() {
+    public ZoomableScrollPane(){
         super();
         //setPannable(true);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -39,16 +39,16 @@ public class ZoomableScrollPane extends ScrollPane {
         updateScale();
     }
 
-    private Node outerNode(Node node) {
+    private Node outerNode(Node node){
         Node outerNode = centeredNode(node);
         outerNode.setOnScroll(e -> {
             e.consume();
-            onScroll(e.getTextDeltaY(), DrawingBotV3.INSTANCE.display_mode.get().isOpenGL() ? new Point2D(e.getSceneX(), e.getSceneY()) :new Point2D(e.getX(), e.getY()));
+            onScroll(e.getDeltaY()/10, DrawingBotV3.INSTANCE.display_mode.get().isOpenGL() ? new Point2D(e.getSceneX(), e.getSceneY()) :new Point2D(e.getX(), e.getY()));
         });
         return outerNode;
     }
 
-    private Node centeredNode(Node node) {
+    private Node centeredNode(Node node){
         VBox vBox = new VBox(node);
         vBox.setAlignment(Pos.CENTER);
         return vBox;
@@ -86,7 +86,7 @@ public class ZoomableScrollPane extends ScrollPane {
         // convert target coordinates to zoomTarget coordinates
         Point2D posInZoomTarget;
 
-        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()) {
+        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
             posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
         }else{
             posInZoomTarget = DrawingBotV3.OPENGL_RENDERER.getPane().sceneToLocal(mousePoint);
