@@ -1,5 +1,7 @@
 package drawingbot.image;
 
+import drawingbot.DrawingBotV3;
+
 import java.awt.image.BufferedImage;
 
 public class FilteredBufferedImage {
@@ -15,7 +17,7 @@ public class FilteredBufferedImage {
 
     public FilteredBufferedImage(BufferedImage source){
         this.source = source;
-        this.resolution = new PrintResolution(source);
+        this.resolution = new PrintResolution(DrawingBotV3.INSTANCE.drawingArea, source);
         this.resolution.updateAll();
     }
 
@@ -29,7 +31,7 @@ public class FilteredBufferedImage {
 
     public void updateAll(){
         if(cropped == null || updateCropping){
-            resolution = new PrintResolution(source);
+            resolution = new PrintResolution(DrawingBotV3.INSTANCE.drawingArea, source);
             resolution.updateAll();
             cropped = ImageTools.cropToPrintResolution(source, resolution);
         }

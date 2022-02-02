@@ -16,13 +16,13 @@ import java.util.function.BiConsumer;
 
 public class PlottedDrawing {
 
-    public final List<IGeometry> geometries;
+    public List<IGeometry> geometries;
     public long vertexCount;
 
-    public ObservableDrawingSet drawingPenSet;
-    public SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);
-    public SimpleIntegerProperty displayedShapeMax = new SimpleIntegerProperty(-1);
-    public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
+    public transient ObservableDrawingSet drawingPenSet;
+    public transient SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);
+    public transient SimpleIntegerProperty displayedShapeMax = new SimpleIntegerProperty(-1);
+    public transient boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
     public PlottedDrawing(ObservableDrawingSet penSet){
         this.geometries = Collections.synchronizedList(new ArrayList<>());
@@ -81,8 +81,8 @@ public class PlottedDrawing {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public final Map<Integer, List<IGeometry>> groups;
-    public final Map<Integer, PFMFactory<?>> groupPFMType;
+    public transient final Map<Integer, List<IGeometry>> groups;
+    public transient final Map<Integer, PFMFactory<?>> groupPFMType;
 
     public void addGeometryToGroups(IGeometry geometry){
         groups.putIfAbsent(geometry.getGroupID(), new ArrayList<>());

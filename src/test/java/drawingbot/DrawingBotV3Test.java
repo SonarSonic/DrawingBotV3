@@ -4,7 +4,6 @@ import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.image.FilteredBufferedImage;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericFactory;

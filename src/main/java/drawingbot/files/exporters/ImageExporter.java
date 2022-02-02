@@ -67,7 +67,7 @@ public class ImageExporter {
     }
 
     public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
-        if (!exportTask.exportResolution.useOriginalSizing() && exportTask.exportResolution.finalPrintScaleX == 1 && DrawingBotV3.INSTANCE.optimiseForPrint.get() && DrawingBotV3.INSTANCE.targetPenWidth.get() > 0 ){
+        if (!exportTask.exportResolution.useOriginalSizing() && exportTask.exportResolution.finalPrintScaleX == 1 && exportTask.exportResolution.drawingArea.optimiseForPrint.get() && exportTask.exportResolution.drawingArea.targetPenWidth.get() > 0 ){
             int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
             int exportWidth = (int)Math.ceil((exportTask.exportResolution.printPageWidth/ UnitsLength.INCHES.convertToMM) * DPI);
             int exportHeight = (int)Math.ceil((exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DPI);

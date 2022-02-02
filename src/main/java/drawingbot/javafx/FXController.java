@@ -43,6 +43,7 @@ import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.NumberStringConverter;
 import org.controlsfx.control.RangeSlider;
 
 import java.awt.image.BufferedImageOp;
@@ -140,9 +141,7 @@ public class FXController {
         MenuItem menuSave = new MenuItem("Save Project");
         menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuSave.setOnAction(e -> {
-            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.updatePreset(preset);
-            FXHelper.exportPreset(preset, DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()), false);
+            FXHelper.exportProject(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()));
         });
         menuFile.getItems().add(menuSave);
 
@@ -417,15 +416,10 @@ public class FXController {
         buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting.not());
         buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
 
-        buttonSaveVersion.setOnAction(param -> saveVersion());
+        buttonSaveVersion.setOnAction(param -> DrawingBotV3.INSTANCE.saveVersion());
         buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.activeTask.get() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.activeTask));
     }
 
-    public void saveVersion(){
-        GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-        Register.PRESET_LOADER_PROJECT.updatePreset(preset);
-        DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(preset));
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -513,20 +507,20 @@ public class FXController {
 
 
         /////SIZING OPTIONS
-        DrawingBotV3.INSTANCE.useOriginalSizing.bindBidirectional(checkBoxOriginalSizing.selectedProperty());
+        DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.bindBidirectional(checkBoxOriginalSizing.selectedProperty());
 
         paneDrawingAreaCustom.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
 
         choiceBoxDrawingUnits.getItems().addAll(UnitsLength.values());
         choiceBoxDrawingUnits.setValue(UnitsLength.MILLIMETRES);
-        DrawingBotV3.INSTANCE.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
+        DrawingBotV3.INSTANCE.drawingArea.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
 
-        DrawingBotV3.INSTANCE.drawingAreaWidth.bind(Bindings.createFloatBinding(() -> textFieldDrawingWidth.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingWidth.textProperty().get()), textFieldDrawingWidth.textProperty()));
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter());
 
-        DrawingBotV3.INSTANCE.drawingAreaHeight.bind(Bindings.createFloatBinding(() -> textFieldDrawingHeight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldDrawingHeight.textProperty().get()), textFieldDrawingHeight.textProperty()));
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight, new NumberStringConverter());
 
         buttonRotate.setOnAction(e -> {
             String width = textFieldDrawingWidth.getText();
@@ -535,17 +529,17 @@ public class FXController {
             textFieldDrawingHeight.setText(width);
         });
 
-        DrawingBotV3.INSTANCE.drawingAreaPaddingLeft.bind(Bindings.createFloatBinding(() -> textFieldPaddingLeft.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingLeft.textProperty().get()), textFieldPaddingLeft.textProperty()));
         textFieldPaddingLeft.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldPaddingLeft.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingLeft, new NumberStringConverter());
 
-        DrawingBotV3.INSTANCE.drawingAreaPaddingRight.bind(Bindings.createFloatBinding(() -> textFieldPaddingRight.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingRight.textProperty().get()), textFieldPaddingRight.textProperty()));
         textFieldPaddingRight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldPaddingRight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingRight, new NumberStringConverter());
 
-        DrawingBotV3.INSTANCE.drawingAreaPaddingTop.bind(Bindings.createFloatBinding(() -> textFieldPaddingTop.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingTop.textProperty().get()), textFieldPaddingTop.textProperty()));
         textFieldPaddingTop.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldPaddingTop.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingTop, new NumberStringConverter());
 
-        DrawingBotV3.INSTANCE.drawingAreaPaddingBottom.bind(Bindings.createFloatBinding(() -> textFieldPaddingBottom.textProperty().get().isEmpty() ? 0F : Float.parseFloat(textFieldPaddingBottom.textProperty().get()), textFieldPaddingBottom.textProperty()));
         textFieldPaddingBottom.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldPaddingBottom.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingBottom, new NumberStringConverter());
 
         checkBoxGangPadding.setSelected(true);
         checkBoxGangPadding.selectedProperty().addListener((observable, oldValue, newValue) -> updatePaddingBindings(newValue));
@@ -553,43 +547,44 @@ public class FXController {
 
         choiceBoxScalingMode.getItems().addAll(EnumScalingMode.values());
         choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
-        DrawingBotV3.INSTANCE.scalingMode.bindBidirectional(choiceBoxScalingMode.valueProperty());
+        DrawingBotV3.INSTANCE.drawingArea.scalingMode.bindBidirectional(choiceBoxScalingMode.valueProperty());
 
-        DrawingBotV3.INSTANCE.optimiseForPrint.bindBidirectional(checkBoxOptimiseForPrint.selectedProperty());
+        DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.bindBidirectional(checkBoxOptimiseForPrint.selectedProperty());
 
-        DrawingBotV3.INSTANCE.targetPenWidth.bind(Bindings.createFloatBinding(() -> textFieldPenWidth.textProperty().get().isEmpty() ? 0.3F : Float.parseFloat(textFieldPenWidth.textProperty().get()), textFieldPenWidth.textProperty()));
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
+        textFieldPenWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.targetPenWidth, new NumberStringConverter());
         textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
 
 
         ///generic listeners
-        DrawingBotV3.INSTANCE.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.scalingMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingAreaWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.scalingMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+
         DrawingBotV3.INSTANCE.canvasColor.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
     }
 
     public void updatePaddingBindings(boolean ganged){
         if(ganged){
-            DrawingBotV3.INSTANCE.drawingAreaPaddingGang.set("0");
-            textFieldPaddingLeft.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
-            textFieldPaddingRight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
-            textFieldPaddingTop.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
-            textFieldPaddingBottom.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang.set("0");
+            textFieldPaddingLeft.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
+            textFieldPaddingRight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
+            textFieldPaddingTop.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
+            textFieldPaddingBottom.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
         }else{
-            textFieldPaddingLeft.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
-            textFieldPaddingRight.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
-            textFieldPaddingTop.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
-            textFieldPaddingBottom.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingAreaPaddingGang);
+            textFieldPaddingLeft.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
+            textFieldPaddingRight.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
+            textFieldPaddingTop.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
+            textFieldPaddingBottom.textProperty().unbindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingGang);
         }
     }
 
@@ -1029,7 +1024,7 @@ public class FXController {
         versionPFMColumn.setCellValueFactory(param -> param.getValue().pfm);
         versionPFMColumn.setEditable(false);
 
-        buttonAddVersion.setOnAction(e -> saveVersion());
+        buttonAddVersion.setOnAction(e -> DrawingBotV3.INSTANCE.saveVersion());
         buttonDeleteVersion.setOnAction(e -> FXHelper.deleteItem(tableViewVersions.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.projectVersions));
         buttonMoveUpVersion.setOnAction(e -> FXHelper.moveItemUp(tableViewVersions.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.projectVersions));
         buttonMoveDownVersion.setOnAction(e -> FXHelper.moveItemDown(tableViewVersions.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.projectVersions));

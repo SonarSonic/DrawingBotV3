@@ -1,7 +1,5 @@
 package drawingbot.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 public class ProgressCallback {
@@ -16,6 +14,13 @@ public class ProgressCallback {
 
     public Consumer<String> messageCallback;
     public Consumer<Float> progressCallback;
+
+    public ProgressCallback(){}
+
+    public ProgressCallback(DBTask<?> task){
+        this.messageCallback = task::updateMessage;
+        this.progressCallback = f -> task.updateProgress(f, 1F);
+    }
 
     public void reset(){
         storedProgress = 0F;

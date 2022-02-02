@@ -295,7 +295,7 @@ public class FXExportController {
         }
         
         if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            if (!DrawingBotV3.INSTANCE.useOriginalSizing.get() && DrawingBotV3.INSTANCE.optimiseForPrint.get() && DrawingBotV3.INSTANCE.targetPenWidth.get() > 0){
+            if (!DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.get() && DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get() && DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get() > 0){
                 int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
                 int exportWidth = (int)Math.ceil((DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintPageWidth() / UnitsLength.INCHES.convertToMM) * DPI);
                 int exportHeight = (int)Math.ceil((DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintPageHeight() / UnitsLength.INCHES.convertToMM) * DPI);            

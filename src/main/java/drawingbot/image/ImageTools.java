@@ -151,7 +151,7 @@ public class ImageTools {
 
         //crop the image in it's original resolution
         if(resolution.imageCropX != 0 || resolution.imageCropY != 0 || resolution.imageCropWidth != resolution.sourceWidth || resolution.imageCropHeight != resolution.sourceHeight){
-            switch (DrawingBotV3.INSTANCE.scalingMode.get()){
+            switch (DrawingBotV3.INSTANCE.drawingArea.scalingMode.get()){
                 case CROP_TO_FIT:
                     image = Scalr.crop(image, resolution.imageCropX, resolution.imageCropY, resolution.imageCropWidth, resolution.imageCropHeight);
                     break;

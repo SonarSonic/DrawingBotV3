@@ -73,7 +73,7 @@ public class PFMLayers extends AbstractPFM{
 
             nextDrawingStyle();
 
-            currentTask = new PlottingTask(currentDrawingStyle.getFactory(), currentStyleSettings, evenlyDistributedDrawingSet, plotImage, task.originalFile);
+            currentTask = new PlottingTask(task.drawingArea, currentDrawingStyle.getFactory(), currentStyleSettings, evenlyDistributedDrawingSet, plotImage, task.originalFile);
             currentTask.progressProperty().addListener((observable, oldValue, newValue) -> updateSubTaskProgress(taskIndex, newValue.doubleValue(), 1D));
             currentTask.plottedDrawing = task.plottedDrawing;
             currentTask.isSubTask = true;

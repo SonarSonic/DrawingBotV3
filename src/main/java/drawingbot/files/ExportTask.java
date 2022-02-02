@@ -51,12 +51,6 @@ public class ExportTask extends DBTask<Boolean> {
     }
 
     @Override
-    protected void setException(Throwable t) {
-        super.setException(t);
-        DrawingBotV3.logger.log(Level.SEVERE, "Export Task Failed", t);
-    }
-
-    @Override
     protected Boolean call() throws InterruptedException {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
 

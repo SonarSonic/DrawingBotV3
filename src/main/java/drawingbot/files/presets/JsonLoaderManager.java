@@ -18,7 +18,7 @@ import java.util.logging.Level;
 
 public class JsonLoaderManager {
 
-    /** used to prevent certain values from being serialized, transient achives the same thing*/
+    /** used to prevent certain values from being serialized, transient achieves the same thing*/
     public static final ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
         @Override
         public boolean shouldSkipField(FieldAttributes f) {

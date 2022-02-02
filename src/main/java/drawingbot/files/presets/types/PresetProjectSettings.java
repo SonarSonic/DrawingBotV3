@@ -1,6 +1,7 @@
 package drawingbot.files.presets.types;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.files.presets.AbstractJsonData;
 import drawingbot.files.presets.PresetType;
@@ -42,7 +43,11 @@ public class PresetProjectSettings extends AbstractJsonData {
     public float yellowMultiplier = 1F;
     public float keyMultiplier = 0.75F;
 
+    public JsonObject drawingState;
+
     public List<PresetProjectSettings> projectVersions;
+
+    public transient boolean isSubProject = false;
 
     public PresetProjectSettings(){
         super();

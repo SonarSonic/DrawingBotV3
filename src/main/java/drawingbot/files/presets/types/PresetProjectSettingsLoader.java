@@ -1,17 +1,23 @@
 package drawingbot.files.presets.types;
 
+import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
+import drawingbot.api.Hooks;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.PresetType;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.PrintResolution;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableProjectSettings;
+import drawingbot.plotting.PlottingTask;
 import drawingbot.registry.Register;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -42,17 +48,16 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
 
     @Override
     public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset) {
+        return updatePreset(preset, DrawingBotV3.INSTANCE.getActiveTask());
+    }
+
+    public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset, @Nullable PlottingTask plottingTask) {
 
         preset.data.imagePath = DrawingBotV3.INSTANCE.openFile != null ? DrawingBotV3.INSTANCE.openFile.getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
 
-        if(DrawingBotV3.INSTANCE.getActiveTask() != null && DrawingBotV3.INSTANCE.getActiveTask().isTaskFinished()){
+        if(plottingTask != null && plottingTask.isTaskFinished()){
             preset.data.thumbnailID = UUID.randomUUID().toString();
-            File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
-            PrintResolution thumbnailResolution = PrintResolution.copy(DrawingBotV3.INSTANCE.getActiveTask().resolution);
-            thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
-            DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }else{
             preset.data.thumbnailID = "";
         }
@@ -78,8 +83,8 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         preset.data.imageFlipHorizontal = DrawingBotV3.INSTANCE.imageFlipHorizontal.get();
         preset.data.imageFlipVertical = DrawingBotV3.INSTANCE.imageFlipVertical.get();
 
-        preset.data.optimiseForPrint = DrawingBotV3.INSTANCE.optimiseForPrint.get();
-        preset.data.targetPenWidth = DrawingBotV3.INSTANCE.targetPenWidth.get();
+        preset.data.optimiseForPrint = DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get();
+        preset.data.targetPenWidth = DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get();
         preset.data.colourSplitter = DrawingBotV3.INSTANCE.colourSplitter.get();
         preset.data.distributionType = DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.get();
         preset.data.distributionOrder = DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.get();
@@ -90,9 +95,25 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         preset.data.yellowMultiplier = DrawingBotV3.INSTANCE.yellowMultiplier.get();
         preset.data.keyMultiplier = DrawingBotV3.INSTANCE.keyMultiplier.get();
 
+        preset.data.drawingState = new JsonObject();
+
         preset.data.projectVersions = new ArrayList<>();
         for(ObservableProjectSettings projectVersion : DrawingBotV3.INSTANCE.projectVersions){
             preset.data.projectVersions.add(projectVersion.preset.get().data);
+        }
+
+        ///run the drawing state generation task
+        if(plottingTask != null){
+            preset.data.drawingState = (JsonObject) Hooks.runHook(Hooks.SERIALIZE_DRAWING_STATE, plottingTask, new JsonObject())[1];
+        }
+
+        //run the thumbnail generation task
+        if(plottingTask != null && !preset.data.thumbnailID.isEmpty()){
+            File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
+            PrintResolution thumbnailResolution = PrintResolution.copy(plottingTask.resolution);
+            thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, plottingTask, IGeometry.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
+            DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
 
         return preset;
@@ -115,7 +136,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.imageFlipHorizontal.set(preset.data.imageFlipHorizontal);
         DrawingBotV3.INSTANCE.imageFlipVertical.set(preset.data.imageFlipVertical);
 
-        DrawingBotV3.INSTANCE.optimiseForPrint.set(preset.data.optimiseForPrint);
+        DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.set(preset.data.optimiseForPrint);
         DrawingBotV3.INSTANCE.controller.textFieldPenWidth.setText("" + preset.data.targetPenWidth); //works but ugly!
         DrawingBotV3.INSTANCE.colourSplitter.set(preset.data.colourSplitter);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.set(preset.data.distributionType);
@@ -127,17 +148,27 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.yellowMultiplier.set(preset.data.yellowMultiplier);
         DrawingBotV3.INSTANCE.keyMultiplier.set(preset.data.keyMultiplier);
 
-        DrawingBotV3.INSTANCE.projectVersions.clear();
-        if(preset.data.projectVersions != null){
-            for(PresetProjectSettings projectVersion : preset.data.projectVersions){
-                GenericPreset<PresetProjectSettings> newPreset = createNewPreset();
-                newPreset.data = projectVersion;
-                DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(newPreset));
+        if(!preset.data.isSubProject){ //don't overwrite the versions if this is just a sub version
+            DrawingBotV3.INSTANCE.projectVersions.clear();
+            if(preset.data.projectVersions != null){
+                for(PresetProjectSettings projectVersion : preset.data.projectVersions){
+                    GenericPreset<PresetProjectSettings> newPreset = createNewPreset();
+                    newPreset.data = projectVersion;
+                    DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(newPreset, true));
+                }
             }
         }
 
         if(!preset.data.imagePath.isEmpty()){
-            Platform.runLater(() -> DrawingBotV3.INSTANCE.openFile(new File(preset.data.imagePath), false));
+            Platform.runLater(() -> {
+                BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
+                loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
+                    if(newValue == Worker.State.SUCCEEDED){
+                        Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState);
+                    }
+                });
+                DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
+            });
         }
     }
 

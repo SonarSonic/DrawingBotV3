@@ -8,11 +8,13 @@ import drawingbot.files.presets.AbstractPresetLoader;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.PresetType;
+import drawingbot.files.presets.types.PresetProjectSettings;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -115,6 +117,27 @@ public class FXHelper {
             JsonLoaderManager.getJsonLoaderForPresetType(presetType).tryApplyPreset(preset);
         }
         return preset;
+    }
+
+    public static void exportProject(File initialDirectory, String initialName){
+        Platform.runLater(() -> {
+            FileChooser d = new FileChooser();
+            d.getExtensionFilters().addAll(FileUtils.FILTER_PROJECT);
+            d.setTitle("Save project");
+            d.setInitialDirectory(initialDirectory);
+            d.setInitialFileName(initialName);
+            File file = d.showSaveDialog(null);
+            if(file != null){
+                FileUtils.updateExportDirectory(file.getParentFile());
+                DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
+
+                    GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+                    Register.PRESET_LOADER_PROJECT.updatePreset(preset);
+
+                    JsonLoaderManager.exportPresetFile(file, preset);
+                });
+            }
+        });
     }
 
     public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){

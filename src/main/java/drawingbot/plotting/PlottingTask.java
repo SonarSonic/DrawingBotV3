@@ -30,10 +30,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
 
 public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask {
 
+    public DrawingArea drawingArea;
     public PFMFactory<?> pfmFactory;
     public List<GenericSetting<?, ?>> pfmSettings;
     public PlottedDrawing plottedDrawing;
@@ -75,20 +75,15 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
     // CLIPPING \\
     public Geometry clippingShape = null;
 
-    public PlottingTask(PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
+    public PlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
+        this.drawingArea = drawingArea;
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
         this.plottedDrawing = new PlottedDrawing(drawingPenSet);
         this.imgOriginal = image;
         this.originalFile = originalFile;
-        this.resolution = new PrintResolution(image);
-    }
-
-    @Override
-    protected void setException(Throwable t) {
-        super.setException(t);
-        DrawingBotV3.logger.log(Level.SEVERE, "Plotting Task Failed", t);
+        this.resolution = new PrintResolution(drawingArea, image);
     }
 
     public boolean doTask(){

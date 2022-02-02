@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 
 public class PrintResolution {
 
+    public final DrawingArea drawingArea;
+
     //// SOURCE RESOLUTION \\\\
 
     //the original images dimensions, in PX
@@ -77,15 +79,16 @@ public class PrintResolution {
     public double finalPrintScaleX = 1;
     public double finalPrintScaleY = 1;
 
-    public PrintResolution(BufferedImage src){
-        this(DrawingBotV3.INSTANCE.imageRotation.get(), DrawingBotV3.INSTANCE.imageFlipHorizontal.get(), DrawingBotV3.INSTANCE.imageFlipVertical.get(), src);
+    public PrintResolution(DrawingArea drawingArea, BufferedImage src){
+        this(drawingArea, DrawingBotV3.INSTANCE.imageRotation.get(), DrawingBotV3.INSTANCE.imageFlipHorizontal.get(), DrawingBotV3.INSTANCE.imageFlipVertical.get(), src);
     }
 
-    public PrintResolution(EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical, BufferedImage src){
-        this(imageRotation, flipHorizontal, flipVertical, src.getWidth(), src.getHeight());
+    public PrintResolution(DrawingArea drawingArea, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical, BufferedImage src){
+        this(drawingArea, imageRotation, flipHorizontal, flipVertical, src.getWidth(), src.getHeight());
     }
 
-    public PrintResolution(EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical, int originalWidth, int originalHeight){
+    public PrintResolution(DrawingArea drawingArea, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical, int originalWidth, int originalHeight){
+        this.drawingArea = drawingArea;
         this.imageRotation = imageRotation;
         this.imageFlipHorizontal = flipHorizontal;
         this.imageFlipVertical = flipVertical;
@@ -98,7 +101,7 @@ public class PrintResolution {
     }
 
     public static PrintResolution copy(PrintResolution resolution){
-        PrintResolution copy = new PrintResolution(resolution.imageRotation, resolution.imageFlipHorizontal, resolution.imageFlipVertical, resolution.originalWidth, resolution.originalHeight);
+        PrintResolution copy = new PrintResolution(resolution.drawingArea, resolution.imageRotation, resolution.imageFlipHorizontal, resolution.imageFlipVertical, resolution.originalWidth, resolution.originalHeight);
         copy.plottingResolution = resolution.plottingResolution;
         copy.plottingTransform = resolution.plottingTransform;
 
@@ -163,14 +166,14 @@ public class PrintResolution {
     public void updatePrintResolution(){
         boolean useOriginal = useOriginalSizing();
 
-        this.printPageWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingAreaWidthMM();
-        this.printPageHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingAreaHeightMM();
+        this.printPageWidth = useOriginal ? sourceWidth : drawingArea.getDrawingAreaWidthMM();
+        this.printPageHeight = useOriginal ? sourceHeight : drawingArea.getDrawingAreaHeightMM();
 
-        this.printDrawingWidth = useOriginal ? sourceWidth : DrawingBotV3.INSTANCE.getDrawingWidthMM();
-        this.printDrawingHeight = useOriginal ? sourceHeight : DrawingBotV3.INSTANCE.getDrawingHeightMM();
+        this.printDrawingWidth = useOriginal ? sourceWidth : drawingArea.getDrawingWidthMM();
+        this.printDrawingHeight = useOriginal ? sourceHeight : drawingArea.getDrawingHeightMM();
 
-        this.printOffsetX = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetXMM();
-        this.printOffsetY = useOriginal ? 0 : DrawingBotV3.INSTANCE.getDrawingOffsetYMM();
+        this.printOffsetX = useOriginal ? 0 : drawingArea.getDrawingOffsetXMM();
+        this.printOffsetY = useOriginal ? 0 : drawingArea.getDrawingOffsetYMM();
     }
 
     public void updateCropping(){
@@ -198,7 +201,7 @@ public class PrintResolution {
                 this.imageCropX = (sourceWidth - targetWidth) / 2;
                 this.imageCropWidth = targetWidth;
             }
-            if(DrawingBotV3.INSTANCE.scalingMode.get() == EnumScalingMode.SCALE_TO_FIT){
+            if(drawingArea.scalingMode.get() == EnumScalingMode.SCALE_TO_FIT){
                 if(currentRatio < targetRatio){
                     this.imageRenderScale = sourceHeight /(double)targetHeight;
                     this.imageOffsetX = (targetWidth - sourceWidth) / 2;
@@ -210,13 +213,13 @@ public class PrintResolution {
 
         }
 
-        if(!useOriginalSizing() && DrawingBotV3.INSTANCE.optimiseForPrint.get() && DrawingBotV3.INSTANCE.targetPenWidth.get() > 0){
+        if(!useOriginalSizing() && drawingArea.optimiseForPrint.get() && drawingArea.targetPenWidth.get() > 0){
 
             //divide the image so that 1 pixel = 1 pen mark
-            imageWidth = (int)(getPrintDrawingWidth() / DrawingBotV3.INSTANCE.targetPenWidth.get());
-            imageHeight = (int)(getPrintDrawingHeight() / DrawingBotV3.INSTANCE.targetPenWidth.get());
+            imageWidth = (int)(getPrintDrawingWidth() / drawingArea.targetPenWidth.get());
+            imageHeight = (int)(getPrintDrawingHeight() / drawingArea.targetPenWidth.get());
 
-            if(DrawingBotV3.INSTANCE.scalingMode.get() == EnumScalingMode.SCALE_TO_FIT){
+            if(drawingArea.scalingMode.get() == EnumScalingMode.SCALE_TO_FIT){
                 //factor out the image's render scale & reset it
                 if(currentRatio < targetRatio){
                     int renderWidth = (int)(imageWidth / imageRenderScale);
@@ -256,7 +259,7 @@ public class PrintResolution {
     }
 
     public boolean useOriginalSizing(){
-        return DrawingBotV3.INSTANCE.useOriginalSizing.get() || DrawingBotV3.INSTANCE.getDrawingAreaWidthMM() == 0 || DrawingBotV3.INSTANCE.getDrawingAreaHeightMM() == 0;
+        return drawingArea.useOriginalSizing.get() || drawingArea.getDrawingAreaWidthMM() == 0 || drawingArea.getDrawingAreaHeightMM() == 0;
     }
 
     //// IMAGE RESOLUTION \\\\

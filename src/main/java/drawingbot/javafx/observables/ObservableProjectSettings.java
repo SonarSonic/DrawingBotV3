@@ -5,6 +5,7 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.presets.types.PresetProjectSettings;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.javafx.GenericPreset;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.embed.swing.SwingFXUtils;
@@ -21,7 +22,7 @@ public class ObservableProjectSettings {
     public SimpleStringProperty file;
     public SimpleObjectProperty<GenericPreset<PresetProjectSettings>> preset;
 
-    public ObservableProjectSettings(GenericPreset<PresetProjectSettings> preset){
+    public ObservableProjectSettings(GenericPreset<PresetProjectSettings> preset, boolean isSubProject){
         this.imageView = new SimpleObjectProperty<>(new ImageView());
         this.thumbnail = new SimpleObjectProperty<>(null);
         this.userDefinedName = new SimpleStringProperty(preset.data.name);
@@ -37,6 +38,8 @@ public class ObservableProjectSettings {
         BufferedImageLoader loader = new BufferedImageLoader(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg", false);
         DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
         loader.setOnSucceeded(e -> thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null)));
+
+        preset.data.isSubProject = isSubProject;
     }
 
 }

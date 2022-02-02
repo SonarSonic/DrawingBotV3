@@ -1,6 +1,9 @@
 package drawingbot.utils;
 
+import drawingbot.DrawingBotV3;
 import javafx.concurrent.Task;
+
+import java.util.logging.Level;
 
 public abstract class DBTask<V> extends Task<V> {
 
@@ -17,6 +20,12 @@ public abstract class DBTask<V> extends Task<V> {
 
     public void setError(String error){
         this.error = error;
+    }
+
+    @Override
+    protected void setException(Throwable t) {
+        super.setException(t);
+        DrawingBotV3.logger.log(Level.SEVERE, "TASK FAILED", t);
     }
 
     @Override
