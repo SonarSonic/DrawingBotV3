@@ -1,6 +1,8 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import static drawingbot.DrawingBotV3.OPENGL_RENDERER;
+import static drawingbot.DrawingBotV3.RENDERER;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
 import drawingbot.api.IDrawingPen;
@@ -8,6 +10,7 @@ import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
 import drawingbot.drawing.*;
 import drawingbot.files.presets.types.*;
+import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
@@ -53,6 +56,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
+
+import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 
 public class FXController {
 
@@ -392,6 +398,37 @@ public class FXController {
             event.consume();
         });
 
+        viewportScrollPane.setOnMouseEntered(event -> {
+            viewportScrollPane.setCursor(Cursor.CROSSHAIR);
+        });
+        
+        viewportScrollPane.setOnMouseClicked(event -> {
+            MouseButton button = event.getButton();   
+            if(button==MouseButton.SECONDARY){
+                if (DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.IMAGE && DrawingBotV3.INSTANCE.openImage.get() != null){
+                    Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
+                    Point2D position = !DrawingBotV3.INSTANCE.display_mode.get().isOpenGL() ? RENDERER.sceneToRenderer(mouse) : OPENGL_RENDERER.sceneToRenderer(mouse);
+                    
+                    double offsetX = 0;
+                    double offsetY = 0;
+                    double printScale = DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintScale();
+
+                    if(!DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.get()){
+                        offsetX  = DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - (0.5F * printScale);
+                        offsetY  = DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - (0.5F * printScale);
+                    }
+                    int x = (int)(position.getX() - offsetX);
+                    int y = (int)(position.getY() - offsetY);                
+
+                    ObservableDrawingPen pen = DrawingBotV3.INSTANCE.controller.getSelectedPen();
+                    if (pen != null) {
+                        Color color = ImageTools.getColorFromARGB(DrawingBotV3.INSTANCE.openImage.get().getFiltered().getRGB(x, y));
+                        pen.javaFXColour.set(color);
+                    }
+                }
+            }  
+        });
+        
         labelElapsedTime.setText("0 s");
         labelPlottedShapes.setText("0");
         labelPlottedVertices.setText("0");
