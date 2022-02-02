@@ -31,7 +31,7 @@ public interface IPlottingTask {
 
     void addGeometry(IGeometry geometry);
 
-    void addGeometry(IGeometry geometry, Integer penIndex, Integer rgba);
+    void addGeometry(IGeometry geometry, int penIndex, int rgba);
 
     PathBuilder getPathBuilder();
 

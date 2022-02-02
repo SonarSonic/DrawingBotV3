@@ -36,8 +36,9 @@ public class GPath extends Path2D.Float implements IGeometry {
 
     public GPath(IPathElement pathElement){
         super();
-        this.setCustomRGBA(pathElement.getCustomRGBA());
+        this.setSampledRGBA(pathElement.getSampledRGBA());
         this.setPenIndex(pathElement.getPenIndex());
+        this.setGroupID(pathElement.getGroupID());
 
         //add the path
         pathElement.addToPath(true, this);
@@ -46,8 +47,8 @@ public class GPath extends Path2D.Float implements IGeometry {
     //// IGeometry \\\\
 
     public int geometryIndex = -1;
-    public Integer penIndex = null;
-    public Integer customRGBA = null;
+    public int penIndex = -1;
+    public int sampledRGBA = -1;
     public int groupID = -1;
 
     public int segmentCount = -1;
@@ -66,18 +67,18 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     @Override
-    public Integer getGeometryIndex() {
+    public int getGeometryIndex() {
         return geometryIndex;
     }
 
     @Override
-    public Integer getPenIndex() {
+    public int getPenIndex() {
         return penIndex;
     }
 
     @Override
-    public Integer getCustomRGBA() {
-        return customRGBA;
+    public int getSampledRGBA() {
+        return sampledRGBA;
     }
 
     @Override
@@ -86,18 +87,18 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     @Override
-    public void setGeometryIndex(Integer index) {
+    public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
 
     @Override
-    public void setPenIndex(Integer index) {
+    public void setPenIndex(int index) {
         penIndex = index;
     }
 
     @Override
-    public void setCustomRGBA(Integer rgba) {
-        customRGBA = rgba;
+    public void setSampledRGBA(int rgba) {
+        sampledRGBA = rgba;
     }
 
     @Override
@@ -109,6 +110,17 @@ public class GPath extends Path2D.Float implements IGeometry {
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         GeometryUtils.renderAWTShapeToFX(graphics, getAWTShape());
+    }
+
+    @Override
+    public String serializeData() {
+        //HANDLED BY THE SERIALIZER
+        return "";
+    }
+
+    @Override
+    public void deserializeData(String geometryData) {
+        //HANDLED BY THE SERIALIZER
     }
 
     private Coordinate origin = null;
@@ -131,17 +143,6 @@ public class GPath extends Path2D.Float implements IGeometry {
             origin = new CoordinateXY(coords[0], coords[1]);
         }
         return origin;
-    }
-
-    public void addToPath(GPath path) {
-        PathIterator iterator = this.getPathIterator(null);
-        float[] coords = new float[6];
-        while(!iterator.isDone()){
-            int type = iterator.currentSegment(coords);
-            move(path, coords, type);
-            iterator.next();
-        }
-        markPathDirty();
     }
 
     public void markPathDirty(){

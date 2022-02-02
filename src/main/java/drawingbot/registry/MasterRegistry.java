@@ -15,6 +15,7 @@ import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.PresetType;
 import drawingbot.files.presets.types.PresetDrawingSet;
 import drawingbot.files.presets.types.PresetPFMSettings;
+import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
@@ -44,8 +45,6 @@ public class MasterRegistry {
     public List<PFMFactory> pfmFactories = new ArrayList<>();
     public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
     //// IMAGE FILTERS \\\\
     public Map<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> imgFilterFactories = FXCollections.observableMap(new LinkedHashMap<>());
     public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
@@ -53,31 +52,29 @@ public class MasterRegistry {
 
     public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
 
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// DRAWING PENS / SETS \\\\
 
     public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
     //// EXPORTERS \\\\
 
     public List<DrawingExportHandler> drawingExportHandlers = new ArrayList<>();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// COLOUR SPLITTERS \\\\
 
     public ObservableList<ColourSplitterHandler> colourSplitterHandlers = FXCollections.observableArrayList();
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
     //// JSON LOADERS \\\\
 
     public List<PresetType> presetTypes = new ArrayList<>();
     public List<AbstractJsonLoader<IJsonData>> presetLoaders = new ArrayList<>();
+
+    //// GEOMETRIES \\\\
+
+    public Map<Class<? extends IGeometry>, String> geometryNames = new HashMap<>();
+    public Map<String, Class<? extends IGeometry>> geometryTypes = new HashMap<>();
+    public Map<String, Supplier<IGeometry>> geometryFactories = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -561,6 +558,18 @@ public class MasterRegistry {
             }
         }
         return null;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// GEOMETRIES \\\\
+
+    public void registerGeometryType(String name, Class<? extends IGeometry> geometryType, Supplier<IGeometry> factory){
+        DrawingBotV3.logger.fine("Registering Geometry Type: " + name);
+        this.geometryNames.put(geometryType, name);
+        this.geometryTypes.put(name, geometryType);
+        this.geometryFactories.put(name, factory);
     }
 
 }

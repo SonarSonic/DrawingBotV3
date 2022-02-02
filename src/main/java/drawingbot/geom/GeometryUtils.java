@@ -12,6 +12,7 @@ import drawingbot.files.ExportTask;
 import drawingbot.files.presets.types.ConfigApplicationSettings;
 import drawingbot.geom.basic.*;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.ProgressCallback;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.Utils;
@@ -100,7 +101,7 @@ public class GeometryUtils {
     public static Map<Integer, List<IGeometry>> getOptimisedGeometriesForExport(ExportTask task, @Nullable PFMFactory<?> factory, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback progressCallback) {
 
 
-        Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(task, geometryFilter, drawingSet, geometries, progressCallback);
+        Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(task.plottingTask, geometryFilter, drawingSet, geometries, progressCallback, false);
 
         if(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
 
@@ -140,13 +141,13 @@ public class GeometryUtils {
     }
 
     public static Map<Integer, List<IGeometry>> getBasicGeometriesForExport(ExportTask task, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback callback) {
-        return combineBasicGeometries(task, geometryFilter, drawingSet, geometries, callback);
+        return combineBasicGeometries(task.plottingTask, geometryFilter, drawingSet, geometries, callback, false);
     }
 
     /**
      * Combines any obvious path elements with obvious continuity
      */
-    private static Map<Integer, List<IGeometry>> combineBasicGeometries(ExportTask task, IGeometryFilter geometryFilter, ObservableDrawingSet drawingSet, List<IGeometry> geometries, ProgressCallback callback){
+    public static Map<Integer, List<IGeometry>> combineBasicGeometries(PlottingTask plottingTask, IGeometryFilter geometryFilter, ObservableDrawingSet drawingSet, List<IGeometry> geometries, @Nullable ProgressCallback callback, boolean includeMultipleMoves){
         Map<Integer, List<IGeometry>> optimised = new HashMap<>();
 
         for(ObservableDrawingPen set : drawingSet.getPens()){
@@ -157,7 +158,7 @@ public class GeometryUtils {
         for(IGeometry geometry : geometries){
             List<IGeometry> subList = optimised.get(geometry.getPenIndex());
             ObservableDrawingPen pen = drawingSet.getPen(geometry.getPenIndex());
-            if(geometryFilter.filter(task.plottingTask.plottedDrawing, geometry, pen)){
+            if(geometryFilter.filter(plottingTask.plottedDrawing, geometry, pen)){
                 if(geometry instanceof IPathElement){
                     IPathElement element = (IPathElement) geometry;
                     IGeometry lastGeometry = subList.isEmpty() ? null : subList.get(subList.size()-1);
@@ -165,9 +166,15 @@ public class GeometryUtils {
                     if(lastGeometry instanceof GPath){
                         GPath gPath = (GPath) lastGeometry;
                         //check the render colour and continuity if they match, add it too the path
-                        if(GeometryUtils.compareRenderColour(pen, gPath, element) && GeometryUtils.comparePathContinuity(gPath, element)){
-                            element.addToPath(false, gPath);
-                            continue;
+                        if(GeometryUtils.compareRenderColour(pen, gPath, element)){
+                            boolean continuity = GeometryUtils.comparePathContinuity(gPath, element);
+                            if(continuity){
+                                element.addToPath(false, gPath);
+                                continue;
+                            }else if(includeMultipleMoves){
+                                element.addToPath(true, gPath);
+                                continue;
+                            }
                         }
                     }
                     //if the last geometry isn't a GPath or the element can't be added add a new GPath
@@ -181,7 +188,9 @@ public class GeometryUtils {
                 }
             }
             index++;
-            callback.updateProgress((float) index / geometries.size());
+            if(callback != null){
+                callback.updateProgress((float) index / geometries.size());
+            }
         }
 
         return optimised;
@@ -189,8 +198,8 @@ public class GeometryUtils {
 
     public static boolean compareRenderColour(ObservableDrawingPen pen, IGeometry geometry1, IGeometry geometry2){
         if(Objects.equals(geometry1.getPenIndex(), geometry2.getPenIndex())){
-            int pathRGBA = geometry1.getCustomRGBA() != null ? pen.getCustomARGB(geometry1.getCustomRGBA()) : pen.getARGB();
-            int geoRGBA = geometry2.getCustomRGBA() != null ? pen.getCustomARGB(geometry2.getCustomRGBA()) : pen.getARGB();
+            int pathRGBA = geometry1.getSampledRGBA() != -1 ? pen.getCustomARGB(geometry1.getSampledRGBA()) : pen.getARGB();
+            int geoRGBA = geometry2.getSampledRGBA() != -1 ? pen.getCustomARGB(geometry2.getSampledRGBA()) : pen.getARGB();
             return pathRGBA == geoRGBA;
         }
         return false;
@@ -201,7 +210,7 @@ public class GeometryUtils {
     }
 
     public static boolean comparePathContinuity(IGeometry lastGeometry, IGeometry nextGeometry){
-        if(lastGeometry == null){
+        if(lastGeometry == null || lastGeometry.getGroupID() != nextGeometry.getGroupID()){
             return false;
         }
         if(nextGeometry instanceof IPathElement){
@@ -479,6 +488,82 @@ public class GeometryUtils {
 
     public static GPath geometryToGPath(Geometry string, AffineTransform transform){
         return new GPath(new ShapeWriter().toShape(string), transform);
+    }
+
+    public static void splitGPath(GPath gPath, Consumer<IGeometry> consumer){
+        PathIterator pathIterator = gPath.getPathIterator(null);
+
+        float lastMoveX = 0;
+        float lastMoveY = 0;
+
+        float currentX = 0;
+        float currentY = 0;
+
+        float[] coords = new float[6];
+        while(!pathIterator.isDone()){
+            int type = pathIterator.currentSegment(coords);
+            IGeometry geometry = null;
+            switch (type){
+                case PathIterator.SEG_MOVETO:
+                    currentX = lastMoveX = coords[0];
+                    currentY = lastMoveY = coords[1];
+                    break;
+                case PathIterator.SEG_LINETO:
+                    geometry = new GLine(currentX, currentY, coords[0], coords[1]);
+                    currentX = coords[0];
+                    currentY = coords[1];
+                    break;
+                case PathIterator.SEG_QUADTO:
+                    geometry = new GQuadCurve(currentX, currentY, coords[0], coords[1], coords[2], coords[3]);
+                    currentX = coords[2];
+                    currentY = coords[3];
+                    break;
+                case PathIterator.SEG_CUBICTO:
+                    geometry = new GCubicCurve(currentX, currentY, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                    currentX = coords[4];
+                    currentY = coords[5];
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    geometry = new GLine(currentX, currentY, lastMoveX, lastMoveY);
+                    break;
+            }
+            if(geometry != null){
+                geometry.setSampledRGBA(gPath.getSampledRGBA());
+                geometry.setPenIndex(gPath.getPenIndex());
+                geometry.setGroupID(gPath.getGroupID());
+                consumer.accept(geometry);
+            }
+
+            pathIterator.next();
+        }
+    }
+
+    public static String serializeCoords(float[] coords){
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i = 0; i < coords.length; i++){
+            stringBuilder.append(removeTrailingZeros(coords[i]));
+            if(i != coords.length-1){
+                stringBuilder.append(",");
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public static float[] deserializeCoords(String string){
+        String[] values = string.split(",");
+        float[] coords = new float[values.length];
+        for(int i = 0; i < values.length; i++){
+            coords[i] = Float.parseFloat(values[i]);
+        }
+        return coords;
+    }
+
+    public static String removeTrailingZeros(float f){
+        String string = Float.toString(f);
+        if(string.contains(".")){
+            return string.replaceAll("0*$","").replaceAll("\\.$","");
+        }
+        return string;
     }
 
     public static int getSegmentCount(Shape shape){

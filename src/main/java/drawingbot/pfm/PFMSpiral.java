@@ -101,7 +101,7 @@ public class PFMSpiral extends AbstractPFM {
 
             if(draw){
                 int pen_number = (int)(Utils.mapFloat(b, 0, 255, 0, task.getTotalPens()));
-                task.addGeometry(new GLine(xa, ya, xb, yb), pen_number, null);
+                task.addGeometry(new GLine(xa, ya, xb, yb), pen_number, -1);
             }
 
             float startRadius = distBetweenRings / 2;

@@ -11,12 +11,14 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 
 /**
- * A wrapper for any other special shape types
+ * A wrapper for any other special shape types, should not be used in Drawings, the shape should be converted to a GPath
  */
 public class GShape implements IGeometry {
 
     private Shape shape;
     public int vertexCount;
+
+    public GShape(){}
 
     public GShape(Shape shape){
         this.shape = shape;
@@ -28,9 +30,10 @@ public class GShape implements IGeometry {
         return vertexCount;
     }
 
+
     public int geometryIndex = -1;
-    public Integer penIndex = null;
-    public Integer customRGBA = null;
+    public int penIndex = -1;
+    public int sampledRGBA = -1;
     public int groupID = -1;
 
     @Override
@@ -39,18 +42,18 @@ public class GShape implements IGeometry {
     }
 
     @Override
-    public Integer getGeometryIndex() {
+    public int getGeometryIndex() {
         return geometryIndex;
     }
 
     @Override
-    public Integer getPenIndex() {
+    public int getPenIndex() {
         return penIndex;
     }
 
     @Override
-    public Integer getCustomRGBA() {
-        return customRGBA;
+    public int getSampledRGBA() {
+        return sampledRGBA;
     }
 
     @Override
@@ -59,18 +62,18 @@ public class GShape implements IGeometry {
     }
 
     @Override
-    public void setGeometryIndex(Integer index) {
+    public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
 
     @Override
-    public void setPenIndex(Integer index) {
+    public void setPenIndex(int index) {
         penIndex = index;
     }
 
     @Override
-    public void setCustomRGBA(Integer rgba) {
-        customRGBA = rgba;
+    public void setSampledRGBA(int rgba) {
+        sampledRGBA = rgba;
     }
 
     @Override
@@ -82,6 +85,17 @@ public class GShape implements IGeometry {
     public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
         pen.preRenderFX(graphics, this);
         GeometryUtils.renderAWTShapeToFX(graphics, shape);
+    }
+
+    @Override
+    public String serializeData() {
+        //HANDLED BY THE SERIALIZER
+        return "";
+    }
+
+    @Override
+    public void deserializeData(String geometryData) {
+        //HANDLED BY THE SERIALIZER
     }
 
     @Override

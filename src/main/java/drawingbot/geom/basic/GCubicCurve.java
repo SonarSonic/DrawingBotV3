@@ -1,5 +1,6 @@
 package drawingbot.geom.basic;
 
+import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.PathBuilder;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,6 +13,8 @@ import java.awt.geom.CubicCurve2D;
 
 public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathElement {
 
+    public GCubicCurve(){}
+
     public GCubicCurve(float[] p0, float[] p1, float[] p2, float[] p3) {
         setCurve(p0[0], p0[1], p1[0], p1[1], p2[0], p2[1], p3[0], p3[1]);
     }
@@ -21,7 +24,7 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
         setCurve(bezier[0][0], bezier[0][1], bezier[1][0], bezier[1][1], bezier[2][0], bezier[2][1], bezier[3][0], bezier[3][1]);
     }
 
-    public GCubicCurve(int x1, int y1, int ctrl1X, int ctrl1Y, int ctrl2X, int ctrl2Y, int x2, int y2) {
+    public GCubicCurve(float x1, float y1, float ctrl1X, float ctrl1Y, float ctrl2X, float ctrl2Y, float x2, float y2) {
         setCurve(x1, y1, ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, x2, y2);
     }
 
@@ -36,8 +39,8 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     //// IGeometry \\\\
 
     public int geometryIndex = -1;
-    public Integer penIndex = null;
-    public Integer sampledRGBA = null;
+    public int penIndex = -1;
+    public int sampledRGBA = -1;
     public int groupID = -1;
 
     @Override
@@ -51,17 +54,17 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     }
 
     @Override
-    public Integer getGeometryIndex() {
+    public int getGeometryIndex() {
         return geometryIndex;
     }
 
     @Override
-    public Integer getPenIndex() {
+    public int getPenIndex() {
         return penIndex;
     }
 
     @Override
-    public Integer getCustomRGBA() {
+    public int getSampledRGBA() {
         return sampledRGBA;
     }
 
@@ -71,17 +74,17 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     }
 
     @Override
-    public void setGeometryIndex(Integer index) {
+    public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
 
     @Override
-    public void setPenIndex(Integer index) {
+    public void setPenIndex(int index) {
         penIndex = index;
     }
 
     @Override
-    public void setCustomRGBA(Integer rgba) {
+    public void setSampledRGBA(int rgba) {
         sampledRGBA = rgba;
     }
 
@@ -103,14 +106,18 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     public void transform(AffineTransform transform) {
         float[] coords = new float[]{x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2};
         transform.transform(coords, 0, coords, 0, 4);
-        x1 = coords[0];
-        y1 = coords[1];
-        ctrlx1 = coords[2];
-        ctrly1 = coords[3];
-        ctrlx2 = coords[4];
-        ctrly2 = coords[5];
-        x2 = coords[6];
-        y2 = coords[7];
+        setCurve(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7]);
+    }
+
+    @Override
+    public String serializeData() {
+        return GeometryUtils.serializeCoords(new float[]{x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2});
+    }
+
+    @Override
+    public void deserializeData(String geometryData) {
+        float[] coords = GeometryUtils.deserializeCoords(geometryData);
+        setCurve(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7]);
     }
 
     @Override

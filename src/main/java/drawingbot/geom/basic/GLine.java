@@ -1,5 +1,6 @@
 package drawingbot.geom.basic;
 
+import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
@@ -36,8 +37,8 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     //// IGeometry \\\\
 
     public int geometryIndex = -1;
-    public Integer penIndex = null;
-    public Integer sampledRGBA = null;
+    public int penIndex = -1;
+    public int sampledRGBA = -1;
     public int groupID = -1;
 
     @Override
@@ -51,17 +52,17 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
-    public Integer getGeometryIndex() {
+    public int getGeometryIndex() {
         return geometryIndex;
     }
 
     @Override
-    public Integer getPenIndex() {
+    public int getPenIndex() {
         return penIndex;
     }
 
     @Override
-    public Integer getCustomRGBA() {
+    public int getSampledRGBA() {
         return sampledRGBA;
     }
 
@@ -71,17 +72,17 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
-    public void setGeometryIndex(Integer index) {
+    public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
 
     @Override
-    public void setPenIndex(Integer index) {
+    public void setPenIndex(int index) {
         penIndex = index;
     }
 
     @Override
-    public void setCustomRGBA(Integer rgba) {
+    public void setSampledRGBA(int rgba) {
         sampledRGBA = rgba;
     }
 
@@ -105,10 +106,18 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     public void transform(AffineTransform transform) {
         float[] coords = new float[]{x1, y1, x2, y2};
         transform.transform(coords, 0, coords, 0, 2);
-        x1 = coords[0];
-        y1 = coords[1];
-        x2 = coords[2];
-        y2 = coords[3];
+        setLine(coords[0], coords[1], coords[2], coords[3]);
+    }
+
+    @Override
+    public String serializeData() {
+        return GeometryUtils.serializeCoords(new float[]{x1, y1, x2, y2});
+    }
+
+    @Override
+    public void deserializeData(String geometryData) {
+        float[] coords = GeometryUtils.deserializeCoords(geometryData);
+        setLine(coords[0], coords[1], coords[2], coords[3]);
     }
 
     @Override

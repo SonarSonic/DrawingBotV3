@@ -3,6 +3,7 @@ package drawingbot.registry;
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.*;
+import drawingbot.geom.basic.*;
 import drawingbot.plugins.CopicPenPlugin;
 import drawingbot.plugins.SpecialPenPlugin;
 import drawingbot.plugins.StaedtlerPenPlugin;
@@ -91,6 +92,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_AREA = new PresetDrawingAreaLoader(PRESET_TYPE_DRAWING_AREA));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_GCODE_SETTINGS = new PresetGCodeSettingsLoader(PRESET_TYPE_GCODE_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
+
+        MasterRegistry.INSTANCE.registerGeometryType("line", GLine.class, GLine::new);
+        MasterRegistry.INSTANCE.registerGeometryType("path", GPath.class, GPath::new);
+        MasterRegistry.INSTANCE.registerGeometryType("cubic", GCubicCurve.class, GCubicCurve::new);
+        MasterRegistry.INSTANCE.registerGeometryType("quad", GQuadCurve.class, GQuadCurve::new);
+        MasterRegistry.INSTANCE.registerGeometryType("rect", GRectangle.class, GRectangle::new);
+        MasterRegistry.INSTANCE.registerGeometryType("ellipse", GEllipse.class, GEllipse::new);
     }
 
     @Override

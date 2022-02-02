@@ -19,6 +19,9 @@ public class Hooks {
     public static final String SERIAL_CONNECTION_CONTROLLER = "SERIAL_CONNECTION_CONTROLLER";
     public static final String SERIAL_CONNECTION_STAGE = "SERIAL_CONNECTION_STAGE";
 
+    public static final String SERIALIZE_DRAWING_STATE = "SERIALIZE_DRAWING_STATE";
+    public static final String DESERIALIZE_DRAWING_STATE = "DESERIALIZE_DRAWING_STATE";
+
     public static final String FILE_MENU = "FILE_MENU";
 
     public static Map<String, List<IHook>> hookMap = new HashMap<>();

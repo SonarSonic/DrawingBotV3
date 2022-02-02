@@ -241,7 +241,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     public void addGeometryWithColourSamples(IPlottingTask task, IPixelData pixelData, IGeometry geometry, int adjust){
         int colourSamples = adjustGeometryLuminance(pixelData, geometry, adjust);
-        task.addGeometry(geometry, null, colourSamples);
+        task.addGeometry(geometry, -1, colourSamples);
     }
 
     public int adjustGeometryLuminance(IPixelData pixelData, IGeometry geometry, int adjust){

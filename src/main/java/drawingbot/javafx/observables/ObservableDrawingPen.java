@@ -88,12 +88,12 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
 
     public void preRenderFX(GraphicsContext graphics, IGeometry geometry){
         graphics.setLineWidth(getStrokeSize());
-        graphics.setStroke(getFXColor(geometry.getCustomRGBA()));
+        graphics.setStroke(getFXColor(geometry.getSampledRGBA()));
     }
 
     public void preRenderAWT(Graphics2D graphics, IGeometry geometry){
         graphics.setStroke(getAWTStroke());
-        graphics.setColor(getAWTColor(geometry.getCustomRGBA()));
+        graphics.setColor(getAWTColor(geometry.getSampledRGBA()));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

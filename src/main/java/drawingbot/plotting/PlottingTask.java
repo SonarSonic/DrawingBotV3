@@ -313,16 +313,16 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
 
     @Override
     public void addGeometry(IGeometry geometry) {
-        addGeometry(geometry, null, null);
+        addGeometry(geometry, -1, -1);
     }
 
     @Override
-    public void addGeometry(IGeometry geometry, Integer penIndex, Integer rgba) {
-        if(geometry.getCustomRGBA() == null){
-            geometry.setCustomRGBA(rgba);
+    public void addGeometry(IGeometry geometry, int penIndex, int rgba) {
+        if(geometry.getSampledRGBA() == -1){
+            geometry.setSampledRGBA(rgba);
         }
-        if(geometry.getPenIndex() == null){
-            geometry.setPenIndex(penIndex == null ? defaultPen : penIndex);
+        if(geometry.getPenIndex() == -1){
+            geometry.setPenIndex(penIndex == -1 ? defaultPen : penIndex);
         }
         geometry.setGroupID(groupID);
 
