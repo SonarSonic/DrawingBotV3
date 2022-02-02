@@ -163,6 +163,202 @@
           "drawingAreaWidth": "26.0"
         }
       }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "ANSI A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "279.0",
+          "drawingAreaWidth": "216.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "ANSI B",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "432.0",
+          "drawingAreaWidth": "279.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "ANSI C",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "559.0",
+          "drawingAreaWidth": "432.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "ANSI D",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "864.0",
+          "drawingAreaWidth": "559.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "ANSI E",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "1118.0",
+          "drawingAreaWidth": "864.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Arch A",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "305.0",
+          "drawingAreaWidth": "229.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Arch B",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "457.0",
+          "drawingAreaWidth": "305.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Arch C",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "610.0",
+          "drawingAreaWidth": "457.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Arch D",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "914.0",
+          "drawingAreaWidth": "610.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Arch E",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "1219.0",
+          "drawingAreaWidth": "914.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "Arch E1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "1067.0",
+          "drawingAreaWidth": "762.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "US Letter",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "279.0",
+          "drawingAreaWidth": "216.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "US Legal",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "mm",
+          "drawingAreaHeight": "356.0",
+          "drawingAreaWidth": "216.0"
+        }
+      }
+    },
+    {
+      "presetType": "drawing_area",
+      "version": 1,
+      "presetSubType": "User",
+      "presetName": "US Executive",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "inputUnits": "inches",
+          "drawingAreaHeight": "10.5",
+          "drawingAreaWidth": "7.2"
+        }
+      }
     }
   ]
 }
