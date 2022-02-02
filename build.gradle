@@ -1,9 +1,9 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.9'
+    id 'org.openjfx.javafxplugin' version '0.0.11'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id "org.beryx.runtime" version "1.12.5"
+    id "org.beryx.runtime" version "1.12.7"
 }
 
 apply plugin: 'org.openjfx.javafxplugin'
@@ -80,11 +80,14 @@ application {
 }
 
 runtime {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
+    //using --compress=1 to avoid issues with zip.dll loading - see: https://bugs.openjdk.java.net/browse/JDK-8254920?attachmentViewMode=list
+    options = ['--strip-debug', '--compress', '1', '--no-header-files', '--no-man-pages']
     modules = [
             'java.sql',
             'java.desktop',
             'java.naming',
+            'java.compiler',
             'java.scripting',
             'java.logging',
             'java.xml.crypto',
@@ -94,7 +97,7 @@ runtime {
             'jdk.unsupported',
             'java.datatransfer',
             'java.xml',
-            'jdk.xml.dom'] //created via suggestModules
+            'jdk.xml.dom']//created via suggestModules
 
     jpackage{
         def currentOs = org.gradle.internal.os.OperatingSystem.current()
@@ -106,16 +109,13 @@ runtime {
         installerOutputDir = file("$buildDir/jpackage-installers")
         if(currentOs.windows) {
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut']
-            //installerName = app_name + "-" + app_version + "-" + app_state bug in wix, doesn't allow this
             installerType = 'exe'
         }
         else if (currentOs.linux) {
             installerOptions += ['--linux-package-name', "drawingbotv3",'--linux-shortcut']
-            installerName = app_name + "-" + app_version + "-" + app_state + "-linux"
         }
         else if (currentOs.macOsX) {
             installerOptions += ['--mac-package-name', "drawingbotv3"]
-            installerName = app_name + "-" + app_version + "-" + app_state + "-mac"
         }
         installerOptions += ['--file-associations', "src/main/resources/jpackage/FAprojects.properties"]
     }
@@ -129,14 +129,29 @@ task jpackageImageZip(type: Zip){
 }
 jpackageImageZip.dependsOn jpackageImage
 
-task renameWindowsLauncher (type: Copy) { //temporary, due to bug in wix toolset
+
+task renameLaunchers (type: Copy) { //temporary, due to bug in wix toolset
     from ("$buildDir/jpackage-installers")
     into ("$buildDir/release")
     def baseName = "$app_name" + "-" + "$app_version"
-    include baseName + ".exe"
-    rename baseName + ".exe", baseName + "-" + app_state + "-win" + ".exe"
+
+    //windows
+    include "*.exe"
+    rename "(.*).exe", baseName + "-" + app_state + "-win" + ".exe"
+
+    //mac
+    include "*.pkg"
+    rename "(.*).pkg", baseName + "-" + app_state + "-mac" + ".pkg"
+
+    //linux deb
+    include "*.deb"
+    rename "(.*).deb", baseName + "-" + app_state + "-linux" + ".deb"
+
+    //linux rpm
+    include "*.rpm"
+    rename "(.*).rpm", baseName + "-" + app_state + "-linux" + ".rpm"
 }
-renameWindowsLauncher.dependsOn jpackage
+renameLaunchers.dependsOn jpackage
 
 task moveShadowJar (type: Copy) {
     from ("$buildDir/libs")
@@ -150,5 +165,5 @@ task prepareRelease{
     //
 }
 prepareRelease.dependsOn jpackageImageZip
-prepareRelease.dependsOn renameWindowsLauncher
+prepareRelease.dependsOn renameLaunchers
 prepareRelease.dependsOn moveShadowJar
