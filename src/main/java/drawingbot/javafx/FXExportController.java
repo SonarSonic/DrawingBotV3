@@ -3,6 +3,7 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.presets.types.PresetGCodeSettings;
 import drawingbot.registry.Register;
@@ -139,6 +140,12 @@ public class FXExportController {
 
     public TextField textFieldOffsetX = null;
     public TextField textFieldOffsetY = null;
+    public ChoiceBox<UnitsLength> choiceBoxGCodeUnits = null;
+    public TextField textFieldGCodeCurveFlatness = null;
+    public CheckBox checkBoxGCodeEnableFlattening = null;
+    public CheckBox checkBoxGCodeCenterZeroPoint = null;
+    public ChoiceBox<GCodeBuilder.CommentType> choiceBoxCommentTypes = null;
+
     public TextArea textAreaGCodeStart = null;
     public TextArea textAreaGCodeEnd = null;
     public TextArea textAreaGCodePenDown = null;
@@ -169,6 +176,28 @@ public class FXExportController {
 
         DrawingBotV3.INSTANCE.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
         textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+
+        choiceBoxGCodeUnits.getItems().addAll(UnitsLength.values());
+        choiceBoxGCodeUnits.setValue(UnitsLength.MILLIMETRES);
+        DrawingBotV3.INSTANCE.gcodeUnits.bindBidirectional(choiceBoxGCodeUnits.valueProperty());
+
+        DrawingBotV3.INSTANCE.gcodeCurveFlatness.bind(Bindings.createFloatBinding(() -> textFieldGCodeCurveFlatness.textProperty().get().isEmpty() ? 0.1F : Float.parseFloat(textFieldGCodeCurveFlatness.textProperty().get()), textFieldGCodeCurveFlatness.textProperty()));
+        textFieldGCodeCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
+        textFieldGCodeCurveFlatness.disableProperty().bind(checkBoxGCodeEnableFlattening.selectedProperty().not());
+
+        checkBoxGCodeEnableFlattening.setSelected(DrawingBotV3.INSTANCE.gcodeEnableFlattening.getValue());
+        DrawingBotV3.INSTANCE.gcodeEnableFlattening.bindBidirectional(checkBoxGCodeEnableFlattening.selectedProperty());
+
+        checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.getValue());
+        DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.bindBidirectional(checkBoxGCodeCenterZeroPoint.selectedProperty());
+
+        checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.getValue());
+        DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.bindBidirectional(checkBoxGCodeCenterZeroPoint.selectedProperty());
+
+
+        choiceBoxCommentTypes.getItems().addAll(GCodeBuilder.CommentType.values());
+        choiceBoxCommentTypes.setValue(GCodeBuilder.CommentType.BRACKETS);
+        DrawingBotV3.INSTANCE.gcodeCommentType.bindBidirectional(choiceBoxCommentTypes.valueProperty());
 
         textAreaGCodeStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeStartCode);
         textAreaGCodeStart.setText(GCodeExporter.defaultStartCode);

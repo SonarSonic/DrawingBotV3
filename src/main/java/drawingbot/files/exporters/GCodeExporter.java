@@ -5,6 +5,7 @@ import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.PrintResolution;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.Limit;
 
@@ -26,17 +27,17 @@ public class GCodeExporter {
                                                     "G1 F8000 (set speed)";
     public static final String defaultEndCode = "";
     public static final String defaultPenDownCode = "G1 Z0";
-    public static final String defaultPenUpCode = "G1 Z1";
+    public static final String defaultPenUpCode = "G0 Z1";
     public static final String defaultStartLayerCode = "";
     public static final String defaultEndLayerCode = "";
 
 
     public static float getGCodeXOffset(){
-        return DrawingBotV3.INSTANCE.gcodeOffsetX.get();
+        return DrawingBotV3.INSTANCE.gcodeUnits.get().toMM(DrawingBotV3.INSTANCE.gcodeOffsetX.get());
     }
 
     public static float getGCodeYOffset(){
-        return DrawingBotV3.INSTANCE.gcodeOffsetY.get();
+        return DrawingBotV3.INSTANCE.gcodeUnits.get().toMM(DrawingBotV3.INSTANCE.gcodeOffsetY.get());
     }
 
     public static AffineTransform createGCodeTransform(PrintResolution resolution){
@@ -54,6 +55,10 @@ public class GCodeExporter {
         //move with pre-scaled offsets
         transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
 
+        if(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.get()){
+            transform.translate(-resolution.getScaledWidth()/2, -resolution.getScaledHeight()/2);
+        }
+
         //flip y coordinates
         transform.scale(1, -1);
         return transform;
@@ -69,20 +74,28 @@ public class GCodeExporter {
         AffineTransform transform = createGCodeTransform(plottingTask.resolution);
 
         float[] coords = new float[6];
-        for(List<IGeometry> geometryList : geometries.values()){
-            builder.startLayer();
+        for(Map.Entry<Integer, List<IGeometry>> entrySet : geometries.entrySet()){
+            ObservableDrawingPen drawingPen = plottingTask.getDrawingSet().getPen(entrySet.getKey());
+            builder.startLayer(drawingPen.getName());
             int i = 0;
-            for(IGeometry geometry : geometryList){
-                PathIterator iterator = geometry.getAWTShape().getPathIterator(transform);
+            for(IGeometry geometry : entrySet.getValue()){
+
+                PathIterator iterator;
+                if(DrawingBotV3.INSTANCE.gcodeEnableFlattening.get()){
+                    iterator = geometry.getAWTShape().getPathIterator(transform, DrawingBotV3.INSTANCE.gcodeCurveFlatness.get());
+                }else{
+                    iterator = geometry.getAWTShape().getPathIterator(transform);
+                }
+
                 while(!iterator.isDone()){
                     int type = iterator.currentSegment(coords);
                     builder.move(coords, type);
                     iterator.next();
                 }
                 i++;
-                exportTask.updateProgress(i, geometryList.size()-1);
+                exportTask.updateProgress(i, entrySet.getValue().size()-1);
             }
-            builder.endLayer();
+            builder.endLayer(drawingPen.getName());
         }
         builder.close();
         DrawingBotV3.logger.info("GCode File Created:  " +  saveLocation);
@@ -97,7 +110,12 @@ public class GCodeExporter {
         for(List<IGeometry> geometryList : geometries.values()){
             int i = 0;
             for(IGeometry geometry : geometryList){
-                PathIterator iterator = geometry.getAWTShape().getPathIterator(transform);
+                PathIterator iterator;
+                if(DrawingBotV3.INSTANCE.gcodeEnableFlattening.get()){
+                    iterator = geometry.getAWTShape().getPathIterator(transform, DrawingBotV3.INSTANCE.gcodeCurveFlatness.get() / transform.getScaleX());
+                }else{
+                    iterator = geometry.getAWTShape().getPathIterator(transform);
+                }
                 while(!iterator.isDone()){
                     int type = iterator.currentSegment(coords);
                     dx.update_limit(coords[0]);

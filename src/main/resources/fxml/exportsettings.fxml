@@ -344,11 +344,11 @@
                                  <children>
                                     <VBox spacing="4.0">
                                        <children>
-                                          <HBox spacing="8.0">
+                                          <HBox spacing="16.0">
                                              <children>
-                                            <Label contentDisplay="RIGHT" text="X Offset:">
+                                            <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="127.0" text="X Offset:">
                                                 <graphic>
-                                                    <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="100.0" text="0" />
+                                                    <TextField fx:id="textFieldOffsetX" prefHeight="25.0" prefWidth="70.0" text="0" />
                                                 </graphic>
                                                    <font>
                                                       <Font name="System Bold" size="12.0" />
@@ -356,15 +356,58 @@
                                             </Label>
                                             <Label contentDisplay="RIGHT" graphicTextGap="5.0" text="Y Offset:">
                                                 <graphic>
-                                                    <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="100.0" text="0" />
+                                                    <TextField fx:id="textFieldOffsetY" prefHeight="25.0" prefWidth="70.0" text="0" />
                                                 </graphic>
                                                    <font>
                                                       <Font name="System Bold" size="12.0" />
                                                    </font>
                                             </Label>
+                                                <ChoiceBox fx:id="choiceBoxGCodeUnits" prefWidth="70.0" />
                                              </children>
                                           </HBox>
                                           <Separator prefWidth="200.0" />
+                                          <HBox layoutX="14.0" layoutY="14.0" spacing="16.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" text="Curve Flatness:">
+                                                   <graphic>
+                                                      <TextField fx:id="textFieldGCodeCurveFlatness" prefHeight="25.0" prefWidth="70.0" text="0" />
+                                                   </graphic>
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" graphicTextGap="5.0" prefHeight="25.0" prefWidth="120.0" text="Flattening">
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxGCodeEnableFlattening" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <Separator layoutX="14.0" layoutY="43.0" prefWidth="200.0" />
+                                          <HBox prefHeight="25.0" prefWidth="348.0" spacing="38.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" graphicTextGap="5.0" prefHeight="25.0" prefWidth="191.0" text="Center Zero Point">
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxGCodeCenterZeroPoint" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" graphicTextGap="5.0" prefHeight="25.0" prefWidth="263.0" text="Comment Type">
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                   <graphic>
+                                                      <ChoiceBox fx:id="choiceBoxCommentTypes" prefHeight="25.0" prefWidth="104.0" />
+                                                   </graphic>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <Separator layoutX="14.0" layoutY="79.0" prefWidth="200.0" />
                                           <Label alignment="TOP_LEFT" contentDisplay="RIGHT" text="GCode - Start">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
@@ -389,13 +432,13 @@
                                              </font>
                                           </Label>
                                           <TextArea fx:id="textAreaGCodePenUp" layoutX="14.0" layoutY="213.0" prefHeight="44.0" prefWidth="350.0" />
-                                          <Label alignment="TOP_LEFT" contentDisplay="RIGHT" layoutX="14.0" layoutY="287.0" text="GCode - Start Layer">
+                                          <Label alignment="TOP_LEFT" contentDisplay="RIGHT" layoutX="14.0" layoutY="287.0" text="GCode - Start Layer (with wildcard %LAYER_NAME%)">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
                                              </font>
                                           </Label>
                                           <TextArea fx:id="textAreaGCodeStartLayer" layoutX="14.0" layoutY="308.0" prefHeight="44.0" prefWidth="350.0" />
-                                          <Label alignment="TOP_LEFT" contentDisplay="RIGHT" layoutX="14.0" layoutY="356.0" text="GCode - End Layer">
+                                          <Label alignment="TOP_LEFT" contentDisplay="RIGHT" layoutX="14.0" layoutY="356.0" text="GCode - End Layer  (with wildcard %LAYER_NAME%)">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
                                              </font>

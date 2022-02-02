@@ -9,11 +9,14 @@ import drawingbot.utils.Utils;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.io.PrintWriter;
+import java.util.function.Function;
 
 public class GCodeBuilder {
 
     public final PlottingTask task;
     private final PrintWriter output;
+
+    public static final String WILDCARD_LAYER_NAME = "%LAYER_NAME%";
 
     public boolean isPenDown;
 
@@ -83,13 +86,13 @@ public class GCodeBuilder {
         }
     }
 
-    public void startLayer() {
-        output.println(DrawingBotV3.INSTANCE.gcodeStartLayerCode.getValue());
+    public void startLayer(String layerName) {
+        output.println(DrawingBotV3.INSTANCE.gcodeStartLayerCode.getValue().replace(WILDCARD_LAYER_NAME, layerName));
     }
 
 
-    public void endLayer() {
-        output.println(DrawingBotV3.INSTANCE.gcodeEndLayerCode.getValue());
+    public void endLayer(String layerName) {
+        output.println(DrawingBotV3.INSTANCE.gcodeEndLayerCode.getValue().replace(WILDCARD_LAYER_NAME, layerName));
     }
 
     public void move(float[] coords, int type) {
@@ -116,7 +119,7 @@ public class GCodeBuilder {
     }
 
     public void linearMoveG1(float xValue, float yValue) {
-        output.println("G1 X" + Utils.gcodeFloat(xValue) + " Y" + Utils.gcodeFloat(yValue));
+        output.println((isPenDown ? "G1" : "G0") + " X" + Utils.gcodeFloat(xValue) + " Y" + Utils.gcodeFloat(yValue));
         logMove(xValue, yValue);
         lastMoveX = xValue;
         lastMoveY = yValue;
@@ -158,7 +161,26 @@ public class GCodeBuilder {
     }
 
     public void comment(String comment) {
-        output.println("(" + comment.replace(")", "") + ")" + "\n");
+        output.println(DrawingBotV3.INSTANCE.gcodeCommentType.get().formatter.apply(comment));
+    }
+
+    public enum CommentType{
+        BRACKETS("Brackets ()", s -> "(" + s + ")"),
+        SEMI_COLON("Semi-Colons ;", s -> ";" + s),
+        NONE("None", s -> "");
+
+        public String displayName;
+        public Function<String, String> formatter;
+
+        CommentType(String displayName, Function<String, String> formatter){
+            this.displayName = displayName;
+            this.formatter = formatter;
+        }
+
+        @Override
+        public String toString() {
+            return displayName;
+        }
     }
 
 }

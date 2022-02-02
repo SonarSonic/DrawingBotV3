@@ -15,6 +15,7 @@ import drawingbot.api.Hooks;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColourSplitterHandler;
+import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
@@ -77,14 +78,17 @@ public class DrawingBotV3 {
     //GCODE SETTINGS
     public final SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
     public final SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
-    //public final SimpleObjectProperty<EnumDirection> gcodeXDirection = new SimpleObjectProperty<>();
-    //public final SimpleObjectProperty<EnumDirection> gcodeYDirection = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<UnitsLength> gcodeUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
     public final SimpleStringProperty gcodeStartCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodeStartLayerCode = new SimpleStringProperty();
     public final SimpleStringProperty gcodeEndLayerCode = new SimpleStringProperty();
+    public final SimpleFloatProperty gcodeCurveFlatness = new SimpleFloatProperty(0.1F);
+    public final SimpleBooleanProperty gcodeEnableFlattening = new SimpleBooleanProperty(true);
+    public final SimpleBooleanProperty gcodeCenterZeroPoint = new SimpleBooleanProperty(false);
+    public final SimpleObjectProperty<GCodeBuilder.CommentType> gcodeCommentType = new SimpleObjectProperty<>(GCodeBuilder.CommentType.BRACKETS);
 
     //HPGL SETTINGS
     public final SimpleIntegerProperty hpglUnits = new SimpleIntegerProperty(40);

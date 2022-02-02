@@ -1,12 +1,16 @@
 package drawingbot.files.presets.types;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.presets.AbstractSettingsLoader;
 import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.UnitsLength;
+
+import java.util.List;
 
 public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCodeSettings> {
 
@@ -17,8 +21,11 @@ public class PresetGCodeSettingsLoader extends AbstractSettingsLoader<PresetGCod
     public void registerSettings(){
         registerSetting(GenericSetting.createRangedFloatSetting(DrawingBotV3.class, "gcodeOffsetX", 0F, 0F, Float.MAX_VALUE, false, (app, value) -> app.controller.exportController.textFieldOffsetX.setText(String.valueOf(value))).setGetter(app -> app.gcodeOffsetX.get()));
         registerSetting(GenericSetting.createRangedFloatSetting(DrawingBotV3.class, "gcodeOffsetY", 0F, 0F, Float.MAX_VALUE, false, (app, value) -> app.controller.exportController.textFieldOffsetY.setText(String.valueOf(value))).setGetter(app -> app.gcodeOffsetY.get()));
-        //registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "gcodeXDir", List.of(EnumDirection.values()), EnumDirection.POSITIVE, false, (app, value) -> app.controller.exportController.choiceBoxGCodeXDir.setValue(value)).setGetter(app -> app.gcodeXDirection.get()));
-        //registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "gcodeYDir", List.of(EnumDirection.values()), EnumDirection.POSITIVE, false, (app, value) -> app.controller.exportController.choiceBoxGCodeYDir.setValue(value)).setGetter(app -> app.gcodeYDirection.get()));
+        registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "gcodeUnits", List.of(UnitsLength.values()), UnitsLength.MILLIMETRES, false, (app, value) -> app.gcodeUnits.set(value)).setGetter(app -> app.gcodeUnits.get()));
+        registerSetting(GenericSetting.createRangedFloatSetting(DrawingBotV3.class, "gcodeCurveFlatness", 0.1F, 0F, Float.MAX_VALUE, false, (app, value) -> app.controller.exportController.textFieldGCodeCurveFlatness.setText(String.valueOf(value))).setGetter(app -> app.gcodeCurveFlatness.get()));
+        registerSetting(GenericSetting.createBooleanSetting(DrawingBotV3.class, "gcodeEnableFlattening", true, false, (app, value) -> app.controller.exportController.checkBoxGCodeEnableFlattening.setSelected(value)).setGetter(app -> app.controller.exportController.checkBoxGCodeEnableFlattening.isSelected()));
+        registerSetting(GenericSetting.createBooleanSetting(DrawingBotV3.class, "gcodeCenterZeroPoint", false, false, (app, value) -> app.controller.exportController.checkBoxGCodeCenterZeroPoint.setSelected(value)).setGetter(app -> app.controller.exportController.checkBoxGCodeCenterZeroPoint.isSelected()));
+        registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, "gcodeCommentType", List.of(GCodeBuilder.CommentType.values()), GCodeBuilder.CommentType.BRACKETS, false, (app, value) -> app.gcodeCommentType.set(value)).setGetter(app -> app.gcodeCommentType.get()));
         registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodeStartCode", GCodeExporter.defaultStartCode, false, (app, value) -> app.controller.exportController.textAreaGCodeStart.setText(value)).setGetter(app -> app.gcodeStartCode.get()));
         registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodeEndCode", GCodeExporter.defaultEndCode, false, (app, value) -> app.controller.exportController.textAreaGCodeEnd.setText(value)).setGetter(app -> app.gcodeEndCode.get()));
         registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "gcodePenDownCode", GCodeExporter.defaultPenDownCode, false, (app, value) -> app.controller.exportController.textAreaGCodePenDown.setText(value)).setGetter(app -> app.gcodePenDownCode.get()));
