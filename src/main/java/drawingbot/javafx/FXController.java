@@ -80,6 +80,7 @@ public class FXController {
             viewportScrollPane.setVvalue(0.5);
 
             viewportScrollPane.setOnMouseMoved(DrawingBotV3.INSTANCE::onMouseMoved);
+            viewportScrollPane.setStyle("-fx-background: gray;");
 
             initSeparateStages();
 
