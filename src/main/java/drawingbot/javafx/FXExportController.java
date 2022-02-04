@@ -17,6 +17,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.NumberStringConverter;
 
 public class FXExportController {
 
@@ -171,33 +172,33 @@ public class FXExportController {
             comboBoxGCodePreset.setButtonCell(new ComboBoxListCell<>());
         });
 
-        DrawingBotV3.INSTANCE.gcodeOffsetX.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetX.textProperty().get()), textFieldOffsetX.textProperty()));
         textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldOffsetX.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeOffsetX, new NumberStringConverter());
 
-        DrawingBotV3.INSTANCE.gcodeOffsetY.bind(Bindings.createFloatBinding(() -> Float.valueOf(textFieldOffsetY.textProperty().get()), textFieldOffsetY.textProperty()));
         textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldOffsetY.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeOffsetY, new NumberStringConverter());
 
         choiceBoxGCodeUnits.getItems().addAll(UnitsLength.values());
         choiceBoxGCodeUnits.setValue(UnitsLength.MILLIMETRES);
-        DrawingBotV3.INSTANCE.gcodeUnits.bindBidirectional(choiceBoxGCodeUnits.valueProperty());
+        choiceBoxGCodeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeUnits);
 
-        DrawingBotV3.INSTANCE.gcodeCurveFlatness.bind(Bindings.createFloatBinding(() -> textFieldGCodeCurveFlatness.textProperty().get().isEmpty() ? 0.1F : Float.parseFloat(textFieldGCodeCurveFlatness.textProperty().get()), textFieldGCodeCurveFlatness.textProperty()));
         textFieldGCodeCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
+        textFieldGCodeCurveFlatness.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCurveFlatness, new NumberStringConverter());
         textFieldGCodeCurveFlatness.disableProperty().bind(checkBoxGCodeEnableFlattening.selectedProperty().not());
 
         checkBoxGCodeEnableFlattening.setSelected(DrawingBotV3.INSTANCE.gcodeEnableFlattening.getValue());
-        DrawingBotV3.INSTANCE.gcodeEnableFlattening.bindBidirectional(checkBoxGCodeEnableFlattening.selectedProperty());
+        checkBoxGCodeEnableFlattening.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeEnableFlattening);
 
         checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.getValue());
-        DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.bindBidirectional(checkBoxGCodeCenterZeroPoint.selectedProperty());
+        checkBoxGCodeCenterZeroPoint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint);
 
         checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.getValue());
-        DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.bindBidirectional(checkBoxGCodeCenterZeroPoint.selectedProperty());
+        checkBoxGCodeCenterZeroPoint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint);
 
 
         choiceBoxCommentTypes.getItems().addAll(GCodeBuilder.CommentType.values());
         choiceBoxCommentTypes.setValue(GCodeBuilder.CommentType.BRACKETS);
-        DrawingBotV3.INSTANCE.gcodeCommentType.bindBidirectional(choiceBoxCommentTypes.valueProperty());
+        choiceBoxCommentTypes.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCommentType);
 
         textAreaGCodeStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeStartCode);
         textAreaGCodeStart.setText(GCodeExporter.defaultStartCode);

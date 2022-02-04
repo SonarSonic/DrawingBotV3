@@ -171,7 +171,7 @@ public class GeometryUtils {
                             if(continuity){
                                 element.addToPath(false, gPath);
                                 continue;
-                            }else if(includeMultipleMoves){
+                            }else if(includeMultipleMoves && element.getGroupID() == gPath.getGroupID()){
                                 element.addToPath(true, gPath);
                                 continue;
                             }

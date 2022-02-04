@@ -27,6 +27,14 @@ public class ComboCellPFM extends ComboBoxListCell<PFMFactory<?>> {
                 box.getChildren().add(premiumLabel);
                 setText(null);
                 setGraphic(box);
+            }else if(item.isBeta()){
+                HBox box = new HBox();
+                Label betaLabel = new Label(" (Beta)");
+                betaLabel.setStyle("-fx-font-weight: bold");
+                box.getChildren().add(new Label("  " + item.toString()));
+                box.getChildren().add(betaLabel);
+                setText(null);
+                setGraphic(box);
             }else{
                 setText("  " + item.toString());
                 setGraphic(null);

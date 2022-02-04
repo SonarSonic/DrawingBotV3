@@ -247,6 +247,7 @@ public class DrawingBotV3 {
 
     public void onDrawingAreaChanged(){
         RENDERER.croppingDirty = true;
+        OPENGL_RENDERER.reRender();
         //forces "Plotting Size" to stay updated.
         if(DrawingBotV3.INSTANCE.openImage.get() != null){
             DrawingBotV3.INSTANCE.openImage.get().resolution.updateAll();

@@ -363,7 +363,7 @@ public class FXController {
 
         choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
         choiceBoxDisplayMode.setValue(EnumDisplayMode.IMAGE);
-        DrawingBotV3.INSTANCE.display_mode.bindBidirectional(choiceBoxDisplayMode.valueProperty());
+        choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.display_mode);
 
         DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
         DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
@@ -487,7 +487,7 @@ public class FXController {
     public void initDrawingAreaPane(){
 
         colorPickerCanvas.setValue(Color.WHITE);
-        DrawingBotV3.INSTANCE.canvasColor.bindBidirectional(colorPickerCanvas.valueProperty());
+        colorPickerCanvas.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.canvasColor);
         
         comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
         comboBoxDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
@@ -507,14 +507,14 @@ public class FXController {
 
 
         /////SIZING OPTIONS
-        DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.bindBidirectional(checkBoxOriginalSizing.selectedProperty());
+        checkBoxOriginalSizing.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing);
 
         paneDrawingAreaCustom.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
         choiceBoxDrawingUnits.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
 
         choiceBoxDrawingUnits.getItems().addAll(UnitsLength.values());
         choiceBoxDrawingUnits.setValue(UnitsLength.MILLIMETRES);
-        DrawingBotV3.INSTANCE.drawingArea.inputUnits.bindBidirectional(choiceBoxDrawingUnits.valueProperty());
+        choiceBoxDrawingUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.inputUnits);
 
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter());
@@ -547,9 +547,9 @@ public class FXController {
 
         choiceBoxScalingMode.getItems().addAll(EnumScalingMode.values());
         choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
-        DrawingBotV3.INSTANCE.drawingArea.scalingMode.bindBidirectional(choiceBoxScalingMode.valueProperty());
+        choiceBoxScalingMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.scalingMode);
 
-        DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.bindBidirectional(checkBoxOptimiseForPrint.selectedProperty());
+        checkBoxOptimiseForPrint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint);
 
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
         textFieldPenWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.targetPenWidth, new NumberStringConverter());
