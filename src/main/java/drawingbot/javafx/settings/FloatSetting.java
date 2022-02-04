@@ -10,8 +10,8 @@ public class FloatSetting<C> extends RangedNumberSetting<C, Float> {
 
     public int precision = 3;
 
-    public FloatSetting(Class<C> pfmClass, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
-        super(pfmClass, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
+    public FloatSetting(Class<C> pfmClass, String category, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
+        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override
@@ -31,6 +31,6 @@ public class FloatSetting<C> extends RangedNumberSetting<C, Float> {
 
     @Override
     public GenericSetting<C, Float> copy() {
-        return new FloatSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
+        return new FloatSetting<>(clazz, category, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
     }
 }

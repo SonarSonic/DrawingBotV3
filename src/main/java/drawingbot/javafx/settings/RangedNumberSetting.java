@@ -20,8 +20,8 @@ public abstract class RangedNumberSetting<C, V extends Number> extends GenericSe
     public V majorTick;
     public boolean snapToTicks;
 
-    protected RangedNumberSetting(Class<C> clazz, String settingName, V defaultValue, V minValue, V maxValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
-        super(clazz, settingName, defaultValue, stringConverter, randomiser, shouldLock, validator, setter);
+    protected RangedNumberSetting(Class<C> clazz, String category, String settingName, V defaultValue, V minValue, V maxValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
+        super(clazz, category, settingName, defaultValue, stringConverter, randomiser, shouldLock, validator, setter);
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;

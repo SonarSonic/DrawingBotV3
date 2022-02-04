@@ -13,8 +13,8 @@ import java.util.function.BiConsumer;
 
 public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> {
 
-    public DrawingStylesSetting(Class<C> pfmClass, String settingName, DrawingStyleSet defaultValue, boolean shouldLock, BiConsumer<C, DrawingStyleSet> setter) {
-        super(pfmClass, settingName, defaultValue, new StringConverter<>() {
+    public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue, boolean shouldLock, BiConsumer<C, DrawingStyleSet> setter) {
+        super(pfmClass, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(DrawingStyleSet object) {
                 return object.styles.toString();
@@ -55,6 +55,6 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
 
     @Override
     public GenericSetting<C, DrawingStyleSet> copy() {
-        return new DrawingStylesSetting<>(clazz, settingName.getValue(), defaultValue, lock.get(), setter);
+        return new DrawingStylesSetting<>(clazz, category, settingName.getValue(), defaultValue, lock.get(), setter);
     }
 }

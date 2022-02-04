@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
+import drawingbot.registry.Register;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -38,12 +39,14 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public final V defaultValue; //the default value for the setting
     public final SimpleObjectProperty<V> value; //the current value
     public final SimpleBooleanProperty lock; //the current value
+    public String category = ""; //optional category identifier
 
     ///optional
     public Function<C, V> getter; //the getter gets the value in the class
 
-    public GenericSetting(Class<C> clazz, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
+    public GenericSetting(Class<C> clazz, String category, String settingName, V defaultValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, boolean shouldLock, Function<V, V> validator, BiConsumer<C, V> setter) {
         this.clazz = clazz;
+        this.category = category;
         this.settingName = new SimpleStringProperty(settingName);
         this.defaultValue = defaultValue;
         this.value = new SimpleObjectProperty<>(defaultValue);
@@ -76,6 +79,11 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public GenericSetting<C, V> setGetter(Function<C, V> getter){
         this.getter = getter;
+        return this;
+    }
+
+    public GenericSetting<C, V> setCategory(String category){
+        this.category = category;
         return this;
     }
 
@@ -290,34 +298,66 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static <C> BooleanSetting<C> createBooleanSetting(Class<C> clazz, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
-        return new BooleanSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
+        return createBooleanSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, shouldLock, setter);
+    }
+
+    public static <C> BooleanSetting<C> createBooleanSetting(Class<C> clazz, String category, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter){
+        return new BooleanSetting<>(clazz, category, settingName, defaultValue, shouldLock, setter);
     }
 
     public static <C> StringSetting<C> createStringSetting(Class<C> clazz, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
-        return new StringSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
+        return createStringSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, shouldLock, setter);
+    }
+
+    public static <C> StringSetting<C> createStringSetting(Class<C> clazz, String category, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter){
+        return new StringSetting<>(clazz, category, settingName, defaultValue, shouldLock, setter);
     }
 
     public static <C> IntegerSetting<C> createRangedIntSetting(Class<C> clazz, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
-        return new IntegerSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+        return createRangedIntSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
-    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> clazz, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
-        return new FloatSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    public static <C> IntegerSetting<C> createRangedIntSetting(Class<C> clazz, String category, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
+        return new IntegerSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> clazz, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter) {
+        return createRangedFloatSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> clazz, String category, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
+        return new FloatSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
     public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> clazz, String settingName, double defaultValue, double minValue, double maxValue, boolean shouldLock, BiConsumer<C, Double> setter){
-        return new DoubleSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+        return createRangedDoubleSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, double minValue, double maxValue, boolean shouldLock, BiConsumer<C, Double> setter){
+        return new DoubleSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
     public static <C> LongSetting<C> createRangedLongSetting(Class<C> clazz, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
-        return new LongSetting<>(clazz, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+        return createRangedLongSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
+    }
+
+    public static <C> LongSetting<C> createRangedLongSetting(Class<C> clazz, String category, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
+        return new LongSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue, shouldLock, setter);
     }
 
     public static <C> ColourSetting<C> createColourSetting(Class<C> clazz, String settingName, Color defaultValue, boolean shouldLock, BiConsumer<C, Color> setter){
-        return new ColourSetting<>(clazz, settingName, defaultValue, shouldLock, setter);
+        return createColourSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, shouldLock, setter);
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter){
+    public static <C> ColourSetting<C> createColourSetting(Class<C> clazz, String category, String settingName, Color defaultValue, boolean shouldLock, BiConsumer<C, Color> setter){
+        return new ColourSetting<>(clazz, category, settingName, defaultValue, shouldLock, setter);
+    }
+
+    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter) {
+        return createOptionSetting(clazz, Register.CATEGORY_UNIQUE, settingName, values, defaultValue, shouldLock, setter);
+    }
+
+    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, String category, String settingName, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter){
         StringConverter<V> optionStringConverter = new StringConverter<V>() {
             @Override
             public String toString(V object) {
@@ -333,6 +373,6 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
                 return null;
             }
         };
-        return new OptionSetting<>(clazz, settingName, optionStringConverter, values, defaultValue, shouldLock, setter);
+        return new OptionSetting<>(clazz, category, settingName, optionStringConverter, values, defaultValue, shouldLock, setter);
     }
 }

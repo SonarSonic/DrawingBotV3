@@ -17,14 +17,12 @@ import drawingbot.image.filters.*;
 import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogExportGCodeBegin;
-import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.pfm.*;
 import drawingbot.utils.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Register implements IPlugin {
@@ -58,6 +56,14 @@ public class Register implements IPlugin {
 
     public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
     public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
+
+    //// PFM CATEGORIES \\\\
+
+    public static final String CATEGORY_DEFAULT = "Default"; // Priority = 10
+    public static final String CATEGORY_UNIQUE = "Unique"; // Priority = 5
+    public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
+
+
     @Override
     public String getPluginName() {
         return "Default";
@@ -99,6 +105,10 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerGeometryType("quad", GQuadCurve.class, GQuadCurve::new);
         MasterRegistry.INSTANCE.registerGeometryType("rect", GRectangle.class, GRectangle::new);
         MasterRegistry.INSTANCE.registerGeometryType("ellipse", GEllipse.class, GEllipse::new);
+
+        MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_DEFAULT, 10);
+        MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);
+        MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_GENERIC, 0);
     }
 
     @Override
@@ -112,40 +122,40 @@ public class Register implements IPlugin {
     @Override
     public void registerPFMSettings(){
         //// GENERAL \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, "Plotting Resolution", 1.0F, 0.1F, 10.0F, true, (pfmSketch, value) -> pfmSketch.pfmResolution = value).setSafeRange(0.1F, 1.0F));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.seed = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Plotting Resolution", 1.0F, 0.1F, 10.0F, true, (pfm, value) -> pfm.pfmResolution = value).setSafeRange(0.1F, 1.0F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, (pfm, value) -> pfm.seed = value));
 
         //// SKETCH LINES \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Min", -72, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMin = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, "Start Angle Max", -52, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngleMax = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.drawingDeltaAngle = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Shading", false, false, (pfmSketch, value) -> pfmSketch.enableShading = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Threshold", 50, 0, 100, false, (pfmSketch, value) -> pfmSketch.shadingThreshold = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading Delta Angle", 180F, -360F, 360F, true, (pfmSketch, value) -> pfmSketch.shadingDeltaAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Min", -72, -360, 360, false, (pfm, value) -> pfm.startAngleMin = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Max", -52, -360, 360, false, (pfm, value) -> pfm.startAngleMax = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Drawing Delta Angle", 360F, -360F, 360F, true, (pfm, value) -> pfm.drawingDeltaAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading", false, false, (pfm, value) -> pfm.enableShading = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading Threshold", 50, 0, 100, false, (pfm, value) -> pfm.shadingThreshold = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading Delta Angle", 180F, -360F, 360F, true, (pfm, value) -> pfm.shadingDeltaAngle = value));
 
         //// SKETCH SQUARES \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquares.class, "Start Angle", 45, -360, 360, false, (pfmSketch, value) -> pfmSketch.startAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquares.class, CATEGORY_UNIQUE, "Start Angle", 45, -360, 360, false, (pfm, value) -> pfm.startAngle = value));
 
         //// SPIRAL \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Spiral Size", 100F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.fillPercentage = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Centre X", 50F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.centreXScale = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Centre Y", 50F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.centreYScale = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Ring Spacing", 7F, 0F, 100F, false, (pfmSketch, value) -> pfmSketch.distBetweenRings = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Amplitude", 4.5F, 0F, 50F, false, (pfmSketch, value) -> pfmSketch.ampScale = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, "Density", 75F, 0F, 1000F, false, (pfmSketch, value) -> pfmSketch.density = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Spiral Size", 100F, 0F, 100F, false, (pfm, value) -> pfm.fillPercentage = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Centre X", 50F, 0F, 100F, false, (pfm, value) -> pfm.centreXScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Centre Y", 50F, 0F, 100F, false, (pfm, value) -> pfm.centreYScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Ring Spacing", 7F, 0F, 100F, false, (pfm, value) -> pfm.distBetweenRings = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Amplitude", 4.5F, 0F, 50F, false, (pfm, value) -> pfm.ampScale = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Density", 75F, 0F, 1000F, false, (pfm, value) -> pfm.density = value));
 
         //// ABSTRACT SKETCH PFM \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Line Density", 75F, 0F, 100F, true, (pfmSketch, value) -> pfmSketch.lineDensity = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Min Line length", 2, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.minLineLength = value).setSafeRange(2, 500));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line length", 40, 2, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.maxLineLength = value).setSafeRange(2, 500));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfmSketch, value) -> pfmSketch.maxLines = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfmSketch, value) -> pfmSketch.squiggleLength = value).setSafeRange(1, 5000));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Squiggle Max Deviation", 25, 0, 100, false, (pfmSketch, value) -> pfmSketch.squiggleDeviation = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Line Density", 75F, 0F, 100F, true, (pfm, value) -> pfm.lineDensity = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Min Line length", 2, 2, Short.MAX_VALUE, false, (pfm, value) -> pfm.minLineLength = value).setSafeRange(2, 500));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Max Line length", 40, 2, Short.MAX_VALUE, false, (pfm, value) -> pfm.maxLineLength = value).setSafeRange(2, 500));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Max Line Limit", -1, -1, Integer.MAX_VALUE, true, (pfm, value) -> pfm.maxLines = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Squiggle Length", 500, 1, Short.MAX_VALUE, false, (pfm, value) -> pfm.squiggleLength = value).setSafeRange(1, 5000));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Squiggle Max Deviation", 25, 0, 100, false, (pfm, value) -> pfm.squiggleDeviation = value/100F));
 
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Adjust Brightness", 50, 1, 255, false, (pfmSketch, value) -> pfmSketch.adjustbrightness = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Unlimited Tests", false, true, (pfmSketch, value) -> pfmSketch.unlimitedTests = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Neighbour Tests", 20, 1, 3200, false, (pfmSketch, value) -> pfmSketch.lineTests = value).setSafeRange(0, 360));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Should Lift Pen", true, false, (pfmSketch, value) -> pfmSketch.shouldLiftPen = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Adjust Brightness", 50, 1, 255, false, (pfm, value) -> pfm.adjustbrightness = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Unlimited Tests", false, true, (pfm, value) -> pfm.unlimitedTests = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Neighbour Tests", 20, 1, 3200, false, (pfm, value) -> pfm.lineTests = value).setSafeRange(0, 360));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Should Lift Pen", true, false, (pfm, value) -> pfm.shouldLiftPen = value));
 
     }
 

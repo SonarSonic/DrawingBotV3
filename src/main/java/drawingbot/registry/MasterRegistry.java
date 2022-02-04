@@ -7,13 +7,11 @@ import drawingbot.api.IPathFindingModule;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColourSplitterHandler;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.presets.AbstractJsonLoader;
 import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.PresetType;
-import drawingbot.files.presets.types.PresetDrawingSet;
 import drawingbot.files.presets.types.PresetPFMSettings;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.kernels.IKernelFactory;
@@ -76,6 +74,10 @@ public class MasterRegistry {
     public Map<String, Class<? extends IGeometry>> geometryTypes = new HashMap<>();
     public Map<String, Supplier<IGeometry>> geometryFactories = new HashMap<>();
 
+    //// SETTINGS CATEGORIES \\\\
+
+    public HashMap<String, Integer> settingCategories = new HashMap<>();
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void findPlugins(){
@@ -98,14 +100,17 @@ public class MasterRegistry {
         PLUGINS.forEach(IPlugin::init);
         PLUGINS.forEach(IPlugin::registerPFMS);
         PLUGINS.forEach(IPlugin::registerPFMSettings);
+
+        INSTANCE.sortPFMSettings();
+
         PLUGINS.forEach(IPlugin::registerDrawingTools);
         PLUGINS.forEach(IPlugin::registerImageFilters);
         PLUGINS.forEach(IPlugin::registerDrawingExportHandlers);
         PLUGINS.forEach(IPlugin::registerColourSplitterHandlers);
 
-        for(ColourSplitterHandler splitter : MasterRegistry.INSTANCE.colourSplitterHandlers){
+        for(ColourSplitterHandler splitter : INSTANCE.colourSplitterHandlers){
             splitter.drawingSet = splitter.createDrawingSet.apply(splitter);
-            MasterRegistry.INSTANCE.registerDrawingSet(splitter.drawingSet);
+            INSTANCE.registerDrawingSet(splitter.drawingSet);
         }
     }
 
@@ -165,6 +170,17 @@ public class MasterRegistry {
         }
     }
 
+    //// SETTINGS CATEGORIES
+
+    public int getCategoryPriority(String category){
+        Integer priority = settingCategories.get(category);
+        return priority == null ? 5 : priority;
+    }
+
+    public void registerSettingCategory(String category, int priority){
+        settingCategories.put(category, priority);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PATH FINDING MODULES: DEFAULTS
@@ -177,6 +193,12 @@ public class MasterRegistry {
         ObservableList<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), FXCollections.observableArrayList());
         GenericSetting.applySettings(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList, list);
         return list;
+    }
+
+    public void sortPFMSettings(){
+        for(ObservableList<GenericSetting<?, ?>> settingsList : MasterRegistry.INSTANCE.pfmSettings.values()){
+            settingsList.sort(Comparator.comparingInt(value -> -getCategoryPriority(value.category)));
+        }
     }
 
     //// IMAGE FILTER: DEFAULTS

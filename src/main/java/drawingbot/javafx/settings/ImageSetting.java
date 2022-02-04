@@ -24,8 +24,8 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
     public SimpleObjectProperty<ImageView> imageView;
     public SimpleObjectProperty<WritableImage> thumbnail;
 
-    public ImageSetting(Class<C> clazz, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter) {
-        super(clazz, settingName, defaultValue, new DefaultStringConverter(), null, shouldLock, s -> s, setter);
+    public ImageSetting(Class<C> clazz, String category, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter) {
+        super(clazz, category, settingName, defaultValue, new DefaultStringConverter(), null, shouldLock, s -> s, setter);
     }
 
     @Override
@@ -58,6 +58,6 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
     @Override
     public GenericSetting<C, String> copy() {
-        return new ImageSetting<>(clazz, settingName.get(), defaultValue, lock.get(), setter);
+        return new ImageSetting<>(clazz, category, settingName.get(), defaultValue, lock.get(), setter);
     }
 }

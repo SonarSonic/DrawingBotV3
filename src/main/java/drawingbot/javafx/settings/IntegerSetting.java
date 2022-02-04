@@ -8,8 +8,8 @@ import java.util.function.BiConsumer;
 
 public class IntegerSetting<C> extends RangedNumberSetting<C, Integer> {
 
-    public IntegerSetting(Class<C> pfmClass, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
-        super(pfmClass, settingName, defaultValue, minValue, maxValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
+    public IntegerSetting(Class<C> pfmClass, String category, String settingName, int defaultValue, int minValue, int maxValue, boolean shouldLock, BiConsumer<C, Integer> setter){
+        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class IntegerSetting<C> extends RangedNumberSetting<C, Integer> {
 
     @Override
     public GenericSetting<C, Integer> copy() {
-        return new IntegerSetting<>(clazz, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
+        return new IntegerSetting<>(clazz, category, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
     }
 
 }
