@@ -57,7 +57,7 @@ public class Register implements IPlugin {
     public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
     public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
 
-    //// PFM CATEGORIES \\\\
+    //// SETTINGS CATEGORIES \\\\
 
     public static final String CATEGORY_DEFAULT = "Default"; // Priority = 10
     public static final String CATEGORY_UNIQUE = "Unique"; // Priority = 5

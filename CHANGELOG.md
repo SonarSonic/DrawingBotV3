@@ -1,3 +1,19 @@
+### [v1.3.5-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.5-stable-free)
+- Note: The recommended JAVA version for DBV3 is now Java 17.
+- Note: All packaged installers now use a Java 17 Runtime instead of Java 11
+- Added: Projects saved will now store the current drawing state, allowing you to reload projects exactly where you left off. Versions will also store the drawing state, so you can switch between variations instantly. (Premium Only)
+- Added: New GCode Options, "Curve Flatness", "Center Zero Point" and "Comment Type"
+- Added: US Paper Sizes to Drawing Area presets. ANSI, ARCH and US Letter/Legal/Executive.
+- Fixed: OpenGLRenderer will now work as intended on MacOS!
+- Fixed: Images randomly failing to load, fixes issue where images might need to be imported twice.
+- Fixed: Viewport scrolling on some hardware configurations.
+- Fixed: Serial Connection control panel not opening
+- Fixed: MacOS .pkg Installers not running
+- Changed: Delayed OpenGL Initialization to speed up load times and prevent crashes at start up.
+- Changed: Simplified logging, removing redundant information
+- Changed: The first time you run OpenGL after restarting DBV3 it will take a moment to activate.
+- Changed: Improved OpenGLRenderer compatibility to favour faster implementations.
+
 ### [v1.3.4-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.4-stable-free)
 - Fixed: Windows .zip and .exe Installers not running for some configurations.
 
