@@ -1,6 +1,8 @@
 ### [v1.3.5-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.5-stable-free)
 - Note: The recommended JAVA version for DBV3 is now Java 17.
 - Note: All packaged installers now use a Java 17 Runtime instead of Java 11
+- Added: Sketch Waves PFM, another Sketch PFM variation which uses Sin/Cos/Tan waves to direct the sketched lines, it's in Beta (Premium Only)
+- Added: Sketch Layers, allows you to layer the results on multiple PFMS on top of each other and optionally pass the lightned image between them to create new unique styles (Premium Only), thanks to HanzPetrov for all his hardwork on this!
 - Added: Projects saved will now store the current drawing state, allowing you to reload projects exactly where you left off. Versions will also store the drawing state, so you can switch between variations instantly. (Premium Only)
 - Added: New GCode Options, "Curve Flatness", "Center Zero Point" and "Comment Type"
 - Added: US Paper Sizes to Drawing Area presets. ANSI, ARCH and US Letter/Legal/Executive.
