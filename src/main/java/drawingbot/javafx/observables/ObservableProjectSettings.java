@@ -31,6 +31,8 @@ public class ObservableProjectSettings {
         this.file = new SimpleStringProperty(preset.data.imagePath);
         this.preset = new SimpleObjectProperty<>(preset);
 
+        this.userDefinedName.addListener((observable, oldValue, newValue) -> preset.data.name = newValue);
+
         this.imageView.get().imageProperty().bind(thumbnail);
         this.imageView.get().preserveRatioProperty().set(true);
         this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty());
