@@ -93,7 +93,7 @@ public class FXController {
             viewportScrollPane.setVvalue(0.5);
 
             viewportScrollPane.setOnMouseMoved(DrawingBotV3.INSTANCE::onMouseMovedViewport);
-            viewportScrollPane.setOnMouseClicked(DrawingBotV3.INSTANCE::onMouseClickedViewport);
+            viewportScrollPane.setOnMousePressed(DrawingBotV3.INSTANCE::onMousePressedViewport);
             viewportScrollPane.setOnKeyPressed(DrawingBotV3.INSTANCE::onKeyPressedViewport);
 
 
@@ -462,8 +462,8 @@ public class FXController {
         }
     }
 
-    public void onMouseClickedColourPicker(MouseEvent event){
-        if(colourPickerActive){
+    public void onMousePressedColourPicker(MouseEvent event){
+        if(colourPickerActive && event.isSecondaryButtonDown()){
             doColourPick(event, false);
             event.consume();
         }

@@ -493,13 +493,14 @@ public class DrawingBotV3 {
 
     }
 
-    public void onMouseClickedViewport(MouseEvent event){
-        controller.onMouseClickedColourPicker(event);
+    public void onMousePressedViewport(MouseEvent event){
+        controller.onMousePressedColourPicker(event);
     }
 
     public void onKeyPressedViewport(KeyEvent event){
         controller.onKeyPressedColourPicker(event);
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// SERVICES
