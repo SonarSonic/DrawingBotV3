@@ -5,6 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
@@ -385,12 +386,6 @@
                         </CheckBox>
                         <Separator layoutX="244.0" layoutY="10.0" prefHeight="30.0" prefWidth="14.0" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
-                        <Separator layoutX="351.0" layoutY="10.0" prefHeight="25.0" prefWidth="21.0" />
-                        <Label contentDisplay="RIGHT" text="Show Grid:" visible="false">
-                           <graphic>
-                              <CheckBox fx:id="checkBoxShowGrid" mnemonicParsing="false" />
-                           </graphic>
-                        </Label>
                      </items>
                   </ToolBar>
                   <HBox minHeight="25.0" prefHeight="25.0">
@@ -436,7 +431,7 @@
                               <Insets top="4.0" />
                            </padding>
                         </Label>
-                        <Label contentDisplay="RIGHT" layoutX="673.0" layoutY="10.0" text="Position">
+                        <Label contentDisplay="RIGHT" layoutX="673.0" layoutY="10.0" prefHeight="21.0" prefWidth="153.0" text="Position:">
                            <graphic>
                               <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
                            </graphic>
@@ -444,6 +439,11 @@
                               <Insets top="4.0" />
                            </padding>
                         </Label>
+                        <Rectangle fx:id="colourPickerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="17.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="17.0">
+                           <HBox.margin>
+                              <Insets right="4.0" top="4.0" />
+                           </HBox.margin>
+                        </Rectangle>
                      </children>
                      <padding>
                         <Insets left="10.0" />

@@ -469,7 +469,8 @@ public class DrawingBotV3 {
                 DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight()/2);
     }
 
-    public void onMouseMoved(MouseEvent event){
+    public void onMouseMovedViewport(MouseEvent event){
+        controller.onMouseMovedColourPicker(event);
         Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
         Point2D position = !display_mode.get().isOpenGL() ? RENDERER.sceneToRenderer(mouse) : OPENGL_RENDERER.sceneToRenderer(mouse);
 
@@ -492,6 +493,13 @@ public class DrawingBotV3 {
 
     }
 
+    public void onMouseClickedViewport(MouseEvent event){
+        controller.onMouseClickedColourPicker(event);
+    }
+
+    public void onKeyPressedViewport(KeyEvent event){
+        controller.onKeyPressedColourPicker(event);
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// SERVICES

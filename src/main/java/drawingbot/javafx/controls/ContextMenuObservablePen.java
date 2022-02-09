@@ -27,6 +27,13 @@ public class ContextMenuObservablePen extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
+        MenuItem pickColour = new MenuItem("Pick Colour");
+        pickColour.setOnAction(e -> DrawingBotV3.INSTANCE.controller.startColourPick(row.getItem()));
+        getItems().add(pickColour);
+
+        getItems().add(new SeparatorMenuItem());
+
+
         FXHelper.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.INSTANCE.observableDrawingSet.pens, p -> DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(p));
     }
 

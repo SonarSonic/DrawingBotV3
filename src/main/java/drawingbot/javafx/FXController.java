@@ -27,17 +27,30 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.SnapshotResult;
 import javafx.scene.control.*;
 
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
@@ -79,7 +92,10 @@ public class FXController {
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
 
-            viewportScrollPane.setOnMouseMoved(DrawingBotV3.INSTANCE::onMouseMoved);
+            viewportScrollPane.setOnMouseMoved(DrawingBotV3.INSTANCE::onMouseMovedViewport);
+            viewportScrollPane.setOnMouseClicked(DrawingBotV3.INSTANCE::onMouseClickedViewport);
+            viewportScrollPane.setOnKeyPressed(DrawingBotV3.INSTANCE::onKeyPressedViewport);
+
 
             initSeparateStages();
 
@@ -119,6 +135,8 @@ public class FXController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////GLOBAL CONTAINERS
+    public VBox vBoxMain = null;
+
     public ScrollPane scrollPaneSettings = null;
     public VBox vBoxSettings = null;
 
@@ -300,7 +318,7 @@ public class FXController {
     public CheckBox checkBoxApplyToExport = null;
 
     public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
-    public CheckBox checkBoxShowGrid = null;
+    //public CheckBox checkBoxShowGrid = null;
     public Button buttonResetView = null;
 
     ////PLOT DETAILS
@@ -311,10 +329,9 @@ public class FXController {
     public Label labelPlottingResolution = null;
     public Label labelCurrentPosition = null;
 
-    public void initViewport(){
+    public Rectangle colourPickerRectangle;
 
-        //viewportStackPane.minWidthProperty().bind(viewportScrollPane.widthProperty());
-        //viewportStackPane.minHeightProperty().bind(viewportScrollPane.heightProperty());
+    public void initViewport(){
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
@@ -365,8 +382,8 @@ public class FXController {
         choiceBoxDisplayMode.setValue(EnumDisplayMode.IMAGE);
         choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.display_mode);
 
-        DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
-        DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
+        //DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
+        //DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
@@ -398,6 +415,64 @@ public class FXController {
         labelImageResolution.setText("0 x 0");
         labelPlottingResolution.setText("0 x 0");
         labelCurrentPosition.setText("0 x 0 y");
+    }
+
+    private final WritableImage snapshotImage = new WritableImage(1, 1);
+    private ObservableDrawingPen penForColourPicker;
+    private boolean colourPickerActive;
+
+    public void startColourPick(ObservableDrawingPen pen){
+        penForColourPicker = pen;
+        colourPickerActive = true;
+        viewportScrollPane.setCursor(Cursor.CROSSHAIR);
+        colourPickerRectangle.setVisible(true);
+        colourPickerRectangle.setFill(pen.javaFXColour.get());
+    }
+
+    public void doColourPick(MouseEvent event, boolean update){
+        Point2D localPoint = viewportScrollPane.getParent().sceneToLocal(event.getSceneX(), event.getSceneY());
+
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setViewport(new Rectangle2D(localPoint.getX(), localPoint.getY(), 1, 1));
+
+        viewportScrollPane.snapshot((result) -> setPickResult(result, update), parameters, snapshotImage);
+    }
+
+    public Void setPickResult(SnapshotResult result, boolean update){
+        Color color = result.getImage().getPixelReader().getColor(0, 0);
+        if(update){
+            colourPickerRectangle.setFill(color);
+        }else{
+            penForColourPicker.javaFXColour.set(color);
+            endColourPick();
+        }
+        return null;
+    }
+
+    public void endColourPick(){
+        viewportScrollPane.setCursor(Cursor.DEFAULT);
+        penForColourPicker = null;
+        colourPickerActive = false;
+        colourPickerRectangle.setVisible(false);
+    }
+
+    public void onMouseMovedColourPicker(MouseEvent event){
+        if(colourPickerActive){
+            doColourPick(event, true);
+        }
+    }
+
+    public void onMouseClickedColourPicker(MouseEvent event){
+        if(colourPickerActive){
+            doColourPick(event, false);
+            event.consume();
+        }
+    }
+
+    public void onKeyPressedColourPicker(KeyEvent event){
+        if(event.getCode() == KeyCode.ESCAPE){
+            endColourPick();
+        }
     }
 
 
