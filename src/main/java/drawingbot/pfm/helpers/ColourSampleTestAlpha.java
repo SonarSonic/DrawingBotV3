@@ -1,7 +1,6 @@
 package drawingbot.pfm.helpers;
 
 import drawingbot.api.IPixelData;
-import drawingbot.image.ImageTools;
 
 public class ColourSampleTestAlpha extends ColourSampleTest {
     
@@ -14,13 +13,5 @@ public class ColourSampleTestAlpha extends ColourSampleTest {
         pixels.adjustAlpha(x, y, -adjustLum);
         total_pixels++;
     }
-
-    @Override
-    public int getCurrentAverage(){
-        if(total_pixels == 0){
-            return 0;
-        }
-        return ImageTools.getARGB(sum_alpha / total_pixels, sum_red /total_pixels, sum_green / total_pixels, sum_blue / total_pixels);
-    }    
     
 }
