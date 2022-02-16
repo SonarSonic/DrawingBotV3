@@ -57,6 +57,10 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         this.lock = new SimpleBooleanProperty(shouldLock);
     }
 
+    public String getSettingKey(){
+        return settingName.get();
+    }
+
     public GenericSetting<C, V> setStringConverter(StringConverter<V> stringConverter){
         this.stringConverter = stringConverter;
         return this;
@@ -227,7 +231,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public static HashMap<String, JsonElement> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, JsonElement> dst, boolean changesOnly){
         list.forEach(s -> {
             if(!changesOnly || !s.value.get().equals(s.defaultValue)){
-                dst.put(s.settingName.getValue(), s.getValueAsJsonElement());
+                dst.put(s.getSettingKey(), s.getValueAsJsonElement());
             }
         });
         return dst;
@@ -262,7 +266,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         dst: for(GenericSetting<?, ?> settingDst : dst){
 
             for(Map.Entry<String, JsonElement> settingSrc : src.entrySet()){
-                if(settingSrc.getKey().equals(settingDst.settingName.getValue())){
+                if(settingSrc.getKey().equals(settingDst.getSettingKey())){
 
                     settingDst.setValue(settingDst.getValueFromJsonElement(settingSrc.getValue()));
                     continue dst;
@@ -276,7 +280,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         dst: for(GenericSetting<?, ?> settingDst : dst){
 
             for(GenericSetting<?, ?> settingSrc : src){
-                if(settingSrc.settingName.getValue().equals(settingDst.settingName.getValue())){
+                if(settingSrc.getSettingKey().equals(settingDst.getSettingKey())){
                     settingDst.setValue(settingSrc.value.get());
                     continue dst;
                 }
@@ -293,6 +297,19 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public static List<GenericSetting<?, ?>> copy(List<GenericSetting<?, ?>> list, List<GenericSetting<?, ?>> dst){
         list.forEach(s -> dst.add(s.copy()));
         return dst;
+    }
+
+    public static void saveValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
+        list.forEach(setting -> valueMap.put(setting.getSettingKey(), setting.getValueAsString()));
+    }
+
+    public static void loadValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
+        list.forEach(setting -> {
+            String value = valueMap.get(setting.getSettingKey());
+            if(value != null){
+                setting.setValueFromString(value);
+            }
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

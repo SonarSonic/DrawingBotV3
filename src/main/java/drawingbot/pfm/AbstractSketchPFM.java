@@ -5,6 +5,8 @@ import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
 import drawingbot.plotting.PlottingTask;
 
+import java.util.function.BiConsumer;
+
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     //user settings
@@ -22,14 +24,14 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public boolean shouldLiftPen;
 
     //process specific
-    protected double initialLuminance;
+    public double initialLuminance;
 
     public final float desiredLuminance = 253.5F;
 
     //latest progress
-    protected double lineProgress = 0;
-    protected double lumProgress = 0;
-    protected double actualProgress = 0;
+    public double lineProgress = 0;
+    public double lumProgress = 0;
+    public double actualProgress = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -48,14 +50,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+    public BiConsumer<IPixelData, int[]> findDarkestMethod = AbstractDarkestPFM::findDarkestArea;
     public int[] current = new int[]{-1, -1};
     public int[] darkest = new int[]{-1, -1};
 
     @Override
     public void doProcess() {
-
-        findDarkestArea(task.getPixelData(), darkest);
+        findDarkestMethod.accept(task.getPixelData(), darkest);
 
         if(!shouldLiftPen && current[0] != -1){
             addGeometry(task, current[0], current[1], darkest[0], darkest[1], adjustbrightness);
@@ -111,11 +112,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     protected boolean updateProgress(IPlottingTask task){
         PlottingTask plottingTask = (PlottingTask) task;
-        double avgLuminance = task.getPixelData().getAverageLuminance();
-        lineProgress = maxLines == -1 ? 0 : (double)plottingTask.plottedDrawing.geometries.size() / maxLines;
-        lumProgress = avgLuminance >= desiredLuminance ? 1 : (avgLuminance - initialLuminance) / ((desiredLuminance - initialLuminance)*lineDensity);
-        actualProgress = Math.max(lineProgress, lumProgress);
 
+        if(!plottingTask.applySketchPFMProgressCallback(this)){
+            double avgLuminance = task.getPixelData().getAverageLuminance();
+            lineProgress = maxLines == -1 ? 0 : (double)plottingTask.plottedDrawing.geometries.size() / maxLines;
+            lumProgress = avgLuminance >= desiredLuminance ? 1 : (avgLuminance - initialLuminance) / ((desiredLuminance - initialLuminance)*lineDensity);
+            actualProgress = Math.max(lineProgress, lumProgress);
+        }
         task.updatePlottingProgress(actualProgress, 1D);
         return actualProgress >= 1;
     }

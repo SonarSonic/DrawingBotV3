@@ -775,7 +775,7 @@ public class FXController {
     public Button buttonPFMSettingRandom = null;
     public Button buttonPFMSettingHelp = null;
 
-    public ChoiceBox<ColourSplitterHandler> choiceBoxColourSeperation = null;
+    public ChoiceBox<ColourSeperationHandler> choiceBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
     public void initPFMControls(){
@@ -837,13 +837,25 @@ public class FXController {
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));
 
-        DrawingBotV3.INSTANCE.colourSplitter.bindBidirectional(choiceBoxColourSeperation.valueProperty());
-
+        choiceBoxColourSeperation.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.colourSeperator);
         choiceBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
         choiceBoxColourSeperation.setValue(Register.DEFAULT_COLOUR_SPLITTER);
+        DrawingBotV3.INSTANCE.colourSeperator.addListener((observable, oldValue, newValue) -> changeColourSplitter(oldValue,newValue));
 
-        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.colourSplitter.get().isDefault(), DrawingBotV3.INSTANCE.colourSplitter));
+        buttonConfigureSplitter.setOnAction(e -> DrawingBotV3.INSTANCE.colourSeperator.get().onUserConfigure());
+        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> !DrawingBotV3.INSTANCE.colourSeperator.get().canUserConfigure(), DrawingBotV3.INSTANCE.colourSeperator));
+    }
 
+    public static void changeColourSplitter(ColourSeperationHandler oldValue, ColourSeperationHandler newValue){
+        if(oldValue.wasApplied()){
+            oldValue.resetSettings();
+            oldValue.setApplied(false);
+        }
+
+        if(newValue.onUserSelected()){
+            newValue.applySettings();
+            newValue.setApplied(true);
+        }
     }
 
 
@@ -1146,7 +1158,7 @@ public class FXController {
             showPremiumFeatureDialog();
         }else{
             DrawingBotV3.INSTANCE.pfmFactory.set(pfm);
-            DrawingBotV3.INSTANCE.updateDistributionType = pfm.getDistributionType();
+            DrawingBotV3.INSTANCE.nextDistributionType = pfm.getDistributionType();
         }
 
     }
@@ -1154,10 +1166,7 @@ public class FXController {
     public static void changeDrawingSet(IDrawingSet<IDrawingPen> set){
         if(set != null){
             DrawingBotV3.INSTANCE.observableDrawingSet.loadDrawingSet(set);
-            if(set instanceof ColourSplitterHandler.ColourSplitterDrawingSet){
-                ColourSplitterHandler.ColourSplitterDrawingSet splitterDrawingSet = (ColourSplitterHandler.ColourSplitterDrawingSet) set;
-                DrawingBotV3.INSTANCE.colourSplitter.set(splitterDrawingSet.splitter);
-            }
+            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set);
         }
     }
 

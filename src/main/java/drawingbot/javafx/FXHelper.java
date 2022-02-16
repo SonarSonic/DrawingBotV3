@@ -13,16 +13,21 @@ import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
+import drawingbot.javafx.settings.RangedNumberSetting;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
@@ -34,6 +39,7 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -43,6 +49,8 @@ import java.util.logging.Level;
  * A utility class for common actions for the FXController / JavaFX Classes
  */
 public class FXHelper {
+
+    public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
     public static void importImageFile(){
         importFile(file -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_IMAGES);
@@ -367,6 +375,43 @@ public class FXHelper {
                 }
             }
         }
+    }
+
+    public static GridPane createSettingsGridPane(Collection<GenericSetting<?, ?>> settings, Consumer<GenericSetting<?, ?>> onChanged){
+        GridPane gridPane = new GridPane();
+        gridPane.setAlignment(Pos.TOP_LEFT);
+
+        gridPane.setVgap(4);
+        gridPane.setHgap(4);
+
+        int i = 0;
+        for(GenericSetting<?, ?> setting : settings){
+            Label label = new Label(setting.settingName.getValue() + ": ");
+            label.setAlignment(Pos.TOP_LEFT);
+            Node node = setting.getJavaFXNode(true);
+            node.minWidth(200);
+            node.prefHeight(30);
+
+            if(!(setting instanceof RangedNumberSetting)){
+                //check boxes don't need a value label.
+                gridPane.addRow(i, label, node);
+            }else{
+                TextField field = setting.getEditableTextField();
+                gridPane.addRow(i, label, node, setting.getEditableTextField());
+                field.setOnAction(e -> {
+                    setting.setValueFromString(field.getText());
+                    if(onChanged != null) {
+                        onChanged.accept(setting);
+                    }
+                });
+
+            }
+            if(onChanged != null){
+                node.setOnMouseReleased(e -> onChanged.accept(setting)); //change on mouse release, not on value change
+            }
+            i++;
+        }
+        return gridPane;
     }
 
 

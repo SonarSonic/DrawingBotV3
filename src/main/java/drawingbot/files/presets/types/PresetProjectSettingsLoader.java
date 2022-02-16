@@ -85,7 +85,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
 
         preset.data.optimiseForPrint = DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get();
         preset.data.targetPenWidth = DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get();
-        preset.data.colourSplitter = DrawingBotV3.INSTANCE.colourSplitter.get();
+        preset.data.colourSplitter = DrawingBotV3.INSTANCE.colourSeperator.get();
         preset.data.distributionType = DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.get();
         preset.data.distributionOrder = DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.get();
         preset.data.blendMode = DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.get();
@@ -126,10 +126,10 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         Register.PRESET_LOADER_FILTERS.applyPreset(preset.data.imageFilters);
         Register.PRESET_LOADER_PFM.applyPreset(preset.data.pfmSettings);
 
-        if(DrawingBotV3.INSTANCE.colourSplitter.get().isDefault()){
+        if(DrawingBotV3.INSTANCE.colourSeperator.get().isDefault()){
             Register.PRESET_LOADER_DRAWING_SET.applyPreset(preset.data.drawingSet);
         }else{
-            FXController.changeDrawingSet(DrawingBotV3.INSTANCE.colourSplitter.get().drawingSet);
+            DrawingBotV3.INSTANCE.colourSeperator.get().applySettings();
         }
 
         DrawingBotV3.INSTANCE.imageRotation.set(preset.data.imageRotation);
@@ -138,7 +138,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
 
         DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.set(preset.data.optimiseForPrint);
         DrawingBotV3.INSTANCE.controller.textFieldPenWidth.setText("" + preset.data.targetPenWidth); //works but ugly!
-        DrawingBotV3.INSTANCE.colourSplitter.set(preset.data.colourSplitter);
+        DrawingBotV3.INSTANCE.colourSeperator.set(preset.data.colourSplitter);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.set(preset.data.distributionType);
         DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(preset.data.distributionOrder);
         DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(preset.data.blendMode);

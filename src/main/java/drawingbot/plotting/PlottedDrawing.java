@@ -240,9 +240,9 @@ public class PlottedDrawing {
 
         int[] geometryCounts = new int[getPenCount()];
         for(IGeometry geometry : geometries){
-            Integer penIndex = geometry.getPenIndex();
-            if(penIndex != null){
-                geometryCounts[penIndex] ++;
+            int penIndex = geometry.getPenIndex();
+            if(penIndex != -1){
+                geometryCounts[penIndex]++;
             }
         }
         updateFromGeometryCounts(geometryCounts);

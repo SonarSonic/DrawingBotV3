@@ -625,11 +625,11 @@ public class Register implements IPlugin {
         EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
      }
 
-    public static ColourSplitterHandler DEFAULT_COLOUR_SPLITTER;
+    public static ColourSeperationHandler DEFAULT_COLOUR_SPLITTER;
 
     @Override
     public void registerColourSplitterHandlers(){
-        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSplitterHandler("Default", List::of, ColourSplitterHandler::createDefaultDrawingSet, List.of("Original")));
+        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("Default"));
      }
 
 }

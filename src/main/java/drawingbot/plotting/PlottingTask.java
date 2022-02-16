@@ -2,6 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.pfm.AbstractSketchPFM;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.DBTask;
 import drawingbot.geom.GeometryUtils;
@@ -30,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask {
 
@@ -389,12 +391,26 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
     //// CALLBACKS
 
     public BiConsumer<List<GenericSetting<?, ?>>, IPathFindingModule> onPFMSettingsAppliedCallback = null;
+    public Consumer<AbstractSketchPFM> sketchPFMProgressCallback = null;
 
     public void onPFMSettingsApplied(List<GenericSetting<?, ?>> src, IPathFindingModule pfm){
         if(onPFMSettingsAppliedCallback != null){
             onPFMSettingsAppliedCallback.accept(src, pfm);
         }
     }
+
+    /**
+     * Allows the PlottingTask to override the SketchPFMs progress.
+     */
+    public boolean applySketchPFMProgressCallback(AbstractSketchPFM sketchPFM){
+        if(sketchPFMProgressCallback != null){
+            sketchPFMProgressCallback.accept(sketchPFM);
+            return true;
+        }
+        return false;
+    }
+
+
 
     //// GEOMETRY UI HOOKS \\\\
 

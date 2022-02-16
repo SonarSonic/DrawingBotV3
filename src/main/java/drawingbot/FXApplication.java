@@ -3,6 +3,9 @@ package drawingbot;
 import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
+import drawingbot.drawing.DrawingPen;
+import drawingbot.image.ImageTools;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
@@ -72,6 +75,7 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
         DrawingBotV3.logger.info("Init Observable Drawing Set");
+        DrawingBotV3.INSTANCE.invisibleDrawingPen = new ObservableDrawingPen(-1, new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Invisible Pen", ImageTools.getARGB(0, 0, 0, 0)));
         DrawingBotV3.INSTANCE.observableDrawingSet = new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet());
 
         DrawingBotV3.logger.info("Loading Json Files");

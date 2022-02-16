@@ -5,7 +5,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.api.IPlugin;
-import drawingbot.drawing.ColourSplitterHandler;
+import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.DrawingExportHandler;
@@ -61,7 +61,7 @@ public class MasterRegistry {
 
     //// COLOUR SPLITTERS \\\\
 
-    public ObservableList<ColourSplitterHandler> colourSplitterHandlers = FXCollections.observableArrayList();
+    public ObservableList<ColourSeperationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
 
     //// JSON LOADERS \\\\
 
@@ -107,11 +107,6 @@ public class MasterRegistry {
         PLUGINS.forEach(IPlugin::registerImageFilters);
         PLUGINS.forEach(IPlugin::registerDrawingExportHandlers);
         PLUGINS.forEach(IPlugin::registerColourSplitterHandlers);
-
-        for(ColourSplitterHandler splitter : INSTANCE.colourSplitterHandlers){
-            splitter.drawingSet = splitter.createDrawingSet.apply(splitter);
-            INSTANCE.registerDrawingSet(splitter.drawingSet);
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -541,14 +536,14 @@ public class MasterRegistry {
 
     //// COLOUR SPLITTERS \\\\
 
-    public ColourSplitterHandler registerColourSplitter(ColourSplitterHandler colourSplitter){
+    public ColourSeperationHandler registerColourSplitter(ColourSeperationHandler colourSplitter){
         DrawingBotV3.logger.fine("Registering Colour Splitter: " + colourSplitter.name);
         this.colourSplitterHandlers.add(colourSplitter);
         return colourSplitter;
     }
 
-    public ColourSplitterHandler getColourSplitter(String name){
-        for(ColourSplitterHandler colourSplitter : colourSplitterHandlers){
+    public ColourSeperationHandler getColourSplitter(String name){
+        for(ColourSeperationHandler colourSplitter : colourSplitterHandlers){
             if(colourSplitter.name.equals(name)){
                 return colourSplitter;
             }

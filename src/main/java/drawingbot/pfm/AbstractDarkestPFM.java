@@ -15,8 +15,8 @@ import java.util.function.BiConsumer;
 
 public abstract class AbstractDarkestPFM extends AbstractPFM {
 
-    protected int sampleWidth = 10;
-    protected int sampleHeight = 10;
+    protected static int sampleWidth = 10;
+    protected static int sampleHeight = 10;
 
     public BresenhamHelper bresenham = new BresenhamHelper();
 
@@ -37,8 +37,13 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /** finds the darkest area of the image, according to sampleWidth/sampleHeight and returns the first darkest pixel in that area */
-    protected void findDarkestArea(IPixelData pixels, int[] dest) {
+
+    /**
+     * finds the darkest area of the image, according to sampleWidth/sampleHeight and returns the first darkest pixel in that area
+     * @param pixels the pixel data to search
+     * @param dest must have length >= 2 will set the following values 0 = Darkest Pixel X, 1 = Darkest Pixel Y, 2 = Darkest Pixel Luminance, 3 = Darkest Sample Luminance
+     */
+    public static void findDarkestArea(IPixelData pixels, int[] dest) {
         int totalSamplesX = pixels.getWidth()/sampleWidth;
         int totalSamplesY = pixels.getHeight()/sampleHeight;
 
@@ -46,6 +51,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
         int finalDarkestPixelX = 0;
         int finalDarkestPixelY = 0;
+        int finalDarkestPixelLuminance = 0;
 
         for(int sampleX = 0; sampleX < totalSamplesX; sampleX++){
             for(int sampleY = 0; sampleY < totalSamplesY; sampleY++){
@@ -77,19 +83,27 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
                     darkestSampleLuminance = avgLuminance;
                     finalDarkestPixelX = darkestPixelX;
                     finalDarkestPixelY = darkestPixelY;
+                    finalDarkestPixelLuminance = darkestPixel;
                 }
             }
         }
 
         dest[0] = finalDarkestPixelX;
         dest[1] = finalDarkestPixelY;
+
+        if(dest.length >= 3){
+            dest[2] = finalDarkestPixelLuminance;
+        }
+        if(dest.length >= 4){
+            dest[3] = (int) darkestSampleLuminance;
+        }
     }
 
     /**
      * @param pixels
      * @return a collection of all the darkest pixels
      */
-    public List<int[]> findDarkestPixels(IPixelData pixels){
+    public static List<int[]> findDarkestPixels(IPixelData pixels){
         List<int[]> points = new ArrayList<>();
         int luminance = pixels.getLuminance(0,0);
 
@@ -237,7 +251,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected ColourSampleTest defaultColourTest = new ColourSampleTest();
+    public ColourSampleTest defaultColourTest = new ColourSampleTest();
 
     public void addGeometryWithColourSamples(IPlottingTask task, IPixelData pixelData, IGeometry geometry, int adjust){
         int colourSamples = adjustGeometryLuminance(pixelData, geometry, adjust);

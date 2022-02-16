@@ -17,36 +17,48 @@ import java.util.List;
 
 public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
-    public final SimpleStringProperty type;
-    public final SimpleStringProperty name;
-    public final ObservableList<ObservableDrawingPen> pens;
-    public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder;
-    public final SimpleObjectProperty<EnumDistributionType> distributionType;
-    public final SimpleObjectProperty<EnumBlendMode> blendMode;
+    public final IDrawingSet<?> source;
+    public final SimpleStringProperty type = new SimpleStringProperty();
+    public final SimpleStringProperty name = new SimpleStringProperty();
+    public final ObservableList<ObservableDrawingPen> pens = FXCollections.observableArrayList();
+    public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<EnumDistributionType> distributionType = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<EnumBlendMode> blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
     public int[] currentRenderOrder;
 
     public ObservableDrawingSet(IDrawingSet<?> source){
-        this.type = new SimpleStringProperty();
-        this.name = new SimpleStringProperty();
-        this.pens = FXCollections.observableArrayList();
-        this.distributionOrder = new SimpleObjectProperty<>(EnumDistributionOrder.DARKEST_FIRST);
-        this.distributionType = new SimpleObjectProperty<>(EnumDistributionType.EVEN_WEIGHTED);
-        this.blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
+        this.source = source;
+        this.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
+        this.distributionType.set(EnumDistributionType.EVEN_WEIGHTED);
+        this.blendMode.set(EnumBlendMode.NORMAL);
 
+        initListeners();
+        loadDrawingSet(source);
+    }
+
+    public void initListeners(){
         this.pens.addListener((ListChangeListener<ObservableDrawingPen>) c -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.distributionOrder.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.distributionType.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
         this.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
-        loadDrawingSet(source);
     }
 
     public void loadDrawingSet(IDrawingSet<?> source){
+
+        if(source instanceof ObservableDrawingSet){
+            ObservableDrawingSet drawingSet = (ObservableDrawingSet)source;
+            this.distributionOrder.set(drawingSet.distributionOrder.get());
+            this.distributionType.set(drawingSet.distributionType.get());
+            this.blendMode.set(drawingSet.blendMode.get());
+        }
+
         this.pens.clear();
         this.type.set(source.getType());
         this.name.set(source.getName());
         for(IDrawingPen pen : source.getPens()){
             pens.add(new ObservableDrawingPen(pens.size(), pen));
         }
+        this.currentRenderOrder = calculateRenderOrder();
     }
 
     public void addNewPen(IDrawingPen pen){
@@ -63,13 +75,24 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         return currentRenderOrder;
     }
 
+    public int getIndexOfPen(int penNumber){
+        int index = 0;
+        for(ObservableDrawingPen pen : pens){
+            if(pen.penNumber.get() == penNumber){
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
+
     public ObservableDrawingPen getPen(int penNumber){
         for(ObservableDrawingPen pen : pens){
             if(pen.penNumber.get() == penNumber){
                 return pen;
             }
         }
-        return null;
+        return DrawingBotV3.INSTANCE.invisibleDrawingPen;
     }
 
     public boolean containsPen(IDrawingPen pen){

@@ -14,11 +14,12 @@ import java.util.logging.Logger;
 import drawingbot.api.Hooks;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IPlugin;
-import drawingbot.drawing.ColourSplitterHandler;
+import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.presets.types.PresetProjectSettings;
 import drawingbot.image.DrawingArea;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
@@ -108,7 +109,7 @@ public class DrawingBotV3 {
 
     //PATH FINDING \\
     public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<ColourSplitterHandler> colourSplitter = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ColourSeperationHandler> colourSeperator = new SimpleObjectProperty<>();
     public final SimpleFloatProperty cyanMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
@@ -116,6 +117,7 @@ public class DrawingBotV3 {
 
     // PEN SETS \\
     public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
+    public ObservableDrawingPen invisibleDrawingPen = null;
     public ObservableDrawingSet observableDrawingSet = null;
 
     // VERSION CONTROL \\
@@ -174,8 +176,7 @@ public class DrawingBotV3 {
         localProgress.set(progress);
     }
 
-    public EnumDistributionType updateDistributionType = null;
-
+    public EnumDistributionType nextDistributionType = null;
 
     public void updateUI(){
 
@@ -285,12 +286,12 @@ public class DrawingBotV3 {
 
     //// PLOTTING TASKS
 
-    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, ColourSplitterHandler splitter){
+    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, ColourSeperationHandler splitter){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         Platform.runLater(() -> {
-            if(updateDistributionType != null && splitter.isDefault()){
-                drawingPenSet.distributionType.set(updateDistributionType);
-                updateDistributionType = null;
+            if(nextDistributionType != null && splitter.isDefault()){
+                drawingPenSet.distributionType.set(nextDistributionType);
+                nextDistributionType = null;
             }
         });
 
@@ -304,7 +305,7 @@ public class DrawingBotV3 {
             activeTask.get().cancel();
         }
         if(openImage.get() != null){
-            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), observableDrawingSet, openImage.get().getSource(), openFile, colourSplitter.get()));
+            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), observableDrawingSet, openImage.get().getSource(), openFile, colourSeperator.get()));
         }
     }
 

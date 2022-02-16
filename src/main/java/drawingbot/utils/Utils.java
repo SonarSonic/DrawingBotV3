@@ -160,6 +160,14 @@ public class Utils {
         return (double) Math.round(value * scale) / scale;
     }
 
+    public static int mod(int a, int b) {
+        return (a % b + b) % b;
+    }
+
+    public static int distmod(int a, int b) {
+        return Math.min((a % b + b) % b, ((-a) % b + b) % b);
+    }
+
     public static double distance(int x1, int y1, int x2, int y2){
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
