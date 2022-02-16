@@ -11,6 +11,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.utils.DBConstants;
@@ -95,6 +96,9 @@ public class FXApplication extends Application {
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
         primaryStage.setScene(primaryScene);
 
+        // SET DISPLAY MODE
+        DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
+
         // INIT JAVAFX RENDERER
         DrawingBotV3.RENDERER = new JavaFXRenderer(Screen.getPrimary().getBounds());
         DrawingBotV3.RENDERER.init();
@@ -102,6 +106,12 @@ public class FXApplication extends Application {
         // INIT OPENGL RENDERER
         DrawingBotV3.OPENGL_RENDERER = new OpenGLRendererImpl(Screen.getPrimary().getBounds());
         DrawingBotV3.OPENGL_RENDERER.init();
+
+        // APPLY THE DISPLAY MODE SETTINGS
+        DrawingBotV3.INSTANCE.displayMode.get().applySettings();
+        DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
+            DrawingBotV3.INSTANCE.onDisplayModeChanged(oldValue, newValue);
+        });
 
         // set up main drawing loop
         drawTimer = new DrawTimer(this);
@@ -180,15 +190,11 @@ public class FXApplication extends Application {
 
             timer.start();
 
-            if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
-                DrawingBotV3.RENDERER.draw();
-            }else{
-                DrawingBotV3.OPENGL_RENDERER.draw();
-            }
+            DrawingBotV3.INSTANCE.displayMode.get().getRenderer().draw();
 
             timer.finish();
 
-            if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL() && timer.getElapsedTime() > 1000/60){
+            if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL() && timer.getElapsedTime() > 1000/60){
                 DrawingBotV3.logger.finest("RENDERER TOOK: " + timer.getElapsedTimeFormatted() + " milliseconds" + " expected " + 1000/60);
             }
         }

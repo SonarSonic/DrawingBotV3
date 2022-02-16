@@ -43,7 +43,7 @@ public class ZoomableScrollPane extends ScrollPane {
         Node outerNode = centeredNode(node);
         outerNode.setOnScroll(e -> {
             e.consume();
-            onScroll(e.getDeltaY()/10, DrawingBotV3.INSTANCE.display_mode.get().isOpenGL() ? new Point2D(e.getSceneX(), e.getSceneY()) :new Point2D(e.getX(), e.getY()));
+            onScroll(e.getDeltaY()/10, DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL() ? new Point2D(e.getSceneX(), e.getSceneY()) :new Point2D(e.getX(), e.getY()));
         });
         return outerNode;
     }
@@ -57,7 +57,7 @@ public class ZoomableScrollPane extends ScrollPane {
     public void updateScale() {
 
         scaleProperty.set(scaleValue);
-        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
+        if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL()){
             target.setScaleX(scaleValue);
             target.setScaleY(scaleValue);
         }
@@ -68,7 +68,7 @@ public class ZoomableScrollPane extends ScrollPane {
 
         Bounds viewportBounds = getViewportBounds();
         Bounds innerBounds;
-        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()) {
+        if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL()) {
             innerBounds = zoomNode.getLayoutBounds();
         }else{
             innerBounds = new BoundingBox(0, 0, DrawingBotV3.OPENGL_RENDERER.getPaneScaledWidth(), DrawingBotV3.OPENGL_RENDERER.getPaneScaledHeight());
@@ -86,7 +86,7 @@ public class ZoomableScrollPane extends ScrollPane {
         // convert target coordinates to zoomTarget coordinates
         Point2D posInZoomTarget;
 
-        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
+        if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL()){
             posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
         }else{
             posInZoomTarget = DrawingBotV3.OPENGL_RENDERER.getPane().sceneToLocal(mousePoint);
@@ -99,7 +99,7 @@ public class ZoomableScrollPane extends ScrollPane {
         // (too large/small values are automatically corrected by ScrollPane)
         Bounds updatedInnerBounds;
 
-        if(!DrawingBotV3.INSTANCE.display_mode.get().isOpenGL()){
+        if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL()){
             updatedInnerBounds = zoomNode.getBoundsInLocal();
         }else{
             updatedInnerBounds = new BoundingBox(0, 0, DrawingBotV3.OPENGL_RENDERER.getPaneScaledWidth(), DrawingBotV3.OPENGL_RENDERER.getPaneScaledHeight());

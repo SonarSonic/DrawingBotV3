@@ -18,6 +18,9 @@ import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogExportGCodeBegin;
 import drawingbot.pfm.*;
+import drawingbot.render.IDisplayMode;
+import drawingbot.render.modes.DrawingJFXDisplayMode;
+import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.utils.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -63,6 +66,13 @@ public class Register implements IPlugin {
     public static final String CATEGORY_UNIQUE = "Unique"; // Priority = 5
     public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
 
+    //// DISPLAY MODES \\\\
+    public IDisplayMode DISPLAY_MODE_IMAGE;
+    public IDisplayMode DISPLAY_MODE_DRAWING;
+    public IDisplayMode DISPLAY_MODE_ORIGINAL;
+    public IDisplayMode DISPLAY_MODE_REFERENCE;
+    public IDisplayMode DISPLAY_MODE_LIGHTENED;
+    public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
 
     @Override
     public String getPluginName() {
@@ -109,6 +119,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_DEFAULT, 10);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_GENERIC, 0);
+
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE = new ImageJFXDisplayMode.Image());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_DRAWING = new DrawingJFXDisplayMode.Drawing());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_ORIGINAL = new ImageJFXDisplayMode.Original());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_REFERENCE = new ImageJFXDisplayMode.Reference());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new ImageJFXDisplayMode.Lightened());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
     }
 
     @Override

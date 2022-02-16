@@ -13,7 +13,8 @@ import drawingbot.javafx.FXController;
 import drawingbot.javafx.FXExportController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.utils.EnumDisplayMode;
+import drawingbot.render.IDisplayMode;
+import drawingbot.render.IRenderer;
 import javafx.application.Platform;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -32,6 +33,25 @@ public class PremiumPluginDummy implements IPlugin {
         Hooks.addHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this::disableHPGLUI);
         Hooks.addHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this::disableOpenGL);
         Hooks.addHook(Hooks.FILE_MENU, this::initMenuOption);
+
+        MasterRegistry.INSTANCE.registerDisplayMode(new IDisplayMode() {
+
+            @Override
+            public String getName() {
+                return "Drawing (Hardware Accelerated) (Premium)";
+            }
+
+            @Override
+            public IRenderer getRenderer() {
+                return DrawingBotV3.OPENGL_RENDERER;
+            }
+
+            @Override
+            public String toString(){
+                return getName();
+            }
+
+        });
     }
 
     @Override
@@ -87,10 +107,10 @@ public class PremiumPluginDummy implements IPlugin {
 
 
     public Object[] disableOpenGL(Object...values) {
-        DrawingBotV3.INSTANCE.display_mode.addListener((observable, oldValue, newValue) -> {
-            if(newValue == EnumDisplayMode.DRAWING_HARDWARE_ACCELERATED && !FXApplication.isPremiumEnabled){
+        DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
+            if(!newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled){
                 FXController.showPremiumFeatureDialog();
-                Platform.runLater(() -> DrawingBotV3.INSTANCE.display_mode.set(EnumDisplayMode.DRAWING));
+                Platform.runLater(() -> DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));
             }
         });
         return values;

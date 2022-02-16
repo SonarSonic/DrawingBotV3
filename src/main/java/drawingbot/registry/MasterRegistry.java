@@ -22,6 +22,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogImageFilter;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSketchLines;
+import drawingbot.render.IDisplayMode;
 import drawingbot.utils.EnumFilterTypes;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,6 +55,8 @@ public class MasterRegistry {
 
     public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
+
+    public ObservableList<IDisplayMode> displayModes = FXCollections.observableArrayList();
 
     //// EXPORTERS \\\\
 
@@ -520,6 +523,13 @@ public class MasterRegistry {
         return sets.stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
     }
 
+    //// Display Modes \\\\
+
+    public IDisplayMode registerDisplayMode(IDisplayMode displayMode){
+        DrawingBotV3.logger.fine("Registering Display Mode: " + displayMode.getName());
+        this.displayModes.add(displayMode);
+        return displayMode;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

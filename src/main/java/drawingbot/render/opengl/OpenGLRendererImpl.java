@@ -30,6 +30,11 @@ public class OpenGLRendererImpl implements IRenderer {
     }
 
     @Override
+    public void switchToRenderer() {
+        DrawingBotV3.RENDERER.switchToRenderer();
+    }
+
+    @Override
     public void updateCanvasPosition() {
         //NOP
     }
@@ -52,5 +57,15 @@ public class OpenGLRendererImpl implements IRenderer {
     @Override
     public Pane getPane() {
         return DrawingBotV3.RENDERER.pane;
+    }
+
+    @Override
+    public boolean isDefaultRenderer() {
+        return false;
+    }
+
+    @Override
+    public boolean isOpenGL() {
+        return false;
     }
 }

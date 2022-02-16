@@ -19,6 +19,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.registry.Register;
+import drawingbot.render.IDisplayMode;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -317,7 +318,7 @@ public class FXController {
 
     public CheckBox checkBoxApplyToExport = null;
 
-    public ChoiceBox<EnumDisplayMode> choiceBoxDisplayMode = null;
+    public ChoiceBox<IDisplayMode> choiceBoxDisplayMode = null;
     //public CheckBox checkBoxShowGrid = null;
     public Button buttonResetView = null;
 
@@ -378,14 +379,13 @@ public class FXController {
 
         checkBoxApplyToExport.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.exportRange);
 
-        choiceBoxDisplayMode.getItems().addAll(EnumDisplayMode.values());
-        choiceBoxDisplayMode.setValue(EnumDisplayMode.IMAGE);
-        choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.display_mode);
+        choiceBoxDisplayMode.getItems().addAll(MasterRegistry.INSTANCE.displayModes);
+        choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.displayMode);
 
-        //DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
-        //DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
+                //DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
+                //DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
-        buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
+                buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
         viewportScrollPane.setOnDragOver(event -> {
 
@@ -958,7 +958,7 @@ public class FXController {
 
         penTableView.setItems(DrawingBotV3.INSTANCE.observableDrawingSet.pens);
         penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN){
+            if(DrawingBotV3.INSTANCE.displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
                 DrawingBotV3.INSTANCE.reRender();
             }
         });

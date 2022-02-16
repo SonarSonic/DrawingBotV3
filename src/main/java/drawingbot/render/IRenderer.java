@@ -14,6 +14,8 @@ public interface IRenderer {
 
     void reRender();
 
+    void switchToRenderer();
+
     Point2D sceneToRenderer(Point2D point2D);
 
     Point2D rendererToScene(Point2D point2D);
@@ -23,6 +25,10 @@ public interface IRenderer {
     Pane getPane();
 
     void updateCanvasPosition();
+
+    boolean isDefaultRenderer();
+
+    boolean isOpenGL();
 
     ///// CANVAS SIZING \\\\\
 

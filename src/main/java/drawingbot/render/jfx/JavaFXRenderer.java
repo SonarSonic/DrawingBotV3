@@ -1,18 +1,16 @@
 package drawingbot.render.jfx;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ConfigFileHandler;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.ImageFilteringTask;
-import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.registry.Register;
+import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
-import drawingbot.utils.EnumDisplayMode;
+import drawingbot.render.modes.AbstractJFXDisplayMode;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.GridOverlay;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
@@ -32,6 +30,9 @@ public class JavaFXRenderer implements IRenderer {
     public boolean croppingDirty = false;
 
     public boolean markRenderDirty = true;
+    public boolean clearedProcessDrawing = false;
+
+    public AbstractJFXDisplayMode displayMode;
 
     ///
 
@@ -51,18 +52,16 @@ public class JavaFXRenderer implements IRenderer {
 
     ///
 
-    public int renderedLines = 0;
-    private long drawingTime = 0;
     private PlottingTask lastDrawn = null;
     private EnumTaskStage lastState = null;
-    private EnumDisplayMode lastMode = null;
+    private IDisplayMode lastMode = null;
     public boolean canvasNeedsUpdate = false;
 
     ///
 
     public boolean changedTask, changedMode, changedState, shouldRedraw;
 
-    private ImageFilteringTask filteringTask;
+    public ImageFilteringTask filteringTask;
 
     public JavaFXRenderer(Rectangle2D screenBounds) {
         this.screenBounds = screenBounds;
@@ -96,7 +95,7 @@ public class JavaFXRenderer implements IRenderer {
     @Override
     public void draw() {
         preRender();
-        render();
+        doRender();
         postRender();
     }
     ///
@@ -126,51 +125,15 @@ public class JavaFXRenderer implements IRenderer {
 
         //update the flags from the last render
         changedTask = lastDrawn != renderedTask;
-        changedMode = lastMode != DrawingBotV3.INSTANCE.display_mode.get();
+        changedMode = lastMode != DrawingBotV3.INSTANCE.displayMode.get();
         changedState = renderedTask != null && lastState != renderedTask.stage;
         shouldRedraw = markRenderDirty || changedTask || changedMode || changedState;
-        canvasNeedsUpdate = canvasNeedsUpdate || lastMode == null || lastMode.type != DrawingBotV3.INSTANCE.display_mode.get().type;
+        canvasNeedsUpdate = canvasNeedsUpdate || lastMode == null || lastMode != DrawingBotV3.INSTANCE.displayMode.get();
 
         //reset canvas scaling
         graphicsFX.setTransform(1, 0, 0, 1, 0, 0);
 
-
-        switch (DrawingBotV3.INSTANCE.display_mode.get().type){
-            case IMAGE:
-                if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                    if(imageFiltersChanged || imageFilterDirty || croppingDirty){
-                        if(filteringTask == null || !filteringTask.updating.get()){
-                            DrawingBotV3.INSTANCE.openImage.get().updateCropping = croppingDirty;
-                            DrawingBotV3.INSTANCE.openImage.get().updateAllFilters = imageFiltersChanged;
-                            imageFiltersChanged = false;
-                            imageFilterDirty = false;
-                            croppingDirty = false;
-                            DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.imageFilteringService, filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
-                        }
-                    }
-                    //resize the canvas
-                    if(canvasNeedsUpdate){
-                        updateCanvasSize(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledWidth(), DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledHeight());
-                        updateCanvasScaling();
-                        canvasNeedsUpdate = false;
-                        shouldRedraw = true; //force redraw
-                    }
-                }
-                break;
-            case TASK:
-                //if the task has changed the images size will also have changed
-                if(changedTask){
-                    canvasNeedsUpdate = true;
-                }
-                //we will only update the canvas when there is a correct print scale
-                if(canvasNeedsUpdate && renderedTask != null && renderedTask.resolution.getPrintScale() > 0){
-                    updateCanvasSize(renderedTask.resolution.getScaledWidth(), renderedTask.resolution.getScaledHeight());
-                    updateCanvasScaling();
-                    canvasNeedsUpdate = false;
-                    shouldRedraw = true; //force redraw
-                }
-                break;
-        }
+        displayMode.preRender(this);
 
         updateCanvasScaling();
         graphicsFX.setImageSmoothing(false);
@@ -180,133 +143,25 @@ public class JavaFXRenderer implements IRenderer {
         graphicsFX.save();
     }
 
-    private void postRender(){
-        graphicsFX.restore();
-
-        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-        markRenderDirty = false;
-        lastDrawn = renderedTask;
-        lastMode = DrawingBotV3.INSTANCE.display_mode.get();
-        lastState = renderedTask == null ? null : renderedTask.stage;
-    }
-
-    private void render() {
-        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-        switch (DrawingBotV3.INSTANCE.display_mode.get()){
-            case IMAGE:
-                if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                    if(shouldRedraw){
-                        clearCanvas();
-                        graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
-                        graphicsFX.drawImage(SwingFXUtils.toFXImage(DrawingBotV3.INSTANCE.openImage.get().getFiltered(), null), 0, 0);
-                    }
-                }else{
-                    clearCanvas();
-                }
-                break;
-            case SELECTED_PEN:
-            case DRAWING:
-                if(renderedTask != null){
-                    renderPlottingTask(renderedTask);
-                }else if(shouldRedraw){
-                    clearCanvas();
-                }
-                break;
-            case ORIGINAL:
-                if(shouldRedraw){
-                    clearCanvas();
-                    if(renderedTask != null && renderedTask.getOriginalImage() != null){
-                        float screen_scale_x = (float)renderedTask.imgPlotting.getWidth() / (float)renderedTask.imgOriginal.getWidth();
-                        float screen_scale_y = (float)renderedTask.imgPlotting.getHeight() / (float)renderedTask.imgOriginal.getHeight();
-                        float screen_scale = Math.min(screen_scale_x, screen_scale_y);
-
-                        graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(renderedTask.resolution.imageOffsetX, renderedTask.resolution.imageOffsetY);
-                        graphicsFX.scale(screen_scale, screen_scale);
-                        graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getOriginalImage(), null), 0, 0);
-                    }
-                }
-                break;
-            case REFERENCE:
-                if(shouldRedraw){
-                    clearCanvas();
-                    if(renderedTask != null && renderedTask.getReferenceImage() != null){
-                        graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
-                        graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getReferenceImage(), null), 0, 0);
-                    }
-                }
-                break;
-            case LIGHTENED:
-                if(shouldRedraw){
-                    clearCanvas();
-                    if(renderedTask != null && renderedTask.getPlottingImage() != null){
-                        graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
-                        graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getPlottingImage(), null), 0, 0);
-                    }
-                }
-                break;
-        }
+    private void doRender() {
+        displayMode.doRender(this);
 
         if(shouldRedraw){
             GridOverlay.grid();
         }
     }
 
-    public void renderPlottingTask(PlottingTask renderedTask){
-        switch (renderedTask.stage){
-            case QUEUED:
-            case PRE_PROCESSING:
-                break;
-            case DO_PROCESS:
-                if(renderedTask.handlesProcessRendering()){
-                    renderedTask.renderProcessing(this, renderedTask);
-                }else{
-                    if(changedTask || changedState || changedMode){ //avoids redrawing in some instances
-                        clearCanvas();
-                        renderedLines = 0;
-                    }
-                    if(renderedTask.plottedDrawing.getGeometryCount() != 0){
-                        graphicsFX.scale(canvasScaling, canvasScaling);
-                        graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                        renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_EXPORT_FILTER, getVertexRenderLimit(), false);
-                    }
-                }
-                break;
-            case POST_PROCESSING:
-            case FINISHING:
-                // NOP - continue displaying the path finding result
-                break;
-            case FINISHED:
-                EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
-                if(shouldRedraw){
-                    clearCanvas();
-                    renderedLines = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
-                    DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
-                    DrawingBotV3.INSTANCE.updateLocalProgress(0);
-                    drawingTime = System.currentTimeMillis();
-                }
-                if(renderedLines != -1){
-                    graphicsFX.scale(canvasScaling, canvasScaling);
-                    graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                    graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
+    private void postRender(){
+        displayMode.postRender(this);
 
-                    IGeometryFilter pointFilter = DrawingBotV3.INSTANCE.display_mode.get() == EnumDisplayMode.SELECTED_PEN ? IGeometry.SELECTED_PEN_FILTER : IGeometry.DEFAULT_EXPORT_FILTER;
-                    renderedLines = renderedTask.plottedDrawing.renderGeometryFX(graphicsFX, renderedTask.plottedDrawing.getDisplayedShapeMin(), renderedLines, pointFilter, getVertexRenderLimit(),true);
+        graphicsFX.restore();
 
-                    int end = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
-                    DrawingBotV3.INSTANCE.updateLocalProgress((float)(end-renderedLines) / end);
-
-                    if(renderedLines == renderedTask.plottedDrawing.getDisplayedShapeMin()){
-                        long time = System.currentTimeMillis();
-                        DrawingBotV3.logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
-                        renderedLines = -1;
-                    }
-                }
-                break;
-        }
+        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
+        markRenderDirty = false;
+        clearedProcessDrawing = false;
+        lastDrawn = renderedTask;
+        lastMode = DrawingBotV3.INSTANCE.displayMode.get();
+        lastState = renderedTask == null ? null : renderedTask.stage;
     }
 
     public void clearProcessRendering(){
@@ -314,10 +169,7 @@ public class JavaFXRenderer implements IRenderer {
             if(DrawingBotV3.INSTANCE.getRenderedTask().handlesProcessRendering()){
                 DrawingBotV3.INSTANCE.getRenderedTask().clearProcessingRender(DrawingBotV3.RENDERER, DrawingBotV3.INSTANCE.getRenderedTask());
             }else{
-                renderedLines = 0;
-            }
-            if(lastMode == EnumDisplayMode.DRAWING){
-                clearCanvas();
+                clearedProcessDrawing = true;
             }
         });
     }
@@ -421,5 +273,21 @@ public class JavaFXRenderer implements IRenderer {
         Point2D dst = new Point2D(point2D.getX()*canvasScaling, point2D.getY() * canvasScaling);
         dst = canvas.localToScene(dst);
         return dst;
+    }
+
+    @Override
+    public void switchToRenderer() {
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(DrawingBotV3.RENDERER.pane);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.requestLayout();
+    }
+
+    @Override
+    public boolean isDefaultRenderer() {
+        return true;
+    }
+
+    @Override
+    public boolean isOpenGL() {
+        return false;
     }
 }

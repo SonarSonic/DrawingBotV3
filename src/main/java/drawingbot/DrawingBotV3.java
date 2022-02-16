@@ -33,6 +33,7 @@ import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
+import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.*;
@@ -125,7 +126,7 @@ public class DrawingBotV3 {
     public final SimpleObjectProperty<ObservableProjectSettings> lastRun = new SimpleObjectProperty<>();
 
     // DISPLAY \\
-    public final SimpleObjectProperty<EnumDisplayMode> display_mode = new SimpleObjectProperty<>(EnumDisplayMode.IMAGE);
+    public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
 
     //VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
@@ -218,12 +219,24 @@ public class DrawingBotV3 {
 
     ////// EVENTS
 
+    public void onDisplayModeChanged(IDisplayMode oldValue, IDisplayMode newValue){
+        if(oldValue != null){
+            oldValue.resetSettings();
+        }
+
+        if(oldValue == null || newValue.getRenderer() != oldValue.getRenderer()){
+            newValue.getRenderer().switchToRenderer();
+        }
+
+        newValue.applySettings();
+    }
+
     public void onPlottingTaskStageFinished(PlottingTask task, EnumTaskStage stage){
         switch (stage){
             case QUEUED:
                 break;
             case PRE_PROCESSING:
-                Platform.runLater(() -> display_mode.setValue(EnumDisplayMode.DRAWING));
+                Platform.runLater(() -> displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_DRAWING));
                 break;
             case DO_PROCESS:
                 Platform.runLater(() -> {
@@ -283,6 +296,7 @@ public class DrawingBotV3 {
     public void reRender(){
         RENDERER.reRender();
     }
+
 
     //// PLOTTING TASKS
 
@@ -367,11 +381,11 @@ public class DrawingBotV3 {
         openFile = file;
         BufferedImageLoader.Filtered loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
         loadingImage.setOnSucceeded(e -> {
-            DrawingBotV3.INSTANCE.openImage.set((FilteredBufferedImage) e.getSource().getValue());
-            DrawingBotV3.INSTANCE.display_mode.set(EnumDisplayMode.IMAGE);
+            openImage.set((FilteredBufferedImage) e.getSource().getValue());
+            displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
 
-            DrawingBotV3.RENDERER.shouldRedraw = true;
-            DrawingBotV3.RENDERER.canvasNeedsUpdate = true;
+            RENDERER.shouldRedraw = true;
+            RENDERER.canvasNeedsUpdate = true;
             FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
         });
         return loadingImage;
@@ -388,7 +402,7 @@ public class DrawingBotV3 {
         activeTask.set(task);
 
         if(activeTask.get() == null){
-            display_mode.setValue(EnumDisplayMode.IMAGE);
+            displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_IMAGE);
         }
     }
 
@@ -473,17 +487,17 @@ public class DrawingBotV3 {
     public void onMouseMovedViewport(MouseEvent event){
         controller.onMouseMovedColourPicker(event);
         Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
-        Point2D position = !display_mode.get().isOpenGL() ? RENDERER.sceneToRenderer(mouse) : OPENGL_RENDERER.sceneToRenderer(mouse);
+        Point2D position = displayMode.get().getRenderer().sceneToRenderer(mouse);
 
         if(drawingArea.useOriginalSizing.get()){
             controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " px");
         }else{
             double printScale = 1;
 
-            if(display_mode.get() != EnumDisplayMode.IMAGE && getActiveTask() != null){
+            if(displayMode.get() != Register.INSTANCE.DISPLAY_MODE_IMAGE && getActiveTask() != null){
                 printScale = getActiveTask().resolution.getPrintScale();
             }
-            if(display_mode.get() == EnumDisplayMode.IMAGE && openImage.get() != null){
+            if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE && openImage.get() != null){
                 printScale = openImage.get().resolution.getPrintScale();
             }
 
