@@ -32,9 +32,14 @@ public interface IGeometry {
     int getGeometryIndex();
 
     /**
-     * @return the pen index, may be null
+     * @return the pen index, -1 if no pen has been chosen
      */
     int getPenIndex();
+
+    /**
+     * @return the pen index,  -1 if no pen was preconfigured
+     */
+    int getPFMPenIndex();
 
     /**
      * @return the sampled rgba value, may be null
@@ -47,19 +52,12 @@ public interface IGeometry {
      */
     int getGroupID();
 
-    /**
-     * @param index may be null
-     */
     void setGeometryIndex(int index);
 
-    /**
-     * @param index may be null
-     */
     void setPenIndex(int index);
 
-    /**
-     * @param rgba may be null
-     */
+    void setPFMPenIndex(int index);
+
     void setSampledRGBA(int rgba);
 
     /**
@@ -97,6 +95,5 @@ public interface IGeometry {
      * Used for geometry sorting only
      */
     Coordinate getOriginCoordinate();
-
 
 }

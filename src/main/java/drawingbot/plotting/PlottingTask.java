@@ -321,6 +321,7 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
         if(geometry.getPenIndex() == -1){
             geometry.setPenIndex(penIndex == -1 ? defaultPen : penIndex);
         }
+        geometry.setPFMPenIndex(geometry.getPenIndex()); //store the pfm pen index for later reference
         geometry.setGroupID(groupID);
 
         //transform geometry back to the images size

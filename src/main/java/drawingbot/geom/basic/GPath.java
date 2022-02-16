@@ -47,6 +47,7 @@ public class GPath extends Path2D.Float implements IGeometry {
     //// IGeometry \\\\
 
     public int geometryIndex = -1;
+    public int pfmPenIndex = -1;
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
@@ -77,6 +78,11 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     @Override
+    public int getPFMPenIndex() {
+        return pfmPenIndex;
+    }
+
+    @Override
     public int getSampledRGBA() {
         return sampledRGBA;
     }
@@ -94,6 +100,11 @@ public class GPath extends Path2D.Float implements IGeometry {
     @Override
     public void setPenIndex(int index) {
         penIndex = index;
+    }
+
+    @Override
+    public void setPFMPenIndex(int index) {
+        pfmPenIndex = index;
     }
 
     @Override

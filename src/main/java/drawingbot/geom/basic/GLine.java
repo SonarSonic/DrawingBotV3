@@ -37,6 +37,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     //// IGeometry \\\\
 
     public int geometryIndex = -1;
+    public int pfmPenIndex = -1;
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
@@ -62,6 +63,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
+    public int getPFMPenIndex() {
+        return pfmPenIndex;
+    }
+
+    @Override
     public int getSampledRGBA() {
         return sampledRGBA;
     }
@@ -79,6 +85,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     @Override
     public void setPenIndex(int index) {
         penIndex = index;
+    }
+
+    @Override
+    public void setPFMPenIndex(int index) {
+        pfmPenIndex = index;
     }
 
     @Override

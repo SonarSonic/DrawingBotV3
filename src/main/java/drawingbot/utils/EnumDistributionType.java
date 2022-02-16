@@ -9,8 +9,8 @@ public enum EnumDistributionType {
     EVEN_WEIGHTED(drawing -> drawing.updateEvenDistribution(true, false)),
     RANDOM(drawing -> drawing.updateEvenDistribution(false, true)),
     RANDOM_WEIGHTED(drawing -> drawing.updateEvenDistribution(true, true)),
-    PRECONFIGURED(PlottedDrawing::updatePreConfiguredPenDistribution),
-    SINGLE_PEN(PlottedDrawing::updateSinglePenDistribution);
+    SINGLE_PEN(PlottedDrawing::updateSinglePenDistribution),
+    PRECONFIGURED(PlottedDrawing::updatePreConfiguredPenDistribution);
 
     public final Consumer<PlottedDrawing> distribute;
 

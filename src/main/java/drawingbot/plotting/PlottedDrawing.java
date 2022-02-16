@@ -19,10 +19,11 @@ public class PlottedDrawing {
     public List<IGeometry> geometries;
     public long vertexCount;
 
-    public transient ObservableDrawingSet drawingPenSet;
-    public transient SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);
-    public transient SimpleIntegerProperty displayedShapeMax = new SimpleIntegerProperty(-1);
-    public transient boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
+    public ObservableDrawingSet drawingPenSet;
+    public SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);
+    public SimpleIntegerProperty displayedShapeMax = new SimpleIntegerProperty(-1);
+    public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
+    public List<ObservableDrawingPen> originalDrawingPenOrder;
 
     public PlottedDrawing(ObservableDrawingSet penSet){
         this.geometries = Collections.synchronizedList(new ArrayList<>());
@@ -30,6 +31,7 @@ public class PlottedDrawing {
         this.groupPFMType = new HashMap<>();
         this.drawingPenSet = penSet;
         this.vertexCount = 0;
+        this.originalDrawingPenOrder = List.copyOf(drawingPenSet.pens);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,13 +238,18 @@ public class PlottedDrawing {
     }
 
     public void updatePreConfiguredPenDistribution(){
-        //don't update the pen numbers so they match the original ones
+        updatePenNumbers();
 
         int[] geometryCounts = new int[getPenCount()];
         for(IGeometry geometry : geometries){
-            int penIndex = geometry.getPenIndex();
-            if(penIndex != -1){
-                geometryCounts[penIndex]++;
+            int originalIndex = geometry.getPFMPenIndex();
+            ObservableDrawingPen drawingPen = originalDrawingPenOrder.get(originalIndex);
+            int currentIndex = drawingPenSet.pens.indexOf(drawingPen);
+
+            geometry.setPenIndex(currentIndex);
+
+            if(currentIndex != -1){
+                geometryCounts[currentIndex]++;
             }
         }
         updateFromGeometryCounts(geometryCounts);

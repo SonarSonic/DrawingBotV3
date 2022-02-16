@@ -297,15 +297,18 @@ public class DrawingBotV3 {
         RENDERER.reRender();
     }
 
-
     //// PLOTTING TASKS
 
     public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, ColourSeperationHandler splitter){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         Platform.runLater(() -> {
-            if(nextDistributionType != null && splitter.isDefault()){
-                drawingPenSet.distributionType.set(nextDistributionType);
-                nextDistributionType = null;
+            if(splitter.isDefault()){
+                if(nextDistributionType != null){
+                    drawingPenSet.distributionType.set(nextDistributionType);
+                    nextDistributionType = null;
+                }
+            }else{
+                drawingPenSet.distributionType.set(EnumDistributionType.PRECONFIGURED);
             }
         });
 
