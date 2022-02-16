@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
-import drawingbot.drawing.ColourSplitterHandler;
+import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.javafx.GenericPreset;
@@ -36,7 +36,7 @@ public class JsonLoaderManager {
         builder.setExclusionStrategies(exclusionStrategy);
         builder.setPrettyPrinting();
         builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
-        builder.registerTypeAdapter(ColourSplitterHandler.class, new JsonAdapterColourSplitter());
+        builder.registerTypeAdapter(ColourSeperationHandler.class, new JsonAdapterColourSplitter());
         builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
         return builder.create();
     }

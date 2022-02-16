@@ -5,6 +5,8 @@ import drawingbot.api.IPlottingTask;
 import drawingbot.geom.basic.GLine;
 import drawingbot.plotting.PlottingTask;
 
+import java.util.function.BiConsumer;
+
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     //user settings
@@ -48,13 +50,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public BiConsumer<IPixelData, int[]> findDarkestMethod = AbstractDarkestPFM::findDarkestArea;
     public int[] current = new int[]{-1, -1};
     public int[] darkest = new int[]{-1, -1};
 
     @Override
     public void doProcess() {
-
-        findDarkestArea(task.getPixelData(), darkest);
+        findDarkestMethod.accept(task.getPixelData(), darkest);
 
         if(!shouldLiftPen && current[0] != -1){
             addGeometry(task, current[0], current[1], darkest[0], darkest[1], adjustbrightness);

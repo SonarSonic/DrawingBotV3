@@ -24,6 +24,9 @@ public class Hooks {
 
     public static final String FILE_MENU = "FILE_MENU";
 
+    public static final String CHANGE_DRAWING_SET = "CHANGE_DRAWING_SET";
+
+
     public static Map<String, List<IHook>> hookMap = new HashMap<>();
 
     public static void addHook(String name, IHook hook){

@@ -3,13 +3,18 @@ package drawingbot.javafx.controls;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.RangedNumberSetting;
+import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class DialogImageFilter extends Dialog<ObservableImageFilter> {
@@ -18,40 +23,15 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
         super();
         ObservableImageFilter original = new ObservableImageFilter(filter);
 
-        GridPane gridPane = new GridPane();
-        gridPane.setAlignment(Pos.TOP_LEFT);
 
-        gridPane.setVgap(4);
-        gridPane.setHgap(4);
-
+        VBox hBox = new VBox();
+        GridPane gridPane = FXHelper.createSettingsGridPane(filter.filterSettings, s -> DrawingBotV3.INSTANCE.onImageFilterChanged(filter));
         CheckBox checkBox = new CheckBox("Enabled");
         checkBox.selectedProperty().bindBidirectional(filter.enable);
-
-        gridPane.addRow(0, checkBox);
-
-        int i = 1;
-        for(GenericSetting<?, ?> setting : filter.filterSettings){
-            Label label = new Label(setting.settingName.getValue() + ": ");
-            label.setAlignment(Pos.TOP_LEFT);
-            Node node = setting.getJavaFXNode(true);
-            node.minWidth(200);
-            node.prefHeight(30);
-
-            if(!(setting instanceof RangedNumberSetting)){
-                //check boxes don't need a value label.
-                gridPane.addRow(i, label, node);
-            }else{
-                TextField field = setting.getEditableTextField();
-                gridPane.addRow(i, label, node, setting.getEditableTextField());
-                field.setOnAction(e -> {
-                    setting.setValueFromString(field.getText());
-                    DrawingBotV3.INSTANCE.onImageFilterChanged(filter);
-                });
-            }
-            node.setOnMouseReleased(e -> DrawingBotV3.INSTANCE.onImageFilterChanged(filter)); //change on mouse release, not on value change
-            i++;
-        }
-        setGraphic(gridPane);
+        checkBox.setPadding(new Insets(8, 0, 16, 0));
+        hBox.getChildren().add(checkBox);
+        hBox.getChildren().add(gridPane);
+        setGraphic(hBox);
         setTitle("Image Filter: " + filter.name.getValue());
         getDialogPane().setPrefWidth(400);
         setResultConverter(param -> {
@@ -64,6 +44,14 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
         });
 
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        getDialogPane().getButtonTypes().add(FXHelper.buttonResetToDefault);
+        getDialogPane().lookupButton(FXHelper.buttonResetToDefault).addEventFilter(
+                ActionEvent.ACTION,
+                event -> {
+                    filter.filterSettings.forEach(GenericSetting::resetSetting);
+                    event.consume();
+                }
+        );
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
         FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
 

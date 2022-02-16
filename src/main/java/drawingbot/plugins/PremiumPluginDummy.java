@@ -6,7 +6,7 @@ import drawingbot.api.Hooks;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.api.IPlottingTask;
 import drawingbot.api.IPlugin;
-import drawingbot.drawing.ColourSplitterHandler;
+import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.javafx.FXController;
@@ -17,8 +17,6 @@ import drawingbot.utils.EnumDisplayMode;
 import javafx.application.Platform;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-
-import java.util.List;
 
 public class PremiumPluginDummy implements IPlugin {
 
@@ -68,9 +66,9 @@ public class PremiumPluginDummy implements IPlugin {
         FXController controller = (FXController) objects[0];
         controller.buttonConfigureSplitter.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         controller.choiceBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
-        DrawingBotV3.INSTANCE.colourSplitter.addListener((observable, oldValue, newValue) -> {
+        DrawingBotV3.INSTANCE.colourSeperator.addListener((observable, oldValue, newValue) -> {
             if(!newValue.isDefault()){
-                DrawingBotV3.INSTANCE.colourSplitter.set(Register.DEFAULT_COLOUR_SPLITTER);
+                DrawingBotV3.INSTANCE.colourSeperator.set(Register.DEFAULT_COLOUR_SPLITTER);
             }
         });
         return objects;
@@ -117,7 +115,7 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerColourSplitterHandlers() {
-        MasterRegistry.INSTANCE.registerColourSplitter(new ColourSplitterHandler("CMYK", List::of, cs -> null, List.of("Original")));
+        MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("CMYK"));
     }
 
     public static class DummyPFM implements IPathFindingModule{
