@@ -185,6 +185,7 @@ public class FXController {
 
         Menu menuExport = new Menu("Export per/drawing");
         Menu menuExportPerPen = new Menu("Export per/pen");
+        Menu menuExportPerGroup = new Menu("Export per/group");
 
         for(DrawingExportHandler.Category category : DrawingExportHandler.Category.values()){
             for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
@@ -199,19 +200,28 @@ public class FXController {
                     MenuItem itemPerPen = new MenuItem(format.displayName + " (Premium)");
                     itemPerPen.setOnAction(e -> showPremiumFeatureDialog());
                     menuExportPerPen.getItems().add(itemPerPen);
+
+                    MenuItem itemPerGroup = new MenuItem(format.displayName + " (Premium)");
+                    itemPerGroup.setOnAction(e -> showPremiumFeatureDialog());
+                    menuExportPerGroup.getItems().add(itemPerGroup);
                 }else{
                     MenuItem item = new MenuItem(format.displayName);
-                    item.setOnAction(e -> FXHelper.exportFile(format, false));
+                    item.setOnAction(e -> FXHelper.exportFile(format, ExportTask.Mode.PER_DRAWING));
                     menuExport.getItems().add(item);
 
                     MenuItem itemPerPen = new MenuItem(format.displayName);
-                    itemPerPen.setOnAction(e -> FXHelper.exportFile(format, true));
+                    itemPerPen.setOnAction(e -> FXHelper.exportFile(format, ExportTask.Mode.PER_PEN));
                     menuExportPerPen.getItems().add(itemPerPen);
+
+                    MenuItem itemPerGroup = new MenuItem(format.displayName);
+                    itemPerGroup.setOnAction(e -> FXHelper.exportFile(format, ExportTask.Mode.PER_GROUP));
+                    menuExportPerGroup.getItems().add(itemPerGroup);
                 }
             }
             if(category != DrawingExportHandler.Category.values()[DrawingExportHandler.Category.values().length-1]){
                 menuExport.getItems().add(new SeparatorMenuItem());
                 menuExportPerPen.getItems().add(new SeparatorMenuItem());
+                menuExportPerGroup.getItems().add(new SeparatorMenuItem());
             }
         }
 
@@ -220,6 +230,9 @@ public class FXController {
 
         menuExportPerPen.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuFile.getItems().add(menuExportPerPen);
+
+        menuExportPerGroup.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+        menuFile.getItems().add(menuExportPerGroup);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
@@ -1234,6 +1247,7 @@ public class FXController {
     public TableColumn<?, String> tableColumnFileFormat = null;
     public TableColumn<?, Boolean> tableColumnPerDrawing = null;
     public TableColumn<?, Boolean> tableColumnPerPen = null;
+    public TableColumn<?, Boolean> tableColumnPerGroup = null;
 
     public void initBatchProcessingPane(){
         ///NOP

@@ -3,9 +3,11 @@ package drawingbot.utils;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.DistributionSet;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public enum EnumDistributionType {
@@ -16,9 +18,9 @@ public enum EnumDistributionType {
     SINGLE_PEN(PlottedDrawing::updateSinglePenDistribution),
     PRECONFIGURED(PlottedDrawing::updatePreConfiguredPenDistribution);
 
-    public final Consumer<PlottedGroup> distribute;
+    public final Consumer<DistributionSet> distribute;
 
-    EnumDistributionType(Consumer<PlottedGroup> distribute){
+    EnumDistributionType(Consumer<DistributionSet> distribute){
         this.distribute = distribute;
     }
 

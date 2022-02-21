@@ -213,7 +213,7 @@
 
                                 </content>
                               </TitledPane>
-                            <TitledPane prefWidth="428.0" text="Pen Settings">
+                            <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="500.0" prefWidth="423.0">
                                        <children>
@@ -336,7 +336,7 @@
                                     </AnchorPane>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" text="Batch Processing">
+                              <TitledPane fx:id="titledPaneBatchProcessing" text="Batch Processing">
                                 <content>
                                   <AnchorPane fx:id="anchorPaneBatchProcessing" minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
                                        <children>
@@ -358,9 +358,10 @@
                                           <Label layoutX="14.0" layoutY="117.0" text="Export Options:" />
                                           <TableView fx:id="tableViewBatchExport" editable="true" layoutX="14.0" layoutY="144.0" prefHeight="189.0" prefWidth="374.0">
                                             <columns>
-                                              <TableColumn fx:id="tableColumnFileFormat" prefWidth="204.0" text="File Format" />
+                                              <TableColumn fx:id="tableColumnFileFormat" prefWidth="174.0" text="File Format" />
                                               <TableColumn fx:id="tableColumnPerDrawing" minWidth="3.000030517578125" text="per/drawing" />
-                                                <TableColumn fx:id="tableColumnPerPen" minWidth="3.000030517578125" prefWidth="68.0" text="per/pen" />
+                                                <TableColumn fx:id="tableColumnPerPen" minWidth="3.000030517578125" text="per/pen" />
+                                                <TableColumn fx:id="tableColumnPerGroup" minWidth="3.000030517578125" text="per/group" />
                                             </columns>
                                           </TableView>
                                           <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="344.0" text="Overwrite Existing Files">

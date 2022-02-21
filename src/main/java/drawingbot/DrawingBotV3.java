@@ -437,12 +437,12 @@ public class DrawingBotV3 {
 
     //// EXPORT TASKS
 
-    public Task<?> createExportTask(DrawingExportHandler exportHandler, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation){
-        return createExportTask(exportHandler, plottingTask, pointFilter, extension, saveLocation, seperatePens, forceBypassOptimisation, PrintResolution.copy(plottingTask.resolution));
+    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation){
+        return createExportTask(exportHandler, exportMode, plottingTask, pointFilter, extension, saveLocation, forceBypassOptimisation, PrintResolution.copy(plottingTask.resolution));
     }
 
-    public Task<?> createExportTask(DrawingExportHandler exportHandler, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean seperatePens, boolean forceBypassOptimisation, PrintResolution resolution){
-        ExportTask task = new ExportTask(exportHandler, plottingTask, pointFilter, extension, saveLocation, seperatePens, true, forceBypassOptimisation, false, resolution);
+    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation, PrintResolution resolution){
+        ExportTask task = new ExportTask(exportHandler, exportMode, plottingTask, pointFilter, extension, saveLocation, true, forceBypassOptimisation, false, resolution);
         Object[] hookReturn = Hooks.runHook(Hooks.NEW_EXPORT_TASK, task);
         taskMonitor.queueTask((Task<?>) hookReturn[0]);
         return task;

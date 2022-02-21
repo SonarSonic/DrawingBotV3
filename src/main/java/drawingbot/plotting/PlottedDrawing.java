@@ -22,6 +22,7 @@ public class PlottedDrawing {
     public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
     public final Map<Integer, PlottedGroup> groups;
+
     public PlottedGroup defaultGroup;
     private int groupID = 0;
     public Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
@@ -34,18 +35,19 @@ public class PlottedDrawing {
     public PlottedDrawing(ObservableDrawingSet penSet, PFMFactory<?> pfmFactory){
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = Collections.synchronizedMap(new HashMap<>());
-        this.defaultGroup = createPlottedGroup(penSet, pfmFactory);
+        this.defaultGroup = addPlottedGroup(new PlottedGroup(getNextGroupID(), penSet, pfmFactory));
     }
 
     /**
      * Copies the base groups of the plotted drawing only
      */
     public void copyBase(PlottedDrawing reference){
+        defaultGroup = null;
         for(PlottedGroup group : reference.groups.values()){
-            PlottedGroup newGroup = new PlottedGroup(group.groupID, group.drawingSet, group.pfmFactory);
+            PlottedGroup newGroup = new PlottedGroup(group);
             groups.put(newGroup.groupID, newGroup);
+            defaultGroup = defaultGroup == null ? group : defaultGroup;
         }
-        defaultGroup = groups.get(0);
     }
 
     /**
@@ -105,8 +107,11 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public int getNextGroupID(){
+        if(groups.get(groupID) == null){
+            return groupID;
+        }
         groupID++;
-        return groups.get(groupID) == null ? groupID : getNextGroupID();
+        return getNextGroupID();
     }
 
     public PlottedGroup getDefaultGroup(){
@@ -117,8 +122,7 @@ public class PlottedDrawing {
         return groups.getOrDefault(groupID, defaultGroup);
     }
 
-    public PlottedGroup createPlottedGroup(ObservableDrawingSet penSet, PFMFactory<?> pfmFactory){
-        PlottedGroup plottedGroup = new PlottedGroup(getNextGroupID(), penSet, pfmFactory);
+    public PlottedGroup addPlottedGroup(PlottedGroup plottedGroup){
         groups.put(plottedGroup.groupID, plottedGroup);
         return plottedGroup;
     }
@@ -155,7 +159,9 @@ public class PlottedDrawing {
             }
         }
 
-        PlottedGroup newGroup = createPlottedGroup(plottedGroup.drawingSet, plottedGroup.pfmFactory);
+        PlottedGroup newGroup = new PlottedGroup(plottedGroup);
+        newGroup.groupID = getNextGroupID();
+        addPlottedGroup(newGroup);
         for(IGeometry geometry : plottedGroup.geometries){
             addGeometry(geometry, newGroup);
         }
@@ -201,12 +207,38 @@ public class PlottedDrawing {
 
     public void updatePenDistribution(){
         if(!ignoreWeightedDistribution){
+            groups.values().forEach(g -> g.needsDistribution = true);
+
             for(PlottedGroup group : groups.values()){
-                group.updateDistribution(this);
+                if(!group.needsDistribution){
+                    continue;
+                }
+                List<PlottedGroup> distributionSet = new ArrayList<>();
+                if(group.groupType != PlottedGroup.GroupDistributionType.NONE){
+                    for(PlottedGroup group2 : groups.values()){
+                        if(group2.needsDistribution && group2.groupType == group.groupType && group.groupType.canCombine.apply(group, group2)){
+                            distributionSet.add(group2);
+                        }
+                    }
+                }else{
+                    distributionSet.add(group);
+                }
+                group.getActiveDistributionType().distribute.accept(new DistributionSet(this, distributionSet));
+                distributionSet.forEach(g -> {
+                    g.onDistributionChanged();
+                    g.needsDistribution = false;
+                });
             }
+
             perPenStats = getPerPenGeometryStats(this);
             updatePerPenGeometryStats(this, perPenStats);
         }
+    }
+
+    public static List<ObservableDrawingPen> getAllPens(){
+        List<ObservableDrawingPen> allPens = new ArrayList<>();
+        DrawingBotV3.INSTANCE.drawingSetSlots.forEach(drawingSet -> allPens.addAll(drawingSet.pens));
+        return allPens;
     }
 
     /**
@@ -230,15 +262,19 @@ public class PlottedDrawing {
         return globalOrder;
     }
 
+    public List<ObservableDrawingPen> getGlobalRenderOrder(){
+        return getGlobalRenderOrder(groups.values());
+    }
+
     /**
      * The logical order in which pens should be rendered
      * If multiple drawing set are active they will be ordered using the most dominate distribution type
      * Note: This may contain inactive pens
      */
-    public List<ObservableDrawingPen> getGlobalRenderOrder(){
+    public static List<ObservableDrawingPen> getGlobalRenderOrder(Collection<PlottedGroup> groups){
         List<ObservableDrawingSet> drawingSets = new ArrayList<>();
         List<ObservableDrawingPen> globalOrder = new ArrayList<>();
-        for(PlottedGroup group : groups.values()){
+        for(PlottedGroup group : groups){
             if(!drawingSets.contains(group.drawingSet)){
                 drawingSets.add(group.drawingSet);
             }
@@ -276,9 +312,9 @@ public class PlottedDrawing {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void updatePenNumbers(PlottedGroup plottedGroup){
-        for(int i = 0; i < plottedGroup.drawingSet.pens.size(); i++){
-            ObservableDrawingPen pen = plottedGroup.drawingSet.pens.get(i);
+    public static void updatePenNumbers(DistributionSet set){
+        for(int i = 0; i < set.source.drawingSet.pens.size(); i++){
+            ObservableDrawingPen pen = set.source.drawingSet.pens.get(i);
             pen.penNumber.set(i); //update pens number based on position
         }
     }
@@ -327,14 +363,14 @@ public class PlottedDrawing {
     }
 
     /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
-    public static void updateEvenDistribution(PlottedGroup plottedGroup, boolean weighted, boolean random){
-        updatePenNumbers(plottedGroup);
+    public static void updateEvenDistribution(DistributionSet set, boolean weighted, boolean random){
+        updatePenNumbers(set);
 
         int currentGeometry = 0;
         int totalWeight = 0;
-        int[] weights = new int[plottedGroup.drawingSet.pens.size()];
-        for(int i = 0; i < plottedGroup.drawingSet.pens.size(); i++){
-            ObservableDrawingPen pen = plottedGroup.drawingSet.pens.get(i);
+        int[] weights = new int[set.source.drawingSet.pens.size()];
+        for(int i = 0; i < set.source.drawingSet.pens.size(); i++){
+            ObservableDrawingPen pen = set.source.drawingSet.pens.get(i);
             pen.penNumber.set(i); //update pens number based on position
             if(pen.isEnabled()){
                 weights[i] = weighted ? pen.distributionWeight.get() : 100;
@@ -342,23 +378,23 @@ public class PlottedDrawing {
             }
         }
 
-        int[] renderOrder = plottedGroup.drawingSet.calculateRenderOrder();
+        int[] renderOrder = set.source.drawingSet.calculateRenderOrder();
 
         if(!random){
             for(int i = 0; i < renderOrder.length; i++){
                 int penNumber = renderOrder[i];
-                ObservableDrawingPen pen = plottedGroup.drawingSet.getPen(penNumber);
+                ObservableDrawingPen pen = set.source.drawingSet.getPen(penNumber);
                 if(pen.isEnabled()){
 
                     //update percentage
                     float percentage = (weighted ? (float)pen.distributionWeight.get() : 100) / totalWeight;
                     //update geometry count
-                    int geometriesPerPen = (int)(percentage * plottedGroup.getGeometryCount());
+                    int geometriesPerPen = (int)(percentage * set.getGeometryCount());
 
                     //set pen references
-                    int end = i == renderOrder.length-1 ? plottedGroup.geometries.size() : currentGeometry + geometriesPerPen;
+                    int end = i == renderOrder.length-1 ? set.getGeometryCount() : currentGeometry + geometriesPerPen;
                     for (; currentGeometry < end; currentGeometry++) {
-                        IGeometry geometry = plottedGroup.geometries.get(currentGeometry);
+                        IGeometry geometry = set.getGeometryList().get(currentGeometry);
                         geometry.setPenIndex(penNumber);
                     }
                 }
@@ -366,7 +402,7 @@ public class PlottedDrawing {
         }else{
             Random rand = new Random(0);
 
-            for(IGeometry geometry : plottedGroup.geometries){
+            for(IGeometry geometry : set.getGeometryList()){
                 int weightedRand = rand.nextInt(totalWeight);
                 int currentWeight = 0;
                 for(int w = 0; w < weights.length; w++){
@@ -380,31 +416,37 @@ public class PlottedDrawing {
         }
     }
 
-    public static void updatePreConfiguredPenDistribution(PlottedGroup plottedGroup){
-        updatePenNumbers(plottedGroup);
+    public static void updatePreConfiguredPenDistribution(DistributionSet set){
+        updatePenNumbers(set);
 
-        for(IGeometry geometry : plottedGroup.geometries){
-            int originalIndex = geometry.getPFMPenIndex();
-            ObservableDrawingPen drawingPen = plottedGroup.originalDrawingSetOrder.get(originalIndex);
-            int currentIndex = plottedGroup.drawingSet.pens.indexOf(drawingPen);
-
-            geometry.setPenIndex(currentIndex);
-        }
-    }
-
-    public static void updateSinglePenDistribution(PlottedGroup plottedGroup){
-        updatePenNumbers(plottedGroup);
-
-        int[] renderOrder = plottedGroup.drawingSet.calculateRenderOrder();
-
-        for (int penNumber : renderOrder) {
-            ObservableDrawingPen pen = plottedGroup.drawingSet.pens.get(penNumber);
-            if (pen.isEnabled()) {
-                ///add all the geometries to the first enabled pen
-                plottedGroup.geometries.forEach(g -> g.setPenIndex(penNumber));
-                return;
+        for(PlottedGroup group : set.plottedGroups){
+            for(IGeometry geometry : group.geometries){
+                int originalIndex = geometry.getPFMPenIndex();
+                ObservableDrawingPen drawingPen = group.originalDrawingSetOrder.get(originalIndex);
+                int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
+                geometry.setPenIndex(currentIndex);
             }
         }
+
+
+    }
+
+    public static void updateSinglePenDistribution(DistributionSet set){
+        updatePenNumbers(set);
+
+        for(PlottedGroup group : set.plottedGroups){
+            int[] renderOrder = group.drawingSet.calculateRenderOrder();
+
+            for (int penNumber : renderOrder) {
+                ObservableDrawingPen pen = group.drawingSet.pens.get(penNumber);
+                if (pen.isEnabled()) {
+                    ///add all the geometries to the first enabled pen
+                    group.geometries.forEach(g -> g.setPenIndex(penNumber));
+                    return;
+                }
+            }
+        }
+
 
     }
 

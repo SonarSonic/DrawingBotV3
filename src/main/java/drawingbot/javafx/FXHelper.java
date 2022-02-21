@@ -54,10 +54,14 @@ public class FXHelper {
     }
 
     public static void importFile(Consumer<File> callback, FileChooser.ExtensionFilter filter){
+        importFile(callback, filter, "Select a file to import");
+    }
+
+    public static void importFile(Consumer<File> callback, FileChooser.ExtensionFilter filter, String title){
         Platform.runLater(() -> {
             FileChooser d = new FileChooser();
             d.getExtensionFilters().add(filter);
-            d.setTitle("Select an image file to import");
+            d.setTitle(title);
             d.setInitialDirectory(FileUtils.getImportDirectory());
             File file = d.showOpenDialog(null);
             if(file != null){
@@ -67,7 +71,7 @@ public class FXHelper {
         });
     }
 
-    public static void exportFile(DrawingExportHandler exportHandler, boolean seperatePens){
+    public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
         if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
         }
@@ -87,7 +91,7 @@ public class FXHelper {
                     //linux doesn't add file extensions so we add the default selected one
                     fileName += extension;
                 }
-                DrawingBotV3.INSTANCE.createExportTask(exportHandler, DrawingBotV3.INSTANCE.getActiveTask(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(fileName), seperatePens, false);
+                DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, DrawingBotV3.INSTANCE.getActiveTask(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(fileName), false);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });

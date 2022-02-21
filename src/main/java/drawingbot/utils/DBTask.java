@@ -26,6 +26,7 @@ public abstract class DBTask<V> extends Task<V> {
     protected void setException(Throwable t) {
         super.setException(t);
         DrawingBotV3.logger.log(Level.SEVERE, "TASK FAILED", t);
+        setError(t.getMessage());
     }
 
     @Override

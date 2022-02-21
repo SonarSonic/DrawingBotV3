@@ -10,12 +10,14 @@ import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.PrintResolution;
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.registry.Register;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -118,7 +120,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
             PrintResolution thumbnailResolution = PrintResolution.copy(plottingTask.resolution);
             thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, plottingTask, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, plottingTask, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true, thumbnailResolution);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
 
@@ -176,15 +178,19 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             Platform.runLater(() -> {
                 BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
-                    if(loadingTask.isDone()){
+                    if(newValue == Worker.State.FAILED){
+                        FXHelper.importFile(file -> {
+                            DrawingBotV3.INSTANCE.openFile(file, false);
+                            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
+                        }, FileUtils.IMPORT_IMAGES, "Locate the input image");
+                    }
+                    if(newValue == Worker.State.SUCCEEDED){
                         Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState);
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
             });
         }
-
-
 
     }
 
