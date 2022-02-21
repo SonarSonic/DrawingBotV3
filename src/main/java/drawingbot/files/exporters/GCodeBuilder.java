@@ -1,6 +1,7 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.ExportTask;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Limit;
@@ -13,7 +14,7 @@ import java.util.function.Function;
 
 public class GCodeBuilder {
 
-    public final PlottingTask task;
+    public final ExportTask task;
     private final PrintWriter output;
 
     public static final String WILDCARD_LAYER_NAME = "%LAYER_NAME%";
@@ -32,7 +33,7 @@ public class GCodeBuilder {
     public float lastMoveX = 0, lastMoveY = 0;
     public Limit dx = new Limit(), dy = new Limit();
 
-    public GCodeBuilder(PlottingTask task, PrintWriter output) {
+    public GCodeBuilder(ExportTask task, PrintWriter output) {
         this.task = task;
         this.output = output;
     }

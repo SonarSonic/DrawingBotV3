@@ -2,7 +2,6 @@ package drawingbot.geom.basic;
 
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.PathBuilder;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -105,8 +104,7 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
+    public void renderFX(GraphicsContext graphics) {
         graphics.beginPath();
         graphics.moveTo(x1, y1);
         graphics.bezierCurveTo(ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2);
@@ -134,5 +132,10 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     @Override
     public Coordinate getOriginCoordinate() {
         return new CoordinateXY(x1, y1);
+    }
+
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GCubicCurve(x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2), this);
     }
 }

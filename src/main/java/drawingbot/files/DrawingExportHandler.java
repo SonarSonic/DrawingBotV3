@@ -1,6 +1,7 @@
 package drawingbot.files;
 
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottingTask;
 import javafx.scene.control.Dialog;
 import javafx.stage.FileChooser;
@@ -43,8 +44,8 @@ public class DrawingExportHandler implements IExportMethod {
     }
 
     @Override
-    public void export(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
-        exportMethod.export(exportTask, plottingTask, geometries, extension, saveLocation);
+    public void export(ExportTask exportTask, File saveLocation) {
+        exportMethod.export(exportTask, saveLocation);
     }
 
     public enum Category {

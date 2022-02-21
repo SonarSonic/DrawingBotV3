@@ -1,7 +1,6 @@
 package drawingbot.geom.basic;
 
 import drawingbot.geom.GeometryUtils;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
@@ -90,8 +89,7 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
+    public void renderFX(GraphicsContext graphics) {
         graphics.strokeRect(x, y, width, height);
     }
 
@@ -124,5 +122,10 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     @Override
     public Coordinate getOriginCoordinate() {
         return new CoordinateXY(x, y);
+    }
+
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GRectangle(x, y, width, height), this);
     }
 }

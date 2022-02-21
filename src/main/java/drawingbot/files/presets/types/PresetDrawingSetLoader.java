@@ -42,7 +42,7 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
     @Override
     public GenericPreset<PresetDrawingSet> updatePreset(GenericPreset<PresetDrawingSet> preset) {
         preset.data.pens.clear();
-        DrawingBotV3.INSTANCE.observableDrawingSet.getPens().forEach(p -> preset.data.pens.add(new DrawingPen(p)));
+        DrawingBotV3.INSTANCE.activeDrawingSet.get().getPens().forEach(p -> preset.data.pens.add(new DrawingPen(p)));
         return preset;
     }
 

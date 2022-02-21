@@ -30,7 +30,7 @@ public class StringConverterGenericSetting<V> extends StringConverter<V> {
                 V value = setting.stringConverter.fromString(string);
                 return setting.validator.apply(value);
             } catch (Exception e) {
-                DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.settingName.getName());
+                DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.key.getName());
             }
         }
         return setting.value.get();

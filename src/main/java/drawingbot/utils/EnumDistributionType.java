@@ -1,28 +1,44 @@
 package drawingbot.utils;
 
+import drawingbot.DrawingBotV3;
+import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.PlottedGroup;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public enum EnumDistributionType {
-    EVEN(drawing -> drawing.updateEvenDistribution(false, false)),
-    EVEN_WEIGHTED(drawing -> drawing.updateEvenDistribution(true, false)),
-    RANDOM(drawing -> drawing.updateEvenDistribution(false, true)),
-    RANDOM_WEIGHTED(drawing -> drawing.updateEvenDistribution(true, true)),
+    EVEN(group -> PlottedDrawing.updateEvenDistribution(group,false, false)),
+    EVEN_WEIGHTED(group -> PlottedDrawing.updateEvenDistribution(group,true, false)),
+    RANDOM(group -> PlottedDrawing.updateEvenDistribution(group,false, true)),
+    RANDOM_WEIGHTED(group -> PlottedDrawing.updateEvenDistribution(group, true, true)),
     SINGLE_PEN(PlottedDrawing::updateSinglePenDistribution),
     PRECONFIGURED(PlottedDrawing::updatePreConfiguredPenDistribution);
 
-    public final Consumer<PlottedDrawing> distribute;
+    public final Consumer<PlottedGroup> distribute;
 
-    EnumDistributionType(Consumer<PlottedDrawing> distribute){
+    EnumDistributionType(Consumer<PlottedGroup> distribute){
         this.distribute = distribute;
     }
 
     @Override
     public String toString() {
-        if(this == EVEN_WEIGHTED){
-            return Utils.capitalize(name()) + " " + "(Default)";
-        }
         return Utils.capitalize(name());
+    }
+
+    public static EnumDistributionType getRecommendedType(){
+        return getRecommendedType(DrawingBotV3.INSTANCE.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmFactory.get());
+    }
+
+    public static EnumDistributionType getRecommendedType(ObservableDrawingSet drawingSet, PFMFactory<?> factory){
+        if(drawingSet != null && drawingSet.colourSeperator.get().getDistributionType() != null){
+            return drawingSet.colourSeperator.get().getDistributionType();
+        }
+        if(factory != null && factory.getDistributionType() != null){
+            return factory.getDistributionType();
+        }
+        return EnumDistributionType.EVEN_WEIGHTED;
     }
 }

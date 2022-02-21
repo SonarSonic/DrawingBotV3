@@ -1,11 +1,13 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.UnitsLength;
 
@@ -60,13 +62,13 @@ public class ImageExporter {
     }
 
     public static void setBlendMode(ExportTask exportTask, Graphics2D graphics2D){
-        EnumBlendMode blendMode = exportTask.plottingTask.plottedDrawing.drawingPenSet.blendMode.get();
+        EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
         if(blendMode != EnumBlendMode.NORMAL){
             graphics2D.setComposite(new BlendComposite(blendMode));
         }
     }
 
-    public static void exportImage(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
+    public static void exportImage(ExportTask exportTask, File saveLocation) {
         if (!exportTask.exportResolution.useOriginalSizing() && exportTask.exportResolution.finalPrintScaleX == 1 && exportTask.exportResolution.drawingArea.optimiseForPrint.get() && exportTask.exportResolution.drawingArea.targetPenWidth.get() > 0 ){
             int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
             int exportWidth = (int)Math.ceil((exportTask.exportResolution.printPageWidth/ UnitsLength.INCHES.convertToMM) * DPI);
@@ -79,12 +81,12 @@ public class ImageExporter {
         BufferedImage image = createFreshBufferedImage(exportTask, false);
         Graphics2D graphics = createFreshGraphics2D(exportTask, image, false);
 
-        Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
-        Graphics2DExporter.drawGeometryWithDrawingSet(exportTask, graphics, plottingTask.getDrawingSet(), geometries);
-        Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
+        Graphics2DExporter.preDraw(exportTask, graphics);
+        Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);
+        Graphics2DExporter.postDraw(exportTask, graphics);
 
         try {
-            ImageIO.write(image, extension.substring(1), saveLocation);
+            ImageIO.write(image, exportTask.extension.substring(1), saveLocation);
         } catch (IOException e) {
             exportTask.setError(e.getMessage());
             e.printStackTrace();

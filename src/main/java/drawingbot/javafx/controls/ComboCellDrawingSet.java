@@ -8,7 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class ComboCellDrawingSet extends ComboBoxListCell<IDrawingSet<IDrawingPen>> {
+public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListCell<S> {
 
     public ComboCellDrawingSet() {
         super();
@@ -16,7 +16,7 @@ public class ComboCellDrawingSet extends ComboBoxListCell<IDrawingSet<IDrawingPe
     }
 
     @Override
-    public void updateItem(IDrawingSet<IDrawingPen> item, boolean empty) {
+    public void updateItem(S item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
@@ -30,7 +30,7 @@ public class ComboCellDrawingSet extends ComboBoxListCell<IDrawingSet<IDrawingPe
             int penTotal = item.getPens().size();
             int fullRenderWidth = Math.min(60, penTotal * maxColourWidth);
             int renderTotal = Math.min(penTotal, fullRenderWidth / minColourWidth);
-            int renderWidth = fullRenderWidth / renderTotal;
+            int renderWidth = fullRenderWidth / Math.max(1, renderTotal);
             for (int i = 0; i < renderTotal; i++) {
                 IDrawingPen pen = item.getPens().get(i);
                 box.getChildren().add(new Rectangle(renderWidth, 12, ImageTools.getColorFromARGB(pen.getARGB())));

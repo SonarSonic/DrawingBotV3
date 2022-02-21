@@ -1,9 +1,9 @@
-package drawingbot.utils;
+package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.basic.IGeometry;
-import drawingbot.plotting.PlottedDrawing;
+import drawingbot.render.RenderUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -11,14 +11,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class VertexIterator implements PathIterator {
+public class DrawingVertexPathIterator implements PathIterator {
 
-    public List<IGeometry> geometries;
     public IGeometry lastGeometry;
     public IGeometry currentGeometry;
     public boolean changedGeometry = true;
@@ -34,18 +31,10 @@ public class VertexIterator implements PathIterator {
     private int lastSegmentType = -1;
     private double[] lastSegment = new double[6];
 
-    public VertexIterator(List<IGeometry> geometries, @Nullable AffineTransform transform, boolean reverse){
-        assert !geometries.isEmpty();
-        this.geometries = geometries;
-
-        if(reverse){
-            this.geometries = new ArrayList<>(geometries);
-            Collections.reverse(this.geometries);
-        }
-
+    public DrawingVertexPathIterator(PlottedDrawing plottedDrawing, List<ObservableDrawingPen> renderOrder, @Nullable AffineTransform transform){
         this.transform = transform;
         this.lastGeometry = null;
-        this.geometryIterator = this.geometries.iterator();
+        this.geometryIterator = new DrawingGeometryIterator(plottedDrawing, renderOrder);
         this.currentGeometry = geometryIterator.next();
         this.pathIterator = currentGeometry.getAWTShape().getPathIterator(transform);
 
@@ -103,9 +92,10 @@ public class VertexIterator implements PathIterator {
     public void renderVerticesAWT(PlottedDrawing drawing, Graphics2D graphics, int maxSegments){
         int segments = 0;
         while(!isDone() && segments < maxSegments){
-            ObservableDrawingPen pen = drawing.drawingPenSet.getPen(currentGeometry.getPenIndex());
+            PlottedGroup group = drawing.getPlottedGroup(currentGeometry.getGroupID());
+            ObservableDrawingPen pen = group.drawingSet.getPen(currentGeometry.getPenIndex());
             if(geometryVertexCount == 0 && currentGeometry.getVertexCount() + segments < maxSegments){
-                currentGeometry.renderAWT(graphics, pen);
+                currentGeometry.renderAWT(graphics);
                 segments += currentGeometry.getVertexCount();
                 nextGeometry();
             }else{
@@ -132,7 +122,8 @@ public class VertexIterator implements PathIterator {
                 }
 
                 wrappedIterator.setAndResetSegments(maxSegments - segments, lastSegmentType != -1 && lastSegmentType != SEG_CLOSE, moveX, moveY);
-                pen.preRenderAWT(graphics, currentGeometry);
+
+                RenderUtils.preRenderGeometryAWT(graphics, currentGeometry, drawing, group, pen);
                 graphics.draw(fakeShape);
 
                 if(pathIterator != null && !pathIterator.isDone()){
@@ -193,7 +184,7 @@ public class VertexIterator implements PathIterator {
 
     public static class WrappedIterator implements PathIterator{
 
-        public VertexIterator wrapped;
+        public DrawingVertexPathIterator wrapped;
         public int maxSegments;
         public int segments;
 
@@ -201,7 +192,7 @@ public class VertexIterator implements PathIterator {
         public double moveX;
         public double moveY;
 
-        public WrappedIterator(VertexIterator wrapped, int maxSegments){
+        public WrappedIterator(DrawingVertexPathIterator wrapped, int maxSegments){
             this.wrapped = wrapped;
             this.maxSegments = maxSegments;
         }

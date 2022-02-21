@@ -43,7 +43,7 @@ public class TableCellImageFilterSettings extends TableCell<ObservableImageFilte
                     });
                     field.setMaxWidth(80);
                     field.maxHeight(getHeight());
-                    Label label = new Label(setting.settingName.getValue() + ": ");
+                    Label label = new Label(setting.key.getValue() + ": ");
                     label.setGraphic(field);
                     label.setContentDisplay(ContentDisplay.RIGHT);
                     hBox.getChildren().add(label);

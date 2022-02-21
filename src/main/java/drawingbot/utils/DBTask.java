@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 public abstract class DBTask<V> extends Task<V> {
 
-    protected boolean updateInstantly = false;
+    public boolean updateProgressInstantly = false;
     private String title = "";
     private String message = "";
     public String error = "";
@@ -30,7 +30,7 @@ public abstract class DBTask<V> extends Task<V> {
 
     @Override
     public void updateProgress(long workDone, long max) {
-        if(updateInstantly){
+        if(updateProgressInstantly){
             super.updateProgress(workDone, max);
         }
         this.workDone = workDone;
@@ -39,7 +39,7 @@ public abstract class DBTask<V> extends Task<V> {
 
     @Override
     public void updateProgress(double workDone, double max) {
-        if(updateInstantly){
+        if(updateProgressInstantly){
             super.updateProgress(workDone, max);
         }
         this.workDone = workDone;
@@ -48,7 +48,7 @@ public abstract class DBTask<V> extends Task<V> {
 
     @Override
     public void updateMessage(String message) {
-        if(updateInstantly){
+        if(updateProgressInstantly){
             super.updateMessage(message);
         }
         this.message = message;
@@ -56,7 +56,7 @@ public abstract class DBTask<V> extends Task<V> {
 
     @Override
     public void updateTitle(String title) {
-        if(updateInstantly){
+        if(updateProgressInstantly){
             super.updateTitle(title);
         }
         this.title = title;

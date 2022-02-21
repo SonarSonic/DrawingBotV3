@@ -1,7 +1,6 @@
 package drawingbot.geom.basic;
 
 import drawingbot.geom.GeometryUtils;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
@@ -90,8 +89,7 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
+    public void renderFX(GraphicsContext graphics) {
         graphics.strokeOval(x, y, width, height);
     }
 
@@ -123,6 +121,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
         return new CoordinateXY(x, y);
     }
 
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GEllipse(x, y, width, height), this);
+    }
+
     public static class Filled extends GEllipse{
         public Filled() {
             super();
@@ -133,16 +136,12 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
         }
 
         @Override
-        public void renderAWT(Graphics2D graphics, ObservableDrawingPen pen) {
-            graphics.setStroke(pen.getAWTStroke());
-            graphics.setColor(pen.getAWTColor(getSampledRGBA()));
+        public void renderAWT(Graphics2D graphics) {
             graphics.fill(getAWTShape());
         }
 
         @Override
-        public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-            graphics.setLineWidth(pen.getStrokeSize());
-            graphics.setFill(pen.getFXColor(getSampledRGBA()));
+        public void renderFX(GraphicsContext graphics) {
             graphics.fillOval(x, y, width, height);
         }
     }

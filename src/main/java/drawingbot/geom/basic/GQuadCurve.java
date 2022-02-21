@@ -1,7 +1,6 @@
 package drawingbot.geom.basic;
 
 import drawingbot.geom.GeometryUtils;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
@@ -96,8 +95,7 @@ public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathEle
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
+    public void renderFX(GraphicsContext graphics) {
         graphics.beginPath();
         graphics.moveTo(x1, y1);
         graphics.quadraticCurveTo(ctrlx, ctrly, x2, y2);
@@ -130,5 +128,10 @@ public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathEle
     @Override
     public Coordinate getOriginCoordinate() {
         return new CoordinateXY(x1, y1);
+    }
+
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GQuadCurve(x1, y1, ctrlx, ctrly, x2, y2), this);
     }
 }

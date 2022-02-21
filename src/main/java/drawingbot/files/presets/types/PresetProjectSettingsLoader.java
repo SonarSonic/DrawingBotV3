@@ -3,6 +3,7 @@ package drawingbot.files.presets.types;
 import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
@@ -10,8 +11,8 @@ import drawingbot.files.presets.PresetType;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.PrintResolution;
-import drawingbot.javafx.FXController;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.registry.Register;
@@ -85,10 +86,10 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
 
         preset.data.optimiseForPrint = DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get();
         preset.data.targetPenWidth = DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get();
-        preset.data.colourSplitter = DrawingBotV3.INSTANCE.colourSeperator.get();
-        preset.data.distributionType = DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.get();
-        preset.data.distributionOrder = DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.get();
-        preset.data.blendMode = DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.get();
+        preset.data.colourSplitter = DrawingBotV3.INSTANCE.drawingSetSlots.get(0).colourSeperator.get();
+        preset.data.distributionType = DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionType.get();
+        preset.data.distributionOrder = DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionOrder.get();
+        preset.data.blendMode = DrawingBotV3.INSTANCE.blendMode.get();
 
         preset.data.cyanMultiplier = DrawingBotV3.INSTANCE.cyanMultiplier.get();
         preset.data.magentaMultiplier = DrawingBotV3.INSTANCE.magentaMultiplier.get();
@@ -107,12 +108,19 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             preset.data.drawingState = (JsonObject) Hooks.runHook(Hooks.SERIALIZE_DRAWING_STATE, plottingTask, new JsonObject())[1];
         }
 
+        preset.data.drawingSets = new ArrayList<>();
+        for(ObservableDrawingSet drawingSet : DrawingBotV3.INSTANCE.drawingSetSlots){
+            preset.data.drawingSets.add(new ObservableDrawingSet(drawingSet));
+        }
+        int activeSlot = preset.data.drawingSets.indexOf(DrawingBotV3.INSTANCE.activeDrawingSet.get());
+        preset.data.activeDrawingSlot = activeSlot == -1 ? 0 : activeSlot;
+
         //run the thumbnail generation task
         if(plottingTask != null && !preset.data.thumbnailID.isEmpty()){
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
             PrintResolution thumbnailResolution = PrintResolution.copy(plottingTask.resolution);
             thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, plottingTask, IGeometry.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, plottingTask, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, false, true, true, true, thumbnailResolution);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
 
@@ -126,27 +134,34 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         Register.PRESET_LOADER_FILTERS.applyPreset(preset.data.imageFilters);
         Register.PRESET_LOADER_PFM.applyPreset(preset.data.pfmSettings);
 
-        if(DrawingBotV3.INSTANCE.colourSeperator.get().isDefault()){
-            Register.PRESET_LOADER_DRAWING_SET.applyPreset(preset.data.drawingSet);
-        }else{
-            DrawingBotV3.INSTANCE.colourSeperator.get().applySettings();
-        }
-
         DrawingBotV3.INSTANCE.imageRotation.set(preset.data.imageRotation);
         DrawingBotV3.INSTANCE.imageFlipHorizontal.set(preset.data.imageFlipHorizontal);
         DrawingBotV3.INSTANCE.imageFlipVertical.set(preset.data.imageFlipVertical);
 
         DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.set(preset.data.optimiseForPrint);
         DrawingBotV3.INSTANCE.controller.textFieldPenWidth.setText("" + preset.data.targetPenWidth); //works but ugly!
-        DrawingBotV3.INSTANCE.colourSeperator.set(preset.data.colourSplitter);
-        DrawingBotV3.INSTANCE.observableDrawingSet.distributionType.set(preset.data.distributionType);
-        DrawingBotV3.INSTANCE.observableDrawingSet.distributionOrder.set(preset.data.distributionOrder);
-        DrawingBotV3.INSTANCE.observableDrawingSet.blendMode.set(preset.data.blendMode);
+
+        DrawingBotV3.INSTANCE.blendMode.set(preset.data.blendMode);
 
         DrawingBotV3.INSTANCE.cyanMultiplier.set(preset.data.cyanMultiplier);
         DrawingBotV3.INSTANCE.magentaMultiplier.set(preset.data.magentaMultiplier);
         DrawingBotV3.INSTANCE.yellowMultiplier.set(preset.data.yellowMultiplier);
         DrawingBotV3.INSTANCE.keyMultiplier.set(preset.data.keyMultiplier);
+
+        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).loadDrawingSet(preset.data.drawingSet.data);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).colourSeperator.set(preset.data.colourSplitter);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).colourSeperator.get().applySettings();
+        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionType.set(preset.data.distributionType);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionOrder.set(preset.data.distributionOrder);
+
+        if(preset.data.drawingSets != null && !preset.data.drawingSets.isEmpty()){
+            DrawingBotV3.INSTANCE.drawingSetSlots.clear();
+            for(ObservableDrawingSet drawingSet : preset.data.drawingSets){
+                DrawingBotV3.INSTANCE.drawingSetSlots.add(new ObservableDrawingSet(drawingSet));
+            }
+            int activeSlot = preset.data.activeDrawingSlot < DrawingBotV3.INSTANCE.drawingSetSlots.size() ? preset.data.activeDrawingSlot : 0;
+            DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get(activeSlot));
+        }
 
         if(!preset.data.isSubProject){ //don't overwrite the versions if this is just a sub version
             DrawingBotV3.INSTANCE.projectVersions.clear();
@@ -163,13 +178,16 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             Platform.runLater(() -> {
                 BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
-                    if(newValue == Worker.State.SUCCEEDED){
+                    if(loadingTask.isDone()){
                         Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState);
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
             });
         }
+
+
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package drawingbot.javafx.observables;
 
 import com.google.gson.JsonElement;
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingStyle;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
@@ -24,17 +25,18 @@ public class ObservableDrawingStyle implements IDrawingStyle {
     public SimpleObjectProperty<PFMFactory<?>> pfmFactory;
     public SimpleIntegerProperty distributionWeight;
     public SimpleObjectProperty<Color> maskColor; //nullable
+    public SimpleObjectProperty<ObservableDrawingSet> drawingSet;
 
     public ObservableList<GenericSetting<?, ?>> pfmSettings;
 
     public ObservableDrawingStyle(PFMFactory<?> factory){
         init();
-        update(true, factory.getName(), factory, 100, null, Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList);
+        update(true, factory.getName(), factory, 100, 0, null, Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList);
     }
 
     public ObservableDrawingStyle(IDrawingStyle style){
         init();
-        update(style.isEnabled(), style.getName(), MasterRegistry.INSTANCE.getPFMFactory(style.getPFMName()), style.getDistributionWeight(), style.getMaskColor(), style.getSaveableSettings());
+        update(style.isEnabled(), style.getName(), MasterRegistry.INSTANCE.getPFMFactory(style.getPFMName()), style.getDistributionWeight(), style.getDrawingSetSlot(), style.getMaskColor(), style.getSaveableSettings());
     }
 
     private void init(){
@@ -43,14 +45,17 @@ public class ObservableDrawingStyle implements IDrawingStyle {
         this.pfmFactory = new SimpleObjectProperty<>();
         this.distributionWeight = new SimpleIntegerProperty();
         this.maskColor = new SimpleObjectProperty<>();
+        this.drawingSet = new SimpleObjectProperty<>(DrawingBotV3.INSTANCE.drawingSetSlots.get(0));
         this.pfmSettings = FXCollections.observableArrayList();
     }
 
-    public void update(boolean enabled, String name, PFMFactory<?> pfm, int weight, Color maskColor, HashMap<String, JsonElement> settings){
+    public void update(boolean enabled, String name, PFMFactory<?> pfm, int weight, int drawingSetSlot, Color maskColor, HashMap<String, JsonElement> settings){
         this.enable.set(enabled);
         this.name.set(name);
         this.pfmFactory.set(pfm);
         this.distributionWeight.set(weight);
+        ObservableDrawingSet drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get(drawingSetSlot);
+        this.drawingSet.set(drawingSet != null ? drawingSet : DrawingBotV3.INSTANCE.activeDrawingSet.get());
         this.maskColor.set(maskColor);
         this.pfmSettings.clear();
         this.pfmSettings.addAll(MasterRegistry.INSTANCE.getNewObservableSettingsList(pfm));
@@ -60,10 +65,10 @@ public class ObservableDrawingStyle implements IDrawingStyle {
     public void update(@Nullable IDrawingStyle style){
         if(style == null){
             PFMFactory<?> factory = MasterRegistry.INSTANCE.getDefaultPFM();
-            update(true, factory.getName(), factory, 100, null, new HashMap<>());
+            update(true, factory.getName(), factory, 100, 0, null, new HashMap<>());
             return;
         }
-        update(style.isEnabled(), style.getName(), MasterRegistry.INSTANCE.getPFMFactory(style.getPFMName()), style.getDistributionWeight(), style.getMaskColor(), style.getSaveableSettings());
+        update(style.isEnabled(), style.getName(), MasterRegistry.INSTANCE.getPFMFactory(style.getPFMName()), style.getDistributionWeight(), style.getDrawingSetSlot(), style.getMaskColor(), style.getSaveableSettings());
     }
 
     @Override
@@ -99,5 +104,15 @@ public class ObservableDrawingStyle implements IDrawingStyle {
     @Override
     public Color getMaskColor() {
         return maskColor.get();
+    }
+
+    @Override
+    public ObservableDrawingSet getDrawingSet() {
+        return drawingSet.get();
+    }
+
+    @Override
+    public int getDrawingSetSlot() {
+        return DrawingBotV3.INSTANCE.drawingSetSlots.indexOf(drawingSet.get());
     }
 }

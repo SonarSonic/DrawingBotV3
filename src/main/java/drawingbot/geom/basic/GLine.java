@@ -1,7 +1,6 @@
 package drawingbot.geom.basic;
 
 import drawingbot.geom.GeometryUtils;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
@@ -103,8 +102,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
+    public void renderFX(GraphicsContext graphics) {
         graphics.strokeLine(x1, y1, x2, y2);
     }
 
@@ -134,5 +132,10 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     @Override
     public Coordinate getOriginCoordinate() {
         return new CoordinateXY(x1, y1);
+    }
+
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GLine(x1, y1, x2, y2), this);
     }
 }

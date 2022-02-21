@@ -9,8 +9,10 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.PdfGState;
 import com.itextpdf.text.pdf.PdfName;
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.UnitsLength;
 
@@ -24,7 +26,7 @@ import java.util.Map;
 
 public class PDFExporter {
 
-    public static void exportPDF(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
+    public static void exportPDF(ExportTask exportTask, File saveLocation){
         try {
             int width = (int)exportTask.exportResolution.getScaledWidth();
             int height = (int)exportTask.exportResolution.getScaledHeight();
@@ -38,7 +40,7 @@ public class PDFExporter {
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));
             
             PdfGState gstate = new PdfGState();
-            gstate.setBlendMode(getPDFBlendMode(exportTask));
+            gstate.setBlendMode(getPDFBlendMode());
             
             document.open();
             PdfContentByte content = writer.getDirectContent();
@@ -48,9 +50,9 @@ public class PDFExporter {
             graphics.transform(AffineTransform.getScaleInstance(scale, scale));
             
             Graphics2DExporter.drawBackground(exportTask, graphics, width, height);
-            Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
-            Graphics2DExporter.drawGeometryWithDrawingSet(exportTask, graphics, plottingTask.getDrawingSet(), geometries);
-            Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
+            Graphics2DExporter.preDraw(exportTask, graphics);
+            Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);
+            Graphics2DExporter.postDraw(exportTask, graphics);
             document.close(); //dispose is already called within drawGraphics
 
         } catch (DocumentException | FileNotFoundException e) {
@@ -59,8 +61,8 @@ public class PDFExporter {
         }
     }
 
-    public static PdfName getPDFBlendMode(ExportTask exportTask){
-        switch (exportTask.plottingTask.plottedDrawing.drawingPenSet.blendMode.get()) {
+    public static PdfName getPDFBlendMode(){
+        switch (DrawingBotV3.INSTANCE.blendMode.get()) {
             case MULTIPLY:
                 return PdfGState.BM_MULTIPLY;
             case SCREEN:

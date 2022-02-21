@@ -4,12 +4,17 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.plotting.AsynchronousGeometryIterator;
+import drawingbot.plotting.DrawingGeometryIterator;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottingTask;
+import drawingbot.render.RenderUtils;
 import drawingbot.render.jfx.JavaFXRenderer;
 
 public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
-    private int renderedLines = 0;
+    private AsynchronousGeometryIterator asyncIterator;
+    private DrawingGeometryIterator drawingIterator;
     private long drawingTime = 0;
 
     @Override
@@ -41,14 +46,19 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                     if(renderedTask.handlesProcessRendering()){
                         renderedTask.renderProcessing(jfr, renderedTask);
                     }else{
+                        if(asyncIterator == null || asyncIterator.currentDrawing != renderedTask.plottedDrawing){
+                            asyncIterator = new AsynchronousGeometryIterator(renderedTask.plottedDrawing);
+                        }
+
                         if(jfr.clearedProcessDrawing || jfr.changedTask || jfr.changedState || jfr.changedMode){ //avoids redrawing in some instances
                             jfr.clearCanvas();
-                            renderedLines = 0;
+                            asyncIterator.reset();
                         }
-                        if(renderedTask.plottedDrawing.getGeometryCount() != 0){
+                        if(asyncIterator.hasNext()){
                             jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
                             jfr.graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                            renderedLines = renderedTask.plottedDrawing.renderGeometryFX(jfr.graphicsFX, renderedLines, renderedTask.plottedDrawing.getGeometryCount(), IGeometry.DEFAULT_EXPORT_FILTER, jfr.getVertexRenderLimit(), false);
+
+                            RenderUtils.renderDrawingFX(jfr.graphicsFX, asyncIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
                         }
                     }
                     break;
@@ -57,29 +67,28 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                     // NOP - continue displaying the path finding result
                     break;
                 case FINISHED:
-                    EnumBlendMode blendMode = renderedTask.plottedDrawing.drawingPenSet.blendMode.get();
+                    if(drawingIterator == null || drawingIterator.currentDrawing != renderedTask.plottedDrawing){
+                        drawingIterator = new DrawingGeometryIterator(renderedTask.plottedDrawing);
+                    }
+
+                    EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
                     if(jfr.shouldRedraw){
                         jfr.clearCanvas();
-                        renderedLines = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
+                        drawingIterator.reset(renderedTask.plottedDrawing);
                         DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
                         DrawingBotV3.INSTANCE.updateLocalProgress(0);
                         drawingTime = System.currentTimeMillis();
                     }
-                    if(renderedLines != -1){
+
+
+                    if(drawingIterator.hasNext()){
                         jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
                         jfr.graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
                         jfr.graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
-                        renderedLines = renderedTask.plottedDrawing.renderGeometryFX(jfr.graphicsFX, renderedTask.plottedDrawing.getDisplayedShapeMin(), renderedLines, getGeometryFilter(), jfr.getVertexRenderLimit(),true);
+                        RenderUtils.renderDrawingFX(jfr.graphicsFX, drawingIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
 
-                        int end = renderedTask.plottedDrawing.getDisplayedShapeMax()-1;
-                        DrawingBotV3.INSTANCE.updateLocalProgress((float)(end-renderedLines) / end);
-
-                        if(renderedLines == renderedTask.plottedDrawing.getDisplayedShapeMin()){
-                            long time = System.currentTimeMillis();
-                            DrawingBotV3.logger.finest("Drawing Took: " + (time-drawingTime) + " ms");
-                            renderedLines = -1;
-                        }
+                        DrawingBotV3.INSTANCE.updateLocalProgress(drawingIterator.getCurrentGeometryProgress());
                     }
                     break;
             }
@@ -95,7 +104,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
         @Override
         public IGeometryFilter getGeometryFilter() {
-            return IGeometry.DEFAULT_EXPORT_FILTER;
+            return IGeometryFilter.DEFAULT_VIEW_FILTER;
         }
 
         @Override
@@ -108,7 +117,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
         @Override
         public IGeometryFilter getGeometryFilter() {
-            return IGeometry.SELECTED_PEN_FILTER;
+            return IGeometryFilter.SELECTED_PEN_FILTER;
         }
 
         @Override

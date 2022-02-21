@@ -1,8 +1,6 @@
 package drawingbot.geom.spatial;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.geom.GeometryUtils;
-import drawingbot.utils.LazyTimer;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
@@ -15,7 +13,6 @@ import java.util.List;
 
 public class STRTreeSequencerLineString extends STRTreeSequencer<LineString>{
 
-
     public List<STRNode<LineString>> endNodes;
 
     public STRTreeSequencerLineString(List<LineString> cities, double allowableDistance) {
@@ -27,11 +24,12 @@ public class STRTreeSequencerLineString extends STRTreeSequencer<LineString>{
         this.tree = new STRtree();
         this.nodes = new ArrayList<>();
         this.endNodes = new ArrayList<>();
-        for (int i = 0; i < cities.size(); i++) {
-            LineString city = cities.get(i);
-            Coordinate startCoordinate = getStartCoordinateFromGeometry(city);
+
+        int i = 0;
+        for (LineString city : cities) {
+            Coordinate startCoordinate = getStartCoordinateFromCity(city);
             Envelope startEnvelope = new Envelope(startCoordinate.x, startCoordinate.x, startCoordinate.y, startCoordinate.y);
-            Coordinate endCoordinate = getEndCoordinateFromGeometry(city);
+            Coordinate endCoordinate = getEndCoordinateFromCity(city);
             Envelope endEnvelope = new Envelope(endCoordinate.x, endCoordinate.x, endCoordinate.y, endCoordinate.y);
 
             STRNode<LineString> startNode = new STRNode<>(i, city, startCoordinate, startEnvelope, endCoordinate, endEnvelope);
@@ -41,6 +39,7 @@ public class STRTreeSequencerLineString extends STRTreeSequencer<LineString>{
             tree.insert(endEnvelope, endNode);
             nodes.add(startNode);
             endNodes.add(endNode);
+            i++;
         }
         this.tree.build();
     }
@@ -116,12 +115,12 @@ public class STRTreeSequencerLineString extends STRTreeSequencer<LineString>{
     }
 
     @Override
-    protected Coordinate getStartCoordinateFromGeometry(LineString geometry) {
+    protected Coordinate getStartCoordinateFromCity(LineString geometry) {
         return geometry.getCoordinateN(0);
     }
 
     @Override
-    protected Coordinate getEndCoordinateFromGeometry(LineString geometry) {
+    protected Coordinate getEndCoordinateFromCity(LineString geometry) {
         return geometry.getCoordinateN(geometry.getNumPoints() - 1);
     }
 }

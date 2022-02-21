@@ -33,7 +33,7 @@ public class ContextMenuDrawingStyle extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
-        FXHelper.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.INSTANCE.controller.mosaicController.editingStyles, style -> DrawingBotV3.INSTANCE.controller.mosaicController.editingStyles.add(new ObservableDrawingStyle(style)));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, () -> DrawingBotV3.INSTANCE.controller.mosaicController.editingStyles, style -> DrawingBotV3.INSTANCE.controller.mosaicController.editingStyles.add(new ObservableDrawingStyle(style)));
     }
 
 }

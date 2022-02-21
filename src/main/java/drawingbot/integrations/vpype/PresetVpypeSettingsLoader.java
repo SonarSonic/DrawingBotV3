@@ -2,7 +2,6 @@ package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.presets.AbstractSettingsLoader;
-import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -18,8 +17,8 @@ public class PresetVpypeSettingsLoader extends AbstractSettingsLoader<PresetVpyp
     }
 
     public void registerSettings(){
-        registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "vPypeCommand", "show", false, (app, value) -> app.vPypeCommand.setValue(value)).setGetter(app -> app.vPypeCommand.getValue()));
-        registerSetting(GenericSetting.createBooleanSetting(DrawingBotV3.class, "vPypeBypassOptimisation", false, false, (app, value) -> app.vPypeBypassOptimisation.setValue(value)).setGetter(app -> app.vPypeBypassOptimisation.getValue()));
+        registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "vPypeCommand", "show", (app, value) -> app.vPypeCommand.setValue(value)).setGetter(app -> app.vPypeCommand.getValue()));
+        registerSetting(GenericSetting.createBooleanSetting(DrawingBotV3.class, "vPypeBypassOptimisation", false, (app, value) -> app.vPypeBypassOptimisation.setValue(value)).setGetter(app -> app.vPypeBypassOptimisation.getValue()));
     }
 
     @Override

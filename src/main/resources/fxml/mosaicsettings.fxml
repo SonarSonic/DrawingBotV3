@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="380.0" prefWidth="843.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="380.0" prefWidth="843.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
    <SplitPane dividerPositions="0.5" prefHeight="386.0" prefWidth="843.0">
      <items>
          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="426.0" prefWidth="841.0">
@@ -12,8 +12,9 @@
                      <columns>
                          <TableColumn fx:id="styleEnableColumn" minWidth="7.0" prefWidth="28.0" />
                          <TableColumn fx:id="styleNameColumn" prefWidth="184.0" sortable="false" text="Name" />
-                         <TableColumn fx:id="styleWeightColumn" minWidth="0.0" prefWidth="122.0" sortable="false" text="Weight" />
-                         <TableColumn fx:id="styleMaskColorColumn" minWidth="0.0" prefWidth="122.0" sortable="false" text="Mask Colour" />
+                         <TableColumn fx:id="styleWeightColumn" minWidth="0.0" prefWidth="81.0" sortable="false" text="Weight" />
+                     <TableColumn fx:id="styleDrawingSetColumn" minWidth="0.0" prefWidth="89.0" sortable="false" text="Drawing Set" />
+                         <TableColumn fx:id="styleMaskColorColumn" minWidth="0.0" prefWidth="196.0" sortable="false" text="Mask Colour" />
                          <!--
                          <TableColumn fx:id="styleTypeColumn" prefWidth="109.0" sortable="false" text="Type" />
                          <TableColumn fx:id="stylePercentageColumn" editable="false" minWidth="0.0" prefWidth="46.0" sortable="false" text="\%" />

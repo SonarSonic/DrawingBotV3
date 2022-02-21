@@ -1,6 +1,7 @@
 package drawingbot.geom.spatial;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IProgressCallback;
 import drawingbot.utils.LazyTimer;
 import drawingbot.utils.ProgressCallback;
 import org.locationtech.jts.geom.Coordinate;
@@ -10,44 +11,47 @@ import org.locationtech.jts.index.strtree.ItemDistance;
 import org.locationtech.jts.index.strtree.STRtree;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
 public abstract class STRTreeSequencer<T> implements ItemDistance {
 
-    public List<T> cities;
+    public Collection<T> cities;
     public boolean[] sorted;
     public double allowableDistance;
 
     public STRtree tree;
     public List<STRNode<T>> nodes;
 
-    public ProgressCallback progressCallback;
+    public IProgressCallback progressCallback;
 
-    public STRTreeSequencer(List<T> cities, double allowableDistance) {
+    public STRTreeSequencer(Collection<T> cities, double allowableDistance) {
         this.cities = cities;
         this.sorted = new boolean[cities.size()];
         this.allowableDistance = allowableDistance;
         build();
     }
 
-    public void setProgressCallback(ProgressCallback progressCallback) {
+    public void setProgressCallback(IProgressCallback progressCallback) {
         this.progressCallback = progressCallback;
     }
 
     public void build() {
         this.tree = new STRtree();
         this.nodes = new ArrayList<>();
-        for (int i = 0; i < cities.size(); i++) {
-            T city = cities.get(i);
-            Coordinate startCoordinate = getStartCoordinateFromGeometry(city);
+
+        int i = 0;
+        for (T city : cities) {
+            Coordinate startCoordinate = getStartCoordinateFromCity(city);
             Envelope startEnvelope = new Envelope(startCoordinate.x, startCoordinate.x, startCoordinate.y, startCoordinate.y);
-            Coordinate endCoordinate = getEndCoordinateFromGeometry(city);
+            Coordinate endCoordinate = getEndCoordinateFromCity(city);
             Envelope endEnvelope = new Envelope(endCoordinate.x, endCoordinate.x, endCoordinate.y, endCoordinate.y);
 
             STRNode<T> node = new STRNode<>(i, city, startCoordinate, startEnvelope, endCoordinate, endEnvelope);
             tree.insert(startEnvelope, node);
             nodes.add(node);
+            i++;
         }
         LazyTimer buildTimer = new LazyTimer();
         buildTimer.start();
@@ -83,7 +87,7 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
             sortedCount++;
 
             if (progressCallback != null) {
-                progressCallback.updateProgress((float) sortedCount / cities.size());
+                progressCallback.updateProgress(sortedCount, cities.size());
                 progressCallback.updateMessage(sortedCount + " / " + cities.size());
             }
         }
@@ -141,9 +145,9 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         return next;
     }
 
-    protected abstract Coordinate getStartCoordinateFromGeometry(T geometry);
+    protected abstract Coordinate getStartCoordinateFromCity(T geometry);
 
-    protected abstract Coordinate getEndCoordinateFromGeometry(T geometry);
+    protected abstract Coordinate getEndCoordinateFromCity(T geometry);
 
     @Override
     public double distance(ItemBoundable item1, ItemBoundable item2) {
@@ -163,12 +167,12 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         }
 
         @Override
-        protected Coordinate getStartCoordinateFromGeometry(drawingbot.geom.basic.IGeometry geometry) {
+        protected Coordinate getStartCoordinateFromCity(drawingbot.geom.basic.IGeometry geometry) {
             return geometry.getOriginCoordinate();
         }
 
         @Override
-        protected Coordinate getEndCoordinateFromGeometry(drawingbot.geom.basic.IGeometry geometry) {
+        protected Coordinate getEndCoordinateFromCity(drawingbot.geom.basic.IGeometry geometry) {
             return geometry.getOriginCoordinate();
         }
     }

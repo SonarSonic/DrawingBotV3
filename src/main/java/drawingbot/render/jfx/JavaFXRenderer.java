@@ -166,11 +166,8 @@ public class JavaFXRenderer implements IRenderer {
 
     public void clearProcessRendering(){
         Platform.runLater(() -> {
-            if(DrawingBotV3.INSTANCE.getRenderedTask().handlesProcessRendering()){
-                DrawingBotV3.INSTANCE.getRenderedTask().clearProcessingRender(DrawingBotV3.RENDERER, DrawingBotV3.INSTANCE.getRenderedTask());
-            }else{
-                clearedProcessDrawing = true;
-            }
+            clearedProcessDrawing = true;
+            DrawingBotV3.OPENGL_RENDERER.reRender();
         });
     }
 

@@ -28,12 +28,12 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
 
         if (useCheckBox) {
             propertyCallback = param -> {
-                SimpleBooleanProperty prop = new SimpleBooleanProperty(DrawingBotV3.INSTANCE.observableDrawingSet.containsPen(param));
+                SimpleBooleanProperty prop = new SimpleBooleanProperty(DrawingBotV3.INSTANCE.activeDrawingSet.get().containsPen(param));
                 prop.addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
-                        DrawingBotV3.INSTANCE.observableDrawingSet.addNewPen(getItem());
+                        DrawingBotV3.INSTANCE.activeDrawingSet.get().addNewPen(getItem());
                     } else {
-                        DrawingBotV3.INSTANCE.observableDrawingSet.pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
+                        DrawingBotV3.INSTANCE.activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
                     }
                 });
                 return prop;

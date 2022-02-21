@@ -1,20 +1,18 @@
 package drawingbot.geom;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.ICustomPen;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.geom.spatial.STRTreeSequencer;
-import drawingbot.geom.spatial.STRTreeSequencerLineString;
+import drawingbot.api.IProgressCallback;
+import drawingbot.geom.operation.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
-import drawingbot.files.presets.types.ConfigApplicationSettings;
 import drawingbot.geom.basic.*;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.ProgressCallback;
-import drawingbot.utils.UnitsLength;
 import drawingbot.utils.Utils;
 import javafx.scene.canvas.GraphicsContext;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +20,6 @@ import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
-import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -37,163 +34,53 @@ public class GeometryUtils {
 
     public static GeometryFactory factory = new GeometryFactory();
 
-    public static Map<Integer, List<IGeometry>> getGeometriesForExportTask(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
+    public static PlottedDrawing getOptimisedPlottedDrawing(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
 
-        ProgressCallback progressCallback = new ProgressCallback();
-
-        progressCallback.progressCallback = p -> task.updateProgress(p, 1);
-        progressCallback.messageCallback = task::updateMessage;
-
-        if(!task.exportHandler.isVector || forceBypassOptimisation){
-            return getBasicGeometriesForExport(task, task.plottingTask.plottedDrawing.geometries, filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
-        }
-
-        Map<Integer, List<List<IGeometry>>> perGroupOptimisedGeometries = new HashMap<>(); //pen id -> list of geometries with matching group and pen id
-
-        for(Map.Entry<Integer, List<IGeometry>> groupEntry : task.plottingTask.plottedDrawing.groups.entrySet()){
-           // progressCallback.startTask();
-            Map<Integer, List<IGeometry>> optimisedGeometries = getOptimisedGeometriesForExport(task, task.plottingTask.plottedDrawing.getGroupPFMType(groupEntry.getKey()), groupEntry.getValue(), filter, task.plottingTask.createPrintTransform(), task.plottingTask.plottedDrawing.drawingPenSet, progressCallback);
-            for(Map.Entry<Integer, List<IGeometry>> penGroupEntry : optimisedGeometries.entrySet()){
-                if(!penGroupEntry.getValue().isEmpty()){
-                    perGroupOptimisedGeometries.putIfAbsent(penGroupEntry.getKey(), new ArrayList<>());
-                    perGroupOptimisedGeometries.get(penGroupEntry.getKey()).add(penGroupEntry.getValue());
-                }
+        IProgressCallback progressCallback = new IProgressCallback() {
+            @Override
+            public void updateTitle(String title) {
+                task.updateMessage(title);
             }
-            //progressCallback.finishTask();
+
+            @Override
+            public void updateMessage(String message) {
+                task.updateMessage(message);
+            }
+
+            @Override
+            public void updateProgress(float progress, float max) {
+                task.updateProgress(progress, max);
+            }
+        };
+
+        List<AbstractGeometryOperation> geometryOperations = getGeometryExportOperations(task, task.plottingTask.pfmFactory, filter, forceBypassOptimisation);
+
+        PlottedDrawing plottedDrawing = task.plottingTask.plottedDrawing;
+
+        for(AbstractGeometryOperation operation : geometryOperations){
+            operation.progressCallback = progressCallback;
+            plottedDrawing = operation.run(plottedDrawing);
         }
 
-        Map<Integer, List<IGeometry>> optimisedGeometries = new HashMap<>();
-
-        //place empty lists for each pen
-        for(ObservableDrawingPen set : task.plottingTask.plottedDrawing.drawingPenSet.getPens()){
-            optimisedGeometries.put(set.penNumber.get(), new ArrayList<>());
-        }
-
-        progressCallback.updateMessage("Optimising Geometry Groups");
-        for(Map.Entry<Integer, List<List<IGeometry>>> groupEntry : perGroupOptimisedGeometries.entrySet()){
-            progressCallback.startTask();
-
-            STRTreeSequencer<List<IGeometry>> sequencer = new STRTreeSequencer<>(groupEntry.getValue(), 0) {
-                @Override
-                protected Coordinate getStartCoordinateFromGeometry(List<drawingbot.geom.basic.IGeometry> geometry) {
-                    return geometry.get(0).getOriginCoordinate();
-                }
-
-                @Override
-                protected Coordinate getEndCoordinateFromGeometry(List<drawingbot.geom.basic.IGeometry> geometry) {
-                    return geometry.get(0).getOriginCoordinate();
-                }
-            };
-
-            sequencer.setProgressCallback(progressCallback);
-
-            List<List<IGeometry>> sortedGroups = groupEntry.setValue(sequencer.sort());
-            List<IGeometry> perPenList = new ArrayList<>();
-            sortedGroups.forEach(perPenList::addAll);
-            optimisedGeometries.put(groupEntry.getKey(), perPenList);
-
-            progressCallback.finishTask();
-        }
-
-        return optimisedGeometries;
+        return plottedDrawing;
     }
 
-    public static Map<Integer, List<IGeometry>> getOptimisedGeometriesForExport(ExportTask task, @Nullable PFMFactory<?> factory, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback progressCallback) {
-
-
-        Map<Integer, List<IGeometry>> combinedGeometry = combineBasicGeometries(task.plottingTask, geometryFilter, drawingSet, geometries, progressCallback, false);
-
-        if(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
-
-            //DrawingBotV3.logger.info("--------- Geometry - Pre-Optimisation ---------");
-            //printEstimatedTravelDistance(combinedGeometry, printTransform);
+    public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, @Nullable PFMFactory<?> factory, IGeometryFilter filter, boolean forceBypassOptimisation){
+        List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
+        geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
+        if(task.exportHandler.isVector && !forceBypassOptimisation && ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
 
             if(factory != null && !factory.bypassOptimisation){
-                AffineTransform toJTS = AffineTransform.getScaleInstance(printTransform.getScaleX(), printTransform.getScaleY());
-                AffineTransform fromJTS = AffineTransform.getScaleInstance(1/printTransform.getScaleX(), 1/printTransform.getScaleY());
-                for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
-                    ObservableDrawingPen pen = drawingSet.getPen(entry.getKey());
-                    if(!(pen.source instanceof ICustomPen)){
-                        entry.setValue(optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback));
-                    }
-                }
-            }else {
-                ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
-
-                if(settings.lineSortingEnabled){
-                    float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
-
-                    for(Map.Entry<Integer, List<IGeometry>> entry : combinedGeometry.entrySet()){
-                        STRTreeSequencer.IGeometry sequencer = new STRTreeSequencer.IGeometry(entry.getValue(), tolerance);
-                        entry.setValue(sequencer.sort());
-                    }
-                }
-                return combinedGeometry;
+                geometryOperations.add(new GeometryOperationOptimize(task.plottingTask.createPrintTransform()));
+            }else if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
+                geometryOperations.add(new GeometryOperationSortGeometries());
             }
 
-
-            //DrawingBotV3.logger.info("--------- Geometry - Post-Optimisation ---------");
-            //printEstimatedTravelDistance(combinedGeometry, printTransform);
-
+            geometryOperations.add(new GeometryOperationSortGroupOrder());
         }
 
-        return combinedGeometry;
-    }
+        return geometryOperations;
 
-    public static Map<Integer, List<IGeometry>> getBasicGeometriesForExport(ExportTask task, List<IGeometry> geometries, IGeometryFilter geometryFilter, AffineTransform printTransform, ObservableDrawingSet drawingSet, ProgressCallback callback) {
-        return combineBasicGeometries(task.plottingTask, geometryFilter, drawingSet, geometries, callback, false);
-    }
-
-    /**
-     * Combines any obvious path elements with obvious continuity
-     */
-    public static Map<Integer, List<IGeometry>> combineBasicGeometries(PlottingTask plottingTask, IGeometryFilter geometryFilter, ObservableDrawingSet drawingSet, List<IGeometry> geometries, @Nullable ProgressCallback callback, boolean includeMultipleMoves){
-        Map<Integer, List<IGeometry>> optimised = new HashMap<>();
-
-        for(ObservableDrawingPen set : drawingSet.getPens()){
-            optimised.put(set.penNumber.get(), new ArrayList<>());
-        }
-
-        int index = 0;
-        for(IGeometry geometry : geometries){
-            List<IGeometry> subList = optimised.get(geometry.getPenIndex());
-            ObservableDrawingPen pen = drawingSet.getPen(geometry.getPenIndex());
-            if(geometryFilter.filter(plottingTask.plottedDrawing, geometry, pen)){
-                if(geometry instanceof IPathElement){
-                    IPathElement element = (IPathElement) geometry;
-                    IGeometry lastGeometry = subList.isEmpty() ? null : subList.get(subList.size()-1);
-
-                    if(lastGeometry instanceof GPath){
-                        GPath gPath = (GPath) lastGeometry;
-                        //check the render colour and continuity if they match, add it too the path
-                        if(GeometryUtils.compareRenderColour(pen, gPath, element)){
-                            boolean continuity = GeometryUtils.comparePathContinuity(gPath, element);
-                            if(continuity){
-                                element.addToPath(false, gPath);
-                                continue;
-                            }else if(includeMultipleMoves && element.getGroupID() == gPath.getGroupID()){
-                                element.addToPath(true, gPath);
-                                continue;
-                            }
-                        }
-                    }
-                    //if the last geometry isn't a GPath or the element can't be added add a new GPath
-                    if(element instanceof GPath){
-                        subList.add(element);
-                    }else{
-                        subList.add(new GPath(element));
-                    }
-                }else{
-                    subList.add(geometry);
-                }
-            }
-            index++;
-            if(callback != null){
-                callback.updateProgress((float) index / geometries.size());
-            }
-        }
-
-        return optimised;
     }
 
     public static boolean compareRenderColour(ObservableDrawingPen pen, IGeometry geometry1, IGeometry geometry2){
@@ -229,7 +116,7 @@ public class GeometryUtils {
     }
 
     public static boolean comparePathContinuityFlipped(IGeometry lastGeometry, IGeometry nextGeometry){
-        if(lastGeometry == null){
+        if(lastGeometry == null || lastGeometry.getGroupID() != nextGeometry.getGroupID()){
             return false;
         }
         if(nextGeometry instanceof IPathElement){
@@ -245,59 +132,6 @@ public class GeometryUtils {
         return false;
     }
 
-    public static List<IGeometry> optimiseBasicGeometry(List<IGeometry> geometries, AffineTransform toJTS, AffineTransform fromJTS, ProgressCallback progressCallback) {
-        if(geometries.isEmpty()){
-            return new ArrayList<>();
-        }
-        List<LineString> lineStrings = new ArrayList<>();
-        for(IGeometry g : geometries){
-            toLineStrings(g, toJTS, lineStrings);
-        }
-
-        lineStrings = optimiseJTSGeometry(lineStrings, progressCallback);
-
-        List<IGeometry> optimised = new ArrayList<>();
-        for(LineString g : lineStrings){
-            optimised.add(fromLineStrings(g, fromJTS));
-        }
-        return optimised;
-    }
-
-
-    /**
-     * Performs the configured optimisation on the set of line strings
-     */
-    public static List<LineString> optimiseJTSGeometry(List<LineString> lineStrings, ProgressCallback progressCallback){
-        if(lineStrings.isEmpty()){
-            return new ArrayList<>();
-        }
-        ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
-
-        if(settings.lineSimplifyEnabled){
-            progressCallback.updateTitle("Line Simplifying: ");
-            float tolerance = UnitsLength.convert(settings.lineSimplifyTolerance, settings.lineSimplifyUnits, UnitsLength.MILLIMETRES);
-            lineStrings = lineSimplify(lineStrings, tolerance, progressCallback);
-        }
-
-        if(settings.lineMergingEnabled){
-            progressCallback.updateTitle("Line Merging: ");
-            float tolerance = UnitsLength.convert(settings.lineMergingTolerance, settings.lineMergingUnits, UnitsLength.MILLIMETRES);
-            lineStrings = lineMerge(lineStrings, tolerance, progressCallback, 3);
-        }
-
-        if(settings.lineFilteringEnabled){
-            progressCallback.updateTitle("Line Filtering: ");
-            float tolerance = UnitsLength.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, UnitsLength.MILLIMETRES);
-            lineStrings = lineFilter(lineStrings, tolerance, progressCallback);
-        }
-
-        if(settings.lineSortingEnabled){
-            progressCallback.updateTitle("Line Sorting: ");
-            float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
-            lineStrings = lineSort(lineStrings, tolerance, progressCallback);
-        }
-        return lineStrings;
-    }
 
     public static List<LineString> extractLines(Geometry geometry){
         return (List<LineString>)LinearComponentExtracter.getLines(geometry, true);
@@ -320,65 +154,6 @@ public class GeometryUtils {
             coordinates.addAll(Arrays.asList(geometry.getCoordinates()));
         }
         return coordinates;
-    }
-
-    /**
-     * Filters out line strings with a length below the given minimum length
-     */
-    public static List<LineString> lineFilter(List<LineString> lineStrings, double minLength, ProgressCallback progressCallback){
-        List<LineString> filtered = new ArrayList<>();
-        int index = 0;
-        for(LineString lineString : lineStrings){
-            if(lineString.getLength() >= minLength){
-                filtered.add(lineString);
-            }
-            index++;
-            progressCallback.updateProgress((float)index / lineStrings.size());
-        }
-        return filtered;
-    }
-
-    /**
-     * Simplifies lines using a given tolerance.
-     */
-    public static List<LineString> lineSimplify(List<LineString> lineStrings, double tolerance, ProgressCallback progressCallback){
-        List<LineString> simplified = new ArrayList<>();
-        int index = 0;
-        for(LineString s : lineStrings){
-            Geometry geometry = DouglasPeuckerSimplifier.simplify(s, tolerance);
-            if(geometry instanceof LineString){
-                simplified.add((LineString) geometry);
-            }else{
-                simplified.addAll(LinearComponentExtracter.getLines(geometry, true));
-            }
-            index++;
-            progressCallback.updateProgress((float)index / lineStrings.size());
-        }
-        return simplified;
-    }
-
-    /**
-     * Merges lines at their start/end point within the given tolerance.
-     */
-    public static List<LineString> lineMerge(List<LineString> lineStrings, double tolerance, ProgressCallback progressCallback, int pass){
-        for(int i = 0; i < pass; i++){
-            progressCallback.updateTitle("Line Merging " + (i+1) + " of " + pass + ": ");
-            STRTreeSequencerLineString sequencer = new STRTreeSequencerLineString(lineStrings, tolerance);
-            sequencer.setProgressCallback(progressCallback);
-            lineStrings = sequencer.merge();
-        }
-        return lineStrings;
-    }
-
-    /**
-     * Orders lines to minimise air time, by finding the nearest line to the current point.
-     * This is a simple version and doesn't provide a perfect solution
-     */
-    public static List<LineString> lineSort(List<LineString> lineStrings, double allowableDistance, ProgressCallback progressCallback){
-        STRTreeSequencerLineString sequencer = new STRTreeSequencerLineString(lineStrings, allowableDistance);
-        sequencer.setProgressCallback(progressCallback);
-        return sequencer.sort();
-
     }
 
 
@@ -466,14 +241,13 @@ public class GeometryUtils {
     public static void toLineStrings(IGeometry geometry, AffineTransform transform, List<LineString> lineStrings){
         List<Coordinate[]> coordinates = ShapeReader.toCoordinates(new FlatteningPathIterator(geometry.getAWTShape().getPathIterator(transform), 6D));
         for (Coordinate[] coordinate : coordinates) {
-            lineStrings.add(factory.createLineString(coordinate));
+            LineString lineString = factory.createLineString(coordinate);
+            lineStrings.add(lineString);
         }
     }
 
     public static IGeometry fromLineStrings(LineString string, AffineTransform transform){
-        GShape shape = new GShape(new ShapeWriter().toShape(string));
-        shape.transform(transform);
-        return shape;
+        return geometryToGPath(string, transform);
     }
 
     public static void lineStringToGLines(LineString lineString, Consumer<GLine> consumer){
@@ -536,6 +310,15 @@ public class GeometryUtils {
 
             pathIterator.next();
         }
+    }
+
+    public static IGeometry copyGeometryData(IGeometry copy, IGeometry reference){
+        copy.setGeometryIndex(reference.getGeometryIndex());
+        copy.setPFMPenIndex(reference.getPFMPenIndex());
+        copy.setPenIndex(reference.getPenIndex());
+        copy.setSampledRGBA(reference.getSampledRGBA());
+        copy.setGroupID(reference.getGroupID());
+        return copy;
     }
 
     public static String serializeCoords(float[] coords){
@@ -607,37 +390,6 @@ public class GeometryUtils {
             count+=geometryList.size();
         }
         return count;
-    }
-
-    private static final double[] coords = new double[6];
-
-    public static void renderAWTShapeToFX(GraphicsContext graphics, Shape s) {
-        graphics.beginPath();
-        PathIterator iterator = s.getPathIterator(null);
-        while (!iterator.isDone()) {
-            int segType = iterator.currentSegment(coords);
-            switch (segType) {
-                case PathIterator.SEG_MOVETO:
-                    graphics.moveTo(coords[0], coords[1]);
-                    break;
-                case PathIterator.SEG_LINETO:
-                    graphics.lineTo(coords[0], coords[1]);
-                    break;
-                case PathIterator.SEG_QUADTO:
-                    graphics.quadraticCurveTo(coords[0], coords[1], coords[2], coords[3]);
-                    break;
-                case PathIterator.SEG_CUBICTO:
-                    graphics.bezierCurveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
-                    break;
-                case PathIterator.SEG_CLOSE:
-                    graphics.closePath();
-                    break;
-                default:
-                    throw new RuntimeException("Unrecognised segment type " + segType);
-            }
-            iterator.next();
-        }
-        graphics.stroke();
     }
 
 }

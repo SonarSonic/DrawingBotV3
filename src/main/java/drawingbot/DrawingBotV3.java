@@ -6,6 +6,7 @@ package drawingbot;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -18,7 +19,8 @@ import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.presets.types.PresetProjectSettings;
 import drawingbot.image.DrawingArea;
-import drawingbot.javafx.GenericPreset;
+import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.javafx.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
@@ -26,9 +28,6 @@ import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.PrintResolution;
 import drawingbot.javafx.observables.ObservableImageFilter;
-import drawingbot.javafx.FXController;
-import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.TaskMonitor;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -110,7 +109,6 @@ public class DrawingBotV3 {
 
     //PATH FINDING \\
     public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<ColourSeperationHandler> colourSeperator = new SimpleObjectProperty<>();
     public final SimpleFloatProperty cyanMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
@@ -119,7 +117,8 @@ public class DrawingBotV3 {
     // PEN SETS \\
     public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
     public ObservableDrawingPen invisibleDrawingPen = null;
-    public ObservableDrawingSet observableDrawingSet = null;
+    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
+    public ObservableList<ObservableDrawingSet> drawingSetSlots = FXCollections.observableArrayList();
 
     // VERSION CONTROL \\
     public final ObservableList<ObservableProjectSettings> projectVersions = FXCollections.observableArrayList();
@@ -127,6 +126,7 @@ public class DrawingBotV3 {
 
     // DISPLAY \\
     public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<EnumBlendMode> blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
 
     //VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
@@ -236,7 +236,11 @@ public class DrawingBotV3 {
             case QUEUED:
                 break;
             case PRE_PROCESSING:
-                Platform.runLater(() -> displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_DRAWING));
+                Platform.runLater(() -> {
+                    if(displayMode.get().getRenderer() != OPENGL_RENDERER || !FXApplication.isPremiumEnabled){
+                        displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_DRAWING);
+                    }
+                });
                 break;
             case DO_PROCESS:
                 Platform.runLater(() -> {
@@ -273,8 +277,15 @@ public class DrawingBotV3 {
     }
 
     public void onDrawingSetChanged(){
+        if(activeDrawingSet.get() == null || activeDrawingSet.get().loadingDrawingSet){
+            //prevents events being fired for every pen addition
+            return;
+        }
         updatePenDistribution();
         observableDrawingSetFlag.set(!observableDrawingSetFlag.get());
+        if(controller != null){ //may not be initilized yet
+            controller.onDrawingSetChanged();
+        }
     }
 
     public void onImageFilterChanged(ObservableImageFilter filter){
@@ -298,23 +309,29 @@ public class DrawingBotV3 {
     }
 
     //// PLOTTING TASKS
+    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask) {
+        return initPlottingTask(drawingArea, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile, isSubTask);
+    }
 
-    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, ColourSeperationHandler splitter){
+    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
-        Platform.runLater(() -> {
-            if(splitter.isDefault()){
-                if(nextDistributionType != null){
-                    drawingPenSet.distributionType.set(nextDistributionType);
-                    nextDistributionType = null;
+        if(!isSubTask){
+            Platform.runLater(() -> {
+                if(drawingPenSet.colourSeperator.get().isDefault()){
+                    if(nextDistributionType != null){
+                        drawingPenSet.distributionType.set(nextDistributionType);
+                        nextDistributionType = null;
+                    }
+                }else{
+                    drawingPenSet.distributionType.set(EnumDistributionType.getRecommendedType(drawingPenSet, pfmFactory));
                 }
-            }else{
-                drawingPenSet.distributionType.set(EnumDistributionType.PRECONFIGURED);
-            }
-        });
-
-        PlottingTask task = new PlottingTask(drawingArea, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile);
+            });
+        }
+        PlottingTask task = new PlottingTask(drawingArea, pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
         Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
-        return (PlottingTask) hookReturn[0];
+        task = (PlottingTask) hookReturn[0];
+        task.isSubTask = isSubTask;
+        return task;
     }
 
     public void startPlotting(){
@@ -322,7 +339,7 @@ public class DrawingBotV3 {
             activeTask.get().cancel();
         }
         if(openImage.get() != null){
-            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), observableDrawingSet, openImage.get().getSource(), openFile, colourSeperator.get()));
+            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), activeDrawingSet.get(), openImage.get().getSource(), openFile, false));
         }
     }
 
@@ -407,6 +424,7 @@ public class DrawingBotV3 {
         if(activeTask.get() == null){
             displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_IMAGE);
         }
+        renderedTask = null;
     }
 
     public PlottingTask getActiveTask(){

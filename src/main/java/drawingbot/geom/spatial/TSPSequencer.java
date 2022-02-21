@@ -48,7 +48,7 @@ public abstract class TSPSequencer<T> {
             sortedList.add(nearest);
 
             if (progressCallback != null) {
-                progressCallback.updateProgress((float) sortedCount / cities.size());
+                progressCallback.updateProgress(sortedCount, cities.size());
                 progressCallback.updateMessage(sortedCount + " / " + cities.size());
             }
         }

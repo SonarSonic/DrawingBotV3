@@ -1,6 +1,7 @@
 package drawingbot.api;
 
 import com.google.gson.JsonElement;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import javafx.scene.paint.Color;
 
@@ -22,4 +23,7 @@ public interface IDrawingStyle {
 
     Color getMaskColor();
 
+    ObservableDrawingSet getDrawingSet();
+
+    int getDrawingSetSlot();
 }

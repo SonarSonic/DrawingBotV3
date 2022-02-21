@@ -4,8 +4,8 @@ import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingStyle;
 import drawingbot.drawing.DrawingStyleSet;
 import drawingbot.javafx.controls.*;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
-import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.types.PresetPFMSettings;
 import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.pfm.PFMFactory;
@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.AnchorPane;
@@ -96,6 +97,7 @@ public class FXStylesController {
     public TableColumn<ObservableDrawingStyle, String> styleNameColumn = null;
     public TableColumn<ObservableDrawingStyle, Integer> styleWeightColumn = null;
     public TableColumn<ObservableDrawingStyle, Color> styleMaskColorColumn = null;
+    public TableColumn<ObservableDrawingStyle, ObservableDrawingSet> styleDrawingSetColumn = null;
 
     // public TableColumn<ObservableDrawingStyle, String> styleTypeColumn = null;
     //public TableColumn<ObservableDrawingStyle, String> penPercentageColumn = null;
@@ -152,6 +154,10 @@ public class FXStylesController {
         styleMaskColorColumn.setCellFactory(TableCellColorPicker::new);
         styleMaskColorColumn.setCellValueFactory(param -> param.getValue().maskColor);
 
+        styleDrawingSetColumn.setCellFactory(param -> new ComboBoxTableCell<>(DrawingBotV3.INSTANCE.drawingSetSlots));
+        styleDrawingSetColumn.setCellValueFactory(param -> param.getValue().drawingSet);
+
+
         //penPercentageColumn.setCellValueFactory(param -> param.getValue().currentPercentage);
         //penLinesColumn.setCellValueFactory(param -> param.getValue().currentGeometries.asObject());
 
@@ -203,6 +209,9 @@ public class FXStylesController {
         choiceBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
         choiceBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
         choiceBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null){
+                return;
+            }
             comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
             comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getName()));
             if(editingDrawingStyle.get() != null && editingDrawingStyle.get().pfmFactory.get() != newValue){
@@ -240,9 +249,9 @@ public class FXStylesController {
         });
 
         tableColumnLock.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnLock.getCellObservableValue(index)));
-        tableColumnLock.setCellValueFactory(param -> param.getValue().lock);
+        tableColumnLock.setCellValueFactory(param -> param.getValue().randomiseExclude);
 
-        tableColumnSetting.setCellValueFactory(param -> param.getValue().settingName);
+        tableColumnSetting.setCellValueFactory(param -> param.getValue().key);
 
         tableColumnValue.setCellFactory(param -> {
             TextFieldTableCell<GenericSetting<?, ?>, Object> cell = new TextFieldTableCell<>();

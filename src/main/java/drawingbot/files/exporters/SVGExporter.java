@@ -6,6 +6,7 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.basic.IGeometry;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.UnitsLength;
 import org.apache.batik.dom.GenericDOMImplementation;
@@ -28,15 +29,15 @@ public class SVGExporter {
     public static final String XMLNS = SVGConstants.XMLNS_NAMESPACE_URI;
     public static final String INKSCAPE_NS = "http://www.inkscape.org/namespaces/inkscape";
 
-    public static void exportBasicSVG(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
-        exportSVG(exportTask, plottingTask, geometries, extension, saveLocation, false);
+    public static void exportBasicSVG(ExportTask exportTask, File saveLocation){
+        exportSVG(exportTask, saveLocation, false);
     }
 
-    public static void exportInkscapeSVG(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation) {
-        exportSVG(exportTask, plottingTask, geometries, extension, saveLocation, true);
+    public static void exportInkscapeSVG(ExportTask exportTask, File saveLocation){
+        exportSVG(exportTask, saveLocation, true);
     }
 
-    public static void exportSVG(ExportTask exportTask, PlottingTask plottingTask, Map<Integer, List<IGeometry>> geometries, String extension, File saveLocation, boolean inkscape) {
+    public static void exportSVG(ExportTask exportTask, File saveLocation, boolean inkscape) {
         try {
             int width = (int)exportTask.exportResolution.getScaledWidth();
             int height = (int)exportTask.exportResolution.getScaledHeight();
@@ -83,8 +84,8 @@ public class SVGExporter {
             backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
             Graphics2DExporter.drawBackground(exportTask, backgroundGraphics, width, height);
-            Graphics2DExporter.preDraw(exportTask, backgroundGraphics, width, height, plottingTask);
-            Graphics2DExporter.postDraw(exportTask, backgroundGraphics, width, height, plottingTask);
+            Graphics2DExporter.preDraw(exportTask, backgroundGraphics);
+            Graphics2DExporter.postDraw(exportTask, backgroundGraphics);
 
             // Transfer the background graphics document into the host document
             if(background.hasChildNodes()){
@@ -93,12 +94,12 @@ public class SVGExporter {
                 backgroundGraphics.dispose();
             }
 
-            /////PENS            
-            ObservableDrawingSet drawingSet = plottingTask.plottedDrawing.drawingPenSet;
-            int[] renderOrder = drawingSet.calculateRenderOrder();
-            for (int p = renderOrder.length-1; p >= 0; p --) {
+            /////PENS
+
+            int index = 0;
+            for(ObservableDrawingPen drawingPen : exportTask.exportRenderOrder){
+
                 // Find the pen to render
-                ObservableDrawingPen drawingPen = plottingTask.plottedDrawing.drawingPenSet.getPens().get(renderOrder[p]);
                 String safeName = drawingPen.getDisplayName().replace(' ', '_');
 
                 // Create a fresh document to draw each pen into
@@ -111,7 +112,7 @@ public class SVGExporter {
                 group.setAttribute("id", safeName);
                 if(inkscape){
                     group.setAttribute("inkscape:groupmode", "layer");
-                    group.setAttribute("inkscape:label", ConfigFileHandler.getApplicationSettings().svgLayerRenaming ? "Pen" + (renderOrder[p]+1) : safeName);
+                    group.setAttribute("inkscape:label", ConfigFileHandler.getApplicationSettings().svgLayerRenaming ? "Pen" + (index+1) : safeName);
                 }
 
                 // Draw the pen's paths
@@ -119,9 +120,9 @@ public class SVGExporter {
                 graphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
                 graphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
-                Graphics2DExporter.preDraw(exportTask, graphics, width, height, plottingTask);
-                Graphics2DExporter.drawGeometryWithDrawingPen(exportTask, graphics, drawingPen, geometries.get(renderOrder[p]));
-                Graphics2DExporter.postDraw(exportTask, graphics, width, height, plottingTask);
+                Graphics2DExporter.preDraw(exportTask, graphics);
+                Graphics2DExporter.drawGeometries(exportTask, graphics, (drawing, geometry, pen) -> pen == drawingPen);
+                Graphics2DExporter.postDraw(exportTask, graphics);
 
                 // Transfer the graphics document into the host document
                 if(group.hasChildNodes()){
@@ -129,6 +130,7 @@ public class SVGExporter {
                     svgRoot.appendChild(graphicsNode);
                     graphics.dispose();
                 }
+                index++;
             }
 
 

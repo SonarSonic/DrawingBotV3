@@ -6,6 +6,9 @@ import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.javafx.GenericPreset;
@@ -31,13 +34,19 @@ public class JsonLoaderManager {
         }
     };
 
-    public static Gson createDefaultGson(){
-        GsonBuilder builder = new GsonBuilder();
+    public static GsonBuilder builder = new GsonBuilder();
+    static{
         builder.setExclusionStrategies(exclusionStrategy);
         builder.setPrettyPrinting();
         builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
         builder.registerTypeAdapter(ColourSeperationHandler.class, new JsonAdapterColourSplitter());
+        builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
         builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
+        builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
+        builder.registerTypeAdapter(PFMFactory.class, new JsonAdapterPFMFactory());
+    }
+
+    public static Gson createDefaultGson(){
         return builder.create();
     }
 

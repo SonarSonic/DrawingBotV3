@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -47,6 +48,39 @@ public class Utils {
     public static String getDateAndTime(){
         Date date = new Date(System.currentTimeMillis());
         return dateFormat.format(date);
+    }
+
+    /**
+     * Compares two version strings, can work as a comparator
+     * -1 = version1 < version2
+     * 0 = version1 == version2
+     * 1 = version1 > version2
+     */
+    public static int compareVersion(String v1, String v2, int depth){
+        int[] version1 = normaliseVersion(v1, depth);
+        int[] version2 = normaliseVersion(v2, depth);
+
+        for(int i = 0; i < depth; i++){
+            int subVersion1 = version1[i];
+            int subVersion2 = version2[i];
+            if(subVersion1 == subVersion2){
+                continue;
+            }
+            if(subVersion1 < subVersion2){
+                return -1; //version1 is older
+            }
+            return 1; //version1 is newer
+        }
+        return 0; //the versions are the same
+    }
+
+    public static int[] normaliseVersion(String version, int depth){
+        String[] split = version.split("\\.");
+        int[] versions = new int[depth];
+        for(int i = 0; i < depth; i++){
+            versions[i] = i < split.length ? Integer.parseInt(split[i]) : 0;
+        }
+        return versions;
     }
 
     public static <T> void addAllReverse(List<T> src, List<T> dst, boolean reverse){

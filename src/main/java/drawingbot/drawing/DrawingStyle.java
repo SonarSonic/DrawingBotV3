@@ -1,8 +1,10 @@
 package drawingbot.drawing;
 
 import com.google.gson.JsonElement;
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingStyle;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import javafx.scene.paint.Color;
@@ -17,24 +19,27 @@ public class DrawingStyle implements IDrawingStyle {
     public HashMap<String, JsonElement> settings;
     public int weight;
     public int argb = -1;
+    public int drawingSetSlot = 0;
+
     public transient Color maskColor = null; // could be null
 
     public DrawingStyle(){}
 
-    public DrawingStyle(boolean enabled, String name, String pfm, int weight, Color maskColor, HashMap<String, JsonElement> settings){
-        update(enabled, name, pfm, weight, maskColor, settings);
+    public DrawingStyle(boolean enabled, String name, String pfm, int weight, int drawingSetSlot, Color maskColor, HashMap<String, JsonElement> settings){
+        update(enabled, name, pfm, weight, drawingSetSlot, maskColor, settings);
     }
 
     public DrawingStyle(IDrawingStyle style){
-        update(style.isEnabled(), style.getName(), style.getPFMName(), style.getDistributionWeight(), style.getMaskColor(), style.getSaveableSettings());
+        update(style.isEnabled(), style.getName(), style.getPFMName(), style.getDistributionWeight(), style.getDrawingSetSlot(), style.getMaskColor(), style.getSaveableSettings());
     }
 
-    public void update(boolean enabled, String name, String pfm, int weight, Color maskColor, HashMap<String, JsonElement> settings){
+    public void update(boolean enabled, String name, String pfm, int weight, int drawingSetSlot, Color maskColor, HashMap<String, JsonElement> settings){
         this.enabled = enabled;
         this.name = name;
         this.pfm = pfm;
         this.settings = settings;
         this.weight = weight;
+        this.drawingSetSlot = drawingSetSlot;
         this.maskColor = maskColor;
         this.argb = ImageTools.getARGBFromColor(maskColor);
     }
@@ -75,6 +80,20 @@ public class DrawingStyle implements IDrawingStyle {
             maskColor = ImageTools.getColorFromARGB(argb);
         }
         return maskColor;
+    }
+
+    @Override
+    public ObservableDrawingSet getDrawingSet() {
+        ObservableDrawingSet drawingSet = null;
+        if(DrawingBotV3.INSTANCE.drawingSetSlots.size() > drawingSetSlot){
+            drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get(drawingSetSlot);
+        }
+        return drawingSet == null ? DrawingBotV3.INSTANCE.activeDrawingSet.get() : drawingSet;
+    }
+
+    @Override
+    public int getDrawingSetSlot() {
+        return drawingSetSlot;
     }
 
     @Override

@@ -1,41 +1,48 @@
 package drawingbot.javafx.observables;
 
+import com.google.gson.annotations.JsonAdapter;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IDrawingPen;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.files.presets.JsonAdapterObservableDrawingPen;
+import drawingbot.files.presets.JsonAdapterObservableDrawingSet;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.*;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
 
+@JsonAdapter(JsonAdapterObservableDrawingPen.class)
 public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
 
-    public SimpleIntegerProperty penNumber; //the pens index in the set
-    public SimpleBooleanProperty enable; //if the pen should be enabled in renders / exports
-    public SimpleStringProperty type; //pen's type
-    public SimpleStringProperty name; //colour/pen name
-    public SimpleObjectProperty<Color> javaFXColour; //rgb pen colour
-    public SimpleIntegerProperty distributionWeight; //weight
-    public SimpleFloatProperty strokeSize; //stroke size
-    public SimpleStringProperty currentPercentage; //percentage
-    public SimpleIntegerProperty currentGeometries; //geometries
     public IDrawingPen source;
+    public final SimpleIntegerProperty penNumber = new SimpleIntegerProperty(); //the pens index in the set
+    public final SimpleBooleanProperty enable = new SimpleBooleanProperty(); //if the pen should be enabled in renders / exports
+    public final SimpleStringProperty type = new SimpleStringProperty(); //pen's type
+    public final SimpleStringProperty name = new SimpleStringProperty(); //colour/pen name
+    public final SimpleObjectProperty<Color> javaFXColour = new SimpleObjectProperty<>(); //rgb pen colour
+    public final SimpleIntegerProperty distributionWeight = new SimpleIntegerProperty(); //weight
+    public final SimpleFloatProperty strokeSize = new SimpleFloatProperty(); //stroke size
+    public final transient SimpleStringProperty currentPercentage = new SimpleStringProperty(); //percentage
+    public final transient SimpleIntegerProperty currentGeometries = new SimpleIntegerProperty(); //geometries
+
+    public ObservableDrawingPen(){}
 
     public ObservableDrawingPen(int penNumber, IDrawingPen source){
         this.source = source;
-        this.penNumber = new SimpleIntegerProperty(penNumber);
-        this.enable = new SimpleBooleanProperty(source.isEnabled());
-        this.type = new SimpleStringProperty(source.getType());
-        this.name = new SimpleStringProperty(source.getName());
-        this.javaFXColour = new SimpleObjectProperty<>(ImageTools.getColorFromARGB(source.getARGB()));
-        this.distributionWeight = new SimpleIntegerProperty(source.getDistributionWeight());
-        this.strokeSize = new SimpleFloatProperty(source.getStrokeSize());
-        this.currentPercentage = new SimpleStringProperty("0.0");
-        this.currentGeometries = new SimpleIntegerProperty(0);
+        this.penNumber.set(penNumber);
+        this.enable.set(source.isEnabled());
+        this.type.set(source.getType());
+        this.name.set(source.getName());
+        this.javaFXColour.set(ImageTools.getColorFromARGB(source.getARGB()));
+        this.distributionWeight.set(source.getDistributionWeight());
+        this.strokeSize.set(source.getStrokeSize());
+        this.currentPercentage.set("0.0");
+        this.currentGeometries.set(0);
+        initListeners();
+    }
 
+    public void initListeners(){
         this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
         this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
         this.type.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
@@ -82,18 +89,6 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     @Override
     public String toString(){
         return getName();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public void preRenderFX(GraphicsContext graphics, IGeometry geometry){
-        graphics.setLineWidth(getStrokeSize());
-        graphics.setStroke(getFXColor(geometry.getSampledRGBA()));
-    }
-
-    public void preRenderAWT(Graphics2D graphics, IGeometry geometry){
-        graphics.setStroke(getAWTStroke());
-        graphics.setColor(getAWTColor(geometry.getSampledRGBA()));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

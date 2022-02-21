@@ -1,8 +1,11 @@
 package drawingbot.utils;
 
+import drawingbot.api.IProgressCallback;
+
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ProgressCallback {
+public class ProgressCallback implements IProgressCallback {
 
     public float currentProgress = 0F;
     public String currentMessage = "";
@@ -13,13 +16,13 @@ public class ProgressCallback {
     public String previousMessage = "";
 
     public Consumer<String> messageCallback;
-    public Consumer<Float> progressCallback;
+    public BiConsumer<Float, Float> progressCallback;
 
     public ProgressCallback(){}
 
     public ProgressCallback(DBTask<?> task){
         this.messageCallback = task::updateMessage;
-        this.progressCallback = f -> task.updateProgress(f, 1F);
+        this.progressCallback = task::updateProgress;
     }
 
     public void reset(){
@@ -27,14 +30,22 @@ public class ProgressCallback {
         layerMultiplier = 1F;
     }
 
+    @Override
     public void updateTitle(String title){
         currentTitle = title;
     }
 
+    @Override
     public void updateMessage(String message){
         previousMessage = message;
         currentMessage = currentTitle + message;
         messageCallback.accept(currentMessage);
+    }
+
+    @Override
+    public void updateProgress(float progress, float max) {
+        currentProgress = storedProgress + (progress * layerMultiplier);
+        progressCallback.accept(currentProgress, 1F);
     }
 
     public void pushLayers(int tasks){
@@ -53,14 +64,9 @@ public class ProgressCallback {
         storedProgress += layerMultiplier;
     }
 
-    public void updateProgress(float progress){
-        currentProgress = storedProgress + (progress * layerMultiplier);
-        progressCallback.accept(currentProgress);
-    }
-
     public void setTotalProgress(float totalProgress){
         currentProgress = totalProgress;
-        progressCallback.accept(currentProgress);
+        progressCallback.accept(currentProgress, 1F);
     }
 
 }

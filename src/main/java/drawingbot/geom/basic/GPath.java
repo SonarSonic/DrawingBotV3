@@ -1,7 +1,8 @@
 package drawingbot.geom.basic;
 
-import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.image.ImageTools;
 import drawingbot.geom.GeometryUtils;
+import drawingbot.render.RenderUtils;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -36,12 +37,33 @@ public class GPath extends Path2D.Float implements IGeometry {
 
     public GPath(IPathElement pathElement){
         super();
-        this.setSampledRGBA(pathElement.getSampledRGBA());
-        this.setPenIndex(pathElement.getPenIndex());
-        this.setGroupID(pathElement.getGroupID());
+        GeometryUtils.copyGeometryData(this, pathElement);
 
         //add the path
         pathElement.addToPath(true, this);
+    }
+
+    public int totalSamples = 0;
+    public long averageAlpha = 0;
+    public long averageRed = 0;
+    public long averageGreen = 0;
+    public long averageBlue = 0;
+
+    public void addColourSample(int argb){
+        averageAlpha += (ImageTools.alpha(argb) - averageAlpha) / (totalSamples+1);
+        averageRed += (ImageTools.red(argb) - averageRed) / (totalSamples+1);
+        averageGreen += (ImageTools.green(argb) - averageGreen) / (totalSamples+1);
+        averageBlue += (ImageTools.blue(argb) - averageBlue) / (totalSamples+1);
+    }
+
+    public void resetColourSamples(int argb){
+        if(argb != -1){
+            totalSamples = 1;
+            averageAlpha = ImageTools.alpha(argb);
+            averageRed = ImageTools.red(argb);
+            averageGreen = ImageTools.green(argb);
+            averageBlue = ImageTools.blue(argb);
+        }
     }
 
     //// IGeometry \\\\
@@ -49,7 +71,7 @@ public class GPath extends Path2D.Float implements IGeometry {
     public int geometryIndex = -1;
     public int pfmPenIndex = -1;
     public int penIndex = -1;
-    public int sampledRGBA = -1;
+    public int sampledRGBA = -1; //TODO CHECK, -1 is a valid RGBA value though???
     public int groupID = -1;
 
     public int segmentCount = -1;
@@ -110,6 +132,7 @@ public class GPath extends Path2D.Float implements IGeometry {
     @Override
     public void setSampledRGBA(int rgba) {
         sampledRGBA = rgba;
+        resetColourSamples(rgba);
     }
 
     @Override
@@ -118,9 +141,8 @@ public class GPath extends Path2D.Float implements IGeometry {
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
-        GeometryUtils.renderAWTShapeToFX(graphics, getAWTShape());
+    public void renderFX(GraphicsContext graphics) {
+        RenderUtils.renderAWTShapeToFX(graphics, getAWTShape());
     }
 
     @Override
@@ -154,6 +176,11 @@ public class GPath extends Path2D.Float implements IGeometry {
             origin = new CoordinateXY(coords[0], coords[1]);
         }
         return origin;
+    }
+
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GPath(this), this);
     }
 
     public void markPathDirty(){

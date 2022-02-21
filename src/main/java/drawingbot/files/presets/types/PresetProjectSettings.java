@@ -7,6 +7,7 @@ import drawingbot.files.presets.AbstractJsonData;
 import drawingbot.files.presets.PresetType;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
 
@@ -23,8 +24,8 @@ public class PresetProjectSettings extends AbstractJsonData {
     public GenericPreset<PresetDrawingArea> drawingArea;
     public GenericPreset<PresetImageFilters> imageFilters;
     public GenericPreset<PresetPFMSettings> pfmSettings;
-    public GenericPreset<PresetDrawingSet> drawingSet;
 
+    public EnumBlendMode blendMode;
     public EnumRotation imageRotation = EnumRotation.R0;
     public boolean imageFlipHorizontal = false;
     public boolean imageFlipVertical = false;
@@ -32,19 +33,22 @@ public class PresetProjectSettings extends AbstractJsonData {
     public boolean optimiseForPrint;
     public float targetPenWidth;
 
+    public GenericPreset<PresetDrawingSet> drawingSet;
     public ColourSeperationHandler colourSplitter;
     public EnumDistributionType distributionType;
     public EnumDistributionOrder distributionOrder;
-    public EnumBlendMode blendMode;
 
     public float cyanMultiplier = 1F;
     public float magentaMultiplier = 1F;
     public float yellowMultiplier = 1F;
     public float keyMultiplier = 0.75F;
 
-    public JsonObject drawingState;
-
     public List<PresetProjectSettings> projectVersions;
+
+    public int activeDrawingSlot = 0;
+    public List<ObservableDrawingSet> drawingSets;
+
+    public JsonObject drawingState;
 
     public transient boolean isSubProject = false;
 

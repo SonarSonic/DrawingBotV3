@@ -86,11 +86,14 @@ public class PremiumPluginDummy implements IPlugin {
         FXController controller = (FXController) objects[0];
         controller.buttonConfigureSplitter.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         controller.choiceBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
+        /* TODO DO WE NEED THIS???
         DrawingBotV3.INSTANCE.colourSeperator.addListener((observable, oldValue, newValue) -> {
             if(!newValue.isDefault()){
                 DrawingBotV3.INSTANCE.colourSeperator.set(Register.DEFAULT_COLOUR_SPLITTER);
             }
         });
+
+         */
         return objects;
     }
 
@@ -127,10 +130,10 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerDrawingExportHandlers() {
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export HPGL File (.hpgl)", false, (exportTask, plottingTask, geometries, extension, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, plottingTask, geometries, extension, saveLocation) -> {}, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION,"Export Animation - (H.264, .mp4)", false, (exportTask, plottingTask, geometries, extension, saveLocation) -> {}, FileUtils.FILTER_MP4)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION,"Export Animation - (ProRes 422, .mov)", false, (exportTask, plottingTask, geometries, extension, saveLocation) -> {}, FileUtils.FILTER_MOV)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION,"Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MP4)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION,"Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MOV)).setPremium();
     }
 
     @Override

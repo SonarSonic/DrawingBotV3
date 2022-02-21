@@ -17,6 +17,7 @@ import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import org.imgscalr.Scalr;
+import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.Geometry;
 
@@ -68,7 +69,7 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
     public boolean isSubTask = false;
     public int defaultPen = 0;
 
-    public int groupID = 0;
+    public PlottedGroup currentGroup;
 
     // SPECIAL \\
     public boolean useLowQuality = false;
@@ -82,7 +83,8 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
         this.drawingArea = drawingArea;
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
-        this.plottedDrawing = new PlottedDrawing(drawingPenSet);
+        this.plottedDrawing = new PlottedDrawing(drawingPenSet, pfmFactory);
+        this.currentGroup = plottedDrawing.getDefaultGroup();
         this.imgOriginal = image;
         this.originalFile = originalFile;
         this.resolution = new PrintResolution(drawingArea, image);
@@ -144,7 +146,7 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
                 ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
 
                 clippingShape = clippingShape != null ? clippingShape : ShapeReader.read(new Rectangle2D.Double(0, -imgPlotting.getHeight(), imgPlotting.getWidth(), imgPlotting.getHeight()), 6F, GeometryUtils.factory);
-                plottedDrawing.addGroupPFMType(groupID, pfmFactory);
+                currentGroup.setPFMFactory(pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Init");
                 pfm.init(this);
@@ -322,17 +324,13 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
             geometry.setPenIndex(penIndex == -1 ? defaultPen : penIndex);
         }
         geometry.setPFMPenIndex(geometry.getPenIndex()); //store the pfm pen index for later reference
-        geometry.setGroupID(groupID);
+        geometry.setGroupID(currentGroup.getGroupID());
 
         //transform geometry back to the images size
         if(resolution.plottingResolution != 1F){
             geometry.transform(resolution.plottingTransform);
         }
         plottedDrawing.addGeometry(geometry);
-    }
-
-    public void pushGroup(){
-        groupID++;
     }
 
     @Override
@@ -347,12 +345,12 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
 
     @Override
     public int getTotalPens() {
-        return plottedDrawing.drawingPenSet.getPens().size();
+        return currentGroup.drawingSet.getPens().size();
     }
 
     @Override
     public ObservableDrawingSet getDrawingSet() {
-        return plottedDrawing.drawingPenSet;
+        return currentGroup.drawingSet;
     }
 
     @Override
@@ -365,7 +363,6 @@ public class PlottingTask extends DBTask<PlottingTask> implements IPlottingTask 
     public void finishProcess() {
         plottingFinished = true;
     }
-
 
     public void reset(){
         pfmFactory = null;

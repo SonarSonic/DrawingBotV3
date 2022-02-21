@@ -2,6 +2,7 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.files.presets.AbstractPresetLoader;
@@ -9,11 +10,10 @@ import drawingbot.files.presets.IJsonData;
 import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.files.presets.PresetType;
 import drawingbot.files.presets.types.PresetProjectSettings;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
-import drawingbot.javafx.settings.RangedNumberSetting;
+import drawingbot.javafx.settings.AbstractNumberSetting;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
@@ -21,7 +21,6 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -94,7 +93,7 @@ public class FXHelper {
                     //linux doesn't add file extensions so we add the default selected one
                     fileName += extension;
                 }
-                DrawingBotV3.INSTANCE.createExportTask(exportHandler, DrawingBotV3.INSTANCE.getActiveTask(), IGeometry.DEFAULT_EXPORT_FILTER, extension, new File(fileName), seperatePens, false);
+                DrawingBotV3.INSTANCE.createExportTask(exportHandler, DrawingBotV3.INSTANCE.getActiveTask(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(fileName), seperatePens, false);
                 FileUtils.updateExportDirectory(file.getParentFile());
             }
         });
@@ -310,20 +309,20 @@ public class FXHelper {
         button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
     }
 
-    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, ObservableList<O> list, Consumer<O> duplicate){
+    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, Supplier<ObservableList<O>> list, Consumer<O> duplicate){
 
         MenuItem menuMoveUp = new MenuItem("Move Up");
-        menuMoveUp.setOnAction(e -> moveItemUp(row.getItem(), list));
+        menuMoveUp.setOnAction(e -> moveItemUp(row.getItem(), list.get()));
         menu.getItems().add(menuMoveUp);
 
         MenuItem menuMoveDown = new MenuItem("Move Down");
-        menuMoveDown.setOnAction(e -> moveItemDown(row.getItem(), list));
+        menuMoveDown.setOnAction(e -> moveItemDown(row.getItem(), list.get()));
         menu.getItems().add(menuMoveDown);
 
         menu.getItems().add(new SeparatorMenuItem());
 
         MenuItem menuDelete = new MenuItem("Delete");
-        menuDelete.setOnAction(e -> deleteItem(row.getItem(), list));
+        menuDelete.setOnAction(e -> deleteItem(row.getItem(), list.get()));
         menu.getItems().add(menuDelete);
 
         MenuItem menuDuplicate = new MenuItem("Duplicate");
@@ -386,13 +385,13 @@ public class FXHelper {
 
         int i = 0;
         for(GenericSetting<?, ?> setting : settings){
-            Label label = new Label(setting.settingName.getValue() + ": ");
+            Label label = new Label(setting.key.getValue() + ": ");
             label.setAlignment(Pos.TOP_LEFT);
             Node node = setting.getJavaFXNode(true);
             node.minWidth(200);
             node.prefHeight(30);
 
-            if(!(setting instanceof RangedNumberSetting)){
+            if(!(setting instanceof AbstractNumberSetting)){
                 //check boxes don't need a value label.
                 gridPane.addRow(i, label, node);
             }else{

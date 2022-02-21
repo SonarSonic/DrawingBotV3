@@ -2,7 +2,6 @@ package drawingbot.geom.basic;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
@@ -11,12 +10,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 public interface IGeometry {
-
-    IGeometryFilter BYPASS_FILTER = (drawing, geometry, pen) -> true;
-    IGeometryFilter DEFAULT_EXPORT_FILTER = (drawing, geometry, pen) -> pen.isEnabled() && (!DrawingBotV3.INSTANCE.exportRange.get() || geometry.getGeometryIndex() >= drawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= drawing.getDisplayedShapeMax());
-    IGeometryFilter DEFAULT_VIEW_FILTER = (drawing, geometry, pen) -> pen.isEnabled() && (geometry.getGeometryIndex() >= drawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= drawing.getDisplayedShapeMax());
-    IGeometryFilter SELECTED_PEN_FILTER = (drawing, geometry, pen) -> DEFAULT_EXPORT_FILTER.filter(drawing, geometry, pen) && (DrawingBotV3.INSTANCE.controller.getSelectedPen() == null || DrawingBotV3.INSTANCE.controller.getSelectedPen().penNumber.get() == pen.penNumber.get());
-
     /**
      * This is used by the OpenGL Renderer, therefore this must accurately represent the number of vertices required
      */
@@ -66,15 +59,14 @@ public interface IGeometry {
     void setGroupID(int groupID);
 
     /**
-     * Render the Geometry in JAVAFX
+     * Render the Geometry in JAVAFX, the {@link IGeometry} is only responsible for drawing the shape, the colour and stroke style are specified elsewhere
      */
-    void renderFX(GraphicsContext graphics, ObservableDrawingPen pen);
+    void renderFX(GraphicsContext graphics);
 
     /**
      * Render the Geometry in AWT
      */
-    default void renderAWT(Graphics2D graphics, ObservableDrawingPen pen){
-        pen.preRenderAWT(graphics, this);
+    default void renderAWT(Graphics2D graphics){
         graphics.draw(getAWTShape());
     }
 
@@ -95,5 +87,7 @@ public interface IGeometry {
      * Used for geometry sorting only
      */
     Coordinate getOriginCoordinate();
+
+    IGeometry copyGeometry();
 
 }

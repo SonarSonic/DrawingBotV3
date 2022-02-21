@@ -15,6 +15,6 @@ public class ContextMenuObservableFilter extends ContextMenu {
         menuEditFilter.setOnAction(e -> FXHelper.openImageFilterDialog(row.getItem()));
         getItems().add(menuEditFilter);
 
-        FXHelper.addDefaultTableViewContextMenuItems(this, row, DrawingBotV3.INSTANCE.currentFilters, f -> DrawingBotV3.INSTANCE.currentFilters.add(new ObservableImageFilter(f)));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, () -> DrawingBotV3.INSTANCE.currentFilters, f -> DrawingBotV3.INSTANCE.currentFilters.add(new ObservableImageFilter(f)));
     }
 }

@@ -1,7 +1,7 @@
 package drawingbot.geom.basic;
 
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.GeometryUtils;
+import drawingbot.render.RenderUtils;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -93,9 +93,8 @@ public class GShape implements IGeometry {
     }
 
     @Override
-    public void renderFX(GraphicsContext graphics, ObservableDrawingPen pen) {
-        pen.preRenderFX(graphics, this);
-        GeometryUtils.renderAWTShapeToFX(graphics, shape);
+    public void renderFX(GraphicsContext graphics) {
+        RenderUtils.renderAWTShapeToFX(graphics, shape);
     }
 
     @Override
@@ -120,5 +119,10 @@ public class GShape implements IGeometry {
         float[] coords = new float[6];
         int type = iterator.currentSegment(coords);
         return new CoordinateXY(coords[0], coords[1]);
+    }
+
+    @Override
+    public IGeometry copyGeometry() {
+        return GeometryUtils.copyGeometryData(new GPath(shape), this);
     }
 }
