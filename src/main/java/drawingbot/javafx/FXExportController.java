@@ -2,15 +2,15 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
+import drawingbot.utils.EnumAlignment;
+import drawingbot.utils.EnumRotation;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;
-import drawingbot.files.presets.types.PresetGCodeSettings;
+import drawingbot.files.json.presets.PresetGCodeSettings;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.AnchorPane;

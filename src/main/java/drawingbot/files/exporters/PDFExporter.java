@@ -11,9 +11,6 @@ import com.itextpdf.text.pdf.PdfName;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
-import drawingbot.geom.basic.IGeometry;
-import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.UnitsLength;
 
 import java.awt.*;
@@ -21,8 +18,6 @@ import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.List;
-import java.util.Map;
 
 public class PDFExporter {
 

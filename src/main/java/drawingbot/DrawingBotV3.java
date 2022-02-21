@@ -15,9 +15,8 @@ import java.util.logging.Logger;
 import drawingbot.api.Hooks;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IPlugin;
-import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.exporters.GCodeBuilder;
-import drawingbot.files.presets.types.PresetProjectSettings;
+import drawingbot.files.json.presets.PresetProjectSettings;
 import drawingbot.image.DrawingArea;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.*;
@@ -166,8 +165,8 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private SimpleDoubleProperty localProgress = new SimpleDoubleProperty(0);
-    private SimpleStringProperty localMessage = new SimpleStringProperty("");
+    private final SimpleDoubleProperty localProgress = new SimpleDoubleProperty(0);
+    private final SimpleStringProperty localMessage = new SimpleStringProperty("");
 
     public void updateLocalMessage(String message){
         localMessage.set(message);
@@ -253,7 +252,6 @@ public class DrawingBotV3 {
                 });
                 break;
             case POST_PROCESSING:
-                break;
             case FINISHING:
                 break;
             case FINISHED:

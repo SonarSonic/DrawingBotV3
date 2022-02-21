@@ -1,10 +1,7 @@
 package drawingbot.utils;
 
-import drawingbot.DrawingBotV3;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -95,26 +92,22 @@ public class Utils {
 
     public static long clamp(long value, long min, long max){
         if (value < min) return min;
-        if (value > max) return max;
-        return value;
+        return Math.min(value, max);
     }
 
     public static float clamp(float value, float min, float max){
         if (value < min) return min;
-        if (value > max) return max;
-        return value;
+        return Math.min(value, max);
     }
 
     public static double clamp(double value, double min, double max){
         if (value < min) return min;
-        if (value > max) return max;
-        return value;
+        return Math.min(value, max);
     }
 
     public static int clamp(int value, int min, int max){
         if (value < min) return min;
-        if (value > max) return max;
-        return value;
+        return Math.min(value, max);
     }
 
     public static boolean within(long value, long min, long max){
@@ -224,7 +217,7 @@ public class Utils {
         public boolean isSolaris(){
             return this == SOLARIS;
         }
-    };
+    }
 
     private static OS os = null;
 

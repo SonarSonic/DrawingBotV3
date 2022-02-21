@@ -13,7 +13,7 @@ import java.io.File;
 
 public class DialogExportPreset extends Dialog<Boolean> {
 
-    public ButtonType openFolder = new ButtonType("Open Folder", ButtonBar.ButtonData.OK_DONE);
+    public final ButtonType openFolder = new ButtonType("Open Folder", ButtonBar.ButtonData.OK_DONE);
 
     public DialogExportPreset(GenericPreset<?> preset, File dest) {
         super();

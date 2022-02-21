@@ -3,7 +3,6 @@ package drawingbot.geom.spatial;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IProgressCallback;
 import drawingbot.utils.LazyTimer;
-import drawingbot.utils.ProgressCallback;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.strtree.ItemBoundable;
@@ -160,19 +159,19 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         return node1.startCoord.distance(node2.startCoord);
     }
 
-    public static class IGeometry extends STRTreeSequencer<drawingbot.geom.basic.IGeometry> {
+    public static class IGeometry extends STRTreeSequencer<drawingbot.geom.shapes.IGeometry> {
 
-        public IGeometry(List<drawingbot.geom.basic.IGeometry> lineStrings, double allowableDistance) {
+        public IGeometry(List<drawingbot.geom.shapes.IGeometry> lineStrings, double allowableDistance) {
             super(lineStrings, allowableDistance);
         }
 
         @Override
-        protected Coordinate getStartCoordinateFromCity(drawingbot.geom.basic.IGeometry geometry) {
+        protected Coordinate getStartCoordinateFromCity(drawingbot.geom.shapes.IGeometry geometry) {
             return geometry.getOriginCoordinate();
         }
 
         @Override
-        protected Coordinate getEndCoordinateFromCity(drawingbot.geom.basic.IGeometry geometry) {
+        protected Coordinate getEndCoordinateFromCity(drawingbot.geom.shapes.IGeometry geometry) {
             return geometry.getOriginCoordinate();
         }
     }

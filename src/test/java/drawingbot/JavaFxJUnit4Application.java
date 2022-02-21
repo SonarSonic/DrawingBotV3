@@ -1,15 +1,11 @@
 package drawingbot;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import drawingbot.plugins.PremiumPluginDummy;
-import drawingbot.registry.MasterRegistry;
 import javafx.application.Application;
-import javafx.stage.Stage;
 
 /**
  * This is the application which starts JavaFx.  It is controlled through the startJavaFx() method.

@@ -2,7 +2,6 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
-import javafx.util.StringConverter;
 import javafx.util.converter.LongStringConverter;
 
 import java.util.function.BiConsumer;

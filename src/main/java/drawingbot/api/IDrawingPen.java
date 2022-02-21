@@ -1,7 +1,7 @@
 package drawingbot.api;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.files.presets.JsonAdapterDrawingPen;
+import drawingbot.files.json.adapters.JsonAdapterDrawingPen;
 
 /**
  * {@link IDrawingPen} defines a pen used when rendering the drawing

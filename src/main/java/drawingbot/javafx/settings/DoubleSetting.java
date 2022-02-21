@@ -2,12 +2,9 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
-import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class DoubleSetting<C> extends AbstractNumberSetting<C, Double> {
 

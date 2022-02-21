@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.api.IPathFindingModule;
-import drawingbot.files.presets.JsonAdapterPFMFactory;
+import drawingbot.files.json.adapters.JsonAdapterPFMFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.utils.EnumDistributionType;
 import org.jetbrains.annotations.Nullable;

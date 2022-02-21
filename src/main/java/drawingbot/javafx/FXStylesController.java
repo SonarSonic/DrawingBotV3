@@ -6,7 +6,7 @@ import drawingbot.drawing.DrawingStyleSet;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
-import drawingbot.files.presets.types.PresetPFMSettings;
+import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.javafx.settings.DrawingStylesSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;

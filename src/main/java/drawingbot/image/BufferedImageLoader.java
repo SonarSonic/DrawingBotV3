@@ -5,7 +5,6 @@ import drawingbot.files.FileUtils;
 import javafx.concurrent.Task;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
-import org.jcodec.common.io.NIOUtils;
 import org.jcodec.common.model.Picture;
 import org.jcodec.scale.AWTUtil;
 
@@ -20,8 +19,8 @@ import java.util.logging.Level;
 
 public class BufferedImageLoader extends Task<BufferedImage> {
 
-    public String url;
-    public boolean internal; //true if the image should be loaded from within the jar
+    public final String url;
+    public final boolean internal; //true if the image should be loaded from within the jar
 
     public BufferedImageLoader(String url, boolean internal){
         this.url = url;
@@ -97,8 +96,8 @@ public class BufferedImageLoader extends Task<BufferedImage> {
 
     public static class Filtered extends Task<FilteredBufferedImage> {
 
-        public String url;
-        public boolean internal; //true if the image should be loaded from within the jar
+        public final String url;
+        public final boolean internal; //true if the image should be loaded from within the jar
 
         public Filtered(String url, boolean internal){
             this.url = url;

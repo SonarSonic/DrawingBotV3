@@ -2,7 +2,6 @@ package drawingbot.geom.operation;
 
 import drawingbot.api.IProgressCallback;
 import drawingbot.plotting.PlottedDrawing;
-import drawingbot.utils.ProgressCallback;
 
 /**
  * Geometry operations should be non-destructive, new geometries should be created if needed

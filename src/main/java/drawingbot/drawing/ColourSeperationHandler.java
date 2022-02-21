@@ -2,16 +2,9 @@ package drawingbot.drawing;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.DrawingBotV3;
-import drawingbot.files.presets.JsonAdapterColourSplitter;
-import drawingbot.registry.MasterRegistry;
+import drawingbot.files.json.adapters.JsonAdapterColourSplitter;
 import drawingbot.registry.Register;
-import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumDistributionType;
-
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 
 @JsonAdapter(JsonAdapterColourSplitter.class)
 public class ColourSeperationHandler {

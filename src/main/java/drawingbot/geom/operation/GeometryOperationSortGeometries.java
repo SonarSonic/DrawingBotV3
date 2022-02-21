@@ -1,8 +1,8 @@
 package drawingbot.geom.operation;
 
 import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.presets.types.ConfigApplicationSettings;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.files.json.presets.ConfigApplicationSettings;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.spatial.STRTreeSequencer;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;

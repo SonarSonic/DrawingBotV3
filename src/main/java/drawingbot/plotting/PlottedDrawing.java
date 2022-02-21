@@ -1,23 +1,20 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IGeometryFilter;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.utils.EnumDistributionOrder;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.canvas.GraphicsContext;
 
-import java.awt.*;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 
 public class PlottedDrawing {
 
-    public List<IGeometry> geometries;
+    public final List<IGeometry> geometries;
     public long vertexCount;
 
     public SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);

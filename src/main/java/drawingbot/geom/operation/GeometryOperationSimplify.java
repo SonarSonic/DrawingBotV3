@@ -2,9 +2,9 @@ package drawingbot.geom.operation;
 
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.GeometryUtils;
-import drawingbot.geom.basic.GPath;
-import drawingbot.geom.basic.IGeometry;
-import drawingbot.geom.basic.IPathElement;
+import drawingbot.geom.shapes.GPath;
+import drawingbot.geom.shapes.IGeometry;
+import drawingbot.geom.shapes.IPathElement;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;

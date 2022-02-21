@@ -4,7 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.image.ImageFilteringTask;
 import drawingbot.plotting.PlottingTask;
-import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
 import drawingbot.render.modes.AbstractJFXDisplayMode;

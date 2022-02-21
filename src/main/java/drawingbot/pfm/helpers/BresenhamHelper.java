@@ -1,6 +1,6 @@
 package drawingbot.pfm.helpers;
 
-import drawingbot.geom.PathBuilder;
+import drawingbot.plotting.PathBuilder;
 
 import java.awt.*;
 import java.awt.geom.PathIterator;

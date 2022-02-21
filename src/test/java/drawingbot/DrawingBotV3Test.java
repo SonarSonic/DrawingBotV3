@@ -3,7 +3,6 @@ package drawingbot;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -69,7 +68,7 @@ public class DrawingBotV3Test {
     }
 
     @Test
-    public void textExport() throws InterruptedException, IOException {
+    public void textExport() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicBoolean triggered = new AtomicBoolean(false);
         loadTestImage();

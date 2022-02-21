@@ -3,13 +3,9 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.FileUtils;
-import drawingbot.files.presets.AbstractPresetLoader;
-import drawingbot.files.presets.IJsonData;
-import drawingbot.files.presets.JsonLoaderManager;
-import drawingbot.files.presets.PresetType;
-import drawingbot.files.presets.types.PresetProjectSettings;
+import drawingbot.files.*;
+import drawingbot.files.json.*;
+import drawingbot.files.json.presets.PresetProjectSettings;
 import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
@@ -24,8 +20,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -121,7 +115,12 @@ public class FXHelper {
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
-            JsonLoaderManager.getJsonLoaderForPresetType(presetType).tryApplyPreset(preset);
+            AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(presetType);
+            if(jsonLoader != null){
+                jsonLoader.tryApplyPreset(preset);
+            }else{
+                DrawingBotV3.logger.severe("Preset type is missing JsonLoader: " + presetType.id);
+            }
         }
         return preset;
     }

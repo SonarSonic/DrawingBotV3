@@ -1,6 +1,6 @@
 package drawingbot.geom.spatial;
 
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.List;

@@ -1,8 +1,8 @@
 package drawingbot.integrations.vpype;
 
 import com.google.gson.JsonElement;
-import drawingbot.files.presets.AbstractJsonData;
-import drawingbot.files.presets.PresetType;
+import drawingbot.files.json.AbstractJsonData;
+import drawingbot.files.json.PresetType;
 import drawingbot.registry.Register;
 
 import java.util.HashMap;

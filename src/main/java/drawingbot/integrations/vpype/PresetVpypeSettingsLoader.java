@@ -1,8 +1,8 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.presets.AbstractSettingsLoader;
-import drawingbot.files.presets.PresetType;
+import drawingbot.files.json.AbstractSettingsLoader;
+import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;

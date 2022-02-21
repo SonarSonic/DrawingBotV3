@@ -1,8 +1,8 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.presets.JsonLoaderManager;
-import drawingbot.files.presets.types.ConfigApplicationSettings;
+import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.files.json.presets.ConfigApplicationSettings;
 import drawingbot.registry.Register;
 
 import java.io.*;
@@ -17,11 +17,15 @@ public class ConfigFileHandler {
     public static void init() {
         //create the user data directory
         File userDir = new File(FileUtils.getUserDataDirectory());
-        userDir.mkdirs();
+        if(!userDir.mkdirs()){
+            DrawingBotV3.logger.severe("Failed to create User Data Directory");
+        }
 
         //create the thumbnail directory
         File userThumbs = new File(FileUtils.getUserThumbnailDirectory());
-        userThumbs.mkdirs();
+        if(!userThumbs.mkdirs()){
+            DrawingBotV3.logger.severe("Failed to create User Thumbnail Directory");
+        }
 
         //load the JSON config files
         JsonLoaderManager.loadConfigFiles();

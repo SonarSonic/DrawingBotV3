@@ -1,6 +1,6 @@
 package drawingbot.pfm;
 
-import drawingbot.geom.basic.GLine;
+import drawingbot.geom.shapes.GLine;
 import drawingbot.utils.Utils;
 
 import java.awt.geom.Point2D;

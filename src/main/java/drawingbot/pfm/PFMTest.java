@@ -1,8 +1,8 @@
 package drawingbot.pfm;
 
-import drawingbot.geom.basic.GLine;
-import drawingbot.geom.basic.GRectangle;
-import drawingbot.geom.basic.GShape;
+import drawingbot.geom.shapes.GLine;
+import drawingbot.geom.shapes.GRectangle;
+import drawingbot.geom.shapes.GShape;
 
 import java.awt.*;
 import java.awt.font.GlyphVector;

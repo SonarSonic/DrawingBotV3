@@ -1,6 +1,6 @@
 package drawingbot.plotting;
 
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 
 /**
  * An implementation of the Geometry Iterator which can be used to perform Asynchronous rendering as the drawing is being generated

@@ -2,12 +2,11 @@ package drawingbot.javafx.settings;
 
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericSetting;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.util.StringConverter;
-import scala.annotation.meta.setter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

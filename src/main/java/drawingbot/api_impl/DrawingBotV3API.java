@@ -4,7 +4,6 @@ import drawingbot.api.API;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.registry.Register;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;

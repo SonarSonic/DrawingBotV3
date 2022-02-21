@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
-import drawingbot.geom.basic.GLine;
+import drawingbot.geom.shapes.GLine;
 import drawingbot.plotting.PlottingTask;
 
 import java.util.function.BiConsumer;

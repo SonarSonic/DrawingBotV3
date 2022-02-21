@@ -1,9 +1,9 @@
 package drawingbot.javafx;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.files.presets.IJsonData;
-import drawingbot.files.presets.JsonAdapterGenericPreset;
-import drawingbot.files.presets.PresetType;
+import drawingbot.files.json.IJsonData;
+import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
+import drawingbot.files.json.PresetType;
 
 @JsonAdapter(JsonAdapterGenericPreset.class)
 public class GenericPreset<O extends IJsonData> {

@@ -2,7 +2,6 @@ package drawingbot.image.kernels;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;
-import com.jhlabs.image.PointFilter;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -10,7 +9,7 @@ import java.awt.image.WritableRaster;
 
 public abstract class AbstractKernelFactory<C extends BufferedImageOp> implements IKernelFactory {
 
-    public Class<C> clazz;
+    public final Class<C> clazz;
 
     public AbstractKernelFactory(Class<C> clazz){
         this.clazz = clazz;

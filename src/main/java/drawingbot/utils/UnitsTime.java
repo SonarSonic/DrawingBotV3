@@ -6,8 +6,8 @@ public enum UnitsTime {
     MINUTES("mins", 60F),
     HOURS("hours", 3600F);
 
-    public String displayName;
-    public float convertToSeconds;
+    public final String displayName;
+    public final float convertToSeconds;
 
     UnitsTime(String displayName, float convertToSeconds) {
         this.displayName = displayName;

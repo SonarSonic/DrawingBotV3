@@ -2,12 +2,8 @@ package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
-import drawingbot.geom.basic.IGeometry;
-import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.UnitsLength;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -17,8 +13,6 @@ import org.w3c.dom.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.*;
-import java.util.List;
-import java.util.Map;
 
 //Documentation/Source: https://xmlgraphics.apache.org/batik/using/svg-generator.html
 //Check with: https://validator.w3.org/

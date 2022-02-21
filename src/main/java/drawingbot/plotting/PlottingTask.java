@@ -7,8 +7,7 @@ import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.DBTask;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.geom.PathBuilder;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
@@ -17,7 +16,6 @@ import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import org.imgscalr.Scalr;
-import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.Geometry;
 

@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTask;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
@@ -155,8 +155,9 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
         }else{
             float deltaAngle = shading ? drawingDeltaAngle : drawingDeltaAngle / (float) maxTests;
             for (int d = 0; d < (shading ? 2 : maxTests); d ++) {
-                int x1 = (int)Math.ceil((Math.cos(Math.toRadians((deltaAngle * d) + startAngle))*maxLength) + startX);
-                int y1 = (int)Math.ceil((Math.sin(Math.toRadians((deltaAngle * d) + startAngle))*maxLength) + startY);
+                double angle = Math.toRadians((deltaAngle * d) + startAngle);
+                int x1 = (int)Math.ceil((Math.cos(angle)*maxLength) + startX);
+                int y1 = (int)Math.ceil((Math.sin(angle)*maxLength) + startY);
                 processSafePixels(pixels, startX, startY, x1, y1, safe, consumer);
             }
         }

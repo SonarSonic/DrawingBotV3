@@ -1,11 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.FileUtils;
-import drawingbot.files.presets.JsonLoaderManager;
-import drawingbot.javafx.FXController;
 import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.registry.Register;
 import javafx.scene.control.ContextMenu;

@@ -1,7 +1,7 @@
 package drawingbot.api;
 
-import drawingbot.geom.PathBuilder;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.plotting.PathBuilder;
+import drawingbot.geom.shapes.IGeometry;
 
 /**
  * Access editable image data via {@link IPlottingTask#getPixelData()} and unedited reference data {@link IPlottingTask#getReferencePixelData()}

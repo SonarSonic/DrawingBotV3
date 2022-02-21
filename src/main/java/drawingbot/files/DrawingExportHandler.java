@@ -1,17 +1,12 @@
 package drawingbot.files;
 
-import drawingbot.geom.basic.IGeometry;
-import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.PlottingTask;
 import javafx.scene.control.Dialog;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
-public class DrawingExportHandler implements IExportMethod {
+public class DrawingExportHandler {
 
     public final Category category;
     public final String displayName;
@@ -43,15 +38,17 @@ public class DrawingExportHandler implements IExportMethod {
         return "Save " + displayName;
     }
 
-    @Override
-    public void export(ExportTask exportTask, File saveLocation) {
-        exportMethod.export(exportTask, saveLocation);
-    }
-
     public enum Category {
         SVG,
         IMAGE,
         VECTOR,
-        ANIMATION;
+        ANIMATION
+    }
+
+    @FunctionalInterface
+    public interface IExportMethod {
+
+        void export(ExportTask exportTask, File saveLocation);
+
     }
 }

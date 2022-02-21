@@ -103,7 +103,6 @@ public class TaskMonitor {
     public void onTaskStateChanged(Task<?> task, ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue){
         switch (newValue){
             case READY:
-                break;
             case SCHEDULED:
                 break;
             case RUNNING:

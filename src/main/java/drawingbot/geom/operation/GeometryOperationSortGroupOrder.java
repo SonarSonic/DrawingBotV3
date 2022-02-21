@@ -1,6 +1,5 @@
 package drawingbot.geom.operation;
 
-import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.spatial.STRTreeSequencer;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;

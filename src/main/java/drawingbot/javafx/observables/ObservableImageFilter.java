@@ -15,14 +15,14 @@ import java.awt.image.BufferedImageOp;
 
 public class ObservableImageFilter {
 
-    public SimpleBooleanProperty enable;
-    public SimpleStringProperty name;
-    public GenericFactory<BufferedImageOp> filterFactory;
-    public ObservableList<GenericSetting<?, ?>> filterSettings;
-    public SimpleStringProperty settingsString; //settings as a string
+    public final SimpleBooleanProperty enable;
+    public final SimpleStringProperty name;
+    public final GenericFactory<BufferedImageOp> filterFactory;
+    public final ObservableList<GenericSetting<?, ?>> filterSettings;
+    public final SimpleStringProperty settingsString; //settings as a string
 
-    public SimpleBooleanProperty dirty;
-    public SimpleObjectProperty<BufferedImage> cached;
+    public final SimpleBooleanProperty dirty;
+    public final SimpleObjectProperty<BufferedImage> cached;
 
     public ObservableImageFilter(GenericFactory<BufferedImageOp> filterFactory) {
         this(true, filterFactory);

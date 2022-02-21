@@ -2,11 +2,9 @@ package drawingbot.render.modes;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.AsynchronousGeometryIterator;
 import drawingbot.plotting.DrawingGeometryIterator;
-import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottingTask;
 import drawingbot.render.RenderUtils;
 import drawingbot.render.jfx.JavaFXRenderer;
@@ -15,7 +13,6 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
     private AsynchronousGeometryIterator asyncIterator;
     private DrawingGeometryIterator drawingIterator;
-    private long drawingTime = 0;
 
     @Override
     public void preRender(JavaFXRenderer jfr) {
@@ -77,7 +74,6 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                         drawingIterator.reset(renderedTask.plottedDrawing);
                         DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
                         DrawingBotV3.INSTANCE.updateLocalProgress(0);
-                        drawingTime = System.currentTimeMillis();
                     }
 
 

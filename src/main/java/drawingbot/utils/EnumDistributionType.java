@@ -6,7 +6,6 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public enum EnumDistributionType {

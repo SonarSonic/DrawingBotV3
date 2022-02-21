@@ -4,11 +4,8 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.UnitsLength;
 
 import javax.imageio.ImageIO;
@@ -16,8 +13,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 public class ImageExporter {
 

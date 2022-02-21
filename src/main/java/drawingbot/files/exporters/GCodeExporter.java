@@ -3,11 +3,9 @@ package drawingbot.files.exporters;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.PrintResolution;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.Limit;
 
 import java.awt.geom.AffineTransform;

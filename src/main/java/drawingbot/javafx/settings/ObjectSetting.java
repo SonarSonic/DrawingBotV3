@@ -1,7 +1,7 @@
 package drawingbot.javafx.settings;
 
 import com.google.gson.JsonElement;
-import drawingbot.files.presets.JsonLoaderManager;
+import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericSetting;
 import javafx.scene.Node;
 import javafx.scene.control.Label;

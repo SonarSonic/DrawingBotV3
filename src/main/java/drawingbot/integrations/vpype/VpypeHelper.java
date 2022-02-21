@@ -3,7 +3,6 @@ package drawingbot.integrations.vpype;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.FileUtils;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.registry.Register;
 import javafx.application.Platform;
 import javafx.concurrent.Task;

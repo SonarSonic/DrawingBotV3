@@ -9,10 +9,10 @@ public enum EnumRotation {
     R180(Scalr.Rotation.CW_180, false),
     R270(Scalr.Rotation.CW_270, true);
 
-    public static EnumRotation[] DEFAULTS = new EnumRotation[]{EnumRotation.R0, EnumRotation.R90, EnumRotation.R180, EnumRotation.R270};
+    public static final EnumRotation[] DEFAULTS = new EnumRotation[]{EnumRotation.R0, EnumRotation.R90, EnumRotation.R180, EnumRotation.R270};
 
-    public Scalr.Rotation scalrRotation;
-    public boolean flipAxis;
+    public final Scalr.Rotation scalrRotation;
+    public final boolean flipAxis;
 
     EnumRotation(Scalr.Rotation scalrRotation, boolean flipAxis){
         this.scalrRotation = scalrRotation;

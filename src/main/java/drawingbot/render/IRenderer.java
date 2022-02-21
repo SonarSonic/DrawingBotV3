@@ -1,7 +1,6 @@
 package drawingbot.render;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.render.jfx.JavaFXRenderer;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;

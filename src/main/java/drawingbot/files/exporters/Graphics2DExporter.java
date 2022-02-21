@@ -3,9 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
-import drawingbot.geom.basic.IGeometry;
 import drawingbot.image.ImageTools;
-import drawingbot.plotting.DrawingGeometryIterator;
 import drawingbot.render.RenderUtils;
 
 import java.awt.*;

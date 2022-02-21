@@ -3,7 +3,6 @@ package drawingbot.javafx.controls;
 import drawingbot.FXApplication;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.text.TextFlow;

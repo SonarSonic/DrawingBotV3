@@ -2,10 +2,9 @@ package drawingbot.javafx.observables;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
-import drawingbot.files.presets.types.PresetProjectSettings;
+import drawingbot.files.json.presets.PresetProjectSettings;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.javafx.GenericPreset;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.embed.swing.SwingFXUtils;

@@ -2,7 +2,7 @@ package drawingbot.drawing;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.api.IDrawingPen;
-import drawingbot.files.presets.JsonAdapterDrawingPen;
+import drawingbot.files.json.adapters.JsonAdapterDrawingPen;
 
 @JsonAdapter(JsonAdapterDrawingPen.class)
 public class DrawingPen implements IDrawingPen {

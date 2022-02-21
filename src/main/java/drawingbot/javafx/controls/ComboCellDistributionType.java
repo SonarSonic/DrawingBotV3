@@ -8,7 +8,7 @@ import javafx.scene.control.cell.ComboBoxListCell;
 
 public class ComboCellDistributionType extends ComboBoxListCell<EnumDistributionType> {
 
-    public ChangeListener<PFMFactory<?>> changeListener = (observable, oldValue, newValue) -> updateText();
+    public final ChangeListener<PFMFactory<?>> changeListener = (observable, oldValue, newValue) -> updateText();
 
     public ComboCellDistributionType() {
         super();

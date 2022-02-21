@@ -1,7 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.api.IGeometryFilter;
-import drawingbot.geom.basic.IGeometry;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 
 import java.util.Iterator;

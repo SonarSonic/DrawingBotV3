@@ -2,7 +2,6 @@ package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportTask;
-import drawingbot.plotting.PlottingTask;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Limit;
 import drawingbot.utils.Utils;

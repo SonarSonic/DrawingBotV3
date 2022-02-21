@@ -2,7 +2,6 @@ package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.presets.JsonLoaderManager;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.Register;
