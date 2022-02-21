@@ -2,14 +2,23 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
+import javafx.util.StringConverter;
 import javafx.util.converter.LongStringConverter;
 
 import java.util.function.BiConsumer;
 
-public class LongSetting<C> extends RangedNumberSetting<C, Long> {
+public class LongSetting<C> extends AbstractNumberSetting<C, Long> {
 
-    public LongSetting(Class<C> pfmClass, String category, String settingName, long defaultValue, long minValue, long maxValue, boolean shouldLock, BiConsumer<C, Long> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
+    protected LongSetting(LongSetting<C> toCopy) {
+        super(toCopy, toCopy.getValue());
+    }
+
+    public LongSetting(Class<C> clazz, String category, String settingName, long defaultValue, BiConsumer<C, Long> setter) {
+        super(clazz, category, settingName, defaultValue, new LongStringConverter(), setter);
+    }
+
+    public LongSetting(Class<C> pfmClass, String category, String settingName, long defaultValue, long minValue, long maxValue, BiConsumer<C, Long> setter){
+        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override
@@ -24,7 +33,7 @@ public class LongSetting<C> extends RangedNumberSetting<C, Long> {
 
     @Override
     public GenericSetting<C, Long> copy() {
-        return new LongSetting<>(clazz, category, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
+        return new LongSetting<>(this);
     }
 
 }

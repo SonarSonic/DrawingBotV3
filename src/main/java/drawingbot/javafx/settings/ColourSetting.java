@@ -11,7 +11,11 @@ import java.util.function.BiConsumer;
 
 public class ColourSetting<C> extends GenericSetting<C, Color> {
 
-    public ColourSetting(Class<C> pfmClass, String category, String settingName, Color defaultValue, boolean shouldLock, BiConsumer<C, Color> setter) {
+    protected ColourSetting(ColourSetting<C> toCopy) {
+        super(toCopy, toCopy.getValue());
+    }
+
+    public ColourSetting(Class<C> pfmClass, String category, String settingName, Color defaultValue, BiConsumer<C, Color> setter) {
         super(pfmClass, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(Color object) {
@@ -22,7 +26,8 @@ public class ColourSetting<C> extends GenericSetting<C, Color> {
             public Color fromString(String string) {
                 return ImageTools.getColorFromARGB(Integer.parseInt(string));
             }
-        }, random -> new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255), 255), shouldLock, value -> value, setter);
+        }, value -> value, setter);
+        this.setRandomiser(random -> new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255), 255));
     }
 
     @Override
@@ -37,6 +42,6 @@ public class ColourSetting<C> extends GenericSetting<C, Color> {
 
     @Override
     public GenericSetting<C, Color> copy() {
-        return new ColourSetting<>(clazz, category, settingName.getValue(), defaultValue, lock.get(), setter);
+        return new ColourSetting<>(this);
     }
 }

@@ -13,7 +13,11 @@ import java.util.function.BiConsumer;
 
 public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> {
 
-    public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue, boolean shouldLock, BiConsumer<C, DrawingStyleSet> setter) {
+    protected DrawingStylesSetting(GenericSetting<C, DrawingStyleSet> toCopy) {
+        super(toCopy, toCopy.getValue());
+    }
+
+    public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue, BiConsumer<C, DrawingStyleSet> setter) {
         super(pfmClass, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(DrawingStyleSet object) {
@@ -24,7 +28,7 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
             public DrawingStyleSet fromString(String string) {
                 throw new UnsupportedOperationException("Drawing styles can not be set by the user");
             }
-        }, null, shouldLock, value -> value, setter);
+        }, value -> value, setter);
     }
 
     @Override
@@ -33,8 +37,8 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
     }
 
     @Override
-    public JsonElement getValueAsJsonElement() {
-        return JsonLoaderManager.createDefaultGson().toJsonTree(this.getValue());
+    public JsonElement getValueAsJsonElement(Object value) {
+        return JsonLoaderManager.createDefaultGson().toJsonTree(value);
     }
 
     @Override
@@ -55,6 +59,6 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
 
     @Override
     public GenericSetting<C, DrawingStyleSet> copy() {
-        return new DrawingStylesSetting<>(clazz, category, settingName.getValue(), defaultValue, lock.get(), setter);
+        return new DrawingStylesSetting<>(this);
     }
 }

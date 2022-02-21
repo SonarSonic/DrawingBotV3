@@ -2,16 +2,26 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
+import javafx.util.StringConverter;
 import javafx.util.converter.FloatStringConverter;
 
 import java.util.function.BiConsumer;
 
-public class FloatSetting<C> extends RangedNumberSetting<C, Float> {
+public class FloatSetting<C> extends AbstractNumberSetting<C, Float> {
 
     public int precision = 3;
 
-    public FloatSetting(Class<C> pfmClass, String category, String settingName, float defaultValue, float minValue, float maxValue, boolean shouldLock, BiConsumer<C, Float> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
+    protected FloatSetting(FloatSetting<C> toCopy) {
+        super(toCopy, toCopy.getValue());
+        this.precision = toCopy.precision;
+    }
+
+    public FloatSetting(Class<C> clazz, String category, String settingName, Float defaultValue, BiConsumer<C, Float> setter) {
+        super(clazz, category, settingName, defaultValue, new FloatStringConverter(), setter);
+    }
+
+    public FloatSetting(Class<C> pfmClass, String category, String settingName, float defaultValue, float minValue, float maxValue, BiConsumer<C, Float> setter){
+        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override
@@ -31,6 +41,6 @@ public class FloatSetting<C> extends RangedNumberSetting<C, Float> {
 
     @Override
     public GenericSetting<C, Float> copy() {
-        return new FloatSetting<>(clazz, category, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
+        return new FloatSetting<>(this);
     }
 }

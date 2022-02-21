@@ -2,16 +2,28 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
+import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class DoubleSetting<C> extends RangedNumberSetting<C, Double> {
+public class DoubleSetting<C> extends AbstractNumberSetting<C, Double> {
 
     public int precision = 3;
 
-    public DoubleSetting(Class<C> pfmClass, String category, String settingName, double defaultValue, double minValue, double maxValue, boolean shouldLock, BiConsumer<C, Double> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new DoubleStringConverter(), rand -> rand.nextDouble(minValue, maxValue), shouldLock, value -> Utils.clamp(value, minValue, maxValue), setter);
+    protected DoubleSetting(DoubleSetting<C> toCopy) {
+        super(toCopy, toCopy.getValue());
+        this.precision = toCopy.precision;
+    }
+
+    public DoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, BiConsumer<C, Double> setter) {
+        super(clazz, category, settingName, defaultValue, new DoubleStringConverter(), setter);
+    }
+
+    public DoubleSetting(Class<C> pfmClass, String category, String settingName, double defaultValue, double minValue, double maxValue, BiConsumer<C, Double> setter){
+        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new DoubleStringConverter(), rand -> rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override
@@ -31,6 +43,6 @@ public class DoubleSetting<C> extends RangedNumberSetting<C, Double> {
 
     @Override
     public GenericSetting<C, Double> copy() {
-        return new DoubleSetting<>(clazz, category, settingName.getValue(), defaultValue, minValue, maxValue, lock.get(), setter).setPrecision(precision).setMajorTick(majorTick).setSnapToTicks(snapToTicks).setSafeRange(safeMinValue, safeMaxValue).setRandomiser(randomiser);
+        return new DoubleSetting<>(this);
     }
 }

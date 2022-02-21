@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.util.StringConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -13,9 +14,15 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
 
     public List<V> values;
 
-    public OptionSetting(Class<C> clazz, String category, String settingName, StringConverter<V> converter, List<V> values, V defaultValue, boolean shouldLock, BiConsumer<C, V> setter) {
-        super(clazz, category, settingName, defaultValue, converter, random -> values.get(random.nextInt(values.size()-1)), shouldLock, v -> values.contains(v) ? v : defaultValue, setter);
+    protected OptionSetting(OptionSetting<C, V> toCopy) {
+        super(toCopy, toCopy.getValue());
+        this.values = new ArrayList<>(toCopy.values);
+    }
+
+    public OptionSetting(Class<C> clazz, String category, String settingName, V defaultValue, StringConverter<V> converter, List<V> values, BiConsumer<C, V> setter) {
+        super(clazz, category, settingName, defaultValue, converter, v -> values.contains(v) ? v : defaultValue, setter);
         this.values = values;
+        this.setRandomiser(random -> values.get(random.nextInt(values.size()-1)));
     }
 
     @Override
@@ -28,6 +35,6 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
 
     @Override
     public GenericSetting<C, V> copy() {
-        return new OptionSetting<C, V>(clazz, category, settingName.get(), stringConverter, List.copyOf(values), defaultValue, lock.get(), setter);
+        return new OptionSetting<>(this);
     }
 }

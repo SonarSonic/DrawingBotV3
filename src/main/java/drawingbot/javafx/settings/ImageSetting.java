@@ -12,20 +12,21 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class ImageSetting<C> extends GenericSetting<C, String> {
 
-    public SimpleObjectProperty<ImageView> imageView;
-    public SimpleObjectProperty<WritableImage> thumbnail;
+    public transient SimpleObjectProperty<ImageView> imageView;
+    public transient SimpleObjectProperty<WritableImage> thumbnail;
 
-    public ImageSetting(Class<C> clazz, String category, String settingName, String defaultValue, boolean shouldLock, BiConsumer<C, String> setter) {
-        super(clazz, category, settingName, defaultValue, new DefaultStringConverter(), null, shouldLock, s -> s, setter);
+    protected ImageSetting(GenericSetting<C, String> toCopy) {
+        super(toCopy, toCopy.getValue());
+    }
+
+    public ImageSetting(Class<C> clazz, String category, String settingName, String defaultValue, BiConsumer<C, String> setter) {
+        super(clazz, category, settingName, defaultValue, new DefaultStringConverter(), s -> s, setter);
     }
 
     @Override
@@ -58,6 +59,6 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
     @Override
     public GenericSetting<C, String> copy() {
-        return new ImageSetting<>(clazz, category, settingName.get(), defaultValue, lock.get(), setter);
+        return new ImageSetting<>(this);
     }
 }

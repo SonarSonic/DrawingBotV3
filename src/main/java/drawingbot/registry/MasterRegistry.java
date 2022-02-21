@@ -268,7 +268,7 @@ public class MasterRegistry {
     }
 
     public <C, V> void registerPFMSetting(GenericSetting<C, V> setting){
-        DrawingBotV3.logger.fine("Registering PFM Setting: " + setting.settingName.getValue());
+        DrawingBotV3.logger.fine("Registering PFM Setting: " + setting.key.getValue());
         for(PFMFactory<?> factory : pfmFactories){
             if(setting.isAssignableFrom(factory.getInstanceClass())){
                 GenericSetting<C,V> copy = setting.copy();
@@ -301,7 +301,7 @@ public class MasterRegistry {
         if(factory != null){
             ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
             for(GenericSetting<?, ?> setting : settings){
-                if(setting.settingName.getValue().equals(name)){
+                if(setting.key.getValue().equals(name)){
                     return setting;
                 }
             }
@@ -314,7 +314,7 @@ public class MasterRegistry {
         if(factory != null){
             ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
             for(GenericSetting<?, ?> setting : settings){
-                if(setting.settingName.getValue().equals(name)){
+                if(setting.key.getValue().equals(name)){
                     settings.remove(setting);
                     return;
                 }
@@ -336,7 +336,7 @@ public class MasterRegistry {
     }
 
     public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
-        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.settingName.getValue());
+        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.key.getValue());
         imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
         imgFilterSettings.get(setting.clazz).add(setting);
     }

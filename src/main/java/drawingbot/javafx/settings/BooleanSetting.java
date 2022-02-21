@@ -10,8 +10,13 @@ import java.util.function.BiConsumer;
 
 public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
 
-    public BooleanSetting(Class<C> pfmClass, String category, String settingName, Boolean defaultValue, boolean shouldLock, BiConsumer<C, Boolean> setter) {
-        super(pfmClass, category, settingName, defaultValue, new BooleanStringConverter(), ThreadLocalRandom::nextBoolean, shouldLock, value -> value, setter);
+    protected BooleanSetting(BooleanSetting<C> toCopy) {
+        super(toCopy, toCopy.getValue());
+    }
+
+    public BooleanSetting(Class<C> pfmClass, String category, String settingName, Boolean defaultValue, BiConsumer<C, Boolean> setter) {
+        super(pfmClass, category, settingName, defaultValue, new BooleanStringConverter(), value -> value, setter);
+        this.setRandomiser(ThreadLocalRandom::nextBoolean);
     }
 
     @Override
@@ -27,6 +32,6 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
 
     @Override
     public GenericSetting<C, Boolean> copy() {
-        return new BooleanSetting<>(clazz, category, settingName.getValue(), defaultValue, lock.get(), setter);
+        return new BooleanSetting<>(this);
     }
 }
