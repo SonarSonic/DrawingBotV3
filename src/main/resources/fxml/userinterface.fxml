@@ -304,7 +304,7 @@
                                                    <children>
                                                       <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Colour Separation:">
                                                          <graphic>
-                                                            <ChoiceBox fx:id="choiceBoxColourSeperation" prefHeight="25.0" prefWidth="187.0" />
+                                                            <ComboBox fx:id="comboBoxColourSeperation" prefHeight="25.0" prefWidth="187.0" />
                                                          </graphic>
                                                       </Label>
                                                       <Button fx:id="buttonConfigureSplitter" mnemonicParsing="false" prefHeight="25.0" prefWidth="78.0" text="Configure" />

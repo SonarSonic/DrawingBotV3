@@ -10,6 +10,6 @@ public class PFMSketchSquares extends AbstractSketchPFM {
     protected float findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
         float angle = startAngle + (float)Math.toDegrees((Math.sin(Math.toRadians((point[0]/9D))) + Math.cos(Math.toRadians((point[1]/9D)+26D))));
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
-        return findDarkestLine(pixels, point[0], point[1], minLineLength, nextLineLength, lineTests, angle, 360.0F, false, darkestDst);
+        return findDarkestLine(bresenham, pixels, point[0], point[1], minLineLength, nextLineLength, lineTests, angle, 360.0F, false, darkestDst);
     }
 }

@@ -85,7 +85,7 @@ public class PremiumPluginDummy implements IPlugin {
     public Object[] disableColourSplitterUI(Object...objects) {
         FXController controller = (FXController) objects[0];
         controller.buttonConfigureSplitter.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
-        controller.choiceBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
+        controller.comboBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         /* TODO DO WE NEED THIS???
         DrawingBotV3.INSTANCE.colourSeperator.addListener((observable, oldValue, newValue) -> {
             if(!newValue.isDefault()){

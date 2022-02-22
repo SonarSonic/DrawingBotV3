@@ -870,7 +870,7 @@ public class FXController {
 
         ////PATH FINDING CONTROLS
         DrawingBotV3.INSTANCE.pfmFactory.bindBidirectional(comboBoxPFM.valueProperty());
-        comboBoxPFM.setCellFactory(param -> new ComboCellPFM());
+        comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
         comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
         comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
         comboBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> changePathFinderModule(newValue));
@@ -973,7 +973,7 @@ public class FXController {
     public ComboBox<EnumDistributionType> comboBoxDistributionType = null;
     public ComboBox<EnumDistributionOrder> comboBoxDistributionOrder = null;
 
-    public ChoiceBox<ColourSeperationHandler> choiceBoxColourSeperation = null;
+    public ComboBox<ColourSeperationHandler> comboBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
@@ -1173,7 +1173,9 @@ public class FXController {
         comboBoxDistributionType.setButtonCell(new ComboCellDistributionType());
         comboBoxDistributionType.setCellFactory(param -> new ComboCellDistributionType());
 
-        choiceBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
+        comboBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
+        comboBoxColourSeperation.setButtonCell(new ComboCellNamedSetting<>());
+        comboBoxColourSeperation.setCellFactory(param -> new ComboCellNamedSetting<>());
 
         buttonConfigureSplitter.setOnAction(e -> DrawingBotV3.INSTANCE.activeDrawingSet.get().colourSeperator.get().onUserConfigure());
 
@@ -1322,7 +1324,7 @@ public class FXController {
             removeListeners(oldValue);
             comboBoxDistributionOrder.valueProperty().unbindBidirectional(oldValue.distributionOrder);
             comboBoxDistributionType.valueProperty().unbindBidirectional(oldValue.distributionType);
-            choiceBoxColourSeperation.valueProperty().unbindBidirectional(oldValue.colourSeperator);
+            comboBoxColourSeperation.valueProperty().unbindBidirectional(oldValue.colourSeperator);
         }
 
         if(newValue == null){
@@ -1333,7 +1335,7 @@ public class FXController {
         penTableView.setItems(newValue.pens);
         comboBoxDistributionOrder.valueProperty().bindBidirectional(newValue.distributionOrder);
         comboBoxDistributionType.valueProperty().bindBidirectional(newValue.distributionType);
-        choiceBoxColourSeperation.valueProperty().bindBidirectional(newValue.colourSeperator);
+        comboBoxColourSeperation.valueProperty().bindBidirectional(newValue.colourSeperator);
 
         buttonConfigureSplitter.disableProperty().unbind();
         buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> !newValue.colourSeperator.get().canUserConfigure(), newValue.colourSeperator));
@@ -1431,7 +1433,7 @@ public class FXController {
     }
 
     public static void changePathFinderModule(PFMFactory<?> pfm){
-        if(pfm.isPremium() && !FXApplication.isPremiumEnabled){
+        if(pfm.isPremiumFeature() && !FXApplication.isPremiumEnabled){
             DrawingBotV3.INSTANCE.controller.comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
             showPremiumFeatureDialog();
         }else{

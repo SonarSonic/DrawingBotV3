@@ -17,13 +17,13 @@ public class ConfigFileHandler {
     public static void init() {
         //create the user data directory
         File userDir = new File(FileUtils.getUserDataDirectory());
-        if(!userDir.mkdirs()){
+        if(!userDir.exists() && !userDir.mkdirs()){
             DrawingBotV3.logger.severe("Failed to create User Data Directory");
         }
 
         //create the thumbnail directory
         File userThumbs = new File(FileUtils.getUserThumbnailDirectory());
-        if(!userThumbs.mkdirs()){
+        if(!userThumbs.exists() && !userThumbs.mkdirs()){
             DrawingBotV3.logger.severe("Failed to create User Thumbnail Directory");
         }
 

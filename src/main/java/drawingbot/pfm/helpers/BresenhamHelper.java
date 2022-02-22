@@ -1,6 +1,9 @@
 package drawingbot.pfm.helpers;
 
 import drawingbot.plotting.PathBuilder;
+import org.locationtech.jts.algorithm.locate.SimplePointInAreaLocator;
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.Geometry;
 
 import java.awt.*;
 import java.awt.geom.PathIterator;
@@ -12,6 +15,7 @@ import static java.lang.Math.floor;
 public class BresenhamHelper {
 
     public Shape clippingShape = null;
+    public Geometry clippingGeometry = null;
 
     public Shape getClippingShape() {
         return clippingShape;
@@ -39,7 +43,13 @@ public class BresenhamHelper {
     }
 
     public boolean isInside(int x, int y){
-        return clippingShape == null || clippingShape.contains(x, y);
+        if(clippingShape != null){
+            return clippingShape.contains(x, y);
+        }
+        if(clippingGeometry != null){
+            return SimplePointInAreaLocator.isContained(new CoordinateXY(x+0.5, y+0.5), clippingGeometry);
+        }
+        return true;
     }
 
     public int[] findEdge(int x0, int y0, int x1, int y1, int width, int height){

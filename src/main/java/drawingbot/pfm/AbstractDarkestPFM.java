@@ -136,9 +136,9 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     /**
      * Finds the darkest line from the given start point, choosing between a naive approach or bresenham circle tests for faster results
      */
-    public float findDarkestLine(IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
+    public static float findDarkestLine(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
         LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true);
-        runDarkestTest(pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
+        runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
             luminanceTest.resetSamples();
             bresenham.plotLine(startX, startY, x, y, (xT, yT) -> luminanceTest.addSample(pixels, xT, yT));
         });
@@ -149,16 +149,16 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     /**
      * Returns the end coordinates of each line test
      */
-    public void runDarkestTest(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
+    public static void runDarkestTest(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
         if(drawingDeltaAngle == 360 && !shading && (maxTests == -1 || bresenham.getBresenhamCircleSize(maxLength) <= maxTests)){
-            bresenham.plotCircle(startX, startY, maxLength, (x1, y1) -> processSafePixels(pixels, startX, startY, x1, y1, safe, consumer));
+            bresenham.plotCircle(startX, startY, maxLength, (x1, y1) -> processSafePixels(bresenham, pixels, startX, startY, x1, y1, safe, consumer));
         }else{
             float deltaAngle = shading ? drawingDeltaAngle : drawingDeltaAngle / (float) maxTests;
             for (int d = 0; d < (shading ? 2 : maxTests); d ++) {
                 double angle = Math.toRadians((deltaAngle * d) + startAngle);
                 int x1 = (int)Math.ceil((Math.cos(angle)*maxLength) + startX);
                 int y1 = (int)Math.ceil((Math.sin(angle)*maxLength) + startY);
-                processSafePixels(pixels, startX, startY, x1, y1, safe, consumer);
+                processSafePixels(bresenham, pixels, startX, startY, x1, y1, safe, consumer);
             }
         }
     }
@@ -168,7 +168,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
      * If the pixels are "unsafe" and the safe boolean is enabled, the first edge pixel from the line is returned.
      * Safe should be disabled for tests which check if the pixels are within the bounds of the image themselves.
      */
-    public void processSafePixels(IPixelData pixels, int startX, int startY, int endX, int endY, boolean safe, BiConsumer<Integer, Integer> consumer){
+    public static void processSafePixels(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int endX, int endY, boolean safe, BiConsumer<Integer, Integer> consumer){
         if(!safe || (Utils.within(endX, 0, pixels.getWidth()) && Utils.within(endY, 0, pixels.getHeight()))){
             consumer.accept(endX, endY);
         }else{

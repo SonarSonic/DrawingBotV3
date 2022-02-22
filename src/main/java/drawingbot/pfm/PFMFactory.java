@@ -1,6 +1,8 @@
 package drawingbot.pfm;
 
 import com.google.gson.annotations.JsonAdapter;
+import drawingbot.utils.EnumReleaseState;
+import drawingbot.utils.INamedSetting;
 import drawingbot.api.IPathFindingModule;
 import drawingbot.files.json.adapters.JsonAdapterPFMFactory;
 import drawingbot.javafx.GenericFactory;
@@ -10,12 +12,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 @JsonAdapter(JsonAdapterPFMFactory.class)
-public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> {
+public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> implements INamedSetting {
 
     public EnumDistributionType distributionType;
     public boolean bypassOptimisation = false;
     public boolean transparentColourSeperation = true;
-    public boolean isBeta = false;
+    public EnumReleaseState releaseState = EnumReleaseState.RELEASE;
     public boolean isLayered = false;
     public boolean isComposite = false;
     public boolean hasSampledARGB = false;
@@ -88,16 +90,18 @@ public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> 
         return this;
     }
 
-    public boolean isBeta() {
-        return isBeta;
+    @Override
+    public EnumReleaseState getReleaseState() {
+        return releaseState;
     }
 
-    public PFMFactory<C> setIsBeta(boolean isBeta) {
-        this.isBeta = isBeta;
+    public PFMFactory<C> setReleaseState(EnumReleaseState releaseState) {
+        this.releaseState = releaseState;
         return this;
     }
 
-    public boolean isPremium() {
+    @Override
+    public boolean isPremiumFeature() {
         return requiresPremium;
     }
 

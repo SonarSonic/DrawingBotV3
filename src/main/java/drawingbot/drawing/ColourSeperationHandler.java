@@ -5,9 +5,10 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.adapters.JsonAdapterColourSplitter;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.INamedSetting;
 
 @JsonAdapter(JsonAdapterColourSplitter.class)
-public class ColourSeperationHandler {
+public class ColourSeperationHandler implements INamedSetting {
 
     public final String name;
     public boolean applied;

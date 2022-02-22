@@ -19,7 +19,7 @@ public class PFMSketchLines extends AbstractSketchPFM {
         float deltaAngle = shading ? shadingDeltaAngle : drawingDeltaAngle;
         float startAngle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
         int nextLineLength = randomSeed(minLineLength, maxLineLength);
-        return findDarkestLine(pixels, point[0], point[1], minLineLength, nextLineLength, unlimitedTests ? -1 : lineTests, startAngle, deltaAngle, shading, darkestDst);
+        return findDarkestLine(bresenham, pixels, point[0], point[1], minLineLength, nextLineLength, unlimitedTests ? -1 : lineTests, startAngle, deltaAngle, shading, darkestDst);
     }
 
 }
