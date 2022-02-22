@@ -37,7 +37,7 @@ public class DialogPresetRename extends Dialog<GenericPreset<?>> {
         setResultConverter(param -> param == ButtonType.APPLY ? editingPreset : null);
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
-        FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
     }
 
     public void setEditingPreset(GenericPreset<?> editingPreset, boolean editableCategory) {

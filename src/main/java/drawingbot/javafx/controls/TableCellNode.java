@@ -3,16 +3,15 @@ package drawingbot.javafx.controls;
 import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 
+import java.util.function.Function;
+
 public class TableCellNode<S,T> extends TableCell<S, T> {
 
-    public Node node;
+    public Function<T, Node> nodeFactory;
 
-    public TableCellNode() {
+    public TableCellNode(Function<T, Node> nodeFactory) {
         super();
-    }
-
-    public void setNode(Node node){
-        this.node = node;
+        this.nodeFactory = nodeFactory;
     }
 
     @Override
@@ -23,7 +22,7 @@ public class TableCellNode<S,T> extends TableCell<S, T> {
             setGraphic(null);
         } else {
             setText("");
-            setGraphic(node);
+            setGraphic(nodeFactory.apply(item));
         }
     }
 }

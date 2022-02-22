@@ -53,6 +53,7 @@ public class ConfigApplicationSettings implements IConfigData {
     public Map<String, String> defaultPresets = new HashMap<>();
 
     public boolean disableOpenGLRenderer = false;
+    public boolean darkTheme = false;
 
     public int getFrameCount(){
         return (int)(framesPerSecond * durationUnits.toSeconds(duration));

@@ -27,6 +27,8 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 public class FXApplication extends Application {
@@ -34,6 +36,7 @@ public class FXApplication extends Application {
     public static String[] launchArgs = new String[0];
     public static Stage primaryStage;
     public static Scene primaryScene;
+    public static List<Stage> childStages = new ArrayList<>();
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
 
@@ -127,7 +130,7 @@ public class FXApplication extends Application {
 
         primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion);
         primaryStage.setResizable(true);
-        applyDBIcon(primaryStage);
+        applyDBStyle(primaryStage);
         primaryStage.show();
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,10 +151,26 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.exiting("FXApplication", "start");
     }
 
-    public static void applyDBIcon(Stage primaryStage){
+    public static void applyDBStyle(Stage primaryStage){
+
         InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
         if(stream != null){
             primaryStage.getIcons().add(new Image(stream));
+        }
+
+        applyCurrentTheme(primaryStage.getScene());
+    }
+
+    public static void applyCurrentTheme(){
+        applyCurrentTheme(primaryScene);
+        childStages.forEach(stage -> applyCurrentTheme(stage.getScene()));
+    }
+
+    public static void applyCurrentTheme(Scene scene){
+        if (ConfigFileHandler.getApplicationSettings().darkTheme) {
+            scene.getRoot().setStyle("-fx-base: rgba(30, 30, 30, 255); -fx-accent: rgba(0, 100, 134, 255);");
+        } else {
+            scene.getRoot().setStyle("");
         }
     }
 

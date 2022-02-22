@@ -88,7 +88,7 @@ public class JavaFXRenderer implements IRenderer {
     //// RENDERING
 
     public void clear() {
-        clearCanvas(DrawingBotV3.INSTANCE.backgroundColour);
+        clearCanvas(getCurrentBackground());
     }
 
     @Override

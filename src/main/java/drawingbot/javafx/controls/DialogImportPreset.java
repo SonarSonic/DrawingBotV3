@@ -27,7 +27,7 @@ public class DialogImportPreset extends Dialog<Boolean> {
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         getDialogPane().getButtonTypes().add(ButtonType.OK);
         setResultConverter(param -> param == ButtonType.OK);
-        FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
     }
 
 }

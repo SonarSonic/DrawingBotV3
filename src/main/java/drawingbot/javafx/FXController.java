@@ -24,6 +24,7 @@ import drawingbot.render.IDisplayMode;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,14 +33,12 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.SnapshotResult;
+import javafx.scene.*;
 import javafx.scene.control.*;
 
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxListCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.ImageView;
@@ -50,18 +49,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.controlsfx.control.RangeSlider;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 
 public class FXController {
@@ -122,6 +121,7 @@ public class FXController {
     public Stage projectManagerStage;
     public FXProjectManagerController projectManagerController;
 
+
     public void initSeparateStages() {
         FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings", Modality.APPLICATION_MODAL);
         FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings", Modality.APPLICATION_MODAL);
@@ -148,6 +148,9 @@ public class FXController {
     public Menu menuView = null;
     public Menu menuFilters = null;
     public Menu menuHelp = null;
+
+    public Map<TitledPane, Stage> settingsStages = new LinkedHashMap<>();
+    public Map<TitledPane, Node> settingsContent = new LinkedHashMap<>();
 
     public void initToolbar(){
         //file
@@ -279,7 +282,63 @@ public class FXController {
                 Platform.runLater(() -> allPanes.forEach(p -> p.expandedProperty().setValue(p == pane)));
             });
             menuView.getItems().add(viewButton);
+            Button undock = new Button("", new Glyph("FontAwesome", FontAwesome.Glyph.LINK));
+
+            undock.setOnAction(e -> {
+                Stage currentStage = settingsStages.get(pane);
+                if(currentStage == null){
+
+                    //create the stage
+                    Stage settingsStage = new Stage(StageStyle.DECORATED);
+                    settingsStage.initModality(Modality.NONE);
+                    settingsStage.initOwner(FXApplication.primaryStage);
+                    settingsStage.setTitle(pane.getText());
+                    settingsStage.setResizable(false);
+
+                    //create the root node
+                    ScrollPane scrollPane = new ScrollPane();
+                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                    scrollPane.setPrefWidth(420);
+
+                    //transfer the content
+                    Node content = pane.getContent();
+                    pane.setAnimated(false);
+                    pane.setExpanded(true);
+                    pane.layout();
+
+                    pane.setContent(new AnchorPane());
+                    scrollPane.setContent(content);
+
+                    pane.setExpanded(false);
+                    pane.setAnimated(true);
+
+                    //save the reference for later
+                    settingsStages.put(pane, settingsStage);
+                    settingsContent.put(pane, content);
+
+
+                    //show the scene
+                    Scene scene = new Scene(scrollPane);
+                    settingsStage.setScene(scene);
+                    settingsStage.setOnCloseRequest(event -> redockSettingsPane(pane));
+                    FXApplication.applyDBStyle(settingsStage);
+                    settingsStage.show();
+                }else{
+                    redockSettingsPane(pane);
+                    currentStage.close();
+                }
+            });
+
+            pane.setContentDisplay(ContentDisplay.RIGHT);
+            pane.setGraphic(undock);
+            undock.translateXProperty().bind(Bindings.createDoubleBinding(
+                    () -> pane.getWidth() - undock.getLayoutX() - undock.getWidth() - 30,
+                    pane.widthProperty())
+            );
         }
+
+
 
         //filters
         for(Map.Entry<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> entry : MasterRegistry.INSTANCE.imgFilterFactories.entrySet()){
@@ -315,6 +374,14 @@ public class FXController {
         menuHelp.getItems().add(configFolder);
     }
 
+    public void redockSettingsPane(TitledPane pane){
+        Node content = settingsContent.get(pane);
+        pane.setContent(content);
+
+        settingsStages.put(pane, null);
+        settingsContent.put(pane, null);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// VIEWPORT PANE
 
@@ -342,6 +409,8 @@ public class FXController {
     public Label labelCurrentPosition = null;
 
     public Rectangle colourPickerRectangle;
+
+    public CheckBox checkBoxDarkTheme = null;
 
     public void initViewport(){
 
@@ -397,6 +466,14 @@ public class FXController {
         comboBoxBlendMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.blendMode);
 
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
+
+        checkBoxDarkTheme.setSelected(ConfigFileHandler.getApplicationSettings().darkTheme);
+        checkBoxDarkTheme.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            ConfigFileHandler.getApplicationSettings().darkTheme = isSelected;
+            ConfigFileHandler.getApplicationSettings().markDirty();
+            FXApplication.applyCurrentTheme();
+        });
+
 
         //DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
         //DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
@@ -900,8 +977,24 @@ public class FXController {
     public Button buttonConfigureSplitter = null;
 
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
-    public Button buttonAddDrawingSet = null;
-    public Button buttonDeleteDrawingSet = null;
+    //public Button buttonAddDrawingSet = null;
+    //public Button buttonDeleteDrawingSet = null;
+
+    public TableView<ObservableDrawingSet> drawingSetTableView = null;
+    public TableColumn<ObservableDrawingSet, String> drawingSetNameColumn = null;
+    public TableColumn<ObservableDrawingSet, List<ObservableDrawingPen>> drawingSetPensColumn = null;
+    public TableColumn<ObservableDrawingSet, EnumDistributionType> drawingSetDistributionTypeColumn = null;
+    public TableColumn<ObservableDrawingSet, EnumDistributionOrder> drawingSetDistributionOrderColumn = null;
+    public TableColumn<ObservableDrawingSet, ColourSeperationHandler> drawingSetColourSeperatorColumn = null;
+    public TableColumn<ObservableDrawingSet, Integer> drawingSetShapesColumn = null;
+    public TableColumn<ObservableDrawingSet, Integer> drawingSetPercentageColumn = null;
+
+
+    public Button buttonAddDrawingSetSlot = null;
+    public Button buttonRemoveDrawingSetSlot = null;
+    public Button buttonDuplicateDrawingSetSlot = null;
+    public Button buttonMoveUpDrawingSetSlot = null;
+    public Button buttonMoveDownDrawingSetSlot = null;
 
     public void initPenSettingsPane(){
 
@@ -1050,15 +1143,27 @@ public class FXController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         buttonAddPen.setOnAction(e -> DrawingBotV3.INSTANCE.activeDrawingSet.get().addNewPen(comboBoxDrawingPen.getValue()));
+        buttonAddPen.setTooltip(new Tooltip("Add Pen"));
+
         buttonRemovePen.setOnAction(e -> FXHelper.deleteItem(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.activeDrawingSet.get().pens));
+        buttonRemovePen.setTooltip(new Tooltip("Remove Selected Pen"));
+        buttonRemovePen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
+
         buttonDuplicatePen.setOnAction(e -> {
             ObservableDrawingPen pen = penTableView.getSelectionModel().getSelectedItem();
             if(pen != null)
                 DrawingBotV3.INSTANCE.activeDrawingSet.get().addNewPen(pen);
         });
+        buttonDuplicatePen.setTooltip(new Tooltip("Duplicate Selected Pen"));
+        buttonDuplicatePen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
+
         buttonMoveUpPen.setOnAction(e -> FXHelper.moveItemUp(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.activeDrawingSet.get().pens));
+        buttonMoveUpPen.setTooltip(new Tooltip("Move Selected Pen Up"));
+        buttonMoveUpPen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
+
         buttonMoveDownPen.setOnAction(e -> FXHelper.moveItemDown(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.activeDrawingSet.get().pens));
-        buttonMoveDownPen.setOnAction(e -> FXHelper.moveItemDown(penTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.activeDrawingSet.get().pens));
+        buttonMoveDownPen.setTooltip(new Tooltip("Move Selected Pen Down"));
+        buttonMoveDownPen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1079,30 +1184,92 @@ public class FXController {
         comboBoxDrawingSets.setCellFactory(param -> new ComboCellDrawingSet<>());
         comboBoxDrawingSets.setButtonCell(new ComboCellDrawingSet<>());
 
-        //TODO RENAME DRAWING SET
-        buttonAddDrawingSet.setOnAction(e -> {
-            ObservableDrawingSet drawingSet = new ObservableDrawingSet(new DrawingSet("User", "Empty", new ArrayList<>()));
-            DrawingBotV3.INSTANCE.drawingSetSlots.add(drawingSet);
-            DrawingBotV3.INSTANCE.activeDrawingSet.set(drawingSet);
-        });
 
-        buttonDeleteDrawingSet.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.drawingSetSlots.size() > 1){
-                DrawingBotV3.INSTANCE.drawingSetSlots.remove(DrawingBotV3.INSTANCE.activeDrawingSet.get());
-                DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get(0));
-            }
-        });
-
-        buttonDeleteDrawingSet.disableProperty().set(DrawingBotV3.INSTANCE.drawingSetSlots.size() == 1);
-        DrawingBotV3.INSTANCE.drawingSetSlots.addListener((ListChangeListener<ObservableDrawingSet>) c -> {
-            buttonDeleteDrawingSet.disableProperty().set(DrawingBotV3.INSTANCE.drawingSetSlots.size() == 1);
-        });
 
         onChangedActiveDrawingSet(null, DrawingBotV3.INSTANCE.activeDrawingSet.get());
 
         DrawingBotV3.INSTANCE.activeDrawingSet.addListener((observable, oldValue, newValue) -> {
             onChangedActiveDrawingSet(oldValue, newValue);
         });
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        drawingSetTableView.setRowFactory(param -> {
+            TableRow<ObservableDrawingSet> row = new TableRow<>();
+            row.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
+                if(row.getItem() == null){
+                    event.consume();
+                }
+            });
+            //row.setContextMenu(new ContextMenuObservablePen(row));
+            return row;
+        });
+
+        drawingSetTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(DrawingBotV3.INSTANCE.displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
+                DrawingBotV3.INSTANCE.reRender();
+            }
+        });
+
+        drawingSetTableView.setItems(DrawingBotV3.INSTANCE.drawingSetSlots);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        drawingSetNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        drawingSetNameColumn.setCellValueFactory(param -> param.getValue().name);
+
+        drawingSetPensColumn.setCellFactory(param -> new TableCellNode<>(ComboCellDrawingSet::createPenPalette));
+        drawingSetPensColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().pens));
+
+        drawingSetDistributionTypeColumn.setCellFactory(param -> new ComboBoxTableCell<>(FXCollections.observableArrayList(EnumDistributionType.values())));
+        drawingSetDistributionTypeColumn.setCellValueFactory(param -> param.getValue().distributionType);
+
+        drawingSetDistributionOrderColumn.setCellFactory(param -> new ComboBoxTableCell<>(FXCollections.observableArrayList(EnumDistributionOrder.values())));
+        drawingSetDistributionOrderColumn.setCellValueFactory(param -> param.getValue().distributionOrder);
+
+        drawingSetColourSeperatorColumn.setCellFactory(param -> new ComboBoxTableCell<>(MasterRegistry.INSTANCE.colourSplitterHandlers));
+        drawingSetColourSeperatorColumn.setCellValueFactory(param -> param.getValue().colourSeperator);
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        buttonAddDrawingSetSlot.setOnAction(e -> {
+            ObservableDrawingSet drawingSet = new ObservableDrawingSet(new DrawingSet("User", "Empty", new ArrayList<>()));
+            DrawingBotV3.INSTANCE.drawingSetSlots.add(drawingSet);
+        });
+        buttonAddDrawingSetSlot.setTooltip(new Tooltip("Add Drawing Set"));
+
+        buttonRemoveDrawingSetSlot.setOnAction(e -> {
+            if(DrawingBotV3.INSTANCE.drawingSetSlots.size() > 1){
+                ObservableDrawingSet toRemove = drawingSetTableView.getSelectionModel().getSelectedItem();
+                DrawingBotV3.INSTANCE.drawingSetSlots.remove(toRemove);
+                if(DrawingBotV3.INSTANCE.activeDrawingSet.get() == toRemove){
+                    DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get(0));
+                }
+            }
+        });
+        buttonRemoveDrawingSetSlot.setTooltip(new Tooltip("Remove selected Drawing Set"));
+        buttonRemoveDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonDuplicateDrawingSetSlot.setOnAction(e -> {
+            ObservableDrawingSet drawingSet = drawingSetTableView.getSelectionModel().getSelectedItem();
+            if(drawingSet != null){
+                DrawingBotV3.INSTANCE.drawingSetSlots.add(new ObservableDrawingSet(drawingSet));
+            }
+        });
+        buttonDuplicateDrawingSetSlot.setTooltip(new Tooltip("Duplicate selected Drawing Set"));
+        buttonDuplicateDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonMoveUpDrawingSetSlot.setOnAction(e -> FXHelper.moveItemUp(drawingSetTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.drawingSetSlots));
+        buttonMoveUpDrawingSetSlot.setTooltip(new Tooltip("Move selected Drawing Set up"));
+        buttonMoveUpDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonMoveDownDrawingSetSlot.setOnAction(e -> FXHelper.moveItemDown(drawingSetTableView.getSelectionModel().getSelectedItem(), DrawingBotV3.INSTANCE.drawingSetSlots));
+        buttonMoveDownDrawingSetSlot.setTooltip(new Tooltip("Move selected Drawing Set down"));
+        buttonMoveDownDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
+
+
     }
 
     public void onDrawingSetChanged(){

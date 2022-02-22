@@ -49,7 +49,7 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
                 }
         );
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
-        FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
 
     }
 

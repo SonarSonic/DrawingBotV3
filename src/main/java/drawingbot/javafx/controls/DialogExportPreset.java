@@ -32,7 +32,7 @@ public class DialogExportPreset extends Dialog<Boolean> {
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         getDialogPane().getButtonTypes().add(openFolder);
         setResultConverter(param -> param == openFolder);
-        FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
     }
 
 }

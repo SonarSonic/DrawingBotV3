@@ -134,8 +134,9 @@ public class DrawingBotV3 {
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
 
-    //the default JFX background colour
-    public Color backgroundColour = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
+    //the default JFX viewport background colours
+    public Color backgroundColourDefault = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
+    public Color backgroundColourDark = new Color(65 / 255F, 65 / 255F, 65 / 255F, 1F);
 
     //// VARIABLES \\\\
 

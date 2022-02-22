@@ -3,11 +3,11 @@
 <?import drawingbot.javafx.controls.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
+<?import org.controlsfx.glyphfont.*?>
 
 <VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
   <children>
@@ -27,7 +27,7 @@
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="402.0">
                            <children>
-                              <TitledPane expanded="false" prefWidth="425.0" text="Drawing Area">
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -140,7 +140,7 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                              <TitledPane expanded="false" text="Image Processing">
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
                                 <content>
                                   <AnchorPane>
                                        <children>
@@ -184,7 +184,7 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                              <TitledPane expanded="false" text="Path Finding Controls">
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -213,11 +213,11 @@
 
                                 </content>
                               </TitledPane>
-                            <TitledPane expanded="false" prefWidth="428.0" text="Pen Settings">
+                            <TitledPane maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
                               <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="500.0" prefWidth="423.0">
+                                <AnchorPane maxHeight="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
-                                          <VBox alignment="CENTER" spacing="8.0">
+                                          <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" spacing="8.0">
                                              <children>
                                                 <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
                                                    <children>
@@ -245,16 +245,36 @@
                                                       <MenuButton fx:id="menuButtonDrawingPenPresets" mnemonicParsing="false" text="Presets" />
                                                    </children>
                                                 </HBox>
-                                                <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
+                                                <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
                                                    <children>
-                                                      <Button fx:id="buttonAddPen" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Add" />
-                                                      <Button fx:id="buttonRemovePen" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Remove" />
-                                                      <Button fx:id="buttonDuplicatePen" mnemonicParsing="false" prefHeight="25.0" prefWidth="80.0" text="Duplicate" />
-                                                      <Button fx:id="buttonMoveUpPen" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Up" />
-                                                      <Button fx:id="buttonMoveDownPen" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Down" />
+                                                      <Button fx:id="buttonAddPen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                                                         <graphic>
+                                                            <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                                         </graphic>
+                                                      </Button>
+                                                      <Button fx:id="buttonRemovePen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                                                         <graphic>
+                                                            <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                                         </graphic>
+                                                      </Button>
+                                                      <Button fx:id="buttonDuplicatePen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                                                         <graphic>
+                                                            <Glyph fontFamily="FontAwesome" icon="COPY" />
+                                                         </graphic>
+                                                      </Button>
+                                                      <Button fx:id="buttonMoveUpPen" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                                                         <graphic>
+                                                            <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                                                         </graphic>
+                                                      </Button>
+                                                      <Button fx:id="buttonMoveDownPen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                                                         <graphic>
+                                                            <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                                                         </graphic>
+                                                      </Button>
                                                    </children>
                                                 </HBox>
-                                                <Separator prefWidth="380.0" />
+                                                <Separator prefHeight="14.0" prefWidth="403.0" />
                                                 <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="8.0">
                                                    <children>
                                                       <Label contentDisplay="RIGHT" text="Distribution:">
@@ -291,17 +311,70 @@
                                                    </children>
                                                 </HBox>
                                                 <Separator layoutX="10.0" layoutY="419.0" prefWidth="380.0" />
-                                                <HBox maxHeight="-Infinity" maxWidth="-Infinity">
-                                                   <children>
-                                                      <Label contentDisplay="RIGHT" prefHeight="25.0" text="Sets: ">
-                                                         <graphic>
-                                                            <ComboBox fx:id="comboBoxDrawingSets" cacheShape="false" prefHeight="25.0" prefWidth="228.0" />
-                                                         </graphic>
-                                                      </Label>
-                                                      <Button fx:id="buttonAddDrawingSet" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Add" />
-                                                      <Button fx:id="buttonDeleteDrawingSet" layoutX="383.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Delete" />
-                                                   </children>
-                                                </HBox>
+                                                <TitledPane contentDisplay="RIGHT" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" prefWidth="380.0" VBox.vgrow="ALWAYS">
+                                                  <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="240.0" prefWidth="378.0">
+                                                         <children>
+                                                            <VBox maxWidth="1.7976931348623157E308">
+                                                               <children>
+                                                                  <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" prefWidth="385.0" tableMenuButtonVisible="true">
+                                                                     <columns>
+                                                                        <TableColumn fx:id="drawingSetNameColumn" prefWidth="115.0" sortable="false" text="Name" />
+                                                                        <TableColumn fx:id="drawingSetPensColumn" editable="false" prefWidth="103.0" text="Pens" />
+                                                                        <TableColumn fx:id="penLinesColumn1" minWidth="0.0" prefWidth="94.0" sortable="false" text="Shape Count" visible="false" />
+                                                                        <TableColumn fx:id="drawingSetDistributionTypeColumn" prefWidth="123.0" sortable="false" text="Distribution Type" />
+                                                                        <TableColumn fx:id="drawingSetDistributionOrderColumn" prefWidth="107.0" sortable="false" text="Distribution Order" />
+                                                                        <TableColumn fx:id="drawingSetColourSeperatorColumn" prefWidth="115.0" sortable="false" text="Colour Separation" />
+                                                                        <TableColumn fx:id="drawingSetPercentageColumn" minWidth="0.0" prefWidth="94.0" sortable="false" text="\%" visible="false" />
+                                                                     </columns>
+                                                                     <padding>
+                                                                        <Insets right="4.0" />
+                                                                     </padding>
+                                                                  </TableView>
+                                                                  <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
+                                                                     <children>
+                                                                        <Button fx:id="buttonAddDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                                           <graphic>
+                                                                              <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                                                           </graphic>
+                                                                        </Button>
+                                                                        <Button fx:id="buttonRemoveDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                                           <graphic>
+                                                                              <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                                                           </graphic></Button>
+                                                                        <Button fx:id="buttonDuplicateDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                                           <graphic>
+                                                                              <Glyph fontFamily="FontAwesome" icon="COPY" />
+                                                                           </graphic></Button>
+                                                                        <Button fx:id="buttonMoveUpDrawingSetSlot" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                                           <graphic>
+                                                                              <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                                                                           </graphic></Button>
+                                                                        <Button fx:id="buttonMoveDownDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                                           <graphic>
+                                                                              <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                                                                           </graphic></Button>
+                                                                     </children>
+                                                                     <padding>
+                                                                        <Insets bottom="6.0" top="6.0" />
+                                                                     </padding>
+                                                                  </HBox>
+                                                               </children>
+                                                            </VBox>
+                                                         </children></AnchorPane>
+                                                  </content>
+                                                   <graphic>
+                                                      <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="341.0">
+                                                         <children>
+                                                            <Label contentDisplay="RIGHT" prefHeight="25.0" text="Slot:">
+                                                               <graphic>
+                                                                  <ComboBox fx:id="comboBoxDrawingSets" cacheShape="false" prefHeight="25.0" prefWidth="304.0" />
+                                                               </graphic>
+                                                            </Label>
+                                                         </children>
+                                                      </HBox>
+                                                   </graphic>
+                                                </TitledPane>
                                              </children>
                                              <padding>
                                                 <Insets bottom="8.0" top="8.0" />
@@ -311,7 +384,7 @@
                                     </AnchorPane>
                               </content>
                             </TitledPane>
-                              <TitledPane expanded="false" layoutX="10.0" layoutY="739.0" prefWidth="428.0" text="Version Control">
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>
@@ -336,7 +409,7 @@
                                     </AnchorPane>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="titledPaneBatchProcessing" text="Batch Processing">
+                              <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Batch Processing">
                                 <content>
                                   <AnchorPane fx:id="anchorPaneBatchProcessing" minHeight="0.0" minWidth="0.0" prefHeight="440.0" prefWidth="404.0">
                                        <children>
@@ -417,6 +490,7 @@
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                         <Separator layoutX="649.0" layoutY="20.0" prefHeight="30.0" prefWidth="14.0" />
+                        <CheckBox fx:id="checkBoxDarkTheme" mnemonicParsing="false" text="Dark Theme" />
                      </items>
                   </ToolBar>
                   <HBox minHeight="25.0" prefHeight="25.0">
@@ -500,11 +574,8 @@
            </Label>
            <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
               <font>
-                 <Font size="14.0" />
+                 <Font name="System Bold" size="13.0" />
               </font>
-              <effect>
-                 <Blend mode="DIFFERENCE" />
-              </effect>
            </Label>
         </children>
      </Pane>

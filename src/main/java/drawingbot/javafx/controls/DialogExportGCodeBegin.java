@@ -24,7 +24,7 @@ public class DialogExportGCodeBegin extends Dialog<Boolean> {
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.OK);
         setResultConverter(param -> param == ButtonType.OK);
-        FXApplication.applyDBIcon((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
         setOnCloseRequest(e -> {
             if(oldParent instanceof Pane){
                 ((Pane)oldParent).getChildren().add(pane);

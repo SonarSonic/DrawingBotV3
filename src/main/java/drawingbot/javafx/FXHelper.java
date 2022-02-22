@@ -197,6 +197,7 @@ public class FXHelper {
         }
     }
 
+
     public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
         try {
             FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource(fmxlPath));
@@ -204,11 +205,13 @@ public class FXHelper {
 
             Scene scene = new Scene(exportUILoader.load());
             stage.initModality(modality);
+            stage.initOwner(FXApplication.primaryStage);
             stage.setScene(scene);
             stage.hide();
             stage.setTitle(stageTitle);
             stage.setResizable(false);
-            FXApplication.applyDBIcon(stage);
+            FXApplication.applyDBStyle(stage);
+            FXApplication.childStages.add(stage);
         } catch (IOException e) {
             e.printStackTrace();
         }

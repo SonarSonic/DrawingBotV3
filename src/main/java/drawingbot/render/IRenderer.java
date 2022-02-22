@@ -1,9 +1,11 @@
 package drawingbot.render;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.ConfigFileHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 public interface IRenderer {
 
@@ -59,4 +61,7 @@ public interface IRenderer {
         return Math.max(DrawingBotV3.INSTANCE.controller.viewportScrollPane.getViewportBounds().getHeight(), getPaneMinHeight());
     }
 
+    default Color getCurrentBackground(){
+        return ConfigFileHandler.getApplicationSettings().darkTheme ? DrawingBotV3.INSTANCE.backgroundColourDark : DrawingBotV3.INSTANCE.backgroundColourDefault;
+    }
 }
