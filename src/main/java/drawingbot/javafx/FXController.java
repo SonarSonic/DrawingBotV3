@@ -186,56 +186,30 @@ public class FXController {
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
-        Menu menuExport = new Menu("Export per/drawing");
-        Menu menuExportPerPen = new Menu("Export per/pen");
-        Menu menuExportPerGroup = new Menu("Export per/group");
-
-        for(DrawingExportHandler.Category category : DrawingExportHandler.Category.values()){
-            for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
-                if(format.category != category){
-                    continue;
+        for(ExportTask.Mode exportMode : ExportTask.Mode.values()){
+            Menu menuExport = new Menu(exportMode.getDisplayName());
+            for(DrawingExportHandler.Category category : DrawingExportHandler.Category.values()){
+                for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
+                    if(format.category != category){
+                        continue;
+                    }
+                    if(format.isPremium && !FXApplication.isPremiumEnabled){
+                        MenuItem item = new MenuItem(format.displayName + " (Premium)");
+                        item.setOnAction(e -> showPremiumFeatureDialog());
+                        menuExport.getItems().add(item);
+                    }else{
+                        MenuItem item = new MenuItem(format.displayName);
+                        item.setOnAction(e -> FXHelper.exportFile(format, exportMode));
+                        menuExport.getItems().add(item);
+                    }
                 }
-                if(format.isPremium && !FXApplication.isPremiumEnabled){
-                    MenuItem item = new MenuItem(format.displayName + " (Premium)");
-                    item.setOnAction(e -> showPremiumFeatureDialog());
-                    menuExport.getItems().add(item);
-
-                    MenuItem itemPerPen = new MenuItem(format.displayName + " (Premium)");
-                    itemPerPen.setOnAction(e -> showPremiumFeatureDialog());
-                    menuExportPerPen.getItems().add(itemPerPen);
-
-                    MenuItem itemPerGroup = new MenuItem(format.displayName + " (Premium)");
-                    itemPerGroup.setOnAction(e -> showPremiumFeatureDialog());
-                    menuExportPerGroup.getItems().add(itemPerGroup);
-                }else{
-                    MenuItem item = new MenuItem(format.displayName);
-                    item.setOnAction(e -> FXHelper.exportFile(format, ExportTask.Mode.PER_DRAWING));
-                    menuExport.getItems().add(item);
-
-                    MenuItem itemPerPen = new MenuItem(format.displayName);
-                    itemPerPen.setOnAction(e -> FXHelper.exportFile(format, ExportTask.Mode.PER_PEN));
-                    menuExportPerPen.getItems().add(itemPerPen);
-
-                    MenuItem itemPerGroup = new MenuItem(format.displayName);
-                    itemPerGroup.setOnAction(e -> FXHelper.exportFile(format, ExportTask.Mode.PER_GROUP));
-                    menuExportPerGroup.getItems().add(itemPerGroup);
+                if(category != DrawingExportHandler.Category.values()[DrawingExportHandler.Category.values().length-1]){
+                    menuExport.getItems().add(new SeparatorMenuItem());
                 }
             }
-            if(category != DrawingExportHandler.Category.values()[DrawingExportHandler.Category.values().length-1]){
-                menuExport.getItems().add(new SeparatorMenuItem());
-                menuExportPerPen.getItems().add(new SeparatorMenuItem());
-                menuExportPerGroup.getItems().add(new SeparatorMenuItem());
-            }
+            menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+            menuFile.getItems().add(menuExport);
         }
-
-        menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
-        menuFile.getItems().add(menuExport);
-
-        menuExportPerPen.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
-        menuFile.getItems().add(menuExportPerPen);
-
-        menuExportPerGroup.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
-        menuFile.getItems().add(menuExportPerGroup);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
@@ -1174,7 +1148,6 @@ public class FXController {
         comboBoxDistributionType.setCellFactory(param -> new ComboCellDistributionType());
 
         comboBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
-        comboBoxColourSeperation.setButtonCell(new ComboCellNamedSetting<>());
         comboBoxColourSeperation.setCellFactory(param -> new ComboCellNamedSetting<>());
 
         buttonConfigureSplitter.setOnAction(e -> DrawingBotV3.INSTANCE.activeDrawingSet.get().colourSeperator.get().onUserConfigure());

@@ -26,7 +26,7 @@ public class ConfigApplicationSettings implements IConfigData {
     public float lineMergingTolerance = 0.5F;
     public UnitsLength lineMergingUnits = UnitsLength.MILLIMETRES;
 
-    public boolean lineFilteringEnabled = true;
+    public boolean lineFilteringEnabled = false;
     public float lineFilteringTolerance = 0.5F;
     public UnitsLength lineFilteringUnits = UnitsLength.MILLIMETRES;
 

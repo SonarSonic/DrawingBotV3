@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.image.PrintResolution;
+import drawingbot.javafx.controls.DialogExportNPens;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.plotting.PlottedDrawing;
@@ -151,7 +152,6 @@ public class ExportTask extends DBTask<Boolean> {
                 break;
             case PER_PEN:
                 List<ObservableDrawingPen> activePens = filterActivePens(plottingTask.plottedDrawing.getGlobalDisplayOrder(), false);
-
                 int setPos = 0;
                 for(ObservableDrawingSet drawingSet : DrawingBotV3.INSTANCE.drawingSetSlots){
                     int penPos = 0;
@@ -165,6 +165,44 @@ public class ExportTask extends DBTask<Boolean> {
                     }
                     setPos++;
                 }
+                break;
+            case PER_N_PENS:
+                activePens = filterActivePens(plottingTask.plottedDrawing.getGlobalDisplayOrder(), false);
+
+
+                CountDownLatch latch = new CountDownLatch(1);
+                AtomicReference<Integer> result = new AtomicReference<>(-1);
+                Platform.runLater(() -> {
+                    Dialog<Integer> nPenDialog = new DialogExportNPens(activePens);
+                    nPenDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
+                    nPenDialog.setOnHidden(e -> latch.countDown());
+                    nPenDialog.showAndWait();
+                });
+
+                latch.await();
+
+                int nPens = result.get();
+                if(nPens != -1){
+                    for(int i = 0; i < activePens.size(); i+=nPens){
+                        List<ObservableDrawingPen> nextPens = new ArrayList<>();
+                        for(int j = 0; j < nPens; j++){
+                            int index = i + j;
+                            if(index < activePens.size()){
+                                ObservableDrawingPen pen = activePens.get(index);
+                                nextPens.add(pen);
+                            }
+                        }
+                        if(!nextPens.isEmpty()){
+                            updateTitle(exportHandler.displayName + ": " + " Pens: " + (i+1) + " to " + (i+nextPens.size()) + " - " + saveLocation.getPath());
+                            File fileName = new File(baseSaveLocation.getPath() + "_pens" + (i+1) + "_to_" + (i+nextPens.size()) + extension);
+                            doExport((drawing, geometry, pen) -> geometryFilter.filter(drawing, geometry, pen) && nextPens.contains(pen), fileName);
+                        }
+                    }
+                }else{
+                    updateProgress(1,1);
+                }
+
+
                 break;
         }
         if(!error.isEmpty()){
@@ -182,10 +220,20 @@ public class ExportTask extends DBTask<Boolean> {
     }
 
     public enum Mode {
-        PER_DRAWING,
-        PER_GROUP,
-        PER_PEN;
+        PER_DRAWING("Export per/drawing"),
+        PER_PEN("Export per/pen"),
+        PER_GROUP("Export per/group"),
+        PER_N_PENS("Export per/n pens");
 
+        private final String displayName;
+
+        Mode(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 
 }
