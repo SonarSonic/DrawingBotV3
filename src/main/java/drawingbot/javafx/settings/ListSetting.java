@@ -10,6 +10,7 @@ import javafx.util.StringConverter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
@@ -24,7 +25,7 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
     }
 
     public ListSetting(Class<C> clazz, Class<O> objectType, String category, String settingName, ArrayList<O> defaultValue, BiConsumer<C, ArrayList<O>> setter) {
-        super(clazz, category, settingName, defaultValue, new StringConverter<>() {
+        super(clazz, null, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(ArrayList<O> object) {
                 return object.toString();

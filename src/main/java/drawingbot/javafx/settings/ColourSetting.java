@@ -16,7 +16,7 @@ public class ColourSetting<C> extends GenericSetting<C, Color> {
     }
 
     public ColourSetting(Class<C> pfmClass, String category, String settingName, Color defaultValue, BiConsumer<C, Color> setter) {
-        super(pfmClass, category, settingName, defaultValue, new StringConverter<>() {
+        super(pfmClass, Color.class, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(Color object) {
                 return String.valueOf(ImageTools.getARGBFromColor(object));

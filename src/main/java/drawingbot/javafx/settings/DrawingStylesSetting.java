@@ -18,7 +18,7 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
     }
 
     public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue, BiConsumer<C, DrawingStyleSet> setter) {
-        super(pfmClass, category, settingName, defaultValue, new StringConverter<>() {
+        super(pfmClass, DrawingStyleSet.class, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(DrawingStyleSet object) {
                 return object.styles.toString();

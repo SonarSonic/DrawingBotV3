@@ -120,7 +120,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
             PrintResolution thumbnailResolution = PrintResolution.copy(plottingTask.resolution);
             thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, plottingTask, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true, thumbnailResolution);
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, plottingTask.plottedDrawing, thumbnailResolution, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
 

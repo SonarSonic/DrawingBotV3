@@ -14,7 +14,7 @@ public class StringSetting<C> extends GenericSetting<C, String> {
     }
 
     public StringSetting(Class<C> pfmClass, String category, String settingName, String defaultValue, BiConsumer<C, String> setter) {
-        super(pfmClass, category, settingName, defaultValue, new DefaultStringConverter(), value -> value, setter);
+        super(pfmClass, String.class, category, settingName, defaultValue, new DefaultStringConverter(), value -> value, setter);
     }
 
     @Override

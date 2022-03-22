@@ -13,11 +13,11 @@ public class IntegerSetting<C> extends AbstractNumberSetting<C, Integer> {
     }
 
     public IntegerSetting(Class<C> clazz, String category, String settingName, Integer defaultValue, BiConsumer<C, Integer> setter) {
-        super(clazz, category, settingName, defaultValue, new IntegerStringConverter(), setter);
+        super(clazz, Integer.class, category, settingName, defaultValue, new IntegerStringConverter(), setter);
     }
 
     public IntegerSetting(Class<C> pfmClass, String category, String settingName, int defaultValue, int minValue, int maxValue, BiConsumer<C, Integer> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
+        super(pfmClass, Integer.class, category, settingName, defaultValue, minValue, maxValue, new IntegerStringConverter(), rand -> rand.nextInt(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override

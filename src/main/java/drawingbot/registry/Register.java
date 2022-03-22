@@ -337,11 +337,11 @@ public class Register implements IPlugin {
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, DiffuseFilter.class, "Diffuse", DiffuseFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(DiffuseFilter.class, "Scale", 4, 0, 100, DiffuseFilter::setScale));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DiffuseFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DiffuseFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, DisplaceFilter.class, "Displace", DisplaceFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(DisplaceFilter.class, "Amount", 1, 0, 100, DisplaceFilter::setAmount));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DisplaceFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DisplaceFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, KaleidoscopeFilter.class, "Kaleidoscope", KaleidoscopeFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(KaleidoscopeFilter.class, "Centre X", 0.5F, 0F, 1F, KaleidoscopeFilter::setCentreX));
@@ -350,7 +350,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(KaleidoscopeFilter.class, "Angle 2", -180, 0, 180, KaleidoscopeFilter::setAngle2).setMajorTick(90));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(KaleidoscopeFilter.class, "Radius", 0F, 0F, 200F, KaleidoscopeFilter::setRadius));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(KaleidoscopeFilter.class, "Sides", 3, 0, 32, KaleidoscopeFilter::setSides));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(KaleidoscopeFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(KaleidoscopeFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, MarbleFilter.class, "Marble", MarbleFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(MarbleFilter.class, "Scale", 4, 0, 100, (filter, value) -> {
@@ -359,7 +359,7 @@ public class Register implements IPlugin {
         }));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(MarbleFilter.class, "Amount", 1, 0, 1, MarbleFilter::setAmount));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(MarbleFilter.class, "Turbulence", 1, 0, 15, MarbleFilter::setTurbulence));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(MarbleFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(MarbleFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         /// MISSING: OFFSET - NOT REALLY NEEDED
 
@@ -372,13 +372,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(RippleFilter.class, "X Wavelength", 16F, 0F, 100F, RippleFilter::setXWavelength));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(RippleFilter.class, "Y Amplitude", 0F, 0F, 100F, RippleFilter::setYAmplitude));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(RippleFilter.class, "Y Wavelength", 16F, 0F, 100F, RippleFilter::setYWavelength));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, "Shape", List.of(EnumWaveType.values()), EnumWaveType.SINE, (filter, value) -> filter.setWaveType(value.getWaveType())));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, EnumWaveType.class, "Shape", List.of(EnumWaveType.values()), EnumWaveType.SINE, (filter, value) -> filter.setWaveType(value.getWaveType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, ShearFilter.class, "Shear", ShearFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ShearFilter.class, "X Angle", -60F, 0F, 60F, ShearFilter::setXAngle).setMajorTick(30F));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ShearFilter.class, "Y Angle", -60F, 0F, 60F, ShearFilter::setYAngle).setMajorTick(30F));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShearFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShearFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         /// MISSING: SPHERE - REQUIRES ADDITIONAL RENDERING
 
@@ -389,7 +389,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(SwimFilter.class, "Turbulence", 1F, 1F, 10F, SwimFilter::setTurbulence));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(SwimFilter.class, "Amount", 1F, 0F, 100F, SwimFilter::setAmount));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(SwimFilter.class, "Time", 0F, 0F, 100F, SwimFilter::setTime));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(SwimFilter.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(SwimFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         /// MISSING: TWIRL - REQUIRES ADDITIONAL RENDERING
 
@@ -398,8 +398,8 @@ public class Register implements IPlugin {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.EDGES, EdgeFilter.class, "Detect Edges", EdgeFilter::new, false);
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, "Horizontal", List.of(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setHEdgeMatrix(value.getHorizontalMatrix())));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, "Vertical", List.of(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setVEdgeMatrix(value.getVerticalMatrix())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, EnumEdgeDetect.class, "Horizontal", List.of(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setHEdgeMatrix(value.getHorizontalMatrix())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, EnumEdgeDetect.class, "Vertical", List.of(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setVEdgeMatrix(value.getVerticalMatrix())));
 
         /// MISSING DIFFERENCE OF GAUSSIANS
 
@@ -480,7 +480,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(CrystallizeFilter.class, "Angle", 0, 0, 360, CrystallizeFilter::setAngle).setMajorTick(90));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(CrystallizeFilter.class, "Randomness", 0F, 0F, 1F, CrystallizeFilter::setRandomness));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(CrystallizeFilter.class, "Edges", 0.4F, 0F, 1F, CrystallizeFilter::setEdgeThickness));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(CrystallizeFilter.class, "Grid Type", List.of(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(CrystallizeFilter.class, EnumPixellateGridType.class, "Grid Type", List.of(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(CrystallizeFilter.class, "Fade Edges", false, CrystallizeFilter::setFadeEdges));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createColourSetting(CrystallizeFilter.class, "Edge Colour", Color.BLACK, (filter, value) -> filter.setEdgeColor(ImageTools.getARGBFromColor(value))));
 
@@ -493,7 +493,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(PointillizeFilter.class, "Randomness", 0F, 0F, 1F, PointillizeFilter::setRandomness));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(PointillizeFilter.class, "Dot Size", 0.4F, 0F, 1F, PointillizeFilter::setEdgeThickness));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(PointillizeFilter.class, "Fuzziness", 0.1F, 0F, 1F, PointillizeFilter::setFuzziness));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(PointillizeFilter.class, "Grid Type", List.of(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(PointillizeFilter.class, EnumPixellateGridType.class, "Grid Type", List.of(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(PointillizeFilter.class, "Fill", false, PointillizeFilter::setFadeEdges));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createColourSetting(PointillizeFilter.class, "Edge Colour", Color.BLACK, (filter, value) -> filter.setEdgeColor(ImageTools.getARGBFromColor(value))));
 
@@ -520,7 +520,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.STYLIZE, NoiseFilter.class, "Noise", NoiseFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(NoiseFilter.class, "Amount", 25, 0, 100, NoiseFilter::setAmount));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(NoiseFilter.class, "Density", 1.0F, 0F, 1F, NoiseFilter::setDensity));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(NoiseFilter.class, "Grid Type", List.of(EnumNoiseDistribution.values()), EnumNoiseDistribution.GAUSSIAN, (filter, value) -> filter.setDistribution(value.getDistribution())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(NoiseFilter.class, EnumNoiseDistribution.class, "Grid Type", List.of(EnumNoiseDistribution.values()), EnumNoiseDistribution.GAUSSIAN, (filter, value) -> filter.setDistribution(value.getDistribution())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(NoiseFilter.class, "Monochrome", false, NoiseFilter::setMonochrome));
 
         /// CONTOURS
@@ -585,7 +585,7 @@ public class Register implements IPlugin {
         ///SHAPEBURST
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.STYLIZE, ShapeFilter.class, "Shape Burst", ShapeFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ShapeFilter.class, "Factor", 1.0F, 0F, 5.0F, ShapeFilter::setFactor));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShapeFilter.class, "Shape Type", List.of(EnumShapeFilter.values()), EnumShapeFilter.LINEAR, (filter, value) -> filter.setType(value.getShapeType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShapeFilter.class, EnumShapeFilter.class, "Shape Type", List.of(EnumShapeFilter.values()), EnumShapeFilter.LINEAR, (filter, value) -> filter.setType(value.getShapeType())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(ShapeFilter.class, "Invert", false, ShapeFilter::setInvert));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(ShapeFilter.class, "Merge", false, ShapeFilter::setMerge));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(ShapeFilter.class, "Use Alpha", false, ShapeFilter::setUseAlpha));

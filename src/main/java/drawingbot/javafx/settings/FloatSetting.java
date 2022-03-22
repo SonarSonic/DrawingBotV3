@@ -16,11 +16,11 @@ public class FloatSetting<C> extends AbstractNumberSetting<C, Float> {
     }
 
     public FloatSetting(Class<C> clazz, String category, String settingName, Float defaultValue, BiConsumer<C, Float> setter) {
-        super(clazz, category, settingName, defaultValue, new FloatStringConverter(), setter);
+        super(clazz, Float.class, category, settingName, defaultValue, new FloatStringConverter(), setter);
     }
 
     public FloatSetting(Class<C> pfmClass, String category, String settingName, float defaultValue, float minValue, float maxValue, BiConsumer<C, Float> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
+        super(pfmClass, Float.class, category, settingName, defaultValue, minValue, maxValue, new FloatStringConverter(), rand -> (float)rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override
