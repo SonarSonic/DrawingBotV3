@@ -657,10 +657,10 @@ public class FXController {
         choiceBoxDrawingUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.inputUnits);
 
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter());
+        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter(Utils.defaultDF));
 
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight, new NumberStringConverter());
+        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight, new NumberStringConverter(Utils.defaultDF));
 
         buttonRotate.setOnAction(e -> {
             String width = textFieldDrawingWidth.getText();

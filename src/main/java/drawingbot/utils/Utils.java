@@ -1,5 +1,6 @@
 package drawingbot.utils;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,6 +11,7 @@ public class Utils {
 
     public final static Random random = new Random();
     public final static NumberFormat defaultNF = NumberFormat.getNumberInstance();
+    public final static DecimalFormat defaultDF = new DecimalFormat("#.###");
     public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
     public static NumberFormat gCodeNF;
