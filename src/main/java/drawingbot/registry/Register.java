@@ -8,6 +8,7 @@ import drawingbot.utils.EnumFilterTypes;
 import drawingbot.drawing.*;
 import drawingbot.geom.shapes.*;
 import drawingbot.plugins.CopicPenPlugin;
+import drawingbot.plugins.DiamineInkPlugin;
 import drawingbot.plugins.SpecialPenPlugin;
 import drawingbot.plugins.StaedtlerPenPlugin;
 import drawingbot.files.DrawingExportHandler;
@@ -83,6 +84,7 @@ public class Register implements IPlugin {
     @Override
     public void registerPlugins(List<IPlugin> newPlugins) {
         newPlugins.add(new CopicPenPlugin());
+        newPlugins.add(new DiamineInkPlugin());
         newPlugins.add(new StaedtlerPenPlugin());
         newPlugins.add(new SpecialPenPlugin());
     }
