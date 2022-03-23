@@ -5,7 +5,7 @@ import drawingbot.drawing.DrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
 
-public class SakuraPigmaPlugin extends AbstractPenPlugin {
+public class SakuraPenPlugin extends AbstractPenPlugin {
 
     @Override
     public String getPluginName() {
