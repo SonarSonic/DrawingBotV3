@@ -4,14 +4,11 @@ import drawingbot.api.IPlugin;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.registry.MasterRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractPenPlugin implements IPlugin {
 
-    public final Map<String, DrawingPen> manufacturerCodes = new HashMap<>();
+    public final Map<String, DrawingPen> manufacturerCodes = new LinkedHashMap<>();
 
     public void registerPenWithCode(String code, DrawingPen drawingPen){
         manufacturerCodes.put(code, drawingPen);
