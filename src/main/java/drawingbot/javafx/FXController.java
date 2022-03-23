@@ -528,7 +528,7 @@ public class FXController {
     }
 
     public void onMousePressedColourPicker(MouseEvent event){
-        if(colourPickerActive && event.isSecondaryButtonDown()){
+        if(colourPickerActive && event.isPrimaryButtonDown()){
             doColourPick(event, false);
             event.consume();
         }
