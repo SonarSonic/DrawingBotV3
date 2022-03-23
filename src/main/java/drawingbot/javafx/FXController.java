@@ -60,6 +60,7 @@ import org.controlsfx.glyphfont.Glyph;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -647,6 +648,7 @@ public class FXController {
 
 
         /////SIZING OPTIONS
+        final String drawingWidthHeightDecimalFormat = "####.###";
         checkBoxOriginalSizing.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing);
 
         paneDrawingAreaCustom.disableProperty().bind(checkBoxOriginalSizing.selectedProperty());
@@ -657,10 +659,10 @@ public class FXController {
         choiceBoxDrawingUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.inputUnits);
 
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter());
+        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter(new DecimalFormat(drawingWidthHeightDecimalFormat)));
 
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight, new NumberStringConverter());
+        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight, new NumberStringConverter(new DecimalFormat(drawingWidthHeightDecimalFormat)));
 
         buttonRotate.setOnAction(e -> {
             String width = textFieldDrawingWidth.getText();
