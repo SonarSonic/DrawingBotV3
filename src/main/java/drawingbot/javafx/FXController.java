@@ -384,7 +384,7 @@ public class FXController {
 
     public Rectangle colourPickerRectangle;
 
-    public CheckBox checkBoxDarkTheme = null;
+    //public CheckBox checkBoxDarkTheme = null;
 
     public void initViewport(){
 
@@ -441,12 +441,15 @@ public class FXController {
 
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
+        /*
         checkBoxDarkTheme.setSelected(ConfigFileHandler.getApplicationSettings().darkTheme);
         checkBoxDarkTheme.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
             ConfigFileHandler.getApplicationSettings().darkTheme = isSelected;
             ConfigFileHandler.getApplicationSettings().markDirty();
             FXApplication.applyCurrentTheme();
         });
+
+         */
 
 
         //DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());

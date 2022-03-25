@@ -490,7 +490,6 @@
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                         <Separator layoutX="649.0" layoutY="20.0" prefHeight="30.0" prefWidth="14.0" />
-                        <CheckBox fx:id="checkBoxDarkTheme" mnemonicParsing="false" text="Dark Theme" />
                      </items>
                   </ToolBar>
                   <HBox minHeight="25.0" prefHeight="25.0">
