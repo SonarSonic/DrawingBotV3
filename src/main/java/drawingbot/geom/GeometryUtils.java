@@ -53,9 +53,16 @@ public class GeometryUtils {
 
         PlottedDrawing plottedDrawing = task.plottingTask.plottedDrawing;
 
+        int i = 0;
         for(AbstractGeometryOperation operation : geometryOperations){
+            if(i == 0 && operation.isDestructive()){
+                PlottedDrawing newDrawing = operation.createPlottedDrawing(plottedDrawing);
+                newDrawing.copyAll(plottedDrawing);
+                plottedDrawing = newDrawing;
+            }
             operation.progressCallback = progressCallback;
             plottedDrawing = operation.run(plottedDrawing);
+            i++;
         }
 
         return plottedDrawing;
@@ -71,8 +78,7 @@ public class GeometryUtils {
             }else if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
-
-            geometryOperations.add(new GeometryOperationSortGroupOrder());
+            //geometryOperations.add(new GeometryOperationSortGroupOrder());
         }
 
         return geometryOperations;

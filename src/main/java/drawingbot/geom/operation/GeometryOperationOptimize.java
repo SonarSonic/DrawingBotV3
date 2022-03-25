@@ -55,11 +55,13 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                         //group id and geometry index will be set by the addGeometry so don't need to be set manually
                         newDrawing.addGeometry(geometry, newGroup);
                     }
+                }else{
+                    originalGroup.geometries.forEach(g -> newDrawing.addGeometry(g.copyGeometry(), newGroup));
                 }
             }
         }
 
-        return originalDrawing;
+        return newDrawing;
     }
 
     @Override
@@ -93,6 +95,8 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         if(lineStrings.isEmpty()){
             return new ArrayList<>();
         }
+
+        GeometryUtils.printEstimatedTravelDistance(lineStrings);
         ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
 
         if(settings.lineSimplifyEnabled){
@@ -118,6 +122,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineSort(lineStrings, tolerance, progressCallback);
         }
+        GeometryUtils.printEstimatedTravelDistance(lineStrings);
         return lineStrings;
     }
 

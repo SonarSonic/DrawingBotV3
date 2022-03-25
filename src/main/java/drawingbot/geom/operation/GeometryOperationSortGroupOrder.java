@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.Coordinate;
 /**
  * This will change the order in which groups appear in the plotted drawing to optimize
  */
+@Deprecated //TODO CHANGE SO IT DOESN'T CHANGE GROUP IDS AND IGNORES EMPTY GROUPS.
 public class GeometryOperationSortGroupOrder extends AbstractGeometryOperation{
 
     @Override

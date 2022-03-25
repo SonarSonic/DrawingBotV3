@@ -321,33 +321,36 @@ public class PlottedDrawing {
 
 
     public static Map<ObservableDrawingPen, Integer> getPerPenGeometryStats(PlottedDrawing plottedDrawing){
-        Map<Integer, int[]> perGroupStats = new HashMap<>();
+        Map<PlottedGroup, Map<Integer, Integer>> perGroupStats = new HashMap<>();
+        Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
 
         //create a tally for each group
         for(PlottedGroup group : plottedDrawing.groups.values()){
-            if(group.getPenCount() > 0){
-                perGroupStats.put(group.groupID, new int[group.getPenCount()]);
+            Map<Integer, Integer> map = new HashMap<>();
+            for(ObservableDrawingPen drawingPen : group.drawingSet.pens){
+                perPenStats.putIfAbsent(drawingPen, 0);
+                map.put(drawingPen.penNumber.get(), 0);
             }
+            perGroupStats.put(group, map);
         }
 
         //tally all the geometries per group / per pen
         for(IGeometry geometry : plottedDrawing.geometries){
             if(geometry.getPenIndex() >= 0){
-                int[] stats = perGroupStats.get(geometry.getGroupID());
+                Map<Integer, Integer> stats = perGroupStats.get(plottedDrawing.getPlottedGroup(geometry.getGroupID()));
                 if(stats != null){
-                    stats[geometry.getPenIndex()]++;
+                    stats.putIfAbsent(geometry.getPenIndex(), 0);
+                    stats.put(geometry.getPenIndex(), stats.get(geometry.getPenIndex())+1);
                 }
             }
         }
 
         //combine the tallies into pen stats per unique pen
-        Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
-        for(Map.Entry<Integer, int[]> groupStats : perGroupStats.entrySet()){
-            PlottedGroup group = plottedDrawing.getPlottedGroup(groupStats.getKey());
-            int[] tally = groupStats.getValue();
-            for(ObservableDrawingPen drawingPen : group.drawingSet.pens){
+        for(Map.Entry<PlottedGroup, Map<Integer, Integer>> groupStats : perGroupStats.entrySet()){
+            Map<Integer, Integer> stats = groupStats.getValue();
+            for(ObservableDrawingPen drawingPen : groupStats.getKey().drawingSet.pens){
                 perPenStats.putIfAbsent(drawingPen, 0);
-                perPenStats.put(drawingPen, perPenStats.get(drawingPen)+tally[drawingPen.penNumber.get()]);
+                perPenStats.put(drawingPen, perPenStats.get(drawingPen)+stats.get(drawingPen.penNumber.get()));
             }
         }
 

@@ -28,7 +28,7 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     public ObservableDrawingPen(){}
 
     public ObservableDrawingPen(int penNumber, IDrawingPen source){
-        this.source = source;
+        this.source = source instanceof ObservableDrawingPen ? ((ObservableDrawingPen) source).source : source;
         this.penNumber.set(penNumber);
         this.enable.set(source.isEnabled());
         this.type.set(source.getType());
