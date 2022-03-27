@@ -16,11 +16,11 @@ public class DoubleSetting<C> extends AbstractNumberSetting<C, Double> {
     }
 
     public DoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, BiConsumer<C, Double> setter) {
-        super(clazz, category, settingName, defaultValue, new DoubleStringConverter(), setter);
+        super(clazz, Double.class, category, settingName, defaultValue, new DoubleStringConverter(), setter);
     }
 
     public DoubleSetting(Class<C> pfmClass, String category, String settingName, double defaultValue, double minValue, double maxValue, BiConsumer<C, Double> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new DoubleStringConverter(), rand -> rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
+        super(pfmClass, Double.class, category, settingName, defaultValue, minValue, maxValue, new DoubleStringConverter(), rand -> rand.nextDouble(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override

@@ -15,7 +15,7 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
     }
 
     public BooleanSetting(Class<C> pfmClass, String category, String settingName, Boolean defaultValue, BiConsumer<C, Boolean> setter) {
-        super(pfmClass, category, settingName, defaultValue, new BooleanStringConverter(), value -> value, setter);
+        super(pfmClass, Boolean.class, category, settingName, defaultValue, new BooleanStringConverter(), value -> value, setter);
         this.setRandomiser(ThreadLocalRandom::nextBoolean);
     }
 

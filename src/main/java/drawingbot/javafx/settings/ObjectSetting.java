@@ -11,15 +11,12 @@ import java.util.function.BiConsumer;
 
 public class ObjectSetting<C, O> extends GenericSetting<C, O> {
 
-    public final Class<O> objectType;
-
     protected ObjectSetting(ObjectSetting<C, O> toCopy) {
         super(toCopy, toCopy.defaultValue);
-        this.objectType = toCopy.objectType;
     }
 
     public ObjectSetting(Class<C> clazz, Class<O> objectType, String category, String settingName, O defaultValue, BiConsumer<C, O> setter) {
-        super(clazz, category, settingName, defaultValue, new StringConverter<>() {
+        super(clazz, objectType, category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(O object) {
                 return object.toString();
@@ -30,7 +27,6 @@ public class ObjectSetting<C, O> extends GenericSetting<C, O> {
                 throw new UnsupportedOperationException("Unidentified objects can't be deserialized");
             }
         }, value -> objectType.isInstance(value) ? value : defaultValue, setter);
-        this.objectType = objectType;
     }
 
     @Override
@@ -40,7 +36,7 @@ public class ObjectSetting<C, O> extends GenericSetting<C, O> {
 
     @Override
     public O getValueFromJsonElement(JsonElement element) {
-        return JsonLoaderManager.createDefaultGson().fromJson(element, objectType);
+        return JsonLoaderManager.createDefaultGson().fromJson(element, type);
     }
 
     @Override

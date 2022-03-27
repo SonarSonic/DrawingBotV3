@@ -22,7 +22,7 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
 
     protected AbstractNumberSetting(AbstractNumberSetting<C, V> toCopy, V newValue) {
         super(toCopy, newValue);
-        this.isRanged = true;
+        this.isRanged = toCopy.isRanged;
         this.minValue = toCopy.minValue;
         this.maxValue = toCopy.maxValue;
         this.safeMinValue = toCopy.safeMinValue;
@@ -32,13 +32,13 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         this.setRandomiser(toCopy.randomiser);
     }
 
-    public AbstractNumberSetting(Class<C> clazz, String category, String settingName, V defaultValue, StringConverter<V> stringConverter, BiConsumer<C, V> setter) {
-        super(clazz, category, settingName, defaultValue, stringConverter, value -> value, setter);
+    public AbstractNumberSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, StringConverter<V> stringConverter, BiConsumer<C, V> setter) {
+        super(clazz, type, category, settingName, defaultValue, stringConverter, value -> value, setter);
         this.isRanged = false;
     }
 
-    public AbstractNumberSetting(Class<C> clazz, String category, String settingName, V defaultValue, V minValue, V maxValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, Function<V, V> validator, BiConsumer<C, V> setter) {
-        super(clazz, category, settingName, defaultValue, stringConverter, validator, setter);
+    public AbstractNumberSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, V minValue, V maxValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, Function<V, V> validator, BiConsumer<C, V> setter) {
+        super(clazz, type, category, settingName, defaultValue, stringConverter, validator, setter);
         this.isRanged = true;
         this.minValue = minValue;
         this.maxValue = maxValue;

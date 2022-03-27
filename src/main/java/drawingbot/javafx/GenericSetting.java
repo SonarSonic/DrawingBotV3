@@ -30,7 +30,9 @@ import java.util.function.Function;
 public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public final Class<C> clazz; //the class this setting can be applied to
+    public final Class<V> type; //the class this setting can be applied to
     public final SimpleStringProperty key = new SimpleStringProperty(); //the settings name
+    public final SimpleStringProperty displayName = new SimpleStringProperty(); //the settings name
     public StringConverter<V> stringConverter; //to convert the value to and from a string for javafx
     public Function<V, V> validator; //the validator checks a value and returns a valid setting
     public BiConsumer<C, V> setter; //the setter sets the value in the instance
@@ -48,7 +50,9 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     protected GenericSetting(GenericSetting<C, V> toCopy, V newValue){
         this.clazz = toCopy.clazz;
+        this.type = toCopy.type;
         this.setKey(toCopy.key.get());
+        this.setDisplayName(toCopy.displayName.get());
         this.setStringConverter(toCopy.stringConverter);
         this.setRandomiser(toCopy.randomiser);
         this.setValidator(toCopy.validator);
@@ -61,10 +65,12 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         this.setValue(newValue);
     }
 
-    public GenericSetting(Class<C> clazz, String category, String key, V defaultValue, StringConverter<V> stringConverter, Function<V, V> validator, BiConsumer<C, V> setter) {
+    public GenericSetting(Class<C> clazz, Class<V> type, String category, String key, V defaultValue, StringConverter<V> stringConverter, Function<V, V> validator, BiConsumer<C, V> setter) {
         this.clazz = clazz;
+        this.type = type;
         this.category = category;
         this.key.set(key);
+        this.displayName.set(key);
         this.defaultValue = defaultValue;
         this.value.set(defaultValue);
         this.stringConverter = stringConverter;
@@ -79,6 +85,15 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public GenericSetting<C, V> setKey(String key) {
         this.key.set(key);
+        return this;
+    }
+
+    public String getDisplayName(){
+        return displayName.get();
+    }
+
+    public GenericSetting<C, V> setDisplayName(String name) {
+        this.displayName.set(name);
         return this;
     }
 
@@ -135,7 +150,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     }
 
     public JsonElement getValueAsJsonElement(Object value){
-        return new JsonPrimitive(getValueAsString((V)value));
+        return new JsonPrimitive(getValueAsString(type.cast(value)));
     }
 
     public V getValueFromJsonElement(JsonElement element){
@@ -155,7 +170,8 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     }
 
     public void setValue(Object v){
-        value.setValue(validator != null ? validator.apply((V)v) : (V)v);
+        V cast = type.cast(v);
+        value.setValue(validator != null ? validator.apply(cast) : cast);
     }
 
     public void setValueFromString(String obj){
@@ -169,7 +185,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
                 DrawingBotV3.logger.warning("Generic Setting: Missing getter: " + getKey());
                 return null;
             }
-            return getter.apply((C)instance);
+            return getter.apply(clazz.cast(instance));
 
         }
         return null;
@@ -192,7 +208,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
                 DrawingBotV3.logger.warning("Generic Setting: Missing setter: " + getKey());
                 return;
             }
-            setter.accept((C)instance, (V)value);
+            setter.accept(clazz.cast(instance), type.cast(value));
         }
     }
 
@@ -514,11 +530,11 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         return new ObjectSetting<>(clazz, objectType, category, settingName, defaultValue, setter);
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, String settingName, List<V> values, V defaultValue, BiConsumer<C, V> setter) {
-        return createOptionSetting(clazz, Register.CATEGORY_UNIQUE, settingName, values, defaultValue, setter);
+    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String settingName, List<V> values, V defaultValue, BiConsumer<C, V> setter) {
+        return createOptionSetting(clazz, type, Register.CATEGORY_UNIQUE, settingName, values, defaultValue, setter);
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, String category, String settingName, List<V> values, V defaultValue, BiConsumer<C, V> setter){
+    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, List<V> values, V defaultValue, BiConsumer<C, V> setter){
         StringConverter<V> optionStringConverter = new StringConverter<V>() {
             @Override
             public String toString(V object) {
@@ -534,6 +550,6 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
                 return null;
             }
         };
-        return new OptionSetting<>(clazz, category, settingName, defaultValue, optionStringConverter, values, setter);
+        return new OptionSetting<>(clazz, type, category, settingName, defaultValue, optionStringConverter, values, setter);
     }
 }

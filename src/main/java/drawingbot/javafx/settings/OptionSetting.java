@@ -19,8 +19,8 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
         this.values = new ArrayList<>(toCopy.values);
     }
 
-    public OptionSetting(Class<C> clazz, String category, String settingName, V defaultValue, StringConverter<V> converter, List<V> values, BiConsumer<C, V> setter) {
-        super(clazz, category, settingName, defaultValue, converter, v -> values.contains(v) ? v : defaultValue, setter);
+    public OptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, StringConverter<V> converter, List<V> values, BiConsumer<C, V> setter) {
+        super(clazz, type, category, settingName, defaultValue, converter, v -> values.contains(v) ? v : defaultValue, setter);
         this.values = values;
         this.setRandomiser(random -> values.get(random.nextInt(values.size()-1)));
     }

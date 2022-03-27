@@ -13,11 +13,11 @@ public class LongSetting<C> extends AbstractNumberSetting<C, Long> {
     }
 
     public LongSetting(Class<C> clazz, String category, String settingName, long defaultValue, BiConsumer<C, Long> setter) {
-        super(clazz, category, settingName, defaultValue, new LongStringConverter(), setter);
+        super(clazz, Long.class, category, settingName, defaultValue, new LongStringConverter(), setter);
     }
 
     public LongSetting(Class<C> pfmClass, String category, String settingName, long defaultValue, long minValue, long maxValue, BiConsumer<C, Long> setter){
-        super(pfmClass, category, settingName, defaultValue, minValue, maxValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
+        super(pfmClass, Long.class, category, settingName, defaultValue, minValue, maxValue, new LongStringConverter(), rand -> rand.nextLong(minValue, maxValue), value -> Utils.clamp(value, minValue, maxValue), setter);
     }
 
     @Override

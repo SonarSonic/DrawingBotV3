@@ -26,7 +26,7 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
     }
 
     public ImageSetting(Class<C> clazz, String category, String settingName, String defaultValue, BiConsumer<C, String> setter) {
-        super(clazz, category, settingName, defaultValue, new DefaultStringConverter(), s -> s, setter);
+        super(clazz, String.class, category, settingName, defaultValue, new DefaultStringConverter(), s -> s, setter);
     }
 
     @Override
