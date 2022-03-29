@@ -1,10 +1,7 @@
 package drawingbot.registry;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IDrawingPen;
-import drawingbot.api.IDrawingSet;
-import drawingbot.api.IPathFindingModule;
-import drawingbot.api.IPlugin;
+import drawingbot.api.*;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.ConfigFileHandler;
@@ -24,6 +21,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSketchLines;
 import drawingbot.render.IDisplayMode;
 import drawingbot.utils.EnumFilterTypes;
+import drawingbot.utils.Metadata;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -37,51 +35,12 @@ import java.util.function.Supplier;
 
 public class MasterRegistry {
 
-    public static List<IPlugin> PLUGINS = new ArrayList<>(List.of(Register.INSTANCE));
     public static MasterRegistry INSTANCE = new MasterRegistry();
 
-    //// PATH FINDING MODULES \\\\
-    public List<PFMFactory> pfmFactories = new ArrayList<>();
-    public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
-
-    //// IMAGE FILTERS \\\\
-    public Map<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> imgFilterFactories = FXCollections.observableMap(new LinkedHashMap<>());
-    public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
-    public HashMap<Class<? extends BufferedImageOp>, List<GenericSetting<?, ?>>> imgFilterSettings = new LinkedHashMap<>();
-
-    public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
-
-    //// DRAWING PENS / SETS \\\\
-
-    public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
-    public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
-
-    public ObservableList<IDisplayMode> displayModes = FXCollections.observableArrayList();
-
-    //// EXPORTERS \\\\
-
-    public List<DrawingExportHandler> drawingExportHandlers = new ArrayList<>();
-
-    //// COLOUR SPLITTERS \\\\
-
-    public ObservableList<ColourSeperationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
-
-    //// JSON LOADERS \\\\
-
-    public List<PresetType> presetTypes = new ArrayList<>();
-    public List<AbstractJsonLoader<IJsonData>> presetLoaders = new ArrayList<>();
-
-    //// GEOMETRIES \\\\
-
-    public Map<Class<? extends IGeometry>, String> geometryNames = new HashMap<>();
-    public Map<String, Class<? extends IGeometry>> geometryTypes = new HashMap<>();
-    public Map<String, Supplier<IGeometry>> geometryFactories = new HashMap<>();
-
-    //// SETTINGS CATEGORIES \\\\
-
-    public HashMap<String, Integer> settingCategories = new HashMap<>();
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PLUGINS \\\\
+    public static List<IPlugin> PLUGINS = new ArrayList<>(List.of(Register.INSTANCE));
 
     public static void findPlugins(){
         findPlugins(PLUGINS);
@@ -113,6 +72,8 @@ public class MasterRegistry {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PRESETS \\\\
 
     @Nullable
     public String getDefaultPresetName(PresetType presetType, String presetSubType){
@@ -168,7 +129,10 @@ public class MasterRegistry {
         }
     }
 
-    //// SETTINGS CATEGORIES
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// SETTINGS CATEGORIES \\\\
+    public HashMap<String, Integer> settingCategories = new HashMap<>();
 
     public int getCategoryPriority(String category){
         Integer priority = settingCategories.get(category);
@@ -181,7 +145,9 @@ public class MasterRegistry {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //// PATH FINDING MODULES: DEFAULTS
+    //// PATH FINDING MODULES \\\\
+    public List<PFMFactory> pfmFactories = new ArrayList<>();
+    public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
 
     public PFMFactory<?> getDefaultPFM(){
         return pfmFactories.stream().filter(factory -> factory.getInstanceClass().equals(PFMSketchLines.class)).findFirst().orElse(null);
@@ -199,65 +165,7 @@ public class MasterRegistry {
         }
     }
 
-    //// IMAGE FILTER: DEFAULTS
-
-    public EnumFilterTypes getDefaultImageFilterType(){
-        return imgFilterFactories.keySet().stream().findFirst().orElse(null);
-    }
-
-    public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
-        return imgFilterFactories.get(type).stream().findFirst().orElse(null);
-    }
-
-    //// DRAWING PEN: DEFAULTS
-
-    public String getDefaultPenCode(){
-        return "Copic Original:100 Black";
-    }
-
-    public DrawingPen getDefaultDrawingPen(){
-        String defaultPen = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_PENS, "");
-        if(defaultPen != null){
-            DrawingPen pen = getDrawingPenFromRegistryName(defaultPen);
-            if(pen != null){
-                return pen;
-            }
-        }
-        return getDrawingPenFromRegistryName(getDefaultPenCode());
-    }
-
-    public DrawingPen getDefaultPen(String type){
-        ObservableList<DrawingPen> pens = registeredPens.get(type);
-        return pens == null ? null : pens.stream().findFirst().orElse(null);
-    }
-
-    //// DRAWING SET: DEFAULTS
-
-    public String getDefaultSetCode(){
-        return "Copic:Dark Greys";
-    }
-
-    public IDrawingSet<IDrawingPen> getDefaultDrawingSet(){
-        String defaultSet = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_SET, "");
-        if(defaultSet != null){
-            IDrawingSet<IDrawingPen> set = getDrawingSetFromRegistryName(defaultSet);
-            if(set != null){
-                return set;
-            }
-        }
-        return getDrawingSetFromRegistryName(getDefaultSetCode());
-    }
-
-    public IDrawingSet<IDrawingPen> getDefaultSet(String type){
-        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(type);
-        return sets == null ? null : sets.stream().findFirst().orElse(null);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// PATH FINDING MODULES: REGISTERING
-
-    public <C extends IPathFindingModule> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
+    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
         DrawingBotV3.logger.fine("Registering PFM: " + name);
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
         pfmFactories.add(factory);
@@ -322,84 +230,6 @@ public class MasterRegistry {
         }
     }
 
-    //// IMAGE FILTERS: REGISTERING
-
-    public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
-        DrawingBotV3.logger.fine("Registering Image Filter: " + name);
-        imgFilterFactories.putIfAbsent(filterType, FXCollections.observableArrayList());
-        imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
-    }
-
-    public void registerImageFilterKernelFactory(IKernelFactory factory){
-        DrawingBotV3.logger.finest("Registering Image Filter Kernel Factory: for " + factory.getFactoryName());
-        imgFilterKernelFactories.add(factory);
-    }
-
-    public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
-        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.key.getValue());
-        imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
-        imgFilterSettings.get(setting.clazz).add(setting);
-    }
-
-    public void registerImageFilterDialog(Class<BufferedImageOp> filterClass, Function<ObservableImageFilter, Dialog<ObservableImageFilter>> dialog){
-        DrawingBotV3.logger.finest("Registering Image Filter Dialog: " + filterClass);
-        imgFilterSettings.putIfAbsent(filterClass, new ArrayList<>());
-        imgFilterDialogs.put(filterClass, dialog);
-    }
-
-
-    //// DRAWING PEN: REGISTERING
-
-    public void registerDrawingPen(DrawingPen pen){
-        if(pen == null){
-            return;
-        }
-        DrawingBotV3.logger.finest("Registering Drawing Pen: " + pen.getCodeName());
-        if(registeredPens.get(pen.getName()) != null){
-            DrawingBotV3.logger.warning("DUPLICATE PEN UNIQUE ID: " + pen.getName());
-            return;
-        }
-        registeredPens.putIfAbsent(pen.getType(), FXCollections.observableArrayList());
-        registeredPens.get(pen.getType()).add(pen);
-    }
-
-    public void unregisterDrawingPen(DrawingPen pen){
-        DrawingBotV3.logger.finest("Unregistering Drawing Pen: " + pen.getCodeName());
-        ObservableList<DrawingPen> pens = registeredPens.get(pen.getType());
-        pens.remove(pen);
-        if(pens.isEmpty()){
-            registeredPens.remove(pen.getType());
-        }
-    }
-
-    //// DRAWING SET: REGISTERING
-
-    public void registerDrawingSet(IDrawingSet<IDrawingPen> penSet){
-        if(penSet == null){
-            return;
-        }
-        DrawingBotV3.logger.finest("Registering Drawing Set: " + penSet.getCodeName());
-        if(registeredSets.get(penSet.getName()) != null){
-            DrawingBotV3.logger.warning("DUPLICATE DRAWING SET NAME: " + penSet.getName());
-            return;
-        }
-        registeredSets.putIfAbsent(penSet.getType(), FXCollections.observableArrayList());
-        registeredSets.get(penSet.getType()).add(penSet);
-    }
-
-    public void unregisterDrawingSet(IDrawingSet<IDrawingPen> penSet){
-        DrawingBotV3.logger.finest("Unregistering Drawing Set: " + penSet.getCodeName());
-        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(penSet.getType());
-        sets.remove(penSet);
-        if(sets.isEmpty()){
-            registeredSets.remove(penSet.getType());
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// PATH FINDING MODULES: GETTERS
-
     public ObservableList<PFMFactory<?>> getObservablePFMLoaderList(){
         ObservableList<PFMFactory<?>> list = FXCollections.observableArrayList();
         for(PFMFactory<?> loader : pfmFactories){
@@ -426,8 +256,178 @@ public class MasterRegistry {
         return Register.PRESET_LOADER_PFM.presetsByType.get(loader.getName());
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //// IMAGE FILTERS: GETTERS
+    //// DRAWING PENS \\\\
+    public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
+
+    public String getDefaultPenCode(){
+        return "Copic Original:100 Black";
+    }
+
+    public DrawingPen getDefaultDrawingPen(){
+        String defaultPen = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_PENS, "");
+        if(defaultPen != null){
+            DrawingPen pen = getDrawingPenFromRegistryName(defaultPen);
+            if(pen != null){
+                return pen;
+            }
+        }
+        return getDrawingPenFromRegistryName(getDefaultPenCode());
+    }
+
+    public DrawingPen getDefaultPen(String type){
+        ObservableList<DrawingPen> pens = registeredPens.get(type);
+        return pens == null ? null : pens.stream().findFirst().orElse(null);
+    }
+
+    public void registerDrawingPen(DrawingPen pen){
+        if(pen == null){
+            return;
+        }
+        DrawingBotV3.logger.finest("Registering Drawing Pen: " + pen.getCodeName());
+        if(registeredPens.get(pen.getName()) != null){
+            DrawingBotV3.logger.warning("DUPLICATE PEN UNIQUE ID: " + pen.getName());
+            return;
+        }
+        registeredPens.putIfAbsent(pen.getType(), FXCollections.observableArrayList());
+        registeredPens.get(pen.getType()).add(pen);
+    }
+
+    public void unregisterDrawingPen(DrawingPen pen){
+        DrawingBotV3.logger.finest("Unregistering Drawing Pen: " + pen.getCodeName());
+        ObservableList<DrawingPen> pens = registeredPens.get(pen.getType());
+        pens.remove(pen);
+        if(pens.isEmpty()){
+            registeredPens.remove(pen.getType());
+        }
+    }
+
+    @Nullable
+    public DrawingPen getDrawingPenFromRegistryName(String codeName){
+        if(!codeName.contains(":")){
+            return null;
+        }
+        String[] split = codeName.split(":");
+        ObservableList<DrawingPen> pens = registeredPens.get(split[0]);
+        if(pens == null){
+            return null;
+        }
+        return pens.stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
+    }
+
+    public List<DrawingPen> getDrawingPensFromRegistryNames(String[] codes){
+        List<DrawingPen> pens = new ArrayList<>();
+        for(String code : codes){
+            DrawingPen pen = getDrawingPenFromRegistryName(code);
+            if(pen != null){
+                pens.add(pen);
+            }else{
+                DrawingBotV3.logger.warning("Couldn't find a pen with the code: " + code);
+            }
+        }
+        return pens;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// DRAWING SETS \\\\
+    public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
+
+    public String getDefaultSetCode(){
+        return "Copic:Dark Greys";
+    }
+
+    public IDrawingSet<IDrawingPen> getDefaultDrawingSet(){
+        String defaultSet = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_SET, "");
+        if(defaultSet != null){
+            IDrawingSet<IDrawingPen> set = getDrawingSetFromRegistryName(defaultSet);
+            if(set != null){
+                return set;
+            }
+        }
+        return getDrawingSetFromRegistryName(getDefaultSetCode());
+    }
+
+    public IDrawingSet<IDrawingPen> getDefaultSet(String type){
+        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(type);
+        return sets == null ? null : sets.stream().findFirst().orElse(null);
+    }
+
+    public void registerDrawingSet(IDrawingSet<IDrawingPen> penSet){
+        if(penSet == null){
+            return;
+        }
+        DrawingBotV3.logger.finest("Registering Drawing Set: " + penSet.getCodeName());
+        if(registeredSets.get(penSet.getName()) != null){
+            DrawingBotV3.logger.warning("DUPLICATE DRAWING SET NAME: " + penSet.getName());
+            return;
+        }
+        registeredSets.putIfAbsent(penSet.getType(), FXCollections.observableArrayList());
+        registeredSets.get(penSet.getType()).add(penSet);
+    }
+
+    public void unregisterDrawingSet(IDrawingSet<IDrawingPen> penSet){
+        DrawingBotV3.logger.finest("Unregistering Drawing Set: " + penSet.getCodeName());
+        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(penSet.getType());
+        sets.remove(penSet);
+        if(sets.isEmpty()){
+            registeredSets.remove(penSet.getType());
+        }
+    }
+
+    public IDrawingSet<IDrawingPen> getDrawingSetFromRegistryName(String codeName){
+        if(!codeName.contains(":")){
+            return null;
+        }
+        String[] split = codeName.split(":");
+        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(split[0]);
+        if(sets == null){
+            return null;
+        }
+        return sets.stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// IMAGE FILTERS \\\\
+    public Map<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> imgFilterFactories = FXCollections.observableMap(new LinkedHashMap<>());
+    public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
+    public HashMap<Class<? extends BufferedImageOp>, List<GenericSetting<?, ?>>> imgFilterSettings = new LinkedHashMap<>();
+
+    public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
+
+    public EnumFilterTypes getDefaultImageFilterType(){
+        return imgFilterFactories.keySet().stream().findFirst().orElse(null);
+    }
+
+    public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
+        return imgFilterFactories.get(type).stream().findFirst().orElse(null);
+    }
+
+    public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
+        DrawingBotV3.logger.fine("Registering Image Filter: " + name);
+        imgFilterFactories.putIfAbsent(filterType, FXCollections.observableArrayList());
+        imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
+    }
+
+    public void registerImageFilterKernelFactory(IKernelFactory factory){
+        DrawingBotV3.logger.finest("Registering Image Filter Kernel Factory: for " + factory.getFactoryName());
+        imgFilterKernelFactories.add(factory);
+    }
+
+    public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
+        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.key.getValue());
+        imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
+        imgFilterSettings.get(setting.clazz).add(setting);
+    }
+
+    public void registerImageFilterDialog(Class<BufferedImageOp> filterClass, Function<ObservableImageFilter, Dialog<ObservableImageFilter>> dialog){
+        DrawingBotV3.logger.finest("Registering Image Filter Dialog: " + filterClass);
+        imgFilterSettings.putIfAbsent(filterClass, new ArrayList<>());
+        imgFilterDialogs.put(filterClass, dialog);
+    }
 
     /**
      * @param name the image filters name
@@ -481,49 +481,10 @@ public class MasterRegistry {
         return func == null ? new DialogImageFilter(filter) : func.apply(filter);
     }
 
-    //// DRAWING PEN: HELPERS
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Nullable
-    public DrawingPen getDrawingPenFromRegistryName(String codeName){
-        if(!codeName.contains(":")){
-            return null;
-        }
-        String[] split = codeName.split(":");
-        ObservableList<DrawingPen> pens = registeredPens.get(split[0]);
-        if(pens == null){
-            return null;
-        }
-        return pens.stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
-    }
-
-    public List<DrawingPen> getDrawingPensFromRegistryNames(String[] codes){
-        List<DrawingPen> pens = new ArrayList<>();
-        for(String code : codes){
-            DrawingPen pen = getDrawingPenFromRegistryName(code);
-            if(pen != null){
-                pens.add(pen);
-            }else{
-                DrawingBotV3.logger.warning("Couldn't find a pen with the code: " + code);
-            }
-        }
-        return pens;
-    }
-
-    //// DRAWING SET: HELPERS
-
-    public IDrawingSet<IDrawingPen> getDrawingSetFromRegistryName(String codeName){
-        if(!codeName.contains(":")){
-            return null;
-        }
-        String[] split = codeName.split(":");
-        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(split[0]);
-        if(sets == null){
-            return null;
-        }
-        return sets.stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
-    }
-
-    //// Display Modes \\\\
+    //// DISPLAY MODES \\\\
+    public ObservableList<IDisplayMode> displayModes = FXCollections.observableArrayList();
 
     public IDisplayMode registerDisplayMode(IDisplayMode displayMode){
         DrawingBotV3.logger.fine("Registering Display Mode: " + displayMode.getName());
@@ -534,6 +495,7 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// EXPORTERS \\\\
+    public List<DrawingExportHandler> drawingExportHandlers = new ArrayList<>();
 
     public DrawingExportHandler registerDrawingExportHandler(DrawingExportHandler exportHandler){
         DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.displayName);
@@ -541,10 +503,10 @@ public class MasterRegistry {
         return exportHandler;
     }
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// COLOUR SPLITTERS \\\\
+    public ObservableList<ColourSeperationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
 
     public ColourSeperationHandler registerColourSplitter(ColourSeperationHandler colourSplitter){
         DrawingBotV3.logger.fine("Registering Colour Splitter: " + colourSplitter.name);
@@ -561,10 +523,11 @@ public class MasterRegistry {
         return Register.DEFAULT_COLOUR_SPLITTER;
     }
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PRESET LOADERS \\\\
+    public List<PresetType> presetTypes = new ArrayList<>();
+    public List<AbstractJsonLoader<IJsonData>> presetLoaders = new ArrayList<>();
 
     public AbstractJsonLoader<IJsonData> registerPresetLoaders(AbstractJsonLoader presetLoader){
         DrawingBotV3.logger.fine("Registering Preset Loader: " + presetLoader.type.id);
@@ -591,12 +554,25 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// GEOMETRIES \\\\
+    public Map<Class<? extends IGeometry>, String> geometryNames = new HashMap<>();
+    public Map<String, Class<? extends IGeometry>> geometryTypes = new HashMap<>();
+    public Map<String, Supplier<IGeometry>> geometryFactories = new HashMap<>();
 
     public void registerGeometryType(String name, Class<? extends IGeometry> geometryType, Supplier<IGeometry> factory){
         DrawingBotV3.logger.fine("Registering Geometry Type: " + name);
         this.geometryNames.put(geometryType, name);
         this.geometryTypes.put(name, geometryType);
         this.geometryFactories.put(name, factory);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// METADATA \\\\
+    public List<Metadata<?>> drawingMetadata = new ArrayList<>();
+
+    public void registerDrawingMetadata(Metadata<?> metadata){
+        drawingMetadata.add(metadata);
     }
 
 }

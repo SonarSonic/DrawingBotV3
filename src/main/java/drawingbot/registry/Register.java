@@ -2,6 +2,7 @@ package drawingbot.registry;
 
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
+import drawingbot.utils.Metadata;
 import drawingbot.files.json.presets.*;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumFilterTypes;
@@ -29,6 +30,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.List;
 
 public class Register implements IPlugin {
@@ -76,6 +79,12 @@ public class Register implements IPlugin {
     public IDisplayMode DISPLAY_MODE_REFERENCE;
     public IDisplayMode DISPLAY_MODE_LIGHTENED;
     public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
+
+    //// DRAWING METADATA \\\\
+    public Metadata<File> ORIGINAL_FILE;
+    public Metadata<BufferedImage> ORIGINAL_IMAGE;
+    public Metadata<BufferedImage> REFERENCE_IMAGE;
+    public Metadata<BufferedImage> PLOTTING_IMAGE;
 
     @Override
     public String getPluginName() {
@@ -131,6 +140,11 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_REFERENCE = new ImageJFXDisplayMode.Reference());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new ImageJFXDisplayMode.Lightened());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
+
+        MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
     }
 
     @Override
