@@ -1,40 +1,48 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
+import drawingbot.utils.Metadata;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.canvas.SimpleCanvas;
+import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
-import javafx.beans.property.SimpleIntegerProperty;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 
 public class PlottedDrawing {
 
+    public ICanvas canvas;
     public final List<IGeometry> geometries;
-    public long vertexCount;
-
-    public SimpleIntegerProperty displayedShapeMin = new SimpleIntegerProperty(-1);
-    public SimpleIntegerProperty displayedShapeMax = new SimpleIntegerProperty(-1);
-    public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
-
     public final Map<Integer, PlottedGroup> groups;
+    public Map<Metadata<?>, Object> metadataMap;
 
     public PlottedGroup defaultGroup;
-    private int groupID = 0;
-    public Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
 
-    public PlottedDrawing(){
+    public long vertexCount;
+    public int displayedShapeMin = -1;
+    public int displayedShapeMax = -1;
+    public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
+
+    public PlottedDrawing(ICanvas canvas){
+        this.canvas = new SimpleCanvas(canvas);
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = Collections.synchronizedMap(new HashMap<>());
+        this.metadataMap = Collections.synchronizedMap(new HashMap<>());
     }
 
-    public PlottedDrawing(ObservableDrawingSet penSet, PFMFactory<?> pfmFactory){
+    public PlottedDrawing(ICanvas canvas, ObservableDrawingSet penSet, PFMFactory<?> pfmFactory){
+        this.canvas = new SimpleCanvas(canvas);
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = Collections.synchronizedMap(new HashMap<>());
+        this.metadataMap = Collections.synchronizedMap(new HashMap<>());
         this.defaultGroup = addPlottedGroup(new PlottedGroup(getNextGroupID(), penSet, pfmFactory));
     }
 
@@ -43,6 +51,7 @@ public class PlottedDrawing {
      */
     public void copyBase(PlottedDrawing reference){
         defaultGroup = null;
+        metadataMap = Map.copyOf(reference.metadataMap);
         for(PlottedGroup group : reference.groups.values()){
             PlottedGroup newGroup = new PlottedGroup(group);
             groups.put(newGroup.groupID, newGroup);
@@ -58,20 +67,47 @@ public class PlottedDrawing {
         reference.geometries.forEach(g -> addGeometry(g.copyGeometry()));
     }
 
+    public PlottedDrawing copy(){
+        PlottedDrawing copy = new PlottedDrawing(canvas);
+        copy.copyAll(this);
+        return copy;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public <T> void setMetadata(Metadata<T> metadata, T value){
+        metadataMap.put(metadata, value);
+    }
+
+    public <T> T getMetadata(Metadata<T> metadata){
+        Object obj = metadataMap.get(metadata);
+        if(obj == null){
+            return null;
+        }
+        if(!metadata.type.isInstance(obj)){
+            return null;
+        }
+        return metadata.type.cast(obj);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public ICanvas getCanvas() {
+        return canvas;
+    }
+
     public int getDisplayedShapeMin(){
-        if(displayedShapeMin.get() == -1){
+        if(displayedShapeMin == -1){
             return 0;
         }
-        return displayedShapeMin.get();
+        return displayedShapeMin;
     }
 
     public int getDisplayedShapeMax(){
-        if(displayedShapeMax.get() == -1){
+        if(displayedShapeMax == -1){
             return getGeometryCount();
         }
-        return displayedShapeMax.get();
+        return displayedShapeMax;
     }
 
     public int getGeometryCount(){
@@ -105,6 +141,8 @@ public class PlottedDrawing {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private int groupID = 0;
 
     public int getNextGroupID(){
         if(groups.get(groupID) == null){
@@ -197,8 +235,8 @@ public class PlottedDrawing {
 
     public void reset(){
         clearGeometries();
-        displayedShapeMax = null;
-        displayedShapeMin = null;
+        displayedShapeMax = -1;
+        displayedShapeMin = -1;
     }
 
 
@@ -230,8 +268,7 @@ public class PlottedDrawing {
                 });
             }
 
-            perPenStats = getPerPenGeometryStats(this);
-            updatePerPenGeometryStats(this, perPenStats);
+            updatePerPenGeometryStats(this, getPerPenGeometryStats(this));
         }
     }
 
@@ -465,4 +502,25 @@ public class PlottedDrawing {
         int current = selected.distributionWeight.get();
         selected.distributionWeight.set(Math.max(0, current + adjust));
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// META DATA \\\\
+
+    public BufferedImage getOriginalImage() {
+        return getMetadata(Register.INSTANCE.ORIGINAL_IMAGE);
+    }
+
+    public BufferedImage getReferenceImage() {
+        return getMetadata(Register.INSTANCE.REFERENCE_IMAGE);
+    }
+
+    public BufferedImage getPlottingImage() {
+        return getMetadata(Register.INSTANCE.PLOTTING_IMAGE);
+    }
+
+    public File getOriginalFile() {
+        return getMetadata(Register.INSTANCE.ORIGINAL_FILE);
+    }
+
 }

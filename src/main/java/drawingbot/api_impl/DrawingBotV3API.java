@@ -1,7 +1,7 @@
 package drawingbot.api_impl;
 
 import drawingbot.api.API;
-import drawingbot.api.IPathFindingModule;
+import drawingbot.api.IPFM;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
 
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class DrawingBotV3API implements API.IDrawingBotAPI {
 
     @Override
-    public void registerPathFindingModule(Class<IPathFindingModule> pfmClass, String name, Supplier<IPathFindingModule> create, boolean isHidden, boolean registerDefaultPreset) {
+    public void registerPathFindingModule(Class<IPFM> pfmClass, String name, Supplier<IPFM> create, boolean isHidden, boolean registerDefaultPreset) {
         MasterRegistry.INSTANCE.registerPFM(pfmClass, name, create, isHidden, registerDefaultPreset);
     }
 

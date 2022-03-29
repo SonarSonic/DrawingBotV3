@@ -1,6 +1,5 @@
 package drawingbot.plotting;
 
-import drawingbot.api.IPlottingTask;
 import drawingbot.geom.shapes.GPath;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,14 +11,14 @@ import java.util.List;
  */
 public class PathBuilder {
 
-    public IPlottingTask task;
+    public PlottingTools plottingTools;
     public GPath path = null;
     public boolean hasMoveTo = false;
 
     public int pathCount = 0;
 
-    public PathBuilder(IPlottingTask task){
-        this.task = task;
+    public PathBuilder(PlottingTools plottingTools){
+        this.plottingTools = plottingTools;
     }
 
     public void startPath(){
@@ -31,7 +30,7 @@ public class PathBuilder {
         hasMoveTo = false;
     }
 
-    public void checkPath(){
+    private void checkPath(){
         if(path == null){
             startPath();
         }
@@ -39,7 +38,7 @@ public class PathBuilder {
 
     public void endPath(){
         if(path != null){
-            task.addGeometry(path);
+            plottingTools.addGeometry(path);
         }
         path = null;
         hasMoveTo = false;
@@ -107,7 +106,7 @@ public class PathBuilder {
         catmullCurvePath = new ArrayList<>();
     }
 
-    public void checkCatmullCurve(){
+    private void checkCatmullCurve(){
         if(catmullCurvePath == null){
             startCatmullCurve();
         }

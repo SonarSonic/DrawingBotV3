@@ -7,11 +7,11 @@ package drawingbot.api;
  *
  * Can be one of three colour modes: 0 = ARGB, 1 = HSB, 2 = Luminance (Y), 3 = ARGBY, 4 = Hybrid
  * The chosen mode will affect the efficiency of accessing pixel data
- * See: {@link IPathFindingModule#getColourMode()}
+ * See: {@link IPFM#getColourMode()}
  *
  * It's also specifically optimised to provide averages efficiently, enabling more frequent progress bar updates.
  *
- * For efficiently the given variables will not be checked, this is the responsibility of the {@link IPathFindingModule}
+ * For efficiently the given variables will not be checked, this is the responsibility of the {@link IPFM}
  * Pass only x, y coordinates within the bounds of the image
  * Pass only rgb/hsb variables between 0 - 255
  */
@@ -411,8 +411,8 @@ public interface IPixelData {
     int getTransparentARGB();
 
     /**
-     * sets the transparent ARGB value, this is important for brightness orientated PFMs, not to called directly by a {@link IPathFindingModule}
-     * instead use {@link IPathFindingModule#getTransparentARGB()}
+     * sets the transparent ARGB value, this is important for brightness orientated PFMs, not to called directly by a {@link IPFM}
+     * instead use {@link IPFM#getTransparentARGB()}
      */
     void setTransparentARGB(int argb);
 

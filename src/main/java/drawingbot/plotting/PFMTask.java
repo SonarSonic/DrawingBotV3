@@ -1,0 +1,297 @@
+package drawingbot.plotting;
+
+import drawingbot.DrawingBotV3;
+import drawingbot.api.*;
+import drawingbot.pfm.AbstractSketchPFM;
+import drawingbot.api.ICanvas;
+import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.utils.DBTask;
+import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.GenericSetting;
+import drawingbot.pfm.PFMFactory;
+import drawingbot.utils.EnumTaskStage;
+import drawingbot.utils.Utils;
+import javafx.application.Platform;
+
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+public class PFMTask extends DBTask<PFMTask> {
+
+    public final ICanvas refCanvas;
+    public final ObservableDrawingSet refPenSet;
+
+    public PFMFactory<?> pfmFactory;
+    public List<GenericSetting<?, ?>> pfmSettings;
+    public PlottedDrawing drawing;
+
+    // STATUS \\
+    public EnumTaskStage stage = EnumTaskStage.QUEUED;
+    public long startTime;
+    public long finishTime = -1;
+    public List<String> comments = new ArrayList<>();
+
+    // PATH FINDING \\
+    public IPFM pfm;
+    public boolean finishEarly = false;
+    public PlottingTools tools;
+
+    // RENDERING \\\
+
+    public boolean isSubTask = false;
+
+    // SPECIAL \\
+    public boolean useLowQuality = false;
+    public int parallelPlots = 3;
+
+    public PFMTask(ICanvas refCanvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet){
+        updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
+        this.refCanvas = refCanvas;
+        this.refPenSet = refPenSet;
+        this.pfmSettings = pfmSettings;
+        this.pfmFactory = pfmFactory;
+        this.drawing = new PlottedDrawing(refCanvas, refPenSet, pfmFactory);
+        this.tools = new PlottingTools(drawing);
+        this.tools.pfmTask = this;
+    }
+
+    public IPFM pfm(){
+        return pfm;
+    }
+
+    public boolean doTask(){
+        switch (stage){
+            case QUEUED:
+                startTime = System.currentTimeMillis();
+                finishStage();
+                break;
+            case PRE_PROCESSING:
+                updateMessage("Pre-Processing");
+                finishEarly = false;
+
+                DrawingBotV3.logger.fine("PFM - Pre-Processing - Started");
+
+                DrawingBotV3.logger.fine("PFM - Create Instance");
+                pfm = pfmFactory.instance();
+                DrawingBotV3.logger.fine("PFM - Init");
+                pfm.init(tools);
+
+                DrawingBotV3.logger.fine("PFM - Apply Settings");
+                GenericSetting.applySettingsToInstance(pfmSettings, pfm);
+                onPFMSettingsApplied(pfmSettings, pfm);
+
+                preProcessImages();
+
+                //set the plotting transform
+                if(pfm.getPlottingResolution() != 1){
+                    tools.plottingTransform = AffineTransform.getScaleInstance(1D / pfm.getPlottingResolution(), 1D / pfm.getPlottingResolution());
+                }
+
+                tools.currentGroup.setPFMFactory(pfmFactory);
+
+                DrawingBotV3.logger.fine("PFM - Pre-Process");
+                updateMessage("Pre-Processing - PFM");
+                pfm.setup();
+
+                finishStage();
+                updateMessage("Processing"); //here to avoid excessive task updates
+                break;
+            case DO_PROCESS:
+                if(useLowQuality){
+                    final CountDownLatch latch = new CountDownLatch(parallelPlots);
+
+                    ExecutorService newService = Executors.newFixedThreadPool(parallelPlots, r -> {
+                        Thread t = new Thread(r, "DrawingBotV3 - Parallel Plotting Service v2");
+                        t.setDaemon(true);
+                        return t;
+                    });
+
+                    for(int i = 0; i < parallelPlots; i ++){
+                        newService.submit(() -> {
+                            pfm.run();
+                            latch.countDown();
+                        });
+                    }
+
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        return false;
+                    } finally {
+                        newService.shutdown();
+                    }
+
+                    finishStage();
+                }else{
+                    pfm.run();
+                    finishStage();
+                }
+                break;
+            case POST_PROCESSING:
+                updateMessage("Post-Processing - PFM");
+
+                postProcessImages();
+
+                DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Started");
+                updateMessage("Post-Processing - Distributing Pens");
+                drawing.updatePenDistribution();
+                DrawingBotV3.logger.fine("Plotting Task - Distributing Pens - Finished");
+
+                finishStage();
+                break;
+            case FINISHING:
+                finishTime = (System.currentTimeMillis() - startTime);
+                updateMessage("Finished - Elapsed Time: " + finishTime/1000 + " s");
+                updateProgress(1, 1);
+                finishStage();
+
+                if(!isSubTask){
+                    DrawingBotV3.INSTANCE.renderedDrawing.set(drawing);
+                }
+                break;
+            case FINISHED:
+                break;
+        }
+        return true;
+    }
+
+    public void preProcessImages(){
+        //NOP
+    }
+
+    public void postProcessImages(){
+        //NOP
+    }
+
+    public void comment(String comment){
+        comments.add(comment);
+        DrawingBotV3.logger.info("Task Comment: " + comment);
+    }
+
+    public long getElapsedTime(){
+        if(finishTime != -1){
+            return finishTime;
+        }
+        return System.currentTimeMillis() - startTime;
+    }
+
+    public void finishStage(){
+        if(!isSubTask){
+            DrawingBotV3.INSTANCE.onPlottingTaskStageFinished(this, stage);
+        }
+        stage = EnumTaskStage.values()[stage.ordinal()+1];
+    }
+
+    public boolean isTaskFinished(){
+        return stage == EnumTaskStage.FINISHED;
+    }
+
+    public void stopElegantly(){
+        DrawingBotV3.logger.info(stage.toString());
+        if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
+            cancel();
+        }else if(stage == EnumTaskStage.DO_PROCESS){
+            finishEarly = true;
+        }
+        if(pfm != null){ //rare case for mosaic tasks where stopElegantly can be called on already finished pfms
+            pfm.onStopped();
+        }
+    }
+
+    @Override
+    public PFMTask call() {
+        if(!isSubTask){
+            Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
+        }
+        while(!isTaskFinished() && !isCancelled()){
+            if(!doTask()){
+                cancel();
+            }
+        }
+        return this;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    //// IPlottingTask
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public boolean isFinished() {
+        return isCancelled() || finishEarly;
+    }
+
+    public void updatePlottingProgress(double progress, double max) {
+        double actual = Math.min(Utils.roundToPrecision(progress / max, 3), 1D);
+        updateProgress(actual, 1D);
+    }
+
+    public void reset(){
+        pfmFactory = null;
+        //drawing.reset();
+
+        startTime = 0;
+        finishTime = -1;
+        comments.clear();
+
+        pfm = null;
+        finishEarly = false;
+    }
+
+    //// CALLBACKS
+    //TODO MOVE CALLBACK INTO TOOLS???
+    public BiConsumer<List<GenericSetting<?, ?>>, IPFM> onPFMSettingsAppliedCallback = null;
+    public Consumer<AbstractSketchPFM> sketchPFMProgressCallback = null;
+
+    public void onPFMSettingsApplied(List<GenericSetting<?, ?>> src, IPFM pfm){
+        if(onPFMSettingsAppliedCallback != null){
+            onPFMSettingsAppliedCallback.accept(src, pfm);
+        }
+    }
+
+    /**
+     * Allows the PlottingTask to override the SketchPFMs progress.
+     */
+    public boolean applySketchPFMProgressCallback(AbstractSketchPFM sketchPFM){
+        if(sketchPFMProgressCallback != null){
+            sketchPFMProgressCallback.accept(sketchPFM);
+            return true;
+        }
+        return false;
+    }
+
+
+
+    //// GEOMETRY UI HOOKS \\\\
+
+    public int getCurrentGeometryCount(){
+        return drawing.getGeometryCount();
+    }
+
+    public long getCurrentVertexCount(){
+        return drawing.getVertexCount();
+    }
+
+    @Override
+    public boolean isPlottingTask() {
+        return true;
+    }
+
+    //// CUSTOM RENDERING \\\\
+
+    public boolean handlesProcessRendering(){
+        return false;
+    }
+
+    public void renderProcessing(JavaFXRenderer renderer, PFMTask renderedTask){
+        //NOP
+    }
+
+    public void clearProcessingRender(JavaFXRenderer renderer, PFMTask renderedTask){
+        //NOP
+    }
+}
