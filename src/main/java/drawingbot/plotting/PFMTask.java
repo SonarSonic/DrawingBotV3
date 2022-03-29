@@ -3,7 +3,6 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.pfm.AbstractSketchPFM;
-import drawingbot.api.ICanvas;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.DBTask;
 import drawingbot.javafx.observables.ObservableDrawingSet;

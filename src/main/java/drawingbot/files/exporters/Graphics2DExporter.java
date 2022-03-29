@@ -5,7 +5,6 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
 import drawingbot.render.RenderUtils;
-import drawingbot.utils.UnitsLength;
 
 import java.awt.*;
 

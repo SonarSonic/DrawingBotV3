@@ -2,7 +2,6 @@ package drawingbot.render.modes;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.image.ImageFilteringTask;
-import drawingbot.plotting.PFMTaskImage;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.flags.Flags;

@@ -7,7 +7,7 @@ package drawingbot.api;
  *
  * Can be one of three colour modes: 0 = ARGB, 1 = HSB, 2 = Luminance (Y), 3 = ARGBY, 4 = Hybrid
  * The chosen mode will affect the efficiency of accessing pixel data
- * See: {@link IPFM#getColourMode()}
+ * See: {@link IPFMImage#getColourMode()}
  *
  * It's also specifically optimised to provide averages efficiently, enabling more frequent progress bar updates.
  *
@@ -412,7 +412,7 @@ public interface IPixelData {
 
     /**
      * sets the transparent ARGB value, this is important for brightness orientated PFMs, not to called directly by a {@link IPFM}
-     * instead use {@link IPFM#getTransparentARGB()}
+     * instead use {@link IPFMImage#getTransparentARGB()}
      */
     void setTransparentARGB(int argb);
 

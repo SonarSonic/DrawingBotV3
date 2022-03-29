@@ -18,7 +18,6 @@ import drawingbot.javafx.GenericPreset;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.function.Function;
 import java.util.logging.Level;

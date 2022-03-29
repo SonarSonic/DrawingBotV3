@@ -1,7 +1,6 @@
 package drawingbot.geom;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.geom.shapes.IGeometry;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
 import drawingbot.geom.operation.*;

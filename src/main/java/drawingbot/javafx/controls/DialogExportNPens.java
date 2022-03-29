@@ -4,8 +4,6 @@ import drawingbot.FXApplication;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -13,9 +11,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DialogExportNPens extends Dialog<Integer> {
 

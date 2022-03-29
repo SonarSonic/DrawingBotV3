@@ -4,7 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.image.ImageFilteringTask;
-import drawingbot.plotting.PFMTask;
 import drawingbot.render.IRenderer;
 import drawingbot.render.modes.AbstractJFXDisplayMode;
 import drawingbot.utils.flags.Flags;

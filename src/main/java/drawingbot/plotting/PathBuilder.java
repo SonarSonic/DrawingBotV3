@@ -161,17 +161,14 @@ public class PathBuilder {
         return getCatmullP0() != null;
     }
 
-    @Nullable
     public float[] getCatmullP2(){
         return catmullCurvePath == null || catmullCurvePath.size() <= 0 ? null : catmullCurvePath.get(catmullCurvePath.size()-1);
     }
 
-    @Nullable
     public float[] getCatmullP1(){
         return catmullCurvePath == null || catmullCurvePath.size() <= 1 ? null : catmullCurvePath.get(catmullCurvePath.size()-2);
     }
 
-    @Nullable
     public float[] getCatmullP0(){
         return catmullCurvePath == null || catmullCurvePath.size() <= 2 ? null : catmullCurvePath.get(catmullCurvePath.size()-3);
     }

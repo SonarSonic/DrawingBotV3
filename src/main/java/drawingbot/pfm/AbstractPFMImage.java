@@ -1,19 +1,11 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPFMImage;
-import drawingbot.plotting.PFMTaskImage;
 import drawingbot.utils.Utils;
 
 public abstract class AbstractPFMImage extends AbstractPFM implements IPFMImage {
 
-    public float pfmResolution = 1;
     public int transparentARGB = -1;
-
-
-    @Override
-    public float getPlottingResolution() {
-        return pfmResolution;
-    }
 
     @Override
     public int getTransparentARGB() {

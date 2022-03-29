@@ -12,7 +12,6 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import org.imgscalr.Scalr;
 import org.locationtech.jts.awt.ShapeReader;

@@ -158,7 +158,7 @@ public class Register implements IPlugin {
     @Override
     public void registerPFMSettings(){
         //// GENERAL \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFMImage.class, CATEGORY_DEFAULT, "Plotting Resolution", 1.0F, 0.1F, 10.0F, (pfm, value) -> pfm.pfmResolution = value).setSafeRange(0.1F, 1.0F).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Plotting Resolution", 1.0F, 0.1F, 10.0F, (pfm, value) -> pfm.pfmResolution = value).setSafeRange(0.1F, 1.0F).setRandomiseExclude(true));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, (pfm, value) -> pfm.tools.setRandomSeed(value)));
 
         //// SKETCH LINES \\\\

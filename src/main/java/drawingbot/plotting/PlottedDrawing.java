@@ -15,7 +15,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.List;
 
 public class PlottedDrawing {
 

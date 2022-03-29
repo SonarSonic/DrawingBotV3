@@ -3,7 +3,6 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.geom.shapes.*;
-import drawingbot.api.ICanvas;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.AbstractDarkestPFM;

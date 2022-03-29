@@ -3,8 +3,6 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.utils.EnumAlignment;
-import drawingbot.utils.EnumRotation;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;

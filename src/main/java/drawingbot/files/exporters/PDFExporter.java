@@ -12,7 +12,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.utils.UnitsLength;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

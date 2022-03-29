@@ -927,7 +927,7 @@ public class BresenhamHelper {
 
      */
 
-    public void plotQuadSpline(int n, int x[], int y[], IPixelSetter pixelSetter)
+    public void plotQuadSpline(int n, int[] x, int[] y, IPixelSetter pixelSetter)
         {                         /* plot quadratic spline, destroys input arrays x,y */
             int M_MAX = 6;
             float mi = 1;                    /* diagonal constants of matrix */

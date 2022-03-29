@@ -3,7 +3,6 @@ package drawingbot.javafx.controls;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.ImageTools;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
