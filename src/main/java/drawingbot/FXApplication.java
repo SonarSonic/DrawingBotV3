@@ -39,6 +39,7 @@ public class FXApplication extends Application {
     public static List<Stage> childStages = new ArrayList<>();
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
+    public static boolean isHeadless;
 
     public static void main(String[] args) {
         launchArgs = args;
@@ -99,7 +100,9 @@ public class FXApplication extends Application {
         FXApplication.primaryScene = new Scene(uiLoader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
         FXApplication.primaryScene.setOnKeyPressed(DrawingBotV3.INSTANCE::keyPressed);
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
-        primaryStage.setScene(primaryScene);
+        if(!isHeadless) {
+            primaryStage.setScene(primaryScene);
+        }
 
         // SET DISPLAY MODE
         DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
@@ -122,16 +125,18 @@ public class FXApplication extends Application {
         drawTimer = new DrawTimer(this);
         drawTimer.start();
 
-        DrawingBotV3.logger.info("Plugins Post Init");
-        MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
-
         DrawingBotV3.logger.info("Load Default Presets");
         JsonLoaderManager.loadDefaults();
 
-        primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion);
-        primaryStage.setResizable(true);
-        applyDBStyle(primaryStage);
-        primaryStage.show();
+        DrawingBotV3.logger.info("Plugins Post Init");
+        MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
+
+        if(!isHeadless){
+            primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion);
+            primaryStage.setResizable(true);
+            applyDBStyle(primaryStage);
+            primaryStage.show();
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
