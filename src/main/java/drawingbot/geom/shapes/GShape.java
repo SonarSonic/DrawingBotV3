@@ -109,8 +109,9 @@ public class GShape implements IGeometry {
     }
 
     @Override
-    public void transform(AffineTransform transform) {
+    public IGeometry transformGeometry(AffineTransform transform) {
         shape = transform.createTransformedShape(shape);
+        return this;
     }
 
     @Override

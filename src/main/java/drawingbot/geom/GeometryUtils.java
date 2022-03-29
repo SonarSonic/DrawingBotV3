@@ -1,6 +1,7 @@
 package drawingbot.geom;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
 import drawingbot.geom.operation.*;
@@ -8,10 +9,9 @@ import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.shapes.*;
-import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.utils.Utils;
-import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
@@ -49,9 +49,9 @@ public class GeometryUtils {
             }
         };
 
-        List<AbstractGeometryOperation> geometryOperations = getGeometryExportOperations(task, task.plottingTask.pfmFactory, filter, forceBypassOptimisation);
+        List<AbstractGeometryOperation> geometryOperations = getGeometryExportOperations(task, filter, forceBypassOptimisation);
 
-        PlottedDrawing plottedDrawing = task.plottingTask.plottedDrawing;
+        PlottedDrawing plottedDrawing = task.plottedDrawing;
 
         int i = 0;
         for(AbstractGeometryOperation operation : geometryOperations){
@@ -68,14 +68,13 @@ public class GeometryUtils {
         return plottedDrawing;
     }
 
-    public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, @Nullable PFMFactory<?> factory, IGeometryFilter filter, boolean forceBypassOptimisation){
+    public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
         if(task.exportHandler.isVector && !forceBypassOptimisation && ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
 
-            if(factory != null && !factory.bypassOptimisation){
-                geometryOperations.add(new GeometryOperationOptimize(task.plottingTask.createPrintTransform()));
-            }else if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
+            geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
+            if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
             //geometryOperations.add(new GeometryOperationSortGroupOrder());

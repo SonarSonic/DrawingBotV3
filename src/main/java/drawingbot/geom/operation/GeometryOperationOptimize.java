@@ -44,16 +44,21 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             PlottedGroup originalGroup = originalDrawing.getPlottedGroup(group.getGroupID());
             PlottedGroup newGroup = newDrawing.getMatchingPlottedGroup(originalGroup, forExport);
 
+
             for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
                 if(!(entry.getKey().source instanceof ICustomPen)){
 
-                    List<IGeometry> geometries = optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback);
-                    for(IGeometry geometry : geometries){
-                        geometry.setPenIndex(entry.getKey().penNumber.get());
-                        geometry.setGroupID(newGroup.getGroupID());
+                    if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
+                        originalGroup.geometries.forEach(geometry -> newGroup.addGeometry(geometry.copyGeometry()));
+                    }else{
+                        List<IGeometry> geometries = optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback);
+                        for(IGeometry geometry : geometries){
+                            geometry.setPenIndex(entry.getKey().penNumber.get());
+                            geometry.setGroupID(newGroup.getGroupID());
 
-                        //group id and geometry index will be set by the addGeometry so don't need to be set manually
-                        newDrawing.addGeometry(geometry, newGroup);
+                            //group id and geometry index will be set by the addGeometry so don't need to be set manually
+                            newDrawing.addGeometry(geometry, newGroup);
+                        }
                     }
                 }else{
                     originalGroup.geometries.forEach(g -> newDrawing.addGeometry(g.copyGeometry(), newGroup));
@@ -168,10 +173,14 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
      */
     public static List<LineString> lineMerge(List<LineString> lineStrings, double tolerance, IProgressCallback progressCallback, int pass){
         for(int i = 0; i < pass; i++){
+            int prevLength = lineStrings.size();
             progressCallback.updateTitle("Line Merging " + (i+1) + " of " + pass + ": ");
             STRTreeSequencerLineString sequencer = new STRTreeSequencerLineString(lineStrings, tolerance);
             sequencer.setProgressCallback(progressCallback);
             lineStrings = sequencer.merge();
+            if(prevLength == lineStrings.size()){
+                break;
+            }
         }
         return lineStrings;
     }

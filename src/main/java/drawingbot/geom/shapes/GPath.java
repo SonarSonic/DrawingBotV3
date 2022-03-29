@@ -156,6 +156,12 @@ public class GPath extends Path2D.Float implements IGeometry {
         //HANDLED BY THE SERIALIZER
     }
 
+    @Override
+    public IGeometry transformGeometry(AffineTransform transform) {
+        transform(transform);
+        return this;
+    }
+
     private Coordinate origin = null;
     private Coordinate endCoord = null;
 

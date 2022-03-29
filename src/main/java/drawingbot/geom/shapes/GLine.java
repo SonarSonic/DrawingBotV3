@@ -112,10 +112,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
-    public void transform(AffineTransform transform) {
+    public IGeometry transformGeometry(AffineTransform transform) {
         float[] coords = new float[]{x1, y1, x2, y2};
         transform.transform(coords, 0, coords, 0, 2);
         setLine(coords[0], coords[1], coords[2], coords[3]);
+        return this;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package drawingbot.geom.shapes;
 
+import drawingbot.geom.GeometryUtils;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
@@ -79,7 +80,16 @@ public interface IGeometry {
 
     void deserializeData(String geometryData);
 
-    void transform(AffineTransform transform);
+    /**
+     * Returns a transformed version of this geometry.
+     * This generally results in a version created as a gPath.
+     */
+    default IGeometry transformGeometry(AffineTransform transform) {
+        GPath gPath = new GPath(getAWTShape());
+        GeometryUtils.copyGeometryData(gPath, this);
+        gPath.transform(transform);
+        return gPath;
+    }
 
     /**
      * Used for geometry sorting only

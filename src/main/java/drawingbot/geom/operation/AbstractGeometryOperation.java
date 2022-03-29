@@ -41,7 +41,7 @@ public abstract class AbstractGeometryOperation implements IProgressCallback {
     }
 
     public PlottedDrawing createPlottedDrawing(PlottedDrawing reference){
-        PlottedDrawing newDrawing = new PlottedDrawing(reference.getDefaultGroup().drawingSet, reference.getDefaultGroup().pfmFactory);
+        PlottedDrawing newDrawing = new PlottedDrawing(reference.getCanvas(), reference.getDefaultGroup().drawingSet, reference.getDefaultGroup().pfmFactory);
         newDrawing.copyBase(reference);
         return newDrawing;
     }

@@ -112,10 +112,11 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     }
 
     @Override
-    public void transform(AffineTransform transform) {
+    public IGeometry transformGeometry(AffineTransform transform) {
         float[] coords = new float[]{x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2};
         transform.transform(coords, 0, coords, 0, 4);
         setCurve(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7]);
+        return this;
     }
 
     @Override

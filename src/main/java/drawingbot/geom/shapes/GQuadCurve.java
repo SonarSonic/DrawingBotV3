@@ -108,10 +108,11 @@ public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathEle
     }
 
     @Override
-    public void transform(AffineTransform transform) {
+    public IGeometry transformGeometry(AffineTransform transform) {
         float[] coords = new float[]{x1, y1, ctrlx, ctrly, x2, y2};
         transform.transform(coords, 0, coords, 0, 3);
         setCurve(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+        return this;
     }
 
     @Override

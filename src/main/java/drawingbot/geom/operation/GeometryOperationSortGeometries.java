@@ -24,7 +24,7 @@ public class GeometryOperationSortGeometries extends AbstractGeometryOperation{
 
         for(PlottedGroup group : originalDrawing.groups.values()){
             for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
-                STRTreeSequencer.IGeometry sequencer = new STRTreeSequencer.IGeometry(entry.getValue(), tolerance);
+                STRTreeSequencer.Geometry sequencer = new STRTreeSequencer.Geometry(entry.getValue(), tolerance);
                 entry.setValue(sequencer.sort());
             }
         }

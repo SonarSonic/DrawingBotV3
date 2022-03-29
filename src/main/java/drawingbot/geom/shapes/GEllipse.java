@@ -7,7 +7,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 public class GEllipse extends Ellipse2D.Float implements IGeometry {
@@ -96,13 +95,6 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     @Override
     public void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter) {
         helper.plotEllipseRect((int)x, (int)y, (int)(x + width), (int)(y + height), setter);
-    }
-
-    @Override
-    public void transform(AffineTransform transform) {
-        float[] coords = new float[]{x, y, x + width, y + height};
-        transform.transform(coords, 0, coords, 0, 2);
-        setFrame(coords[0], coords[1], coords[2] - x, coords[3] - y);
     }
 
     @Override
