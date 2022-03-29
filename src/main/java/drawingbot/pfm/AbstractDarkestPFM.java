@@ -1,7 +1,6 @@
 package drawingbot.pfm;
 
-import drawingbot.api.IPixelData;
-import drawingbot.api.IPlottingTask;
+import drawingbot.api.*;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
 import drawingbot.pfm.helpers.BresenhamHelper;
@@ -13,12 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public abstract class AbstractDarkestPFM extends AbstractPFM {
+public abstract class AbstractDarkestPFM extends AbstractPFMImage {
 
     protected static int sampleWidth = 10;
     protected static int sampleHeight = 10;
-
-    public BresenhamHelper bresenham = new BresenhamHelper();
 
     @Override
     public int getColourMode() {
@@ -28,11 +25,6 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     @Override
     public int getTransparentARGB() {
         return ImageTools.getARGB(0, 255, 255, 255);
-    }
-
-    @Override
-    public void init(IPlottingTask task) {
-        super.init(task);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +119,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
     /** returns a random pixel of the darkest pixels found*/
     public void findDarkestPixel(IPixelData pixels, int[] dest){
         List<int[]> darkestPixels = findDarkestPixels(pixels);
-        int[] darkestPoint = darkestPixels.get(randomSeed.nextInt(darkestPixels.size()));
+        int[] darkestPoint = darkestPixels.get(tools.randomInt(darkestPixels.size()));
         dest[0] = darkestPoint[0];
         dest[1] = darkestPoint[1];
     }
@@ -254,14 +246,14 @@ public abstract class AbstractDarkestPFM extends AbstractPFM {
 
     public ColourSampleTest defaultColourTest = new ColourSampleTest();
 
-    public void addGeometryWithColourSamples(IPlottingTask task, IPixelData pixelData, IGeometry geometry, int adjust){
+    public void addGeometryWithColourSamples(IPixelData pixelData, IGeometry geometry, int adjust){
         int colourSamples = adjustGeometryLuminance(pixelData, geometry, adjust);
-        task.addGeometry(geometry, -1, colourSamples);
+        tools.addGeometry(geometry, -1, colourSamples);
     }
 
     public int adjustGeometryLuminance(IPixelData pixelData, IGeometry geometry, int adjust){
         defaultColourTest.resetColourSamples(adjust);
-        geometry.renderBresenham(bresenham, (x,y) -> defaultColourTest.addSample(pixelData, x, y));
+        geometry.renderBresenham(tools.bresenham, (x,y) -> defaultColourTest.addSample(pixelData, x, y));
         return defaultColourTest.getCurrentAverage();
     }
 

@@ -6,7 +6,11 @@ import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
+import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.api.ICanvas;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.EnumRotation;
+import drawingbot.utils.EnumScalingMode;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
@@ -135,35 +139,72 @@ public class ImageTools {
         return freshImage;
     }
 
-    public static BufferedImage cropToPrintResolution(BufferedImage image, PrintResolution resolution){
 
-        if(resolution.imageFlipHorizontal){
+    public static BufferedImage transformImage(BufferedImage image, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
+        if(flipHorizontal){
             image = Scalr.rotate(image, Scalr.Rotation.FLIP_HORZ);
         }
 
-        if(resolution.imageFlipVertical){
+        if(flipVertical){
             image = Scalr.rotate(image, Scalr.Rotation.FLIP_VERT);
         }
 
-        if(resolution.imageRotation.scalrRotation != null){
-            image = Scalr.rotate(image, resolution.imageRotation.scalrRotation);
+        if(imageRotation.scalrRotation != null){
+            image = Scalr.rotate(image, imageRotation.scalrRotation);
         }
+        return image;
+    }
+
+    public static int[] getEffectiveImageSize(ICanvas canvas, int width, int height){
+        int[] size = new int[]{width, height};
+        switch (canvas.getScalingMode()){
+            case CROP_TO_FIT:
+                int[] crops = CanvasUtils.getCroppedImageSize(canvas, width, height);
+                size[0] = crops[0];
+                size[1] = crops[1];
+                break;
+            case SCALE_TO_FIT:
+                break;
+            case STRETCH_TO_FIT:
+                break;
+        }
+        return size;
+    }
+
+    public static BufferedImage cropToCanvas(BufferedImage image, ICanvas canvas){
+
+        int finalWidth = (int)(canvas.getDrawingWidth() * canvas.getPlottingScale());
+        int finalHeight = (int)(canvas.getDrawingHeight() * canvas.getPlottingScale());
 
         //crop the image in it's original resolution
-        if(resolution.imageCropX != 0 || resolution.imageCropY != 0 || resolution.imageCropWidth != resolution.sourceWidth || resolution.imageCropHeight != resolution.sourceHeight){
-            switch (DrawingBotV3.INSTANCE.drawingArea.scalingMode.get()){
-                case CROP_TO_FIT:
-                    image = Scalr.crop(image, resolution.imageCropX, resolution.imageCropY, resolution.imageCropWidth, resolution.imageCropHeight);
-                    break;
-                case STRETCH_TO_FIT:
-                    image = Scalr.resize(image, Scalr.Mode.FIT_EXACT, resolution.imageCropWidth, resolution.imageCropHeight);
-                    break;
-            }
-        }
+        final EnumScalingMode mode = canvas.getScalingMode();
+        switch (mode){
+            case CROP_TO_FIT:
+                int[] crops = CanvasUtils.getCroppedImageSize(canvas, image.getWidth(), image.getHeight());
+                int width = crops[0];
+                int height = crops[1];
+                int cropX = crops[2];
+                int cropY = crops[3];
 
-        //rescale the pre-cropped image to the optimised print sizes
-        if(resolution.imageWidth != resolution.imageCropWidth || resolution.imageHeight != resolution.imageCropHeight){
-            image = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, resolution.imageWidth, resolution.imageHeight);
+                if(cropX != 0 || cropY != 0 || width != image.getWidth() || height != image.getHeight()) {
+                    image = Scalr.crop(image, cropX, cropY, width, height);
+                }
+                //rescale the pre-cropped image to the optimised print sizes
+                if(finalWidth != width || finalHeight != height){
+                    image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, finalWidth, finalHeight);
+                }
+                break;
+            case SCALE_TO_FIT:
+                double currentRatio = (float) image.getWidth() / image.getHeight();
+                double targetRatio = canvas.getDrawingWidth() / canvas.getDrawingHeight();
+                int targetWidth = (int)(currentRatio < targetRatio ? Math.round(finalHeight * currentRatio) : finalWidth);
+                int targetHeight = (int)(currentRatio < targetRatio ? finalHeight : Math.round(finalWidth / currentRatio));
+
+                image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight);
+                break;
+            case STRETCH_TO_FIT:
+                image = Scalr.resize(image, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, finalWidth, finalHeight);
+                break;
         }
 
         return image;

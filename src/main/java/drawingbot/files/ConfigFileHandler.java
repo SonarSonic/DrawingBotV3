@@ -42,6 +42,7 @@ public class ConfigFileHandler {
 
     public static void setupConsoleOutputFile(){
         try {
+            //add the VM argument -Ddrawingbot.DrawingBotV3.dLogging=true
             String developerLogging = System.getProperty("drawingbot.DrawingBotV3.dLogging");
             if(developerLogging == null || !developerLogging.equals("true")){
                 File outputFile = new File(FileUtils.getUserDataDirectory(), "latest_output.txt");

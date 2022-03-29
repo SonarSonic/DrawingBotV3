@@ -1,13 +1,16 @@
 package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
+import drawingbot.plotting.canvas.ImageCanvas;
+import drawingbot.plotting.canvas.SimpleCanvas;
 
 import java.awt.image.BufferedImage;
 
 public class FilteredBufferedImage {
 
     public final BufferedImage source;
-    public PrintResolution resolution;
+    public ImageCanvas refCanvas;
 
     public BufferedImage cropped;
     public BufferedImage filtered;
@@ -17,8 +20,11 @@ public class FilteredBufferedImage {
 
     public FilteredBufferedImage(BufferedImage source){
         this.source = source;
-        this.resolution = new PrintResolution(DrawingBotV3.INSTANCE.drawingArea, source);
-        this.resolution.updateAll();
+        this.refCanvas = new ImageCanvas(new SimpleCanvas(DrawingBotV3.INSTANCE.drawingArea), source, DrawingBotV3.INSTANCE.imageRotation.get().flipAxis);
+    }
+
+    public ImageCanvas getCanvas() {
+        return refCanvas;
     }
 
     public BufferedImage getSource(){
@@ -30,26 +36,27 @@ public class FilteredBufferedImage {
     }
 
     public void updateAll(){
+        ImageCanvas newCanvas = new ImageCanvas(new SimpleCanvas(DrawingBotV3.INSTANCE.drawingArea), source, DrawingBotV3.INSTANCE.imageRotation.get().flipAxis);
         if(cropped == null || updateCropping){
-            resolution = new PrintResolution(DrawingBotV3.INSTANCE.drawingArea, source);
-            resolution.updateAll();
-            cropped = ImageTools.cropToPrintResolution(source, resolution);
+            cropped = applyCropping(source, newCanvas);
         }
-        filtered = ImageTools.applyCurrentImageFilters(cropped, updateCropping || updateAllFilters);
+        filtered = applyFilters(cropped, updateCropping || updateAllFilters);
+        refCanvas = newCanvas;
     }
 
-    public static BufferedImage applyAll(BufferedImage src, PrintResolution resolution){
-        src = applyCropping(src, resolution);
-        src = applyFilters(src);
+    public static BufferedImage applyAll(BufferedImage src, ICanvas canvas){
+        src = applyCropping(src, canvas);
+        src = applyFilters(src, true);
         return src;
     }
 
-    public static BufferedImage applyFilters(BufferedImage src){
-        return ImageTools.applyCurrentImageFilters(src, true);
+    public static BufferedImage applyFilters(BufferedImage src, boolean forceUpdate){
+        return ImageTools.applyCurrentImageFilters(src, forceUpdate);
     }
 
-    public static BufferedImage applyCropping(BufferedImage src, PrintResolution resolution){
-        return ImageTools.cropToPrintResolution(src, resolution);
+    public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas){
+        src = ImageTools.transformImage(src, DrawingBotV3.INSTANCE.imageRotation.get(), DrawingBotV3.INSTANCE.imageFlipHorizontal.get(), DrawingBotV3.INSTANCE.imageFlipVertical.get());
+        return ImageTools.cropToCanvas(src, canvas);
     }
 
 }

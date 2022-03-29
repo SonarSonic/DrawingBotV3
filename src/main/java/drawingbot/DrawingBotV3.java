@@ -17,7 +17,8 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IPlugin;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.json.presets.PresetProjectSettings;
-import drawingbot.image.DrawingArea;
+import drawingbot.api.ICanvas;
+import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -25,17 +26,19 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.FilteredBufferedImage;
-import drawingbot.image.PrintResolution;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.PFMTaskImage;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.*;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PFMTask;
+import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -56,7 +59,7 @@ public class DrawingBotV3 {
     public static IRenderer OPENGL_RENDERER;
 
     //DRAWING AREA
-    public DrawingArea drawingArea = new DrawingArea();
+    public ObservableCanvas drawingArea = new ObservableCanvas();
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
 
     //VPYPE SETTINGS
@@ -114,7 +117,6 @@ public class DrawingBotV3 {
     public final SimpleFloatProperty keyMultiplier = new SimpleFloatProperty(0.75F);
 
     // PEN SETS \\
-    public final SimpleBooleanProperty observableDrawingSetFlag = new SimpleBooleanProperty(false); //just a marker flag can be binded
     public ObservableDrawingPen invisibleDrawingPen = null;
     public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
     public ObservableList<ObservableDrawingSet> drawingSetSlots = FXCollections.observableArrayList();
@@ -150,10 +152,10 @@ public class DrawingBotV3 {
     public TaskMonitor taskMonitor = new TaskMonitor(taskService);
 
     // TASKS \\
-    public final SimpleObjectProperty<FilteredBufferedImage> openImage = new SimpleObjectProperty<>(null);
-    public final SimpleObjectProperty<PlottingTask> activeTask = new SimpleObjectProperty<>(null);
-
-    public PlottingTask renderedTask = null; //for tasks which generate sub tasks e.g. colour splitter, batch processing
+    public final ObjectProperty<FilteredBufferedImage> openImage = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<PFMTask> activeTask = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<PFMTask> renderedTask = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<PlottedDrawing> renderedDrawing = new SimpleObjectProperty<>(null);
 
     public File openFile = null;
 
@@ -179,9 +181,60 @@ public class DrawingBotV3 {
 
     public EnumDistributionType nextDistributionType = null;
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // RENDER FLAGS \\
+
+    public <T> void setRenderFlag(Flags.BooleanFlag flag){
+        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
+            displayMode.getRenderFlags().setFlag(flag, true);
+        }
+    }
+
+    public <T> void setRenderFlag(Flags.Flag<T> flag, T value){
+        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
+            displayMode.getRenderFlags().setFlag(flag, value);
+        }
+    }
+
+    {
+        activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
+        renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
+        renderedDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
+        displayMode.addListener((observable, oldValue, newValue) -> {
+            if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer())
+                setRenderFlag(Flags.FORCE_REDRAW, true);
+        });
+        openImage.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.FORCE_REDRAW, true));
+    }
+
+    public void reRender(){
+        setRenderFlag(Flags.FORCE_REDRAW);
+    }
+
+    public void onCanvasChanged(){
+        setRenderFlag(Flags.CANVAS_CHANGED, true);
+    }
+
+    public void clearDrawingRender(){
+        setRenderFlag(Flags.CLEAR_DRAWING, true);
+    }
+
+    public void onImageFiltersChanged(){
+        setRenderFlag(Flags.IMAGE_FILTERS_FULL_UPDATE, true);
+    }
+
+    public void onImageFilterDirty(){
+        setRenderFlag(Flags.IMAGE_FILTERS_PARTIAL_UPDATE, true);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public void updateUI(){
 
         taskMonitor.tick();
+
+        //TODO FIX THIS updatinmg on every tick
 
         if(getActiveTask() != null){
             if(getActiveTask().isRunning()){
@@ -204,7 +257,7 @@ public class DrawingBotV3 {
 
         if(openImage.get() != null){
             controller.labelImageResolution.setText(openImage.get().getSource().getWidth() + " x " + openImage.get().getSource().getHeight());
-            controller.labelPlottingResolution.setText(openImage.get().resolution.imageWidth + " x " + openImage.get().resolution.imageHeight);
+            controller.labelPlottingResolution.setText((int)(openImage.get().getCanvas().getScaledWidth()) + " x " + (int)(openImage.get().getCanvas().getScaledHeight()));
         }else{
             controller.labelImageResolution.setText("0 x 0");
             controller.labelPlottingResolution.setText("0 x 0");
@@ -231,7 +284,7 @@ public class DrawingBotV3 {
         newValue.applySettings();
     }
 
-    public void onPlottingTaskStageFinished(PlottingTask task, EnumTaskStage stage){
+    public void onPlottingTaskStageFinished(PFMTask task, EnumTaskStage stage){
         switch (stage){
             case QUEUED:
                 break;
@@ -247,9 +300,9 @@ public class DrawingBotV3 {
                     controller.rangeSliderDisplayedLines.setLowValue(0.0F);
                     controller.rangeSliderDisplayedLines.setHighValue(1.0F);
                     controller.textFieldDisplayedShapesMin.setText(String.valueOf(0));
-                    controller.textFieldDisplayedShapesMax.setText(String.valueOf(task.plottedDrawing.getGeometryCount()));
-                    controller.labelPlottedShapes.setText(Utils.defaultNF.format(task.plottedDrawing.getGeometryCount()));
-                    controller.labelPlottedVertices.setText(Utils.defaultNF.format(task.plottedDrawing.getVertexCount()));
+                    controller.textFieldDisplayedShapesMax.setText(String.valueOf(task.drawing.getGeometryCount()));
+                    controller.labelPlottedShapes.setText(Utils.defaultNF.format(task.drawing.getGeometryCount()));
+                    controller.labelPlottedVertices.setText(Utils.defaultNF.format(task.drawing.getVertexCount()));
                 });
                 break;
             case POST_PROCESSING:
@@ -259,16 +312,10 @@ public class DrawingBotV3 {
                 saveLastRun(task);
                 break;
         }
-       logger.info("Plotting Task: Finished Stage " + stage.name());
-    }
-
-    public void onDrawingAreaChanged(){
-        RENDERER.croppingDirty = true;
-        OPENGL_RENDERER.reRender();
-        //forces "Plotting Size" to stay updated.
-        if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            DrawingBotV3.INSTANCE.openImage.get().resolution.updateAll();
+        if(task == getRenderedTask()){
+            setRenderFlag(Flags.TASK_CHANGED_STATE, true);
         }
+       logger.info("Plotting Task: Finished Stage " + stage.name());
     }
 
     public void onDrawingPenChanged(){
@@ -281,7 +328,6 @@ public class DrawingBotV3 {
             return;
         }
         updatePenDistribution();
-        observableDrawingSetFlag.set(!observableDrawingSetFlag.get());
         if(controller != null){ //may not be initilized yet
             controller.onDrawingSetChanged();
         }
@@ -289,30 +335,32 @@ public class DrawingBotV3 {
 
     public void onImageFilterChanged(ObservableImageFilter filter){
         filter.dirty.set(true);
-        RENDERER.imageFilterDirty = true;
-    }
-
-    public void onImageFiltersChanged(){
-        RENDERER.imageFiltersChanged = true;
+        onImageFilterDirty();
     }
 
     public void updatePenDistribution(){
         if(activeTask.get() != null && activeTask.get().isTaskFinished()){
-            activeTask.get().plottedDrawing.updatePenDistribution();
+            activeTask.get().drawing.updatePenDistribution();
             reRender();
         }
     }
 
-    public void reRender(){
-        RENDERER.reRender();
-    }
-
     //// PLOTTING TASKS
-    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask) {
-        return initPlottingTask(drawingArea, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile, isSubTask);
+
+
+    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, boolean isSubTask) {
+        return initPlottingTask(canvas, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, null, null, isSubTask);
     }
 
-    public PlottingTask initPlottingTask(DrawingArea drawingArea, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask){
+    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask) {
+        return initPlottingTask(canvas, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile, isSubTask);
+    }
+
+    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, boolean isSubTask) {
+        return initPlottingTask(canvas, pfmFactory, pfmSettings, drawingPenSet, null, null, isSubTask);
+    }
+
+    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         if(!isSubTask){
             Platform.runLater(() -> {
@@ -326,9 +374,16 @@ public class DrawingBotV3 {
                 }
             });
         }
-        PlottingTask task = new PlottingTask(drawingArea, pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
+        PFMTask task;
+
+        if(!pfmFactory.isGenerativePFM()){
+            task = new PFMTaskImage(canvas, pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
+        }else{
+            task = new PFMTask(canvas, pfmFactory, pfmSettings, drawingPenSet);
+        }
+
         Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
-        task = (PlottingTask) hookReturn[0];
+        task = (PFMTask) hookReturn[0];
         task.isSubTask = isSubTask;
         return task;
     }
@@ -356,7 +411,7 @@ public class DrawingBotV3 {
         });
     }
 
-    public void saveLastRun(PlottingTask plottingTask){
+    public void saveLastRun(PFMTask plottingTask){
         DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
             Register.PRESET_LOADER_PROJECT.updatePreset(preset, plottingTask);
@@ -401,21 +456,18 @@ public class DrawingBotV3 {
         BufferedImageLoader.Filtered loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
         loadingImage.setOnSucceeded(e -> {
             openImage.set((FilteredBufferedImage) e.getSource().getValue());
-            displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
-
-            RENDERER.shouldRedraw = true;
-            RENDERER.canvasNeedsUpdate = true;
+            Platform.runLater(() -> displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE));
             FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
         });
         return loadingImage;
     }
 
-    public void setActivePlottingTask(PlottingTask task){
+    public void setActivePlottingTask(PFMTask task){
         if(activeTask.get() == task){
             return;
         }
         if(activeTask.get() != null){
-            final PlottingTask toReset = activeTask.get();
+            final PFMTask toReset = activeTask.get();
             backgroundService.submit(toReset::reset); //help GC by removing references to Geometries, run after other queue tasks have finished
         }
         activeTask.set(task);
@@ -423,27 +475,27 @@ public class DrawingBotV3 {
         if(activeTask.get() == null){
             displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_IMAGE);
         }
-        renderedTask = null;
+        renderedTask.set(null);
     }
 
-    public PlottingTask getActiveTask(){
+    public PFMTask getActiveTask(){
         return activeTask.get();
     }
 
-    public PlottingTask getRenderedTask(){
-        return renderedTask == null ? activeTask.get() : renderedTask;
+    public PFMTask getRenderedTask(){
+        return renderedTask.get() == null ? activeTask.get() : renderedTask.get();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// EXPORT TASKS
 
-    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation){
-        return createExportTask(exportHandler, exportMode, plottingTask, pointFilter, extension, saveLocation, forceBypassOptimisation, PrintResolution.copy(plottingTask.resolution));
+    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PFMTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation){
+        return createExportTask(exportHandler, exportMode, plottingTask.drawing, pointFilter, extension, saveLocation, forceBypassOptimisation);
     }
 
-    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PlottingTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation, PrintResolution resolution){
-        ExportTask task = new ExportTask(exportHandler, exportMode, plottingTask, pointFilter, extension, saveLocation, true, forceBypassOptimisation, false, resolution);
+    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PlottedDrawing plottedDrawing, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation){
+        ExportTask task = new ExportTask(exportHandler, exportMode, plottedDrawing, pointFilter, extension, saveLocation, true, forceBypassOptimisation, false);
         Object[] hookReturn = Hooks.runHook(Hooks.NEW_EXPORT_TASK, task);
         taskMonitor.queueTask((Task<?>) hookReturn[0]);
         return task;
@@ -461,7 +513,6 @@ public class DrawingBotV3 {
 
     public void keyPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.CONTROL) { ctrl_down = true; }
-        if (event.getCode() == KeyCode.X) { GridOverlay.mouse_point(); }
 
         if (event.getCode().isArrowKey()) {
             double delta = 0.01;
@@ -515,13 +566,13 @@ public class DrawingBotV3 {
             double printScale = 1;
 
             if(displayMode.get() != Register.INSTANCE.DISPLAY_MODE_IMAGE && getActiveTask() != null){
-                printScale = getActiveTask().resolution.getPrintScale();
+                printScale = getActiveTask().drawing.getCanvas().getPlottingScale();
             }
             if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE && openImage.get() != null){
-                printScale = openImage.get().resolution.getPrintScale();
+                printScale = openImage.get().getCanvas().getPlottingScale();
             }
 
-            position = position.multiply(printScale);
+            position = position.multiply(1F/printScale);
 
             controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " mm");
         }

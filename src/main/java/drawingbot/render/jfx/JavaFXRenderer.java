@@ -1,15 +1,13 @@
 package drawingbot.render.jfx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.image.ImageFilteringTask;
-import drawingbot.plotting.PlottingTask;
-import drawingbot.render.IDisplayMode;
+import drawingbot.plotting.PFMTask;
 import drawingbot.render.IRenderer;
 import drawingbot.render.modes.AbstractJFXDisplayMode;
-import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.GridOverlay;
-import javafx.application.Platform;
+import drawingbot.utils.flags.Flags;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
@@ -24,13 +22,6 @@ import org.jfree.fx.FXGraphics2D;
 public class JavaFXRenderer implements IRenderer {
 
     public final Rectangle2D screenBounds;
-    public boolean imageFilterDirty = false;
-    public boolean imageFiltersChanged = false;
-    public boolean croppingDirty = false;
-
-    public boolean markRenderDirty = true;
-    public boolean clearedProcessDrawing = false;
-
     public AbstractJFXDisplayMode displayMode;
 
     ///
@@ -51,24 +42,12 @@ public class JavaFXRenderer implements IRenderer {
 
     ///
 
-    private PlottingTask lastDrawn = null;
-    private EnumTaskStage lastState = null;
-    private IDisplayMode lastMode = null;
-    public boolean canvasNeedsUpdate = false;
-
-    ///
-
-    public boolean changedTask, changedMode, changedState, shouldRedraw;
-
     public ImageFilteringTask filteringTask;
 
     public JavaFXRenderer(Rectangle2D screenBounds) {
         this.screenBounds = screenBounds;
     }
 
-    public void forceCanvasUpdate(){
-        canvasNeedsUpdate = true;
-    }
 
     public void init(){
         canvas = new Canvas(500, 500);
@@ -118,23 +97,13 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     private void preRender(){
-        updateCanvasPosition();
-
-        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-
-        //update the flags from the last render
-        changedTask = lastDrawn != renderedTask;
-        changedMode = lastMode != DrawingBotV3.INSTANCE.displayMode.get();
-        changedState = renderedTask != null && lastState != renderedTask.stage;
-        shouldRedraw = markRenderDirty || changedTask || changedMode || changedState;
-        canvasNeedsUpdate = canvasNeedsUpdate || lastMode == null || lastMode != DrawingBotV3.INSTANCE.displayMode.get();
-
         //reset canvas scaling
         graphicsFX.setTransform(1, 0, 0, 1, 0, 0);
 
         displayMode.preRender(this);
+        displayMode.getRenderFlags().applyMarkedChanges();
 
-        updateCanvasScaling();
+        //updateCanvasScaling();
         graphicsFX.setImageSmoothing(false);
         graphicsFX.setLineCap(StrokeLineCap.ROUND);
         graphicsFX.setLineJoin(StrokeLineJoin.ROUND);
@@ -144,30 +113,15 @@ public class JavaFXRenderer implements IRenderer {
 
     private void doRender() {
         displayMode.doRender(this);
-
-        if(shouldRedraw){
-            GridOverlay.grid();
-        }
+        //TODO GRID RENDERER
     }
 
     private void postRender(){
         displayMode.postRender(this);
-
         graphicsFX.restore();
 
-        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-        markRenderDirty = false;
-        clearedProcessDrawing = false;
-        lastDrawn = renderedTask;
-        lastMode = DrawingBotV3.INSTANCE.displayMode.get();
-        lastState = renderedTask == null ? null : renderedTask.stage;
-    }
-
-    public void clearProcessRendering(){
-        Platform.runLater(() -> {
-            clearedProcessDrawing = true;
-            DrawingBotV3.OPENGL_RENDERER.reRender();
-        });
+        //update the canvas position after it has been resized
+        updateCanvasPosition();
     }
 
     public void clearCanvas(){
@@ -180,7 +134,20 @@ public class JavaFXRenderer implements IRenderer {
         canvas.getGraphicsContext2D().fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
-    public void updateCanvasSize(double width, double height){
+    private double refWidth = -1, refHeight = -1;
+
+    public void setupCanvasSize(ICanvas canvas){
+        if(canvas != null){
+            setupCanvasSize((int)canvas.getScaledWidth(), (int)canvas.getScaledHeight());
+        }
+    }
+
+    public void setupCanvasSize(double width, double height){
+        if(refWidth == width && refHeight == height){
+            return;
+        }
+        refWidth = width;
+        refHeight = height;
         if(width > getMaxTextureSize() || height > getMaxTextureSize()){
             double max = Math.max(width, height);
             canvasScaling = getMaxTextureSize() / max;
@@ -208,8 +175,11 @@ public class JavaFXRenderer implements IRenderer {
         canvas.widthProperty().setValue(width);
         canvas.heightProperty().setValue(height);
 
+        updateCanvasScaling();
+
         DrawingBotV3.INSTANCE.resetView();
         clearCanvas();//wipe the canvas
+        DrawingBotV3.INSTANCE.setRenderFlag(Flags.FORCE_REDRAW, true);
     }
 
     public void updateCanvasScaling(){
@@ -217,11 +187,8 @@ public class JavaFXRenderer implements IRenderer {
         double screen_scale_y = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());
         double screen_scale = Math.min(screen_scale_x, screen_scale_y);
         if(canvas.getScaleX() != screen_scale){
-            double oldScale = canvas.getScaleX();
-
             canvas.setScaleX(screen_scale);
             canvas.setScaleY(screen_scale);
-
         }
     }
 
@@ -250,11 +217,6 @@ public class JavaFXRenderer implements IRenderer {
     @Override
     public Pane getPane() {
         return pane;
-    }
-
-    public final void reRender(){
-        markRenderDirty = true;
-        DrawingBotV3.OPENGL_RENDERER.reRender();
     }
 
     @Override

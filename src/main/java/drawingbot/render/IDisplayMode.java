@@ -1,5 +1,7 @@
 package drawingbot.render;
 
+import drawingbot.utils.flags.FlagStates;
+
 public interface IDisplayMode {
 
     String getName();
@@ -9,5 +11,7 @@ public interface IDisplayMode {
     default void resetSettings(){}
 
     IRenderer getRenderer();
+
+    FlagStates getRenderFlags();
 
 }

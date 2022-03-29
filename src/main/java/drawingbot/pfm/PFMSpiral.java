@@ -6,7 +6,7 @@ import drawingbot.utils.Utils;
 import java.awt.geom.Point2D;
 
 /**https://github.com/krummrey/SpiralFromImage*/
-public class PFMSpiral extends AbstractPFM {
+public class PFMSpiral extends AbstractPFMImage {
 
     public float distBetweenRings = 7;                  // Distance between rings
     public float density = 75;                          // Density
@@ -33,20 +33,20 @@ public class PFMSpiral extends AbstractPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void doProcess() {
+    public void run() {
         radius = distBetweenRings / 2;
         k = density / radius;
         alpha = k;
         radius += distBetweenRings / (360 / k);
 
-        int centreX = (int)(task.getPixelData().getWidth()*centreXScale);
-        int centreY = (int)(task.getPixelData().getHeight()*centreYScale);
+        int centreX = (int)(tools.getPixelData().getWidth()*centreXScale);
+        int centreY = (int)(tools.getPixelData().getHeight()*centreYScale);
 
         // find the furthest corner of the image
         double topLeft = Point2D.distance(centreX, centreY, 0, 0);
-        double topRight = Point2D.distance(centreX, centreY, 0, task.getPixelData().getHeight()-1);
-        double bottomLeft = Point2D.distance(centreX, centreY, task.getPixelData().getWidth()-1, 0);
-        double bottomRight = Point2D.distance(centreX, centreY, task.getPixelData().getWidth()-1, task.getPixelData().getHeight()-1);
+        double topRight = Point2D.distance(centreX, centreY, 0, tools.getPixelData().getHeight()-1);
+        double bottomLeft = Point2D.distance(centreX, centreY, tools.getPixelData().getWidth()-1, 0);
+        double bottomRight = Point2D.distance(centreX, centreY, tools.getPixelData().getWidth()-1, tools.getPixelData().getHeight()-1);
 
         endRadius = (float)(Math.max(Math.max(topLeft, topRight), Math.max(bottomLeft, bottomRight))*fillPercentage);
 
@@ -69,10 +69,10 @@ public class PFMSpiral extends AbstractPFM {
 
             // Are we within the the image?
             // If so check if the shape is open. If not, open it
-            if ((x >= 0) && (x < task.getPixelData().getWidth()) && (y > 0) && (y < task.getPixelData().getHeight())) {
+            if ((x >= 0) && (x < tools.getPixelData().getWidth()) && (y > 0) && (y < tools.getPixelData().getHeight())) {
 
                 // Get the color and brightness of the sampled pixel
-                b = task.getPixelData().getLuminance((int)x, (int)y);
+                b = tools.getPixelData().getLuminance((int)x, (int)y);
                 b = Utils.mapFloat(b, 0, 255, distBetweenRings * ampScale, 0);
 
                 // Move up according to sampled brightness
@@ -100,15 +100,12 @@ public class PFMSpiral extends AbstractPFM {
             }
 
             if(draw){
-                task.addGeometry(new GLine(xa, ya, xb, yb), -1, -1);
+                tools.addGeometry(new GLine(xa, ya, xb, yb), -1, -1);
             }
 
             float startRadius = distBetweenRings / 2;
-            task.updatePlottingProgress(radius-startRadius, endRadius-startRadius);
+            tools.updateProgress(radius-startRadius, endRadius-startRadius);
         }
-
-        //task.closePath();
-        task.finishProcess();
     }
 
 }

@@ -10,6 +10,7 @@ import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
+import drawingbot.plotting.PFMTaskImage;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
@@ -18,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -81,7 +83,14 @@ public class FXHelper {
             d.setSelectedExtensionFilter(exportHandler.filters[0]);
             d.setTitle(exportHandler.getDialogTitle());
             d.setInitialDirectory(FileUtils.getExportDirectory());
-            d.setInitialFileName(FileUtils.removeExtension(DrawingBotV3.INSTANCE.getActiveTask().originalFile.getName()) + "_plotted");
+
+            if(DrawingBotV3.INSTANCE.getActiveTask() instanceof PFMTaskImage){
+                PFMTaskImage taskImage = (PFMTaskImage) DrawingBotV3.INSTANCE.getActiveTask();
+                if(taskImage.originalImageFile != null){
+                    d.setInitialFileName(FileUtils.removeExtension(taskImage.originalImageFile.getName()) + "_plotted");
+                }
+            }
+
             File file = d.showSaveDialog(null);
             if(file != null){
                 String extension = d.getSelectedExtensionFilter().getExtensions().get(0).substring(1);
@@ -202,19 +211,22 @@ public class FXHelper {
         try {
             FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource(fmxlPath));
             exportUILoader.setController(controller);
-
-            Scene scene = new Scene(exportUILoader.load());
-            stage.initModality(modality);
-            stage.initOwner(FXApplication.primaryStage);
-            stage.setScene(scene);
-            stage.hide();
-            stage.setTitle(stageTitle);
-            stage.setResizable(false);
-            FXApplication.applyDBStyle(stage);
-            FXApplication.childStages.add(stage);
+            initSeparateStage(exportUILoader.load(), stage, stageTitle, modality);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void initSeparateStage(Parent parent, Stage stage, String stageTitle, Modality modality){
+        Scene scene = new Scene(parent);
+        stage.initModality(modality);
+        stage.initOwner(FXApplication.primaryStage);
+        stage.setScene(scene);
+        stage.hide();
+        stage.setTitle(stageTitle);
+        stage.setResizable(false);
+        FXApplication.applyDBStyle(stage);
+        FXApplication.childStages.add(stage);
     }
 
     public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> presetManager, MenuButton button, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){

@@ -25,7 +25,7 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
     }
 
     public ListSetting(Class<C> clazz, Class<O> objectType, String category, String settingName, ArrayList<O> defaultValue, BiConsumer<C, ArrayList<O>> setter) {
-        super(clazz, null, category, settingName, defaultValue, new StringConverter<>() {
+        super(clazz, (Class<ArrayList<O>>) defaultValue.getClass(), category, settingName, defaultValue, new StringConverter<>() {
             @Override
             public String toString(ArrayList<O> object) {
                 return object.toString();

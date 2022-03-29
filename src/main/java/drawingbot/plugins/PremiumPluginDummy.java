@@ -2,10 +2,7 @@ package drawingbot.plugins;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.api.Hooks;
-import drawingbot.api.IPathFindingModule;
-import drawingbot.api.IPlottingTask;
-import drawingbot.api.IPlugin;
+import drawingbot.api.*;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
@@ -15,6 +12,8 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -36,6 +35,8 @@ public class PremiumPluginDummy implements IPlugin {
 
         MasterRegistry.INSTANCE.registerDisplayMode(new IDisplayMode() {
 
+            final FlagStates renderFlags = new FlagStates(Flags.RENDER_CATEGORY);
+
             @Override
             public String getName() {
                 return "Drawing (Hardware Accelerated) (Premium)";
@@ -44,6 +45,11 @@ public class PremiumPluginDummy implements IPlugin {
             @Override
             public IRenderer getRenderer() {
                 return DrawingBotV3.OPENGL_RENDERER;
+            }
+
+            @Override
+            public FlagStates getRenderFlags() {
+                return renderFlags;
             }
 
             @Override
@@ -141,19 +147,12 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("CMYK"));
     }
 
-    public static class DummyPFM implements IPathFindingModule{
-
-        public IPlottingTask task;
+    public static class DummyPFM implements IPFM {
+        @Override
+        public void init(IPlottingTools tools) {}
 
         @Override
-        public void init(IPlottingTask task) {
-            this.task = task;
-        }
-
-        @Override
-        public void doProcess() {
-            task.finishProcess();
-        }
+        public void run() {}
     }
 
 }

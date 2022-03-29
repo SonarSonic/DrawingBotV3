@@ -3,14 +3,13 @@ package drawingbot.files;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.GeometryUtils;
-import drawingbot.image.PrintResolution;
 import drawingbot.javafx.controls.DialogExportNPens;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.DrawingGeometryIterator;
 import drawingbot.plotting.PlottedGroup;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.utils.DBTask;
 import javafx.application.Platform;
 import javafx.scene.control.Dialog;
@@ -26,7 +25,7 @@ public class ExportTask extends DBTask<Boolean> {
     public final DrawingExportHandler exportHandler;
     public final Mode exportMode;
     public final String extension;
-    public final PlottingTask plottingTask;
+    public final PlottedDrawing plottedDrawing;
     public final IGeometryFilter geometryFilter;
     public final File saveLocation;
     public final boolean overwrite;
@@ -37,23 +36,22 @@ public class ExportTask extends DBTask<Boolean> {
 
     public int renderedGeometries;
 
+    public float exportScale = 1F;
     public PlottedDrawing exportDrawing;
-    public PrintResolution exportResolution;
     public List<ObservableDrawingPen> exportRenderOrder;
     public DrawingGeometryIterator exportIterator;
     public Map<ObservableDrawingPen, Integer> exportPenStats;
 
-    public ExportTask(DrawingExportHandler exportHandler, Mode exportMode, PlottingTask plottingTask, IGeometryFilter geometryFilter, String extension, File saveLocation, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask, PrintResolution exportResolution){
+    public ExportTask(DrawingExportHandler exportHandler, Mode exportMode, PlottedDrawing plottedDrawing, IGeometryFilter geometryFilter, String extension, File saveLocation, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask){
         this.exportHandler = exportHandler;
         this.exportMode = exportMode;
-        this.plottingTask = plottingTask;
+        this.plottedDrawing = plottedDrawing;
         this.geometryFilter = geometryFilter;
         this.extension = extension;
         this.saveLocation = saveLocation;
         this.overwrite = overwrite;
         this.forceBypassOptimisation = forceBypassOptimisation;
         this.isSubTask = isSubTask;
-        this.exportResolution = exportResolution;
     }
 
     /**
@@ -78,6 +76,12 @@ public class ExportTask extends DBTask<Boolean> {
         exportPenStats = PlottedDrawing.getPerPenGeometryStats(exportDrawing);
         exportRenderOrder = filterActivePens(exportDrawing.getGlobalRenderOrder(), true);
         exportIterator = new DrawingGeometryIterator(exportDrawing, exportRenderOrder);
+
+        if(exportScale != 1F){
+            float previousScale = exportDrawing.canvas.getPlottingScale();
+            exportDrawing.canvas = CanvasUtils.normalisedCanvas(exportDrawing.canvas);
+            exportDrawing.canvas = CanvasUtils.rescaleCanvas(exportDrawing.canvas, exportScale / previousScale);
+        }
     }
 
     public void doExport(IGeometryFilter geometryFilter, File saveLocation){
@@ -130,7 +134,7 @@ public class ExportTask extends DBTask<Boolean> {
             }
         }
 
-        originalPenStats = PlottedDrawing.getPerPenGeometryStats(plottingTask.plottedDrawing);
+        originalPenStats = PlottedDrawing.getPerPenGeometryStats(plottedDrawing);
         File baseSaveLocation = FileUtils.removeExtension(saveLocation);
 
         switch (exportMode){
@@ -139,7 +143,7 @@ public class ExportTask extends DBTask<Boolean> {
                 doExport(geometryFilter, saveLocation);
                 break;
             case PER_GROUP:
-                Collection<PlottedGroup> groups = plottingTask.plottedDrawing.groups.values();
+                Collection<PlottedGroup> groups = plottedDrawing.groups.values();
                 int groupPos = 0;
                 for(PlottedGroup group : groups){
                     updateTitle(exportHandler.displayName + ": " + (groupPos+1) + " / " + groups.size() + " - " + saveLocation.getPath());
@@ -151,7 +155,7 @@ public class ExportTask extends DBTask<Boolean> {
                 }
                 break;
             case PER_PEN:
-                List<ObservableDrawingPen> activePens = filterActivePens(plottingTask.plottedDrawing.getGlobalDisplayOrder(), false);
+                List<ObservableDrawingPen> activePens = filterActivePens(plottedDrawing.getGlobalDisplayOrder(), false);
                 int setPos = 0;
                 for(ObservableDrawingSet drawingSet : DrawingBotV3.INSTANCE.drawingSetSlots){
                     int penPos = 0;
@@ -167,7 +171,7 @@ public class ExportTask extends DBTask<Boolean> {
                 }
                 break;
             case PER_N_PENS:
-                activePens = filterActivePens(plottingTask.plottedDrawing.getGlobalDisplayOrder(), false);
+                activePens = filterActivePens(plottedDrawing.getGlobalDisplayOrder(), false);
 
 
                 CountDownLatch latch = new CountDownLatch(1);
@@ -233,6 +237,11 @@ public class ExportTask extends DBTask<Boolean> {
 
         public String getDisplayName() {
             return displayName;
+        }
+
+        @Override
+        public String toString() {
+            return getDisplayName();
         }
     }
 

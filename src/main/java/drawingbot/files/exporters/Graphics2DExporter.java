@@ -5,6 +5,7 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
 import drawingbot.render.RenderUtils;
+import drawingbot.utils.UnitsLength;
 
 import java.awt.*;
 
@@ -19,8 +20,8 @@ public class Graphics2DExporter {
     }
 
     public static void preDraw(ExportTask exportTask, Graphics2D graphics){
-        graphics.translate(exportTask.exportResolution.getScaledOffsetX(), exportTask.exportResolution.getScaledOffsetY());
-        graphics.scale(exportTask.exportResolution.finalPrintScaleX, exportTask.exportResolution.finalPrintScaleY);
+        graphics.translate(exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetX(), exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetY());
+        graphics.scale(exportTask.exportDrawing.getCanvas().getCanvasScale(), exportTask.exportDrawing.getCanvas().getCanvasScale());
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 

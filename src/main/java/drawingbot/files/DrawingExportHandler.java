@@ -38,6 +38,11 @@ public class DrawingExportHandler {
         return "Save " + displayName;
     }
 
+    @Override
+    public String toString() {
+        return displayName;
+    }
+
     public enum Category {
         SVG,
         IMAGE,

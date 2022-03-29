@@ -2,6 +2,7 @@ package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
+import drawingbot.utils.EnumRotation;
 import javafx.concurrent.Task;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
@@ -92,6 +93,27 @@ public class BufferedImageLoader extends Task<BufferedImage> {
             return optimalImg;
         }
         return null;
+    }
+
+    public static class Transformed extends BufferedImageLoader {
+
+        public EnumRotation imageRotation;
+        public boolean flipHorizontal;
+        public boolean flipVertical;
+
+        public Transformed(String url, boolean internal, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical) {
+            super(url, internal);
+            this.imageRotation = imageRotation;
+            this.flipHorizontal = flipHorizontal;
+            this.flipVertical = flipVertical;
+        }
+
+        @Override
+        protected BufferedImage call() throws Exception {
+            BufferedImage image = super.call();
+            image = ImageTools.transformImage(image, imageRotation, flipHorizontal, flipVertical);
+            return image;
+        }
     }
 
     public static class Filtered extends Task<FilteredBufferedImage> {

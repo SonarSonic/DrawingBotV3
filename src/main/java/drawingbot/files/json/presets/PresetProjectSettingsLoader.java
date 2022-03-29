@@ -9,13 +9,13 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.image.PrintResolution;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableProjectSettings;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PFMTask;
 import drawingbot.registry.Register;
+import drawingbot.utils.UnitsLength;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +52,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         return updatePreset(preset, DrawingBotV3.INSTANCE.getActiveTask());
     }
 
-    public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset, @Nullable PlottingTask plottingTask) {
+    public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset, @Nullable PFMTask plottingTask) {
 
         preset.data.imagePath = DrawingBotV3.INSTANCE.openFile != null ? DrawingBotV3.INSTANCE.openFile.getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
@@ -118,9 +118,8 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         //run the thumbnail generation task
         if(plottingTask != null && !preset.data.thumbnailID.isEmpty()){
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
-            PrintResolution thumbnailResolution = PrintResolution.copy(plottingTask.resolution);
-            thumbnailResolution.changePrintResolution(400, (int)((400 / thumbnailResolution.scaledWidth)*thumbnailResolution.scaledHeight));
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, plottingTask.plottedDrawing, thumbnailResolution, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, plottingTask.drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
+            task.exportScale = 400 / plottingTask.drawing.canvas.getWidth(UnitsLength.PIXELS);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
 
@@ -130,7 +129,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
     @Override
     public void applyPreset(GenericPreset<PresetProjectSettings> preset) {
 
-        Register.PRESET_LOADER_DRAWING_AREA.applyPreset(preset.data.drawingArea);
+       // Register.PRESET_LOADER_DRAWING_AREA.applyPreset(preset.data.drawingArea);
         Register.PRESET_LOADER_FILTERS.applyPreset(preset.data.imageFilters);
         Register.PRESET_LOADER_PFM.applyPreset(preset.data.pfmSettings);
 

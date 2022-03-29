@@ -17,9 +17,9 @@ public class PFMSketchLines extends AbstractSketchPFM {
     protected float findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst) {
         boolean shading = enableShading && shadingThreshold < lumProgress;
         float deltaAngle = shading ? shadingDeltaAngle : drawingDeltaAngle;
-        float startAngle = randomSeedF(startAngleMin, startAngleMax) + 0.5F;
-        int nextLineLength = randomSeed(minLineLength, maxLineLength);
-        return findDarkestLine(bresenham, pixels, point[0], point[1], minLineLength, nextLineLength, unlimitedTests ? -1 : lineTests, startAngle, deltaAngle, shading, darkestDst);
+        float startAngle = tools.randomFloat(startAngleMin, startAngleMax) + 0.5F;
+        int nextLineLength = tools.randomInt(minLineLength, maxLineLength);
+        return tools.findDarkestLine(pixels, point[0], point[1], minLineLength, nextLineLength, unlimitedTests ? -1 : lineTests, startAngle, deltaAngle, shading, darkestDst);
     }
 
 }

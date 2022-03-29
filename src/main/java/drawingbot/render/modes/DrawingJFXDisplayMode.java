@@ -5,9 +5,12 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.AsynchronousGeometryIterator;
 import drawingbot.plotting.DrawingGeometryIterator;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PFMTask;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.render.RenderUtils;
 import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.utils.EnumTaskStage;
+import drawingbot.utils.flags.Flags;
 
 public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
@@ -16,81 +19,68 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
     @Override
     public void preRender(JavaFXRenderer jfr) {
-        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-
-        //if the task has changed the images size will also have changed
-        if(jfr.changedTask){
-            jfr.canvasNeedsUpdate = true;
-        }
-        //we will only update the canvas when there is a correct print scale
-        if(jfr.canvasNeedsUpdate && renderedTask != null && renderedTask.resolution.getPrintScale() > 0){
-            jfr.updateCanvasSize(renderedTask.resolution.getScaledWidth(), renderedTask.resolution.getScaledHeight());
-            jfr.updateCanvasScaling();
-            jfr.canvasNeedsUpdate = false;
-            jfr.shouldRedraw = true; //force redraw
+        //setup the canvas
+        if(DrawingBotV3.INSTANCE.getRenderedTask() != null && DrawingBotV3.INSTANCE.getRenderedTask().stage != EnumTaskStage.FINISHED){
+            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getRenderedTask().drawing.getCanvas());
+        }else if(DrawingBotV3.INSTANCE.renderedDrawing.get() != null){
+            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.renderedDrawing.get().getCanvas());
+        }else{
+            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
         }
     }
 
     @Override
     public void doRender(JavaFXRenderer jfr) {
-        PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-        if(renderedTask != null){
-            switch (renderedTask.stage){
-                case QUEUED:
-                case PRE_PROCESSING:
-                    break;
-                case DO_PROCESS:
-                    if(renderedTask.handlesProcessRendering()){
-                        renderedTask.renderProcessing(jfr, renderedTask);
-                    }else{
-                        if(asyncIterator == null || asyncIterator.currentDrawing != renderedTask.plottedDrawing){
-                            asyncIterator = new AsynchronousGeometryIterator(renderedTask.plottedDrawing);
-                        }
-
-                        if(jfr.clearedProcessDrawing || jfr.changedTask || jfr.changedState || jfr.changedMode){ //avoids redrawing in some instances
-                            jfr.clearCanvas();
-                            asyncIterator.reset();
-                        }
-                        if(asyncIterator.hasNext()){
-                            jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                            jfr.graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-
-                            RenderUtils.renderDrawingFX(jfr.graphicsFX, asyncIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
-                        }
-                    }
-                    break;
-                case POST_PROCESSING:
-                case FINISHING:
-                    // NOP - continue displaying the path finding result
-                    break;
-                case FINISHED:
-                    if(drawingIterator == null || drawingIterator.currentDrawing != renderedTask.plottedDrawing){
-                        drawingIterator = new DrawingGeometryIterator(renderedTask.plottedDrawing);
+        if(DrawingBotV3.INSTANCE.getRenderedTask() != null){
+            PFMTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
+            if (renderedTask.stage != EnumTaskStage.FINISHED) {
+                if (renderedTask.handlesProcessRendering()) {
+                    renderedTask.renderProcessing(jfr, renderedTask);
+                } else {
+                    if (asyncIterator == null || asyncIterator.currentDrawing != renderedTask.drawing) {
+                        asyncIterator = new AsynchronousGeometryIterator(renderedTask.drawing);
                     }
 
-                    EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
-                    if(jfr.shouldRedraw){
+                    if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
                         jfr.clearCanvas();
-                        drawingIterator.reset(renderedTask.plottedDrawing);
-                        DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
-                        DrawingBotV3.INSTANCE.updateLocalProgress(0);
+                        asyncIterator.reset();
+                        renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
                     }
-
-
-                    if(drawingIterator.hasNext()){
+                    if (asyncIterator.hasNext()) {
                         jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                        jfr.graphicsFX.translate(renderedTask.resolution.getScaledOffsetX(), renderedTask.resolution.getScaledOffsetY());
-                        jfr.graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
+                        jfr.graphicsFX.translate(renderedTask.drawing.getCanvas().getScaledDrawingOffsetX(), renderedTask.drawing.getCanvas().getScaledDrawingOffsetY());
 
-                        RenderUtils.renderDrawingFX(jfr.graphicsFX, drawingIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
-
-                        DrawingBotV3.INSTANCE.updateLocalProgress(drawingIterator.getCurrentGeometryProgress());
+                        RenderUtils.renderDrawingFX(jfr.graphicsFX, asyncIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
                     }
-                    break;
+                }
+                return;
             }
+        }
+        PlottedDrawing drawing = DrawingBotV3.INSTANCE.renderedDrawing.get();
+        if(drawing != null){
+            if(drawingIterator == null || drawingIterator.currentDrawing != drawing){
+                drawingIterator = new DrawingGeometryIterator(drawing);
+            }
+            EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+                jfr.clearCanvas();
+                drawingIterator.reset(drawing);
+                DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
+                DrawingBotV3.INSTANCE.updateLocalProgress(0);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+            }
+            if(drawingIterator.hasNext()){
+                jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
+                jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
+                jfr.graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
-        }else if(jfr.shouldRedraw){
+                RenderUtils.renderDrawingFX(jfr.graphicsFX, drawingIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
+
+                DrawingBotV3.INSTANCE.updateLocalProgress(drawingIterator.getCurrentGeometryProgress());
+            }
+        }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
             jfr.clearCanvas();
+            renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
         }
     }
 

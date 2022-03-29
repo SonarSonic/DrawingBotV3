@@ -184,7 +184,7 @@
                                     </AnchorPane>
                                 </content>
                               </TitledPane>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
+                              <TitledPane expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="423.0">
                                        <children>

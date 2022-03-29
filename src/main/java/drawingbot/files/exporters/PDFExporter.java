@@ -11,6 +11,7 @@ import com.itextpdf.text.pdf.PdfName;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.utils.UnitsLength;
 
 import java.awt.*;
@@ -23,12 +24,12 @@ public class PDFExporter {
 
     public static void exportPDF(ExportTask exportTask, File saveLocation){
         try {
-            int width = (int)exportTask.exportResolution.getScaledWidth();
-            int height = (int)exportTask.exportResolution.getScaledHeight();
+            int width = (int)exportTask.exportDrawing.getCanvas().getScaledWidth();
+            int height = (int)exportTask.exportDrawing.getCanvas().getScaledHeight();
 
             // Calculate the page size relative to the configured PDF DPI
-            float scaledPageWidth = exportTask.exportResolution.printPageWidth / UnitsLength.INCHES.convertToMM * DrawingBotV3.PDF_DPI;
-            float scaledPageHeight = exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM * DrawingBotV3.PDF_DPI;
+            int scaledPageWidth = (int) CanvasUtils.getExportWidth(exportTask.exportDrawing.getCanvas(), DrawingBotV3.PDF_DPI);
+            int scaledPageHeight = (int)CanvasUtils.getExportHeight(exportTask.exportDrawing.getCanvas(), DrawingBotV3.PDF_DPI);
             double scale = (double)scaledPageWidth / width;
 
             Document document = new Document(new Rectangle(scaledPageWidth, scaledPageHeight));

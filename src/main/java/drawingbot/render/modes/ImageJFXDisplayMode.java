@@ -2,33 +2,19 @@ package drawingbot.render.modes;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.image.ImageFilteringTask;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PFMTaskImage;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.utils.flags.Flags;
 import javafx.embed.swing.SwingFXUtils;
+
+import java.awt.image.BufferedImage;
 
 public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
 
     @Override
     public void preRender(JavaFXRenderer jfr) {
-        if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            if(jfr.imageFiltersChanged || jfr.imageFilterDirty || jfr.croppingDirty){
-                if(jfr.filteringTask == null || !jfr.filteringTask.updating.get()){
-                    DrawingBotV3.INSTANCE.openImage.get().updateCropping = jfr.croppingDirty;
-                    DrawingBotV3.INSTANCE.openImage.get().updateAllFilters = jfr.imageFiltersChanged;
-                    jfr.imageFiltersChanged = false;
-                    jfr.imageFilterDirty = false;
-                    jfr.croppingDirty = false;
-                    DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.imageFilteringService, jfr.filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
-                }
-            }
-            //resize the canvas
-            if(jfr.canvasNeedsUpdate){
-                jfr.updateCanvasSize(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledWidth(), DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledHeight());
-                jfr.updateCanvasScaling();
-                jfr.canvasNeedsUpdate = false;
-                jfr.shouldRedraw = true; //force redraw
-            }
-        }
+        //NOP
     }
 
     @Override
@@ -39,16 +25,41 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
     public static class Image extends ImageJFXDisplayMode{
 
         @Override
-        public void doRender(JavaFXRenderer jfr) {
+        public void preRender(JavaFXRenderer jfr) {
+            super.preRender(jfr);
+
+            //update the filtered image
             if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                if(jfr.shouldRedraw){
-                    jfr.clearCanvas();
+                if(renderFlags.anyMatch(Flags.IMAGE_FILTERS_FULL_UPDATE, Flags.IMAGE_FILTERS_PARTIAL_UPDATE, Flags.CANVAS_CHANGED)){
+                    if(jfr.filteringTask == null || !jfr.filteringTask.updating.get()){
+                        DrawingBotV3.INSTANCE.openImage.get().updateCropping = renderFlags.anyMatch(Flags.CANVAS_CHANGED);//jfr.croppingDirty;
+                        DrawingBotV3.INSTANCE.openImage.get().updateAllFilters = renderFlags.anyMatch(Flags.IMAGE_FILTERS_FULL_UPDATE);//jfr.imageFiltersChanged;
+                        DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.imageFilteringService, jfr.filteringTask = new ImageFilteringTask(DrawingBotV3.INSTANCE.openImage.get()));
+                        renderFlags.markForClear(Flags.IMAGE_FILTERS_FULL_UPDATE, Flags.IMAGE_FILTERS_PARTIAL_UPDATE, Flags.CANVAS_CHANGED);
+                    }
+                }
+            }
+
+            //setup the canvas
+            if (DrawingBotV3.INSTANCE.openImage.get() != null) {
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.openImage.get().getCanvas());
+            }else{
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
+            }
+        }
+
+        @Override
+        public void doRender(JavaFXRenderer jfr) {
+
+            //render the image
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+                jfr.clearCanvas();
+                if (DrawingBotV3.INSTANCE.openImage.get() != null) {
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                    jfr.graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
+                    jfr.graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().getCanvas().getScaledDrawingOffsetX(), DrawingBotV3.INSTANCE.openImage.get().getCanvas().getScaledDrawingOffsetY());
                     jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(DrawingBotV3.INSTANCE.openImage.get().getFiltered(), null), 0, 0);
                 }
-            }else{
-                jfr.clearCanvas();
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
             }
         }
 
@@ -61,20 +72,31 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
     public static class Original extends ImageJFXDisplayMode{
 
         @Override
-        public void doRender(JavaFXRenderer jfr) {
-            PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-            if(jfr.shouldRedraw){
-                jfr.clearCanvas();
-                if(renderedTask != null && renderedTask.getOriginalImage() != null){
-                    float screen_scale_x = (float)renderedTask.imgPlotting.getWidth() / (float)renderedTask.imgOriginal.getWidth();
-                    float screen_scale_y = (float)renderedTask.imgPlotting.getHeight() / (float)renderedTask.imgOriginal.getHeight();
-                    float screen_scale = Math.min(screen_scale_x, screen_scale_y);
+        public void preRender(JavaFXRenderer jfr) {
+            super.preRender(jfr);
 
+            //setup the canvas
+            if(DrawingBotV3.INSTANCE.renderedDrawing.get() != null && DrawingBotV3.INSTANCE.renderedDrawing.get().getOriginalImage() != null){
+                BufferedImage originalImage = DrawingBotV3.INSTANCE.renderedDrawing.get().getOriginalImage();
+                jfr.setupCanvasSize(originalImage.getWidth(), originalImage.getHeight());
+            }else{
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
+            }
+        }
+
+        @Override
+        public void doRender(JavaFXRenderer jfr) {
+
+            //render the image
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+                jfr.clearCanvas();
+                if(DrawingBotV3.INSTANCE.renderedDrawing.get() != null && DrawingBotV3.INSTANCE.renderedDrawing.get().getOriginalImage() != null){
+                    BufferedImage originalImage = DrawingBotV3.INSTANCE.renderedDrawing.get().getOriginalImage();
+                    jfr.setupCanvasSize(originalImage.getWidth(), originalImage.getHeight());
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                    jfr.graphicsFX.translate(renderedTask.resolution.imageOffsetX, renderedTask.resolution.imageOffsetY);
-                    jfr.graphicsFX.scale(screen_scale, screen_scale);
-                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getOriginalImage(), null), 0, 0);
+                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(originalImage, null), 0, 0);
                 }
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
             }
         }
 
@@ -87,15 +109,30 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
     public static class Reference extends ImageJFXDisplayMode{
 
         @Override
+        public void preRender(JavaFXRenderer jfr) {
+            super.preRender(jfr);
+
+            //setup the canvas
+            if (DrawingBotV3.INSTANCE.renderedDrawing.get() != null) {
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.renderedDrawing.get().getCanvas());
+            }else{
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
+            }
+        }
+
+        @Override
         public void doRender(JavaFXRenderer jfr) {
-            PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-            if(jfr.shouldRedraw){
+
+            //render the image
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
                 jfr.clearCanvas();
-                if(renderedTask != null && renderedTask.getReferenceImage() != null){
+                if(DrawingBotV3.INSTANCE.renderedDrawing.get() != null && DrawingBotV3.INSTANCE.renderedDrawing.get().getReferenceImage() != null){
+                    PlottedDrawing drawing = DrawingBotV3.INSTANCE.renderedDrawing.get();
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                    jfr.graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
-                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getReferenceImage(), null), 0, 0);
+                    jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
+                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(drawing.getReferenceImage(), null), 0, 0);
                 }
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
             }
         }
 
@@ -108,15 +145,30 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
     public static class Lightened extends ImageJFXDisplayMode{
 
         @Override
+        public void preRender(JavaFXRenderer jfr) {
+            super.preRender(jfr);
+
+            //setup the canvas
+            if (DrawingBotV3.INSTANCE.getRenderedTask() != null) {
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.renderedDrawing.get().getCanvas());
+            }else{
+                jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
+            }
+        }
+
+        @Override
         public void doRender(JavaFXRenderer jfr) {
-            PlottingTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-            if(jfr.shouldRedraw){
+
+            //render the image
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
                 jfr.clearCanvas();
-                if(renderedTask != null && renderedTask.getPlottingImage() != null){
+                if(DrawingBotV3.INSTANCE.renderedDrawing.get() != null && DrawingBotV3.INSTANCE.renderedDrawing.get().getReferenceImage() != null){
+                    PlottedDrawing drawing = DrawingBotV3.INSTANCE.renderedDrawing.get();
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                    jfr.graphicsFX.translate(DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetX() - 0.5F, DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledOffsetY() - 0.5F);
-                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(renderedTask.getPlottingImage(), null), 0, 0);
+                    jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
+                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(drawing.getPlottingImage(), null), 0, 0);
                 }
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
             }
         }
 

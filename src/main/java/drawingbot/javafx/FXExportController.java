@@ -2,6 +2,7 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.utils.EnumAlignment;
 import drawingbot.utils.EnumRotation;
 import drawingbot.files.ConfigFileHandler;
@@ -287,25 +288,18 @@ public class FXExportController {
 
     public void updateImageSequenceStats(){
         int frameCount = ConfigFileHandler.getApplicationSettings().getFrameCount();
-        int geometriesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getGeometryCount());
-        long verticesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getVerticesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getVertexCount());
+        int geometriesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().drawing.getGeometryCount());
+        long verticesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getVerticesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().drawing.getVertexCount());
 
 
         if(verticesPerFrame == 1 && frameCount > verticesPerFrame){
-            frameCount = (int)(DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : DrawingBotV3.INSTANCE.getActiveTask().plottedDrawing.getVertexCount());
+            frameCount = (int)(DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : DrawingBotV3.INSTANCE.getActiveTask().drawing.getVertexCount());
         }
         
         if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            if (!DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.get() && DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get() && DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get() > 0){
-                int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
-                int exportWidth = (int)Math.ceil((DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintPageWidth() / UnitsLength.INCHES.convertToMM) * DPI);
-                int exportHeight = (int)Math.ceil((DrawingBotV3.INSTANCE.openImage.get().resolution.getPrintPageHeight() / UnitsLength.INCHES.convertToMM) * DPI);            
-                labelExportSize.setText(exportWidth + " x " + exportHeight);
-            }else{
-                int exportWidth = (int)DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledWidth();
-                int exportHeight = (int)DrawingBotV3.INSTANCE.openImage.get().resolution.getScaledHeight();
-                labelExportSize.setText(exportWidth + " x " + exportHeight);
-            }
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.INSTANCE.openImage.get().getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.INSTANCE.openImage.get().getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            labelExportSize.setText(exportWidth + " x " + exportHeight);
         }else{
             labelExportSize.setText("0 x 0");
         }

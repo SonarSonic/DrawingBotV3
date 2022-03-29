@@ -17,8 +17,9 @@ import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.PFMTaskImage;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.plotting.PlottingTask;
+import drawingbot.plotting.PFMTask;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.utils.*;
@@ -161,7 +162,17 @@ public class FXController {
         MenuItem menuSave = new MenuItem("Save Project");
         menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
         menuSave.setOnAction(e -> {
-            FXHelper.exportProject(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getParentFile(), FileUtils.removeExtension(DrawingBotV3.INSTANCE.activeTask.get().originalFile.getName()));
+            File folder = FileUtils.getExportDirectory();
+            String projectName = "New Project";
+
+            if(DrawingBotV3.INSTANCE.getActiveTask() instanceof PFMTaskImage){
+                PFMTaskImage taskImage = (PFMTaskImage) DrawingBotV3.INSTANCE.getActiveTask();
+                if(taskImage.originalImageFile != null){
+                    folder = taskImage.originalImageFile.getParentFile();
+                    projectName = FileUtils.removeExtension(taskImage.originalImageFile.getName());
+                }
+            }
+            FXHelper.exportProject(folder, projectName);
         });
         menuFile.getItems().add(menuSave);
 
@@ -390,43 +401,43 @@ public class FXController {
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
-                task.plottedDrawing.displayedShapeMax.setValue(lines);
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.drawing.getGeometryCount());
+                task.drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         rangeSliderDisplayedLines.lowValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.plottedDrawing.getGeometryCount());
-                task.plottedDrawing.displayedShapeMin.setValue(lines);
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.drawing.getGeometryCount());
+                task.drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         textFieldDisplayedShapesMax.setOnAction(e -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
-                task.plottedDrawing.displayedShapeMax.setValue(lines);
+                int lines = (int)Math.max(0, Math.min(task.drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
+                task.drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
-                rangeSliderDisplayedLines.setHighValue((double)lines / task.plottedDrawing.getGeometryCount());
+                rangeSliderDisplayedLines.setHighValue((double)lines / task.drawing.getGeometryCount());
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         textFieldDisplayedShapesMin.setOnAction(e -> {
-            PlottingTask task = DrawingBotV3.INSTANCE.getActiveTask();
+            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
             if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.plottedDrawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
-                task.plottedDrawing.displayedShapeMin.setValue(lines);
+                int lines = (int)Math.max(0, Math.min(task.drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
+                task.drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
-                rangeSliderDisplayedLines.setLowValue((double)lines / task.plottedDrawing.getGeometryCount());
+                rangeSliderDisplayedLines.setLowValue((double)lines / task.drawing.getGeometryCount());
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
@@ -660,10 +671,10 @@ public class FXController {
         choiceBoxDrawingUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.inputUnits);
 
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth, new NumberStringConverter(Utils.defaultDF));
+        textFieldDrawingWidth.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.width, new NumberStringConverter(Utils.defaultDF));
 
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight, new NumberStringConverter(Utils.defaultDF));
+        textFieldDrawingHeight.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.drawingArea.height, new NumberStringConverter(Utils.defaultDF));
 
         buttonRotate.setOnAction(e -> {
             String width = textFieldDrawingWidth.getText();
@@ -700,18 +711,17 @@ public class FXController {
 
 
         ///generic listeners
-        DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.scalingMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.drawingAreaHeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.drawingAreaWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-
+        DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.scalingMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.inputUnits.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.height.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.width.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
         DrawingBotV3.INSTANCE.canvasColor.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
 
     }
@@ -821,9 +831,9 @@ public class FXController {
         checkBoxFlipY.setSelected(false);
         checkBoxFlipY.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.imageFlipVertical);
 
-        DrawingBotV3.INSTANCE.imageRotation.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.imageFlipHorizontal.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
-        DrawingBotV3.INSTANCE.imageFlipVertical.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingAreaChanged());
+        DrawingBotV3.INSTANCE.imageRotation.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.imageFlipHorizontal.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
+        DrawingBotV3.INSTANCE.imageFlipVertical.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onCanvasChanged());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

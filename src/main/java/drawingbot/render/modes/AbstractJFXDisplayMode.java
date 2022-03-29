@@ -4,8 +4,12 @@ import drawingbot.DrawingBotV3;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 
 public abstract class AbstractJFXDisplayMode implements IDisplayMode {
+
+    public final FlagStates renderFlags = new FlagStates(Flags.RENDER_CATEGORY);
 
     @Override
     public void applySettings() {
@@ -31,5 +35,10 @@ public abstract class AbstractJFXDisplayMode implements IDisplayMode {
     @Override
     public String toString(){
         return getName();
+    }
+
+    @Override
+    public FlagStates getRenderFlags() {
+        return renderFlags;
     }
 }

@@ -4,9 +4,10 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.shapes.IGeometry;
-import drawingbot.image.PrintResolution;
+import drawingbot.api.ICanvas;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.utils.Limit;
+import drawingbot.utils.UnitsLength;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -37,23 +38,23 @@ public class GCodeExporter {
         return DrawingBotV3.INSTANCE.gcodeUnits.get().toMM(DrawingBotV3.INSTANCE.gcodeOffsetY.get());
     }
 
-    public static AffineTransform createGCodeTransform(PrintResolution resolution){
+    public static AffineTransform createGCodeTransform(ICanvas canvas){
         AffineTransform transform = new AffineTransform();
 
         ///translate by the gcode offset
         transform.translate(getGCodeXOffset(), getGCodeYOffset());
 
         ///move into print scale
-        transform.scale(resolution.getPrintScale(), resolution.getPrintScale());
+        transform.scale(canvas.getPlottingScale(), canvas.getPlottingScale());
 
         //g-code y numbers go the other way
-        transform.translate(0, resolution.getScaledHeight());
+        transform.translate(0, canvas.getHeight(UnitsLength.MILLIMETRES));
 
         //move with pre-scaled offsets
-        transform.translate(resolution.getScaledOffsetX(), -resolution.getScaledOffsetY());
+        transform.translate(canvas.getDrawingOffsetX(UnitsLength.MILLIMETRES), -canvas.getDrawingOffsetY(UnitsLength.MILLIMETRES));
 
         if(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.get()){
-            transform.translate(-resolution.getScaledWidth()/2, -resolution.getScaledHeight()/2);
+            transform.translate(-canvas.getWidth(UnitsLength.MILLIMETRES)/2, -canvas.getHeight(UnitsLength.MILLIMETRES)/2);
         }
 
         //flip y coordinates
@@ -67,7 +68,7 @@ public class GCodeExporter {
 
         builder.open();
 
-        AffineTransform transform = createGCodeTransform(exportTask.exportResolution);
+        AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas());
 
         float[] coords = new float[6];
 
@@ -101,7 +102,7 @@ public class GCodeExporter {
     }
 
     public static void exportGCodeTest(ExportTask exportTask, File saveLocation){
-        AffineTransform transform = createGCodeTransform(exportTask.exportResolution);
+        AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas());
 
         Limit dx = new Limit(), dy = new Limit();
 

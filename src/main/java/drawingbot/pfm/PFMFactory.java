@@ -3,7 +3,7 @@ package drawingbot.pfm;
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.utils.EnumReleaseState;
 import drawingbot.utils.INamedSetting;
-import drawingbot.api.IPathFindingModule;
+import drawingbot.api.IPFM;
 import drawingbot.files.json.adapters.JsonAdapterPFMFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.utils.EnumDistributionType;
@@ -12,12 +12,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 @JsonAdapter(JsonAdapterPFMFactory.class)
-public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> implements INamedSetting {
+public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INamedSetting {
 
     public EnumDistributionType distributionType;
     public boolean bypassOptimisation = false;
     public boolean transparentColourSeperation = true;
     public EnumReleaseState releaseState = EnumReleaseState.RELEASE;
+    public boolean isGenerative = false;
     public boolean isLayered = false;
     public boolean isComposite = false;
     public boolean hasSampledARGB = false;
@@ -66,6 +67,15 @@ public class PFMFactory<C extends IPathFindingModule> extends GenericFactory<C> 
 
     public PFMFactory<C> setIsLayeredPFM(boolean isLayered) {
         this.isLayered = isLayered;
+        return this;
+    }
+
+    public boolean isGenerativePFM(){
+        return isGenerative;
+    }
+
+    public PFMFactory<C> setIsGenerative(boolean isGenerative) {
+        this.isGenerative = isGenerative;
         return this;
     }
 

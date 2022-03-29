@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.utils.UnitsLength;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -33,12 +34,13 @@ public class SVGExporter {
 
     public static void exportSVG(ExportTask exportTask, File saveLocation, boolean inkscape) {
         try {
-            int width = (int)exportTask.exportResolution.getScaledWidth();
-            int height = (int)exportTask.exportResolution.getScaledHeight();
+            int width = (int)exportTask.exportDrawing.getCanvas().getScaledWidth();
+            int height = (int)exportTask.exportDrawing.getCanvas().getScaledHeight();
 
             // Calculate the page size relative to the configured SVG DPI
-            int scaledPageWidth = (int)Math.ceil((exportTask.exportResolution.printPageWidth / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
-            int scaledPageHeight = (int)Math.ceil((exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DrawingBotV3.SVG_DPI);
+            int scaledPageWidth = (int)CanvasUtils.getExportWidth(exportTask.exportDrawing.getCanvas(), DrawingBotV3.SVG_DPI);
+            int scaledPageHeight = (int)CanvasUtils.getExportHeight(exportTask.exportDrawing.getCanvas(), DrawingBotV3.SVG_DPI);
+
             double scale = (double)scaledPageWidth / width;
 
             // Get a DOMImplementation.
@@ -51,8 +53,8 @@ public class SVGExporter {
             Element svgRoot = document.getDocumentElement();
 
             // Set the attributes on the root 'svg' element.
-            svgRoot.setAttributeNS(null, "width", exportTask.exportResolution.printPageWidth + "mm");
-            svgRoot.setAttributeNS(null, "height", exportTask.exportResolution.printPageHeight + "mm");
+            svgRoot.setAttributeNS(null, "width", exportTask.exportDrawing.getCanvas().getWidth(UnitsLength.MILLIMETRES) + "mm");
+            svgRoot.setAttributeNS(null, "height", exportTask.exportDrawing.getCanvas().getHeight(UnitsLength.MILLIMETRES) + "mm");
 
             if(inkscape){
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);

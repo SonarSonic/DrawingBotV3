@@ -82,6 +82,17 @@ public class Utils {
         return versions;
     }
 
+    public static String escape(String s){
+        return s.replace("\\", "\\\\")
+                .replace("\t", "\\t")
+                .replace("\b", "\\b")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\f", "\\f")
+                .replace("\'", "\\'")
+                .replace("\"", "\\\"");
+    }
+
     public static <T> void addAllReverse(List<T> src, List<T> dst, boolean reverse){
         if(reverse){
             for(int i = src.size()-1; i >= 0; i--){

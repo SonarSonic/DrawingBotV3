@@ -6,7 +6,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.utils.UnitsLength;
+import drawingbot.plotting.canvas.CanvasUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,40 +17,26 @@ import java.io.IOException;
 public class ImageExporter {
 
     public static boolean useAlphaChannelOnRaster(ExportTask exportTask){
-        return exportTask.extension.equals(".png");
-    }
-
-    public static int getRasterWidth(ExportTask exportTask, boolean isVideo){
-        int width= (int) exportTask.exportResolution.getScaledWidth();
-        if(isVideo && width % 2 == 1){
-            width-=1;
-        }
-        return width;
-    }
-
-    public static int getRasterHeight(ExportTask exportTask, boolean isVideo){
-        int height = (int)exportTask.exportResolution.getScaledHeight();
-
-        if(isVideo && height % 2 == 1){
-            height-=1;
-        }
-
-        return height;
+        return exportTask.extension.equals(".png"); //TODO CHANGE ME?
     }
 
     public static BufferedImage createFreshBufferedImage(ExportTask exportTask, boolean isVideo){
-        int width = getRasterWidth(exportTask, isVideo);
-        int height = getRasterHeight(exportTask, isVideo);
+        int rasterWidth = CanvasUtils.getRasterExportWidth(exportTask.exportDrawing.getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+        int rasterHeight = CanvasUtils.getRasterExportHeight(exportTask.exportDrawing.getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+        return createFreshBufferedImage(exportTask, rasterWidth, rasterHeight, isVideo);
+    }
+
+    public static BufferedImage createFreshBufferedImage(ExportTask exportTask, int canvasWidth, int canvasHeight, boolean isVideo){
+        int width = CanvasUtils.getRasterExportWidth(canvasWidth, isVideo);
+        int height = CanvasUtils.getRasterExportHeight(canvasHeight, isVideo);
         boolean useAlphaChannel = useAlphaChannelOnRaster(exportTask);
         return new BufferedImage(width, height, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
     }
 
-    public static Graphics2D createFreshGraphics2D(ExportTask exportTask, BufferedImage image, boolean isVideo){
-        int width = getRasterWidth(exportTask, isVideo);
-        int height = getRasterHeight(exportTask, isVideo);
+    public static Graphics2D createFreshGraphics2D(ExportTask exportTask, BufferedImage image){
         Graphics2D graphics = image.createGraphics();
         if(!useAlphaChannelOnRaster(exportTask)){
-            Graphics2DExporter.drawBackground(exportTask, graphics, width, height);
+            Graphics2DExporter.drawBackground(exportTask, graphics, image.getWidth(), image.getHeight());
         }
         setBlendMode(exportTask, graphics);
         return graphics;
@@ -64,17 +50,8 @@ public class ImageExporter {
     }
 
     public static void exportImage(ExportTask exportTask, File saveLocation) {
-        if (!exportTask.exportResolution.useOriginalSizing() && exportTask.exportResolution.finalPrintScaleX == 1 && exportTask.exportResolution.drawingArea.optimiseForPrint.get() && exportTask.exportResolution.drawingArea.targetPenWidth.get() > 0 ){
-            int DPI = (int)ConfigFileHandler.getApplicationSettings().exportDPI;
-            int exportWidth = (int)Math.ceil((exportTask.exportResolution.printPageWidth/ UnitsLength.INCHES.convertToMM) * DPI);
-            int exportHeight = (int)Math.ceil((exportTask.exportResolution.printPageHeight / UnitsLength.INCHES.convertToMM) * DPI);
-            exportTask.exportResolution.changePrintResolution(exportWidth, exportHeight);
-        }
-        int width = (int)exportTask.exportResolution.getScaledWidth();
-        int height = (int)exportTask.exportResolution.getScaledHeight();
-
         BufferedImage image = createFreshBufferedImage(exportTask, false);
-        Graphics2D graphics = createFreshGraphics2D(exportTask, image, false);
+        Graphics2D graphics = createFreshGraphics2D(exportTask, image);
 
         Graphics2DExporter.preDraw(exportTask, graphics);
         Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);

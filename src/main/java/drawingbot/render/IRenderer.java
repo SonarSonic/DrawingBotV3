@@ -13,8 +13,6 @@ public interface IRenderer {
 
     void draw();
 
-    void reRender();
-
     void switchToRenderer();
 
     Point2D sceneToRenderer(Point2D point2D);

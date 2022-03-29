@@ -4,18 +4,21 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.json.adapters.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.javafx.GenericPreset;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -45,6 +48,7 @@ public class JsonLoaderManager {
         builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
         builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
         builder.registerTypeAdapter(PFMFactory.class, new JsonAdapterPFMFactory());
+        builder.registerTypeAdapter(ICanvas.class, (InstanceCreator<Object>) type -> new SimpleCanvas());
     }
 
     public static Gson createDefaultGson(){
