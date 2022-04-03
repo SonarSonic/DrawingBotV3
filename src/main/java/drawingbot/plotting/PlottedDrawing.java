@@ -31,10 +31,16 @@ public class PlottedDrawing {
     public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
     public PlottedDrawing(ICanvas canvas){
-        this.canvas = new SimpleCanvas(canvas);
+        this(canvas, true);
+    }
+
+    public PlottedDrawing(ICanvas canvas, boolean copyCanvas){
+        this.canvas = copyCanvas ? new SimpleCanvas(canvas) : canvas;
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = Collections.synchronizedMap(new HashMap<>());
         this.metadataMap = Collections.synchronizedMap(new HashMap<>());
+        //TODO REMOVE ME!
+        this.defaultGroup = addPlottedGroup(new PlottedGroup(getNextGroupID(), DrawingBotV3.INSTANCE.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmFactory.get()));
     }
 
     public PlottedDrawing(ICanvas canvas, ObservableDrawingSet penSet, PFMFactory<?> pfmFactory){
@@ -50,7 +56,7 @@ public class PlottedDrawing {
      */
     public void copyBase(PlottedDrawing reference){
         defaultGroup = null;
-        metadataMap = Map.copyOf(reference.metadataMap);
+        metadataMap = Collections.synchronizedMap(reference.metadataMap);
         for(PlottedGroup group : reference.groups.values()){
             PlottedGroup newGroup = new PlottedGroup(group);
             groups.put(newGroup.groupID, newGroup);
@@ -69,6 +75,12 @@ public class PlottedDrawing {
     public PlottedDrawing copy(){
         PlottedDrawing copy = new PlottedDrawing(canvas);
         copy.copyAll(this);
+        return copy;
+    }
+
+    public PlottedDrawing copyBase(){
+        PlottedDrawing copy = new PlottedDrawing(canvas);
+        copy.copyBase(this);
         return copy;
     }
 

@@ -34,6 +34,8 @@ public class CanvasUtils {
         double currentRatio = (float) sourceWidth / sourceHeight;
         double targetRatio = canvas.getDrawingWidth() / canvas.getDrawingHeight();
 
+        ///TODO WIDTH WILL BE 0 if drawingwidth/height are 0
+
         int imageCropWidth = sourceWidth;
         int imageCropHeight = sourceHeight;
 

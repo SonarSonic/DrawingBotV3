@@ -16,6 +16,7 @@ import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
+import drawingbot.utils.MouseMonitor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +41,7 @@ public class FXApplication extends Application {
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
+    public static MouseMonitor mouseMonitor;
 
     public static void main(String[] args) {
         launchArgs = args;
@@ -100,6 +102,8 @@ public class FXApplication extends Application {
         FXApplication.primaryScene = new Scene(uiLoader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
         FXApplication.primaryScene.setOnKeyPressed(DrawingBotV3.INSTANCE::keyPressed);
         FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
+        FXApplication.primaryScene.setOnMouseMoved(mouseMonitor = new MouseMonitor());
+
         if(!isHeadless) {
             primaryStage.setScene(primaryScene);
         }
@@ -136,6 +140,12 @@ public class FXApplication extends Application {
             primaryStage.setResizable(true);
             applyDBStyle(primaryStage);
             primaryStage.show();
+        }
+
+
+        DrawingBotV3.logger.info("Plugins Load JFX Stages");
+        for(IPlugin plugin : MasterRegistry.PLUGINS){
+            plugin.loadJavaFXStages();
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////

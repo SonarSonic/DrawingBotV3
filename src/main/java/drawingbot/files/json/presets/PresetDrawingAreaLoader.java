@@ -31,8 +31,8 @@ public class PresetDrawingAreaLoader extends AbstractSettingsLoader<PresetDrawin
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingRight", 0F, (area, value) -> area.drawingAreaPaddingRight.set(value)).setGetter(app -> app.drawingAreaPaddingRight.get()).setValidator(Math::abs).setDisplayName("Padding Right"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingTop", 0F, (area, value) -> area.drawingAreaPaddingTop.set(value)).setGetter(app -> app.drawingAreaPaddingTop.get()).setValidator(Math::abs).setDisplayName("Padding Top"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingBottom", 0F, (area, value) -> area.drawingAreaPaddingBottom.set(value)).setGetter(app -> app.drawingAreaPaddingBottom.get()).setValidator(Math::abs).setDisplayName("Padding Bottom"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "optimiseForPrint", 0F, (area, value) -> area.drawingAreaPaddingBottom.set(value)).setGetter(app -> app.drawingAreaPaddingBottom.get()).setValidator(Math::abs).setDisplayName("Padding Bottom"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "targetPenWidth", 0F, (area, value) -> area.drawingAreaPaddingTop.set(value)).setGetter(app -> app.drawingAreaPaddingTop.get()).setValidator(Math::abs).setDisplayName("Padding Top"));
+        registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "optimiseForPrint", true, (area, value) -> area.optimiseForPrint.set(value)).setGetter(app -> app.optimiseForPrint.get()).setDisplayName("Optimise for Print"));
+        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "targetPenWidth", 0.3F, (area, value) -> area.targetPenWidth.set(value)).setGetter(app -> app.targetPenWidth.get()).setValidator(Math::abs).setDisplayName("Target pen width"));
 
     }
 

@@ -1,5 +1,6 @@
 package drawingbot.api;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IPlugin {
@@ -15,6 +16,8 @@ public interface IPlugin {
     default void init(){}
 
     default void postInit(){}
+
+    default void loadJavaFXStages() throws IOException {}
 
     default void registerPFMS(){}
 

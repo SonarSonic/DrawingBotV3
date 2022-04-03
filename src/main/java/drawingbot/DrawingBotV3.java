@@ -18,6 +18,7 @@ import drawingbot.api.IPlugin;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.json.presets.PresetProjectSettings;
 import drawingbot.api.ICanvas;
+import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.*;
@@ -49,6 +50,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.Nullable;
 
 public class DrawingBotV3 {
 
@@ -347,20 +349,18 @@ public class DrawingBotV3 {
 
     //// PLOTTING TASKS
 
-
-    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, boolean isSubTask) {
-        return initPlottingTask(canvas, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, null, null, isSubTask);
+    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask) {
+        if(image != null){
+            canvas = new ImageCanvas(canvas, image, DrawingBotV3.INSTANCE.imageRotation.get().flipAxis);
+        }
+        return initPlottingTask(new PlottedDrawing(canvas, drawingPenSet, pfmFactory), pfmFactory, pfmSettings, drawingPenSet, image, originalFile, isSubTask);
     }
 
-    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask) {
-        return initPlottingTask(canvas, pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory), drawingPenSet, image, originalFile, isSubTask);
-    }
+    public PFMTask initPlottingTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask){
+        if(pfmSettings == null){
+            pfmSettings = MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory);
+        }
 
-    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, boolean isSubTask) {
-        return initPlottingTask(canvas, pfmFactory, pfmSettings, drawingPenSet, null, null, isSubTask);
-    }
-
-    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalFile, boolean isSubTask){
         //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
         if(!isSubTask){
             Platform.runLater(() -> {
@@ -374,12 +374,12 @@ public class DrawingBotV3 {
                 }
             });
         }
-        PFMTask task;
 
+        PFMTask task;
         if(!pfmFactory.isGenerativePFM()){
-            task = new PFMTaskImage(canvas, pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
+            task = new PFMTaskImage(drawing, pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
         }else{
-            task = new PFMTask(canvas, pfmFactory, pfmSettings, drawingPenSet);
+            task = new PFMTask(drawing, pfmFactory, pfmSettings, drawingPenSet);
         }
 
         Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
@@ -393,7 +393,7 @@ public class DrawingBotV3 {
             activeTask.get().cancel();
         }
         if(openImage.get() != null){
-            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), activeDrawingSet.get(), openImage.get().getSource(), openFile, false));
+            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), null, activeDrawingSet.get(), openImage.get().getSource(), openFile, false));
         }
     }
 

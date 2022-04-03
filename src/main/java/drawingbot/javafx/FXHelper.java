@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -48,27 +49,66 @@ public class FXHelper {
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
     public static void importImageFile(){
-        importFile(file -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_IMAGES);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_IMAGES);
     }
 
     public static void importVideoFile(){
-        importFile(file -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_VIDEOS);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_VIDEOS);
     }
 
-    public static void importFile(Consumer<File> callback, FileChooser.ExtensionFilter filter){
-        importFile(callback, filter, "Select a file to import");
+    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
+        importFile(callback, new FileChooser.ExtensionFilter[]{filter}, "Select a file to import");
     }
 
-    public static void importFile(Consumer<File> callback, FileChooser.ExtensionFilter filter, String title){
+    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title){
+        importFile((file, fileChooser) -> {
+            FileUtils.updateImportDirectory(file.getParentFile());
+            callback.accept(file, fileChooser);
+        }, FileUtils.getExportDirectory(), filters, title);
+    }
+
+    public static void importFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title){
         Platform.runLater(() -> {
-            FileChooser d = new FileChooser();
-            d.getExtensionFilters().add(filter);
-            d.setTitle(title);
-            d.setInitialDirectory(FileUtils.getImportDirectory());
-            File file = d.showOpenDialog(null);
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().addAll(filters);
+            fileChooser.setSelectedExtensionFilter(filters[0]);
+            fileChooser.setTitle(title);
+            fileChooser.setInitialDirectory(initialDirectory);
+            File file = fileChooser.showOpenDialog(null);
             if(file != null){
                 FileUtils.updateImportDirectory(file.getParentFile());
-                callback.accept(file);
+                callback.accept(file, fileChooser);
+            }
+        });
+    }
+
+    public static void exportFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title, String initialFileName) {
+        exportFile((file, fileChooser) -> {
+            FileUtils.updateExportDirectory(file.getParentFile());
+            callback.accept(file, fileChooser);
+        }, FileUtils.getExportDirectory(), filters, title, initialFileName);
+    }
+
+    public static void exportFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title, String initialFileName){
+        Platform.runLater(() -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().addAll(filters);
+            fileChooser.setSelectedExtensionFilter(filters[0]);
+            fileChooser.setTitle(title);
+            fileChooser.setInitialDirectory(initialDirectory);
+            fileChooser.setInitialFileName(initialFileName);
+            File file = fileChooser.showSaveDialog(null);
+            if(file != null){
+                //LINUX FIX
+                String extension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0).substring(1);
+                String fileName = file.toString();
+
+                if(!FileUtils.hasExtension(fileName)){
+                    //linux doesn't add file extensions so we add the default selected one
+                    fileName += extension;
+                }
+
+                callback.accept(new File(fileName), fileChooser);
             }
         });
     }
@@ -77,51 +117,26 @@ public class FXHelper {
         if(DrawingBotV3.INSTANCE.getActiveTask() == null){
             return;
         }
-        Platform.runLater(() -> {
-            FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(exportHandler.filters);
-            d.setSelectedExtensionFilter(exportHandler.filters[0]);
-            d.setTitle(exportHandler.getDialogTitle());
-            d.setInitialDirectory(FileUtils.getExportDirectory());
-
-            if(DrawingBotV3.INSTANCE.getActiveTask() instanceof PFMTaskImage){
-                PFMTaskImage taskImage = (PFMTaskImage) DrawingBotV3.INSTANCE.getActiveTask();
-                if(taskImage.originalImageFile != null){
-                    d.setInitialFileName(FileUtils.removeExtension(taskImage.originalImageFile.getName()) + "_plotted");
-                }
+        String initialFileName = "";
+        if(DrawingBotV3.INSTANCE.getActiveTask() instanceof PFMTaskImage){
+            PFMTaskImage taskImage = (PFMTaskImage) DrawingBotV3.INSTANCE.getActiveTask();
+            if(taskImage.originalImageFile != null){
+                initialFileName = FileUtils.removeExtension(taskImage.originalImageFile.getName()) + "_plotted";
             }
-
-            File file = d.showSaveDialog(null);
-            if(file != null){
-                String extension = d.getSelectedExtensionFilter().getExtensions().get(0).substring(1);
-                String fileName = file.toString();
-
-                if(!FileUtils.hasExtension(fileName)){
-                    //linux doesn't add file extensions so we add the default selected one
-                    fileName += extension;
-                }
-                DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, DrawingBotV3.INSTANCE.getActiveTask(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(fileName), false);
-                FileUtils.updateExportDirectory(file.getParentFile());
-            }
-        });
+        }
+        exportFile((file, chooser) -> {
+            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, DrawingBotV3.INSTANCE.getActiveTask(), IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
+        }, exportHandler.filters, exportHandler.getDialogTitle(), initialFileName);
     }
 
     public static void importPreset(PresetType presetType, boolean apply, boolean showDialog){
-        Platform.runLater(() -> {
-            FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(presetType.filters);
-            d.setTitle("Select a preset to import");
-            d.setInitialDirectory(FileUtils.getImportDirectory());
-            File file = d.showOpenDialog(null);
-            if(file != null){
-                GenericPreset<IJsonData> preset = loadPresetFile(presetType, file, apply);
-
-                if(showDialog){
-                    DialogImportPreset importPreset = new DialogImportPreset(preset);
-                    importPreset.show();
-                }
+        importFile((file, chooser) -> {
+            GenericPreset<IJsonData> preset = loadPresetFile(presetType, file, apply);
+            if(showDialog){
+                DialogImportPreset importPreset = new DialogImportPreset(preset);
+                importPreset.show();
             }
-        });
+        }, presetType.filters, "Select a preset to import");
     }
 
     public static GenericPreset<IJsonData> loadPresetFile(PresetType presetType, File file, boolean apply){
@@ -139,47 +154,29 @@ public class FXHelper {
     }
 
     public static void exportProject(File initialDirectory, String initialName){
-        Platform.runLater(() -> {
-            FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(FileUtils.FILTER_PROJECT);
-            d.setTitle("Save project");
-            d.setInitialDirectory(initialDirectory);
-            d.setInitialFileName(initialName);
-            File file = d.showSaveDialog(null);
-            if(file != null){
-                FileUtils.updateExportDirectory(file.getParentFile());
-                DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
+        exportFile((file, chooser) -> {
+            DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
 
-                    GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                    Register.PRESET_LOADER_PROJECT.updatePreset(preset);
+                GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+                Register.PRESET_LOADER_PROJECT.updatePreset(preset);
 
-                    JsonLoaderManager.exportPresetFile(file, preset);
-                });
-            }
-        });
+                JsonLoaderManager.exportPresetFile(file, preset);
+            });
+        }, initialDirectory, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", initialName);
     }
 
     public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
-        Platform.runLater(() -> {
-            FileChooser d = new FileChooser();
-            d.getExtensionFilters().addAll(preset.presetType.filters);
-            d.setTitle("Save preset");
-            d.setInitialDirectory(initialDirectory);
-            d.setInitialFileName(initialName);
-            File file = d.showSaveDialog(null);
-            if(file != null){
-                JsonLoaderManager.exportPresetFile(file, preset);
-                FileUtils.updateExportDirectory(file.getParentFile());
+        exportFile((file, chooser) -> {
+            JsonLoaderManager.exportPresetFile(file, preset);
 
-                if(showDialog){
-                    DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
-                    Optional<Boolean> openFolder = exportPreset.showAndWait();
-                    if(openFolder.isPresent() && openFolder.get()){
-                        FXHelper.openFolder(file.getParentFile());
-                    }
+            if(showDialog){
+                DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
+                Optional<Boolean> openFolder = exportPreset.showAndWait();
+                if(openFolder.isPresent() && openFolder.get()){
+                    FXHelper.openFolder(file.getParentFile());
                 }
             }
-        });
+        }, preset.presetType.filters, "Save preset", initialName);
     }
 
     public static void openURL(String url) {

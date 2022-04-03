@@ -14,6 +14,7 @@ import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.Register;
 import org.imgscalr.Scalr;
+import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.awt.ShapeReader;
 
 import java.awt.geom.Rectangle2D;
@@ -32,14 +33,16 @@ public class PFMTaskImage extends PFMTask {
 
     public boolean enableImageFiltering = true;
 
-    public PFMTaskImage(ICanvas drawingArea, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, File originalImageFile){
-        this(drawingArea, pfmFactory, pfmSettings, drawingPenSet, image, DrawingBotV3.INSTANCE.imageRotation.get().flipAxis, originalImageFile);
+    public PFMTaskImage(ICanvas canvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet, BufferedImage image, @Nullable File originalImageFile){
+        this(new PlottedDrawing(new ImageCanvas(canvas, image, false), refPenSet, pfmFactory), pfmFactory, pfmSettings, refPenSet, image, originalImageFile);
     }
 
-    public PFMTaskImage(ICanvas drawingArea, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, BufferedImage image, boolean flipAxis, File originalImageFile){
-        super(new ImageCanvas(drawingArea, image, flipAxis), pfmFactory, pfmSettings, drawingPenSet);
+    public PFMTaskImage(PlottedDrawing drawing, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet, BufferedImage image, @Nullable File originalImageFile){
+        super(drawing, pfmFactory, pfmSettings, refPenSet);
         this.originalImageFile = originalImageFile;
-        this.drawing.setMetadata(Register.INSTANCE.ORIGINAL_FILE, originalImageFile);
+        if(originalImageFile != null){
+            this.drawing.setMetadata(Register.INSTANCE.ORIGINAL_FILE, originalImageFile);
+        }
         this.drawing.setMetadata(Register.INSTANCE.ORIGINAL_IMAGE, image);
     }
 

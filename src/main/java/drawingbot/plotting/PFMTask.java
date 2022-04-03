@@ -49,13 +49,13 @@ public class PFMTask extends DBTask<PFMTask> {
     public boolean useLowQuality = false;
     public int parallelPlots = 3;
 
-    public PFMTask(ICanvas refCanvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet){
+    public PFMTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
-        this.refCanvas = refCanvas;
+        this.refCanvas = drawing.getCanvas();
         this.refPenSet = refPenSet;
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
-        this.drawing = new PlottedDrawing(refCanvas, refPenSet, pfmFactory);
+        this.drawing = drawing;
         this.tools = new PlottingTools(drawing);
         this.tools.pfmTask = this;
     }

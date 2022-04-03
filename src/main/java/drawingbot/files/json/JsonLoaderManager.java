@@ -37,21 +37,25 @@ public class JsonLoaderManager {
         }
     };
 
-    public static GsonBuilder builder = new GsonBuilder();
-    static{
-        builder.setExclusionStrategies(exclusionStrategy);
-        builder.setPrettyPrinting();
-        builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
-        builder.registerTypeAdapter(ColourSeperationHandler.class, new JsonAdapterColourSplitter());
-        builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
-        builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
-        builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
-        builder.registerTypeAdapter(PFMFactory.class, new JsonAdapterPFMFactory());
-        builder.registerTypeAdapter(ICanvas.class, (InstanceCreator<Object>) type -> new SimpleCanvas());
-    }
+    public static GsonHelper GSON_HELPER = new GsonHelper(){
+
+        @Override
+        public void setupGsonBuilder(GsonBuilder builder) {
+            super.setupGsonBuilder(builder);
+            builder.setExclusionStrategies(exclusionStrategy);
+            builder.setPrettyPrinting();
+            builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
+            builder.registerTypeAdapter(ColourSeperationHandler.class, new JsonAdapterColourSplitter());
+            builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
+            builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
+            builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
+            builder.registerTypeAdapter(PFMFactory.class, new JsonAdapterPFMFactory());
+            builder.registerTypeAdapter(ICanvas.class, (InstanceCreator<Object>) type -> new SimpleCanvas());
+        }
+    };
 
     public static Gson createDefaultGson(){
-        return builder.create();
+        return GSON_HELPER.getDefaultGson();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

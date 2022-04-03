@@ -18,6 +18,7 @@ import drawingbot.registry.Register;
 import drawingbot.utils.UnitsLength;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
+import javafx.stage.FileChooser;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -178,10 +179,10 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
                 BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                     if(newValue == Worker.State.FAILED){
-                        FXHelper.importFile(file -> {
+                        FXHelper.importFile((file, chooser) -> {
                             DrawingBotV3.INSTANCE.openFile(file, false);
                             DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
-                        }, FileUtils.IMPORT_IMAGES, "Locate the input image");
+                        }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                     }
                     if(newValue == Worker.State.SUCCEEDED){
                         Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState);
