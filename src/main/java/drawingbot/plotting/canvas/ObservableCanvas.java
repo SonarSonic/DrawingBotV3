@@ -1,11 +1,15 @@
 package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
+import drawingbot.api.IProperties;
 import drawingbot.utils.EnumScalingMode;
+import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.property.*;
+import javafx.collections.ObservableList;
+import javafx.scene.paint.Color;
 
-public class ObservableCanvas implements ICanvas {
+public class ObservableCanvas implements ICanvas, IProperties {
 
     private static final float defaultWidth = 210, defaultHeight = 297; //DEFAULT - A4 Paper
 
@@ -19,10 +23,15 @@ public class ObservableCanvas implements ICanvas {
     public final SimpleFloatProperty drawingAreaPaddingRight = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
-    public final SimpleStringProperty drawingAreaPaddingGang = new SimpleStringProperty("0");
+    public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
 
     public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
     public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
+
+    //not saved
+    public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
+
+    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
 
     public ObservableCanvas(){}
 
@@ -99,11 +108,16 @@ public class ObservableCanvas implements ICanvas {
         copy.drawingAreaPaddingRight.set(drawingAreaPaddingRight.get());
         copy.drawingAreaPaddingTop.set(drawingAreaPaddingTop.get());
         copy.drawingAreaPaddingBottom.set(drawingAreaPaddingBottom.get());
-        copy.drawingAreaPaddingGang.set(drawingAreaPaddingGang.get());
+        copy.drawingAreaGangPadding.set(drawingAreaGangPadding.get());
 
         copy.optimiseForPrint.set(optimiseForPrint.get());
         copy.targetPenWidth.set(targetPenWidth.get());
+        copy.canvasColor.set(canvasColor.get());
         return copy;
     }
 
+    @Override
+    public ObservableList<Property<?>> getProperties() {
+        return observables;
+    }
 }

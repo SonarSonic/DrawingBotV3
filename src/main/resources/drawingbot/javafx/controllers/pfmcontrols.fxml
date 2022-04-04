@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controllers.FXPFMControls" prefWidth="423.0">
+
+    <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="86.0" prefHeight="212.0"
+               prefWidth="404.0" tableMenuButtonVisible="true">
+        <columns>
+            <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="132.0" text="Setting"/>
+            <TableColumn fx:id="tableColumnControl" prefWidth="137.0" text="Control"/>
+            <TableColumn fx:id="tableColumnValue" prefWidth="89.0" text="Value"/>
+            <TableColumn fx:id="tableColumnLock" prefWidth="45.0" text="Randomise Exclude" visible="false"/>
+        </columns>
+    </TableView>
+    <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="52.0" prefHeight="25.0" prefWidth="305.0"
+              promptText="New Preset Name"/>
+    <Button fx:id="buttonPFMSettingReset" layoutX="271.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0"
+            prefWidth="117.0" text="Reset"/>
+    <Button fx:id="buttonPFMSettingRandom" layoutX="136.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0"
+            prefWidth="129.0" text="Randomise"/>
+    <Button fx:id="buttonPFMSettingHelp" layoutX="11.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0"
+            prefWidth="119.0" text="Help"/>
+    <MenuButton fx:id="menuButtonPFMPresets" layoutX="320.0" layoutY="52.0" mnemonicParsing="false" text="Presets"/>
+    <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="16.0" layoutY="7.0" text="Path Finding Module: ">
+        <graphic>
+            <ComboBox fx:id="comboBoxPFM" prefHeight="25.0" prefWidth="246.0" visibleRowCount="100"/>
+        </graphic>
+    </Label>
+    <Separator layoutX="-6.0" layoutY="42.0" prefHeight="3.0" prefWidth="412.0"/>
+
+    <Separator layoutX="-4.0" layoutY="341.0" prefHeight="3.0" prefWidth="412.0"/>
+</AnchorPane>

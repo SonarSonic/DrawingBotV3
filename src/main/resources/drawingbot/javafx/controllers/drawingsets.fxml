@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import org.controlsfx.glyphfont.Glyph?>
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controllers.FXDrawingSets" prefHeight="400.0" prefWidth="423.0">
+<children>
+    <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" spacing="8.0">
+        <children>
+            <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
+                <children>
+                    <ComboBox fx:id="comboBoxSetType" prefHeight="25.0" prefWidth="80.0" promptText="Special" />
+                    <ComboBox fx:id="comboBoxDrawingSet" prefHeight="25.0" prefWidth="222.0" promptText="Select a drawing set!" />
+                    <MenuButton fx:id="menuButtonDrawingSetPresets" mnemonicParsing="false" text="Presets" />
+                </children>
+            </HBox>
+            <TableView fx:id="penTableView" editable="true" prefHeight="250.0" prefWidth="403.0" tableMenuButtonVisible="true">
+                <columns>
+                    <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="28.0" />
+                    <TableColumn fx:id="penTypeColumn" prefWidth="92.0" sortable="false" text="Type" />
+                    <TableColumn fx:id="penNameColumn" prefWidth="104.0" sortable="false" text="Name" />
+                    <TableColumn fx:id="penColourColumn" prefWidth="108.0" text="Colour" />
+                    <TableColumn fx:id="penWeightColumn" minWidth="0.0" prefWidth="66.0" sortable="false" text="Weight" />
+                    <TableColumn fx:id="penStrokeColumn" minWidth="8.0" prefWidth="53.0" sortable="false" text="Stroke" />
+                    <TableColumn fx:id="penPercentageColumn" editable="false" minWidth="0.0" prefWidth="46.0" sortable="false" text="\%" />
+                    <TableColumn fx:id="penLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Shape Count" />
+                </columns>
+            </TableView>
+            <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
+                <children>
+                    <ComboBox fx:id="comboBoxPenType" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="124.0" promptText="Copic Original" />
+                    <ComboBox fx:id="comboBoxDrawingPen" prefHeight="25.0" prefWidth="181.0" promptText="Select a pen" />
+                    <MenuButton fx:id="menuButtonDrawingPenPresets" mnemonicParsing="false" text="Presets" />
+                </children>
+            </HBox>
+            <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
+                <children>
+                    <Button fx:id="buttonAddPen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                        <graphic>
+                            <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                        </graphic>
+                    </Button>
+                    <Button fx:id="buttonRemovePen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                        <graphic>
+                            <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                        </graphic>
+                    </Button>
+                    <Button fx:id="buttonDuplicatePen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                        <graphic>
+                            <Glyph fontFamily="FontAwesome" icon="COPY" />
+                        </graphic>
+                    </Button>
+                    <Button fx:id="buttonMoveUpPen" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                        <graphic>
+                            <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                        </graphic>
+                    </Button>
+                    <Button fx:id="buttonMoveDownPen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                        <graphic>
+                            <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                        </graphic>
+                    </Button>
+                </children>
+            </HBox>
+            <Separator prefHeight="14.0" prefWidth="403.0" />
+            <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="8.0">
+                <children>
+                    <Label contentDisplay="RIGHT" text="Distribution:">
+                        <graphic>
+                            <Label contentDisplay="RIGHT" text="Type">
+                                <graphic>
+                                    <ComboBox fx:id="comboBoxDistributionType" prefHeight="25.0" prefWidth="122.0" promptText="Even Weighted" />
+                                </graphic>
+                                <font>
+                                    <Font name="System Italic" size="12.0" />
+                                </font>
+                            </Label>
+                        </graphic>
+                    </Label>
+                    <Label contentDisplay="RIGHT" text="Order:">
+                        <graphic>
+                            <ComboBox fx:id="comboBoxDistributionOrder" prefHeight="25.0" prefWidth="114.0" promptText="Darkest first" />
+                        </graphic>
+                        <font>
+                            <Font name="System Italic" size="12.0" />
+                        </font>
+                    </Label>
+                </children>
+            </HBox>
+            <Separator prefWidth="380.0" />
+            <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="383.0" spacing="10.0">
+                <children>
+                    <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Colour Separation:">
+                        <graphic>
+                            <ComboBox fx:id="comboBoxColourSeperation" prefHeight="25.0" prefWidth="187.0" />
+                        </graphic>
+                    </Label>
+                    <Button fx:id="buttonConfigureSplitter" mnemonicParsing="false" prefHeight="25.0" prefWidth="78.0" text="Configure" />
+                </children>
+            </HBox>
+            <Separator layoutX="10.0" layoutY="419.0" prefWidth="380.0" />
+            <TitledPane contentDisplay="RIGHT" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" prefWidth="380.0" VBox.vgrow="ALWAYS">
+                <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="240.0" prefWidth="378.0">
+                        <children>
+                            <VBox maxWidth="1.7976931348623157E308">
+                                <children>
+                                    <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" prefWidth="385.0" tableMenuButtonVisible="true">
+                                        <columns>
+                                            <TableColumn fx:id="drawingSetNameColumn" prefWidth="115.0" sortable="false" text="Name" />
+                                            <TableColumn fx:id="drawingSetPensColumn" editable="false" prefWidth="103.0" text="Pens" />
+                                            <TableColumn fx:id="penLinesColumn1" minWidth="0.0" prefWidth="94.0" sortable="false" text="Shape Count" visible="false" />
+                                            <TableColumn fx:id="drawingSetDistributionTypeColumn" prefWidth="123.0" sortable="false" text="Distribution Type" />
+                                            <TableColumn fx:id="drawingSetDistributionOrderColumn" prefWidth="107.0" sortable="false" text="Distribution Order" />
+                                            <TableColumn fx:id="drawingSetColourSeperatorColumn" prefWidth="115.0" sortable="false" text="Colour Separation" />
+                                            <TableColumn fx:id="drawingSetPercentageColumn" minWidth="0.0" prefWidth="94.0" sortable="false" text="\%" visible="false" />
+                                        </columns>
+                                        <padding>
+                                            <Insets right="4.0" />
+                                        </padding>
+                                    </TableView>
+                                    <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
+                                        <children>
+                                            <Button fx:id="buttonAddDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                <graphic>
+                                                    <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                                </graphic>
+                                            </Button>
+                                            <Button fx:id="buttonRemoveDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                <graphic>
+                                                    <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                                </graphic></Button>
+                                            <Button fx:id="buttonDuplicateDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                <graphic>
+                                                    <Glyph fontFamily="FontAwesome" icon="COPY" />
+                                                </graphic></Button>
+                                            <Button fx:id="buttonMoveUpDrawingSetSlot" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                <graphic>
+                                                    <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                                                </graphic></Button>
+                                            <Button fx:id="buttonMoveDownDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                                <graphic>
+                                                    <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                                                </graphic></Button>
+                                        </children>
+                                        <padding>
+                                            <Insets bottom="6.0" top="6.0" />
+                                        </padding>
+                                    </HBox>
+                                </children>
+                            </VBox>
+                        </children></AnchorPane>
+                </content>
+                <graphic>
+                    <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="341.0">
+                        <children>
+                            <Label contentDisplay="RIGHT" prefHeight="25.0" text="Slot:">
+                                <graphic>
+                                    <ComboBox fx:id="comboBoxDrawingSets" cacheShape="false" prefHeight="25.0" prefWidth="304.0" />
+                                </graphic>
+                            </Label>
+                        </children>
+                    </HBox>
+                </graphic>
+            </TitledPane>
+        </children>
+        <padding>
+            <Insets bottom="8.0" top="8.0" />
+        </padding>
+    </VBox>
+</children>
+</AnchorPane>

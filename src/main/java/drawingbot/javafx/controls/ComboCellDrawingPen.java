@@ -43,7 +43,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
             hbox.getChildren().add(checkBox);
             hbox.setAlignment(Pos.CENTER_LEFT);
 
-            setOnMouseClicked(e -> DrawingBotV3.INSTANCE.controller.comboBoxDrawingPen.hide());
+            //setOnMouseClicked(e -> DrawingBotV3.INSTANCE.controller.comboBoxDrawingPen.hide()); //TODO CHECKME!
 
         } else {
             checkBox = null;

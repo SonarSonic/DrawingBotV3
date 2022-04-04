@@ -14,7 +14,7 @@ import java.awt.*;
 public class Graphics2DExporter {
 
     public static void drawBackground(ExportTask exportTask, Graphics2D graphics, int width, int height){
-        graphics.setColor(ImageTools.getAWTFromFXColor(DrawingBotV3.INSTANCE.canvasColor.getValue()));
+        graphics.setColor(ImageTools.getAWTFromFXColor(DrawingBotV3.INSTANCE.drawingArea.canvasColor.getValue()));
         graphics.fillRect(0, 0, width, height);
     }
 

@@ -105,10 +105,6 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         return pens.stream().anyMatch(p -> p.getCodeName().equals(pen.getCodeName()));
     }
 
-    public int getDrawingSetSlot(){
-        return DrawingBotV3.INSTANCE.drawingSetSlots.indexOf(this);
-    }
-
     @Override
     public String getType() {
         return type.get();
@@ -130,9 +126,14 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
     }
 
 
+    ///TODO REMOVE ME!!!
+    public int getDrawingSetSlot(){
+        return DrawingBotV3.INSTANCE.drawingSetSlots.get().indexOf(this);
+    }
+
     public static ObservableDrawingSet getDrawingSetForSlot(int slot){
-        if(DrawingBotV3.INSTANCE.drawingSetSlots.size() > slot){
-            return DrawingBotV3.INSTANCE.drawingSetSlots.get(slot);
+        if(DrawingBotV3.INSTANCE.drawingSetSlots.get().size() > slot){
+            return DrawingBotV3.INSTANCE.drawingSetSlots.get().get(slot);
         }
         return DrawingBotV3.INSTANCE.activeDrawingSet.get();
     }

@@ -254,7 +254,7 @@ public class FXExportController {
             ConfigFileHandler.getApplicationSettings().exportDPI = Float.parseFloat(newValue);
             updateImageSequenceStats();
         });
-        textFieldDPI.disableProperty().bind(DrawingBotV3.INSTANCE.controller.checkBoxOriginalSizing.selectedProperty());
+        textFieldDPI.disableProperty().bind(DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing);
         
         textFieldFPS.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 25F));
         textFieldFPS.setText("" + ConfigFileHandler.getApplicationSettings().framesPerSecond);

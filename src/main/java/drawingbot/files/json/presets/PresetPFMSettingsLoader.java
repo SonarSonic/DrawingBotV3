@@ -3,9 +3,11 @@ package drawingbot.files.json.presets;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import javafx.beans.property.Property;
 import javafx.collections.ObservableList;
 
 import java.util.*;
@@ -42,8 +44,12 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public void applyPreset(GenericPreset<PresetPFMSettings> preset) {
-        DrawingBotV3.INSTANCE.pfmFactory.set(MasterRegistry.INSTANCE.getPFMFactory(preset.presetSubType));
-        GenericSetting.applySettings(preset.data.settingList, MasterRegistry.INSTANCE.getObservablePFMSettingsList());
+        applyPreset(preset, DrawingBotV3.INSTANCE.pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList());
+    }
+
+    public void applyPreset(GenericPreset<PresetPFMSettings> preset, Property<PFMFactory<?>> factoryProperty, ObservableList<GenericSetting<?, ?>> settingsList) {
+        factoryProperty.setValue(MasterRegistry.INSTANCE.getPFMFactory(preset.presetSubType));
+        GenericSetting.applySettings(preset.data.settingList, settingsList);
     }
 
     @Override

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import org.controlsfx.control.*?>
+
+<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu fx:id="menuFile" mnemonicParsing="false" text="File" />
+        <Menu fx:id="menuView" mnemonicParsing="false" text="View" />
+            <Menu fx:id="menuFilters" mnemonicParsing="false" text="Filters" />
+        <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help" />
+      </menus>
+    </MenuBar>
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                     <content>
+                        <VBox fx:id="vBoxSettings" prefWidth="402.0">
+                           <children>
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
+                                   <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />
+                              </TitledPane>
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
+                                   <fx:include fx:id="imageFilters" source="javafx/controllers/imagefilters.fxml" />
+                              </TitledPane>
+                              <TitledPane expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
+                                   <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml" />
+                              </TitledPane>
+                              <TitledPane maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
+                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml"/>
+                              </TitledPane>
+                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
+                                    <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
+                              </TitledPane>
+                              <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Batch Processing">
+                                   <fx:include fx:id="batchProcessing" source="javafx/controllers/batchprocessing.fxml" />
+                              </TitledPane>
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+                  <Pane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="43.0" prefWidth="419.0" VBox.vgrow="NEVER">
+                     <children>
+                        <Button fx:id="buttonStartPlotting" layoutX="9.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" style="-fx-base: -fx-default-button;" text="Start" />
+                        <Button fx:id="buttonStopPlotting" cancelButton="true" layoutX="104.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Stop" />
+                        <Button fx:id="buttonResetPlotting" cancelButton="true" layoutX="198.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Reset" />
+                        <Button fx:id="buttonSaveVersion" cancelButton="true" layoutX="317.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Save Version" />
+                        <Separator layoutX="295.0" layoutY="7.0" orientation="VERTICAL" prefHeight="25.0" prefWidth="13.0" />
+                     </children>
+                  </Pane>
+               </children>
+            </VBox>
+            <VBox fx:id="vBoxViewportContainer" HBox.hgrow="ALWAYS">
+               <children>
+                  <ToolBar prefHeight="40.0">
+                     <items>
+                        <VBox />
+                        <Label contentDisplay="RIGHT" text="Display:">
+                           <graphic>
+                              <ChoiceBox fx:id="choiceBoxDisplayMode" prefHeight="25.0" prefWidth="114.0" />
+                           </graphic>
+                        </Label>
+                        <Separator layoutX="639.0" layoutY="10.0" prefHeight="30.0" prefWidth="14.0" />
+                        <Label contentDisplay="RIGHT" text="Shapes:" />
+                        <TextField fx:id="textFieldDisplayedShapesMin" prefHeight="20.0" prefWidth="60.0" promptText="Min" />
+                        <RangeSlider fx:id="rangeSliderDisplayedLines" prefHeight="24.0" prefWidth="140.0" />
+                        <TextField fx:id="textFieldDisplayedShapesMax" layoutX="294.0" layoutY="13.0" prefHeight="25.0" prefWidth="60.0" promptText="Max" />
+                        <CheckBox fx:id="checkBoxApplyToExport" mnemonicParsing="false" prefHeight="24.0" prefWidth="124.0" text="Apply to export">
+                           <padding>
+                              <Insets left="10.0" right="10.0" />
+                           </padding>
+                        </CheckBox>
+                        <Separator layoutX="244.0" layoutY="10.0" prefHeight="30.0" prefWidth="14.0" />
+                        <Label alignment="TOP_LEFT" contentDisplay="RIGHT" text="Blend Mode:">
+                           <graphic>
+                              <ComboBox fx:id="comboBoxBlendMode" prefHeight="25.0" prefWidth="101.0" promptText="Difference" />
+                           </graphic>
+                        </Label>
+                        <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
+                        <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
+                        <Separator layoutX="649.0" layoutY="20.0" prefHeight="30.0" prefWidth="14.0" />
+                     </items>
+                  </ToolBar>
+                  <HBox minHeight="25.0" prefHeight="25.0">
+                     <children>
+                        <Label contentDisplay="RIGHT" layoutX="322.0" layoutY="10.0" text="Image Size:">
+                           <graphic>
+                              <Label fx:id="labelImageResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="98.0" text="10000 x 10000" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" layoutX="488.0" layoutY="10.0" text="Plotting Size:">
+                           <graphic>
+                              <Label fx:id="labelPlottingResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="96.0" text="10000 x 10000" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Separator orientation="VERTICAL" prefHeight="200.0" />
+                          <Label contentDisplay="RIGHT" text="Elapsed Time:">
+                           <graphic>
+                              <Label fx:id="labelElapsedTime" prefHeight="17.0" prefWidth="69.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets left="8.0" top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" text="Plotted Shapes:">
+                           <graphic>
+                              <Label fx:id="labelPlottedShapes" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" layoutX="160.0" layoutY="10.0" text="Plotted Vertices:">
+                           <graphic>
+                              <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Label contentDisplay="RIGHT" layoutX="673.0" layoutY="10.0" prefHeight="21.0" prefWidth="153.0" text="Position:">
+                           <graphic>
+                              <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                           </graphic>
+                           <padding>
+                              <Insets top="4.0" />
+                           </padding>
+                        </Label>
+                        <Rectangle fx:id="colourPickerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="17.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="17.0">
+                           <HBox.margin>
+                              <Insets right="4.0" top="4.0" />
+                           </HBox.margin>
+                        </Rectangle>
+                     </children>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+     <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
+        <children>
+           <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="1.0" />
+           <Label fx:id="labelOpenDestinationFolder" layoutX="995.0" layoutY="8.0" prefHeight="17.0" prefWidth="154.0" text="Open Destination Folder">
+              <font>
+                 <Font name="System Bold" size="12.0" />
+              </font>
+           </Label>
+           <Label fx:id="labelCancelExport" layoutX="1184.0" layoutY="8.0" prefHeight="17.0" prefWidth="88.0" text="Cancel Export">
+              <font>
+                 <Font name="System Bold" size="12.0" />
+              </font>
+           </Label>
+           <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
+              <font>
+                 <Font name="System Bold" size="13.0" />
+              </font>
+           </Label>
+        </children>
+     </Pane>
+  </children>
+</VBox>

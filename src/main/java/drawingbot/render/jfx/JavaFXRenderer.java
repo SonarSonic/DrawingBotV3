@@ -124,7 +124,7 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public void clearCanvas(){
-        clearCanvas(DrawingBotV3.INSTANCE.canvasColor.getValue());
+        clearCanvas(DrawingBotV3.INSTANCE.drawingArea.canvasColor.getValue());
     }
 
     public void clearCanvas(Color color){

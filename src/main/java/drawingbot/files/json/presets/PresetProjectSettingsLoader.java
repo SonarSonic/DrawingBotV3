@@ -87,9 +87,9 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
 
         preset.data.optimiseForPrint = DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get();
         preset.data.targetPenWidth = DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get();
-        preset.data.colourSplitter = DrawingBotV3.INSTANCE.drawingSetSlots.get(0).colourSeperator.get();
-        preset.data.distributionType = DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionType.get();
-        preset.data.distributionOrder = DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionOrder.get();
+        preset.data.colourSplitter = DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).colourSeperator.get();
+        preset.data.distributionType = DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).distributionType.get();
+        preset.data.distributionOrder = DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).distributionOrder.get();
         preset.data.blendMode = DrawingBotV3.INSTANCE.blendMode.get();
 
         preset.data.cyanMultiplier = DrawingBotV3.INSTANCE.cyanMultiplier.get();
@@ -110,7 +110,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         }
 
         preset.data.drawingSets = new ArrayList<>();
-        for(ObservableDrawingSet drawingSet : DrawingBotV3.INSTANCE.drawingSetSlots){
+        for(ObservableDrawingSet drawingSet : DrawingBotV3.INSTANCE.drawingSetSlots.get()){
             preset.data.drawingSets.add(new ObservableDrawingSet(drawingSet));
         }
         int activeSlot = preset.data.drawingSets.indexOf(DrawingBotV3.INSTANCE.activeDrawingSet.get());
@@ -139,7 +139,8 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.imageFlipVertical.set(preset.data.imageFlipVertical);
 
         DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.set(preset.data.optimiseForPrint);
-        DrawingBotV3.INSTANCE.controller.textFieldPenWidth.setText("" + preset.data.targetPenWidth); //works but ugly!
+        DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.set(preset.data.targetPenWidth); //TODO TEST ME
+
 
         DrawingBotV3.INSTANCE.blendMode.set(preset.data.blendMode);
 
@@ -148,19 +149,19 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
         DrawingBotV3.INSTANCE.yellowMultiplier.set(preset.data.yellowMultiplier);
         DrawingBotV3.INSTANCE.keyMultiplier.set(preset.data.keyMultiplier);
 
-        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).loadDrawingSet(preset.data.drawingSet.data);
-        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).colourSeperator.set(preset.data.colourSplitter);
-        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).colourSeperator.get().applySettings();
-        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionType.set(preset.data.distributionType);
-        DrawingBotV3.INSTANCE.drawingSetSlots.get(0).distributionOrder.set(preset.data.distributionOrder);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).loadDrawingSet(preset.data.drawingSet.data);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).colourSeperator.set(preset.data.colourSplitter);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).colourSeperator.get().applySettings();
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).distributionType.set(preset.data.distributionType);
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0).distributionOrder.set(preset.data.distributionOrder);
 
         if(preset.data.drawingSets != null && !preset.data.drawingSets.isEmpty()){
-            DrawingBotV3.INSTANCE.drawingSetSlots.clear();
+            DrawingBotV3.INSTANCE.drawingSetSlots.get().clear();
             for(ObservableDrawingSet drawingSet : preset.data.drawingSets){
-                DrawingBotV3.INSTANCE.drawingSetSlots.add(new ObservableDrawingSet(drawingSet));
+                DrawingBotV3.INSTANCE.drawingSetSlots.get().add(new ObservableDrawingSet(drawingSet));
             }
-            int activeSlot = preset.data.activeDrawingSlot < DrawingBotV3.INSTANCE.drawingSetSlots.size() ? preset.data.activeDrawingSlot : 0;
-            DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get(activeSlot));
+            int activeSlot = preset.data.activeDrawingSlot < DrawingBotV3.INSTANCE.drawingSetSlots.get().size() ? preset.data.activeDrawingSlot : 0;
+            DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get().get(activeSlot));
         }
 
         if(!preset.data.isSubProject){ //don't overwrite the versions if this is just a sub version

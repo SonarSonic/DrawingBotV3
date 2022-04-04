@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
+    <TableView fx:id="tableViewImageFilters" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="205.0"
+               prefWidth="404.0" tableMenuButtonVisible="true">
+        <columns>
+            <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false"
+                         text="Enable"/>
+            <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false"
+                         text="Filter Type"/>
+            <TableColumn fx:id="columnImageFilterSettings" prefWidth="218.0" sortable="false" text="Settings"/>
+        </columns>
+    </TableView>
+    <ComboBox fx:id="comboBoxImageFilterPreset" layoutX="12.0" layoutY="14.0" prefHeight="25.0" prefWidth="305.0"
+              promptText="New Preset Name"/>
+    <MenuButton fx:id="menuButtonFilterPresets" layoutX="321.0" layoutY="14.0" mnemonicParsing="false" text="Presets"/>
+    <HBox layoutX="7.0" layoutY="271.0" spacing="3.0">
+        <children>
+            <ComboBox fx:id="comboBoxFilterType" prefHeight="25.0" prefWidth="100.0" promptText="Transitions"/>
+            <ComboBox fx:id="comboBoxImageFilter" prefHeight="25.0" prefWidth="223.0"/>
+            <Button fx:id="buttonAddFilter" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Add"/>
+        </children>
+    </HBox>
+    <Separator layoutX="7.0" layoutY="309.0" prefHeight="3.0" prefWidth="378.0"/>
+    <HBox layoutX="10.0" layoutY="317.0" prefHeight="30.0" prefWidth="373.0" spacing="16.0">
+        <children>
+            <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Rotation">
+                <graphic>
+                    <ChoiceBox fx:id="choiceBoxRotation" prefHeight="25.0" prefWidth="79.0"/>
+                </graphic>
+            </Label>
+            <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" prefHeight="25.0"
+                   prefWidth="110.0" text="Flip Horizontal:">
+                <graphic>
+                    <CheckBox fx:id="checkBoxFlipX" mnemonicParsing="false"/>
+                </graphic>
+            </Label>
+            <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="179.0" layoutY="10.0" prefHeight="25.0"
+                   prefWidth="97.0" text="Flip Vertical:">
+                <graphic>
+                    <CheckBox fx:id="checkBoxFlipY" mnemonicParsing="false"/>
+                </graphic>
+            </Label>
+        </children>
+    </HBox>
+</AnchorPane>

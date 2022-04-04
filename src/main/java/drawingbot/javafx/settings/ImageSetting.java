@@ -37,7 +37,7 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
         this.imageView.get().imageProperty().bind(thumbnail);
         this.imageView.get().preserveRatioProperty().set(true);
-        this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty());
+        //this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty()); //TODO CHECK ME!
 
         Button button = new Button("Select Image");
 

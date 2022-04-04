@@ -154,7 +154,7 @@ public class FXStylesController {
         styleMaskColorColumn.setCellFactory(TableCellColorPicker::new);
         styleMaskColorColumn.setCellValueFactory(param -> param.getValue().maskColor);
 
-        styleDrawingSetColumn.setCellFactory(param -> new ComboBoxTableCell<>(DrawingBotV3.INSTANCE.drawingSetSlots));
+        styleDrawingSetColumn.setCellFactory(param -> new ComboBoxTableCell<>(DrawingBotV3.INSTANCE.drawingSetSlots.get()));
         styleDrawingSetColumn.setCellValueFactory(param -> param.getValue().drawingSet);
 
 

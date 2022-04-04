@@ -45,7 +45,7 @@ public class ObservableDrawingStyle implements IDrawingStyle {
         this.pfmFactory = new SimpleObjectProperty<>();
         this.distributionWeight = new SimpleIntegerProperty();
         this.maskColor = new SimpleObjectProperty<>();
-        this.drawingSet = new SimpleObjectProperty<>(DrawingBotV3.INSTANCE.drawingSetSlots.get(0));
+        this.drawingSet = new SimpleObjectProperty<>(DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0));
         this.pfmSettings = FXCollections.observableArrayList();
     }
 
@@ -54,7 +54,7 @@ public class ObservableDrawingStyle implements IDrawingStyle {
         this.name.set(name);
         this.pfmFactory.set(pfm);
         this.distributionWeight.set(weight);
-        ObservableDrawingSet drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get(drawingSetSlot);
+        ObservableDrawingSet drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get().get(drawingSetSlot);
         this.drawingSet.set(drawingSet != null ? drawingSet : DrawingBotV3.INSTANCE.activeDrawingSet.get());
         this.maskColor.set(maskColor);
         this.pfmSettings.clear();
@@ -113,6 +113,6 @@ public class ObservableDrawingStyle implements IDrawingStyle {
 
     @Override
     public int getDrawingSetSlot() {
-        return DrawingBotV3.INSTANCE.drawingSetSlots.indexOf(drawingSet.get());
+        return DrawingBotV3.INSTANCE.drawingSetSlots.get().indexOf(drawingSet.get());
     }
 }

@@ -29,11 +29,11 @@ public class ColourSeperationHandler implements INamedSetting {
     }
 
     public void applySettings(){
-        DrawingBotV3.INSTANCE.nextDistributionType = EnumDistributionType.getRecommendedType();
+        DrawingBotV3.INSTANCE.nextDistributionType.set(EnumDistributionType.getRecommendedType());
     }
 
     public void resetSettings(){
-        DrawingBotV3.INSTANCE.nextDistributionType = EnumDistributionType.getRecommendedType();
+        DrawingBotV3.INSTANCE.nextDistributionType.set(EnumDistributionType.getRecommendedType());
     }
 
     /**

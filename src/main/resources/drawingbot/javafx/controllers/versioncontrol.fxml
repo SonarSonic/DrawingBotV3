@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane  xmlns="http://javafx.com/javafx"
+             xmlns:fx="http://javafx.com/fxml"
+             fx:controller="drawingbot.javafx.controllers.FXVersionControl" prefWidth="423.0">
+<children>
+    <TableView fx:id="tableViewVersions" editable="true" layoutX="-1.0" prefHeight="328.0" prefWidth="403.0" tableMenuButtonVisible="true">
+        <columns>
+            <TableColumn fx:id="versionThumbColumn" minWidth="7.0" prefWidth="122.0" />
+            <TableColumn fx:id="versionNameColumn" prefWidth="130.0" sortable="false" text="Name" />
+            <TableColumn fx:id="versionDateColumn" editable="false" minWidth="0.0" prefWidth="130.0" sortable="false" text="Date" />
+            <TableColumn fx:id="versionFileColumn" editable="false" prefWidth="47.0" sortable="false" text="File" visible="false" />
+            <TableColumn fx:id="versionPFMColumn" minWidth="0.0" prefWidth="144.0" sortable="false" text="PFM" visible="false" />
+        </columns>
+    </TableView>
+    <HBox layoutX="28.0" layoutY="341.0" spacing="3.0">
+        <children>
+            <Button fx:id="buttonAddVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Save" />
+            <Button fx:id="buttonDeleteVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Delete" />
+            <Button fx:id="buttonMoveUpVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Up" />
+            <Button fx:id="buttonMoveDownVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Down" />
+        </children>
+    </HBox>
+</children>
+</AnchorPane>

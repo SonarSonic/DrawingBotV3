@@ -10,6 +10,8 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -285,7 +287,7 @@ public class PlottedDrawing {
 
     public static List<ObservableDrawingPen> getAllPens(){
         List<ObservableDrawingPen> allPens = new ArrayList<>();
-        DrawingBotV3.INSTANCE.drawingSetSlots.forEach(drawingSet -> allPens.addAll(drawingSet.pens));
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().forEach(drawingSet -> allPens.addAll(drawingSet.pens));
         return allPens;
     }
 
@@ -302,7 +304,7 @@ public class PlottedDrawing {
             }
         }
 
-        drawingSets.sort(Comparator.comparingInt(set -> DrawingBotV3.INSTANCE.drawingSetSlots.indexOf(set)));
+        drawingSets.sort(Comparator.comparingInt(set -> DrawingBotV3.INSTANCE.drawingSetSlots.get().indexOf(set)));
 
         List<ObservableDrawingPen> globalOrder = new ArrayList<>();
         drawingSets.forEach(drawingSet -> globalOrder.addAll(drawingSet.pens));

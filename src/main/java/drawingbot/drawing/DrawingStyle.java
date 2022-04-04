@@ -85,8 +85,8 @@ public class DrawingStyle implements IDrawingStyle {
     @Override
     public ObservableDrawingSet getDrawingSet() {
         ObservableDrawingSet drawingSet = null;
-        if(DrawingBotV3.INSTANCE.drawingSetSlots.size() > drawingSetSlot){
-            drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get(drawingSetSlot);
+        if(DrawingBotV3.INSTANCE.drawingSetSlots.get().size() > drawingSetSlot){
+            drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get().get(drawingSetSlot);
         }
         return drawingSet == null ? DrawingBotV3.INSTANCE.activeDrawingSet.get() : drawingSet;
     }

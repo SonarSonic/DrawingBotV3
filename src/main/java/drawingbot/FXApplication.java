@@ -16,7 +16,7 @@ import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
-import drawingbot.utils.MouseMonitor;
+import drawingbot.javafx.util.MouseMonitor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +26,8 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.Style;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -83,9 +85,10 @@ public class FXApplication extends Application {
 
         DrawingBotV3.logger.info("Init Observable Drawing Set");
         DrawingBotV3.INSTANCE.invisibleDrawingPen = new ObservableDrawingPen(-1, new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Invisible Pen", ImageTools.getARGB(0, 0, 0, 0)));
-        DrawingBotV3.INSTANCE.drawingSetSlots.add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
-        DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get(0));
+        DrawingBotV3.INSTANCE.drawingSetSlots.get().add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
+        DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0));
         DrawingBotV3.INSTANCE.activeDrawingSet.get().name.set("Default");
+        DrawingBotV3.INSTANCE.pfmFactory.set(MasterRegistry.INSTANCE.getDefaultPFM());
 
         DrawingBotV3.logger.info("Loading Json Files");
         JsonLoaderManager.loadJSONFiles();
@@ -95,7 +98,7 @@ public class FXApplication extends Application {
         //// INIT GUI
         DrawingBotV3.INSTANCE.controller = new FXController();
 
-        FXMLLoader uiLoader = new FXMLLoader(FXApplication.class.getResource("/fxml/userinterface.fxml")); // abs path to fxml file
+        FXMLLoader uiLoader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml")); // abs path to fxml file
         uiLoader.setController(DrawingBotV3.INSTANCE.controller);
 
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();

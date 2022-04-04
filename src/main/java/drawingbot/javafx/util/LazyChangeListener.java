@@ -1,4 +1,4 @@
-package drawingbot.utils;
+package drawingbot.javafx.util;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

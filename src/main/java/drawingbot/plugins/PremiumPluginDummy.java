@@ -81,17 +81,17 @@ public class PremiumPluginDummy implements IPlugin {
 
     public Object[] disableBatchProcessingUI(Object...objects){
         FXController controller = (FXController)objects[0];
-        controller.anchorPaneBatchProcessing.setDisable(true);
+        controller.batchProcessingController.anchorPaneBatchProcessing.setDisable(true);
         controller.titledPaneBatchProcessing.setText(controller.titledPaneBatchProcessing.getText() + " (Premium)");
-        controller.anchorPaneBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
+        controller.batchProcessingController.anchorPaneBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         controller.titledPaneBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         return objects;
     }
 
     public Object[] disableColourSplitterUI(Object...objects) {
         FXController controller = (FXController) objects[0];
-        controller.buttonConfigureSplitter.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
-        controller.comboBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
+        controller.drawingSetsController.buttonConfigureSplitter.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
+        controller.drawingSetsController.comboBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         /* TODO DO WE NEED THIS???
         DrawingBotV3.INSTANCE.colourSeperator.addListener((observable, oldValue, newValue) -> {
             if(!newValue.isDefault()){
@@ -117,7 +117,7 @@ public class PremiumPluginDummy implements IPlugin {
 
     public Object[] disableOpenGL(Object...values) {
         DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
-            if(!newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled){
+            if(newValue != null && newValue.getRenderer() != null && !newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled){
                 FXController.showPremiumFeatureDialog();
                 Platform.runLater(() -> DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));
             }

@@ -2,12 +2,14 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
+import drawingbot.javafx.controls.TableCellImage;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.util.converter.DefaultStringConverter;
@@ -16,7 +18,7 @@ import javafx.util.converter.DefaultStringConverter;
 public class FXProjectManagerController {
 
     public TableView<ObservableProjectSettings> tableViewProjects = null;
-    public TableColumn<ObservableProjectSettings, ImageView> projectThumbColumn = null;
+    public TableColumn<ObservableProjectSettings, Image> projectThumbColumn = null;
     public TableColumn<ObservableProjectSettings, String> projectNameColumn = null;
     public TableColumn<ObservableProjectSettings, String> projectDateColumn = null;
 
@@ -47,7 +49,8 @@ public class FXProjectManagerController {
 
         tableViewProjects.setItems(DrawingBotV3.INSTANCE.projectVersions);
 
-        projectThumbColumn.setCellValueFactory(param -> param.getValue().imageView);
+        projectThumbColumn.setCellFactory(param -> new TableCellImage<>());
+        projectThumbColumn.setCellValueFactory(param -> param.getValue().thumbnail);
 
         projectNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         projectNameColumn.setCellValueFactory(param -> param.getValue().userDefinedName);
