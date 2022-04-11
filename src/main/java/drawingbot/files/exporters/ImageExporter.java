@@ -53,6 +53,10 @@ public class ImageExporter {
         BufferedImage image = createFreshBufferedImage(exportTask, false);
         Graphics2D graphics = createFreshGraphics2D(exportTask, image);
 
+        //apply the scaling caused by the new DPI.
+        double scale = (double)image.getWidth() / exportTask.exportDrawing.canvas.getScaledWidth();
+        graphics.scale(scale, scale);
+
         Graphics2DExporter.preDraw(exportTask, graphics);
         Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);
         Graphics2DExporter.postDraw(exportTask, graphics);
