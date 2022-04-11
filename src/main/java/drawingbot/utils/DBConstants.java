@@ -5,8 +5,8 @@ public class DBConstants {
     // CONSTANTS \\
     public static final String appName = "DrawingBotV3";
     public static final String majorVersion = "1";
-    public static final String minorVersion = "3";
-    public static final String patchVersion = "6";
+    public static final String minorVersion = "4";
+    public static final String patchVersion = "0";
     public static final String appVersion = majorVersion + "." + minorVersion + "." + patchVersion;
 
     public static String versionName = appName + " Free";
