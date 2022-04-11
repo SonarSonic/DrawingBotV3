@@ -24,8 +24,9 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
     @Override
     public void loadDefaults() {
         GenericPreset<O> defaultPreset = getDefaultPreset();
-        if(defaultPreset != null){
-            applyPreset(defaultPreset);
+        AbstractPresetManager<O> presetManager = getDefaultManager();
+        if(defaultPreset != null && presetManager != null){
+            presetManager.applyPreset(defaultPreset);
         }
     }
 

@@ -1,24 +1,36 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.AbstractSettingsLoader;
+import drawingbot.files.json.AbstractPresetLoader;
+import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
+import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.UnitsLength;
 
+import java.util.List;
 import java.util.Optional;
 
-public class PresetVpypeSettingsLoader extends AbstractSettingsLoader<PresetVpypeSettings> {
+public class PresetVpypeSettingsLoader extends AbstractPresetLoader<PresetVpypeSettings> {
 
     public PresetVpypeSettingsLoader(PresetType presetType) {
         super(PresetVpypeSettings.class, presetType, "user_vpype_presets.json");
-    }
+        setDefaultManager(new DefaultPresetManager<>(this) {
+            @Override
+            public void registerSettings() {
+                registerSetting(GenericSetting.createStringSetting(VpypeSettings.class, "vPypeCommand", "show", (settings, value) -> settings.vPypeCommand.setValue(value)).setGetter(settings -> settings.vPypeCommand.getValue()));
+                registerSetting(GenericSetting.createBooleanSetting(VpypeSettings.class, "vPypeBypassOptimisation", false, (settings, value) -> settings.vPypeBypassOptimisation.setValue(value)).setGetter(settings -> settings.vPypeBypassOptimisation.getValue()));
+            }
 
-    public void registerSettings(){
-        registerSetting(GenericSetting.createStringSetting(DrawingBotV3.class, "vPypeCommand", "show", (app, value) -> app.vPypeCommand.setValue(value)).setGetter(app -> app.vPypeCommand.getValue()));
-        registerSetting(GenericSetting.createBooleanSetting(DrawingBotV3.class, "vPypeBypassOptimisation", false, (app, value) -> app.vPypeBypassOptimisation.setValue(value)).setGetter(app -> app.vPypeBypassOptimisation.getValue()));
+            @Override
+            public VpypeSettings getInstance() {
+                return DrawingBotV3.INSTANCE.vpypeSettings;
+            }
+        });
     }
 
     @Override

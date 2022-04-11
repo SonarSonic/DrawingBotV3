@@ -38,16 +38,6 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
      */
     protected abstract void unregisterPreset(GenericPreset<O> preset);
 
-    /**
-     * updates the presets settings with the ones currently configured
-     * @return the preset or null if the settings couldn't be saved
-     */
-    protected abstract GenericPreset<O> updatePreset(GenericPreset<O> preset);
-
-    /**
-     * applies the presets settings
-     */
-    protected abstract void applyPreset(GenericPreset<O> preset);
 
     /**
      * called when a presets subtype / name is changed, used for updating the name in the data object if needed
@@ -82,6 +72,18 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
 
     public GenericPreset<O> getDefaultPresetForSubType(String subType){
         return null;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private AbstractPresetManager<O> defaultManager = null;
+
+    public AbstractPresetManager<O> getDefaultManager(){
+        return defaultManager;
+    }
+
+    public void setDefaultManager(AbstractPresetManager<O> defaultManager) {
+        this.defaultManager = defaultManager;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,21 +125,6 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
             return true;
         }
         return false;
-    }
-
-    public final GenericPreset<O> tryUpdatePreset(GenericPreset<O> preset) {
-        if (preset != null && preset.userCreated) {
-            preset = updatePreset(preset);
-            if (preset != null) {
-                queueJsonUpdate();
-                return preset;
-            }
-        }
-        return null;
-    }
-
-    public final void tryApplyPreset(GenericPreset<O> preset) {
-        applyPreset(preset);
     }
 
     public abstract JsonElement toJsonElement(Gson gson,  GenericPreset<?> preset);

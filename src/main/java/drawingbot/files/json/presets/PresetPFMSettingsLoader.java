@@ -16,6 +16,17 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     public PresetPFMSettingsLoader(PresetType presetType) {
         super(PresetPFMSettings.class, presetType, "user_pfm_presets.json");
+        setDefaultManager(new PresetPFMSettingsManager(this) {
+            @Override
+            public Property<PFMFactory<?>> pfmProperty() {
+                return DrawingBotV3.INSTANCE.pfmSettings.factory;
+            }
+
+            @Override
+            public Property<ObservableList<GenericSetting<?, ?>>> settingProperty() {
+                return DrawingBotV3.INSTANCE.pfmSettings.settings;
+            }
+        });
     }
 
     @Override
@@ -36,25 +47,8 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
     }
 
     @Override
-    public GenericPreset<PresetPFMSettings> updatePreset(GenericPreset<PresetPFMSettings> preset) {
-        preset.presetSubType = DrawingBotV3.INSTANCE.pfmFactory.get().getName();
-        preset.data.settingList = GenericSetting.toJsonMap(MasterRegistry.INSTANCE.getObservablePFMSettingsList(), new HashMap<>(), false);
-        return preset;
-    }
-
-    @Override
-    public void applyPreset(GenericPreset<PresetPFMSettings> preset) {
-        applyPreset(preset, DrawingBotV3.INSTANCE.pfmFactory, MasterRegistry.INSTANCE.getObservablePFMSettingsList());
-    }
-
-    public void applyPreset(GenericPreset<PresetPFMSettings> preset, Property<PFMFactory<?>> factoryProperty, ObservableList<GenericSetting<?, ?>> settingsList) {
-        factoryProperty.setValue(MasterRegistry.INSTANCE.getPFMFactory(preset.presetSubType));
-        GenericSetting.applySettings(preset.data.settingList, settingsList);
-    }
-
-    @Override
     public GenericPreset<PresetPFMSettings> getDefaultPreset() {
-        return MasterRegistry.INSTANCE.getDefaultPreset(this, DrawingBotV3.INSTANCE.pfmFactory.get().getName(), "Default");
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, DrawingBotV3.INSTANCE.pfmSettings.factory.get().getName(), "Default");
     }
 
     @Override

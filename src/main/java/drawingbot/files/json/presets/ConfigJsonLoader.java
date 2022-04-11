@@ -3,6 +3,7 @@ package drawingbot.files.json.presets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.files.json.AbstractJsonLoader;
+import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.IConfigData;
 import drawingbot.javafx.GenericFactory;
@@ -22,6 +23,17 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     public ConfigJsonLoader(PresetType presetType) {
         super(presetType, "config_settings.json");
         registerTypes();
+        setDefaultManager(new AbstractPresetManager<>(this) {
+            @Override
+            public GenericPreset<IConfigData> updatePreset(GenericPreset<IConfigData> preset) {
+                return configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.updatePreset(preset);
+            }
+
+            @Override
+            public void applyPreset(GenericPreset<IConfigData> preset) {
+                configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.applyPreset(preset);
+            }
+        });
     }
 
     private void registerTypes(){
@@ -55,16 +67,6 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     @Override
     protected void unregisterPreset(GenericPreset<IConfigData> preset) {
         configs.remove(configFactories.get(preset.presetSubType).getInstanceClass());
-    }
-
-    @Override
-    protected GenericPreset<IConfigData> updatePreset(GenericPreset<IConfigData> preset) {
-        return configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.updatePreset(preset);
-    }
-
-    @Override
-    protected void applyPreset(GenericPreset<IConfigData> preset) {
-        configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.applyPreset(preset);
     }
 
     @Override

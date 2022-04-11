@@ -4,6 +4,8 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetLoader;
+import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
@@ -17,6 +19,12 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
 
     public PresetDrawingPenLoader(PresetType presetType) {
         super(PresetDrawingPen.class, presetType, "user_pen_presets.json");
+        setDefaultManager(new PresetDrawingPenManager(this) {
+            @Override
+            public IDrawingPen getSelectedDrawingPen() {
+                return DrawingBotV3.INSTANCE.controller.drawingSetsController.getSelectedPen();
+            }
+        });
     }
 
     @Override
@@ -35,24 +43,6 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
     public void unregisterPreset(GenericPreset<PresetDrawingPen> preset) {
         super.unregisterPreset(preset);
         MasterRegistry.INSTANCE.unregisterDrawingPen(preset.data);
-    }
-
-    @Override
-    public GenericPreset<PresetDrawingPen> updatePreset(GenericPreset<PresetDrawingPen> preset) {
-        IDrawingPen selectedPen = DrawingBotV3.INSTANCE.controller.drawingSetsController.getSelectedPen();
-        if (selectedPen == null) {
-            return null; // can't save the preset
-        }
-        DrawingPen pen = new DrawingPen(selectedPen);
-        preset.presetSubType = pen.getType();
-        preset.presetName = pen.getName();
-        preset.data.update(pen);
-        return preset;
-    }
-
-    @Override
-    public void applyPreset(GenericPreset<PresetDrawingPen> preset) {
-        ///nothing to apply
     }
 
     @Override

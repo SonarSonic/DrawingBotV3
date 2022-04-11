@@ -8,6 +8,8 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import javafx.beans.property.Property;
+import javafx.collections.ObservableList;
 
 import java.awt.image.BufferedImageOp;
 
@@ -15,6 +17,12 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
 
     public PresetImageFiltersLoader(PresetType presetType) {
         super(PresetImageFilters.class, presetType, "user_filter_presets.json");
+        setDefaultManager(new PresetImageFiltersManager(this) {
+            @Override
+            public Property<ObservableList<ObservableImageFilter>> imageFiltersProperty() {
+                return DrawingBotV3.INSTANCE.imgFilterSettings.currentFilters;
+            }
+        });
     }
 
     @Override
@@ -32,25 +40,6 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
     public void unregisterPreset(GenericPreset<PresetImageFilters> preset) {
         DrawingBotV3.logger.finest("Unregistering Image Filter Preset: " + preset.presetName);
         super.unregisterPreset(preset);
-    }
-
-    @Override
-    public GenericPreset<PresetImageFilters> updatePreset(GenericPreset<PresetImageFilters> preset) {
-        preset.data.filters.clear();
-        DrawingBotV3.INSTANCE.currentFilters.forEach(preset.data::copyFilter);
-        return preset;
-    }
-
-    @Override
-    public void applyPreset(GenericPreset<PresetImageFilters> preset) {
-        DrawingBotV3.INSTANCE.currentFilters.clear();
-        for (int i = 0; i < preset.data.filters.size(); i++) {
-            PresetImageFilters.Filter filter = preset.data.filters.get(i);
-            GenericFactory<BufferedImageOp> factory = MasterRegistry.INSTANCE.getImageFilterFactory(filter.type);
-            ObservableImageFilter observableImageFilter = new ObservableImageFilter(filter.isEnabled, factory);
-            GenericSetting.applySettings(filter.settings, observableImageFilter.filterSettings);
-            DrawingBotV3.INSTANCE.currentFilters.add(observableImageFilter);
-        }
     }
 
     @Override

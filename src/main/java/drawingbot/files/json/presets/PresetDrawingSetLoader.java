@@ -5,9 +5,11 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetLoader;
+import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.controllers.FXDrawingSets;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
 import drawingbot.javafx.GenericPreset;
@@ -20,6 +22,12 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
 
     public PresetDrawingSetLoader(PresetType presetType) {
         super(PresetDrawingSet.class, presetType,"user_set_presets.json");
+        setDefaultManager(new PresetDrawingSetManager(this) {
+            @Override
+            public ObservableDrawingSet getSelectedDrawingSet() {
+                return DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get();
+            }
+        });
     }
 
     @Override
@@ -38,18 +46,6 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
     public void unregisterPreset(GenericPreset<PresetDrawingSet> preset) {
         super.unregisterPreset(preset);
         MasterRegistry.INSTANCE.unregisterDrawingSet(preset.data);
-    }
-
-    @Override
-    public GenericPreset<PresetDrawingSet> updatePreset(GenericPreset<PresetDrawingSet> preset) {
-        preset.data.pens.clear();
-        DrawingBotV3.INSTANCE.activeDrawingSet.get().getPens().forEach(p -> preset.data.pens.add(new DrawingPen(p)));
-        return preset;
-    }
-
-    @Override
-    public void applyPreset(GenericPreset<PresetDrawingSet> preset) {
-        DrawingBotV3.INSTANCE.controller.drawingSetsController.changeDrawingSet(preset.data);
     }
 
     @Override
