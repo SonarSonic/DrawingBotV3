@@ -1,11 +1,12 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IProgressCallback;
 import javafx.concurrent.Task;
 
 import java.util.logging.Level;
 
-public abstract class DBTask<V> extends Task<V> {
+public abstract class DBTask<V> extends Task<V> implements IProgressCallback {
 
     public boolean updateProgressInstantly = false;
     private String title = "";

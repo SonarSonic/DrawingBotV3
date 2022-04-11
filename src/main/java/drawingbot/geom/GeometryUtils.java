@@ -43,7 +43,7 @@ public class GeometryUtils {
             }
 
             @Override
-            public void updateProgress(float progress, float max) {
+            public void updateProgress(double progress, double max) {
                 task.updateProgress(progress, max);
             }
         };

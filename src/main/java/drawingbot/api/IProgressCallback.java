@@ -6,6 +6,6 @@ public interface IProgressCallback {
 
     void updateMessage(String message);
 
-    void updateProgress(float progress, float max);
+    void updateProgress(double progress, double max);
 
 }

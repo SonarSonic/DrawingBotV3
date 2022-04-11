@@ -7,16 +7,16 @@ import java.util.function.Consumer;
 
 public class ProgressCallback implements IProgressCallback {
 
-    public float currentProgress = 0F;
+    public double currentProgress = 0D;
     public String currentMessage = "";
     public String currentTitle = "";
 
-    public float storedProgress = 0F;
-    public float layerMultiplier = 1F;
+    public double storedProgress = 0D;
+    public double layerMultiplier = 1D;
     public String previousMessage = "";
 
     public Consumer<String> messageCallback;
-    public BiConsumer<Float, Float> progressCallback;
+    public BiConsumer<Double, Double> progressCallback;
 
     public ProgressCallback(){}
 
@@ -43,9 +43,9 @@ public class ProgressCallback implements IProgressCallback {
     }
 
     @Override
-    public void updateProgress(float progress, float max) {
+    public void updateProgress(double progress, double max) {
         currentProgress = storedProgress + (progress * layerMultiplier);
-        progressCallback.accept(currentProgress, 1F);
+        progressCallback.accept(currentProgress, 1D);
     }
 
     public void pushLayers(int tasks){
@@ -66,7 +66,7 @@ public class ProgressCallback implements IProgressCallback {
 
     public void setTotalProgress(float totalProgress){
         currentProgress = totalProgress;
-        progressCallback.accept(currentProgress, 1F);
+        progressCallback.accept(currentProgress, 1D);
     }
 
 }

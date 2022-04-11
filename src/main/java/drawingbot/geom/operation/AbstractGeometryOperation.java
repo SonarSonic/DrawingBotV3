@@ -11,7 +11,7 @@ public abstract class AbstractGeometryOperation implements IProgressCallback {
     public boolean forExport = true;
     public String message = "";
     public String title = "";
-    public float progress;
+    public double progress;
     public IProgressCallback progressCallback = this;
 
 
@@ -30,7 +30,7 @@ public abstract class AbstractGeometryOperation implements IProgressCallback {
     }
 
     @Override
-    public void updateProgress(float progress, float max) {
+    public void updateProgress(double progress, double max) {
         this.progress = progress/max;
     }
 
@@ -41,8 +41,6 @@ public abstract class AbstractGeometryOperation implements IProgressCallback {
     }
 
     public PlottedDrawing createPlottedDrawing(PlottedDrawing reference){
-        PlottedDrawing newDrawing = new PlottedDrawing(reference.getCanvas(), reference.getDefaultGroup().drawingSet, reference.getDefaultGroup().pfmFactory);
-        newDrawing.copyBase(reference);
-        return newDrawing;
+        return reference.copyBase();
     }
 }
