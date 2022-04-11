@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
 
 public class PlottedGroup {
 
+    public transient PlottedDrawing parent;
     public int groupID;
     public ObservableDrawingSet drawingSet;
     public PFMFactory<?> pfmFactory;
@@ -23,7 +24,7 @@ public class PlottedGroup {
     public List<IGeometry> geometries;
     public List<ObservableDrawingPen> originalDrawingSetOrder;
 
-    protected boolean needsDistribution = true;
+    public boolean needsDistribution = true;
     public EnumDistributionType overrideDistributionType = null;
     public GroupDistributionType groupType = GroupDistributionType.NONE;
 
@@ -105,7 +106,7 @@ public class PlottedGroup {
     }
 
     public int getDrawingSetSlot(){
-        int slot = drawingSet.getDrawingSetSlot();
+        int slot = parent.drawingSets.getDrawingSetSlot(drawingSet);
         return slot == -1 ? 0 : slot;
     }
 

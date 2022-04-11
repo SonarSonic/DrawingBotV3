@@ -61,7 +61,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         this.currentRenderOrder = calculateRenderOrder();
 
         loadingDrawingSet = false;
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.onDrawingSetChanged());
+        Platform.runLater(() -> DrawingBotV3.INSTANCE.onDrawingSetChanged()); //TODO REMOVE ME!
     }
 
     public void addNewPen(IDrawingPen pen){
@@ -95,7 +95,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
                 return pen;
             }
         }
-        return DrawingBotV3.INSTANCE.invisibleDrawingPen;
+        return Register.INSTANCE.INVISIBLE_DRAWING_PEN;
     }
 
     public boolean containsPen(IDrawingPen pen){
@@ -125,16 +125,4 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         return getName();
     }
 
-
-    ///TODO REMOVE ME!!!
-    public int getDrawingSetSlot(){
-        return DrawingBotV3.INSTANCE.drawingSetSlots.get().indexOf(this);
-    }
-
-    public static ObservableDrawingSet getDrawingSetForSlot(int slot){
-        if(DrawingBotV3.INSTANCE.drawingSetSlots.get().size() > slot){
-            return DrawingBotV3.INSTANCE.drawingSetSlots.get().get(slot);
-        }
-        return DrawingBotV3.INSTANCE.activeDrawingSet.get();
-    }
 }

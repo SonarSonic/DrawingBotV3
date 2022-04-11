@@ -30,19 +30,11 @@ public class GCodeExporter {
     public static final String defaultEndLayerCode = "";
 
 
-    public static float getGCodeXOffset(){
-        return DrawingBotV3.INSTANCE.gcodeUnits.get().toMM(DrawingBotV3.INSTANCE.gcodeOffsetX.get());
-    }
-
-    public static float getGCodeYOffset(){
-        return DrawingBotV3.INSTANCE.gcodeUnits.get().toMM(DrawingBotV3.INSTANCE.gcodeOffsetY.get());
-    }
-
-    public static AffineTransform createGCodeTransform(ICanvas canvas){
+    public static AffineTransform createGCodeTransform(ICanvas canvas, GCodeSettings settings){
         AffineTransform transform = new AffineTransform();
 
         ///translate by the gcode offset
-        transform.translate(getGCodeXOffset(), getGCodeYOffset());
+        transform.translate(settings.getGCodeXOffset(), settings.getGCodeYOffset());
 
         ///move into print scale
         transform.scale(canvas.getPlottingScale(), canvas.getPlottingScale());
@@ -53,7 +45,7 @@ public class GCodeExporter {
         //move with pre-scaled offsets
         transform.translate(canvas.getDrawingOffsetX(UnitsLength.MILLIMETRES), -canvas.getDrawingOffsetY(UnitsLength.MILLIMETRES));
 
-        if(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.get()){
+        if(settings.gcodeCenterZeroPoint.get()){
             transform.translate(-canvas.getWidth(UnitsLength.MILLIMETRES)/2, -canvas.getHeight(UnitsLength.MILLIMETRES)/2);
         }
 
@@ -63,12 +55,17 @@ public class GCodeExporter {
     }
 
     public static void exportGCode(ExportTask exportTask, File saveLocation){
+        exportGCode(exportTask, DrawingBotV3.INSTANCE.gcodeSettings, saveLocation);
+    }
+
+    public static void exportGCode(ExportTask exportTask, GCodeSettings settings, File saveLocation){
+
         PrintWriter output = FileUtils.createWriter(saveLocation);
-        GCodeBuilder builder = new GCodeBuilder(exportTask, output);
+        GCodeBuilder builder = new GCodeBuilder(exportTask, settings, output);
 
         builder.open();
 
-        AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas());
+        AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas(), settings);
 
         float[] coords = new float[6];
 
@@ -81,8 +78,8 @@ public class GCodeExporter {
 
                 if(exportTask.exportIterator.currentPen == drawingPen) {
                     PathIterator iterator;
-                    if (DrawingBotV3.INSTANCE.gcodeEnableFlattening.get()) {
-                        iterator = geometry.getAWTShape().getPathIterator(transform, DrawingBotV3.INSTANCE.gcodeCurveFlatness.get());
+                    if (settings.gcodeEnableFlattening.get()) {
+                        iterator = geometry.getAWTShape().getPathIterator(transform, settings.gcodeCurveFlatness.get());
                     } else {
                         iterator = geometry.getAWTShape().getPathIterator(transform);
                     }
@@ -102,7 +99,11 @@ public class GCodeExporter {
     }
 
     public static void exportGCodeTest(ExportTask exportTask, File saveLocation){
-        AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas());
+        exportGCodeTest(exportTask, DrawingBotV3.INSTANCE.gcodeSettings, saveLocation);
+    }
+
+    public static void exportGCodeTest(ExportTask exportTask, GCodeSettings settings, File saveLocation){
+        AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas(), settings);
 
         Limit dx = new Limit(), dy = new Limit();
 
@@ -112,8 +113,8 @@ public class GCodeExporter {
         while(exportTask.exportIterator.hasNext()){
             IGeometry geometry = exportTask.exportIterator.next();
             PathIterator iterator;
-            if(DrawingBotV3.INSTANCE.gcodeEnableFlattening.get()){
-                iterator = geometry.getAWTShape().getPathIterator(transform, DrawingBotV3.INSTANCE.gcodeCurveFlatness.get() / transform.getScaleX());
+            if(settings.gcodeEnableFlattening.get()){
+                iterator = geometry.getAWTShape().getPathIterator(transform, settings.gcodeCurveFlatness.get() / transform.getScaleX());
             }else{
                 iterator = geometry.getAWTShape().getPathIterator(transform);
             }
@@ -128,7 +129,7 @@ public class GCodeExporter {
 
         String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + exportTask.extension;
         PrintWriter output = FileUtils.createWriter(new File(gname));
-        GCodeBuilder builder = new GCodeBuilder(exportTask, output);
+        GCodeBuilder builder = new GCodeBuilder(exportTask, settings, output);
 
         builder.comment("This is a test file to draw the extremes of the drawing area.");
         builder.comment("Draws a 1cm mark on all four corners of the paper.");

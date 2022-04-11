@@ -4,8 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IPFMImage;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.GeometryUtils;
-import drawingbot.api.ICanvas;
-import drawingbot.plotting.canvas.ImageCanvas;
+import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericSetting;
@@ -31,18 +30,17 @@ public class PFMTaskImage extends PFMTask {
     public IPixelData pixelDataReference;
     public IPixelData pixelDataPlotting;
 
+    @Nullable
+    public ImageFilterSettings imgFilterSettings;
     public boolean enableImageFiltering = true;
 
-    public PFMTaskImage(ICanvas canvas, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet, BufferedImage image, @Nullable File originalImageFile){
-        this(new PlottedDrawing(new ImageCanvas(canvas, image, false), refPenSet, pfmFactory), pfmFactory, pfmSettings, refPenSet, image, originalImageFile);
-    }
-
-    public PFMTaskImage(PlottedDrawing drawing, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet, BufferedImage image, @Nullable File originalImageFile){
-        super(drawing, pfmFactory, pfmSettings, refPenSet);
+    public PFMTaskImage(IDrawingManager taskManager, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, List<GenericSetting<?, ?>> pfmSettings, @Nullable ImageFilterSettings imgFilterSettings, BufferedImage image, @Nullable File originalImageFile){
+        super(taskManager, drawing, pfmFactory, drawingPenSet, pfmSettings);
         this.originalImageFile = originalImageFile;
         if(originalImageFile != null){
             this.drawing.setMetadata(Register.INSTANCE.ORIGINAL_FILE, originalImageFile);
         }
+        this.imgFilterSettings = imgFilterSettings;
         this.drawing.setMetadata(Register.INSTANCE.ORIGINAL_IMAGE, image);
     }
 
@@ -63,17 +61,18 @@ public class PFMTaskImage extends PFMTask {
             DrawingBotV3.logger.fine("Applying Cropping");
             updateMessage("Pre-Processing - Cropping");
 
+            if(imgFilterSettings != null){
+                imgPlotting = FilteredBufferedImage.applyCropping(imgPlotting, drawing.getCanvas(), imgFilterSettings);
 
-            imgPlotting = FilteredBufferedImage.applyCropping(imgPlotting, drawing.getCanvas());
+                DrawingBotV3.logger.fine("Applying Filters");
+                for(ObservableImageFilter filter : imgFilterSettings.currentFilters.get()){
+                    if(filter.enable.get()){
+                        BufferedImageOp instance = filter.filterFactory.instance();
+                        filter.filterSettings.forEach(setting -> setting.applySetting(instance));
 
-            DrawingBotV3.logger.fine("Applying Filters");
-            for(ObservableImageFilter filter : DrawingBotV3.INSTANCE.currentFilters){
-                if(filter.enable.get()){
-                    BufferedImageOp instance = filter.filterFactory.instance();
-                    filter.filterSettings.forEach(setting -> setting.applySetting(instance));
-
-                    updateMessage("Pre-Processing - " + filter.name.getValue());
-                    imgPlotting = instance.filter(imgPlotting, null);
+                        updateMessage("Pre-Processing - " + filter.name.getValue());
+                        imgPlotting = instance.filter(imgPlotting, null);
+                    }
                 }
             }
 

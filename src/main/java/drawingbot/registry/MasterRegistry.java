@@ -241,7 +241,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(){
-        return getObservablePFMSettingsList(DrawingBotV3.INSTANCE.pfmFactory.get());
+        return getObservablePFMSettingsList(DrawingBotV3.INSTANCE.pfmSettings.factory.get());
     }
 
     public ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(PFMFactory<?> factory){
@@ -249,7 +249,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(){
-        return getObservablePFMPresetList(DrawingBotV3.INSTANCE.pfmFactory.get());
+        return getObservablePFMPresetList(DrawingBotV3.INSTANCE.pfmSettings.factory.get());
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(PFMFactory<?> loader){

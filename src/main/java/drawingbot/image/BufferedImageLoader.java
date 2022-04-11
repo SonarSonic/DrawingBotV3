@@ -42,7 +42,7 @@ public class BufferedImageLoader extends Task<BufferedImage> {
     public static FilteredBufferedImage loadFilteredImage(String url, boolean internal) throws IOException {
         BufferedImage source = loadImage(url, internal);
         if(source != null){
-            FilteredBufferedImage filtered = new FilteredBufferedImage(source);
+            FilteredBufferedImage filtered = new FilteredBufferedImage(source, DrawingBotV3.INSTANCE.imgFilterSettings, DrawingBotV3.INSTANCE.drawingArea);
             filtered.updateAll();
             return filtered;
         }
@@ -136,7 +136,7 @@ public class BufferedImageLoader extends Task<BufferedImage> {
             BufferedImage source = loadImage(url, internal);
 
             updateMessage("Filtering");
-            FilteredBufferedImage filtered = new FilteredBufferedImage(source);
+            FilteredBufferedImage filtered = new FilteredBufferedImage(source, DrawingBotV3.INSTANCE.imgFilterSettings, DrawingBotV3.INSTANCE.drawingArea);
             filtered.updateAll();
 
             updateMessage("Finished");

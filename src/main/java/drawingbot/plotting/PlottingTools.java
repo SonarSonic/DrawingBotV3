@@ -1,6 +1,5 @@
 package drawingbot.plotting;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -39,8 +38,12 @@ public class PlottingTools implements IPlottingTools {
     public Geometry clippingShape = null;
 
     public PlottingTools(PlottedDrawing drawing) {
+        this(drawing, drawing.getPlottedGroup(0));
+    }
+
+    public PlottingTools(PlottedDrawing drawing, PlottedGroup currentGroup) {
         this.drawing = drawing;
-        this.currentGroup = drawing.getDefaultGroup();
+        this.currentGroup = currentGroup;
         this.pathBuilder = new PathBuilder(this);
         this.bresenham = new BresenhamHelper();
         this.defaultColourTest = new ColourSampleTest();
@@ -225,7 +228,9 @@ public class PlottingTools implements IPlottingTools {
     @Override
     public void clearAllGeometries() {
         getPlottedDrawing().clearGeometries();
-        DrawingBotV3.INSTANCE.clearDrawingRender(); //TODO check if it's actively drawing??
+        if(pfmTask != null){
+            pfmTask.drawingManager.clearDrawingRender();
+        }
     }
 
     ////////////////////////////////////////////////////////

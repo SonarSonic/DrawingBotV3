@@ -21,6 +21,8 @@ public class FXVersionControl {
 
     public final SimpleObjectProperty<ObservableList<ObservableProjectSettings>> projectVersions = new SimpleObjectProperty<>();
 
+    ////////////////////////////////////////////////////////
+
     public TableView<ObservableProjectSettings> tableViewVersions = null;
     public TableColumn<ObservableProjectSettings, Image> versionThumbColumn = null;
     public TableColumn<ObservableProjectSettings, String> versionNameColumn = null;
@@ -77,7 +79,7 @@ public class FXVersionControl {
         final ObservableList<ObservableProjectSettings> list = projectVersions.get();
         DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.updatePreset(preset);
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(preset);
             list.add(new ObservableProjectSettings(preset, true));
         });
     }

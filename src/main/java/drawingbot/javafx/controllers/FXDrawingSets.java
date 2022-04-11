@@ -7,14 +7,16 @@ import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingPen;
 import drawingbot.files.json.presets.PresetDrawingSet;
-import drawingbot.javafx.FXController;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
@@ -24,7 +26,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -43,8 +44,7 @@ import java.util.Optional;
 
 public class FXDrawingSets {
 
-    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
-    public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public SimpleObjectProperty<DrawingSets> drawingSets = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
@@ -102,6 +102,29 @@ public class FXDrawingSets {
     @FXML
     public void initialize(){
 
+        final ChangeListener<ObservableDrawingSet> activeSetListener = (observable, oldValue, newValue) -> onChangedActiveDrawingSet(oldValue, newValue);
+        drawingSets.addListener((observable, oldValue, newValue) -> {
+
+            if(oldValue != null){
+                comboBoxDrawingSets.itemsProperty().unbind();
+                comboBoxDrawingSets.valueProperty().unbindBidirectional(oldValue.activeDrawingSet);
+                oldValue.activeDrawingSet.removeListener(activeSetListener);
+
+                drawingSetTableView.itemsProperty().unbind();
+            }
+
+            if(newValue != null){
+                comboBoxDrawingSets.itemsProperty().bind(newValue.drawingSetSlots);
+                comboBoxDrawingSets.setValue(newValue.activeDrawingSet.get());
+                comboBoxDrawingSets.valueProperty().bindBidirectional(newValue.activeDrawingSet);
+
+                onChangedActiveDrawingSet(null, newValue.activeDrawingSet.get());
+                newValue.activeDrawingSet.addListener(activeSetListener);
+
+                drawingSetTableView.itemsProperty().bind(drawingSets.get().drawingSetSlots);
+            }
+        });
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         comboBoxSetType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredSets.keySet()));
@@ -118,7 +141,7 @@ public class FXDrawingSets {
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_SET, menuButtonDrawingSetPresets, true,
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager, menuButtonDrawingSetPresets, true,
                 () -> {
                     if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
                         PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
@@ -160,7 +183,7 @@ public class FXDrawingSets {
                     event.consume();
                 }
             });
-            row.setContextMenu(new ContextMenuObservablePen(row));
+            row.setContextMenu(new ContextMenuObservablePen(drawingSets, row));
             return row;
         });
 
@@ -211,10 +234,10 @@ public class FXDrawingSets {
 
         comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(comboBoxPenType.getValue()));
         comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
-        comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(true));
-        comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(false));
+        comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(drawingSets, true));
+        comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_PENS, menuButtonDrawingPenPresets, true,
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager, menuButtonDrawingPenPresets, true,
                 () -> {
                     if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
                         PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();
@@ -225,7 +248,7 @@ public class FXDrawingSets {
                     //force update rendering
                     comboBoxPenType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredPens.keySet()));
                     comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(comboBoxPenType.getValue()));
-                    comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(false));
+                    comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
                     if(preset != null){
                         comboBoxPenType.setValue(preset.presetSubType);
@@ -246,26 +269,26 @@ public class FXDrawingSets {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        buttonAddPen.setOnAction(e -> activeDrawingSet.get().addNewPen(comboBoxDrawingPen.getValue()));
+        buttonAddPen.setOnAction(e -> drawingSets.get().activeDrawingSet.get().addNewPen(comboBoxDrawingPen.getValue()));
         buttonAddPen.setTooltip(new Tooltip("Add Pen"));
 
-        buttonRemovePen.setOnAction(e -> FXHelper.deleteItem(penTableView.getSelectionModel().getSelectedItem(), activeDrawingSet.get().pens));
+        buttonRemovePen.setOnAction(e -> FXHelper.deleteItem(penTableView.getSelectionModel().getSelectedItem(), drawingSets.get().activeDrawingSet.get().pens));
         buttonRemovePen.setTooltip(new Tooltip("Remove Selected Pen"));
         buttonRemovePen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
 
         buttonDuplicatePen.setOnAction(e -> {
             ObservableDrawingPen pen = penTableView.getSelectionModel().getSelectedItem();
             if(pen != null)
-                activeDrawingSet.get().addNewPen(pen);
+                drawingSets.get().activeDrawingSet.get().addNewPen(pen);
         });
         buttonDuplicatePen.setTooltip(new Tooltip("Duplicate Selected Pen"));
         buttonDuplicatePen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
 
-        buttonMoveUpPen.setOnAction(e -> FXHelper.moveItemUp(penTableView.getSelectionModel().getSelectedItem(), activeDrawingSet.get().pens));
+        buttonMoveUpPen.setOnAction(e -> FXHelper.moveItemUp(penTableView.getSelectionModel().getSelectedItem(), drawingSets.get().activeDrawingSet.get().pens));
         buttonMoveUpPen.setTooltip(new Tooltip("Move Selected Pen Up"));
         buttonMoveUpPen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
 
-        buttonMoveDownPen.setOnAction(e -> FXHelper.moveItemDown(penTableView.getSelectionModel().getSelectedItem(), activeDrawingSet.get().pens));
+        buttonMoveDownPen.setOnAction(e -> FXHelper.moveItemDown(penTableView.getSelectionModel().getSelectedItem(), drawingSets.get().activeDrawingSet.get().pens));
         buttonMoveDownPen.setTooltip(new Tooltip("Move Selected Pen Down"));
         buttonMoveDownPen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
 
@@ -280,22 +303,12 @@ public class FXDrawingSets {
         comboBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
         comboBoxColourSeperation.setCellFactory(param -> new ComboCellNamedSetting<>());
 
-        buttonConfigureSplitter.setOnAction(e -> activeDrawingSet.get().colourSeperator.get().onUserConfigure());
+        buttonConfigureSplitter.setOnAction(e -> drawingSets.get().activeDrawingSet.get().colourSeperator.get().onUserConfigure());
 
-
-        comboBoxDrawingSets.itemsProperty().bind(drawingSetSlots);
-        comboBoxDrawingSets.setValue(activeDrawingSet.get());
-        comboBoxDrawingSets.valueProperty().bindBidirectional(activeDrawingSet);
         comboBoxDrawingSets.setCellFactory(param -> new ComboCellDrawingSet<>());
         comboBoxDrawingSets.setButtonCell(new ComboCellDrawingSet<>());
 
 
-
-        onChangedActiveDrawingSet(null, activeDrawingSet.get());
-
-        activeDrawingSet.addListener((observable, oldValue, newValue) -> {
-            onChangedActiveDrawingSet(oldValue, newValue);
-        });
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,8 +329,6 @@ public class FXDrawingSets {
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
-
-        drawingSetTableView.itemsProperty().bind(drawingSetSlots);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -341,16 +352,16 @@ public class FXDrawingSets {
 
         buttonAddDrawingSetSlot.setOnAction(e -> {
             ObservableDrawingSet drawingSet = new ObservableDrawingSet(new DrawingSet("User", "Empty", new ArrayList<>()));
-            drawingSetSlots.get().add(drawingSet);
+            drawingSets.get().drawingSetSlots.get().add(drawingSet);
         });
         buttonAddDrawingSetSlot.setTooltip(new Tooltip("Add Drawing Set"));
 
         buttonRemoveDrawingSetSlot.setOnAction(e -> {
-            if(drawingSetSlots.get().size() > 1){
+            if(drawingSets.get().drawingSetSlots.get().size() > 1){
                 ObservableDrawingSet toRemove = drawingSetTableView.getSelectionModel().getSelectedItem();
-                drawingSetSlots.get().remove(toRemove);
-                if(activeDrawingSet.get() == toRemove){
-                    activeDrawingSet.set(drawingSetSlots.get().get(0));
+                drawingSets.get().drawingSetSlots.get().remove(toRemove);
+                if(drawingSets.get().activeDrawingSet.get() == toRemove){
+                    drawingSets.get().activeDrawingSet.set(drawingSets.get().drawingSetSlots.get().get(0));
                 }
             }
         });
@@ -360,17 +371,17 @@ public class FXDrawingSets {
         buttonDuplicateDrawingSetSlot.setOnAction(e -> {
             ObservableDrawingSet drawingSet = drawingSetTableView.getSelectionModel().getSelectedItem();
             if(drawingSet != null){
-                drawingSetSlots.get().add(new ObservableDrawingSet(drawingSet));
+                drawingSets.get().drawingSetSlots.get().add(new ObservableDrawingSet(drawingSet));
             }
         });
         buttonDuplicateDrawingSetSlot.setTooltip(new Tooltip("Duplicate selected Drawing Set"));
         buttonDuplicateDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
 
-        buttonMoveUpDrawingSetSlot.setOnAction(e -> FXHelper.moveItemUp(drawingSetTableView.getSelectionModel().getSelectedItem(), drawingSetSlots.get()));
+        buttonMoveUpDrawingSetSlot.setOnAction(e -> FXHelper.moveItemUp(drawingSetTableView.getSelectionModel().getSelectedItem(), drawingSets.get().drawingSetSlots.get()));
         buttonMoveUpDrawingSetSlot.setTooltip(new Tooltip("Move selected Drawing Set up"));
         buttonMoveUpDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
 
-        buttonMoveDownDrawingSetSlot.setOnAction(e -> FXHelper.moveItemDown(drawingSetTableView.getSelectionModel().getSelectedItem(), drawingSetSlots.get()));
+        buttonMoveDownDrawingSetSlot.setOnAction(e -> FXHelper.moveItemDown(drawingSetTableView.getSelectionModel().getSelectedItem(), drawingSets.get().drawingSetSlots.get()));
         buttonMoveDownDrawingSetSlot.setTooltip(new Tooltip("Move selected Drawing Set down"));
         buttonMoveDownDrawingSetSlot.disableProperty().bind(drawingSetTableView.getSelectionModel().selectedItemProperty().isNull());
 
@@ -382,7 +393,7 @@ public class FXDrawingSets {
         comboBoxDrawingSets.setButtonCell(new ComboCellDrawingSet<>());
         comboBoxDrawingSets.setCellFactory(param -> new ComboCellDrawingSet<>());
 
-        ObservableDrawingSet activeSet = activeDrawingSet.get();
+        ObservableDrawingSet activeSet = drawingSets.get().activeDrawingSet.get();
         //comboBoxDrawingSets.setItems(FXCollections.observableArrayList());
         //comboBoxDrawingSets.setItems(drawingSetSlots.get()); //TODO CHECK UPDATE TOO DRAWING SET COLOURS
         comboBoxDrawingSets.setValue(activeSet);
@@ -399,7 +410,7 @@ public class FXDrawingSets {
         penListener = c -> DrawingBotV3.INSTANCE.onDrawingSetChanged();
         distributionOrderListener = (observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged();
         distributionTypeListener = (observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged();
-        colourSeperatorListener = (observable, oldValue, newValue) -> changeColourSplitter(oldValue, newValue);
+        colourSeperatorListener = (observable, oldValue, newValue) -> changeColourSplitter(oldValue, newValue, drawingSets.get());
     }
 
     private void addListeners(ObservableDrawingSet newValue){
@@ -447,22 +458,22 @@ public class FXDrawingSets {
 
     public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
         if(set != null){
-            activeDrawingSet.get().loadDrawingSet(set);
-            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set);
+            drawingSets.get().activeDrawingSet.get().loadDrawingSet(set);
+            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set, drawingSets.get());
         }
     }
 
-    public void changeColourSplitter(ColourSeperationHandler oldValue, ColourSeperationHandler newValue){
+    public void changeColourSplitter(ColourSeperationHandler oldValue, ColourSeperationHandler newValue, DrawingSets drawingSets){
         if(oldValue == newValue){
             return;
         }
         if(oldValue.wasApplied()){
-            oldValue.resetSettings();
+            oldValue.resetSettings(drawingSets);
             oldValue.setApplied(false);
         }
 
         if(newValue.onUserSelected()){
-            newValue.applySettings();
+            newValue.applySettings(drawingSets);
             newValue.setApplied(true);
         }
     }
@@ -470,5 +481,39 @@ public class FXDrawingSets {
     public ObservableDrawingPen getSelectedPen(){
         return penTableView.getSelectionModel().getSelectedItem();
     }
+
+    ////////////////////////////////////////////////////////
+
+    public AbstractPresetManager<PresetDrawingPen> drawingPenPresetManager;
+
+    public void setDrawingPenPresetManager(AbstractPresetManager<PresetDrawingPen> presetManager){
+        this.drawingPenPresetManager = presetManager;
+    }
+
+    public AbstractPresetManager<PresetDrawingPen> getDrawingPenPresetManager(){
+        if(drawingPenPresetManager == null){
+            return Register.PRESET_LOADER_DRAWING_PENS.getDefaultManager();
+        }
+        return drawingPenPresetManager;
+    }
+
+
+    ////////////////////////////////////////////////////////
+
+    public AbstractPresetManager<PresetDrawingSet> drawingSetPresetManager;
+
+    public void setDrawingSetPresetManager(AbstractPresetManager<PresetDrawingSet> presetManager){
+        this.drawingSetPresetManager = presetManager;
+    }
+
+    public AbstractPresetManager<PresetDrawingSet> getDrawingSetPresetManager(){
+        if(drawingSetPresetManager == null){
+            return Register.PRESET_LOADER_DRAWING_SET.getDefaultManager();
+        }
+        return drawingSetPresetManager;
+    }
+
+
+    ////////////////////////////////////////////////////////
 
 }

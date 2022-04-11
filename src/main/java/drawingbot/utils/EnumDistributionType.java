@@ -28,7 +28,7 @@ public enum EnumDistributionType {
     }
 
     public static EnumDistributionType getRecommendedType(){
-        return getRecommendedType(DrawingBotV3.INSTANCE.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmFactory.get());
+        return getRecommendedType(DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmSettings.factory.get());
     }
 
     public static EnumDistributionType getRecommendedType(ObservableDrawingSet drawingSet, PFMFactory<?> factory){

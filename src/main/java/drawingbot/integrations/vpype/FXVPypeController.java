@@ -41,7 +41,7 @@ public class FXVPypeController {
         comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
         comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_VPYPE_SETTINGS.applyPreset(newValue);
+                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(newValue);
                 if(!ConfigFileHandler.getApplicationSettings().vPypePresetName.equals(newValue.presetName)){
                     ConfigFileHandler.getApplicationSettings().vPypePresetName = newValue.presetName;
                     ConfigFileHandler.getApplicationSettings().markDirty();
@@ -50,7 +50,7 @@ public class FXVPypeController {
         });
         comboBoxVPypePreset.setValue(PresetVpypeSettingsLoader.getPresetOrDefault(ConfigFileHandler.getApplicationSettings().vPypePresetName));
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_VPYPE_SETTINGS, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
             comboBoxVPypePreset.setValue(preset);
 
             ///force update rendering
@@ -58,13 +58,13 @@ public class FXVPypeController {
             comboBoxVPypePreset.setButtonCell(new ComboBoxListCell<>());
         });
 
-        textAreaVPypeCommand.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeCommand);
+        textAreaVPypeCommand.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeCommand);
 
         labelWildcard.setText(VpypeHelper.OUTPUT_FILE_WILDCARD);
 
-        checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeBypassOptimisation);
+        checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeBypassOptimisation);
 
-        textBoxVPypeExecutablePath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vPypeExecutable);
+        textBoxVPypeExecutablePath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable);
         textBoxVPypeExecutablePath.setText(ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable);
         textBoxVPypeExecutablePath.textProperty().addListener((observable, oldValue, newValue) -> {
             ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable = textBoxVPypeExecutablePath.getText();
@@ -72,15 +72,15 @@ public class FXVPypeController {
         });
 
 
-        buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable());
+        buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable(DrawingBotV3.INSTANCE.vpypeSettings));
 
         buttonCancel.setOnAction(e -> DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.hide());
         buttonSendCommand.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.vPypeExecutable.getValue().isEmpty() || Files.notExists(new File(DrawingBotV3.INSTANCE.vPypeExecutable.getValue()).toPath())){
+            if(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable.getValue().isEmpty() || Files.notExists(new File(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable.getValue()).toPath())){
                 textBoxVPypeExecutablePath.requestFocus();
             }else{
                 DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.hide();
-                VpypeHelper.exportToVpype();
+                VpypeHelper.exportToVpype(DrawingBotV3.INSTANCE.vpypeSettings);
             }
         });
     }

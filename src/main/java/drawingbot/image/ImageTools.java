@@ -2,6 +2,7 @@ package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IPixelData;
+import drawingbot.api.IProgressCallback;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.kernels.IKernelFactory;
@@ -20,8 +21,9 @@ import java.util.function.Function;
 
 public class ImageTools {
 
-    public static BufferedImage applyCurrentImageFilters(BufferedImage image, boolean forceUpdate){
-        for(ObservableImageFilter filter : DrawingBotV3.INSTANCE.currentFilters){
+    public static BufferedImage applyCurrentImageFilters(BufferedImage image, ImageFilterSettings settings, boolean forceUpdate, IProgressCallback callback){
+        int filterCount = 0;
+        for(ObservableImageFilter filter : settings.currentFilters.get()){
             if(filter.enable.get()){
                 if(forceUpdate || filter.dirty.get()){
                     BufferedImageOp imageOp = filter.filterFactory.instance();
@@ -45,6 +47,13 @@ public class ImageTools {
                 forceUpdate = true;
                 filter.dirty.set(false);
             }
+            filterCount++;
+            if(callback != null){
+                callback.updateProgress(filterCount, settings.currentFilters.get().size());
+            }
+        }
+        if(callback != null) {
+            callback.updateProgress(1, 1);
         }
         return image;
     }
@@ -172,6 +181,10 @@ public class ImageTools {
     }
 
     public static BufferedImage cropToCanvas(BufferedImage image, ICanvas canvas){
+
+        if(canvas.useOriginalSizing()){
+            return image;
+        }
 
         int finalWidth = (int)(canvas.getDrawingWidth() * canvas.getPlottingScale());
         int finalHeight = (int)(canvas.getDrawingHeight() * canvas.getPlottingScale());

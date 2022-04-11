@@ -28,12 +28,16 @@ public class ColourSeperationHandler implements INamedSetting {
         return null;
     }
 
-    public void applySettings(){
-        DrawingBotV3.INSTANCE.nextDistributionType.set(EnumDistributionType.getRecommendedType());
+    public void applySettings(DrawingSets drawingSets){
+        if(drawingSets == DrawingBotV3.INSTANCE.drawingSets){
+            DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.set(EnumDistributionType.getRecommendedType(drawingSets.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmSettings.factory.get()));
+        }
     }
 
-    public void resetSettings(){
-        DrawingBotV3.INSTANCE.nextDistributionType.set(EnumDistributionType.getRecommendedType());
+    public void resetSettings(DrawingSets drawingSets){
+        if(drawingSets == DrawingBotV3.INSTANCE.drawingSets) {
+            DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.set(EnumDistributionType.getRecommendedType(drawingSets.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmSettings.factory.get()));
+        }
     }
 
     /**

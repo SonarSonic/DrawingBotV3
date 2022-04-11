@@ -13,14 +13,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.*;
-import drawingbot.files.exporters.GCodeBuilder;
+import drawingbot.drawing.DrawingSets;
+import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.presets.PresetProjectSettings;
+import drawingbot.image.ImageFilterSettings;
+import drawingbot.integrations.vpype.VpypeSettings;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.pfm.PFMSettings;
+import drawingbot.plotting.IDrawingManager;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.*;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.image.BufferedImageLoader;
@@ -41,6 +45,7 @@ import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
@@ -50,7 +55,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.Nullable;
 
-public class DrawingBotV3 {
+public class DrawingBotV3 implements IDrawingManager {
 
     public static final Logger logger = Logger.getLogger("DrawingBotV3");
     public static DrawingBotV3 INSTANCE;
@@ -58,67 +63,22 @@ public class DrawingBotV3 {
     public static JavaFXRenderer RENDERER;
     public static IRenderer OPENGL_RENDERER;
 
-    //DRAWING AREA
+    // DRAWING AREA \\
     public final ObservableCanvas drawingArea = new ObservableCanvas();
 
-    //VPYPE SETTINGS
-    public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
-    public final SimpleStringProperty vPypeCommand = new SimpleStringProperty();
-    public final SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
+    // PRE-PROCESSING \\
+    public final ImageFilterSettings imgFilterSettings = new ImageFilterSettings();
 
-    //GCODE SETTINGS
-    public final SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
-    public final SimpleObjectProperty<UnitsLength> gcodeUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
-    public final SimpleStringProperty gcodeStartCode = new SimpleStringProperty();
-    public final SimpleStringProperty gcodeEndCode = new SimpleStringProperty();
-    public final SimpleStringProperty gcodePenDownCode = new SimpleStringProperty();
-    public final SimpleStringProperty gcodePenUpCode = new SimpleStringProperty();
-    public final SimpleStringProperty gcodeStartLayerCode = new SimpleStringProperty();
-    public final SimpleStringProperty gcodeEndLayerCode = new SimpleStringProperty();
-    public final SimpleFloatProperty gcodeCurveFlatness = new SimpleFloatProperty(0.1F);
-    public final SimpleBooleanProperty gcodeEnableFlattening = new SimpleBooleanProperty(true);
-    public final SimpleBooleanProperty gcodeCenterZeroPoint = new SimpleBooleanProperty(false);
-    public final SimpleObjectProperty<GCodeBuilder.CommentType> gcodeCommentType = new SimpleObjectProperty<>(GCodeBuilder.CommentType.BRACKETS);
+    // PATH FINDING \\
+    public final PFMSettings pfmSettings = new PFMSettings();
 
-    //HPGL SETTINGS
-    public final SimpleIntegerProperty hpglUnits = new SimpleIntegerProperty(40);
-
-    public final SimpleIntegerProperty hpglXMin = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty hpglXMax = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty hpglYMin = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty hpglYMax = new SimpleIntegerProperty(0);
-
-    public final SimpleBooleanProperty hpglXAxisMirror = new SimpleBooleanProperty(false);
-    public final SimpleBooleanProperty hpglYAxisMirror = new SimpleBooleanProperty(true);
-
-    public final SimpleObjectProperty<EnumAlignment> hpglAlignX = new SimpleObjectProperty<>(EnumAlignment.CENTER);
-    public final SimpleObjectProperty<EnumAlignment> hpglAlignY = new SimpleObjectProperty<>(EnumAlignment.CENTER);
-
-    public final SimpleObjectProperty<EnumRotation> hpglRotation = new SimpleObjectProperty<>(EnumRotation.AUTO);
-    public final SimpleFloatProperty hpglCurveFlatness = new SimpleFloatProperty(0.1F);
-
-    public final SimpleIntegerProperty hpglPenSpeed = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty hpglPenNumber = new SimpleIntegerProperty(0);
-
-
-    //PRE-PROCESSING\\
-    public final ObservableList<ObservableImageFilter> currentFilters = FXCollections.observableArrayList();
-    public final SimpleObjectProperty<EnumRotation> imageRotation = new SimpleObjectProperty<>(EnumRotation.R0);
-    public final SimpleBooleanProperty imageFlipHorizontal = new SimpleBooleanProperty(false);
-    public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
-
-    //PATH FINDING \\
-    public final SimpleObjectProperty<PFMFactory<?>> pfmFactory = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<EnumDistributionType> nextDistributionType = new SimpleObjectProperty<>();
     public final SimpleFloatProperty cyanMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty keyMultiplier = new SimpleFloatProperty(0.75F);
 
     // PEN SETS \\
-    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
-    public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public DrawingSets drawingSets = new DrawingSets();
 
     // VERSION CONTROL \\
     public final ObservableList<ObservableProjectSettings> projectVersions = FXCollections.observableArrayList();
@@ -128,18 +88,22 @@ public class DrawingBotV3 {
     public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<EnumBlendMode> blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
 
-    //VIEWPORT SETTINGS \\
+    // VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
     public static int PDF_DPI = 72;
 
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
 
+    //VPYPE SETTINGS
+    public final VpypeSettings vpypeSettings = new VpypeSettings();
+
+    //GCODE SETTINGS
+    public final GCodeSettings gcodeSettings = new GCodeSettings();
+
     //the default JFX viewport background colours
     public Color backgroundColourDefault = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
     public Color backgroundColourDark = new Color(65 / 255F, 65 / 255F, 65 / 255F, 1F);
-
-    //// VARIABLES \\\\
 
     // THREADS \\
     public ExecutorService taskService = initTaskService();
@@ -173,9 +137,12 @@ public class DrawingBotV3 {
             }
         });
 
-        imageRotation.addListener((observable, oldValue, newValue) -> onCanvasChanged());
-        imageFlipHorizontal.addListener((observable, oldValue, newValue) -> onCanvasChanged());
-        imageFlipVertical.addListener((observable, oldValue, newValue) -> onCanvasChanged());
+        blendMode.addListener((observable, oldValue, newValue) -> reRender());
+        imgFilterSettings.currentFilters.get().addListener((ListChangeListener<ObservableImageFilter>) c -> onImageFiltersChanged());
+
+        imgFilterSettings.imageRotation.addListener((observable, oldValue, newValue) -> onCanvasChanged());
+        imgFilterSettings.imageFlipHorizontal.addListener((observable, oldValue, newValue) -> onCanvasChanged());
+        imgFilterSettings.imageFlipVertical.addListener((observable, oldValue, newValue) -> onCanvasChanged());
 
         activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
         renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
@@ -186,6 +153,9 @@ public class DrawingBotV3 {
         });
         openImage.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.FORCE_REDRAW, true));
 
+        pfmSettings.factory.addListener((observable, oldValue, newValue) -> {
+            pfmSettings.settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
+        });
 
     }
 
@@ -226,7 +196,7 @@ public class DrawingBotV3 {
         setRenderFlag(Flags.CANVAS_CHANGED, true);
     }
 
-    public void clearDrawingRender(){
+    public void onDrawingCleared(){
         setRenderFlag(Flags.CLEAR_DRAWING, true);
     }
 
@@ -294,6 +264,148 @@ public class DrawingBotV3 {
         newValue.applySettings();
     }
 
+    public void onDrawingPenChanged(){
+        updatePenDistribution();
+    }
+
+    public void onDrawingSetChanged(){
+        if(drawingSets.activeDrawingSet.get() == null || drawingSets.activeDrawingSet.get().loadingDrawingSet){
+            //prevents events being fired for every pen addition
+            return;
+        }
+        updatePenDistribution();
+        if(controller != null && controller.drawingSetsController != null){ //may not be initilized yet
+            controller.drawingSetsController.onDrawingSetChanged(); //TODO REMOVE ME
+        }
+    }
+
+    public void onImageFilterChanged(ObservableImageFilter filter){
+        filter.dirty.set(true);
+        onImageFilterDirty();
+    }
+
+    public void updatePenDistribution(){
+        if(activeTask.get() != null && activeTask.get().isTaskFinished()){
+            activeTask.get().drawing.updatePenDistribution();
+            reRender();
+        }
+    }
+
+    //// PLOTTING TASKS
+
+    @Override
+    public PlottedDrawing createNewPlottedDrawing() {
+        return new PlottedDrawing(drawingArea, drawingSets);
+    }
+
+    @Override
+    public PFMTask initPFMTask(ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask) {
+        if(image != null){
+            canvas = new ImageCanvas(canvas, image, imgFilterSettings.imageRotation.get().flipAxis);
+        }
+        return initPFMTask(new PlottedDrawing(canvas, drawingSets), pfmFactory, pfmSettings, drawingPenSet, image, originalFile, isSubTask);
+    }
+
+    @Override
+    public PFMTask initPFMTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask){
+        if(settings == null){
+            settings = MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory);
+        }
+
+        //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
+        if(!isSubTask){
+            Platform.runLater(() -> {
+                if(drawingPenSet.colourSeperator.get().isDefault()){
+                    if(pfmSettings.nextDistributionType.get() != null){
+                        drawingPenSet.distributionType.set(pfmSettings.nextDistributionType.get());
+                        pfmSettings.nextDistributionType.set(null);
+                    }
+                }else{
+                    drawingPenSet.distributionType.set(EnumDistributionType.getRecommendedType(drawingPenSet, pfmFactory));
+                }
+            });
+        }
+
+        PFMTask task;
+        if(!pfmFactory.isGenerativePFM()){
+            task = new PFMTaskImage(this, drawing, pfmFactory, drawingPenSet, settings, imgFilterSettings, image, originalFile);
+        }else{
+            task = new PFMTask(this, drawing, pfmFactory, drawingPenSet, settings);
+        }
+
+        Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
+        task = (PFMTask) hookReturn[0];
+        task.isSubTask = isSubTask;
+        return task;
+    }
+
+    public void startPlotting(){
+        if(activeTask.get() != null){
+            activeTask.get().cancel();
+        }
+        if(openImage.get() != null){
+            taskMonitor.queueTask(initPFMTask(drawingArea.copy(), pfmSettings.factory.get(), null, drawingSets.activeDrawingSet.get(), openImage.get().getSource(), openFile, false));
+        }
+    }
+
+    public void stopPlotting(){
+        if(activeTask.get() != null){
+            activeTask.get().stopElegantly();
+        }
+    }
+
+    public void saveLastRun(PFMTask plottingTask){
+        backgroundService.submit(() -> {
+            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(preset); //TODO FIXME! - is last run even used ?
+            lastRun.set(new ObservableProjectSettings(preset, true));
+        });
+    }
+
+    public void resetPlotting(){
+        resetTaskService();
+        setActiveTask(null);
+    }
+
+    public void resetTaskService(){
+        taskService.shutdownNow();
+        taskService = initTaskService();
+        taskMonitor.resetMonitor(taskService);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public void openFile(File file, boolean internal) {
+        BufferedImageLoader.Filtered loadingTask = getImageLoaderTask(file, internal);
+        if(loadingTask != null){
+            taskMonitor.queueTask(loadingTask);
+        }
+    }
+
+    public BufferedImageLoader.Filtered getImageLoaderTask(File file, boolean internal){
+        String extension = FileUtils.getExtension(file.toString());
+        if(extension.equalsIgnoreCase(".drawingbotv3")){
+            FXHelper.loadPresetFile(Register.PRESET_TYPE_PROJECT, file, true);
+            return null;
+        }
+
+        if(activeTask.get() != null){
+            activeTask.get().cancel();
+            setActiveTask(null);
+            openImage.set(null);
+        }
+        openFile = file;
+        BufferedImageLoader.Filtered loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
+        loadingImage.setOnSucceeded(e -> {
+            openImage.set((FilteredBufferedImage) e.getSource().getValue());
+            Platform.runLater(() -> displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE));
+            FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
+        });
+        return loadingImage;
+    }
+
+    @Override
     public void onPlottingTaskStageFinished(PFMTask task, EnumTaskStage stage){
         switch (stage){
             case QUEUED:
@@ -325,144 +437,20 @@ public class DrawingBotV3 {
         if(task == getRenderedTask()){
             setRenderFlag(Flags.TASK_CHANGED_STATE, true);
         }
-       logger.info("Plotting Task: Finished Stage " + stage.name());
-    }
-
-    public void onDrawingPenChanged(){
-        updatePenDistribution();
-    }
-
-    public void onDrawingSetChanged(){
-        if(activeDrawingSet.get() == null || activeDrawingSet.get().loadingDrawingSet){
-            //prevents events being fired for every pen addition
-            return;
-        }
-        updatePenDistribution();
-        if(controller != null){ //may not be initilized yet
-            controller.drawingSetsController.onDrawingSetChanged();
-        }
-    }
-
-    public void onImageFilterChanged(ObservableImageFilter filter){
-        filter.dirty.set(true);
-        onImageFilterDirty();
-    }
-
-    public void updatePenDistribution(){
-        if(activeTask.get() != null && activeTask.get().isTaskFinished()){
-            activeTask.get().drawing.updatePenDistribution();
-            reRender();
-        }
-    }
-
-    //// PLOTTING TASKS
-
-    public PFMTask initPlottingTask(ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask) {
-        if(image != null){
-            canvas = new ImageCanvas(canvas, image, DrawingBotV3.INSTANCE.imageRotation.get().flipAxis);
-        }
-        return initPlottingTask(new PlottedDrawing(canvas, drawingPenSet, pfmFactory), pfmFactory, pfmSettings, drawingPenSet, image, originalFile, isSubTask);
-    }
-
-    public PFMTask initPlottingTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask){
-        if(pfmSettings == null){
-            pfmSettings = MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory);
-        }
-
-        //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
-        if(!isSubTask){
-            Platform.runLater(() -> {
-                if(drawingPenSet.colourSeperator.get().isDefault()){
-                    if(nextDistributionType.get() != null){
-                        drawingPenSet.distributionType.set(nextDistributionType.get());
-                        nextDistributionType.set(null);
-                    }
-                }else{
-                    drawingPenSet.distributionType.set(EnumDistributionType.getRecommendedType(drawingPenSet, pfmFactory));
-                }
-            });
-        }
-
-        PFMTask task;
-        if(!pfmFactory.isGenerativePFM()){
-            task = new PFMTaskImage(drawing, pfmFactory, pfmSettings, drawingPenSet, image, originalFile);
-        }else{
-            task = new PFMTask(drawing, pfmFactory, pfmSettings, drawingPenSet);
-        }
-
-        Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
-        task = (PFMTask) hookReturn[0];
-        task.isSubTask = isSubTask;
-        return task;
-    }
-
-    public void startPlotting(){
-        if(activeTask.get() != null){
-            activeTask.get().cancel();
-        }
-        if(openImage.get() != null){
-            taskMonitor.queueTask(initPlottingTask(drawingArea.copy(), pfmFactory.get(), null, activeDrawingSet.get(), openImage.get().getSource(), openFile, false));
-        }
-    }
-
-    public void stopPlotting(){
-        if(activeTask.get() != null){
-            activeTask.get().stopElegantly();
-        }
-    }
-
-    public void saveLastRun(PFMTask plottingTask){
-        DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
-            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.updatePreset(preset, plottingTask);
-            DrawingBotV3.INSTANCE.lastRun.set(new ObservableProjectSettings(preset, true));
-        });
-    }
-
-    public void resetPlotting(){
-        resetTaskService();
-        setActivePlottingTask(null);
-    }
-
-    public void resetTaskService(){
-        taskService.shutdownNow();
-        taskService = initTaskService();
-        taskMonitor.resetMonitor(taskService);
+        logger.info("Plotting Task: Finished Stage " + stage.name());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //// DRAWING MANAGER
 
-    public void openFile(File file, boolean internal) {
-        BufferedImageLoader.Filtered loadingTask = getImageLoaderTask(file, internal);
-        if(loadingTask != null){
-            taskMonitor.queueTask(loadingTask);
-        }
+    @Override
+    public PFMTask getActiveTask(){
+        return activeTask.get();
     }
 
-    public BufferedImageLoader.Filtered getImageLoaderTask(File file, boolean internal){
-        String extension = FileUtils.getExtension(file.toString());
-        if(extension.equalsIgnoreCase(".drawingbotv3")){
-            FXHelper.loadPresetFile(Register.PRESET_TYPE_PROJECT, file, true);
-            return null;
-        }
-
-        if(activeTask.get() != null){
-            activeTask.get().cancel();
-            setActivePlottingTask(null);
-            openImage.set(null);
-        }
-        openFile = file;
-        BufferedImageLoader.Filtered loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
-        loadingImage.setOnSucceeded(e -> {
-            openImage.set((FilteredBufferedImage) e.getSource().getValue());
-            Platform.runLater(() -> displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE));
-            FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
-        });
-        return loadingImage;
-    }
-
-    public void setActivePlottingTask(PFMTask task){
+    @Override
+    public void setActiveTask(PFMTask task) {
         if(activeTask.get() == task){
             return;
         }
@@ -478,12 +466,29 @@ public class DrawingBotV3 {
         renderedTask.set(null);
     }
 
-    public PFMTask getActiveTask(){
-        return activeTask.get();
+    @Override
+    public void setRenderedTask(PFMTask task) {
+        renderedTask.set(task);
     }
 
+    @Override
     public PFMTask getRenderedTask(){
         return renderedTask.get() == null ? activeTask.get() : renderedTask.get();
+    }
+
+    @Override
+    public void setRenderedDrawing(PlottedDrawing drawing) {
+        renderedDrawing.set(drawing);
+    }
+
+    @Override
+    public PlottedDrawing getRenderedDrawing() {
+        return renderedDrawing.get();
+    }
+
+    @Override
+    public void clearDrawingRender(){
+        onDrawingCleared();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -550,9 +555,9 @@ public class DrawingBotV3 {
      */
     public Point2D getViewportCentre(){
 
-        return DrawingBotV3.INSTANCE.controller.viewportScrollPane.localToScene(
-                DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth()/2,
-                DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight()/2);
+        return controller.viewportScrollPane.localToScene(
+                controller.viewportScrollPane.getWidth()/2,
+                controller.viewportScrollPane.getHeight()/2);
     }
 
     public void onMouseMovedViewport(MouseEvent event){

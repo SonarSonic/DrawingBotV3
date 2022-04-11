@@ -1,7 +1,7 @@
 package drawingbot.plotting;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.utils.Metadata;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -10,8 +10,6 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,48 +19,37 @@ import java.util.*;
 public class PlottedDrawing {
 
     public ICanvas canvas;
+    public DrawingSets drawingSets;
+
     public final List<IGeometry> geometries;
     public final Map<Integer, PlottedGroup> groups;
     public Map<Metadata<?>, Object> metadataMap;
-
-    public PlottedGroup defaultGroup;
 
     public long vertexCount;
     public int displayedShapeMin = -1;
     public int displayedShapeMax = -1;
     public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
-    public PlottedDrawing(ICanvas canvas){
-        this(canvas, true);
+    public PlottedDrawing(ICanvas canvas, DrawingSets drawingSets){
+        this(canvas, drawingSets, true);
     }
 
-    public PlottedDrawing(ICanvas canvas, boolean copyCanvas){
+    public PlottedDrawing(ICanvas canvas, DrawingSets drawingSets, boolean copyCanvas){
         this.canvas = copyCanvas ? new SimpleCanvas(canvas) : canvas;
+        this.drawingSets = drawingSets;
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = Collections.synchronizedMap(new HashMap<>());
         this.metadataMap = Collections.synchronizedMap(new HashMap<>());
-        //TODO REMOVE ME!
-        this.defaultGroup = addPlottedGroup(new PlottedGroup(getNextGroupID(), DrawingBotV3.INSTANCE.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmFactory.get()));
-    }
-
-    public PlottedDrawing(ICanvas canvas, ObservableDrawingSet penSet, PFMFactory<?> pfmFactory){
-        this.canvas = new SimpleCanvas(canvas);
-        this.geometries = Collections.synchronizedList(new ArrayList<>());
-        this.groups = Collections.synchronizedMap(new HashMap<>());
-        this.metadataMap = Collections.synchronizedMap(new HashMap<>());
-        this.defaultGroup = addPlottedGroup(new PlottedGroup(getNextGroupID(), penSet, pfmFactory));
     }
 
     /**
      * Copies the base groups of the plotted drawing only
      */
     public void copyBase(PlottedDrawing reference){
-        defaultGroup = null;
         metadataMap = Collections.synchronizedMap(reference.metadataMap);
         for(PlottedGroup group : reference.groups.values()){
             PlottedGroup newGroup = new PlottedGroup(group);
-            groups.put(newGroup.groupID, newGroup);
-            defaultGroup = defaultGroup == null ? group : defaultGroup;
+            addPlottedGroup(newGroup);
         }
     }
 
@@ -75,15 +62,19 @@ public class PlottedDrawing {
     }
 
     public PlottedDrawing copy(){
-        PlottedDrawing copy = new PlottedDrawing(canvas);
+        PlottedDrawing copy = new PlottedDrawing(canvas, drawingSets);
         copy.copyAll(this);
         return copy;
     }
 
     public PlottedDrawing copyBase(){
-        PlottedDrawing copy = new PlottedDrawing(canvas);
+        PlottedDrawing copy = new PlottedDrawing(canvas, drawingSets);
         copy.copyBase(this);
         return copy;
+    }
+
+    public PlottedDrawing newPlottedDrawing(){
+        return new PlottedDrawing(canvas, drawingSets);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,15 +156,16 @@ public class PlottedDrawing {
         return getNextGroupID();
     }
 
-    public PlottedGroup getDefaultGroup(){
-        return defaultGroup;
+    public PlottedGroup getPlottedGroup(int groupID){
+        return groups.getOrDefault(groupID, groups.get(0));
     }
 
-    public PlottedGroup getPlottedGroup(int groupID){
-        return groups.getOrDefault(groupID, defaultGroup);
+    public PlottedGroup newPlottedGroup(ObservableDrawingSet drawingSet, PFMFactory<?> pfmFactory){
+        return addPlottedGroup(new PlottedGroup(getNextGroupID(), drawingSet, pfmFactory));
     }
 
     public PlottedGroup addPlottedGroup(PlottedGroup plottedGroup){
+        plottedGroup.parent = this;
         groups.put(plottedGroup.groupID, plottedGroup);
         return plottedGroup;
     }
@@ -285,9 +277,9 @@ public class PlottedDrawing {
         }
     }
 
-    public static List<ObservableDrawingPen> getAllPens(){
+    public List<ObservableDrawingPen> getAllPens(){
         List<ObservableDrawingPen> allPens = new ArrayList<>();
-        DrawingBotV3.INSTANCE.drawingSetSlots.get().forEach(drawingSet -> allPens.addAll(drawingSet.pens));
+        drawingSets.drawingSetSlots.get().forEach(drawingSet -> allPens.addAll(drawingSet.pens));
         return allPens;
     }
 
@@ -304,7 +296,7 @@ public class PlottedDrawing {
             }
         }
 
-        drawingSets.sort(Comparator.comparingInt(set -> DrawingBotV3.INSTANCE.drawingSetSlots.get().indexOf(set)));
+        drawingSets.sort(Comparator.comparingInt(set -> this.drawingSets.drawingSetSlots.get().indexOf(set)));
 
         List<ObservableDrawingPen> globalOrder = new ArrayList<>();
         drawingSets.forEach(drawingSet -> globalOrder.addAll(drawingSet.pens));

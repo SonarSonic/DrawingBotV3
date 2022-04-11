@@ -2,8 +2,10 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingPen;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
@@ -22,18 +24,18 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
 
     private BooleanProperty property;
 
-    public ComboCellDrawingPen(boolean useCheckBox) {
+    public ComboCellDrawingPen(Property<DrawingSets> drawingSets, boolean useCheckBox) {
         super();
         hbox = new HBox();
 
         if (useCheckBox) {
             propertyCallback = param -> {
-                SimpleBooleanProperty prop = new SimpleBooleanProperty(DrawingBotV3.INSTANCE.activeDrawingSet.get().containsPen(param));
+                SimpleBooleanProperty prop = new SimpleBooleanProperty(drawingSets.getValue().activeDrawingSet.get().containsPen(param));
                 prop.addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
-                        DrawingBotV3.INSTANCE.activeDrawingSet.get().addNewPen(getItem());
+                        drawingSets.getValue().activeDrawingSet.get().addNewPen(getItem());
                     } else {
-                        DrawingBotV3.INSTANCE.activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
+                        drawingSets.getValue().activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
                     }
                 });
                 return prop;

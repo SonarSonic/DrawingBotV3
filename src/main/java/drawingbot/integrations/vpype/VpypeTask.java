@@ -13,16 +13,18 @@ import java.util.concurrent.Executors;
 public class VpypeTask extends Task<Boolean> {
 
     public String command;
+    public VpypeSettings settings;
 
-    public VpypeTask(String command) {
+    public VpypeTask(String command, VpypeSettings settings) {
         this.command = command;
+        this.settings = settings;
     }
 
     @Override
     protected Boolean call() throws Exception {
 
         updateTitle(VpypeHelper.VPYPE_NAME + " Command - Sending");
-        updateMessage(command.replace(DrawingBotV3.INSTANCE.vPypeExecutable.getValue(), "vpype"));
+        updateMessage(command.replace(settings.vPypeExecutable.getValue(), "vpype"));
         updateProgress(-1, 1);
 
         boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");

@@ -1,19 +1,23 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableRow;
 
+import java.util.function.Supplier;
+
 public class ContextMenuDrawingStyle extends ContextMenu {
 
-    public ContextMenuDrawingStyle(TableRow<ObservableDrawingStyle> row) {
+    public ContextMenuDrawingStyle(Supplier<ObservableList<ObservableDrawingStyle>> editingStyles, Supplier<DrawingSets> drawingsSets, TableRow<ObservableDrawingStyle> row) {
         super();
 
-        if(DrawingBotV3.INSTANCE.pfmFactory.get().isLayeredPFM()){
+        if(DrawingBotV3.INSTANCE.pfmSettings.factory.get().isLayeredPFM()){
             MenuItem clearMaskColour = new MenuItem("Clear Mask Colour");
             clearMaskColour.setOnAction(e -> row.getItem().maskColor.set(null));
             getItems().add(clearMaskColour);
@@ -33,7 +37,7 @@ public class ContextMenuDrawingStyle extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
-        FXHelper.addDefaultTableViewContextMenuItems(this, row, () -> DrawingBotV3.INSTANCE.controller.mosaicController.editingStyles, style -> DrawingBotV3.INSTANCE.controller.mosaicController.editingStyles.add(new ObservableDrawingStyle(style)));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, editingStyles, style -> editingStyles.get().add(new ObservableDrawingStyle(drawingsSets.get(), style)));
     }
 
 }

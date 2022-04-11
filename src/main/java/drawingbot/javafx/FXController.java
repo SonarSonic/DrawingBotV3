@@ -3,14 +3,8 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
-import drawingbot.api.IDrawingPen;
-import drawingbot.api.IDrawingSet;
 import drawingbot.files.*;
-import drawingbot.drawing.*;
-import drawingbot.files.json.presets.*;
 import drawingbot.javafx.controllers.*;
-import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
@@ -24,10 +18,7 @@ import drawingbot.render.IDisplayMode;
 import drawingbot.utils.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -36,10 +27,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
 import javafx.scene.control.*;
 
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -48,10 +35,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.converter.DefaultStringConverter;
-import javafx.util.converter.FloatStringConverter;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
@@ -81,16 +64,11 @@ public class FXController {
 
         drawingAreaController.drawingArea.set(DrawingBotV3.INSTANCE.drawingArea);
 
-        imageFiltersController.currentFilters.set(DrawingBotV3.INSTANCE.currentFilters);
-        imageFiltersController.imageRotation.bindBidirectional(DrawingBotV3.INSTANCE.imageRotation);
-        imageFiltersController.imageFlipHorizontal.bindBidirectional(DrawingBotV3.INSTANCE.imageFlipHorizontal);
-        imageFiltersController.imageFlipVertical.bindBidirectional(DrawingBotV3.INSTANCE.imageFlipVertical);
+        imageFiltersController.settings.set(DrawingBotV3.INSTANCE.imgFilterSettings);
 
-        pfmSettingsController.pfmFactory.bindBidirectional(DrawingBotV3.INSTANCE.pfmFactory);
-        pfmSettingsController.nextDistributionType.bindBidirectional(DrawingBotV3.INSTANCE.nextDistributionType);
+        pfmSettingsController.pfmSettings.set(DrawingBotV3.INSTANCE.pfmSettings);
 
-        drawingSetsController.activeDrawingSet.bindBidirectional(DrawingBotV3.INSTANCE.activeDrawingSet);
-        drawingSetsController.drawingSetSlots.bindBidirectional(DrawingBotV3.INSTANCE.drawingSetSlots);
+        drawingSetsController.drawingSets.set(DrawingBotV3.INSTANCE.drawingSets);
 
         versionControlController.projectVersions.set(DrawingBotV3.INSTANCE.projectVersions);
 
@@ -110,12 +88,7 @@ public class FXController {
             viewportScrollPane.setOnMousePressed(DrawingBotV3.INSTANCE::onMousePressedViewport);
             viewportScrollPane.setOnKeyPressed(DrawingBotV3.INSTANCE::onKeyPressedViewport);
 
-
-
             initSeparateStages();
-
-            DrawingBotV3.INSTANCE.blendMode.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
-            DrawingBotV3.INSTANCE.currentFilters.addListener((ListChangeListener<ObservableImageFilter>) c -> DrawingBotV3.INSTANCE.onImageFiltersChanged());
 
         }catch (Exception e){
             DrawingBotV3.logger.log(Level.SEVERE, "Failed to initialize JAVA FX", e);
@@ -348,7 +321,7 @@ public class FXController {
 
             for(GenericFactory<BufferedImageOp> factory : entry.getValue()){
                 MenuItem item = new MenuItem(factory.getName());
-                item.setOnAction(e -> FXHelper.addImageFilter(factory));
+                item.setOnAction(e -> FXHelper.addImageFilter(factory, DrawingBotV3.INSTANCE.imgFilterSettings));
                 type.getItems().add(item);
             }
 

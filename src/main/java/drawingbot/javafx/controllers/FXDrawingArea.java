@@ -1,6 +1,8 @@
 package drawingbot.javafx.controllers;
 
+import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingArea;
+import drawingbot.files.json.presets.PresetDrawingAreaManager;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.plotting.canvas.ObservableCanvas;
@@ -50,7 +52,6 @@ public class FXDrawingArea {
 
     @FXML
     public void initialize(){
-
         drawingArea.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
                 checkBoxOriginalSizing.selectedProperty().unbindBidirectional(oldValue.useOriginalSizing);
@@ -59,6 +60,7 @@ public class FXDrawingArea {
                 textFieldDrawingWidth.textProperty().unbindBidirectional(oldValue.width);
                 textFieldDrawingHeight.textProperty().unbindBidirectional(oldValue.height);
 
+                updatePaddingBindings(false);
                 textFieldPaddingLeft.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingLeft);
                 textFieldPaddingRight.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingRight);
                 textFieldPaddingTop.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingTop);
@@ -96,17 +98,19 @@ public class FXDrawingArea {
             }
         });
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
         colorPickerCanvas.setValue(Color.WHITE);
 
         comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
         comboBoxDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
         comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_DRAWING_AREA.applyPreset(newValue);
+                getDrawingAreaPresetManager().applyPreset(newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_AREA, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
             comboBoxDrawingAreaPreset.setValue(preset);
 
             ///force update rendering
@@ -146,6 +150,24 @@ public class FXDrawingArea {
 
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
         textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
+    }
+
+    public AbstractPresetManager<PresetDrawingArea> presetManager;
+
+    public void setDrawingAreaPresetManager(AbstractPresetManager<PresetDrawingArea> presetManager){
+        this.presetManager = presetManager;
+    }
+
+    public AbstractPresetManager<PresetDrawingArea> getDrawingAreaPresetManager(){
+        if(presetManager == null){
+            return presetManager = new PresetDrawingAreaManager(Register.PRESET_LOADER_DRAWING_AREA) {
+                @Override
+                public ObservableCanvas getInstance() {
+                    return drawingArea.get();
+                }
+            };
+        }
+        return presetManager;
     }
 
     public boolean isGanged = false;

@@ -19,12 +19,12 @@ public class ComboCellDistributionType extends ComboBoxListCell<EnumDistribution
         super.updateItem(item, empty);
 
         if (empty || item == null) {
-            DrawingBotV3.INSTANCE.pfmFactory.removeListener(changeListener);
+            DrawingBotV3.INSTANCE.pfmSettings.factory.removeListener(changeListener);
 
             setText(null);
             setGraphic(null);
         } else {
-            DrawingBotV3.INSTANCE.pfmFactory.addListener(changeListener);
+            DrawingBotV3.INSTANCE.pfmSettings.factory.addListener(changeListener);
 
             updateText();
             setGraphic(null);

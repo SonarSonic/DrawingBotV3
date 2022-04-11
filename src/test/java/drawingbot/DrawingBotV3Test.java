@@ -59,7 +59,7 @@ public class DrawingBotV3Test {
             final CountDownLatch latch = new CountDownLatch(1);
 
             Platform.runLater(() -> {
-                DrawingBotV3.INSTANCE.pfmFactory.setValue(factory);
+                DrawingBotV3.INSTANCE.pfmSettings.factory.setValue(factory);
                 DrawingBotV3.INSTANCE.startPlotting();
                 DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                     if(newValue.intValue() == 0){
@@ -89,7 +89,7 @@ public class DrawingBotV3Test {
         final AtomicBoolean triggered = new AtomicBoolean(false);
         loadTestImage();
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.pfmFactory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+            DrawingBotV3.INSTANCE.pfmSettings.factory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
             DrawingBotV3.INSTANCE.startPlotting();
 
 

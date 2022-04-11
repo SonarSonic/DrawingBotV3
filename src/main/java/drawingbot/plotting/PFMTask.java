@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 
 public class PFMTask extends DBTask<PFMTask> {
 
+    public final IDrawingManager drawingManager;
     public final ICanvas refCanvas;
     public final ObservableDrawingSet refPenSet;
 
@@ -49,14 +50,15 @@ public class PFMTask extends DBTask<PFMTask> {
     public boolean useLowQuality = false;
     public int parallelPlots = 3;
 
-    public PFMTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet refPenSet){
+    public PFMTask(IDrawingManager drawingManager, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
+        this.drawingManager = drawingManager;
         this.refCanvas = drawing.getCanvas();
         this.refPenSet = refPenSet;
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
         this.drawing = drawing;
-        this.tools = new PlottingTools(drawing);
+        this.tools = new PlottingTools(drawing, drawing.newPlottedGroup(refPenSet, pfmFactory));
         this.tools.pfmTask = this;
     }
 
@@ -151,7 +153,7 @@ public class PFMTask extends DBTask<PFMTask> {
                 finishStage();
 
                 if(!isSubTask){
-                    DrawingBotV3.INSTANCE.renderedDrawing.set(drawing);
+                    drawingManager.setRenderedDrawing(drawing);
                 }
                 break;
             case FINISHED:
@@ -182,7 +184,7 @@ public class PFMTask extends DBTask<PFMTask> {
 
     public void finishStage(){
         if(!isSubTask){
-            DrawingBotV3.INSTANCE.onPlottingTaskStageFinished(this, stage);
+            drawingManager.onPlottingTaskStageFinished(this, stage);
         }
         stage = EnumTaskStage.values()[stage.ordinal()+1];
     }
@@ -206,7 +208,7 @@ public class PFMTask extends DBTask<PFMTask> {
     @Override
     public PFMTask call() {
         if(!isSubTask){
-            Platform.runLater(() -> DrawingBotV3.INSTANCE.setActivePlottingTask(this));
+            Platform.runLater(() -> drawingManager.setActiveTask(this));
         }
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){

@@ -3,9 +3,6 @@ package drawingbot;
 import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
-import drawingbot.drawing.DrawingPen;
-import drawingbot.image.ImageTools;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.JsonLoaderManager;
@@ -26,8 +23,6 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import jfxtras.styles.jmetro.JMetro;
-import jfxtras.styles.jmetro.Style;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -84,10 +79,10 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
         DrawingBotV3.logger.info("Init Observable Drawing Set");
-        DrawingBotV3.INSTANCE.drawingSetSlots.get().add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
-        DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0));
-        DrawingBotV3.INSTANCE.activeDrawingSet.get().name.set("Default");
-        DrawingBotV3.INSTANCE.pfmFactory.set(MasterRegistry.INSTANCE.getDefaultPFM());
+        DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get().add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
+        DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get().get(0));
+        DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get().name.set("Default");
+        DrawingBotV3.INSTANCE.pfmSettings.factory.set(MasterRegistry.INSTANCE.getDefaultPFM());
 
         DrawingBotV3.logger.info("Loading Json Files");
         JsonLoaderManager.loadJSONFiles();

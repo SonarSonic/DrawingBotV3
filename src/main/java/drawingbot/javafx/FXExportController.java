@@ -159,11 +159,11 @@ public class FXExportController {
         comboBoxGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
         comboBoxGCodePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_GCODE_SETTINGS.applyPreset(newValue);
+                Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultManager().tryApplyPreset(newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_GCODE_SETTINGS, menuButtonGCodePresets, false, comboBoxGCodePreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_GCODE_SETTINGS, () -> Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultManager(), menuButtonGCodePresets, false, comboBoxGCodePreset::getValue, (preset) -> {
             comboBoxGCodePreset.setValue(preset);
 
             ///force update rendering
@@ -172,49 +172,49 @@ public class FXExportController {
         });
 
         textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldOffsetX.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeOffsetX, new NumberStringConverter());
+        textFieldOffsetX.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetX, new NumberStringConverter());
 
         textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldOffsetY.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeOffsetY, new NumberStringConverter());
+        textFieldOffsetY.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetY, new NumberStringConverter());
 
         choiceBoxGCodeUnits.getItems().addAll(UnitsLength.values());
         choiceBoxGCodeUnits.setValue(UnitsLength.MILLIMETRES);
-        choiceBoxGCodeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeUnits);
+        choiceBoxGCodeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeUnits);
 
         textFieldGCodeCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
-        textFieldGCodeCurveFlatness.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCurveFlatness, new NumberStringConverter());
+        textFieldGCodeCurveFlatness.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCurveFlatness, new NumberStringConverter());
         textFieldGCodeCurveFlatness.disableProperty().bind(checkBoxGCodeEnableFlattening.selectedProperty().not());
 
-        checkBoxGCodeEnableFlattening.setSelected(DrawingBotV3.INSTANCE.gcodeEnableFlattening.getValue());
-        checkBoxGCodeEnableFlattening.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeEnableFlattening);
+        checkBoxGCodeEnableFlattening.setSelected(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEnableFlattening.getValue());
+        checkBoxGCodeEnableFlattening.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEnableFlattening);
 
-        checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.getValue());
-        checkBoxGCodeCenterZeroPoint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint);
+        checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCenterZeroPoint.getValue());
+        checkBoxGCodeCenterZeroPoint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCenterZeroPoint);
 
-        checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint.getValue());
-        checkBoxGCodeCenterZeroPoint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCenterZeroPoint);
+        checkBoxGCodeCenterZeroPoint.setSelected(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCenterZeroPoint.getValue());
+        checkBoxGCodeCenterZeroPoint.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCenterZeroPoint);
 
 
         choiceBoxCommentTypes.getItems().addAll(GCodeBuilder.CommentType.values());
         choiceBoxCommentTypes.setValue(GCodeBuilder.CommentType.BRACKETS);
-        choiceBoxCommentTypes.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeCommentType);
+        choiceBoxCommentTypes.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCommentType);
 
-        textAreaGCodeStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeStartCode);
+        textAreaGCodeStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeStartCode);
         textAreaGCodeStart.setText(GCodeExporter.defaultStartCode);
 
-        textAreaGCodeEnd.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeEndCode);
+        textAreaGCodeEnd.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEndCode);
         textAreaGCodeEnd.setText(GCodeExporter.defaultEndCode);
 
-        textAreaGCodePenDown.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodePenDownCode);
+        textAreaGCodePenDown.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodePenDownCode);
         textAreaGCodePenDown.setText(GCodeExporter.defaultPenDownCode);
 
-        textAreaGCodePenUp.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodePenUpCode);
+        textAreaGCodePenUp.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodePenUpCode);
         textAreaGCodePenUp.setText(GCodeExporter.defaultPenUpCode);
 
-        textAreaGCodeStartLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeStartLayerCode);
+        textAreaGCodeStartLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeStartLayerCode);
         textAreaGCodeStartLayer.setText(GCodeExporter.defaultStartLayerCode);
 
-        textAreaGCodeEndLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeEndLayerCode);
+        textAreaGCodeEndLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEndLayerCode);
         textAreaGCodeEndLayer.setText(GCodeExporter.defaultEndLayerCode);
 
         /*

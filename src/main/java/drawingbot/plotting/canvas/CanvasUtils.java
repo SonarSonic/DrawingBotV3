@@ -20,7 +20,7 @@ public class CanvasUtils {
     }
 
     public static SimpleCanvas rescaleCanvas(ICanvas canvas, float rescale){
-        return new SimpleCanvas(canvas.getUnits(), canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale()*rescale, canvas.getWidth()*rescale, canvas.getHeight()*rescale, canvas.getDrawingWidth()*rescale, canvas.getDrawingHeight()*rescale, canvas.getDrawingOffsetX()*rescale, canvas.getDrawingOffsetY()*rescale, canvas.getCanvasScale()*rescale);
+        return new SimpleCanvas(canvas.getUnits(), canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), 1F, canvas.getWidth()*rescale, canvas.getHeight()*rescale, canvas.getDrawingWidth()*rescale, canvas.getDrawingHeight()*rescale, canvas.getDrawingOffsetX()*rescale, canvas.getDrawingOffsetY()*rescale, rescale);
     }
 
     public static SimpleCanvas normalisedCanvas(ICanvas canvas){
@@ -31,10 +31,12 @@ public class CanvasUtils {
      * @return [cropped width, cropped height, cropped x, cropped y]
      */
     public static int[] getCroppedImageSize(ICanvas canvas, int sourceWidth, int sourceHeight){
+        if(canvas.getDrawingWidth() == 0 || canvas.getDrawingHeight() == 0){
+            return new int[]{sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight};
+        }
+
         double currentRatio = (float) sourceWidth / sourceHeight;
         double targetRatio = canvas.getDrawingWidth() / canvas.getDrawingHeight();
-
-        ///TODO WIDTH WILL BE 0 if drawingwidth/height are 0
 
         int imageCropWidth = sourceWidth;
         int imageCropHeight = sourceHeight;
@@ -64,7 +66,7 @@ public class CanvasUtils {
     public static float getExportWidth(ICanvas canvas, float DPI){
         float exportWidth;
         if(canvas.getUnits() == UnitsLength.PIXELS){
-            exportWidth = canvas.getWidth(UnitsLength.PIXELS);
+            exportWidth = canvas.getWidth(UnitsLength.PIXELS) * canvas.getPlottingScale();
         }else{
             exportWidth = canvas.getWidth(UnitsLength.INCHES) * DPI;
         }
@@ -74,7 +76,7 @@ public class CanvasUtils {
     public static float getExportHeight(ICanvas canvas, float DPI){
         float exportHeight;
         if(canvas.getUnits() == UnitsLength.PIXELS){
-            exportHeight = canvas.getHeight(UnitsLength.PIXELS);
+            exportHeight = canvas.getHeight(UnitsLength.PIXELS) * canvas.getPlottingScale();
         }else{
             exportHeight = canvas.getHeight(UnitsLength.INCHES) * DPI;
         }

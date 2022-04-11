@@ -17,7 +17,7 @@ public class ContextMenuObservableProjectSettings extends ContextMenu {
         super();
 
         MenuItem menuLoad = new MenuItem("Load Version");
-        menuLoad.setOnAction(e -> Register.PRESET_LOADER_PROJECT.applyPreset(row.getItem().preset.get()));
+        menuLoad.setOnAction(e -> Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(row.getItem().preset.get()));
         getItems().add(menuLoad);
 
         MenuItem menuSave = new MenuItem("Save as project");

@@ -1,12 +1,14 @@
 package drawingbot.api;
 
 import com.google.gson.JsonElement;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 
+//TODO - if this is actually API, it shouldn't have internal dependencies
 public interface IDrawingStyle {
 
     boolean isEnabled();
@@ -23,7 +25,7 @@ public interface IDrawingStyle {
 
     Color getMaskColor();
 
-    ObservableDrawingSet getDrawingSet();
+    ObservableDrawingSet getDrawingSet(DrawingSets drawingSets);
 
     int getDrawingSetSlot();
 }

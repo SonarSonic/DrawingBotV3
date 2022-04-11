@@ -83,12 +83,12 @@ public class DrawingStyle implements IDrawingStyle {
     }
 
     @Override
-    public ObservableDrawingSet getDrawingSet() {
+    public ObservableDrawingSet getDrawingSet(DrawingSets drawingSets) {
         ObservableDrawingSet drawingSet = null;
-        if(DrawingBotV3.INSTANCE.drawingSetSlots.get().size() > drawingSetSlot){
-            drawingSet = DrawingBotV3.INSTANCE.drawingSetSlots.get().get(drawingSetSlot);
+        if(drawingSets.drawingSetSlots.get().size() > drawingSetSlot){
+            drawingSet = drawingSets.getDrawingSetForSlot(drawingSetSlot);
         }
-        return drawingSet == null ? DrawingBotV3.INSTANCE.activeDrawingSet.get() : drawingSet;
+        return drawingSet == null ? drawingSets.activeDrawingSet.get() : drawingSet;
     }
 
     @Override
