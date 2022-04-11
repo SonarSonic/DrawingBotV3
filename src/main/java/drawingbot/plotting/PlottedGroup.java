@@ -6,11 +6,9 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.Utils;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class PlottedGroup {
@@ -18,6 +16,8 @@ public class PlottedGroup {
     public transient PlottedDrawing parent;
     public int groupID;
     public ObservableDrawingSet drawingSet;
+
+    @Nullable
     public PFMFactory<?> pfmFactory;
 
     public long vertexCount;
@@ -43,7 +43,7 @@ public class PlottedGroup {
         this.groupType = toCopy.groupType;
     }
 
-    public PlottedGroup(int groupID, ObservableDrawingSet drawingSet, PFMFactory<?> pfmFactory){
+    public PlottedGroup(int groupID, ObservableDrawingSet drawingSet, @Nullable PFMFactory<?> pfmFactory){
         this.groupID = groupID;
         this.drawingSet = drawingSet;
         this.pfmFactory = pfmFactory;
@@ -109,8 +109,6 @@ public class PlottedGroup {
         int slot = parent.drawingSets.getDrawingSetSlot(drawingSet);
         return slot == -1 ? 0 : slot;
     }
-
-
     //this list will be modified to represent the optimised order for the geometries, should be invalidated when anything in the group changes
     private transient Map<ObservableDrawingPen, List<IGeometry>> geometriesPerPen;
 

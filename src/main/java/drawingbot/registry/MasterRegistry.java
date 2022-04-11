@@ -57,7 +57,12 @@ public class MasterRegistry {
         }
     }
 
+    private static boolean init = false;
+
     public static void init(){
+        if(init){
+            return;
+        }
 
         PLUGINS.forEach(IPlugin::init);
         PLUGINS.forEach(IPlugin::registerPFMS);
@@ -69,6 +74,8 @@ public class MasterRegistry {
         PLUGINS.forEach(IPlugin::registerImageFilters);
         PLUGINS.forEach(IPlugin::registerDrawingExportHandlers);
         PLUGINS.forEach(IPlugin::registerColourSplitterHandlers);
+
+        init = true;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

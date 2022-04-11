@@ -16,7 +16,7 @@ public class CanvasUtils {
         if(canvas.getUnits() == units){
             return new SimpleCanvas(canvas);
         }
-        return new SimpleCanvas(canvas.getUnits(), canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale(), UnitsLength.convert(canvas.getWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetX(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetY(), canvas.getUnits(), units), canvas.getCanvasScale());
+        return new SimpleCanvas(units, canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale(), UnitsLength.convert(canvas.getWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetX(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetY(), canvas.getUnits(), units), canvas.getCanvasScale());
     }
 
     public static SimpleCanvas rescaleCanvas(ICanvas canvas, float rescale){

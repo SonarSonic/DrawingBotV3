@@ -56,7 +56,7 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
                         }
 
                         //if the last geometry isn't a GPath or the Element can't be added create a new GPath
-                        currentPath = element instanceof GPath ? (GPath) element.copyGeometry() :  new GPath(element);
+                        currentPath = element instanceof GPath ? (GPath) element.copyGeometry() :  new GPath(element, true);
                     }else{
                         if(currentPath != null){
                             //add the completed path to the drawing

@@ -208,7 +208,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
                 DrawingBotV3.logger.warning("Generic Setting: Missing setter: " + getKey());
                 return;
             }
-            setter.accept(clazz.cast(instance), type.cast(value));
+            setter.accept(clazz.cast(instance), validator.apply(type.cast(value)));
         }
     }
 

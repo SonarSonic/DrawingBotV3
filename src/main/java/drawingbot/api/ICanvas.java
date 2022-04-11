@@ -3,6 +3,8 @@ package drawingbot.api;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 
+import java.util.Objects;
+
 public interface ICanvas {
 
     UnitsLength getUnits();
@@ -26,6 +28,10 @@ public interface ICanvas {
     float getDrawingOffsetX();
 
     float getDrawingOffsetY();
+
+    default float getCanvasScale(){
+        return 1F;
+    }
 
     default float getWidth(UnitsLength format){
         return UnitsLength.convert(getWidth(), getUnits(), format);
@@ -75,8 +81,19 @@ public interface ICanvas {
         return getDrawingOffsetY(UnitsLength.PIXELS) * getPlottingScale();
     }
 
-    default float getCanvasScale(){
-        return 1F;
+    static boolean matchingCanvas(ICanvas canvasA, ICanvas canvasB){
+        return Objects.equals(canvasA.getUnits(), canvasB.getUnits())
+                && Objects.equals(canvasA.getScalingMode(), canvasB.getScalingMode())
+                && Objects.equals(canvasA.useOriginalSizing(), canvasB.useOriginalSizing())
+                && Objects.equals(canvasA.optimiseForPrint(), canvasB.optimiseForPrint())
+                && Objects.equals(canvasA.getPlottingScale(), canvasB.getPlottingScale())
+                && Objects.equals(canvasA.getWidth(), canvasB.getWidth())
+                && Objects.equals(canvasA.getHeight(), canvasB.getHeight())
+                && Objects.equals(canvasA.getDrawingWidth(), canvasB.getDrawingWidth())
+                && Objects.equals(canvasA.getDrawingHeight(), canvasB.getDrawingHeight())
+                && Objects.equals(canvasA.getDrawingOffsetX(), canvasB.getDrawingOffsetX())
+                && Objects.equals(canvasA.getDrawingOffsetY(), canvasB.getDrawingOffsetY())
+                && Objects.equals(canvasA.getCanvasScale(), canvasB.getCanvasScale());
     }
 
 }

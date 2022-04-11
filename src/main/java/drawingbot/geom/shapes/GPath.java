@@ -13,7 +13,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
-public class GPath extends Path2D.Float implements IGeometry {
+public class GPath extends Path2D.Float implements IGeometry, IPathElement {
 
     public GPath() {
         super();
@@ -35,12 +35,14 @@ public class GPath extends Path2D.Float implements IGeometry {
         super(s, at);
     }
 
-    public GPath(IPathElement pathElement){
+    public GPath(IPathElement pathElement, boolean addToPath){
         super();
         GeometryUtils.copyGeometryData(this, pathElement);
 
-        //add the path
-        pathElement.addToPath(true, this);
+        if(addToPath){
+            //add the path
+            pathElement.addToPath(true, this);
+        }
     }
 
     public int totalSamples = 0;
@@ -211,5 +213,33 @@ public class GPath extends Path2D.Float implements IGeometry {
                 path.closePath();
                 break;
         }
+    }
+
+    @Override
+    public void addToPath(boolean addMove, GPath path) {
+        PathIterator iterator = getPathIterator(null);
+        float[] coords = new float[6];
+
+        boolean addedFirstMove = false;
+
+        while (!iterator.isDone()) {
+            int type = iterator.currentSegment(coords);
+            if(addedFirstMove || addMove){
+                GPath.move(path, coords, type);
+            }
+            addedFirstMove = true;
+            iterator.next();
+        }
+    }
+
+    @Override
+    public Point2D getP1() {
+        Coordinate origin = getOriginCoordinate();
+        return new Point2D.Double(origin.x, origin.y);
+    }
+
+    @Override
+    public Point2D getP2() {
+        return getCurrentPoint();
     }
 }

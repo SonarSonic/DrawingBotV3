@@ -26,10 +26,19 @@ public class PropertyUtil {
         return listener;
     }
 
+    public static <P extends IProperties> void removePropertyListListener(P listenable, PropertyListListener<P> listener){
+        listenable.getProperties().removeListener(listener);
+    }
+
     public static <P extends IProperties> PropertyListListener<P> addPropertyListListener(ObjectProperty<P> listenable, BiConsumer<P, List<Property<?>>> onChange){
         PropertyListListener<P> listener = new PropertyListListener<>(listenable, onChange);
         listenable.addListener(listener);
         return listener;
     }
+
+    public static <P extends IProperties> void removePropertyListListener(ObjectProperty<P> listenable, PropertyListListener<P> listener){
+        listenable.removeListener(listener);
+    }
+
 
 }

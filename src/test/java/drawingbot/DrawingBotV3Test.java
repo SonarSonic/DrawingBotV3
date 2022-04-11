@@ -13,6 +13,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericFactory;
 import javafx.application.Platform;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,7 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(JavaFxJUnit4ClassRunner.class)
 public class DrawingBotV3Test {
 
-    public static void loadTestImage() throws InterruptedException {
+    @Before
+    public void loadTestImage() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
         Platform.runLater(() -> {
@@ -53,7 +55,6 @@ public class DrawingBotV3Test {
     @Test
     public void testPathFindingModules() throws InterruptedException {
 
-        loadTestImage();
         for(final PFMFactory factory : MasterRegistry.INSTANCE.pfmFactories){
             System.out.println("Started PFM Test: " + factory.getName());
             final CountDownLatch latch = new CountDownLatch(1);
@@ -84,15 +85,12 @@ public class DrawingBotV3Test {
     }
 
     @Test
-    public void textExport() throws InterruptedException {
+    public void testExport() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicBoolean triggered = new AtomicBoolean(false);
-        loadTestImage();
         Platform.runLater(() -> {
             DrawingBotV3.INSTANCE.pfmSettings.factory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
             DrawingBotV3.INSTANCE.startPlotting();
-
-
 
             DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                 if(newValue.intValue() == 0){ //when the value changes we add export tasks for every type
