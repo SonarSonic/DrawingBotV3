@@ -12,6 +12,7 @@ import drawingbot.api.ICanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.UnitsLength;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
@@ -186,8 +187,8 @@ public class ImageTools {
             return image;
         }
 
-        int finalWidth = (int)(canvas.getDrawingWidth() * canvas.getPlottingScale());
-        int finalHeight = (int)(canvas.getDrawingHeight() * canvas.getPlottingScale());
+        int finalWidth = (int)(canvas.getDrawingWidth(UnitsLength.PIXELS) * canvas.getPlottingScale());
+        int finalHeight = (int)(canvas.getDrawingHeight(UnitsLength.PIXELS) * canvas.getPlottingScale());
 
         //crop the image in it's original resolution
         final EnumScalingMode mode = canvas.getScalingMode();

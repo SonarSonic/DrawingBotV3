@@ -57,8 +57,8 @@ public class CanvasUtils {
             }
         }
 
-        int finalWidth = (int)(canvas.getDrawingWidth() * canvas.getPlottingScale());
-        int finalHeight = (int)(canvas.getDrawingHeight() * canvas.getPlottingScale());
+        int finalWidth = (int)(canvas.getDrawingWidth(UnitsLength.PIXELS) * canvas.getPlottingScale());
+        int finalHeight = (int)(canvas.getDrawingHeight(UnitsLength.PIXELS) * canvas.getPlottingScale());
 
         return new int[]{imageCropWidth, imageCropHeight, imageCropX, imageCropY, finalWidth, finalHeight};
     }
