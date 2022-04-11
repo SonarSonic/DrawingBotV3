@@ -148,24 +148,26 @@ public class FXDrawingArea {
         textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
     }
 
+    public boolean isGanged = false;
+
     public void updatePaddingBindings(boolean ganged){
+        if(isGanged == ganged){
+            return;
+        }
+
         if(ganged){
             drawingAreaPaddingGangValue.set("0");
             textFieldPaddingLeft.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
             textFieldPaddingRight.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
             textFieldPaddingTop.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
             textFieldPaddingBottom.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
+            isGanged = true;
         }else{
             textFieldPaddingLeft.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
             textFieldPaddingRight.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
             textFieldPaddingTop.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
             textFieldPaddingBottom.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            if(drawingArea.get() != null){
-                textFieldPaddingLeft.textProperty().bindBidirectional(drawingArea.get().drawingAreaPaddingLeft, new NumberStringConverter());
-                textFieldPaddingRight.textProperty().bindBidirectional(drawingArea.get().drawingAreaPaddingRight, new NumberStringConverter());
-                textFieldPaddingTop.textProperty().bindBidirectional(drawingArea.get().drawingAreaPaddingTop, new NumberStringConverter());
-                textFieldPaddingBottom.textProperty().bindBidirectional(drawingArea.get().drawingAreaPaddingBottom, new NumberStringConverter());
-            }
+            isGanged = false;
         }
     }
 
