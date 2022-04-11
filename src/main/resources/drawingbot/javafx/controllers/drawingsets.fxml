@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.controlsfx.glyphfont.*?>
 
-<?import org.controlsfx.glyphfont.Glyph?>
-<?import javafx.scene.text.Font?>
-<?import javafx.geometry.Insets?>
-<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controllers.FXDrawingSets" prefHeight="400.0" prefWidth="423.0">
+<AnchorPane prefHeight="400.0" prefWidth="423.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingSets">
 <children>
     <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" spacing="8.0">
         <children>
@@ -105,12 +102,24 @@
                 </children>
             </HBox>
             <Separator layoutX="10.0" layoutY="419.0" prefWidth="380.0" />
-            <TitledPane contentDisplay="RIGHT" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" prefWidth="380.0" VBox.vgrow="ALWAYS">
+            <TitledPane contentDisplay="RIGHT" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" prefWidth="380.0" text="Drawing Set Slots" VBox.vgrow="ALWAYS">
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="240.0" prefWidth="378.0">
                         <children>
                             <VBox maxWidth="1.7976931348623157E308">
                                 <children>
+                                <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="41.0" prefWidth="378.0">
+                                    <children>
+                                        <Label contentDisplay="RIGHT" prefHeight="41.0">
+                                            <graphic>
+                                                <ComboBox fx:id="comboBoxDrawingSets" cacheShape="false" prefHeight="25.0" prefWidth="363.0" />
+                                            </graphic>
+                                       <padding>
+                                          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                       </padding>
+                                        </Label>
+                                    </children>
+                                </HBox>
                                     <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" prefWidth="385.0" tableMenuButtonVisible="true">
                                         <columns>
                                             <TableColumn fx:id="drawingSetNameColumn" prefWidth="115.0" sortable="false" text="Name" />
@@ -157,17 +166,6 @@
                             </VBox>
                         </children></AnchorPane>
                 </content>
-                <graphic>
-                    <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="341.0">
-                        <children>
-                            <Label contentDisplay="RIGHT" prefHeight="25.0" text="Slot:">
-                                <graphic>
-                                    <ComboBox fx:id="comboBoxDrawingSets" cacheShape="false" prefHeight="25.0" prefWidth="304.0" />
-                                </graphic>
-                            </Label>
-                        </children>
-                    </HBox>
-                </graphic>
             </TitledPane>
         </children>
         <padding>
