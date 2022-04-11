@@ -117,7 +117,6 @@ public class DrawingBotV3 {
     public final SimpleFloatProperty keyMultiplier = new SimpleFloatProperty(0.75F);
 
     // PEN SETS \\
-    public ObservableDrawingPen invisibleDrawingPen = null;
     public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
     public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 

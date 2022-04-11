@@ -84,7 +84,6 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
         DrawingBotV3.logger.info("Init Observable Drawing Set");
-        DrawingBotV3.INSTANCE.invisibleDrawingPen = new ObservableDrawingPen(-1, new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Invisible Pen", ImageTools.getARGB(0, 0, 0, 0)));
         DrawingBotV3.INSTANCE.drawingSetSlots.get().add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
         DrawingBotV3.INSTANCE.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSetSlots.get().get(0));
         DrawingBotV3.INSTANCE.activeDrawingSet.get().name.set("Default");
