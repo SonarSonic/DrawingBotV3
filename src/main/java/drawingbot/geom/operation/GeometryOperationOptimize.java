@@ -49,7 +49,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                 if(!(entry.getKey().source instanceof ICustomPen)){
 
                     if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
-                        originalGroup.geometries.forEach(geometry -> newDrawing.addGeometry(geometry.copyGeometry(), newGroup));
+                        entry.getValue().forEach(geometry -> newDrawing.addGeometry(geometry.copyGeometry(), newGroup));
                     }else{
                         List<IGeometry> geometries = optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback);
                         for(IGeometry geometry : geometries){
@@ -61,7 +61,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                         }
                     }
                 }else{
-                    originalGroup.geometries.forEach(g -> newDrawing.addGeometry(g.copyGeometry(), newGroup));
+                    entry.getValue().forEach(g -> newDrawing.addGeometry(g.copyGeometry(), newGroup));
                 }
             }
         }
