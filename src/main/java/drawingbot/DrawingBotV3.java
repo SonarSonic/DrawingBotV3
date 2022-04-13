@@ -418,14 +418,6 @@ public class DrawingBotV3 implements IDrawingManager {
                 });
                 break;
             case DO_PROCESS:
-                Platform.runLater(() -> {
-                    controller.rangeSliderDisplayedLines.setLowValue(0.0F);
-                    controller.rangeSliderDisplayedLines.setHighValue(1.0F);
-                    controller.textFieldDisplayedShapesMin.setText(String.valueOf(0));
-                    controller.textFieldDisplayedShapesMax.setText(String.valueOf(task.drawing.getGeometryCount()));
-                    controller.labelPlottedShapes.setText(Utils.defaultNF.format(task.drawing.getGeometryCount()));
-                    controller.labelPlottedVertices.setText(Utils.defaultNF.format(task.drawing.getVertexCount()));
-                });
                 break;
             case POST_PROCESSING:
             case FINISHING:

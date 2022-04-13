@@ -11,6 +11,7 @@ import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PFMTaskImage;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.plotting.PFMTask;
 import drawingbot.registry.Register;
@@ -391,45 +392,67 @@ public class FXController {
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
-            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
-            if(task != null){
-                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.drawing.getGeometryCount());
-                task.drawing.displayedShapeMax = lines;
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            if(drawing != null){
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
+                drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         rangeSliderDisplayedLines.lowValueProperty().addListener((observable, oldValue, newValue) -> {
-            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
-            if(task != null){
-                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, task.drawing.getGeometryCount());
-                task.drawing.displayedShapeMin = lines;
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            if(drawing != null){
+                int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
+                drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         textFieldDisplayedShapesMax.setOnAction(e -> {
-            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
-            if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
-                task.drawing.displayedShapeMax = lines;
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            if(drawing != null){
+                int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
+                drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
-                rangeSliderDisplayedLines.setHighValue((double)lines / task.drawing.getGeometryCount());
+                rangeSliderDisplayedLines.setHighValue((double)lines / drawing.getGeometryCount());
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
 
         textFieldDisplayedShapesMin.setOnAction(e -> {
-            PFMTask task = DrawingBotV3.INSTANCE.getActiveTask();
-            if(task != null){
-                int lines = (int)Math.max(0, Math.min(task.drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
-                task.drawing.displayedShapeMin = lines;
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            if(drawing != null){
+                int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
+                drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
-                rangeSliderDisplayedLines.setLowValue((double)lines / task.drawing.getGeometryCount());
+                rangeSliderDisplayedLines.setLowValue((double)lines / drawing.getGeometryCount());
                 DrawingBotV3.INSTANCE.reRender();
             }
+        });
+
+        DrawingBotV3.INSTANCE.renderedDrawing.addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                Platform.runLater(() -> {
+                    rangeSliderDisplayedLines.setLowValue(0.0F);
+                    rangeSliderDisplayedLines.setHighValue(1.0F);
+                    textFieldDisplayedShapesMin.setText(String.valueOf(0));
+                    textFieldDisplayedShapesMax.setText(String.valueOf(newValue.getGeometryCount()));
+                    labelPlottedShapes.setText(Utils.defaultNF.format(newValue.getGeometryCount()));
+                    labelPlottedVertices.setText(Utils.defaultNF.format(newValue.getVertexCount()));
+                });
+            }else{
+                rangeSliderDisplayedLines.setLowValue(0.0F);
+                rangeSliderDisplayedLines.setHighValue(1.0F);
+                textFieldDisplayedShapesMin.setText(String.valueOf(0));
+                textFieldDisplayedShapesMax.setText(String.valueOf(0));
+                labelPlottedShapes.setText(Utils.defaultNF.format(0));
+                labelPlottedVertices.setText(Utils.defaultNF.format(0));
+            }
+
+
         });
 
         checkBoxApplyToExport.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.exportRange);
