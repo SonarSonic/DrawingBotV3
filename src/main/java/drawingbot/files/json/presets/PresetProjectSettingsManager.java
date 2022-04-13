@@ -15,6 +15,7 @@ import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.plotting.PFMTask;
 import drawingbot.registry.Register;
 import drawingbot.utils.UnitsLength;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.stage.FileChooser;
@@ -157,22 +158,46 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         }
 
-        if(!preset.data.imagePath.isEmpty()){
-            Platform.runLater(() -> {
+        String drawingVersion = "1.0.0";
+
+        if(preset.data.drawingState != null){
+            if(preset.data.drawingState.has("version")){
+                drawingVersion = preset.data.drawingState.get("version").getAsString();
+            }
+        }
+
+        if(Utils.compareVersion(drawingVersion, "1.0.2", 3) >= 0){
+            //the drawing state used the newer version of the Geometry Serializer and can be serialized separately to the image
+            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
+            if(!preset.data.imagePath.isEmpty()) {
                 BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
-                    if(newValue == Worker.State.FAILED){
-                        FXHelper.importFile((file, chooser) -> {
-                            DrawingBotV3.INSTANCE.openFile(file, false);
-                            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
-                        }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
-                    }
-                    if(newValue == Worker.State.SUCCEEDED){
-                        Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState);
+                    if (newValue == Worker.State.FAILED) {
+                        FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
-            });
+            }
+        }else{
+            //to support older versions of the Geometry Serializer, we need to first load the image and only when it's loaded do we try to load the drawing state
+            if(!preset.data.imagePath.isEmpty()){
+                Platform.runLater(() -> {
+                    BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
+                    loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
+                        if(newValue == Worker.State.FAILED){
+                            FXHelper.importFile((file, chooser) -> {
+                                DrawingBotV3.INSTANCE.openFile(file, false);
+                                DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
+                            }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                        }
+                        if(newValue == Worker.State.SUCCEEDED){
+                            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
+                        }
+                    });
+                    DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
+                });
+            }
         }
+
     }
 }
