@@ -19,30 +19,30 @@ public class FlagStatesTest extends TestCase {
 
     public void testAnyMatchTrue(){
         flagStates.setFlag(Flags.FORCE_REDRAW, false);
-        flagStates.setFlag(Flags.TASK_CHANGED, false);
+        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, false);
         flagStates.setFlag(Flags.CLEAR_DRAWING, true);
-        assertTrue(flagStates.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.CLEAR_DRAWING));
+        assertTrue(flagStates.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING));
     }
 
     public void testAnyMatchFalse(){
         flagStates.setFlag(Flags.FORCE_REDRAW, false);
-        flagStates.setFlag(Flags.TASK_CHANGED, false);
+        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, false);
         flagStates.setFlag(Flags.CLEAR_DRAWING, false);
-        assertFalse(flagStates.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.CLEAR_DRAWING));
+        assertFalse(flagStates.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING));
     }
 
     public void testAllMatchTrue(){
         flagStates.setFlag(Flags.FORCE_REDRAW, true);
-        flagStates.setFlag(Flags.TASK_CHANGED, true);
+        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, true);
         flagStates.setFlag(Flags.CLEAR_DRAWING, true);
-        assertTrue(flagStates.allMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.CLEAR_DRAWING));
+        assertTrue(flagStates.allMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING));
     }
 
     public void testAllMatchFalse(){
         flagStates.setFlag(Flags.FORCE_REDRAW, true);
-        flagStates.setFlag(Flags.TASK_CHANGED, true);
+        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, true);
         flagStates.setFlag(Flags.CLEAR_DRAWING, false);
-        assertFalse(flagStates.allMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.CLEAR_DRAWING));
+        assertFalse(flagStates.allMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING));
     }
 
     public void testMarkClear(){

@@ -298,8 +298,8 @@ public class FXExportController {
         }
         
         if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.INSTANCE.openImage.get().getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
-            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.INSTANCE.openImage.get().getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.INSTANCE.openImage.get().getDestCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.INSTANCE.openImage.get().getDestCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
             labelExportSize.setText(exportWidth + " x " + exportHeight);
         }else{
             labelExportSize.setText("0 x 0");

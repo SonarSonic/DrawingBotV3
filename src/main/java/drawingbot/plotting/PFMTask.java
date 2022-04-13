@@ -151,10 +151,6 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 updateMessage("Finished - Elapsed Time: " + finishTime/1000 + " s");
                 updateProgress(1, 1);
                 finishStage();
-
-                if(!isSubTask){
-                    drawingManager.setCurrentDrawing(drawing);
-                }
                 break;
             case FINISHED:
                 break;
@@ -208,7 +204,11 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     @Override
     public final PlottedDrawing call() {
         if(!isSubTask){
-            Platform.runLater(() -> drawingManager.setActiveTask(this));
+            Platform.runLater(() -> {
+                drawingManager.setActiveTask(this);
+                drawingManager.setRenderedTask(null);
+                drawingManager.setCurrentDrawing(null);
+            });
         }
         while(!isTaskFinished() && !isCancelled()){
             if(!doTask()){
@@ -216,7 +216,12 @@ public class PFMTask extends DBTask<PlottedDrawing> {
             }
         }
         if(!isSubTask){
-            Platform.runLater(() -> drawingManager.setActiveTask(null));
+            Platform.runLater(() -> {
+                drawingManager.setActiveTask(null);
+                drawingManager.setRenderedTask(null);
+                drawingManager.setCurrentDrawing(drawing);
+
+            });
         }
         return drawing;
     }

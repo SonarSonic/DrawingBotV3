@@ -24,6 +24,8 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getRenderedTask().drawing.getCanvas());
         }else if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getCurrentDrawing().getCanvas());
+        }else if(DrawingBotV3.INSTANCE.openImage.get() != null) {
+            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.openImage.get().getDestCanvas());
         }else{
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
         }
@@ -33,7 +35,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
     public void doRender(JavaFXRenderer jfr) {
         if(DrawingBotV3.INSTANCE.getRenderedTask() != null){
             PFMTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
-            if (renderedTask.stage != EnumTaskStage.FINISHED) {
+            if (renderedTask.stage == EnumTaskStage.DO_PROCESS) {
                 if (renderedTask.handlesProcessRendering()) {
                     renderedTask.renderProcessing(jfr, renderedTask);
                 } else {
@@ -41,10 +43,10 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                         asyncIterator = new AsynchronousGeometryIterator(renderedTask.drawing);
                     }
 
-                    if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+                    if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
                         jfr.clearCanvas();
                         asyncIterator.reset();
-                        renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+                        renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
                     }
                     if (asyncIterator.hasNext()) {
                         jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
@@ -53,8 +55,8 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                         RenderUtils.renderDrawingFX(jfr.graphicsFX, asyncIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
                     }
                 }
-                return;
             }
+            return;
         }
         PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
         if(drawing != null){
@@ -62,12 +64,12 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                 drawingIterator = new DrawingGeometryIterator(drawing);
             }
             EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
-            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED)) {
                 jfr.clearCanvas();
                 drawingIterator.reset(drawing);
                 DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
                 DrawingBotV3.INSTANCE.updateLocalProgress(0);
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED);
             }
             if(drawingIterator.hasNext()){
                 jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
@@ -78,9 +80,9 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
                 DrawingBotV3.INSTANCE.updateLocalProgress(drawingIterator.getCurrentGeometryProgress());
             }
-        }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+        }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE, Flags.CURRENT_DRAWING_CHANGED)) {
             jfr.clearCanvas();
-            renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+            renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE, Flags.CURRENT_DRAWING_CHANGED);
         }
     }
 

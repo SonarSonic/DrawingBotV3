@@ -65,6 +65,7 @@ public class DrawingBotV3 implements IDrawingManager {
 
     // DRAWING AREA \\
     public final ObservableCanvas drawingArea = new ObservableCanvas();
+    public ICanvas targetCanvas = null;
 
     // PRE-PROCESSING \\
     public final ImageFilterSettings imgFilterSettings = new ImageFilterSettings();
@@ -144,9 +145,9 @@ public class DrawingBotV3 implements IDrawingManager {
         imgFilterSettings.imageFlipHorizontal.addListener((observable, oldValue, newValue) -> onCanvasChanged());
         imgFilterSettings.imageFlipVertical.addListener((observable, oldValue, newValue) -> onCanvasChanged());
 
-        activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
-        renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
-        currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
+        activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
+        renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
+        currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
         displayMode.addListener((observable, oldValue, newValue) -> {
             if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer())
                 setRenderFlag(Flags.FORCE_REDRAW, true);
@@ -156,6 +157,24 @@ public class DrawingBotV3 implements IDrawingManager {
         pfmSettings.factory.addListener((observable, oldValue, newValue) -> {
             pfmSettings.settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
         });
+
+        //generate the target canvas, which will always display the correct Plotting Resolution
+        targetCanvas = new ImageCanvas(drawingArea, 0, 0, false){
+            @Override
+            public int getImageWidth() {
+                return openImage.get() != null ? openImage.get().getSource().getWidth() : 0;
+            }
+
+            @Override
+            public int getImageHeight() {
+                return openImage.get() != null ? openImage.get().getSource().getHeight() : 0;
+            }
+
+            @Override
+            public boolean flipAxis() {
+                return imgFilterSettings.imageRotation.get().flipAxis;
+            }
+        };
 
     }
 
@@ -238,13 +257,13 @@ public class DrawingBotV3 implements IDrawingManager {
         }
          */
 
+        controller.labelPlottingResolution.setText((int)(targetCanvas.getScaledWidth()) + " x " + (int)(targetCanvas.getScaledHeight()));
+
 
         if(openImage.get() != null){
             controller.labelImageResolution.setText(openImage.get().getSource().getWidth() + " x " + openImage.get().getSource().getHeight());
-            controller.labelPlottingResolution.setText((int)(openImage.get().getCanvas().getScaledWidth()) + " x " + (int)(openImage.get().getCanvas().getScaledHeight()));
         }else{
             controller.labelImageResolution.setText("0 x 0");
-            controller.labelPlottingResolution.setText("0 x 0");
         }
 
         //tick all plugins
@@ -432,7 +451,7 @@ public class DrawingBotV3 implements IDrawingManager {
                 break;
         }
         if(task == getRenderedTask()){
-            setRenderFlag(Flags.TASK_CHANGED_STATE, true);
+            setRenderFlag(Flags.ACTIVE_TASK_CHANGED_STATE, true);
         }
         logger.info("Plotting Task: Finished Stage " + stage.name());
     }
@@ -456,10 +475,6 @@ public class DrawingBotV3 implements IDrawingManager {
             backgroundService.submit(toReset::reset); //help GC by removing references to Geometries, run after other queue tasks have finished
         }
         activeTask.set(task);
-
-        if(activeTask.get() == null){
-            displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_IMAGE);
-        }
         renderedTask.set(null);
     }
 
@@ -567,7 +582,7 @@ public class DrawingBotV3 implements IDrawingManager {
                 printScale = getCurrentDrawing().getCanvas().getPlottingScale();
             }
             if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE && openImage.get() != null){
-                printScale = openImage.get().getCanvas().getPlottingScale();
+                printScale = openImage.get().getDestCanvas().getPlottingScale();
             }
 
             position = position.multiply(1F/printScale);

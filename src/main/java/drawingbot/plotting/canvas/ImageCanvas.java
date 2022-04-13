@@ -13,8 +13,9 @@ import java.awt.image.BufferedImage;
 public class ImageCanvas implements ICanvas {
 
     public ICanvas refCanvas;
-    public int imageWidth;
-    public int imageHeight;
+    private final int imageWidth;
+    private final int imageHeight;
+    private final boolean flipAxis;
 
     public ImageCanvas(ICanvas refCanvas, BufferedImage refImage, boolean flipAxis){
         this(refCanvas, refImage.getWidth(), refImage.getHeight(), flipAxis);
@@ -22,8 +23,21 @@ public class ImageCanvas implements ICanvas {
 
     public ImageCanvas(ICanvas refCanvas, int imageWidth, int imageHeight, boolean flipAxis){
         this.refCanvas = refCanvas;
-        this.imageWidth = flipAxis ? imageHeight : imageWidth;
-        this.imageHeight = flipAxis ? imageWidth : imageHeight;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.flipAxis = flipAxis;
+    }
+
+    public int getImageWidth(){
+        return flipAxis ? imageHeight : imageWidth;
+    }
+
+    public int getImageHeight(){
+        return flipAxis ? imageWidth : imageHeight;
+    }
+
+    public boolean flipAxis(){
+        return flipAxis;
     }
 
     @Override
@@ -46,7 +60,7 @@ public class ImageCanvas implements ICanvas {
 
     @Override
     public boolean useOriginalSizing(){
-        return refCanvas.useOriginalSizing();
+        return refCanvas.useOriginalSizing() || refCanvas.getDrawingWidth() == 0 || refCanvas.getDrawingHeight() == 0;
     }
 
     @Override
@@ -55,7 +69,7 @@ public class ImageCanvas implements ICanvas {
             return 1;
         }
         if(!optimiseForPrint() && getUnits() != UnitsLength.PIXELS){
-            int[] imageSize = ImageTools.getEffectiveImageSize(refCanvas, imageWidth, imageHeight);
+            int[] imageSize = ImageTools.getEffectiveImageSize(refCanvas, getImageWidth(), getImageHeight());
 
             float currentRatio = (float) imageSize[0] / (float)imageSize[1];
             float targetRatio = getDrawingWidth() / getDrawingHeight();
@@ -69,7 +83,7 @@ public class ImageCanvas implements ICanvas {
     @Override
     public float getWidth() {
         if(useOriginalSizing()){
-            return imageWidth;
+            return getImageWidth();
         }
         return refCanvas.getWidth();
     }
@@ -77,7 +91,7 @@ public class ImageCanvas implements ICanvas {
     @Override
     public float getHeight() {
         if(useOriginalSizing()){
-            return imageHeight;
+            return getImageHeight();
         }
         return refCanvas.getHeight();
     }
@@ -105,7 +119,7 @@ public class ImageCanvas implements ICanvas {
         }
         float imageOffsetX = 0;
         if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
-            float currentRatio = (float) imageWidth / (float)imageHeight;
+            float currentRatio = (float) getImageWidth() / (float)getImageHeight();
             float targetRatio = getDrawingWidth() / getDrawingHeight();
             float targetWidth = Math.round(getDrawingHeight() * currentRatio);
 
@@ -121,7 +135,7 @@ public class ImageCanvas implements ICanvas {
         }
         float imageOffsetY = 0;
         if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
-            float currentRatio = (float) imageWidth / (float)imageHeight;
+            float currentRatio = (float) getImageWidth() / (float)getImageHeight();
             float targetRatio = getDrawingWidth() / getDrawingHeight();
             float targetHeight = Math.round(getDrawingWidth() / currentRatio);
 

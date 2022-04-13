@@ -43,7 +43,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
 
             //setup the canvas
             if (openImage != null) {
-                jfr.setupCanvasSize(openImage.getCanvas());
+                jfr.setupCanvasSize(openImage.getCurrentCanvas());
             }else{
                 jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
             }
@@ -53,15 +53,15 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         public void doRender(JavaFXRenderer jfr) {
 
             //render the image
-            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
                 jfr.clearCanvas();
                 FilteredBufferedImage openImage = DrawingBotV3.INSTANCE.openImage.get();
                 if (openImage != null) {
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                    jfr.graphicsFX.translate(openImage.getCanvas().getScaledDrawingOffsetX(), openImage.getCanvas().getScaledDrawingOffsetY());
+                    jfr.graphicsFX.translate(openImage.getCurrentCanvas().getScaledDrawingOffsetX(), openImage.getCurrentCanvas().getScaledDrawingOffsetY());
                     jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(openImage.getFiltered(), null), 0, 0);
                 }
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
             }
         }
 
@@ -91,7 +91,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         public void doRender(JavaFXRenderer jfr) {
 
             //render the image
-            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
                 jfr.clearCanvas();
                 PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
                 if(drawing != null && drawing.getOriginalImage() != null){
@@ -100,7 +100,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
                     jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(originalImage, null), 0, 0);
                 }
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
             }
         }
 
@@ -129,7 +129,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         public void doRender(JavaFXRenderer jfr) {
 
             //render the image
-            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
                 jfr.clearCanvas();
                 PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
                 if(drawing != null && drawing.getReferenceImage() != null){
@@ -137,7 +137,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
                     jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
                     jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(drawing.getReferenceImage(), null), 0, 0);
                 }
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
             }
         }
 
@@ -166,7 +166,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         public void doRender(JavaFXRenderer jfr) {
 
             //render the image
-            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE)) {
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
                 jfr.clearCanvas();
                 PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
                 if(drawing != null && drawing.getPlottingImage() != null){
@@ -174,7 +174,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
                     jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
                     jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(drawing.getPlottingImage(), null), 0, 0);
                 }
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.TASK_CHANGED, Flags.TASK_CHANGED_STATE);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
             }
         }
 

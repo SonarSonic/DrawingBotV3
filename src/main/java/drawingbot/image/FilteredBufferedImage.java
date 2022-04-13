@@ -1,6 +1,5 @@
 package drawingbot.image;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.ObservableCanvas;
@@ -14,6 +13,7 @@ public class FilteredBufferedImage {
     public final ImageFilterSettings imgFilterSettings;
     public final ObservableCanvas canvas;
     public ImageCanvas refCanvas;
+    public ImageCanvas destCanvas;
 
     public BufferedImage cropped;
     public BufferedImage filtered;
@@ -26,10 +26,20 @@ public class FilteredBufferedImage {
         this.imgFilterSettings = imgFilterSettings;
         this.canvas = canvas;
         this.refCanvas = new ImageCanvas(new SimpleCanvas(canvas), source, imgFilterSettings.imageRotation.get().flipAxis);
+        this.destCanvas = new ImageCanvas(canvas, source, imgFilterSettings.imageRotation.get().flipAxis){
+            @Override
+            public boolean flipAxis() {
+                return imgFilterSettings.imageRotation.get().flipAxis;
+            }
+        };
     }
 
-    public ImageCanvas getCanvas() {
+    public ImageCanvas getCurrentCanvas() {
         return refCanvas;
+    }
+
+    public ImageCanvas getDestCanvas() {
+        return destCanvas;
     }
 
     public BufferedImage getSource(){
