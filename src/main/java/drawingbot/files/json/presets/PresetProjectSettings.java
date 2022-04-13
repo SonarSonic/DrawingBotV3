@@ -35,7 +35,7 @@ public class PresetProjectSettings extends AbstractJsonData {
     public boolean optimiseForPrint;
     public float targetPenWidth;
 
-    public GenericPreset<PresetDrawingSet> drawingSet;
+    public GenericPreset<PresetDrawingSet> drawingSet; //legacy
     public ColourSeperationHandler colourSplitter;
     public EnumDistributionType distributionType;
     public EnumDistributionOrder distributionOrder;

@@ -34,7 +34,7 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
             public ArrayList<O> fromString(String string) {
                 throw new UnsupportedOperationException("Unidentified objects can't be deserialized");
             }
-        }, value -> objectType.isInstance(value) ? value : defaultValue, setter);
+        }, value -> value, setter);
         this.objectType = objectType;
         this.listType = TypeToken.getParameterized(ArrayList.class, objectType).getType();
     }
