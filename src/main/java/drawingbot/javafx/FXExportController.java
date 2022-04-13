@@ -2,6 +2,7 @@ package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.exporters.GCodeBuilder;
@@ -285,13 +286,15 @@ public class FXExportController {
     }
 
     public void updateImageSequenceStats(){
+        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+
         int frameCount = ConfigFileHandler.getApplicationSettings().getFrameCount();
-        int geometriesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().drawing.getGeometryCount());
-        long verticesPerFrame = DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : ConfigFileHandler.getApplicationSettings().getVerticesPerFrame(DrawingBotV3.INSTANCE.getActiveTask().drawing.getVertexCount());
+        int geometriesPerFrame = drawing == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(drawing.getGeometryCount());
+        long verticesPerFrame = drawing == null ? 0 : ConfigFileHandler.getApplicationSettings().getVerticesPerFrame(drawing.getVertexCount());
 
 
         if(verticesPerFrame == 1 && frameCount > verticesPerFrame){
-            frameCount = (int)(DrawingBotV3.INSTANCE.getActiveTask() == null ? 0 : DrawingBotV3.INSTANCE.getActiveTask().drawing.getVertexCount());
+            frameCount = (int) drawing.getVertexCount();
         }
         
         if(DrawingBotV3.INSTANCE.openImage.get() != null){

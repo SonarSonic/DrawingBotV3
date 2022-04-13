@@ -12,7 +12,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableProjectSettings;
-import drawingbot.plotting.PFMTask;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.Register;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.Utils;
@@ -35,16 +35,10 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     @Override
     public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset) {
-        PFMTask plottingTask = DrawingBotV3.INSTANCE.getActiveTask();
-
+        PlottedDrawing renderedDrawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
         preset.data.imagePath = DrawingBotV3.INSTANCE.openFile != null ? DrawingBotV3.INSTANCE.openFile.getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
-
-        if(plottingTask != null && plottingTask.isTaskFinished()){
-            preset.data.thumbnailID = UUID.randomUUID().toString();
-        }else{
-            preset.data.thumbnailID = "";
-        }
+        preset.data.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
         GenericPreset<PresetDrawingArea> presetDrawingArea = Register.PRESET_LOADER_DRAWING_AREA.createNewPreset();
         Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().updatePreset(presetDrawingArea);
@@ -86,11 +80,6 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             preset.data.projectVersions.add(projectVersion.preset.get().data);
         }
 
-        ///run the drawing state generation task
-        if(plottingTask != null){
-            preset.data.drawingState = (JsonObject) Hooks.runHook(Hooks.SERIALIZE_DRAWING_STATE, plottingTask, new JsonObject())[1];
-        }
-
         preset.data.drawingSets = new ArrayList<>();
         for(ObservableDrawingSet drawingSet : DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get()){
             preset.data.drawingSets.add(new ObservableDrawingSet(drawingSet));
@@ -98,11 +87,15 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         int activeSlot = preset.data.drawingSets.indexOf(DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get());
         preset.data.activeDrawingSlot = activeSlot == -1 ? 0 : activeSlot;
 
-        //run the thumbnail generation task
-        if(plottingTask != null && !preset.data.thumbnailID.isEmpty()){
+        if(renderedDrawing != null){
+            ///run the drawing state generation task
+            preset.data.drawingState = (JsonObject) Hooks.runHook(Hooks.SERIALIZE_DRAWING_STATE, renderedDrawing, new JsonObject())[1];
+
+
+            //run the thumbnail generation task
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, plottingTask.drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
-            task.exportScale = 400 / plottingTask.drawing.canvas.getWidth(UnitsLength.PIXELS);
+            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
+            task.exportScale = 400 / renderedDrawing.canvas.getWidth(UnitsLength.PIXELS);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
 

@@ -12,7 +12,7 @@ import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
-import drawingbot.plotting.PFMTaskImage;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
@@ -116,18 +116,17 @@ public class FXHelper {
     }
 
     public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
-        if(DrawingBotV3.INSTANCE.getActiveTask() == null){
+        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+        if(drawing == null){
             return;
         }
         String initialFileName = "";
-        if(DrawingBotV3.INSTANCE.getActiveTask() instanceof PFMTaskImage){
-            PFMTaskImage taskImage = (PFMTaskImage) DrawingBotV3.INSTANCE.getActiveTask();
-            if(taskImage.originalImageFile != null){
-                initialFileName = FileUtils.removeExtension(taskImage.originalImageFile.getName()) + "_plotted";
-            }
+        File originalFile = drawing.getOriginalFile();
+        if(originalFile != null){
+            initialFileName = FileUtils.removeExtension(originalFile.getName()) + "_plotted";
         }
         exportFile((file, chooser) -> {
-            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, DrawingBotV3.INSTANCE.getActiveTask(), IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
+            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
         }, exportHandler.filters, exportHandler.getDialogTitle(), initialFileName);
     }
 

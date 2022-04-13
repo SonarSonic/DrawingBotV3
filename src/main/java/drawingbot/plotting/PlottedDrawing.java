@@ -10,6 +10,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -512,18 +513,22 @@ public class PlottedDrawing {
 
     //// META DATA \\\\
 
+    @Nullable
     public BufferedImage getOriginalImage() {
         return getMetadata(Register.INSTANCE.ORIGINAL_IMAGE);
     }
 
+    @Nullable
     public BufferedImage getReferenceImage() {
         return getMetadata(Register.INSTANCE.REFERENCE_IMAGE);
     }
 
+    @Nullable
     public BufferedImage getPlottingImage() {
         return getMetadata(Register.INSTANCE.PLOTTING_IMAGE);
     }
 
+    @Nullable
     public File getOriginalFile() {
         return getMetadata(Register.INSTANCE.ORIGINAL_FILE);
     }

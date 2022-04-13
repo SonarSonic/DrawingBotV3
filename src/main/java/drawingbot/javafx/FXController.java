@@ -10,10 +10,8 @@ import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.plotting.PFMTaskImage;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.plotting.PFMTask;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.utils.*;
@@ -151,16 +149,17 @@ public class FXController {
         menuFile.getItems().add(menuOpen);
 
         MenuItem menuSave = new MenuItem("Save Project");
-        menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+        menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.currentDrawing.isNull());
         menuSave.setOnAction(e -> {
             File folder = FileUtils.getExportDirectory();
             String projectName = "New Project";
 
-            if(DrawingBotV3.INSTANCE.getActiveTask() instanceof PFMTaskImage){
-                PFMTaskImage taskImage = (PFMTaskImage) DrawingBotV3.INSTANCE.getActiveTask();
-                if(taskImage.originalImageFile != null){
-                    folder = taskImage.originalImageFile.getParentFile();
-                    projectName = FileUtils.removeExtension(taskImage.originalImageFile.getName());
+            PlottedDrawing renderedDrawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            if(renderedDrawing != null){
+                File originalFile = renderedDrawing.getOriginalFile();
+                if(originalFile != null){
+                    folder = originalFile.getParentFile();
+                    projectName = FileUtils.removeExtension(originalFile.getName());
                 }
             }
             FXHelper.exportProject(folder, projectName);
@@ -209,7 +208,7 @@ public class FXController {
                     menuExport.getItems().add(new SeparatorMenuItem());
                 }
             }
-            menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+            menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.currentDrawing.isNull());
             menuFile.getItems().add(menuExport);
         }
 
@@ -219,11 +218,11 @@ public class FXController {
 
         MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
         menuExportToVPype.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.getActiveTask() != null){
+            if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
                 vpypeSettingsStage.show();
             }
         });
-        menuExportToVPype.disableProperty().bind(DrawingBotV3.INSTANCE.activeTask.isNull());
+        menuExportToVPype.disableProperty().bind(DrawingBotV3.INSTANCE.currentDrawing.isNull());
 
         menuFile.getItems().add(menuExportToVPype);
 
@@ -392,7 +391,7 @@ public class FXController {
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMax = lines;
@@ -402,7 +401,7 @@ public class FXController {
         });
 
         rangeSliderDisplayedLines.lowValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMin = lines;
@@ -412,7 +411,7 @@ public class FXController {
         });
 
         textFieldDisplayedShapesMax.setOnAction(e -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
                 drawing.displayedShapeMax = lines;
@@ -423,7 +422,7 @@ public class FXController {
         });
 
         textFieldDisplayedShapesMin.setOnAction(e -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
                 drawing.displayedShapeMin = lines;
@@ -433,7 +432,7 @@ public class FXController {
             }
         });
 
-        DrawingBotV3.INSTANCE.renderedDrawing.addListener((observable, oldValue, newValue) -> {
+        DrawingBotV3.INSTANCE.currentDrawing.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Platform.runLater(() -> {
                     rangeSliderDisplayedLines.setLowValue(0.0F);
@@ -598,7 +597,7 @@ public class FXController {
         buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
 
         buttonSaveVersion.setOnAction(param -> versionControlController.saveVersion());
-        buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.activeTask.get() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.activeTask));
+        buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.currentDrawing.get() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.currentDrawing));
     }
 
 

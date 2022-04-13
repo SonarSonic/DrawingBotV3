@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class PFMTask extends DBTask<PFMTask> {
+public class PFMTask extends DBTask<PlottedDrawing> {
 
     public final IDrawingManager drawingManager;
     public final ICanvas refCanvas;
@@ -153,7 +153,7 @@ public class PFMTask extends DBTask<PFMTask> {
                 finishStage();
 
                 if(!isSubTask){
-                    drawingManager.setRenderedDrawing(drawing);
+                    drawingManager.setCurrentDrawing(drawing);
                 }
                 break;
             case FINISHED:
@@ -206,7 +206,7 @@ public class PFMTask extends DBTask<PFMTask> {
     }
 
     @Override
-    public PFMTask call() {
+    public final PlottedDrawing call() {
         if(!isSubTask){
             Platform.runLater(() -> drawingManager.setActiveTask(this));
         }
@@ -215,7 +215,10 @@ public class PFMTask extends DBTask<PFMTask> {
                 cancel();
             }
         }
-        return this;
+        if(!isSubTask){
+            Platform.runLater(() -> drawingManager.setActiveTask(null));
+        }
+        return drawing;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.Register;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -20,7 +21,8 @@ public class VpypeHelper {
 
     public static void exportToVpype(VpypeSettings settings){
         Platform.runLater(() -> {
-            if(DrawingBotV3.INSTANCE.getActiveTask() != null){
+            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            if(drawing!= null){
 
                 String userCommand = settings.vPypeCommand.getValue();
                 File tempSVG = new File(FileUtils.getUserDataDirectory(), TEMP_FILE_NAME);
@@ -34,7 +36,7 @@ public class VpypeHelper {
                 }
 
                 String command = settings.vPypeExecutable.getValue() + " read " + Matcher.quoteReplacement(tempSVG.toString()) + " " + userCommand;
-                Task<?> task = DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_SVG, ExportTask.Mode.PER_DRAWING, DrawingBotV3.INSTANCE.getActiveTask().drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".svg", tempSVG, settings.vPypeBypassOptimisation.get());
+                Task<?> task = DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_SVG, ExportTask.Mode.PER_DRAWING, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".svg", tempSVG, settings.vPypeBypassOptimisation.get());
                 task.setOnSucceeded(event -> DrawingBotV3.INSTANCE.taskMonitor.queueTask(new VpypeTask(command, settings)));
             }
         });

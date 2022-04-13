@@ -39,9 +39,9 @@ public interface IDrawingManager {
 
     ////////////////////////////////////////////////////////
 
-    default void setRenderedDrawing(PlottedDrawing drawing){}
+    default void setCurrentDrawing(PlottedDrawing drawing){}
 
-    default PlottedDrawing getRenderedDrawing(){
+    default PlottedDrawing getCurrentDrawing(){
         return null;
     }
 

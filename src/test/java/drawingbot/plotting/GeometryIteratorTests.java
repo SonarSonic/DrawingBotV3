@@ -2,16 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.JavaFxJUnit4ClassRunner;
-import drawingbot.api.IGeometryFilter;
-import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.ExportTask;
-import drawingbot.files.FileUtils;
 import drawingbot.geom.shapes.IGeometry;
-import drawingbot.image.BufferedImageLoader;
-import drawingbot.plotting.AsynchronousGeometryIterator;
-import drawingbot.plotting.DrawingGeometryIterator;
-import drawingbot.plotting.DrawingVertexPathIterator;
-import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import javafx.application.Platform;
 import org.junit.Assert;
@@ -51,7 +42,7 @@ public class GeometryIteratorTests {
             });
         });
         latch2.await();
-        drawing = DrawingBotV3.INSTANCE.getRenderedDrawing();
+        drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
     }
 
     @Test

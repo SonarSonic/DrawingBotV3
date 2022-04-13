@@ -118,7 +118,7 @@ public class DrawingBotV3 implements IDrawingManager {
     public final ObjectProperty<FilteredBufferedImage> openImage = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PFMTask> activeTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PFMTask> renderedTask = new SimpleObjectProperty<>(null);
-    public final ObjectProperty<PlottedDrawing> renderedDrawing = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<PlottedDrawing> currentDrawing = new SimpleObjectProperty<>(null);
 
     public File openFile = null;
 
@@ -146,7 +146,7 @@ public class DrawingBotV3 implements IDrawingManager {
 
         activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
         renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
-        renderedDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
+        currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.TASK_CHANGED, true));
         displayMode.addListener((observable, oldValue, newValue) -> {
             if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer())
                 setRenderFlag(Flags.FORCE_REDRAW, true);
@@ -216,6 +216,7 @@ public class DrawingBotV3 implements IDrawingManager {
 
         //TODO FIX THIS updatinmg on every tick
 
+        //update the latest shapes/vertices counts from the active task
         if(getActiveTask() != null){
             if(getActiveTask().isRunning()){
                 int geometryCount = getActiveTask().getCurrentGeometryCount();
@@ -228,11 +229,14 @@ public class DrawingBotV3 implements IDrawingManager {
                 long seconds = (getActiveTask().getElapsedTime() / 1000) % 60;
                 controller.labelElapsedTime.setText(minutes + " m " + seconds + " s");
             }
-        }else{
+        }
+        /*
+        else {
             controller.labelElapsedTime.setText("0 s");
             controller.labelPlottedShapes.setText("0");
             controller.labelPlottedVertices.setText("0");
         }
+         */
 
 
         if(openImage.get() != null){
@@ -285,8 +289,8 @@ public class DrawingBotV3 implements IDrawingManager {
     }
 
     public void updatePenDistribution(){
-        if(activeTask.get() != null && activeTask.get().isTaskFinished()){
-            activeTask.get().drawing.updatePenDistribution();
+        if(currentDrawing.get() != null){
+            currentDrawing.get().updatePenDistribution();
             reRender();
         }
     }
@@ -395,6 +399,7 @@ public class DrawingBotV3 implements IDrawingManager {
             setActiveTask(null);
             openImage.set(null);
         }
+
         openFile = file;
         BufferedImageLoader.Filtered loadingImage = new BufferedImageLoader.Filtered(file.getPath(), internal);
         loadingImage.setOnSucceeded(e -> {
@@ -469,13 +474,13 @@ public class DrawingBotV3 implements IDrawingManager {
     }
 
     @Override
-    public void setRenderedDrawing(PlottedDrawing drawing) {
-        renderedDrawing.set(drawing);
+    public void setCurrentDrawing(PlottedDrawing drawing) {
+        currentDrawing.set(drawing);
     }
 
     @Override
-    public PlottedDrawing getRenderedDrawing() {
-        return renderedDrawing.get();
+    public PlottedDrawing getCurrentDrawing() {
+        return currentDrawing.get();
     }
 
     @Override
@@ -486,10 +491,6 @@ public class DrawingBotV3 implements IDrawingManager {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// EXPORT TASKS
-
-    public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PFMTask plottingTask, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation){
-        return createExportTask(exportHandler, exportMode, plottingTask.drawing, pointFilter, extension, saveLocation, forceBypassOptimisation);
-    }
 
     public Task<?> createExportTask(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, PlottedDrawing plottedDrawing, IGeometryFilter pointFilter, String extension, File saveLocation, boolean forceBypassOptimisation){
         ExportTask task = new ExportTask(exportHandler, exportMode, plottedDrawing, pointFilter, extension, saveLocation, true, forceBypassOptimisation, false);
@@ -562,8 +563,8 @@ public class DrawingBotV3 implements IDrawingManager {
         }else{
             double printScale = 1;
 
-            if(displayMode.get() != Register.INSTANCE.DISPLAY_MODE_IMAGE && getActiveTask() != null){
-                printScale = getActiveTask().drawing.getCanvas().getPlottingScale();
+            if(displayMode.get() != Register.INSTANCE.DISPLAY_MODE_IMAGE && getCurrentDrawing() != null){
+                printScale = getCurrentDrawing().getCanvas().getPlottingScale();
             }
             if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE && openImage.get() != null){
                 printScale = openImage.get().getCanvas().getPlottingScale();

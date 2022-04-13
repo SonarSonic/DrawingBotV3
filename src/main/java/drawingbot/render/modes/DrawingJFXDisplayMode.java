@@ -22,8 +22,8 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
         //setup the canvas
         if(DrawingBotV3.INSTANCE.getRenderedTask() != null && DrawingBotV3.INSTANCE.getRenderedTask().stage != EnumTaskStage.FINISHED){
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getRenderedTask().drawing.getCanvas());
-        }else if(DrawingBotV3.INSTANCE.renderedDrawing.get() != null){
-            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.renderedDrawing.get().getCanvas());
+        }else if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
+            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getCurrentDrawing().getCanvas());
         }else{
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
         }
@@ -56,7 +56,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                 return;
             }
         }
-        PlottedDrawing drawing = DrawingBotV3.INSTANCE.renderedDrawing.get();
+        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
         if(drawing != null){
             if(drawingIterator == null || drawingIterator.currentDrawing != drawing){
                 drawingIterator = new DrawingGeometryIterator(drawing);
