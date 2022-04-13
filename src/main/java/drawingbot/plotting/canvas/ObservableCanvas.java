@@ -2,12 +2,15 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
+import drawingbot.utils.EnumOrientation;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ObservableCanvas implements ICanvas, IProperties {
 
@@ -24,6 +27,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
     public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
+    public final SimpleObjectProperty<EnumOrientation> orientation = new SimpleObjectProperty<>(EnumOrientation.PORTRAIT);
 
     public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
     public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
@@ -33,7 +37,49 @@ public class ObservableCanvas implements ICanvas, IProperties {
 
     public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
 
-    public ObservableCanvas(){}
+    public ObservableCanvas(){
+
+        AtomicBoolean internalChange = new AtomicBoolean(false);
+
+        width.addListener((observable, oldValue, newValue) -> {
+            if(internalChange.get()){
+                return;
+            }
+            if(width.get() == height.get()){
+                return;
+            }
+            internalChange.set(true);
+            orientation.set(EnumOrientation.getType(width.get(), height.get()));
+            internalChange.set(false);
+        });
+
+        height.addListener((observable, oldValue, newValue) -> {
+            if(internalChange.get()){
+                return;
+            }
+            if(width.get() == height.get()){
+                return;
+            }
+            internalChange.set(true);
+            orientation.set(EnumOrientation.getType(width.get(), height.get()));
+            internalChange.set(false);
+        });
+
+        orientation.addListener(((observable, oldValue, newValue) -> {
+            if(internalChange.get()){
+                return;
+            }
+            if(newValue != null){
+                internalChange.set(true);
+                float newWidth = getHeight();
+                float newHeight = getWidth();
+                width.set(newWidth);
+                height.set(newHeight);
+                internalChange.set(false);
+            }
+
+        }));
+    }
 
     @Override
     public UnitsLength getUnits() {
@@ -68,12 +114,12 @@ public class ObservableCanvas implements ICanvas, IProperties {
 
     @Override
     public float getDrawingWidth(){
-        return width.getValue() - drawingAreaPaddingLeft.get() - drawingAreaPaddingRight.get();
+        return getWidth() - drawingAreaPaddingLeft.get() - drawingAreaPaddingRight.get();
     }
 
     @Override
     public float getDrawingHeight(){
-        return height.getValue() - drawingAreaPaddingTop.get() - drawingAreaPaddingBottom.get();
+        return getHeight() - drawingAreaPaddingTop.get() - drawingAreaPaddingBottom.get();
     }
 
     @Override

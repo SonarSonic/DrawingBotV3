@@ -9,6 +9,7 @@ public class Flags {
     public final static Flags.FlagCategory RENDER_CATEGORY = new Flags.FlagCategory("RENDER");
     public final static Flags.BooleanFlag FORCE_REDRAW = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("FORCE_REDRAW", true, false));
     public final static Flags.BooleanFlag CURRENT_DRAWING_CHANGED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CURRENT_DRAWING_CHANGED", false, false));
+    public final static Flags.BooleanFlag OPEN_IMAGE_UPDATED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("OPEN_IMAGE_UPDATED", false, false));
 
     public final static Flags.BooleanFlag ACTIVE_TASK_CHANGED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("ACTIVE_TASK_CHANGED",false, false));
     public final static Flags.BooleanFlag ACTIVE_TASK_CHANGED_STATE = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("ACTIVE_TASK_CHANGED_STATE", false, false));

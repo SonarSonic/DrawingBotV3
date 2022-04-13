@@ -7,11 +7,14 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
+import drawingbot.utils.EnumOrientation;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.Utils;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
@@ -19,6 +22,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.NumberStringConverter;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FXDrawingArea {
 
@@ -36,7 +41,8 @@ public class FXDrawingArea {
     public Pane paneDrawingAreaCustom = null;
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
-    public Button buttonRotate = null;
+    //public ToggleButton buttonRotate = null;
+    public ChoiceBox<EnumOrientation> choiceBoxOrientation = null;
     public TextField textFieldPaddingLeft = null;
     public TextField textFieldPaddingRight = null;
     public TextField textFieldPaddingTop = null;
@@ -72,6 +78,8 @@ public class FXDrawingArea {
                 checkBoxOptimiseForPrint.selectedProperty().unbindBidirectional(oldValue.optimiseForPrint);
                 textFieldPenWidth.textProperty().unbindBidirectional(oldValue.targetPenWidth);
 
+                choiceBoxOrientation.valueProperty().unbindBidirectional(oldValue.orientation);
+                choiceBoxOrientation.disableProperty().unbind();
                 colorPickerCanvas.valueProperty().unbindBidirectional(oldValue.canvasColor);
             }
 
@@ -94,6 +102,8 @@ public class FXDrawingArea {
                 textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter());
 
                 colorPickerCanvas.valueProperty().bindBidirectional(newValue.canvasColor);
+                choiceBoxOrientation.valueProperty().bindBidirectional(newValue.orientation);
+                choiceBoxOrientation.disableProperty().bind(Bindings.createBooleanBinding(() -> newValue.width.get() == newValue.height.get(), newValue.width, newValue.height));
                 updatePaddingBindings(newValue.drawingAreaGangPadding.get());
             }
         });
@@ -130,12 +140,7 @@ public class FXDrawingArea {
         textFieldDrawingWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldDrawingHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        buttonRotate.setOnAction(e -> {
-            String width = textFieldDrawingWidth.getText();
-            String height = textFieldDrawingHeight.getText();
-            textFieldDrawingWidth.setText(height);
-            textFieldDrawingHeight.setText(width);
-        });
+        choiceBoxOrientation.setItems(FXCollections.observableArrayList(EnumOrientation.values()));
 
         textFieldPaddingLeft.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldPaddingRight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));

@@ -10,6 +10,7 @@ import java.util.List;
 public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extends AbstractPresetManager<O> {
 
     private final List<GenericSetting<?, ?>> settings = new ArrayList<>();
+    public boolean changesOnly;
 
     public DefaultPresetManager(AbstractPresetLoader<O> presetLoader) {
         super(presetLoader);
@@ -33,7 +34,7 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
         I instance = getInstance();
         if(instance != null){
             GenericSetting.updateSettingsFromInstance(settings, instance);
-            preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
+            preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), changesOnly);
         }
         return preset;
     }
@@ -43,7 +44,12 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
         I instance = getInstance();
         if(instance != null) {
             GenericSetting.applySettings(preset.data.settingList, settings);
-            GenericSetting.applySettingsToInstance(settings, instance);
+
+            List<GenericSetting<?, ?>> toApply = settings;
+            if (changesOnly) {
+                toApply = GenericSetting.filterSettings(toApply, preset.data.settingList.keySet());
+            }
+            GenericSetting.applySettingsToInstance(toApply, instance);
         }
     }
 }

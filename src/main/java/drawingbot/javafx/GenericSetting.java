@@ -362,6 +362,17 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
         }
     }
 
+    public static List<GenericSetting<?, ?>> filterSettings(List<GenericSetting<?, ?>> settingList, Collection<String> keys){
+        List<GenericSetting<?, ?>> filteredList = new ArrayList<>();
+        for(GenericSetting<?, ?> setting : settingList){
+            if(keys.contains(setting.getKey())){
+                filteredList.add(setting);
+            }
+        }
+        return filteredList;
+    }
+
+
     public static void updateSettingsFromInstance(List<GenericSetting<?, ?>> src, Object instance){
         for(GenericSetting<?, ?> setting : src){
             setting.updateSetting(instance);

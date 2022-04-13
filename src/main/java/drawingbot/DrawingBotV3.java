@@ -152,7 +152,7 @@ public class DrawingBotV3 implements IDrawingManager {
             if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer())
                 setRenderFlag(Flags.FORCE_REDRAW, true);
         });
-        openImage.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.FORCE_REDRAW, true));
+        openImage.addListener((observable, oldValue, newValue) -> onImageChanged());
 
         pfmSettings.factory.addListener((observable, oldValue, newValue) -> {
             pfmSettings.settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
@@ -209,6 +209,10 @@ public class DrawingBotV3 implements IDrawingManager {
 
     public void reRender(){
         setRenderFlag(Flags.FORCE_REDRAW);
+    }
+
+    public void onImageChanged(){
+        setRenderFlag(Flags.OPEN_IMAGE_UPDATED, true);
     }
 
     public void onCanvasChanged(){

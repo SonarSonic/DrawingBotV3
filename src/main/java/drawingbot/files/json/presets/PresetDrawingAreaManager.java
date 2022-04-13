@@ -2,9 +2,11 @@ package drawingbot.files.json.presets;
 
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.DefaultPresetManager;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
+import drawingbot.utils.EnumOrientation;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 
@@ -14,6 +16,19 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
 
     public PresetDrawingAreaManager(PresetDrawingAreaLoader presetLoader) {
         super(presetLoader);
+        changesOnly = true;
+    }
+
+    @Override
+    public void applyPreset(GenericPreset<PresetDrawingArea> preset) {
+        ObservableCanvas canvas = getInstance();
+        if(canvas != null){
+            EnumOrientation orientation = canvas.orientation.get();
+            super.applyPreset(preset);
+            if(canvas.orientation.get() != orientation){
+                canvas.orientation.set(orientation);
+            }
+        }
     }
 
     @Override
