@@ -34,7 +34,7 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
         I instance = getInstance();
         if(instance != null){
             GenericSetting.updateSettingsFromInstance(settings, instance);
-            preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), changesOnly);
+            preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
         }
         return preset;
     }

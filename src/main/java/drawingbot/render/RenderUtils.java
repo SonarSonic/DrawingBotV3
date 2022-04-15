@@ -62,7 +62,6 @@ public class RenderUtils {
     public static void preRenderGeometryAWT(Graphics2D graphics, IGeometry geometry, PlottedDrawing drawing, PlottedGroup group, ObservableDrawingPen pen){
         graphics.setStroke(pen.getAWTStroke());
         graphics.setColor(pen.getAWTColor(geometry.getSampledRGBA()));
-        graphics.setColor(pen.getAWTColor(geometry.getSampledRGBA()));
     }
 
     public static void renderGeometryAWT(Graphics2D graphics, IGeometry geometry, PlottedDrawing drawing, PlottedGroup group, ObservableDrawingPen pen){

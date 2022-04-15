@@ -260,6 +260,16 @@ public class GeometryUtils {
         }
     }
 
+    public static List<Geometry> getGeometriesFromCollection(GeometryCollection collection){
+        List<Geometry> geometries = new ArrayList<>();
+        for (int i = 0; i < collection.getNumGeometries(); i ++) {
+            Geometry geometry = collection.getGeometryN(i);
+            geometries.add(geometry);
+        }
+        return geometries;
+    }
+
+
     public static GPath geometryToGPath(Geometry string, AffineTransform transform){
         return new GPath(new ShapeWriter().toShape(string), transform);
     }
