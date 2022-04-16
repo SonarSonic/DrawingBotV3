@@ -122,7 +122,14 @@ public class FXPFMControls {
         tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
         tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> pfmSettingsPresetManager.applyPreset(comboBoxPFMPreset.getValue()));
+        buttonPFMSettingReset.setOnAction(e -> {
+            if(comboBoxPFMPreset.getValue() == null){
+                GenericSetting.resetSettings(pfmSettings.get().settings.get());
+            }else{
+                pfmSettingsPresetManager.applyPreset(comboBoxPFMPreset.getValue());
+            }
+
+        });
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));

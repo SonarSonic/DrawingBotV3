@@ -8,12 +8,23 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.List;
+
 public class DrawingSets implements IProperties {
 
     public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
     public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
     public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
+
+    public DrawingSets(){}
+
+    public DrawingSets(List<ObservableDrawingSet> sets){
+        if(sets.size() > 0){
+            drawingSetSlots.get().addAll(sets);
+            activeDrawingSet.set(sets.get(0));
+        }
+    }
 
     public int getDrawingSetSlot(ObservableDrawingSet drawingSet){
         return drawingSetSlots.get().indexOf(drawingSet);

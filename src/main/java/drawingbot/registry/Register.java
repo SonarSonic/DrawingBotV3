@@ -3,6 +3,7 @@ package drawingbot.registry;
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Metadata;
 import drawingbot.files.json.presets.*;
@@ -89,6 +90,8 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> PLOTTING_IMAGE;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
+    public DrawingPen BLACK_DRAWING_PEN;
+    public DrawingSet BLACK_DRAWING_SET;
 
     @Override
     public String getPluginName() {
@@ -202,6 +205,8 @@ public class Register implements IPlugin {
     @Override
     public void registerDrawingTools(){
         INVISIBLE_DRAWING_PEN = new ObservableDrawingPen(-1, new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Invisible Pen", ImageTools.getARGB(0, 0, 0, 0)));
+        BLACK_DRAWING_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Black Pen", ImageTools.getARGB(255, 0, 0, 0));
+        BLACK_DRAWING_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL, "Black Set", List.of(BLACK_DRAWING_PEN));
     }
 
     @Override

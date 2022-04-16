@@ -208,6 +208,9 @@ public interface IPlottingTools {
     }
 
     default int randomInt(int origin, int bound){
+        if(origin == bound){
+            return 0;
+        }
         if (origin >= bound) {
             return getRandom().nextInt(bound, origin);
         }
@@ -223,6 +226,9 @@ public interface IPlottingTools {
     }
 
     default long randomLong(long origin, long bound){
+        if(origin == bound){
+            return 0L;
+        }
         if (origin >= bound) {
             return getRandom().nextLong(bound, origin);
         }
@@ -238,6 +244,9 @@ public interface IPlottingTools {
     }
 
     default float randomFloat(float origin, float bound){
+        if(origin == bound){
+            return 0F;
+        }
         if (origin >= bound) {
             return getRandom().nextFloat(bound, origin);
         }
@@ -253,6 +262,9 @@ public interface IPlottingTools {
     }
 
     default double randomDouble(double origin, double bound){
+        if(origin == bound){
+            return 0D;
+        }
         if (origin >= bound) {
             return getRandom().nextDouble(bound, origin);
         }
