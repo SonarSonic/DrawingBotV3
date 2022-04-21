@@ -3,10 +3,7 @@ package drawingbot.render.modes;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.plotting.AsynchronousGeometryIterator;
-import drawingbot.plotting.DrawingGeometryIterator;
-import drawingbot.plotting.PFMTask;
-import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.*;
 import drawingbot.render.RenderUtils;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.EnumTaskStage;
@@ -14,7 +11,6 @@ import drawingbot.utils.flags.Flags;
 
 public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
-    private AsynchronousGeometryIterator asyncIterator;
     private DrawingGeometryIterator drawingIterator;
 
     @Override
@@ -36,24 +32,17 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
         if(DrawingBotV3.INSTANCE.getRenderedTask() != null){
             PFMTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
             if (renderedTask.stage == EnumTaskStage.DO_PROCESS) {
-                if (renderedTask.handlesProcessRendering()) {
-                    renderedTask.renderProcessing(jfr, renderedTask);
-                } else {
-                    if (asyncIterator == null || asyncIterator.currentDrawing != renderedTask.drawing) {
-                        asyncIterator = new AsynchronousGeometryIterator(renderedTask.drawing);
-                    }
+                WrappedGeometryIterator iterator = renderedTask.getTaskGeometryIterator();
+                if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
+                    jfr.clearCanvas();
+                    iterator.reset();
+                    renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
+                }
+                if (iterator.hasNext()) {
+                    jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
+                    jfr.graphicsFX.translate(renderedTask.drawing.getCanvas().getScaledDrawingOffsetX(), renderedTask.drawing.getCanvas().getScaledDrawingOffsetY());
 
-                    if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
-                        jfr.clearCanvas();
-                        asyncIterator.reset();
-                        renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
-                    }
-                    if (asyncIterator.hasNext()) {
-                        jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                        jfr.graphicsFX.translate(renderedTask.drawing.getCanvas().getScaledDrawingOffsetX(), renderedTask.drawing.getCanvas().getScaledDrawingOffsetY());
-
-                        RenderUtils.renderDrawingFX(jfr.graphicsFX, asyncIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
-                    }
+                    RenderUtils.renderDrawingFX(jfr.graphicsFX, iterator, getGeometryFilter(), jfr.getVertexRenderLimit());
                 }
             }
             return;

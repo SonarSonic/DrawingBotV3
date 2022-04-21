@@ -57,6 +57,10 @@ public class TaskMonitor {
 
         this.exceptionProperty.unbind();
         this.exceptionProperty.set(null);
+
+        this.currentTask = null;
+        this.isPlotting.set(false);
+        this.isExporting.set(false);
     }
 
     public String getCurrentTaskStatus(){

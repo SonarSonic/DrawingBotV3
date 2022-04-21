@@ -3,7 +3,6 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.pfm.AbstractSketchPFM;
-import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.DBTask;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.GenericSetting;
@@ -43,7 +42,6 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     public PlottingTools tools;
 
     // RENDERING \\\
-
     public boolean isSubTask = false;
 
     // SPECIAL \\
@@ -190,6 +188,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     }
 
     public void stopElegantly(){
+        subTasks.forEach(PFMTask::stopElegantly);
         DrawingBotV3.logger.info(stage.toString());
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
@@ -240,6 +239,8 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     }
 
     public void reset(){
+        subTasks.forEach(PFMTask::reset);
+        subTasks = null;
         pfmFactory = null;
         //drawing.reset();
 
@@ -290,17 +291,90 @@ public class PFMTask extends DBTask<PlottedDrawing> {
         return true;
     }
 
-    //// CUSTOM RENDERING \\\\
+    //// TASK HIERARCHY \\\\
 
-    public boolean handlesProcessRendering(){
-        return false;
+    public PFMTask hostTask;
+
+    public PFMTask getHostTask() {
+        return hostTask;
     }
 
-    public void renderProcessing(JavaFXRenderer renderer, PFMTask renderedTask){
-        //NOP
+    public void setHostTask(PFMTask hostTask) {
+        this.hostTask = hostTask;
     }
 
-    public void clearProcessingRender(JavaFXRenderer renderer, PFMTask renderedTask){
-        //NOP
+    public boolean isSubTask() {
+        return isSubTask;
+    }
+
+    //// RENDERING \\\\
+
+    private WrappedGeometryIterator iterator;
+    private List<PFMTask> subTasks = new ArrayList<>();
+    private List<PlottedDrawing> subDrawings = new ArrayList<>();
+
+    /**
+     * @return the geometry iterator which should be used when rendering this task, before the drawing is complete
+     */
+    public WrappedGeometryIterator getTaskGeometryIterator(){
+        if(iterator == null){
+            iterator = new WrappedGeometryIterator();
+            iterator.addIterator(drawing, new AsynchronousGeometryIterator(drawing));
+        }
+        return iterator;
+    }
+
+    public List<PFMTask> getSubTasks() {
+        return subTasks;
+    }
+
+    public List<PlottedDrawing> getSubDrawings() {
+        return subDrawings;
+    }
+
+    public void addSubTask(PFMTask task){
+        subTasks.add(task);
+        addSubDrawing(task.drawing);
+    }
+
+    public void removeSubTask(PFMTask task){
+        subTasks.remove(task);
+        removeSubDrawing(task.drawing);
+    }
+
+    public void addSubDrawing(PlottedDrawing drawing){
+        if(hostTask != null){
+            hostTask.addSubDrawing(drawing);
+        }else{
+            getTaskGeometryIterator().addIterator(drawing, new AsynchronousGeometryIterator(drawing));
+            subDrawings.add(drawing);
+        }
+    }
+
+    public void removeSubDrawing(PlottedDrawing drawing){
+        if(hostTask != null){
+            hostTask.removeSubDrawing(drawing);
+        }else{
+            getTaskGeometryIterator().removeIterator(drawing);
+            subDrawings.add(drawing);
+        }
+    }
+
+    public void resetDrawingIterator(PlottedDrawing drawing){
+        if(hostTask != null){
+            hostTask.resetDrawingIterator(drawing);
+        }else{
+            getTaskGeometryIterator().resetIterator(drawing);
+            subDrawings.add(drawing);
+        }
+    }
+
+    public void resetIterator(){
+        if(hostTask != null){
+            hostTask.resetIterator();
+        }else{
+            getTaskGeometryIterator().reset();
+            subDrawings.add(drawing);
+        }
     }
 }

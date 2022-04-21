@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlottedDrawing {
 
@@ -39,15 +40,15 @@ public class PlottedDrawing {
         this.canvas = copyCanvas ? new SimpleCanvas(canvas) : canvas;
         this.drawingSets = drawingSets;
         this.geometries = Collections.synchronizedList(new ArrayList<>());
-        this.groups = Collections.synchronizedMap(new HashMap<>());
-        this.metadataMap = Collections.synchronizedMap(new HashMap<>());
+        this.groups = new ConcurrentHashMap<>();
+        this.metadataMap = new ConcurrentHashMap<>();
     }
 
     /**
      * Copies the base groups of the plotted drawing only
      */
     public void copyBase(PlottedDrawing reference){
-        metadataMap = Collections.synchronizedMap(reference.metadataMap);
+        metadataMap = new ConcurrentHashMap<>(reference.metadataMap);
         for(PlottedGroup group : reference.groups.values()){
             PlottedGroup newGroup = new PlottedGroup(group);
             addPlottedGroup(newGroup);

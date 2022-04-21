@@ -504,7 +504,7 @@ public class DrawingBotV3 implements IDrawingManager {
 
     @Override
     public void clearDrawingRender(){
-        onDrawingCleared();
+        Platform.runLater(this::onDrawingCleared);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
