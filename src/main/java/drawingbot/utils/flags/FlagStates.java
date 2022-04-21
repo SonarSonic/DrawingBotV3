@@ -20,6 +20,9 @@ public class FlagStates {
     public <T> void setFlag(Flags.Flag<T> flag, T value){
         assert flag.type.isInstance(value);
         STATE_MAP.put(flag, value);
+
+        toClear.remove(flag);
+        toReset.remove(flag);
     }
 
     public <T> T getFlag(Flags.Flag<T> flag){

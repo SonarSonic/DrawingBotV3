@@ -4,12 +4,15 @@ import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingStyle;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class DrawingStyle implements IDrawingStyle {
 
@@ -42,6 +45,12 @@ public class DrawingStyle implements IDrawingStyle {
         this.drawingSetSlot = drawingSetSlot;
         this.maskColor = maskColor;
         this.argb = ImageTools.getARGBFromColor(maskColor);
+    }
+
+    public List<GenericSetting<?, ?>> getNewPFMSettingsList(){
+        List<GenericSetting<?, ?>> settingsList = MasterRegistry.INSTANCE.getNewPFMSettingsList(getFactory());
+        GenericSetting.applySettings(settings, settingsList);
+        return settingsList;
     }
 
     @Override

@@ -16,6 +16,7 @@ import org.imgscalr.Scalr;
 import org.jetbrains.annotations.Nullable;
 import org.locationtech.jts.awt.ShapeReader;
 
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -79,21 +80,23 @@ public class PFMTaskImage extends PFMTask {
             updateMessage("Pre-Processing - Resize");
             imgPlotting = Scalr.resize(imgPlotting, Scalr.Method.ULTRA_QUALITY, (int)(imgPlotting.getWidth() * pfm().getPlottingResolution()), (int)(imgPlotting.getHeight()* pfm().getPlottingResolution()));
         }
-        imgPlotting = pfm().preFilter(imgPlotting);
 
         DrawingBotV3.logger.fine("Creating Pixel Data");
-        pixelDataReference = ImageTools.newPixelData(imgPlotting.getWidth(), imgPlotting.getHeight(), pfm().getColourMode());
-        pixelDataPlotting = ImageTools.newPixelData(imgPlotting.getWidth(), imgPlotting.getHeight(), pfm().getColourMode());
+        pixelDataReference = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
+        pixelDataPlotting = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
         pixelDataPlotting.setTransparentARGB(pfm().getTransparentARGB());
 
-        DrawingBotV3.logger.fine("Setting Pixel Data");
+        DrawingBotV3.logger.fine("Creating Reference Image");
         ImageTools.copyToPixelData(imgPlotting, pixelDataReference);
-        ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
-
-        tools.setClippingShape(tools.getClippingShape() != null ? tools.getClippingShape() : ShapeReader.read(new Rectangle2D.Double(0, -imgPlotting.getHeight(), imgPlotting.getWidth(), imgPlotting.getHeight()), 6F, GeometryUtils.factory));
-
         this.drawing.setMetadata(Register.INSTANCE.REFERENCE_IMAGE, imgPlotting);
+
+        DrawingBotV3.logger.fine("Creating Plotting Image");
+        imgPlotting = pfm().preFilter(imgPlotting);
+        ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
         this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, imgPlotting);
+
+        tools.setClippingShape(tools.getClippingShape() != null ? tools.getClippingShape() : new Rectangle(0, 0, imgPlotting.getWidth(), imgPlotting.getHeight()));
+
     }
 
     @Override

@@ -78,7 +78,7 @@ public class JsonLoaderManager {
 
     public static void loadJSONFiles(){
 
-        //load default presets TODO FIX DEFAULTS / FIX LOADING JSON WITH OLD NAMES!!!
+        //load default presets TODO FIX DEFAULTS / FIX LOADING JSON WITH OLD NAMES!!! -TODO AUTOMATE THIS
         loadDefaultPresetContainerJSON("pre_processing_defaults.json");
         loadDefaultPresetContainerJSON("sketch_pfm_defaults.json");
         loadDefaultPresetContainerJSON("square_pfm_defaults.json");
@@ -92,6 +92,7 @@ public class JsonLoaderManager {
         loadDefaultPresetContainerJSON("vpype_settings_defaults.json");
         loadDefaultPresetContainerJSON("hpgl_settings_defaults.json");
         loadDefaultPresetContainerJSON("serial_port_defaults.json");
+        loadDefaultPresetContainerJSON("adaptive_pfm_defaults.json");
 
         //load user presets
         for(AbstractJsonLoader<?> manager : MasterRegistry.INSTANCE.presetLoaders){

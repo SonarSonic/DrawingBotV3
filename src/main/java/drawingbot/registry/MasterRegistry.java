@@ -161,9 +161,24 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){
-        ObservableList<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), FXCollections.observableArrayList());
-        GenericSetting.applySettings(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList, list);
-        return list;
+        ObservableList<GenericSetting<?, ?>> newList = FXCollections.observableArrayList();
+        createSettingsList(factory, newList);
+        return newList;
+    }
+
+    public List<GenericSetting<?, ?>> getNewPFMSettingsList(PFMFactory<?> factory){
+        ArrayList<GenericSetting<?, ?>> newList = new ArrayList<>();
+        createSettingsList(factory, newList);
+        return newList;
+    }
+
+    public void createSettingsList(PFMFactory<?> factory, List<GenericSetting<?, ?>> dst){
+        List<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), dst);
+        GenericSetting.resetSettings(list);
+        GenericPreset<PresetPFMSettings> preset = Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName());
+        if(preset != null){
+            GenericSetting.applySettings(preset.data.settingList, list);
+        }
     }
 
     public void sortPFMSettings(){

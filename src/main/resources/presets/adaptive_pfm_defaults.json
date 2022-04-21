@@ -1,0 +1,31 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Circular Scribbles",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Random Seed": "0",
+          "Stipple Min Radius": "1.0",
+          "Stipple Max Radius": "8.0",
+          "Merge TSP Paths": "true",
+          "Use Accurate TSP": "false",
+          "Min Radius": "2.0",
+          "Max Radius": "20.0",
+          "Min Velocity": "0.2",
+          "Max Velocity": "24.0",
+          "Angular Velocity": "240.0",
+          "Azimuth Angle Min": "70.0",
+          "Azimuth Angle Max": "90.0",
+          "Polar Angle Min": "70.0",
+          "Polar Angle Max": "90.0",
+          "Curve Tension": "0.5"
+        }
+      }
+    }
+  ]
+}
