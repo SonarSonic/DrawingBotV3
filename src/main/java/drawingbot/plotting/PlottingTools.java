@@ -1,6 +1,8 @@
 package drawingbot.plotting;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.geom.GeometryClipping;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -9,12 +11,12 @@ import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.UnitsLength;
-import org.locationtech.jts.geom.Geometry;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -29,13 +31,14 @@ public class PlottingTools implements IPlottingTools {
     public ColourSampleTest defaultColourTest;
     public AffineTransformStack transform;
     public int currentPen = 0;
+    public int currentFillType = -1;
 
     public int randomSeed = 0;
     public Random random;
     public AffineTransform plottingTransform;
 
     // CLIPPING \\
-    public Geometry clippingShape = null;
+    public Shape clippingShape = null;
 
     public PlottingTools(PlottedDrawing drawing) {
         this(drawing, drawing.getPlottedGroup(0));
@@ -71,11 +74,11 @@ public class PlottingTools implements IPlottingTools {
         return bresenham;
     }
 
-    public Geometry getClippingShape() {
+    public Shape getClippingShape() {
         return clippingShape;
     }
 
-    public void setClippingShape(Geometry clippingShape) {
+    public void setClippingShape(Shape clippingShape) {
         this.clippingShape = clippingShape;
     }
 
@@ -191,11 +194,39 @@ public class PlottingTools implements IPlottingTools {
     }
 
     @Override
+    public void addGeometry(IGeometry geometry, int penIndex, int rgba, int fillType) {
+        if(geometry.getFillType() == -1 && fillType != -1){
+            geometry.setFillType(fillType);
+        }
+        addGeometry(geometry, penIndex, rgba);
+    }
+
+    @Override
+    public void addGeometry(IGeometry geometry, int penIndex, int rgba){
+        if(geometry.getSampledRGBA() == -1 && rgba != -1){
+            geometry.setSampledRGBA(rgba);
+        }
+        addGeometry(geometry, penIndex);
+    }
+
+    @Override
+    public void addGeometry(IGeometry geometry, int penIndex) {
+        if(geometry.getPenIndex() == -1 && penIndex != -1){
+            geometry.setPenIndex(penIndex);
+        }
+        addGeometry(geometry);
+    }
+
+    @Override
     public void addGeometry(IGeometry geometry) {
         geometry = geometry.transformGeometry(transform);
 
         if(geometry.getPenIndex() == -1){
             geometry.setPenIndex(currentPen);
+        }
+
+        if(geometry.getFillType() == -1){
+            geometry.setFillType(currentFillType);
         }
 
         geometry.setPFMPenIndex(geometry.getPenIndex()); //store the pfm pen index for later reference
@@ -206,18 +237,14 @@ public class PlottingTools implements IPlottingTools {
             geometry = geometry.transformGeometry(plottingTransform);
         }
 
-        getPlottedDrawing().addGeometry(geometry);
-    }
 
-    @Override
-    public void addGeometry(IGeometry geometry, int penIndex, int rgba){
-        if(geometry.getSampledRGBA() == -1 && rgba != -1){
-            geometry.setSampledRGBA(rgba);
+        if(clippingShape != null && GeometryClipping.shouldClip(clippingShape, geometry)){
+            List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry);
+            geometries.forEach(g -> getPlottedDrawing().addGeometry(g));
+        }else{
+            getPlottedDrawing().addGeometry(geometry);
         }
-        if(geometry.getPenIndex() == -1 && penIndex != -1){
-            geometry.setPenIndex(penIndex);
-        }
-        addGeometry(geometry);
+
     }
 
     @Override
@@ -341,6 +368,47 @@ public class PlottingTools implements IPlottingTools {
 
     ////////////////////////////////////////////////////////
 
+    //// GEOMETRY ATTRIBUTES \\\\
+    public List<GeometryAttributes> attribList = new ArrayList<>();
+
+    public static class GeometryAttributes {
+        public Integer penIndex = null;
+        public Integer groupID = null;
+        public Integer fillType = null;
+        public Float curveTension = null;
+
+        public void onPush(PlottingTools tools){
+            penIndex = tools.getCurrentPen();
+            groupID = tools.currentGroup.getGroupID();
+            fillType = tools.getCurrentFillType();
+            curveTension = tools.getCurveTension();
+        }
+
+        public void onPop(PlottingTools tools){
+            if(penIndex != null) tools.setCurrentPen(penIndex);
+            if(groupID != null)  tools.currentGroup = tools.drawing.getPlottedGroup(groupID);
+            if(fillType != null)  tools.setCurrentFillType(fillType);
+            if(curveTension != null)  tools.setCurveTension(curveTension);
+        }
+    }
+
+    public void pushAttrib(){
+        GeometryAttributes attrib = new GeometryAttributes();
+        attrib.onPush(this);
+        attribList.add(attrib);
+    }
+
+    public void popAttrib(){
+        if(attribList.isEmpty()){
+            DrawingBotV3.logger.warning("Unable to Pop Geometry Attributes");
+        }else{
+            GeometryAttributes attrib = attribList.remove(attribList.size()-1);
+            attrib.onPop(this);
+        }
+    }
+
+    ////////////////////////////////////////////////////////
+
     //// PEN TOOLS \\\\
 
     @Override
@@ -384,6 +452,19 @@ public class PlottingTools implements IPlottingTools {
         currentGroup.needsDistribution = needsDistribution;
     }
 
+    ////////////////////////////////////////////////////////
+
+    //// FILL TOOLS \\\\
+
+    @Override
+    public int getCurrentFillType() {
+        return currentFillType;
+    }
+
+    @Override
+    public void setCurrentFillType(int fillType) {
+        currentFillType = fillType;
+    }
 
     ////////////////////////////////////////////////////////
 

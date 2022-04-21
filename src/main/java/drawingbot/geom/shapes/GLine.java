@@ -40,6 +40,7 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
+    public int fillType = -1;
 
     @Override
     public int getVertexCount() {
@@ -77,6 +78,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
+    public int getFillType(){
+        return fillType;
+    }
+
+    @Override
     public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
@@ -99,6 +105,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     @Override
     public void setGroupID(int groupID) {
         this.groupID = groupID;
+    }
+
+    @Override
+    public void setFillType(int fillType) {
+        this.fillType = fillType;
     }
 
     @Override

@@ -105,9 +105,13 @@ public interface IPlottingTools {
         addGeometry(createShape(shape));
     }
 
-    void addGeometry(IGeometry geometry);
+    void addGeometry(IGeometry geometry, int penIndex, int rgba, int fillType);
 
     void addGeometry(IGeometry geometry, int penIndex, int rgba);
+
+    void addGeometry(IGeometry geometry, int penIndex);
+
+    void addGeometry(IGeometry geometry);
 
     IGeometry getLastGeometry();
 
@@ -163,6 +167,14 @@ public interface IPlottingTools {
 
     ////////////////////////////////////////////////////////
 
+    //// GEOMETRY ATTRIBUTES \\\\
+
+    void pushAttrib();
+
+    void popAttrib();
+
+    ////////////////////////////////////////////////////////
+
     //// PEN TOOLS \\\\
 
     IDrawingSet<?> getCurrentDrawingSet();
@@ -182,6 +194,14 @@ public interface IPlottingTools {
     void setGroupDistributionType(EnumDistributionType distributionType);
 
     void setGroupNeedsDistribution(boolean needsDistribution);
+
+    ////////////////////////////////////////////////////////
+
+    //// FILL TOOLS \\\\
+
+    int getCurrentFillType();
+
+    void setCurrentFillType(int fillType);
 
     ////////////////////////////////////////////////////////
 
@@ -209,7 +229,7 @@ public interface IPlottingTools {
 
     default int randomInt(int origin, int bound){
         if(origin == bound){
-            return 0;
+            return origin;
         }
         if (origin >= bound) {
             return getRandom().nextInt(bound, origin);
@@ -227,7 +247,7 @@ public interface IPlottingTools {
 
     default long randomLong(long origin, long bound){
         if(origin == bound){
-            return 0L;
+            return origin;
         }
         if (origin >= bound) {
             return getRandom().nextLong(bound, origin);
@@ -245,7 +265,7 @@ public interface IPlottingTools {
 
     default float randomFloat(float origin, float bound){
         if(origin == bound){
-            return 0F;
+            return origin;
         }
         if (origin >= bound) {
             return getRandom().nextFloat(bound, origin);
@@ -263,7 +283,7 @@ public interface IPlottingTools {
 
     default double randomDouble(double origin, double bound){
         if(origin == bound){
-            return 0D;
+            return origin;
         }
         if (origin >= bound) {
             return getRandom().nextDouble(bound, origin);

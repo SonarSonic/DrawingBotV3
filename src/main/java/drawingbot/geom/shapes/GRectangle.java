@@ -26,6 +26,7 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
+    public int fillType = -1;
 
     @Override
     public int getVertexCount() {
@@ -63,6 +64,11 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     }
 
     @Override
+    public int getFillType(){
+        return fillType;
+    }
+
+    @Override
     public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
@@ -85,6 +91,11 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     @Override
     public void setGroupID(int groupID) {
         this.groupID = groupID;
+    }
+
+    @Override
+    public void setFillType(int fillType) {
+        this.fillType = fillType;
     }
 
     @Override

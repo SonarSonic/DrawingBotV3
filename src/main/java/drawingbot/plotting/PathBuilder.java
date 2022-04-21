@@ -5,20 +5,27 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /*
-* A path builder for use with a Plotting Task, allows for the creation of Catmull Rom Curves
+* A path builder allows for the creation of Catmull Rom Curves
  */
 public class PathBuilder {
 
-    public PlottingTools plottingTools;
     public GPath path = null;
     public boolean hasMoveTo = false;
-
     public int pathCount = 0;
 
+    public Consumer<GPath> pathConsumer = path -> {};
+
+    public PathBuilder(){}
+
+    public PathBuilder(Consumer<GPath> pathConsumer){
+        this.pathConsumer = pathConsumer;
+    }
+
     public PathBuilder(PlottingTools plottingTools){
-        this.plottingTools = plottingTools;
+        this.pathConsumer = plottingTools::addGeometry;
     }
 
     public void startPath(){
@@ -36,12 +43,14 @@ public class PathBuilder {
         }
     }
 
-    public void endPath(){
+    public GPath endPath(){
+        GPath result = path;
         if(path != null){
-            plottingTools.addGeometry(path);
+            pathConsumer.accept(path);
         }
         path = null;
         hasMoveTo = false;
+        return result;
     }
 
     public void moveTo(float x, float y) {
@@ -112,9 +121,9 @@ public class PathBuilder {
         }
     }
 
-    public void endCatmullCurve(){
+    public GPath endCatmullCurve(){
         if(catmullCurvePath == null){
-            return;
+            return null;
         }
         float[][] catmull = new float[4][2];
         float[][] bezier = new float[4][2];
@@ -145,7 +154,7 @@ public class PathBuilder {
         }
 
         catmullCurvePath = null;
-        endPath();
+        return endPath();
     }
 
     public void addCatmullCurveVertex(float x, float y){

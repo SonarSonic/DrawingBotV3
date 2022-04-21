@@ -14,6 +14,10 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
 
     public GCubicCurve(){}
 
+    public GCubicCurve(float[] coords) {
+        setCurve(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7]);
+    }
+
     public GCubicCurve(float[] p0, float[] p1, float[] p2, float[] p3) {
         setCurve(p0[0], p0[1], p1[0], p1[1], p2[0], p2[1], p3[0], p3[1]);
     }
@@ -27,12 +31,31 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
         setCurve(x1, y1, ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, x2, y2);
     }
 
+    public GCubicCurve(GQuadCurve curve){
+        float ctrlx1 = (curve.x1 + 2 * curve.ctrlx) / 3;
+        float ctrly1 = (curve.y1 + 2 * curve.ctrly) / 3;
+
+        float ctrlx2 = (curve.x2 + 2 * curve.ctrlx) / 3;
+        float ctrly2 = (curve.y2 + 2 * curve.ctrly) / 3;
+        setCurve(curve.x1, curve.y1, ctrlx1, ctrly1, ctrlx2, ctrly2, curve.x2, curve.y2);
+        GeometryUtils.copyGeometryData(this, curve);
+    }
+
+    public GCubicCurve(GLine line){
+        setCurve(line.x1, line.y1, line.x1, line.y1, line.x2, line.y2, line.x2, line.y2);
+        GeometryUtils.copyGeometryData(this, line);
+    }
+
     @Override
     public void addToPath(boolean addMove, GPath path) {
         if(addMove){
             path.moveTo(x1, y1);
         }
         path.curveTo(ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2);
+    }
+
+    public float[] toFloatArray(){
+        return new float[]{x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2};
     }
 
     //// IGeometry \\\\
@@ -42,6 +65,7 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
+    public int fillType = -1;
 
     @Override
     public int getVertexCount() {
@@ -79,6 +103,11 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     }
 
     @Override
+    public int getFillType(){
+        return fillType;
+    }
+
+    @Override
     public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
@@ -101,6 +130,11 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     @Override
     public void setGroupID(int groupID) {
         this.groupID = groupID;
+    }
+
+    @Override
+    public void setFillType(int fillType) {
+        this.fillType = fillType;
     }
 
     @Override

@@ -75,8 +75,10 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
     public int penIndex = -1;
     public int sampledRGBA = -1; //TODO CHECK, -1 is a valid RGBA value though???
     public int groupID = -1;
+    public int fillType = -1;
 
     public int segmentCount = -1;
+
 
     @Override
     public int getVertexCount() {
@@ -112,6 +114,11 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
+    public int getFillType(){
+        return fillType;
+    }
+
+    @Override
     public int getGroupID() {
         return groupID;
     }
@@ -143,8 +150,16 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
+    public void setFillType(int fillType) {
+        this.fillType = fillType;
+    }
+
+    @Override
     public void renderFX(GraphicsContext graphics) {
         RenderUtils.renderAWTShapeToFX(graphics, getAWTShape());
+        if(fillType == 0){
+            graphics.fill();
+        }
     }
 
     @Override
@@ -194,6 +209,7 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
     public void markPathDirty(){
         segmentCount = -1;
     }
+
 
     public static void move(GPath path, float[] coords, int type){
         switch (type){

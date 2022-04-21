@@ -36,6 +36,7 @@ public class GShape implements IGeometry {
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
+    public int fillType = -1;
 
     @Override
     public Shape getAWTShape() {
@@ -68,6 +69,11 @@ public class GShape implements IGeometry {
     }
 
     @Override
+    public int getFillType(){
+        return fillType;
+    }
+
+    @Override
     public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
@@ -93,8 +99,16 @@ public class GShape implements IGeometry {
     }
 
     @Override
+    public void setFillType(int fillType) {
+        this.fillType = fillType;
+    }
+
+    @Override
     public void renderFX(GraphicsContext graphics) {
         RenderUtils.renderAWTShapeToFX(graphics, shape);
+        if(fillType == 0){
+            graphics.fill();
+        }
     }
 
     @Override

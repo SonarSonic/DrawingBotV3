@@ -328,6 +328,7 @@ public class GeometryUtils {
         copy.setPenIndex(reference.getPenIndex());
         copy.setSampledRGBA(reference.getSampledRGBA());
         copy.setGroupID(reference.getGroupID());
+        copy.setFillType(reference.getFillType());
         return copy;
     }
 

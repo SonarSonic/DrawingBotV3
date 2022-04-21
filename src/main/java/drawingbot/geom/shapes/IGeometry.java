@@ -38,6 +38,8 @@ public interface IGeometry {
      */
     int getSampledRGBA();
 
+    int getFillType();
+
     /**
      * @return the group id, geometries with the same group id are considered to be from the same section of the drawing
      * therefore when optimising the drawing, geometries with matching group ids, will be optimised together and not mixed with other groups
@@ -57,6 +59,8 @@ public interface IGeometry {
      */
     void setGroupID(int groupID);
 
+    void setFillType(int fillType);
+
     /**
      * Render the Geometry in JAVAFX, the {@link IGeometry} is only responsible for drawing the shape, the colour and stroke style are specified elsewhere
      */
@@ -67,6 +71,9 @@ public interface IGeometry {
      */
     default void renderAWT(Graphics2D graphics){
         graphics.draw(getAWTShape());
+        if(getFillType() == 0){
+            graphics.fill(getAWTShape());
+        }
     }
 
     /**

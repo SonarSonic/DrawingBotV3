@@ -26,6 +26,7 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     public int penIndex = -1;
     public int sampledRGBA = -1;
     public int groupID = -1;
+    public int fillType = -1;
 
     @Override
     public int getVertexCount() {
@@ -68,6 +69,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     }
 
     @Override
+    public int getFillType(){
+        return fillType;
+    }
+
+    @Override
     public void setGeometryIndex(int index) {
         geometryIndex = index;
     }
@@ -88,8 +94,16 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     }
 
     @Override
+    public void setFillType(int fillType) {
+        this.fillType = fillType;
+    }
+
+    @Override
     public void renderFX(GraphicsContext graphics) {
         graphics.strokeOval(x, y, width, height);
+        if(fillType == 0){
+            graphics.fillOval(x, y, width, height);
+        }
     }
 
     @Override
@@ -116,25 +130,5 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     @Override
     public IGeometry copyGeometry() {
         return GeometryUtils.copyGeometryData(new GEllipse(x, y, width, height), this);
-    }
-
-    public static class Filled extends GEllipse{
-        public Filled() {
-            super();
-        }
-
-        public Filled(float x, float y, float w, float h) {
-            super(x, y, w, h);
-        }
-
-        @Override
-        public void renderAWT(Graphics2D graphics) {
-            graphics.fill(getAWTShape());
-        }
-
-        @Override
-        public void renderFX(GraphicsContext graphics) {
-            graphics.fillOval(x, y, width, height);
-        }
     }
 }
