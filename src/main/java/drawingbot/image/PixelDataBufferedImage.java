@@ -2,26 +2,25 @@ package drawingbot.image;
 
 import drawingbot.utils.Utils;
 
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
 
-public class PixelDataBufferedImage extends PixelDataAbstract {
+public class PixelDataBufferedImage extends PixelDataAbstract implements ObservableWritableRaster.IPixelListener {
 
-    public BufferedImage image;
     public RawData data;
+    public BufferedImage image;
 
-    public PixelDataBufferedImage(BufferedImage image){
-        super(image.getWidth(), image.getHeight());
-        this.image = image;
+    public PixelDataBufferedImage(int width, int height){
+        super(width, height);
         this.data = new RawData(width, height);
-        this.loadData();
+        this.image = ObservableWritableRaster.createObservableBufferedImage(width, height, this);
     }
 
-    private void loadData(){
-        for(int x = 0; x < getWidth(); x++){
-            for(int y = 0; y < getHeight(); y++){
-                data.setData(x, y, ImageTools.getPerceivedLuminanceFromRGB(image.getRGB(x, y)));
-            }
-        }
+    @Override
+    public void onPixelChanged(int x, int y) {
+        int argb = image.getRGB(x, y);
+
+        data.setData(x, y, ImageTools.alpha(argb) == 0 ? 255 : ImageTools.getPerceivedLuminanceFromRGB(ImageTools.red(argb), ImageTools.green(argb), ImageTools.blue(argb)));
     }
 
     @Override
@@ -32,18 +31,27 @@ public class PixelDataBufferedImage extends PixelDataAbstract {
     @Override
     public void setARGB(int x, int y, int argb) {
         image.setRGB(x, y, argb);
-        data.setData(x, y, ImageTools.getPerceivedLuminanceFromRGB(argb));
     }
 
     @Override
     public void setARGB(int x, int y, int a, int r, int g, int b) {
         image.setRGB(x, y, ImageTools.getARGB(a, r, g, b));
-        data.setData(x, y, ImageTools.getPerceivedLuminanceFromRGB(r, g, b));
     }
 
     @Override
     public int getChannel(int channel, int x, int y) {
-        return image.getRGB(x, y);
+        int argb = image.getRGB(x, y);
+        switch (channel){
+            case 0:
+                return ImageTools.alpha(argb);
+            case 1:
+                return ImageTools.red(argb);
+            case 2:
+                return ImageTools.green(argb);
+            case 3:
+                return ImageTools.blue(argb);
+        }
+        return 0;
     }
 
     @Override
@@ -111,20 +119,23 @@ public class PixelDataBufferedImage extends PixelDataAbstract {
         return 0; //TODO
     }
 
+
     @Override
     public int getLuminance(int x, int y) {
         return data.getData(x, y);
     }
 
+    /*
     @Override
     public void setLuminance(int x, int y, int luminance) {
-        //TODO
+        setARGB(x, y, getAlpha(x, y), luminance, luminance, luminance);
     }
 
     @Override
     public void adjustLuminance(int x, int y, int luminance) {
-        //TODO
+        setARGB(x, y, getAlpha(x, y), luminance, luminance, luminance);
     }
+    */
 
     @Override
     public double getAverageLuminance() {

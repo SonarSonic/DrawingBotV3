@@ -247,6 +247,7 @@ public class ImageTools {
 
     /// IMAGE CONVERSION
 
+    @Deprecated
     public static IPixelData newPixelData(int width, int height, int colourMode){
         switch (colourMode){
             case 1:
@@ -258,7 +259,7 @@ public class ImageTools {
             case 4:
                 return new PixelDataHybrid(width, height);
             case 5:
-                return new PixelDataBufferedImage(new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
+                return new PixelDataBufferedImage(width, height);
             default:
                 return new PixelDataARGB(width, height);
         }

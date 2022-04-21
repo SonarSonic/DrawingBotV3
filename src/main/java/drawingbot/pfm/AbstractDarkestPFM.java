@@ -3,6 +3,7 @@ package drawingbot.pfm;
 import drawingbot.api.*;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
+import drawingbot.image.PixelDataARGBY;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
 import drawingbot.pfm.helpers.LuminanceTestLine;
@@ -18,8 +19,8 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     protected static int sampleHeight = 10;
 
     @Override
-    public int getColourMode() {
-        return 3;
+    public IPixelData createPixelData(int width, int height) {
+        return new PixelDataARGBY(width, height);
     }
 
     @Override

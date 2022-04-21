@@ -1,6 +1,8 @@
 package drawingbot.pfm;
 
+import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.GLine;
+import drawingbot.image.PixelDataLuminance;
 import drawingbot.utils.Utils;
 
 import java.awt.geom.Point2D;
@@ -26,9 +28,10 @@ public class PFMSpiral extends AbstractPFMImage {
     public double centreYScale = 0.5;
     public double fillPercentage = 1.0;
 
+
     @Override
-    public int getColourMode() {
-        return 2;
+    public IPixelData createPixelData(int width, int height) {
+        return new PixelDataLuminance(width, height);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////

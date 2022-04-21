@@ -1,11 +1,19 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPFMImage;
+import drawingbot.api.IPixelData;
+import drawingbot.image.PixelDataARGB;
+import drawingbot.image.PixelDataARGBY;
 import drawingbot.utils.Utils;
 
 public abstract class AbstractPFMImage extends AbstractPFM implements IPFMImage {
 
     public int transparentARGB = -1;
+
+    @Override
+    public IPixelData createPixelData(int width, int height) {
+        return new PixelDataARGBY(width, height);
+    }
 
     @Override
     public int getTransparentARGB() {

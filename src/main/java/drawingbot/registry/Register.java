@@ -320,10 +320,10 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.COLOURS, InvertFilter.class, "Invert", InvertFilter::new, false);
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.COLOURS, LevelsFilter.class, "Levels", LevelsFilter::new, false);
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "Low Level", 1F, 0, 1F, (filter, value) -> filter.setLowLevel(Math.min(value, filter.getHighLevel()))));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "Low Level", 0F, 0, 1F, (filter, value) -> filter.setLowLevel(Math.min(value, filter.getHighLevel()))));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "High Level", 1F, 0, 1F, (filter, value) -> filter.setHighLevel(Math.max(value, filter.getLowLevel()))));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "Low Output Level", 1F, 0, 1F, (filter, value) -> filter.setLowOutputLevel(Math.min(value, filter.getHighOutputLevel()))));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "Low Output Level", 1F, 0, 1F, (filter, value) -> filter.setHighOutputLevel(Math.max(value, filter.getLowOutputLevel()))));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "Low Output Level", 0F, 0, 1F, (filter, value) -> filter.setLowOutputLevel(Math.min(value, filter.getHighOutputLevel()))));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(LevelsFilter.class, "High Output Level", 1F, 0, 1F, (filter, value) -> filter.setHighOutputLevel(Math.max(value, filter.getLowOutputLevel()))));
 
         /// MISSING: LOOKUP
 
