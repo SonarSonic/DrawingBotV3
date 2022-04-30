@@ -104,7 +104,7 @@
             <Separator layoutX="10.0" layoutY="419.0" prefWidth="380.0" />
             <TitledPane contentDisplay="RIGHT" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" prefWidth="380.0" text="Drawing Set Slots" VBox.vgrow="ALWAYS">
                 <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="240.0" prefWidth="378.0">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="280.0" prefWidth="378.0">
                         <children>
                             <VBox maxWidth="1.7976931348623157E308">
                                 <children>
