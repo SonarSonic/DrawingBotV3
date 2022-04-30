@@ -209,11 +209,11 @@ public class Utils {
     }
 
     public static double distance(int x1, int y1, int x2, int y2){
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        return Math.sqrt(((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1)));
     }
 
     public static double distance(float x1, float y1, float x2, float y2){
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        return Math.sqrt(((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1)));
     }
 
     public enum OS {

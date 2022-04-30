@@ -16,7 +16,6 @@ import drawingbot.pfm.PFMSettings;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.DBConstants;
-import drawingbot.utils.EnumDistributionType;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;

@@ -1,20 +1,9 @@
 package drawingbot.files.json.presets;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.files.exporters.GCodeBuilder;
-import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.json.AbstractPresetLoader;
-import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.GenericSetting;
-import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.registry.Register;
-import drawingbot.utils.EnumScalingMode;
-import drawingbot.utils.UnitsLength;
-
-import java.util.List;
 
 public class PresetGCodeSettingsLoader extends AbstractPresetLoader<PresetGCodeSettings> {
 

@@ -3,7 +3,6 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IPFMImage;
 import drawingbot.api.IPixelData;
-import drawingbot.geom.GeometryUtils;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.FilteredBufferedImage;
 import drawingbot.image.ImageTools;
@@ -14,10 +13,8 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.Register;
 import org.imgscalr.Scalr;
 import org.jetbrains.annotations.Nullable;
-import org.locationtech.jts.awt.ShapeReader;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
@@ -103,7 +100,9 @@ public class PFMTaskImage extends PFMTask {
     public void postProcessImages() {
         super.postProcessImages();
         updateMessage("Post-Processing - Converting Reference Images");
-        this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, ImageTools.getBufferedImage(pixelDataPlotting));
+        if(pixelDataPlotting != null){
+            this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, ImageTools.getBufferedImage(pixelDataPlotting));
+        }
     }
 
     @Override

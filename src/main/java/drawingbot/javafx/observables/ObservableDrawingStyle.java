@@ -1,7 +1,6 @@
 package drawingbot.javafx.observables;
 
 import com.google.gson.JsonElement;
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingStyle;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.javafx.GenericSetting;

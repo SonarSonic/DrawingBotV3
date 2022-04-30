@@ -12,6 +12,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
+import drawingbot.utils.EnumReleaseState;
 import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
@@ -68,15 +69,28 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Catmull-Roms PFM", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Shapes PFM", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sobel Edges PFM", DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Waves PFM", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Circular Scribbles", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.ALPHA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Shapes", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Triangulation", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Tree", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Stippling", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Diagram", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive TSP", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Circles", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Triangulation", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Tree", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Stippling", DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Dashes", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", DummyPFM::new, false, false).setPremium(true);
+
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", DummyPFM::new, false, false).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
     }
 
     public Object[] disableBatchProcessingUI(Object...objects){

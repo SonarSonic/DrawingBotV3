@@ -30,7 +30,6 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     /**
      * finds the darkest area of the image, according to sampleWidth/sampleHeight and returns the first darkest pixel in that area
      * @param pixels the pixel data to search

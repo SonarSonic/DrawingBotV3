@@ -1,6 +1,5 @@
 package drawingbot.integrations.vpype;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
 import javafx.concurrent.Task;
 

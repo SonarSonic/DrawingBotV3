@@ -23,8 +23,6 @@ import javafx.scene.paint.Color;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class FXDrawingArea {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();

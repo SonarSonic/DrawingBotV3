@@ -1,6 +1,5 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.image.ImageTools;

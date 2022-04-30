@@ -2,7 +2,6 @@ package drawingbot.image;
 
 import drawingbot.utils.Utils;
 
-import java.awt.*;
 import java.awt.image.*;
 
 public class PixelDataBufferedImage extends PixelDataAbstract implements ObservableWritableRaster.IPixelListener {

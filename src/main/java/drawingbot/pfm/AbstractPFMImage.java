@@ -2,7 +2,6 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPFMImage;
 import drawingbot.api.IPixelData;
-import drawingbot.image.PixelDataARGB;
 import drawingbot.image.PixelDataARGBY;
 import drawingbot.utils.Utils;
 

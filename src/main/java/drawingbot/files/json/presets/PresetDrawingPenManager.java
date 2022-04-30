@@ -2,7 +2,6 @@ package drawingbot.files.json.presets;
 
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.javafx.GenericPreset;
 

@@ -14,7 +14,6 @@ import drawingbot.registry.Register;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.EnumRotation;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

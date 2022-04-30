@@ -8,22 +8,256 @@
       "userCreated": false,
       "data": {
         "settingList": {
-          "Plotting Resolution": "1.0",
-          "Random Seed": "0",
-          "Stipple Min Radius": "1.0",
-          "Stipple Max Radius": "8.0",
-          "Merge TSP Paths": "true",
-          "Use Accurate TSP": "false",
-          "Min Radius": "2.0",
-          "Max Radius": "20.0",
+          "Angular Velocity": "1.0",
+          "Max Radius": "18.0",
           "Min Velocity": "0.2",
-          "Max Velocity": "24.0",
-          "Angular Velocity": "240.0",
-          "Azimuth Angle Min": "70.0",
-          "Azimuth Angle Max": "90.0",
-          "Polar Angle Min": "70.0",
-          "Polar Angle Max": "90.0",
-          "Curve Tension": "0.5"
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Min Radius": "2.0",
+          "Edge Threshold": "250.0",
+          "Azimuth Angle Min": "-45.0",
+          "Polar Angle Min": "0.0",
+          "Stipple Min Radius": "1.0",
+          "Use Accurate TSP": "false",
+          "Polar Angle Max": "45.0",
+          "Edge Retention": "true",
+          "Stipple Max Radius": "10.0",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "1.0",
+          "Max Velocity": "4.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Diagram",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "10.0",
+          "Ignore White": "false",
+          "Stipple Min Radius": "0.5",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Triangulation",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "15.0",
+          "Ignore White": "false",
+          "Stipple Min Radius": "0.5",
+          "Triangulate Corners": "false",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Stippling",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Size": "80.0",
+          "Stipple Max Radius": "8.0",
+          "Ignore White": "false",
+          "Stipple Min Radius": "0.5",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Dashes",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "12.0",
+          "Ignore White": "false",
+          "Fill Size": "100.0",
+          "Stipple Min Radius": "0.5",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Shapes",
+      "presetName": "Adaptive Circles",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "20.0",
+          "Ignore White": "false",
+          "Shape Type": "Circle",
+          "Fill Size": "100.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "1.0",
+          "Random Seed": "0",
+          "Max Rotation": "360.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Circular Scribbles",
+      "presetName": "Detailed Scribbles",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "1.0",
+          "Max Radius": "6.0",
+          "Min Velocity": "0.5",
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Min Radius": "2.5",
+          "Edge Threshold": "250.0",
+          "Azimuth Angle Min": "-45.0",
+          "Polar Angle Min": "0.0",
+          "Stipple Min Radius": "1.0",
+          "Use Accurate TSP": "false",
+          "Polar Angle Max": "45.0",
+          "Edge Retention": "false",
+          "Stipple Max Radius": "10.0",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "1.0",
+          "Max Velocity": "2.5",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Circular Scribbles",
+      "presetName": "Chiu Et Al - 4000px",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "1.0",
+          "Max Radius": "150.0",
+          "Min Velocity": "0.15",
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Min Radius": "8.0",
+          "Edge Threshold": "250.0",
+          "Azimuth Angle Min": "-45.0",
+          "Polar Angle Min": "0.0",
+          "Stipple Min Radius": "4.0",
+          "Polar Angle Max": "45.0",
+          "Edge Retention": "true",
+          "Stipple Max Radius": "30.0",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "1.0",
+          "Max Velocity": "14.0",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Circular Scribbles",
+      "presetName": "Chiu Et Al - 3000px",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "1.0",
+          "Max Radius": "98.0",
+          "Min Velocity": "0.11",
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Min Radius": "6.0",
+          "Edge Threshold": "250.0",
+          "Azimuth Angle Min": "-45.0",
+          "Polar Angle Min": "0.0",
+          "Stipple Min Radius": "3.0",
+          "Polar Angle Max": "45.0",
+          "Edge Retention": "true",
+          "Stipple Max Radius": "23.0",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "1.0",
+          "Max Velocity": "10.7",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Circular Scribbles",
+      "presetName": "Chiu Et Al - 2000px",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "1.0",
+          "Max Radius": "64.0",
+          "Min Velocity": "0.1",
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Min Radius": "4.0",
+          "Edge Threshold": "250.0",
+          "Azimuth Angle Min": "-45.0",
+          "Polar Angle Min": "0.0",
+          "Stipple Min Radius": "2.0",
+          "Polar Angle Max": "45.0",
+          "Edge Retention": "true",
+          "Stipple Max Radius": "15.0",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "1.0",
+          "Max Velocity": "7.0",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Circular Scribbles",
+      "presetName": "Chiu Et Al - 1000px",
+      "userCreated": true,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "1.0",
+          "Max Radius": "32.0",
+          "Min Velocity": "0.1",
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Min Radius": "2.0",
+          "Edge Threshold": "250.0",
+          "Azimuth Angle Min": "-45.0",
+          "Polar Angle Min": "0.0",
+          "Stipple Min Radius": "1.0",
+          "Polar Angle Max": "45.0",
+          "Edge Retention": "true",
+          "Stipple Max Radius": "7.5",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "1.0",
+          "Max Velocity": "3.5",
+          "Random Seed": "0"
         }
       }
     }

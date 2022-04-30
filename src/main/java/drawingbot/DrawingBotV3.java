@@ -338,28 +338,12 @@ public class DrawingBotV3 implements IDrawingManager {
         if(settings == null){
             settings = MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory);
         }
-
-        //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
-        if(!isSubTask){
-            Platform.runLater(() -> {
-                if(drawingPenSet.colourSeperator.get().isDefault()){
-                    if(pfmSettings.nextDistributionType.get() != null){
-                        drawingPenSet.distributionType.set(pfmSettings.nextDistributionType.get());
-                        pfmSettings.nextDistributionType.set(null);
-                    }
-                }else{
-                    drawingPenSet.distributionType.set(EnumDistributionType.getRecommendedType(drawingPenSet, pfmFactory));
-                }
-            });
-        }
-
         PFMTask task;
         if(!pfmFactory.isGenerativePFM()){
             task = new PFMTaskImage(this, drawing, pfmFactory, drawingPenSet, settings, imgFilterSettings, image, originalFile);
         }else{
             task = new PFMTask(this, drawing, pfmFactory, drawingPenSet, settings);
         }
-
         Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
         task = (PFMTask) hookReturn[0];
         task.isSubTask = isSubTask;
@@ -392,6 +376,10 @@ public class DrawingBotV3 implements IDrawingManager {
     public void resetPlotting(){
         resetTaskService();
         setActiveTask(null);
+        setCurrentDrawing(null);
+        setRenderedTask(null);
+        setRenderFlag(Flags.FORCE_REDRAW, true);
+        displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_IMAGE);
     }
 
     public void resetTaskService(){

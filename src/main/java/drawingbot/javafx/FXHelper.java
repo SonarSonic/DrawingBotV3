@@ -5,7 +5,6 @@ import drawingbot.FXApplication;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.*;
 import drawingbot.files.json.*;
-import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.DialogExportPreset;

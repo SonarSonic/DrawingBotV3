@@ -56,8 +56,9 @@ public interface IPlottingTools {
 
     BufferedImage getPlottingImage();
 
-
     File getImageFile();
+
+    boolean isToneMapping();
 
     ////////////////////////////////////////////////////////
 

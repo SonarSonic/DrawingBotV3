@@ -5,13 +5,9 @@ import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.GenericSetting;
 import javafx.beans.property.Property;
 import javafx.collections.ObservableList;
-
-import java.awt.image.BufferedImageOp;
 
 public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFilters> {
 

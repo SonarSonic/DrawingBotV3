@@ -8,6 +8,10 @@ public interface IPFM {
 
     void init(IPlottingTools tools);
 
+    default void onSettingsApplied(){
+
+    }
+
     /**
      * Called immediately after the {@link IPFM}'s settings have been set.
      * Used to check the given settings and apply any special options to the plotting task}

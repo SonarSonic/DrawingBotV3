@@ -1,14 +1,12 @@
 package drawingbot.drawing;
 
 import com.google.gson.JsonElement;
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingStyle;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
-import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;

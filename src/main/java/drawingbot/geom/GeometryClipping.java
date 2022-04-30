@@ -86,6 +86,13 @@ public class GeometryClipping {
                 splitCubicCurve(curve.toFloatArray(), outputLeft, outputRight, (float) (sample / samples));
                 GCubicCurve curveLeft = new GCubicCurve(outputLeft);
                 GCubicCurve curveRight = new GCubicCurve(outputRight);
+
+                //avoids rare rounding errors when the point exists exactly on the boundary of a shape, which could cause infinite loops
+                curveLeft.x2 = point[0];
+                curveLeft.y2 = point[1];
+                curveRight.x1 = point[0];
+                curveRight.y1 = point[1];
+
                 if (isInside) consumer.accept(curveLeft);
                 recursiveSplitCubicCurve(shape, curveRight, consumer);
                 return;

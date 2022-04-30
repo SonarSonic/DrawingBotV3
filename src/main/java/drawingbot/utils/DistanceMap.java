@@ -1,5 +1,7 @@
 package drawingbot.utils;
 
+import drawingbot.api.IProgressCallback;
+
 import java.util.List;
 
 public abstract class DistanceMap<O> {
@@ -7,14 +9,19 @@ public abstract class DistanceMap<O> {
     public List<O> objects;
     public float[][] distances;
 
-    public DistanceMap(List<O> objects){
+    public DistanceMap(List<O> objects, IProgressCallback callback){
         this.objects = objects;
         this.distances = new float[objects.size()][objects.size()];
-        for(int x = 0; x < objects.size(); x++){
-            O xObject = objects.get(x);
-            for(int y = 0; y < objects.size(); y++){
-                O yObject = objects.get(y);
-                distances[x][y] = calculate(xObject, yObject);
+
+        for(int i = 0; i < objects.size()-1; ++i) {
+            O p1 = objects.get(i);
+            for (int j = i + 1; j < objects.size(); ++j) {
+                O p2 = objects.get(j);
+                distances[i][j] = calculate(p1, p2);
+                distances[j][i] = distances[i][j];
+            }
+            if(callback != null){
+                callback.updateProgress(i, objects.size());
             }
         }
     }

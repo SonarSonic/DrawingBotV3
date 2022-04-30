@@ -1,7 +1,6 @@
 package drawingbot.plotting;
 
-import drawingbot.geom.shapes.GPath;
-import org.jetbrains.annotations.Nullable;
+import drawingbot.geom.shapes.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +15,16 @@ public class PathBuilder {
     public boolean hasMoveTo = false;
     public int pathCount = 0;
 
-    public Consumer<GPath> pathConsumer = path -> {};
+    public Consumer<IGeometry> consumer = path -> {};
 
     public PathBuilder(){}
 
-    public PathBuilder(Consumer<GPath> pathConsumer){
-        this.pathConsumer = pathConsumer;
+    public PathBuilder(Consumer<IGeometry> consumer){
+        this.consumer = consumer;
     }
 
     public PathBuilder(PlottingTools plottingTools){
-        this.pathConsumer = plottingTools::addGeometry;
+        this.consumer = plottingTools::addGeometry;
     }
 
     public void startPath(){
@@ -46,7 +45,7 @@ public class PathBuilder {
     public GPath endPath(){
         GPath result = path;
         if(path != null){
-            pathConsumer.accept(path);
+            consumer.accept(path);
         }
         path = null;
         hasMoveTo = false;
@@ -160,6 +159,50 @@ public class PathBuilder {
     public void addCatmullCurveVertex(float x, float y){
         checkCatmullCurve();
         catmullCurvePath.add(new float[]{x, y});
+    }
+
+    private float[] P0 = null, P1 = null, P2 = null;
+    public boolean buildingCurveSegments;
+
+    public void startSegments(){
+        P0 = P1 = P2 = null;
+        buildingCurveSegments = true;
+    }
+
+    public void addLineSegment(float x, float y){
+        float[] P3 = new float[]{x, y};
+        if (P2 != null) {
+            consumer.accept(new GLine(P2[0], P2[1], P3[0], P3[1]));
+        }
+        P0 = P1; P1 = P2; P2 = P3;
+    }
+
+    public void addQuadSegment(float ctrlX, float ctrlY, float x, float y){
+        float[] P3 = new float[]{x, y};
+        if (P2 != null) {
+            consumer.accept(new GQuadCurve(P2[0], P2[1], ctrlX, ctrlY, P3[0], P3[1]));
+        }
+        P0 = P1; P1 = P2; P2 = P3;
+    }
+
+    public void addCubicSegment(float ctrlX1, float ctrlY1, float ctrlX2, float ctrlY2, float x, float y){
+        float[] P3 = new float[]{x, y};
+        if (P2 != null) {
+            consumer.accept(new GCubicCurve(P2[0], P2[1], ctrlX1, ctrlY1, ctrlX2, ctrlY2, P3[0], P3[1]));
+        }
+        P0 = P1; P1 = P2; P2 = P3;
+    }
+
+    public void addCatmullCurveSegment(float x, float y, float tension){
+        float[] P3 = new float[]{x, y};
+        if (P0 != null) {
+            consumer.accept(new GCubicCurve(P0, P1, P2, P3, tension));
+        }
+        P0 = P1; P1 = P2; P2 = P3;
+    }
+
+    public void endSegments(){
+        buildingCurveSegments = false;
     }
 
     public int getCatmullCurvePointCount(){

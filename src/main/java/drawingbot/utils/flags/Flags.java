@@ -59,6 +59,7 @@ public class Flags {
 
         Flag(Class<T> type, String name, T resetValue, T clearValue){
             this.type = type;
+            this.name = name;
             this.resetValue = resetValue;
             this.clearValue = clearValue;
         }

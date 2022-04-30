@@ -1,6 +1,5 @@
 package drawingbot.files.json.presets;
 
-import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;

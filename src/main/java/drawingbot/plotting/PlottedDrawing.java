@@ -530,6 +530,11 @@ public class PlottedDrawing {
     }
 
     @Nullable
+    public BufferedImage getToneMap() {
+        return getMetadata(Register.INSTANCE.TONE_MAP);
+    }
+
+    @Nullable
     public File getOriginalFile() {
         return getMetadata(Register.INSTANCE.ORIGINAL_FILE);
     }

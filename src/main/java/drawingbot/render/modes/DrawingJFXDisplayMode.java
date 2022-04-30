@@ -44,6 +44,9 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
                     RenderUtils.renderDrawingFX(jfr.graphicsFX, iterator, getGeometryFilter(), jfr.getVertexRenderLimit());
                 }
+            }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED)){
+                jfr.clearCanvas();
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED);
             }
             return;
         }

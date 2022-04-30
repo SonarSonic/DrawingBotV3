@@ -3,7 +3,6 @@ package drawingbot.registry;
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Metadata;
 import drawingbot.files.json.presets.*;
@@ -81,6 +80,7 @@ public class Register implements IPlugin {
     public IDisplayMode DISPLAY_MODE_ORIGINAL;
     public IDisplayMode DISPLAY_MODE_REFERENCE;
     public IDisplayMode DISPLAY_MODE_LIGHTENED;
+    public IDisplayMode DISPLAY_MODE_TONE_MAP;
     public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
 
     //// DRAWING METADATA \\\\
@@ -88,6 +88,8 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> ORIGINAL_IMAGE;
     public Metadata<BufferedImage> REFERENCE_IMAGE;
     public Metadata<BufferedImage> PLOTTING_IMAGE;
+    public Metadata<BufferedImage> TONE_MAP;
+    public Metadata<Object> TONE_MAPPING;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
@@ -146,12 +148,15 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_ORIGINAL = new ImageJFXDisplayMode.Original());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_REFERENCE = new ImageJFXDisplayMode.Reference());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new ImageJFXDisplayMode.Lightened());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new ImageJFXDisplayMode.ToneMap());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
 
         MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, true));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, true));
     }
 
     @Override
@@ -165,8 +170,8 @@ public class Register implements IPlugin {
     @Override
     public void registerPFMSettings(){
         //// GENERAL \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Plotting Resolution", 1.0F, 0.1F, 10.0F, (pfm, value) -> pfm.pfmResolution = value).setSafeRange(0.1F, 1.0F).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, (pfm, value) -> pfm.tools.setRandomSeed(value)));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Plotting Resolution", 1.0F, 0.1F, 10.0F, (pfm, value) -> pfm.pfmResolution = value).setSafeRange(0.1F, 1.0F).setRandomiseExclude(true).setToneMappingExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, (pfm, value) -> pfm.tools.setRandomSeed(value)).setToneMappingExclude(true));
 
         //// SKETCH LINES \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Min", -72, -360, 360, (pfm, value) -> pfm.startAngleMin = value));

@@ -1,9 +1,7 @@
 package drawingbot.files.exporters;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyUtil;
-import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;

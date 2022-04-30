@@ -4,8 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetLoader;
-import drawingbot.files.json.AbstractPresetManager;
-import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;

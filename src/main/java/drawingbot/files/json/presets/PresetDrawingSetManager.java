@@ -2,7 +2,6 @@ package drawingbot.files.json.presets;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;

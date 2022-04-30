@@ -9,6 +9,7 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.AbstractDarkestPFM;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
+import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.UnitsLength;
 
@@ -159,6 +160,11 @@ public class PlottingTools implements IPlottingTools {
     }
 
     @Override
+    public boolean isToneMapping() {
+        return drawing.getMetadata(Register.INSTANCE.TONE_MAPPING) != null;
+    }
+
+    @Override
     public GLine createLine(float x1, float y1, float x2, float y2) {
         return new GLine(x1, y1, x2, y2);
     }
@@ -219,6 +225,8 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public void addGeometry(IGeometry geometry) {
+
+
         geometry = geometry.transformGeometry(transform);
 
         if(geometry.getPenIndex() == -1){
@@ -232,18 +240,24 @@ public class PlottingTools implements IPlottingTools {
         geometry.setPFMPenIndex(geometry.getPenIndex()); //store the pfm pen index for later reference
         geometry.setGroupID(currentGroup.getGroupID());
 
-        //transform geometry back to the images size
-        if(plottingTransform != null){
-            geometry = geometry.transformGeometry(plottingTransform);
-        }
-
 
         if(clippingShape != null && GeometryClipping.shouldClip(clippingShape, geometry)){
             List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry);
-            geometries.forEach(g -> getPlottedDrawing().addGeometry(g));
+            geometries.forEach(g -> {
+                //transform geometry back to the images size
+                if(plottingTransform != null){
+                    g = g.transformGeometry(plottingTransform);
+                }
+                getPlottedDrawing().addGeometry(g);
+            });
         }else{
+            //transform geometry back to the images size
+            if(plottingTransform != null){
+                geometry = geometry.transformGeometry(plottingTransform);
+            }
             getPlottedDrawing().addGeometry(geometry);
         }
+
 
     }
 

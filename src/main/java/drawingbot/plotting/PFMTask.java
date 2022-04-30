@@ -7,6 +7,7 @@ import drawingbot.utils.DBTask;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
@@ -84,6 +85,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 DrawingBotV3.logger.fine("PFM - Apply Settings");
                 GenericSetting.applySettingsToInstance(pfmSettings, pfm);
                 onPFMSettingsApplied(pfmSettings, pfm);
+                pfm.onSettingsApplied();
 
                 preProcessImages();
 
@@ -207,6 +209,18 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 drawingManager.setActiveTask(this);
                 drawingManager.setRenderedTask(null);
                 drawingManager.setCurrentDrawing(null);
+
+                //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
+                if(drawingManager instanceof DrawingBotV3){
+                    if(refPenSet.colourSeperator.get().isDefault()){
+                        if(DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.get() != null){
+                            refPenSet.distributionType.set(DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.get());
+                            DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.set(null);
+                        }
+                    }else{
+                        refPenSet.distributionType.set(EnumDistributionType.getRecommendedType(refPenSet, pfmFactory));
+                    }
+                }
             });
         }
         while(!isTaskFinished() && !isCancelled()){

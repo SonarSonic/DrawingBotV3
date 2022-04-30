@@ -71,17 +71,16 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         }
     }
 
-    public static class Original extends ImageJFXDisplayMode{
+    public abstract static class GenericImage extends ImageJFXDisplayMode{
 
         @Override
         public void preRender(JavaFXRenderer jfr) {
             super.preRender(jfr);
 
             //setup the canvas
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
-            if(drawing != null && drawing.getOriginalImage() != null){
-                BufferedImage originalImage = drawing.getOriginalImage();
-                jfr.setupCanvasSize(originalImage.getWidth(), originalImage.getHeight());
+            BufferedImage image = getImage();
+            if(image != null){
+                jfr.setupCanvasSize(image.getWidth(), image.getHeight());
             }else{
                 jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
             }
@@ -92,21 +91,49 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
 
             //render the image
             if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CURRENT_DRAWING_CHANGED)) {
+                BufferedImage image = getImage();
                 jfr.clearCanvas();
-                PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
-                if(drawing != null && drawing.getOriginalImage() != null){
-                    BufferedImage originalImage = drawing.getOriginalImage();
-                    jfr.setupCanvasSize(originalImage.getWidth(), originalImage.getHeight());
+                if(image != null){
+                    jfr.setupCanvasSize(image.getWidth(), image.getHeight());
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
-                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(originalImage, null), 0, 0);
+                    jfr.graphicsFX.drawImage(SwingFXUtils.toFXImage(image, null), 0, 0);
                 }
                 renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CURRENT_DRAWING_CHANGED);
             }
         }
 
+        public abstract BufferedImage getImage();
+    }
+
+    public static class Original extends GenericImage{
+
         @Override
         public String getName() {
             return "Original";
+        }
+
+        @Override
+        public BufferedImage getImage() {
+            if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
+                return DrawingBotV3.INSTANCE.getCurrentDrawing().getOriginalImage();
+            }
+            return null;
+        }
+    }
+
+    public static class ToneMap extends GenericImage{
+
+        @Override
+        public String getName() {
+            return "Tone Map";
+        }
+
+        @Override
+        public BufferedImage getImage() {
+            if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
+                return DrawingBotV3.INSTANCE.getCurrentDrawing().getToneMap();
+            }
+            return null;
         }
     }
 

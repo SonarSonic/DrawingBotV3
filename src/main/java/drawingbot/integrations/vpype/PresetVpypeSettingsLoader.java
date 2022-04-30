@@ -6,13 +6,9 @@ import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.utils.EnumScalingMode;
-import drawingbot.utils.UnitsLength;
 
-import java.util.List;
 import java.util.Optional;
 
 public class PresetVpypeSettingsLoader extends AbstractPresetLoader<PresetVpypeSettings> {

@@ -42,6 +42,7 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
     public V defaultValue; //the default value for the setting
     public final SimpleObjectProperty<V> value = new SimpleObjectProperty<>(); //the current value
     public final SimpleBooleanProperty randomiseExclude = new SimpleBooleanProperty(false); //should prevent randomising
+    public boolean toneMappingExclude = false; //should this setting be ignored when comparing tone map caches
     public String category = ""; //optional category identifier
 
     public transient TextField textField;
@@ -129,6 +130,15 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
 
     public GenericSetting<C, V> setCategory(String category){
         this.category = category;
+        return this;
+    }
+
+    public boolean getToneMappingExclude() {
+        return toneMappingExclude;
+    }
+
+    public GenericSetting<C, V> setToneMappingExclude(boolean exclude){
+        this.toneMappingExclude = exclude;
         return this;
     }
 

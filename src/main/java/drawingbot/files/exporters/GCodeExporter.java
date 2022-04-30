@@ -7,7 +7,6 @@ import drawingbot.geom.shapes.IGeometry;
 import drawingbot.api.ICanvas;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.utils.Limit;
-import drawingbot.utils.UnitsLength;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -37,16 +36,16 @@ public class GCodeExporter {
         transform.translate(settings.getGCodeXOffset(), settings.getGCodeYOffset());
 
         ///move into print scale
-        transform.scale(canvas.getPlottingScale(), canvas.getPlottingScale());
+        transform.scale(1/canvas.getPlottingScale(), 1/canvas.getPlottingScale());
 
         //g-code y numbers go the other way
-        transform.translate(0, canvas.getHeight(UnitsLength.MILLIMETRES));
+        transform.translate(0, canvas.getScaledHeight());
 
         //move with pre-scaled offsets
-        transform.translate(canvas.getDrawingOffsetX(UnitsLength.MILLIMETRES), -canvas.getDrawingOffsetY(UnitsLength.MILLIMETRES));
+        transform.translate(canvas.getScaledDrawingOffsetX(), -canvas.getScaledDrawingOffsetY());
 
         if(settings.gcodeCenterZeroPoint.get()){
-            transform.translate(-canvas.getWidth(UnitsLength.MILLIMETRES)/2, -canvas.getHeight(UnitsLength.MILLIMETRES)/2);
+            transform.translate(-canvas.getScaledWidth()/2, -canvas.getScaledHeight()/2);
         }
 
         //flip y coordinates

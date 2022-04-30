@@ -95,6 +95,7 @@ public class DrawingVertexPathIterator implements PathIterator {
             PlottedGroup group = drawing.getPlottedGroup(currentGeometry.getGroupID());
             ObservableDrawingPen pen = group.drawingSet.getPen(currentGeometry.getPenIndex());
             if(geometryVertexCount == 0 && currentGeometry.getVertexCount() + segments < maxSegments){
+                RenderUtils.preRenderGeometryAWT(graphics, currentGeometry, drawing, group, pen);
                 currentGeometry.renderAWT(graphics);
                 segments += currentGeometry.getVertexCount();
                 nextGeometry();
