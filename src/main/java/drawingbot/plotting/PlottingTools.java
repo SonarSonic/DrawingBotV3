@@ -240,21 +240,15 @@ public class PlottingTools implements IPlottingTools {
         geometry.setPFMPenIndex(geometry.getPenIndex()); //store the pfm pen index for later reference
         geometry.setGroupID(currentGroup.getGroupID());
 
+        //transform geometry back to the images size
+        if(plottingTransform != null){
+            geometry = geometry.transformGeometry(plottingTransform);
+        }
 
         if(clippingShape != null && GeometryClipping.shouldClip(clippingShape, geometry)){
             List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry);
-            geometries.forEach(g -> {
-                //transform geometry back to the images size
-                if(plottingTransform != null){
-                    g = g.transformGeometry(plottingTransform);
-                }
-                getPlottedDrawing().addGeometry(g);
-            });
+            geometries.forEach(g -> getPlottedDrawing().addGeometry(g));
         }else{
-            //transform geometry back to the images size
-            if(plottingTransform != null){
-                geometry = geometry.transformGeometry(plottingTransform);
-            }
             getPlottedDrawing().addGeometry(geometry);
         }
 

@@ -11,10 +11,12 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.Register;
+import drawingbot.utils.UnitsLength;
 import org.imgscalr.Scalr;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
@@ -91,9 +93,6 @@ public class PFMTaskImage extends PFMTask {
         imgPlotting = pfm().preFilter(imgPlotting);
         ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
         this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, imgPlotting);
-
-        tools.setClippingShape(tools.getClippingShape() != null ? tools.getClippingShape() : new Rectangle(0, 0, imgPlotting.getWidth(), imgPlotting.getHeight()));
-
     }
 
     @Override

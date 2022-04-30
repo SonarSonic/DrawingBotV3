@@ -16,15 +16,15 @@ public class CanvasUtils {
         if(canvas.getUnits() == units){
             return new SimpleCanvas(canvas);
         }
-        return new SimpleCanvas(units, canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale(), UnitsLength.convert(canvas.getWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetX(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetY(), canvas.getUnits(), units), canvas.getCanvasScale());
+        return new SimpleCanvas(units, canvas.getScalingMode(), canvas.getClippingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale(), UnitsLength.convert(canvas.getWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetX(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetY(), canvas.getUnits(), units), canvas.getCanvasScale());
     }
 
     public static SimpleCanvas rescaleCanvas(ICanvas canvas, float rescale){
-        return new SimpleCanvas(canvas.getUnits(), canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), 1F, canvas.getWidth()*rescale, canvas.getHeight()*rescale, canvas.getDrawingWidth()*rescale, canvas.getDrawingHeight()*rescale, canvas.getDrawingOffsetX()*rescale, canvas.getDrawingOffsetY()*rescale, rescale);
+        return new SimpleCanvas(canvas.getUnits(), canvas.getScalingMode(), canvas.getClippingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), 1F, canvas.getWidth()*rescale, canvas.getHeight()*rescale, canvas.getDrawingWidth()*rescale, canvas.getDrawingHeight()*rescale, canvas.getDrawingOffsetX()*rescale, canvas.getDrawingOffsetY()*rescale, rescale);
     }
 
     public static SimpleCanvas normalisedCanvas(ICanvas canvas){
-        return new SimpleCanvas(UnitsLength.PIXELS, canvas.getScalingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), 1F, canvas.getScaledWidth(), canvas.getScaledHeight(), canvas.getScaledDrawingWidth(), canvas.getScaledDrawingHeight(), canvas.getScaledDrawingOffsetX(), canvas.getScaledDrawingOffsetY(), canvas.getCanvasScale());
+        return new SimpleCanvas(UnitsLength.PIXELS, canvas.getScalingMode(), canvas.getClippingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), 1F, canvas.getScaledWidth(), canvas.getScaledHeight(), canvas.getScaledDrawingWidth(), canvas.getScaledDrawingHeight(), canvas.getScaledDrawingOffsetX(), canvas.getScaledDrawingOffsetY(), canvas.getCanvasScale());
     }
 
     /**

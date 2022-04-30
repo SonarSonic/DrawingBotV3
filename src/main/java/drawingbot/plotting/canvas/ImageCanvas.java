@@ -2,6 +2,7 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.image.ImageTools;
+import drawingbot.utils.EnumClippingMode;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 
@@ -40,6 +41,30 @@ public class ImageCanvas implements ICanvas {
         return flipAxis;
     }
 
+    public float getImageOffsetX(){
+        float imageOffsetX = 0;
+        if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
+            float currentRatio = (float) getImageWidth() / (float)getImageHeight();
+            float targetRatio = refCanvas.getDrawingWidth() / refCanvas.getDrawingHeight();
+            float targetWidth = Math.round(refCanvas.getDrawingHeight() * currentRatio);
+
+            imageOffsetX = currentRatio < targetRatio ? refCanvas.getDrawingWidth()/2 - targetWidth/2F: 0;
+        }
+        return imageOffsetX;
+    }
+
+    public float getImageOffsetY(){
+        float imageOffsetY = 0;
+        if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
+            float currentRatio = (float) getImageWidth() / (float)getImageHeight();
+            float targetRatio = refCanvas.getDrawingWidth() / refCanvas.getDrawingHeight();
+            float targetHeight = Math.round(getDrawingWidth() / currentRatio);
+
+            imageOffsetY = currentRatio < targetRatio ? 0: refCanvas.getDrawingHeight()/2 - targetHeight/2F;
+        }
+        return imageOffsetY;
+    }
+
     @Override
     public UnitsLength getUnits() {
         if(useOriginalSizing()){
@@ -51,6 +76,11 @@ public class ImageCanvas implements ICanvas {
     @Override
     public EnumScalingMode getScalingMode() {
         return refCanvas.getScalingMode();
+    }
+
+    @Override
+    public EnumClippingMode getClippingMode() {
+        return refCanvas.getClippingMode();
     }
 
     @Override
@@ -101,7 +131,7 @@ public class ImageCanvas implements ICanvas {
         if(useOriginalSizing()){
             return getWidth();
         }
-        return refCanvas.getDrawingWidth();
+        return refCanvas.getDrawingWidth() - getImageOffsetX()*2;
     }
 
     @Override
@@ -109,7 +139,7 @@ public class ImageCanvas implements ICanvas {
         if(useOriginalSizing()){
             return getHeight();
         }
-        return refCanvas.getDrawingHeight();
+        return refCanvas.getDrawingHeight() - getImageOffsetY()*2;
     }
 
     @Override
@@ -117,15 +147,7 @@ public class ImageCanvas implements ICanvas {
         if(useOriginalSizing()){
             return 0;
         }
-        float imageOffsetX = 0;
-        if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
-            float currentRatio = (float) getImageWidth() / (float)getImageHeight();
-            float targetRatio = getDrawingWidth() / getDrawingHeight();
-            float targetWidth = Math.round(getDrawingHeight() * currentRatio);
-
-            imageOffsetX = currentRatio < targetRatio ? getDrawingWidth()/2 - targetWidth/2F: 0;
-        }
-        return refCanvas.getDrawingOffsetX() + imageOffsetX;
+        return refCanvas.getDrawingOffsetX() + getImageOffsetX();
     }
 
     @Override
@@ -133,14 +155,6 @@ public class ImageCanvas implements ICanvas {
         if(useOriginalSizing()){
             return 0;
         }
-        float imageOffsetY = 0;
-        if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
-            float currentRatio = (float) getImageWidth() / (float)getImageHeight();
-            float targetRatio = getDrawingWidth() / getDrawingHeight();
-            float targetHeight = Math.round(getDrawingWidth() / currentRatio);
-
-            imageOffsetY = currentRatio < targetRatio ? 0: getDrawingHeight()/2 - targetHeight/2F;
-        }
-        return refCanvas.getDrawingOffsetY() + imageOffsetY;
+        return refCanvas.getDrawingOffsetY() + getImageOffsetY();
     }
 }

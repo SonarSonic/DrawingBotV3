@@ -2,6 +2,7 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
+import drawingbot.utils.EnumClippingMode;
 import drawingbot.utils.EnumOrientation;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.javafx.util.PropertyUtil;
@@ -18,6 +19,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
 
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumScalingMode> scalingMode = new SimpleObjectProperty<>(EnumScalingMode.CROP_TO_FIT);
+    public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(EnumClippingMode.DRAWING);
     public final SimpleObjectProperty<UnitsLength> inputUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     public final SimpleFloatProperty width = new SimpleFloatProperty(0);
@@ -35,7 +37,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     //not saved
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
+    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
 
     public ObservableCanvas(){
 
@@ -89,6 +91,11 @@ public class ObservableCanvas implements ICanvas, IProperties {
     @Override
     public EnumScalingMode getScalingMode() {
         return scalingMode.get();
+    }
+
+    @Override
+    public EnumClippingMode getClippingMode() {
+        return clippingMode.get();
     }
 
     @Override
@@ -146,6 +153,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
         ObservableCanvas copy = new ObservableCanvas();
         copy.useOriginalSizing.set(useOriginalSizing.get());
         copy.scalingMode.set(scalingMode.get());
+        copy.clippingMode.set(clippingMode.get());
         copy.inputUnits.set(inputUnits.get());
 
         copy.width.set(width.get());

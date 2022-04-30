@@ -1,5 +1,6 @@
 package drawingbot.api;
 
+import drawingbot.utils.EnumClippingMode;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.utils.UnitsLength;
 
@@ -10,6 +11,8 @@ public interface ICanvas {
     UnitsLength getUnits();
 
     EnumScalingMode getScalingMode();
+
+    EnumClippingMode getClippingMode();
 
     boolean useOriginalSizing();
 

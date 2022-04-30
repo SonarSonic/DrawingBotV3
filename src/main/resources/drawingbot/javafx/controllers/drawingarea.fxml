@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefWidth="423.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
+<AnchorPane prefHeight="327.0" prefWidth="423.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
 <children>
     <VBox prefWidth="404.0" spacing="8.0">
         <children>
@@ -99,9 +99,15 @@
                             <HBox prefHeight="31.0" prefWidth="384.0">
                                 <children>
                                     <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="82.0" text="Canvas Color:" translateX="3.0" />
-                                    <ColorPicker fx:id="colorPickerCanvas" />
+                                    <ColorPicker fx:id="colorPickerCanvas" prefHeight="25.0" prefWidth="136.0" />
                                 </children>
                             </HBox>
+                        <Separator layoutX="10.0" layoutY="10.0" prefWidth="200.0" />
+                        <Label contentDisplay="RIGHT" text="Clipping Mode:">
+                           <graphic>
+                              <ChoiceBox fx:id="choiceBoxClippingMode" prefHeight="25.0" prefWidth="132.0" />
+                           </graphic>
+                        </Label>
                         </children>
                     </VBox>
                 </children>

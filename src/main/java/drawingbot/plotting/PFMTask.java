@@ -3,16 +3,15 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.pfm.AbstractSketchPFM;
-import drawingbot.utils.DBTask;
+import drawingbot.utils.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.utils.EnumDistributionType;
-import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.Utils;
 import javafx.application.Platform;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -94,6 +93,18 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                     tools.plottingTransform = AffineTransform.getScaleInstance(1D / pfm.getPlottingResolution(), 1D / pfm.getPlottingResolution());
                 }
 
+                if(tools.getClippingShape() == null){
+                    switch (drawing.canvas.getClippingMode()){
+                        case NONE:
+                            break;
+                        case DRAWING:
+                            tools.setClippingShape(new Rectangle2D.Float(0, 0, drawing.canvas.getScaledDrawingWidth(), drawing.canvas.getScaledDrawingHeight()));
+                            break;
+                        case PAGE:
+                            tools.setClippingShape(new Rectangle2D.Float(-drawing.canvas.getScaledDrawingOffsetX(), -drawing.canvas.getScaledDrawingOffsetY(), drawing.canvas.getScaledWidth(), drawing.canvas.getScaledHeight()));
+                            break;
+                    }
+                }
                 tools.currentGroup.setPFMFactory(pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");

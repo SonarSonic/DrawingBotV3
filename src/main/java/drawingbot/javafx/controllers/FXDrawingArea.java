@@ -7,10 +7,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
-import drawingbot.utils.EnumOrientation;
-import drawingbot.utils.EnumScalingMode;
-import drawingbot.utils.UnitsLength;
-import drawingbot.utils.Utils;
+import drawingbot.utils.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -54,6 +51,8 @@ public class FXDrawingArea {
 
     public ColorPicker colorPickerCanvas = null;
 
+    public ChoiceBox<EnumClippingMode> choiceBoxClippingMode = null;
+
     @FXML
     public void initialize(){
         drawingArea.addListener((observable, oldValue, newValue) -> {
@@ -76,9 +75,11 @@ public class FXDrawingArea {
                 checkBoxOptimiseForPrint.selectedProperty().unbindBidirectional(oldValue.optimiseForPrint);
                 textFieldPenWidth.textProperty().unbindBidirectional(oldValue.targetPenWidth);
 
+                colorPickerCanvas.valueProperty().unbindBidirectional(oldValue.canvasColor);
+                choiceBoxClippingMode.valueProperty().unbindBidirectional(oldValue.clippingMode);
+
                 choiceBoxOrientation.valueProperty().unbindBidirectional(oldValue.orientation);
                 choiceBoxOrientation.disableProperty().unbind();
-                colorPickerCanvas.valueProperty().unbindBidirectional(oldValue.canvasColor);
             }
 
             if(newValue != null){
@@ -100,6 +101,8 @@ public class FXDrawingArea {
                 textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter());
 
                 colorPickerCanvas.valueProperty().bindBidirectional(newValue.canvasColor);
+                choiceBoxClippingMode.valueProperty().bindBidirectional(newValue.clippingMode);
+
                 choiceBoxOrientation.valueProperty().bindBidirectional(newValue.orientation);
                 choiceBoxOrientation.disableProperty().bind(Bindings.createBooleanBinding(() -> newValue.width.get() == newValue.height.get(), newValue.width, newValue.height));
                 updatePaddingBindings(newValue.drawingAreaGangPadding.get());
@@ -153,6 +156,9 @@ public class FXDrawingArea {
 
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
         textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
+
+        choiceBoxClippingMode.getItems().addAll(EnumClippingMode.values());
+        choiceBoxClippingMode.setValue(EnumClippingMode.DRAWING);
     }
 
     public AbstractPresetManager<PresetDrawingArea> presetManager;

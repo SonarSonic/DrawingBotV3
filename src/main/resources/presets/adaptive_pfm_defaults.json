@@ -99,8 +99,8 @@
       "presetType": "pfm_settings",
       "version": 1,
       "presetSubType": "Adaptive Shapes",
-      "presetName": "Adaptive Circles",
-      "userCreated": true,
+      "presetName": "Default",
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -120,7 +120,7 @@
       "version": 1,
       "presetSubType": "Adaptive Circular Scribbles",
       "presetName": "Detailed Scribbles",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -150,7 +150,7 @@
       "version": 1,
       "presetSubType": "Adaptive Circular Scribbles",
       "presetName": "Chiu Et Al - 4000px",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -179,7 +179,7 @@
       "version": 1,
       "presetSubType": "Adaptive Circular Scribbles",
       "presetName": "Chiu Et Al - 3000px",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -208,7 +208,7 @@
       "version": 1,
       "presetSubType": "Adaptive Circular Scribbles",
       "presetName": "Chiu Et Al - 2000px",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -237,7 +237,7 @@
       "version": 1,
       "presetSubType": "Adaptive Circular Scribbles",
       "presetName": "Chiu Et Al - 1000px",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
@@ -257,6 +257,39 @@
           "Azimuth Angle Max": "0.0",
           "Curve Tension": "1.0",
           "Max Velocity": "3.5",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive Tree",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "18.0",
+          "Ignore White": "false",
+          "Stipple Min Radius": "1.0",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": 1,
+      "presetSubType": "Adaptive TSP",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "15.0",
+          "Ignore White": "false",
+          "Merge TSP Paths": "true",
+          "Stipple Min Radius": "0.8",
           "Random Seed": "0"
         }
       }

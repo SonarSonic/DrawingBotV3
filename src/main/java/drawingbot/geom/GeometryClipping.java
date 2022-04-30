@@ -74,7 +74,9 @@ public class GeometryClipping {
         float[] control1 = new float[]{curve.ctrlx1, curve.ctrly1};
         float[] control2 = new float[]{curve.ctrlx2, curve.ctrly2};
         float[] end = new float[]{curve.x2, curve.y2};
-        double samples = Math.max(100, Utils.distance(curve.x1, curve.y1, curve.x2, curve.y2));
+        double samples = Math.max(256, Utils.distance(curve.x1, curve.y1, curve.ctrlx1, curve.ctrly1) +
+                                       Utils.distance(curve.ctrlx1, curve.ctrly1, curve.ctrlx2, curve.ctrly2) +
+                                       Utils.distance(curve.ctrlx2, curve.ctrly2, curve.x2, curve.y2));
         double sample = 0;
         boolean isInside = shape.contains(start[0], start[1]);
 
