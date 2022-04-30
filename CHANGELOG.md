@@ -1,3 +1,47 @@
+### [v1.4.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.0-beta-free)
+
+Note: This update has kept growing and growing, and it’s time it was released, this is a Public Beta, although it has already been through an alpha testing phase.
+- Added: New 9 new PFMS
+    - **Adaptive Circular Scribbles (Beta)** – this is an implementation of Chiu Et Al 2015, “Tone‐ and Feature‐Aware Circular Scribble Art” – it generates one continuous circular scribble to represent the image. If you wish to achieve results similar to Chiu Et Al’s implementation use a size of paper, pen width which gives you a plotting size of 4000px on the largest edge then use the “Chiu Et Al – 4000px” preset
+    - **Adaptive Shapes, Triangulation, Tree (Beta), Stippling, Dashes, Diagram, Adaptive TSP**, are all very similar to their Voronoi counterparts but give a much better representation of the tonality of the input image, they are also typically faster to run.
+    - **Voronoi Dashes**, this variation of the new Adaptive Dashes PFM, but using the original Voronoi style.
+
+- **Using Adaptive PFMS**
+    - They love high resolution, high contrast images.
+    - They are called "Adaptive" because they adapt to match the tone of the input image. This means the reproductions of tones is way more accurate then other PFMs, this means they have an additional processing stage "Tone Mapping". This process only needs to be performed once per configuration of settings, if you change a setting which could alter the tone map it will run again.
+    - You can view the output of the tone mapping stage by selecting "Display:" and then "Tone Map", this shows you three outputs the Reference Tone Map, the drawing created by the PFM with the current settings and the blurred version of this output. If your blurred output reassembles the reference tone map v closely that's very good and if you find one which matches better then the current Adaptive Circular Scribbles settings let me know. If the tone map doesn't reassembly the image very closely don't worry DrawingBotV3 will account for this variance to create an image which better matches the tone map anyway.
+- Added: Ability to have multiple Drawing Sets, you can then use different sets for each layer/tile in Layers PFM / Mosaic PFM.
+    - Drawings Sets can be created and edited from the Pen Settings tab.
+- Added: Colour Picker option when right clicking a Drawing Pen, then right-click anywhere in the viewport to set the pen’s colour.
+- Added: Settings panels can now be undocked, and moved around independently, they can be re-docked by closing the window it hitting the link button again.
+- Added: “Per/Group” export option, when using PFM Layers or any Mosaic PFM this option will export the individual layers/tiles individually
+- Added: “Per N/Pens” export option, to allow drawings with multiple pens to be split into a certain number of pens. Useful when exporting for Vintage Plotters which have automatic pen changes.
+- Added: “Layer Distribution” option to PFM Layers, which allows finer control over the distribution of pens between layers
+    - NONE: Layers will be distributed seperately.
+    - ORDERED PER PFM: Layers which use the same PFM and Drawing Set will be distributed together, treating the first layer as the darkest and the last layer as the brightest.
+    - ORDERED: Same as the above, but only matches Drawing Sets
+- Added: “Clipping Mode”, available in the Drawing Area, allows you to choose if shapes should overflow the edges of the drawing/page or not, this will only have an effect on some PFMS, as some PFMS only work within the image provided anyway. You have three options 
+    - “Drawing” – Clip the geometries to the drawings edges
+    - “Page” – Clip the geometries to the page’s edges
+    - “None” – Allow geometries to overflow the page and drawing
+- Added: Portrait/Landscape toggle to the Drawing Area to replace the “Rotate” button, this will remember the orientation you have chosen and keep this orientation when you select a new paper size.
+- Improved: Voronoi PFMs are now multi-threaded and also have a new slider “Voronoi Accuracy”, an accuracy of 100% is the equivalent to the previous version 
+- Improved: The OpenGL Renderer will now render while the drawing is being generated, the UI will also be much more responsive when it’s updating.
+- Changed: When editing Drawing Sets while using Layers PFM / Mosaic PFM they will now live update without having to run the PFM again.
+- Changed: Moved “Blend Mode” from Pen Settings to be above the Viewport
+- Changed: Moved “Colour Seperation” to be part of Pen Settings
+- Changed: Pen settings buttons Add/Remove/etc. now use symbols instead of text and have tool tips when hovered, to try and re-clutter the UI.
+- Changed: If you open a project and DrawingBotV3 is unable to locate the original image used you will now be prompted to locate the image.
+- Changed: The recommended Distribution Type will now be change based on the current settings.
+- Changed: DrawingBotV3 will now remember the PFMs “preconfigured” distribution, so when creating drawings with CMYK seperation the distribution will not be forgotten when you switch back.
+- Fixed: Some pop-up windows not closing when the main window is closed.
+- Fixed: Mosaic PFMs and Layers PFM will now show their current progress properly.
+- Fixed: Voronoi PFMs will now show their current progress properly.
+- Fixed: HPGL Exports not having the correct offset
+- Fixed: GCode Settings not loading correctly when switching presets
+- Fixed: Custom version names not being saved with the project
+
+
 ### [v1.3.5-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.3.5-stable-free)
 - Note: The recommended JAVA version for DBV3 is now Java 17.
 - Note: All packaged installers now use a Java 17 Runtime instead of Java 11
