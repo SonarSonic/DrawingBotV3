@@ -66,7 +66,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         registerPenWithCode("6", new DrawingPen("Staedtler Fineliner", "6 Violet", ImageTools.getARGB(255, 94, 51, 106)));
         registerPenWithCode("61", new DrawingPen("Staedtler Fineliner", "61 Red Violet", ImageTools.getARGB(255, 181, 6, 129)));
         registerPenWithCode("62", new DrawingPen("Staedtler Fineliner", "62 Lavender", ImageTools.getARGB(255, 192, 139, 209)));
-        registerPenWithCode("63", new DrawingPen("Staedtler Fineliner", "63 Delft Blue", ImageTools.getARGB(255, 188, 74, 33)));
+        registerPenWithCode("63", new DrawingPen("Staedtler Fineliner", "63 Delft Blue", ImageTools.getARGB(255, 116, 161, 203)));
         registerPenWithCode("68", new DrawingPen("Staedtler Fineliner", "68 Lilac", ImageTools.getARGB(255, 132, 98, 152)));
         registerPenWithCode("69", new DrawingPen("Staedtler Fineliner", "69 Dark Mauve", ImageTools.getARGB(255, 70, 48, 99)));
 
