@@ -75,6 +75,8 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Loading Registry");
         MasterRegistry.init();
 
+        System.setProperty("prism.lcdtext", "false");
+
         DrawingBotV3.logger.info("Init DrawingBotV3");
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
