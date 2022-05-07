@@ -3,6 +3,7 @@ package drawingbot.registry;
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.plugins.*;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Metadata;
 import drawingbot.files.json.presets.*;
@@ -10,11 +11,6 @@ import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.drawing.*;
 import drawingbot.geom.shapes.*;
-import drawingbot.plugins.CopicPenPlugin;
-import drawingbot.plugins.SakuraPenPlugin;
-import drawingbot.plugins.DiamineInkPlugin;
-import drawingbot.plugins.SpecialPenPlugin;
-import drawingbot.plugins.StaedtlerPenPlugin;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.files.exporters.*;
@@ -106,6 +102,7 @@ public class Register implements IPlugin {
         newPlugins.add(new SakuraPenPlugin());
         newPlugins.add(new DiamineInkPlugin());
         newPlugins.add(new StaedtlerPenPlugin());
+        newPlugins.add(new WinsorNewtonPenPlugin());
         newPlugins.add(new SpecialPenPlugin());
     }
 
