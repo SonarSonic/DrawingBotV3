@@ -14,8 +14,10 @@ Every Path Finding Module can also be run with :ref:`cmyk-separation`
 Sketch PFMs
 ----------------------------------------------------
 
-Lines
-^^^^^^
+Sketch PFMs are best used for plots using multiple layers of different pens as the Sketch PFMs rely on the different pens to represent the different tones in the image. However, it is possible to use a single pen with Sketch PFMs though it is recommended to use a pen which is additive where overlapping strokes will result in progressively darker lines.
+
+Sketch Lines
+^^^^^^^^^^^^^^
 Transforms an image into lines using brightness data.
 
 .. image:: images/sketch_lines_eye_after.jpg
@@ -24,8 +26,8 @@ Transforms an image into lines using brightness data.
 .. image:: images/sketch_lines_after.jpg
     :width: 250pt
 
-Curves
-^^^^^^
+Sketch Curves
+^^^^^^^^^^^^^^
 Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline>`_ using brightness data.
 
 .. image:: images/sketch_curves_eye_after.jpg
@@ -34,8 +36,8 @@ Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Cen
 .. image:: images/sketch_curves_after.jpg
     :width: 250pt
 
-Squares
-^^^^^^^^^^^^
+Sketch Squares
+^^^^^^^^^^^^^^^^^^^^
 Transforms an image into lines in a rectangular pattern using brightness data.
 
 .. image:: images/sketch_squares_eye_after.jpg
@@ -44,8 +46,8 @@ Transforms an image into lines in a rectangular pattern using brightness data.
 .. image:: images/sketch_squares_after.jpg
     :width: 250pt
 
-Quad Beziers
-^^^^^^^^^^^^
+Sketch Quad Beziers
+^^^^^^^^^^^^^^^^^^^^
 Transforms an image into `Quadratic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for one control point. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
 
 .. image:: images/sketch_quad_beziers_eye_after.jpg
@@ -54,7 +56,7 @@ Transforms an image into `Quadratic Bézier curves <https://en.wikipedia.org/wik
 .. image:: images/sketch_quad_beziers_after.jpg
     :width: 250pt
 
-Cubic Beziers
+Sketch Cubic Beziers
 ^^^^^^^^^^^^^^^^^^^^
 Transforms an image into `Cubic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for the two control points. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
 
@@ -64,8 +66,8 @@ Transforms an image into `Cubic Bézier curves <https://en.wikipedia.org/wiki/B%
 .. image:: images/sketch_cubic_beziers_after.jpg
     :width: 250pt
 
-Catmull-Roms
-^^^^^^^^^^^^
+Sketch Catmull-Roms
+^^^^^^^^^^^^^^^^^^^^
 Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline>`_ using brightness data, by finding the next darkest curve from each point. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
 
 .. image:: images/sketch_catmull_roms_eye_after.jpg
@@ -75,8 +77,8 @@ Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Cen
     :width: 250pt
 
 
-Shapes
-^^^^^^^^^^^^
+Sketch Shapes
+^^^^^^^^^^^^^^^^^^^^
 Transforms an image into shapes using brightness data. It has the following modes: Rectangle and Ellipse.
 It uses a more accurate "Bresenham" calculation when considering each shape.
 
@@ -86,14 +88,21 @@ It uses a more accurate "Bresenham" calculation when considering each shape.
 .. image:: images/sketch_shapes_after.jpg
     :width: 250pt
 
-Sobel Edges
-^^^^^^^^^^^^
+Sketch Sobel Edges
+^^^^^^^^^^^^^^^^^^^^
 Transforms an image into lines using brightness data & edge detection data. By using a `Sobel Operator <https://en.wikipedia.org/wiki/Sobel_operator>`_ to find sharp edges and then using this data in conjunction with the brightness to find the next line.
 
 .. image:: images/sketch_sobel_edges_eye_after.jpg
     :width: 250pt
 
 .. image:: images/sketch_sobel_edges_after.jpg
+    :width: 250pt
+
+Sketch Waves
+^^^^^^^^^^^^^^^^^^^^
+Transforms an image into lines which follow the direction defined by an X and Y curve function.
+
+.. image:: images/sketch_waves_example_1.jpg
     :width: 250pt
 
 How they work
@@ -179,12 +188,91 @@ Settings
 
 ------
 
+Adaptive PFMS
+------------------------------------------------------------
+
+'Adaptive' are named after the way they adapt to match the tone of the input image.
+
+This means the reproductions of tones is way more accurate then other PFMs, this means they have an additional processing stage "Tone Mapping". This process only needs to be performed once per configuration of settings, if you change a setting which could alter the tone map it will run again.
+
+You can view the output of the tone mapping stage by selecting "Display:" and then "Tone Map", this shows you three outputs the Reference Tone Map, the drawing created by the PFM with the current settings and the blurred version of this output.
+
+**For the best results with Adaptive PFMs use high resolution, high contrast images**
+
+Adaptive Circular Scribbles
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a single continuous circular scribble.
+
+This is an implementation of Chiu Et Al 2015, “Tone‐ and Feature‐Aware Circular Scribble Art”. If you wish to achieve results similar to Chiu Et Al’s implementation use a size of paper, pen width which gives you a plotting size of 4000px on the largest edge then use the “Chiu Et Al – 4000px” preset
+
+.. image:: images/adaptive_circular_scribbles_example_1.jpg
+    :height: 250pt
+
+.. image:: images/adaptive_circular_scribbles_example_2.jpg
+    :height: 250pt
+
+Adaptive Shapes
+^^^^^^^^^^^^^^^^^^
+Transforms an image into a series of packed shapes
+
+.. image:: images/adaptive_shapes_example_1.jpg
+    :height: 250pt
+
+Adaptive Triangulation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a series of connected triangles joining all the points generated using `Delaunay Triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation>`_
+
+.. image:: images/adaptive_triangulation_example_1.jpg
+    :height: 250pt
+
+Adaptive Tree
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a Minimum Spanning Tree, which connects all the points generated into a minimum length tree.
+
+.. image:: images/adaptive_tree_example_1.jpg
+    :height: 250pt
+
+Adaptive Stippling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a series of dots placed at each point generated.
+
+.. image:: images/adaptive_stippling_example_1.jpg
+    :height: 250pt
+
+Adaptive Dashes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a series of dashes placed at each point generated.
+
+.. image:: images/adaptive_dashes_example_1.jpg
+    :height: 250pt
+
+Adaptive Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a Voronoi Diagram which is generated from all of the evenly distributed points.
+
+.. image:: images/adaptive_diagram_example_1.jpg
+    :height: 250pt
+
+Adaptive TSP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a one continuous line, or alternatively multiple individual continuous line segments.
+
+.. image:: images/adaptive_tsp_example_1.jpg
+    :height: 250pt
+
+How they work
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1) Generate a Tone Map using steps 2 to 3, analyse the result then create a new input image which will result in drawing with a more accurate representation of the original tones.
+2) Create evenly distributed points across the image based on brightness.
+3) Generate the specific style based on these points.
+
+
 Voronoi PFMs
 ------------------------------------------------------------
 All Voronoi PFMs utilise a `Weighted Voronoi Diagram <https://en.wikipedia.org/wiki/Weighted_Voronoi_diagram>`_ to determine the distribution of brightness in the original image and then use this diagram to generate new styles.
 
-Circles
-^^^^^^^^
+Voronoi Circles
+^^^^^^^^^^^^^^^^
 Transforms an image into a series of inscribed circles for each cell of the voronoi diagram.
 
 .. image:: images/voronoi_circles_eye_after.jpg
@@ -193,17 +281,17 @@ Transforms an image into a series of inscribed circles for each cell of the voro
 .. image:: images/voronoi_circles_after.jpg
     :width: 250pt
 
-Triangulation
-^^^^^^^^^^^^^^^^
+Voronoi Triangulation
+^^^^^^^^^^^^^^^^^^^^^^^^
 Transforms an image into a series of connected triangles joining all the *centroids* in the voronoi diagram using `Delaunay Triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation>`_
 
-.. image:: images/voronoi_triangulation_eye_after.jpg
+.. image:: images/voronoi_triangulation_eye_after_v2.jpg
     :width: 250pt
 
 .. image:: images/voronoi_triangulation_after.jpg
     :width: 250pt
 
-Tree
+Voronoi Tree
 ^^^^^^^^^^^^^^^^
 Transforms an image into a Minimum Spanning Tree, which connects all the *centroids* in the voronoi diagram into a minimum length tree.
 
@@ -213,8 +301,8 @@ Transforms an image into a Minimum Spanning Tree, which connects all the *centro
 .. image:: images/voronoi_tree_after.jpg
     :width: 250pt
 
-Stippling
-^^^^^^^^^^^^^^^^
+Voronoi Stippling
+^^^^^^^^^^^^^^^^^^^^^
 Transforms an image into a series of filled circles for each *centroid* in the voronoi diagram, the size of the "stipple" is relative to the sampled brightness of the cell the centroid belongs to.
 
 .. image:: images/voronoi_stippling_eye_after.jpg
@@ -223,7 +311,14 @@ Transforms an image into a series of filled circles for each *centroid* in the v
 .. image:: images/voronoi_stippling_after.jpg
     :width: 250pt
 
-Diagram
+Voronoi Dashes
+^^^^^^^^^^^^^^^^^^^^^
+Transforms an image into a series of dashes at each *centroid* in the voronoi diagram.
+
+.. image:: images/voronoi_dashes_example_1.jpg
+    :width: 250pt
+
+Voronoi Diagram
 ^^^^^^^^^^^^^^^^
 Transforms an image into a Voronoi Diagram
 
@@ -233,7 +328,7 @@ Transforms an image into a Voronoi Diagram
 .. image:: images/voronoi_diagram_after.jpg
     :width: 250pt
 
-TSP
+Voronoi TSP
 ^^^^^^^^^^^^^^^^
 Transforms an image into a series of connected lines for each *centroid* in the voronoi diagram with the shortest distance. By solving the Travelling Salesman Problem.
 
@@ -282,8 +377,8 @@ Mosaic PFMs
 
 Mosaic PFMs offer different ways to split an image into different sections which can then be passed through different PFMs to create a Mosaic effect.
 
-Rectangles
-^^^^^^^^^^^
+Mosaic Rectangles
+^^^^^^^^^^^^^^^^^^^^^
 Divides an image into a series of rectangles which can are then distributed randomly amongst the enabled Drawing Styles
 
 .. image:: images/mosaic_rectangles_eye_after.jpg
@@ -292,8 +387,8 @@ Divides an image into a series of rectangles which can are then distributed rand
 .. image:: images/mosaic_rectangles_after.jpg
     :width: 250pt
 
-Voronoi
-^^^^^^^^^^^
+Mosaic Voronoi
+^^^^^^^^^^^^^^^^
 Divides an image into a Voronoi Diagram, each cell is distributed randomly amongst the enabled Drawing Styles
 
 .. image:: images/mosaic_voronoi_eye_after.jpg
@@ -301,3 +396,9 @@ Divides an image into a Voronoi Diagram, each cell is distributed randomly among
 
 .. image:: images/mosaic_voronoi_after.jpg
     :width: 250pt
+
+Mosaic Custom
+^^^^^^^^^^^^^^^^
+
+Layers PFM
+------------------------------------------------------------
