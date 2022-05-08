@@ -1,6 +1,6 @@
 # Drawing Bot V3
 
-![Screenshot](https://github.com/SonarSonic/Drawbot_image_to_gcode_v3/blob/master/images/screenshotV5.jpg?raw=true)
+![Screenshot](https://github.com/SonarSonic/DrawingBotV3/blob/master/images/screenshotV5.JPG?raw=true)
 [![Platforms](https://img.shields.io/badge/platform-Windows%2C%20Mac%2C%20Linux-green?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3#installation)
 ![GitHub top language](https://img.shields.io/github/languages/top/SonarSonic/DrawingBotV3?style=flat-square)
 [![GitHub License](https://img.shields.io/github/license/SonarSonic/DrawingBotV3?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/blob/master/LICENSE)
