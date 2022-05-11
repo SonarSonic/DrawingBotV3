@@ -65,7 +65,7 @@ public class FXHelper {
         importFile((file, fileChooser) -> {
             FileUtils.updateImportDirectory(file.getParentFile());
             callback.accept(file, fileChooser);
-        }, FileUtils.getExportDirectory(), filters, title);
+        }, FileUtils.getImportDirectory(), filters, title);
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title){
