@@ -11,6 +11,7 @@ import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.geom.shapes.JFXGeometryConverter;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
@@ -587,6 +588,24 @@ public class MasterRegistry {
         this.geometryFactories.put(name, factory);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// GEOMETRY TO JFX CONVERTERS \\\\
+
+    public List<JFXGeometryConverter> jfxGeometryConverters = new ArrayList<>();
+    public JFXGeometryConverter fallbackConverter = null;
+
+    public void registerJFXGeometryConverter(JFXGeometryConverter converter){
+        jfxGeometryConverters.add(converter);
+    }
+
+    public void setFallbackJFXGeometryConverter(JFXGeometryConverter fallbackConverter) {
+        this.fallbackConverter = fallbackConverter;
+    }
+
+    public JFXGeometryConverter getFallbackJFXGeometryConverter(){
+        return fallbackConverter;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

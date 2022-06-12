@@ -6,6 +6,7 @@ import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.files.loaders.ImageFileLoaderFactory;
 import drawingbot.files.loaders.ProjectFileLoaderFactory;
+import drawingbot.geom.converters.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plugins.*;
 import drawingbot.utils.DBConstants;
@@ -139,6 +140,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerGeometryType("quad", GQuadCurve.class, GQuadCurve::new);
         MasterRegistry.INSTANCE.registerGeometryType("rect", GRectangle.class, GRectangle::new);
         MasterRegistry.INSTANCE.registerGeometryType("ellipse", GEllipse.class, GEllipse::new);
+
+        MasterRegistry.INSTANCE.setFallbackJFXGeometryConverter(new JFXPathConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXLineConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXEllipseConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXRectangleConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXCubicCurveConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXQuadCurveConverter());
 
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_DEFAULT, 10);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);

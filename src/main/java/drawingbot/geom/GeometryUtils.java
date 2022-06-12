@@ -10,7 +10,9 @@ import drawingbot.files.ExportTask;
 import drawingbot.geom.shapes.*;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
+import javafx.geometry.Rectangle2D;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
@@ -401,6 +403,30 @@ public class GeometryUtils {
             count+=geometryList.size();
         }
         return count;
+    }
+
+    public static javafx.scene.shape.Shape convertGeometryToJFXShape(IGeometry geometry){
+        for(JFXGeometryConverter converter : MasterRegistry.INSTANCE.jfxGeometryConverters){
+            if(converter.canConvert(geometry)){
+                return converter.convert(geometry);
+            }
+        }
+        return MasterRegistry.INSTANCE.getFallbackJFXGeometryConverter().convert(geometry);
+    }
+
+    public static boolean updateJFXShapeFromGeometry(javafx.scene.shape.Shape shape, IGeometry geometry){
+        for(JFXGeometryConverter converter : MasterRegistry.INSTANCE.jfxGeometryConverters){
+            if(converter.canUpdate(shape)){
+                converter.update(shape, geometry);
+                return true;
+            }
+        }
+        JFXGeometryConverter fallback = MasterRegistry.INSTANCE.getFallbackJFXGeometryConverter();
+        if(fallback.canUpdate(shape)){
+            fallback.update(shape, geometry);
+            return true;
+        }
+        return false;
     }
 
 }
