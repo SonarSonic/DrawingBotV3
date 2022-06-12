@@ -171,8 +171,7 @@ public class ExportTask extends DBTask<Boolean> {
                 }
                 break;
             case PER_N_PENS:
-                activePens = filterActivePens(plottedDrawing.getGlobalDisplayOrder(), false);
-
+                activePens = filterActivePens(plottedDrawing.getGlobalRenderOrder(), false);
 
                 CountDownLatch latch = new CountDownLatch(1);
                 AtomicReference<Integer> result = new AtomicReference<>(-1);
