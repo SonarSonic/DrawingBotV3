@@ -7,7 +7,9 @@
       "presetName": "Original Sizing",
       "userCreated": false,
       "data": {
-        "settingList": {}
+        "settingList": {
+          "useOriginalSizing": "true"
+        }
       }
     },
     {
