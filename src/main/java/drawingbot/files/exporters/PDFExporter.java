@@ -44,7 +44,7 @@ public class PDFExporter {
             Graphics2D graphics = new PdfGraphics2D(content, scaledPageWidth, scaledPageHeight);
             graphics.transform(AffineTransform.getScaleInstance(scale, scale));
             
-            Graphics2DExporter.drawBackground(exportTask, graphics, width, height);
+            Graphics2DExporter.drawBackground(graphics, width, height);
             Graphics2DExporter.preDraw(exportTask, graphics);
             Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);
             Graphics2DExporter.postDraw(exportTask, graphics);

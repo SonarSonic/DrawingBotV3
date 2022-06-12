@@ -2,11 +2,8 @@ package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
-import drawingbot.image.blend.BlendComposite;
-import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.image.ImageTools;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -20,46 +17,38 @@ public class ImageExporter {
         return exportTask.extension.equals(".png"); //TODO CHANGE ME?
     }
 
-    public static BufferedImage createFreshBufferedImage(ExportTask exportTask, boolean isVideo){
-        int rasterWidth = CanvasUtils.getRasterExportWidth(exportTask.exportDrawing.getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
-        int rasterHeight = CanvasUtils.getRasterExportHeight(exportTask.exportDrawing.getCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
-        return createFreshBufferedImage(exportTask, rasterWidth, rasterHeight, isVideo);
-    }
-
-    public static BufferedImage createFreshBufferedImage(ExportTask exportTask, int canvasWidth, int canvasHeight, boolean isVideo){
-        int width = CanvasUtils.getRasterExportWidth(canvasWidth, isVideo);
-        int height = CanvasUtils.getRasterExportHeight(canvasHeight, isVideo);
-        boolean useAlphaChannel = useAlphaChannelOnRaster(exportTask);
-        return new BufferedImage(width, height, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-    }
-
-    public static Graphics2D createFreshGraphics2D(ExportTask exportTask, BufferedImage image){
-        Graphics2D graphics = image.createGraphics();
-        if(!useAlphaChannelOnRaster(exportTask)){
-            Graphics2DExporter.drawBackground(exportTask, graphics, image.getWidth(), image.getHeight());
-        }
-        setBlendMode(exportTask, graphics);
-        return graphics;
-    }
-
-    public static void setBlendMode(ExportTask exportTask, Graphics2D graphics2D){
-        EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
-        if(blendMode != EnumBlendMode.NORMAL){
-            graphics2D.setComposite(new BlendComposite(blendMode));
-        }
-    }
-
     public static void exportImage(ExportTask exportTask, File saveLocation) {
-        BufferedImage image = createFreshBufferedImage(exportTask, false);
-        Graphics2D graphics = createFreshGraphics2D(exportTask, image);
 
-        //apply the scaling caused by the new DPI.
-        double scale = (double)image.getWidth() / exportTask.exportDrawing.canvas.getScaledWidth();
-        graphics.scale(scale, scale);
+        ImageRenderer renderer = new ImageRenderer(exportTask, false);
 
+        Graphics2D graphics = renderer.getGraphics();
         Graphics2DExporter.preDraw(exportTask, graphics);
         Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);
         Graphics2DExporter.postDraw(exportTask, graphics);
+        renderer.dispose();
+
+        try {
+            ImageIO.write(renderer.createExportImage(), exportTask.extension.substring(1), saveLocation);
+        } catch (IOException e) {
+            exportTask.setError(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportReferenceImage(ExportTask exportTask, File saveLocation) {
+        BufferedImage referenceImage = exportTask.exportDrawing.getReferenceImage();
+        if(referenceImage == null) {
+            exportTask.updateMessage("Invalid Reference Image");
+            exportTask.updateProgress(1, 1);
+            return;
+        }
+        BufferedImage image = new BufferedImage((int)exportTask.exportDrawing.getCanvas().getScaledWidth(), (int)exportTask.exportDrawing.getCanvas().getScaledHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+
+        graphics.setColor(ImageTools.getAWTFromFXColor(DrawingBotV3.INSTANCE.drawingArea.canvasColor.get()));
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        graphics.drawImage(referenceImage, null, (int)exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetX(), (int)exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetY());
+        graphics.dispose();
 
         try {
             ImageIO.write(image, exportTask.extension.substring(1), saveLocation);
@@ -67,5 +56,6 @@ public class ImageExporter {
             exportTask.setError(e.getMessage());
             e.printStackTrace();
         }
+        exportTask.updateProgress(1, 1);
     }
 }

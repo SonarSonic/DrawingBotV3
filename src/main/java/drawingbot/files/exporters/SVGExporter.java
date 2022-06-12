@@ -53,8 +53,8 @@ public class SVGExporter {
             Element svgRoot = document.getDocumentElement();
 
             // Set the attributes on the root 'svg' element.
-            svgRoot.setAttributeNS(null, "width", exportTask.exportDrawing.getCanvas().getWidth(UnitsLength.MILLIMETRES) + "mm");
-            svgRoot.setAttributeNS(null, "height", exportTask.exportDrawing.getCanvas().getHeight(UnitsLength.MILLIMETRES) + "mm");
+            svgRoot.setAttributeNS(null, "width", exportTask.exportDrawing.getCanvas().getWidth(UnitsLength.MILLIMETRES) + exportTask.exportDrawing.getCanvas().getUnits().getSuffix());
+            svgRoot.setAttributeNS(null, "height", exportTask.exportDrawing.getCanvas().getHeight(UnitsLength.MILLIMETRES) + exportTask.exportDrawing.getCanvas().getUnits().getSuffix());
 
             if(inkscape){
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
@@ -79,7 +79,7 @@ public class SVGExporter {
             backgroundGraphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
             backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
-            Graphics2DExporter.drawBackground(exportTask, backgroundGraphics, width, height);
+            Graphics2DExporter.drawBackground(backgroundGraphics, width, height);
             Graphics2DExporter.preDraw(exportTask, backgroundGraphics);
             Graphics2DExporter.postDraw(exportTask, backgroundGraphics);
 
@@ -124,8 +124,8 @@ public class SVGExporter {
                 if(group.hasChildNodes()){
                     Node graphicsNode = document.importNode(group, true);
                     svgRoot.appendChild(graphicsNode);
-                    graphics.dispose();
                 }
+                graphics.dispose();
                 index++;
             }
 
