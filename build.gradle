@@ -43,6 +43,7 @@ dependencies {
     implementation "org.apache.bcel:bcel:${bcel_version}"
     implementation "com.aparapi:aparapi:${aparapi_version}"
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
+    implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
 

@@ -9,7 +9,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class FileUtils {
 
-    public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.gif", "*.bmp", "*.jpeg");
+    public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.webp", "*.gif", "*.bmp", "*.jpeg");
     public static final FileChooser.ExtensionFilter IMPORT_VIDEOS = new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.mov", "*.avi");
 
     public static final FileChooser.ExtensionFilter FILTER_JSON = new FileChooser.ExtensionFilter("JSON - JavaScript Object Notation", "*.json");
@@ -19,6 +19,7 @@ public class FileUtils {
     public static final FileChooser.ExtensionFilter FILTER_TGA = new FileChooser.ExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");
     public static final FileChooser.ExtensionFilter FILTER_PNG = new FileChooser.ExtensionFilter("PNG - Portable Network Graphics", "*.png");
     public static final FileChooser.ExtensionFilter FILTER_JPG = new FileChooser.ExtensionFilter("JPG - Joint Photographic Experts Group", "*.jpg");
+    public static final FileChooser.ExtensionFilter FILTER_WEBP = new FileChooser.ExtensionFilter("WEBP - Google WebP", "*.webp");
     public static final FileChooser.ExtensionFilter FILTER_MP4 = new FileChooser.ExtensionFilter("MP4 - MPEG-4", "*.mp4");
     public static final FileChooser.ExtensionFilter FILTER_MOV = new FileChooser.ExtensionFilter("MOV - QuickTime File Format", "*.mov");
 
