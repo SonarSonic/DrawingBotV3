@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
 import java.util.function.Function;
 
@@ -149,8 +151,99 @@ public class ImageTools {
         return freshImage;
     }
 
+    public static BufferedImage applyPreCrop(BufferedImage image, AffineTransform transform, Shape cropShape){
+        Rectangle2D bounds = cropShape.getBounds2D();
+        BufferedImage bufferedImage = new BufferedImage((int)bounds.getWidth(), (int)bounds.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = bufferedImage.createGraphics();
+        //graphics.transform(transform);
+        graphics.drawImage(image, null, (int) -bounds.getX(),(int) -bounds.getY());
+        graphics.dispose();
+        return bufferedImage;
+    }
 
-    public static BufferedImage transformImage(BufferedImage image, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
+    public static AffineTransform getCanvasRotationTransform(ICanvas canvas, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
+        AffineTransform tx = new AffineTransform();
+
+        if(flipHorizontal){
+            tx.translate(canvas.getScaledWidth(), 0);
+            tx.scale(-1.0, 1.0);
+        }
+
+        if(flipVertical){
+            tx.translate(0, canvas.getScaledHeight());
+            tx.scale(1.0, -1.0);
+        }
+
+        switch (imageRotation){
+            case R90 -> {
+                tx.translate(canvas.getScaledHeight(), 0);
+                tx.rotate(Math.toRadians(90));
+            }
+            case R180 -> {
+                tx.translate(canvas.getScaledWidth(), canvas.getScaledHeight());
+                tx.rotate(Math.toRadians(180));
+            }
+            case R270 -> {
+                tx.translate(0, canvas.getScaledWidth());
+                tx.rotate(Math.toRadians(-90));
+            }
+        }
+        return tx;
+    }
+
+    public static AffineTransform getCanvasScaleTransform(ICanvas sourceCanvas, ICanvas destCanvas){
+
+        AffineTransform tx = new AffineTransform();
+        if(destCanvas.useOriginalSizing()){
+            return tx;
+        }
+
+        final EnumScalingMode mode = destCanvas.getScalingMode();
+        switch (mode) {
+            case CROP_TO_FIT -> {
+                int[] crops = CanvasUtils.getCroppedImageSize(destCanvas, (int)sourceCanvas.getScaledWidth(), (int)sourceCanvas.getScaledHeight());
+                int width = crops[0];
+                int height = crops[1];
+                int cropX = crops[2];
+                int cropY = crops[3];
+                if(destCanvas.optimiseForPrint()) {
+                    tx.scale(destCanvas.getScaledDrawingWidth() / width, destCanvas.getScaledDrawingHeight() / height);
+                }
+                tx.translate(-cropX, -cropY);
+            }
+            case SCALE_TO_FIT -> {
+                if(destCanvas.optimiseForPrint()) {
+                    double widthScale = destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth();
+                    double heightScale = destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight();
+                    double rescale = Math.min(widthScale, heightScale);
+
+                    tx.scale(rescale, rescale);
+
+                }
+            }
+            case STRETCH_TO_FIT -> {
+                if(destCanvas.optimiseForPrint()) {
+                    tx.scale(destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth(), destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight());
+                }else{
+                    double currentRatio = sourceCanvas.getScaledWidth() / sourceCanvas.getScaledHeight();
+                    double targetRatio = destCanvas.getDrawingWidth() / destCanvas.getDrawingHeight();
+
+                    double scaleX = 1;
+                    double scaleY = 1;
+
+                    if(targetRatio < currentRatio){
+                        scaleY = currentRatio / targetRatio;
+                    }else{
+                        scaleX = targetRatio / currentRatio;
+                    }
+                    tx.scale(scaleX, scaleY);
+                }
+            }
+        }
+        return tx;
+    }
+
+    public static BufferedImage rotateImage(BufferedImage image, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
         if(flipHorizontal){
             image = Scalr.rotate(image, Scalr.Rotation.FLIP_HORZ);
         }
@@ -380,6 +473,12 @@ public class ImageTools {
             return -1;
         }
         return getARGB((int)(color.getOpacity() * 255F), (int)(color.getRed() * 255F), (int)(color.getGreen() * 255F), (int)(color.getBlue() * 255F));
+    }
+    public static int getARGBFromAWTColor(java.awt.Color color){
+        if(color == null){
+            return -1;
+        }
+        return getARGB(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
     }
 
     public static int getARGBFromFloat(float a, float r, float g, float b){

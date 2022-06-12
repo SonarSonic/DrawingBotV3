@@ -2,6 +2,10 @@ package drawingbot.registry;
 
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
+import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.IFileLoaderFactory;
+import drawingbot.files.loaders.ImageFileLoaderFactory;
+import drawingbot.files.loaders.ProjectFileLoaderFactory;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plugins.*;
 import drawingbot.utils.DBConstants;
@@ -154,6 +158,8 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, true));
         MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, true));
+        MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
+        MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());
     }
 
     @Override

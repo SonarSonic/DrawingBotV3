@@ -7,6 +7,7 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
@@ -36,7 +37,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
     @Override
     public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset) {
         PlottedDrawing renderedDrawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
-        preset.data.imagePath = DrawingBotV3.INSTANCE.openFile != null ? DrawingBotV3.INSTANCE.openFile.getPath() : "";
+        preset.data.imagePath = DrawingBotV3.INSTANCE.openImage.get() != null && DrawingBotV3.INSTANCE.openImage.get().getSourceFile() != null ? DrawingBotV3.INSTANCE.openImage.get().getSourceFile().getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
         preset.data.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
@@ -163,7 +164,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             //the drawing state used the newer version of the Geometry Serializer and can be serialized separately to the image
             DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, preset.data.drawingState));
             if(!preset.data.imagePath.isEmpty()) {
-                BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
+                AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED) {
                         FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
@@ -175,7 +176,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             //to support older versions of the Geometry Serializer, we need to first load the image and only when it's loaded do we try to load the drawing state
             if(!preset.data.imagePath.isEmpty()){
                 Platform.runLater(() -> {
-                    BufferedImageLoader.Filtered loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
+                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if(newValue == Worker.State.FAILED){
                             FXHelper.importFile((file, chooser) -> {
