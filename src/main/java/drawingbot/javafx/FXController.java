@@ -15,12 +15,14 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.utils.*;
+import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
@@ -45,10 +47,13 @@ import java.util.logging.Level;
 
 public class FXController {
 
+    public static final String STYLESHEET_VIEWPORT_OVERLAYS = "viewport-overlays.css";
+
     public FXDrawingArea drawingAreaController;
     public FXImageFilters imageFiltersController;
     public FXPFMControls pfmSettingsController;
     public FXDrawingSets drawingSetsController;
+    public FXMaskingSettings maskingSettingsController;
     public FXVersionControl versionControlController;
 
     public TitledPane titledPaneBatchProcessing = null;
@@ -69,6 +74,8 @@ public class FXController {
 
         drawingSetsController.drawingSets.set(DrawingBotV3.INSTANCE.drawingSets);
 
+        maskingSettingsController.maskingSettings.set(DrawingBotV3.INSTANCE.maskingSettings);
+
         versionControlController.projectVersions.set(DrawingBotV3.INSTANCE.projectVersions);
 
         try{
@@ -82,12 +89,6 @@ public class FXController {
 
             viewportScrollPane.setHvalue(0.5);
             viewportScrollPane.setVvalue(0.5);
-
-            viewportScrollPane.setOnMouseMoved(DrawingBotV3.INSTANCE::onMouseMovedViewport);
-            viewportScrollPane.setOnMousePressed(DrawingBotV3.INSTANCE::onMousePressedViewport);
-            viewportScrollPane.setOnKeyPressed(DrawingBotV3.INSTANCE::onKeyPressedViewport);
-
-            initSeparateStages();
 
         }catch (Exception e){
             DrawingBotV3.logger.log(Level.SEVERE, "Failed to initialize JAVA FX", e);
@@ -113,12 +114,13 @@ public class FXController {
 
 
     public void initSeparateStages() {
-        FXHelper.initSeparateStage("/fxml/exportsettings.fxml", exportSettingsStage = new Stage(), exportController = new FXExportController(), "Export Settings", Modality.APPLICATION_MODAL);
-        FXHelper.initSeparateStage("/fxml/vpypesettings.fxml", vpypeSettingsStage = new Stage(), vpypeController = new FXVPypeController(), "vpype Settings", Modality.APPLICATION_MODAL);
-        FXHelper.initSeparateStage("/fxml/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), mosaicController = new FXStylesController(), "Mosaic Settings", Modality.APPLICATION_MODAL);
-        FXHelper.initSeparateStage("/fxml/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
-        FXHelper.initSeparateStage("/fxml/taskmonitor.fxml", taskMonitorStage = new Stage(), taskMonitorController = new FXTaskMonitorController(), "Task Monitor", Modality.NONE);
-        FXHelper.initSeparateStage("/fxml/projectmanager.fxml", projectManagerStage = new Stage(), projectManagerController = new FXProjectManagerController(), "Project Manager", Modality.NONE);
+        exportController = FXHelper.initSeparateStage("/drawingbot/javafx/exportsettings.fxml", exportSettingsStage = new Stage(), "Export Settings", Modality.APPLICATION_MODAL);
+        vpypeController = FXHelper.initSeparateStage("/drawingbot/javafx/vpypesettings.fxml", vpypeSettingsStage = new Stage(), "vpype Settings", Modality.APPLICATION_MODAL);
+        mosaicController = FXHelper.initSeparateStage("/drawingbot/javafx/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), "Mosaic Settings", Modality.APPLICATION_MODAL);
+        taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
+        projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
+
+        FXHelper.initSeparateStageWithController("/drawingbot/javafx/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
     }
 
 
@@ -143,7 +145,6 @@ public class FXController {
     public Map<TitledPane, Node> settingsContent = new LinkedHashMap<>();
 
     public void initToolbar(){
-        //file
         MenuItem menuOpen = new MenuItem("Open Project");
         menuOpen.setOnAction(e -> FXHelper.importPreset(Register.PRESET_TYPE_PROJECT, true, false));
         menuFile.getItems().add(menuOpen);
@@ -184,6 +185,16 @@ public class FXController {
         MenuItem menuVideo = new MenuItem("Import Video");
         menuVideo.setOnAction(e -> FXHelper.importVideoFile());
         menuFile.getItems().add(menuVideo);
+
+        if(FXApplication.isPremiumEnabled) {
+            MenuItem menuSVG = new MenuItem("Import SVG");
+            menuSVG.setOnAction(e -> FXHelper.importSVGFile());
+            menuFile.getItems().add(menuSVG);
+        }else{
+            MenuItem menuSVG = new MenuItem("Import SVG " + "(Premium)");
+            menuSVG.setOnAction(e -> showPremiumFeatureDialog());
+            menuFile.getItems().add(menuSVG);
+        }
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
@@ -251,6 +262,11 @@ public class FXController {
                 allPanes.add((TitledPane) node);
             }
         }
+        MenuItem fullScreen = new MenuItem("Fullscreen Mode");
+        fullScreen.setOnAction(a -> FXApplication.primaryStage.setFullScreen(!FXApplication.primaryStage.isFullScreen()));
+        menuView.getItems().add(fullScreen);
+        menuView.getItems().add(new SeparatorMenuItem());
+
         for(TitledPane pane : allPanes){
             MenuItem viewButton = new MenuItem(pane.getText());
             viewButton.setOnAction(e -> {
@@ -363,6 +379,7 @@ public class FXController {
     ////VIEWPORT WINDOW
     public VBox vBoxViewportContainer = null;
     public ZoomableScrollPane viewportScrollPane = null;
+    public AnchorPane viewportOverlayAnchorPane = null;
 
     ////VIEWPORT SETTINGS
     public RangeSlider rangeSliderDisplayedLines = null;
@@ -373,6 +390,7 @@ public class FXController {
 
     public ChoiceBox<IDisplayMode> choiceBoxDisplayMode = null;
     public ComboBox<EnumBlendMode> comboBoxBlendMode = null;
+    public ToggleButton toggleDPIScaling = null;
     public Button buttonResetView = null;
 
     ////PLOT DETAILS
@@ -456,12 +474,13 @@ public class FXController {
 
         checkBoxApplyToExport.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.exportRange);
 
-        choiceBoxDisplayMode.getItems().addAll(MasterRegistry.INSTANCE.displayModes);
+        choiceBoxDisplayMode.getItems().addAll(MasterRegistry.INSTANCE.displayModes.filtered(d->!d.isHidden()));
         choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.displayMode);
 
         comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
         comboBoxBlendMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.blendMode);
 
+        toggleDPIScaling.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.dpiScaling);
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
         /*
@@ -489,8 +508,52 @@ public class FXController {
         viewportScrollPane.setMaxWidth(Double.MAX_VALUE);
         viewportScrollPane.setMaxHeight(Double.MAX_VALUE);
         viewportScrollPane.setPannable(true);
+        viewportScrollPane.scaleProperty.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+
+        viewportScrollPane.contentProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                newValue.styleProperty().unbind();
+                newValue.styleProperty().bind(Bindings.createStringBinding(() -> {
+                    Color c = DrawingBotV3.INSTANCE.drawingArea.backgroundColor.get();
+                    return "-fx-background-color: rgb(" + (int)(c.getRed()*255) + "," + (int)(c.getGreen()*255) + ", " + (int)(c.getBlue()*255) + ", " + c.getOpacity() + ");";
+                }, DrawingBotV3.INSTANCE.drawingArea.backgroundColor));
+            }
+        });
+
+
+
         VBox.setVgrow(viewportScrollPane, Priority.ALWAYS);
+        HBox.setHgrow(viewportScrollPane, Priority.ALWAYS);
+
+        /*
+        viewportStackPane = new Pane();
+        viewportStackPane.getChildren().add(viewportScrollPane);
+        VBox.setVgrow(viewportStackPane, Priority.ALWAYS);
+        HBox.setHgrow(viewportStackPane, Priority.ALWAYS);
+        vBoxViewportContainer.getChildren().add(viewportStackPane);
+
+         */
+
+        viewportOverlayAnchorPane = new AnchorPane();
+        viewportOverlayAnchorPane.setPickOnBounds(false);
+        Rectangle overlayClip = new Rectangle(0, 0,0,0);
+        overlayClip.widthProperty().bind(viewportScrollPane.widthProperty().subtract(14)); //14 = subtract the scrollbars
+        overlayClip.heightProperty().bind(viewportScrollPane.heightProperty().subtract(14));
+        viewportOverlayAnchorPane.layoutXProperty().bind(viewportScrollPane.layoutXProperty());
+        viewportOverlayAnchorPane.layoutYProperty().bind(viewportScrollPane.layoutYProperty());
+        viewportOverlayAnchorPane.setManaged(false);
+        viewportOverlayAnchorPane.setClip(overlayClip);
+        viewportOverlayAnchorPane.getStylesheets().add(FXController.class.getResource(STYLESHEET_VIEWPORT_OVERLAYS).toExternalForm());
+
+
+
+
         vBoxViewportContainer.getChildren().add(viewportScrollPane);
+        vBoxViewportContainer.getChildren().add(viewportOverlayAnchorPane);
 
         viewportScrollPane.setOnDragOver(event -> {
 
@@ -521,6 +584,8 @@ public class FXController {
         labelPlottingResolution.setText("0 x 0");
         labelCurrentPosition.setText("0 x 0 y");
     }
+
+
 
     private final WritableImage snapshotImage = new WritableImage(1, 1);
     private ObservableDrawingPen penForColourPicker;

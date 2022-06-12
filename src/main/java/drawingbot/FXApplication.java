@@ -6,11 +6,12 @@ import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.JsonLoaderManager;
-import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
+import drawingbot.render.overlays.*;
+import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
@@ -18,9 +19,12 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -90,16 +94,15 @@ public class FXApplication extends Application {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //// INIT GUI
-        DrawingBotV3.INSTANCE.controller = new FXController();
 
-        FXMLLoader uiLoader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml")); // abs path to fxml file
-        uiLoader.setController(DrawingBotV3.INSTANCE.controller);
+        FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml"));
+        Parent root = loader.load();
+        DrawingBotV3.INSTANCE.controller = loader.getController();
+        DrawingBotV3.INSTANCE.controller.initSeparateStages();
 
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        FXApplication.primaryScene = new Scene(uiLoader.load(), visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
-        FXApplication.primaryScene.setOnKeyPressed(DrawingBotV3.INSTANCE::keyPressed);
-        FXApplication.primaryScene.setOnKeyReleased(DrawingBotV3.INSTANCE::keyReleased);
-        FXApplication.primaryScene.setOnMouseMoved(mouseMonitor = new MouseMonitor());
+        FXApplication.primaryScene = new Scene(root, visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
+
 
         if(!isHeadless) {
             primaryStage.setScene(primaryScene);
@@ -121,6 +124,14 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.INSTANCE.onDisplayModeChanged(oldValue, newValue);
         });
+
+        // INIT OVERLAYS
+        MasterRegistry.INSTANCE.overlays.forEach(AbstractOverlay::init);
+
+        //TODO PRESET DEFAULTS
+        RulerOverlays.INSTANCE.setActive(true);
+        //DrawingBorderOverlays.INSTANCE.setActive(true);
+        ShapeOverlays.INSTANCE.setActive(true);
 
         // set up main drawing loop
         drawTimer = new DrawTimer(this);
@@ -144,6 +155,15 @@ public class FXApplication extends Application {
         for(IPlugin plugin : MasterRegistry.PLUGINS){
             plugin.loadJavaFXStages();
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // INIT EVENT HANDLERS
+        FXApplication.primaryScene.addEventHandler(MouseEvent.MOUSE_MOVED, mouseMonitor = new MouseMonitor());
+
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_MOVED, DrawingBotV3.INSTANCE::onMouseMovedViewport);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, DrawingBotV3.INSTANCE::onMousePressedViewport);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, DrawingBotV3.INSTANCE::onKeyPressedViewport);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -194,7 +214,6 @@ public class FXApplication extends Application {
 
         public final FXApplication fxApplication;
         private final LazyTimer timer = new LazyTimer();
-        public int resetLayoutTimer = 0;
 
         private boolean isFirstTick = true;
 
@@ -211,19 +230,29 @@ public class FXApplication extends Application {
                 return;
             }
 
+            timer.start();
+            DrawingBotV3.INSTANCE.displayMode.get().getRenderer().preRender();
+            MasterRegistry.INSTANCE.overlays.forEach(o -> {
+                if(o.isActive()){
+                    o.preRender();
+                }
+            });
+
+            DrawingBotV3.INSTANCE.displayMode.get().getRenderer().doRender();
+            MasterRegistry.INSTANCE.overlays.forEach(o -> {
+                if(o.isActive()){
+                    o.doRender();
+                }
+            });
             DrawingBotV3.INSTANCE.updateUI();
 
-            if(resetLayoutTimer > 0){
-                resetLayoutTimer--;
-                if(resetLayoutTimer == 0) {
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
+            DrawingBotV3.INSTANCE.displayMode.get().getRenderer().postRender();
+            MasterRegistry.INSTANCE.overlays.forEach(o -> {
+                if(o.isActive()){
+                    o.postRender();
                 }
-            }
+            });
 
-            timer.start();
-
-            DrawingBotV3.INSTANCE.displayMode.get().getRenderer().draw();
 
             timer.finish();
 

@@ -57,6 +57,14 @@ public class FXHelper {
         importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_VIDEOS);
     }
 
+    public static void importSVGFile(){
+        if(!FXApplication.isPremiumEnabled){
+            FXController.showPremiumFeatureDialog();
+            return;
+        }
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.FILTER_SVG);
+    }
+
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
         importFile(callback, new FileChooser.ExtensionFilter[]{filter}, "Select a file to import");
     }
@@ -205,18 +213,31 @@ public class FXHelper {
         }
     }
 
-
-    public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
+    public static void initSeparateStageWithController(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
         try {
-            FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource(fmxlPath));
+            FXMLLoader exportUILoader = new FXMLLoader(FXController.class.getResource(fmxlPath));
             exportUILoader.setController(controller);
-            initSeparateStage(exportUILoader.load(), stage, stageTitle, modality);
+            initSeparateStageProps(exportUILoader.load(), stage, stageTitle, modality);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void initSeparateStage(Parent parent, Stage stage, String stageTitle, Modality modality){
+    public static <T> T initSeparateStage(String fmxlPath, Stage stage, String stageTitle, Modality modality){
+        try {
+            FXMLLoader exportUILoader = new FXMLLoader(FXController.class.getResource(fmxlPath));
+            Parent root = exportUILoader.load();
+            T controller = exportUILoader.getController();
+            exportUILoader.setController(controller);
+            initSeparateStageProps(root, stage, stageTitle, modality);
+            return controller;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void initSeparateStageProps(Parent parent, Stage stage, String stageTitle, Modality modality){
         Scene scene = new Scene(parent);
         stage.initModality(modality);
         stage.initOwner(FXApplication.primaryStage);
@@ -414,6 +435,7 @@ public class FXHelper {
             }else{
                 TextField field = setting.getEditableTextField();
                 gridPane.addRow(i, label, node, setting.getEditableTextField());
+
                 field.setOnAction(e -> {
                     setting.setValueFromString(field.getText());
                     if(onChanged != null) {

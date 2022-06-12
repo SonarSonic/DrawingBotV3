@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="517.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="517.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.integrations.vpype.FXVPypeController">
     <AnchorPane minHeight="0.0" minWidth="0.0">
         <children>
             <VBox spacing="10.0">

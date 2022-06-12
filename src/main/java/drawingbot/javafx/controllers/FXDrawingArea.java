@@ -50,6 +50,7 @@ public class FXDrawingArea {
     public TextField textFieldPenWidth = null;
 
     public ColorPicker colorPickerCanvas = null;
+    public ColorPicker colorPickerBackground = null;
 
     public ChoiceBox<EnumClippingMode> choiceBoxClippingMode = null;
 
@@ -76,6 +77,7 @@ public class FXDrawingArea {
                 textFieldPenWidth.textProperty().unbindBidirectional(oldValue.targetPenWidth);
 
                 colorPickerCanvas.valueProperty().unbindBidirectional(oldValue.canvasColor);
+                colorPickerBackground.valueProperty().unbindBidirectional(oldValue.backgroundColor);
                 choiceBoxClippingMode.valueProperty().unbindBidirectional(oldValue.clippingMode);
 
                 choiceBoxOrientation.valueProperty().unbindBidirectional(oldValue.orientation);
@@ -101,6 +103,7 @@ public class FXDrawingArea {
                 textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter());
 
                 colorPickerCanvas.valueProperty().bindBidirectional(newValue.canvasColor);
+                colorPickerBackground.valueProperty().bindBidirectional(newValue.backgroundColor);
                 choiceBoxClippingMode.valueProperty().bindBidirectional(newValue.clippingMode);
 
                 choiceBoxOrientation.valueProperty().bindBidirectional(newValue.orientation);

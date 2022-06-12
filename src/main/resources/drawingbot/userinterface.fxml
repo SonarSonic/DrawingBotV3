@@ -7,7 +7,7 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -35,7 +35,10 @@
                                    <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml" />
                               </TitledPane>
                               <TitledPane maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
-                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml"/>
+                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml" />
+                              </TitledPane>
+                              <TitledPane maxHeight="1.7976931348623157E308" text="Mask Settings" VBox.vgrow="ALWAYS">
+                                 <fx:include fx:id="maskingSettings" source="javafx/controllers/maskingsettings.fxml" />
                               </TitledPane>
                               <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
                                     <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
@@ -85,6 +88,7 @@
                            </graphic>
                         </Label>
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
+                        <ToggleButton fx:id="toggleDPIScaling" mnemonicParsing="false" text="Lock 1:1" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                         <Separator layoutX="649.0" layoutY="20.0" prefHeight="30.0" prefWidth="14.0" />
                      </items>

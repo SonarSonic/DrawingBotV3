@@ -3,6 +3,9 @@ package drawingbot.javafx.controls;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -26,11 +29,11 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
             setGraphic(null);
         } else {
             setText("  " + item.toString());
-            setGraphic(createPenPalette(item.getPens()));
+            setGraphic(createStaticPenPalette(item.getPens()));
         }
     }
 
-    public static HBox createPenPalette(List<? extends IDrawingPen> drawingPens){
+    public static HBox createStaticPenPalette(List<? extends IDrawingPen> drawingPens){
         HBox box = new HBox();
         int minColourWidth = 2;
         int maxColourWidth = 20;

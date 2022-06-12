@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXExportController">
    <children>
       <TabPane minHeight="400.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -496,6 +496,20 @@
                                        </graphic>
                                     </Label>
                                     <ChoiceBox fx:id="choiceBoxTimeUnits" prefHeight="30.0" prefWidth="205.0" />
+                                 </children>
+                              </HBox>
+                              <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                                 <children>
+                                    <Label contentDisplay="RIGHT" prefHeight="30.0" text="Frame Hold Start:">
+                                       <graphic>
+                                          <TextField fx:id="textFieldHoldStart" prefHeight="25.0" prefWidth="72.0" text="60" />
+                                       </graphic>
+                                    </Label>
+                                    <Label contentDisplay="RIGHT" layoutX="95.0" layoutY="10.0" prefHeight="25.0" text="Frame Hold End:">
+                                       <graphic>
+                                          <TextField fx:id="textFieldHoldEnd" prefHeight="25.0" prefWidth="69.0" text="60" />
+                                       </graphic>
+                                    </Label>
                                  </children>
                               </HBox>
                               <Separator prefWidth="200.0" />

@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -84,7 +85,7 @@ public class FXDrawingSets {
 
     public TableView<ObservableDrawingSet> drawingSetTableView = null;
     public TableColumn<ObservableDrawingSet, String> drawingSetNameColumn = null;
-    public TableColumn<ObservableDrawingSet, List<ObservableDrawingPen>> drawingSetPensColumn = null;
+    public TableColumn<ObservableDrawingSet, ObservableList<ObservableDrawingPen>> drawingSetPensColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionType> drawingSetDistributionTypeColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionOrder> drawingSetDistributionOrderColumn = null;
     public TableColumn<ObservableDrawingSet, ColourSeperationHandler> drawingSetColourSeperatorColumn = null;
@@ -334,7 +335,7 @@ public class FXDrawingSets {
         drawingSetNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         drawingSetNameColumn.setCellValueFactory(param -> param.getValue().name);
 
-        drawingSetPensColumn.setCellFactory(param -> new TableCellNode<>(ComboCellDrawingSet::createPenPalette));
+        drawingSetPensColumn.setCellFactory(param -> new TableCellNode<>(value -> new ControlPenPalette(value, drawingSetPensColumn.widthProperty())));
         drawingSetPensColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().pens));
 
         drawingSetDistributionTypeColumn.setCellFactory(param -> new ComboBoxTableCell<>(FXCollections.observableArrayList(EnumDistributionType.values())));

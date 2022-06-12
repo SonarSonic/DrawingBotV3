@@ -1,6 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -9,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
 //SRC: https://stackoverflow.com/questions/39827911/javafx-8-scaling-zooming-scrollpane-relative-to-mouse-position
@@ -19,6 +21,7 @@ public class ZoomableScrollPane extends ScrollPane {
     public double scaleValue = 1D;
     public double zoomIntensity = 0.02;
     public Node target;
+    public Node overlays;
     public Node zoomNode;
 
     public ZoomableScrollPane(){
@@ -43,7 +46,7 @@ public class ZoomableScrollPane extends ScrollPane {
         Node outerNode = centeredNode(node);
         outerNode.setOnScroll(e -> {
             e.consume();
-            onScroll(e.getDeltaY()/10, DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL() ? new Point2D(e.getSceneX(), e.getSceneY()) :new Point2D(e.getX(), e.getY()));
+            onScroll(e.getDeltaY()/10, new Point2D(e.getSceneX(), e.getSceneY()));
         });
         return outerNode;
     }
@@ -55,15 +58,23 @@ public class ZoomableScrollPane extends ScrollPane {
     }
 
     public void updateScale() {
-
         scaleProperty.set(scaleValue);
         if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL()){
             target.setScaleX(scaleValue);
             target.setScaleY(scaleValue);
+            DrawingBotV3.RENDERER.updateCanvasScaling();
         }
     }
 
     public void onScroll(double wheelDelta, Point2D mousePoint) {
+        if(DrawingBotV3.INSTANCE.dpiScaling.get()){
+            return;
+        }
+        if(!DrawingBotV3.INSTANCE.displayMode.get().getRenderer().isOpenGL()){
+            mousePoint = getContent().sceneToLocal(mousePoint);
+        }
+
+
         double zoomFactor = Math.exp(wheelDelta * zoomIntensity);
 
         Bounds viewportBounds = getViewportBounds();

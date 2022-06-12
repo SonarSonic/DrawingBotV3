@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.FXTaskMonitorController">
     <AnchorPane>
       <children>
          <TaskProgressView fx:id="taskProgressView" prefHeight="267.0" prefWidth="599.0" />

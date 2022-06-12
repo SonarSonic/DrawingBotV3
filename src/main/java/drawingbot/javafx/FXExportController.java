@@ -238,6 +238,8 @@ public class FXExportController {
     public TextField textFieldDPI = null;
     public TextField textFieldFPS = null;
     public TextField textFieldDuration = null;
+    public TextField textFieldHoldStart = null;
+    public TextField textFieldHoldEnd = null;
     public ChoiceBox<UnitsTime> choiceBoxTimeUnits = null;
 
     
@@ -269,7 +271,21 @@ public class FXExportController {
         textFieldDuration.setText("" + ConfigFileHandler.getApplicationSettings().duration);
         textFieldDuration.textProperty().addListener((observable, oldValue, newValue) -> {
             ConfigFileHandler.getApplicationSettings().duration = Integer.parseInt(newValue);
+            updateImageSequenceStats();
+        });
 
+        textFieldHoldStart.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 1));
+        textFieldHoldStart.setText("" + ConfigFileHandler.getApplicationSettings().frameHoldStart);
+        textFieldHoldStart.textProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigFileHandler.getApplicationSettings().frameHoldStart = Integer.parseInt(newValue);
+            updateImageSequenceStats();
+        });
+
+
+        textFieldHoldEnd.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 1));
+        textFieldHoldEnd.setText("" + ConfigFileHandler.getApplicationSettings().frameHoldEnd);
+        textFieldHoldEnd.textProperty().addListener((observable, oldValue, newValue) -> {
+            ConfigFileHandler.getApplicationSettings().frameHoldEnd = Integer.parseInt(newValue);
             updateImageSequenceStats();
         });
 
@@ -298,8 +314,8 @@ public class FXExportController {
         }
         
         if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.INSTANCE.openImage.get().getDestCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
-            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.INSTANCE.openImage.get().getDestCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.INSTANCE.openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.INSTANCE.openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
             labelExportSize.setText(exportWidth + " x " + exportHeight);
         }else{
             labelExportSize.setText("0 x 0");

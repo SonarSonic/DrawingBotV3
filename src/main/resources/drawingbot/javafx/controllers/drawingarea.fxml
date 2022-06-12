@@ -98,8 +98,14 @@
                             <Separator prefWidth="200.0" translateX="2.0" />
                             <HBox prefHeight="31.0" prefWidth="384.0">
                                 <children>
-                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="82.0" text="Canvas Color:" translateX="3.0" />
-                                    <ColorPicker fx:id="colorPickerCanvas" prefHeight="25.0" prefWidth="136.0" />
+                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="50.0" text="Canvas:" translateX="3.0" />
+                                    <ColorPicker fx:id="colorPickerCanvas" prefHeight="25.0" prefWidth="118.0" />
+                              <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="25.0" prefWidth="72.0" text="Background:">
+                                 <HBox.margin>
+                                    <Insets left="12.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <ColorPicker fx:id="colorPickerBackground" layoutX="92.0" layoutY="10.0" prefHeight="25.0" prefWidth="118.0" />
                                 </children>
                             </HBox>
                         <Separator layoutX="10.0" layoutY="10.0" prefWidth="200.0" />

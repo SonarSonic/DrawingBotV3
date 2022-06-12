@@ -3,10 +3,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="380.0" prefWidth="843.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
-   <SplitPane dividerPositions="0.5" prefHeight="386.0" prefWidth="843.0">
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXStylesController">
+   <SplitPane dividerPositions="0.5059241706161137" prefHeight="377.0" prefWidth="846.0">
      <items>
-         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="426.0" prefWidth="841.0">
+         <AnchorPane minHeight="0.0" minWidth="0.0">
              <children>
                  <TableView fx:id="stylesTableView" editable="true" layoutX="7.0" layoutY="14.0" prefHeight="282.0" prefWidth="403.0" tableMenuButtonVisible="true">
                      <columns>
@@ -32,7 +32,7 @@
              </children>
          </AnchorPane>
 
-         <AnchorPane fx:id="anchorPanePFM" minHeight="0.0" minWidth="0.0" prefHeight="384.0" prefWidth="432.0">
+         <AnchorPane fx:id="anchorPanePFM" minHeight="0.0" minWidth="0.0" prefHeight="375.0" prefWidth="423.0">
              <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="86.0" prefHeight="244.0" prefWidth="404.0" tableMenuButtonVisible="true">
                  <columns>
                      <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="132.0" text="Setting" />
