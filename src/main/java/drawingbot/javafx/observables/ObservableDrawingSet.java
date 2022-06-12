@@ -64,6 +64,14 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         Platform.runLater(() -> DrawingBotV3.INSTANCE.onDrawingSetChanged()); //TODO REMOVE ME!
     }
 
+    public void mergePens(List<ObservableDrawingPen> pens){
+        for(IDrawingPen pen : pens){
+            if(!containsPen(pen)){
+                pens.add(new ObservableDrawingPen(pens.size(), pen));
+            }
+        }
+    }
+
     public void addNewPen(IDrawingPen pen){
         pens.add(new ObservableDrawingPen(pens.size(), pen));
     }

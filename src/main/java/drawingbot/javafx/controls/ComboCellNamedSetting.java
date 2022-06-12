@@ -22,20 +22,16 @@ public class ComboCellNamedSetting<S extends INamedSetting> extends ComboBoxList
         } else {
             HBox box = new HBox();
             box.getChildren().add(new Label("  " + item.getDisplayName()));
-
             if(item.isPremiumFeature() && !FXApplication.isPremiumEnabled){
                 Label premiumLabel = new Label(" (Premium)");
-                box.getChildren().add(new Label("  " + item.getDisplayName()));
                 box.getChildren().add(premiumLabel);
             }else if(!item.getReleaseState().isRelease()){
                 Label stateLabel = new Label(" (" + item.getReleaseState().getDisplayName() + ")");
                 stateLabel.setStyle("-fx-font-weight: bold");
                 box.getChildren().add(stateLabel);
             }
-
             setText(null);
             setGraphic(box);
-
         }
     }
 }

@@ -169,30 +169,30 @@ public class Utils {
         return x + mult - mod;
     }
 
-    public static double floorTo(double x, double mult) {
-        return mult == 0D ? x : x - (x % mult);
+    public static double floorTo(double v, double mult) {
+        return mult == 0D ? v : v - (v % mult);
     }
 
-    public static double ceilTo(double x, double mult) {
-        if (mult == 0D) return x;
-        double mod = x % mult;
-        return mod == 0D ? x : x + mult - mod;
+    public static double ceilTo(double v, double mult) {
+        if (mult == 0D) return v;
+        double mod = v % mult;
+        return mod == 0D ? v : v + mult - mod;
     }
 
-    public static double roundToMultiple(double x, double mult) {
+    public static double roundToMultiple(double v, double mult) {
         if (mult == 0D) {
-            return x;
+            return v;
         }
-        double mod = x % mult;
-        return mod >= mult/2D ? x + mult - mod : x - mod;
+        double mod = v % mult;
+        return mod >= mult/2D ? v + mult - mod : v - mod;
     }
 
-    public static float roundToMultiple(float x, float mult) {
+    public static float roundToMultiple(float v, float mult) {
         if (mult == 0F) {
-            return x;
+            return v;
         }
-        float mod = x % mult;
-        return mod >= mult/2F ? x + mult - mod : x - mod;
+        float mod = v % mult;
+        return mod >= mult/2F ? v + mult - mod : v - mod;
     }
 
     public static double roundToPrecision(double value, int precision) {

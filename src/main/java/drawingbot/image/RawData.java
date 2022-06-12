@@ -48,7 +48,7 @@ public class RawData {
     }
 
     public void adjustData(int x, int y, int adjust) {
-        int newValue = Utils.clamp(getData(x, y) + adjust,0,255);
+        int newValue = Utils.clamp(getData(x, y) + adjust,0, max);
         setData(x, y, newValue);
     }
 }

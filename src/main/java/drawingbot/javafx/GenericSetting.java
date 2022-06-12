@@ -286,6 +286,12 @@ public abstract class GenericSetting<C, V> implements ObservableValue<V> {
             textField.setText(getValueAsString());
             textField.setPrefWidth(80);
             textField.setOnAction(e -> setValueFromString(textField.getText()));
+            textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                //set the value when the text field is de-focused
+                if(oldValue && !newValue){
+                    setValueFromString(textField.getText());
+                }
+            });
             value.addListener((observable, oldValue, newValue) -> textField.setText(getValueAsString()));
         }
         return textField;

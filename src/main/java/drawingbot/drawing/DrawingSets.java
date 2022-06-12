@@ -7,6 +7,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -35,6 +36,16 @@ public class DrawingSets implements IProperties {
             return drawingSetSlots.get().get(slot);
         }
         return activeDrawingSet.get();
+    }
+
+    @Nullable
+    public ObservableDrawingSet getDrawingSetForName(String name){
+        for(ObservableDrawingSet set : drawingSetSlots.get()){
+            if(set.getName().equals(name)){
+                return set;
+            }
+        }
+        return null;
     }
 
     public DrawingSets copy(){

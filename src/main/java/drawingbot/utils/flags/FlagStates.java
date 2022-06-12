@@ -47,6 +47,12 @@ public class FlagStates {
         return false;
     }
 
+    public boolean anyMatchAndMarkClear(Flags.BooleanFlag ...flags){
+        boolean match = anyMatch(flags);
+        markForClear(flags);
+        return match;
+    }
+
     public void applyMarkedChanges(){
         for(Flags.Flag<?> flag : toClear){
             STATE_MAP.put(flag, flag.clearValue);
