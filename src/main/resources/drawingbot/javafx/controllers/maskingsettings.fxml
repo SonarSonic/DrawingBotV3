@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXMaskingSettings">
+<children>
+    <VBox maxHeight="1.7976931348623157E308" spacing="8.0">
+        <children>
+            <Separator layoutX="18.0" layoutY="44.0" prefHeight="14.0" prefWidth="403.0" />
+            <HBox spacing="16.0">
+               <children>
+                  <ToggleSwitch fx:id="toggleSwitchBypassMasking" prefHeight="18.0" prefWidth="109.0" text="Bypass Masks" />
+                  <ToggleSwitch fx:id="toggleSwitchShowMasks" prefHeight="18.0" prefWidth="110.0" text="Show Masks" />
+               </children>
+            </HBox>
+            <Separator prefHeight="14.0" prefWidth="403.0" />
+            <TableView fx:id="tableViewMasks" editable="true" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                  <TableColumn fx:id="tableColumnEnable" prefWidth="75.0" text="Enable" />
+                <TableColumn fx:id="tableColumnName" prefWidth="215.0" text="Name" />
+                <TableColumn fx:id="tableColumnType" minWidth="3.0" prefWidth="112.0" text="Type" />
+              </columns>
+            </TableView>
+            <HBox fx:id="hBoxShapeButtons" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0" />
+            <Separator prefHeight="14.0" prefWidth="403.0" />
+        </children>
+        <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+        </padding>
+    </VBox>
+</children>
+</AnchorPane>
