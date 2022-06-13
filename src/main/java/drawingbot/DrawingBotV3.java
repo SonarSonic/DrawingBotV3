@@ -16,6 +16,7 @@ import drawingbot.drawing.DrawingSets;
 import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.presets.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.geom.masking.MaskingSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.integrations.vpype.VpypeSettings;
@@ -78,6 +79,9 @@ public class DrawingBotV3 implements IDrawingManager {
     public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
     public final SimpleFloatProperty keyMultiplier = new SimpleFloatProperty(0.75F);
+
+    // MASK SETTINGS \\
+    public final MaskingSettings maskingSettings = new MaskingSettings();
 
     // PEN SETS \\
     public DrawingSets drawingSets = new DrawingSets();

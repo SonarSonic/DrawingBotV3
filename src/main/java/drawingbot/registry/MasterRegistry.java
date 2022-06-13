@@ -10,6 +10,8 @@ import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.shapes.JFXGeometryConverter;
 import drawingbot.image.kernels.IKernelFactory;
@@ -21,6 +23,7 @@ import drawingbot.javafx.controls.DialogImageFilter;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSketchLines;
 import drawingbot.render.IDisplayMode;
+import drawingbot.render.overlays.AbstractOverlay;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.Metadata;
 import javafx.collections.FXCollections;
@@ -30,6 +33,7 @@ import javafx.scene.control.Dialog;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImageOp;
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -513,6 +517,47 @@ public class MasterRegistry {
         DrawingBotV3.logger.fine("Registering Display Mode: " + displayMode.getName());
         this.displayModes.add(displayMode);
         return displayMode;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// OVERLAYS \\\\
+    public ObservableList<AbstractOverlay> overlays = FXCollections.observableArrayList();
+
+    public AbstractOverlay registerOverlay(AbstractOverlay displayMode){
+        DrawingBotV3.logger.fine("Registering Overlay: " + displayMode.getName());
+        this.overlays.add(displayMode);
+        return displayMode;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// LOADERS \\\\
+    public List<IFileLoaderFactory> fileLoaderFactories = new ArrayList<>();
+    public IFileLoaderFactory fallbackFileLoaderFactory;
+
+    public void setFallbackFileLoaderFactory(IFileLoaderFactory fallbackFileLoaderFactory) {
+        this.fallbackFileLoaderFactory = fallbackFileLoaderFactory;
+    }
+
+    public IFileLoaderFactory getFallbackFileLoaderFactory(){
+        return fallbackFileLoaderFactory;
+    }
+
+    public IFileLoaderFactory registerFileLoaderFactory(IFileLoaderFactory exportHandler){
+        DrawingBotV3.logger.fine("Registering File Loader: " + exportHandler.getName());
+        this.fileLoaderFactories.add(exportHandler);
+        return exportHandler;
+    }
+
+    public AbstractFileLoader getFileLoader(File file, boolean internal){
+        for(IFileLoaderFactory factory : fileLoaderFactories){
+            AbstractFileLoader loader = factory.createLoader(file, internal);
+            if(loader != null){
+                return loader;
+            }
+        }
+        return fallbackFileLoaderFactory.createLoader(file, internal);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

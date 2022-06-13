@@ -7,8 +7,12 @@ import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.files.loaders.ImageFileLoaderFactory;
 import drawingbot.files.loaders.ProjectFileLoaderFactory;
 import drawingbot.geom.converters.*;
+import drawingbot.geom.masking.GeometryMask;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plugins.*;
+import drawingbot.render.overlays.DrawingBorderOverlays;
+import drawingbot.render.overlays.ShapeOverlays;
+import drawingbot.render.overlays.RulerOverlays;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Metadata;
 import drawingbot.files.json.presets.*;
@@ -76,6 +80,7 @@ public class Register implements IPlugin {
     public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
 
     //// DISPLAY MODES \\\\
+    public IDisplayMode DISPLAY_MODE_IMAGE_CROPPING;
     public IDisplayMode DISPLAY_MODE_IMAGE;
     public IDisplayMode DISPLAY_MODE_DRAWING;
     public IDisplayMode DISPLAY_MODE_ORIGINAL;
@@ -91,6 +96,7 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> PLOTTING_IMAGE;
     public Metadata<BufferedImage> TONE_MAP;
     public Metadata<Object> TONE_MAPPING;
+    public Metadata<GeometryMask> GEOMETRY_MASKS;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
@@ -152,6 +158,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_GENERIC, 0);
 
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new ImageJFXDisplayMode.Cropping());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE = new ImageJFXDisplayMode.Image());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_DRAWING = new DrawingJFXDisplayMode.Drawing());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_ORIGINAL = new ImageJFXDisplayMode.Original());
@@ -160,12 +167,18 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new ImageJFXDisplayMode.ToneMap());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
 
+        MasterRegistry.INSTANCE.registerOverlay(RulerOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(ShapeOverlays.INSTANCE);
+
         MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, true));
         MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, true));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(GEOMETRY_MASKS = new Metadata<>("geometry_mask", GeometryMask.class, true)); //TODO SERIALIZING
+
         MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
         MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());
     }

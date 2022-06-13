@@ -47,6 +47,8 @@ public class ConfigApplicationSettings implements IConfigData {
     ////animation settings
     public float framesPerSecond = 25F;
     public int duration = 5;
+    public int frameHoldStart = 1;
+    public int frameHoldEnd = 1;
     public UnitsTime durationUnits = UnitsTime.SECONDS;
 
     ////preset settings
@@ -57,6 +59,14 @@ public class ConfigApplicationSettings implements IConfigData {
 
     public int getFrameCount(){
         return (int)(framesPerSecond * durationUnits.toSeconds(duration));
+    }
+
+    public int getFrameHoldStartCount(){
+        return (int)(framesPerSecond * durationUnits.toSeconds(frameHoldStart));
+    }
+
+    public int getFrameHoldEndCount(){
+        return (int)(framesPerSecond * durationUnits.toSeconds(frameHoldEnd));
     }
 
     public int getGeometriesPerFrame(int count){

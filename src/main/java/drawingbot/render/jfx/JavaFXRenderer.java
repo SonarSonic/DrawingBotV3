@@ -4,9 +4,12 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.image.ImageFilteringTask;
+import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.IRenderer;
 import drawingbot.render.modes.AbstractJFXDisplayMode;
 import drawingbot.utils.flags.Flags;
+import javafx.beans.binding.Bindings;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
@@ -27,7 +30,7 @@ public class JavaFXRenderer implements IRenderer {
 
     public static int vertexRenderLimitNormal = 20000;
     public static int vertexRenderLimitBlendMode = 5000;
-    public static int defaultMinTextureSize = 1024;
+    public static int defaultMinTextureSize = 2048;
     public static int defaultMaxTextureSize = 4096;
 
     public double canvasScaling = 1F;
@@ -58,7 +61,6 @@ public class JavaFXRenderer implements IRenderer {
         updateCanvasPosition();
 
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(pane);
-
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,12 +71,6 @@ public class JavaFXRenderer implements IRenderer {
         clearCanvas(getCurrentBackground());
     }
 
-    @Override
-    public void draw() {
-        preRender();
-        doRender();
-        postRender();
-    }
     ///
 
     @Override
@@ -95,12 +91,12 @@ public class JavaFXRenderer implements IRenderer {
         canvas.relocate(offsetX, offsetY);
     }
 
-    private void preRender(){
+    @Override
+    public void preRender(){
         //reset canvas scaling
         graphicsFX.setTransform(1, 0, 0, 1, 0, 0);
 
         displayMode.preRender(this);
-        displayMode.getRenderFlags().applyMarkedChanges();
 
         //updateCanvasScaling();
         graphicsFX.setImageSmoothing(false);
@@ -110,14 +106,17 @@ public class JavaFXRenderer implements IRenderer {
         graphicsFX.save();
     }
 
-    private void doRender() {
+    @Override
+    public void doRender() {
         displayMode.doRender(this);
         //TODO GRID RENDERER
     }
 
-    private void postRender(){
+    @Override
+    public void postRender(){
         displayMode.postRender(this);
         graphicsFX.restore();
+        displayMode.getRenderFlags().applyMarkedChanges();
 
         //update the canvas position after it has been resized
         updateCanvasPosition();
@@ -128,16 +127,23 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public void clearCanvas(Color color){
-        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); //ensures the canva's buffer is always cleared, some blend modes will prevent fillRect from triggering this
+        canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth()+1, canvas.getHeight()+1); //ensures the canva's buffer is always cleared, some blend modes will prevent fillRect from triggering this
         canvas.getGraphicsContext2D().setFill(color);
-        canvas.getGraphicsContext2D().fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        canvas.getGraphicsContext2D().fillRect(0, 0, canvas.getWidth()+1, canvas.getHeight()+1);
     }
 
     private double refWidth = -1, refHeight = -1;
+    private ICanvas refCanvas = new SimpleCanvas(0, 0);
+
+    @Override
+    public ICanvas getRefCanvas(){
+        return refCanvas;
+    }
 
     public void setupCanvasSize(ICanvas canvas){
         if(canvas != null){
             setupCanvasSize((int)canvas.getScaledWidth(), (int)canvas.getScaledHeight());
+            refCanvas = canvas;
         }
     }
 
@@ -171,23 +177,30 @@ public class JavaFXRenderer implements IRenderer {
         if(canvas.getWidth() == width && canvas.getHeight() == height){
             return;
         }
+
         canvas.widthProperty().setValue(width);
         canvas.heightProperty().setValue(height);
 
         updateCanvasScaling();
 
+        updateCanvasPosition();
         DrawingBotV3.INSTANCE.resetView();
         clearCanvas();//wipe the canvas
         DrawingBotV3.INSTANCE.setRenderFlag(Flags.FORCE_REDRAW, true);
     }
 
     public void updateCanvasScaling(){
-        double screen_scale_x = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth() / ((float) canvas.getWidth());
-        double screen_scale_y = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());
-        double screen_scale = Math.min(screen_scale_x, screen_scale_y);
-        if(canvas.getScaleX() != screen_scale){
-            canvas.setScaleX(screen_scale);
-            canvas.setScaleY(screen_scale);
+        if(DrawingBotV3.INSTANCE.dpiScaling.get()){
+            canvas.setScaleX(1);
+            canvas.setScaleY(1);
+        }else{
+            double screen_scale_x = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth() / ((float) canvas.getWidth());
+            double screen_scale_y = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());
+            double screen_scale = Math.min(screen_scale_x, screen_scale_y);
+            if(canvas.getScaleX() != screen_scale){
+                canvas.setScaleX(screen_scale);
+                canvas.setScaleY(screen_scale);
+            }
         }
     }
 
@@ -221,8 +234,10 @@ public class JavaFXRenderer implements IRenderer {
     @Override
     public Point2D sceneToRenderer(Point2D point2D) {
         Point2D dst = canvas.sceneToLocal(point2D);
-        dst = new Point2D(dst.getX()/canvasScaling, dst.getY()/ canvasScaling);
-        return dst;
+        if(dst == null){
+            return new Point2D(0, 0);
+        }
+        return new Point2D(dst.getX()/canvasScaling, dst.getY()/ canvasScaling);
     }
 
     @Override
@@ -235,7 +250,12 @@ public class JavaFXRenderer implements IRenderer {
     @Override
     public void switchToRenderer() {
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(DrawingBotV3.RENDERER.pane);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.requestLayout();
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.layout();
+    }
+
+    @Override
+    public double rendererToSceneScale() {
+        return canvasScaling * canvas.getLocalToSceneTransform().getMxx();
     }
 
     @Override

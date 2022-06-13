@@ -34,7 +34,7 @@ public class CanvasUtilsTest extends TestCase {
     public void testOriginalSizedCanvas(){
         SimpleCanvas canvas = new SimpleCanvas(reference);
         canvas.useOriginalSizing = true;
-        ImageCanvas imageCanvas = new ImageCanvas(canvas, 800, 400, false);
+        ImageCanvas imageCanvas = new ImageCanvas(canvas, new SimpleCanvas(800, 400), false);
         assertEquals(imageCanvas.getWidth(), 800F);
         assertEquals(imageCanvas.getHeight(), 400F);
         assertEquals(imageCanvas.getDrawingOffsetX(), 0F);

@@ -15,13 +15,14 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
     @Override
     public void preRender(JavaFXRenderer jfr) {
+        super.preRender(jfr);
         //setup the canvas
         if(DrawingBotV3.INSTANCE.getRenderedTask() != null && DrawingBotV3.INSTANCE.getRenderedTask().stage != EnumTaskStage.FINISHED){
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getRenderedTask().drawing.getCanvas());
         }else if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getCurrentDrawing().getCanvas());
         }else if(DrawingBotV3.INSTANCE.openImage.get() != null) {
-            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.openImage.get().getDestCanvas());
+            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.openImage.get().getTargetCanvas());
         }else{
             jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
         }
@@ -29,6 +30,8 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
     @Override
     public void doRender(JavaFXRenderer jfr) {
+        super.doRender(jfr);
+
         if(DrawingBotV3.INSTANCE.getRenderedTask() != null){
             PFMTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
             if (renderedTask.stage == EnumTaskStage.DO_PROCESS) {

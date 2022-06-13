@@ -26,11 +26,17 @@ public abstract class AbstractJFXDisplayMode implements IDisplayMode {
         return DrawingBotV3.RENDERER;
     }
 
-    public abstract void preRender(JavaFXRenderer jfr);
+    public void preRender(JavaFXRenderer jfr){
 
-    public abstract void doRender(JavaFXRenderer jfr);
+    }
 
-    public void postRender(JavaFXRenderer jfr){}
+    public void doRender(JavaFXRenderer jfr){
+
+    }
+
+    public void postRender(JavaFXRenderer jfr){
+
+    }
 
     @Override
     public String toString(){

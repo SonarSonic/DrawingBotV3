@@ -1,6 +1,7 @@
 package drawingbot.render;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.files.ConfigFileHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -11,9 +12,15 @@ public interface IRenderer {
 
     void init();
 
-    void draw();
+    void preRender();
+
+    void doRender();
+
+    void postRender();
 
     void switchToRenderer();
+
+    double rendererToSceneScale();
 
     Point2D sceneToRenderer(Point2D point2D);
 
@@ -30,6 +37,8 @@ public interface IRenderer {
     boolean isOpenGL();
 
     ///// CANVAS SIZING \\\\\
+
+    ICanvas getRefCanvas();
 
     default double getCanvasScaleValue(){
         return 1;
@@ -60,6 +69,6 @@ public interface IRenderer {
     }
 
     default Color getCurrentBackground(){
-        return ConfigFileHandler.getApplicationSettings().darkTheme ? DrawingBotV3.INSTANCE.backgroundColourDark : DrawingBotV3.INSTANCE.backgroundColourDefault;
+        return DrawingBotV3.INSTANCE.drawingArea.backgroundColor.get();
     }
 }
