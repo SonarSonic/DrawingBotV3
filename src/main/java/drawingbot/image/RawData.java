@@ -51,4 +51,12 @@ public class RawData {
         int newValue = Utils.clamp(getData(x, y) + adjust,0, max);
         setData(x, y, newValue);
     }
+
+    public void setData(int[][] data){
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                setData(x, y, data[x][y]);
+            }
+        }
+    }
 }

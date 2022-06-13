@@ -3,6 +3,7 @@ package drawingbot.utils;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -215,6 +216,30 @@ public class Utils {
     public static double distance(float x1, float y1, float x2, float y2){
         return Math.sqrt(((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1)));
     }
+
+    public static int[][] convertArray1Dto2D(int width, int height, int[] src, int[][] dst){
+        int index = 0;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                dst[x][y] = src[index];
+                index ++;
+            }
+        }
+        return dst;
+
+    }
+
+    public static int[] convertArray2Dto1D(int width, int height, int[][] src, int[] dst){
+        int index = 0;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                dst[index] = src[x][y];
+                index++;
+            }
+        }
+        return dst;
+    }
+
 
     public enum OS {
         WINDOWS, LINUX, MAC, SOLARIS;

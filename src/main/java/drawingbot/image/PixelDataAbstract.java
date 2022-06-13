@@ -66,6 +66,16 @@ public abstract class PixelDataAbstract implements IPixelData {
         return ImageTools.getAverageLuminanceFromRGB((float)r, (float)g, (float)b);
     }
 
+    public int[][] createARGBData(){
+        int[][] data = new int[width][height];
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                data[x][y] = getARGB(x, y);
+            }
+        }
+        return data;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     protected Integer prevRed, prevGreen, prevBlue;
