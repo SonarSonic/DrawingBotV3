@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
+import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
@@ -15,9 +16,9 @@ public interface IDrawingManager {
 
     PlottedDrawing createNewPlottedDrawing();
 
-    PFMTask initPFMTask(ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask);
+    PFMTask initPFMTask(ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask);
 
-    PFMTask initPFMTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable BufferedImage image, @Nullable File originalFile, boolean isSubTask);
+    PFMTask initPFMTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask);
 
     default void onPlottingTaskStageFinished(PFMTask task, EnumTaskStage stage){}
 

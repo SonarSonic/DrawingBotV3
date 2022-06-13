@@ -34,8 +34,13 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
     public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
 
+    //the default JFX viewport background colours
+    public static final Color backgroundColourDefault = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
+    public static final Color backgroundColourDark = new Color(65 / 255F, 65 / 255F, 65 / 255F, 1F);
+
     //not saved
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
+    public final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(backgroundColourDefault);
 
     public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
 

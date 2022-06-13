@@ -24,8 +24,12 @@ public class SimpleCanvas implements ICanvas {
         this(canvas.getUnits(), canvas.getScalingMode(), canvas.getClippingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale(), canvas.getWidth(), canvas.getHeight(), canvas.getDrawingWidth(), canvas.getDrawingHeight(), canvas.getDrawingOffsetX(), canvas.getDrawingOffsetY(), canvas.getCanvasScale());
     }
 
-    public SimpleCanvas(int width, int height){
-        this(UnitsLength.PIXELS, EnumScalingMode.CROP_TO_FIT, EnumClippingMode.DRAWING, false, false, 1F, width, height, width, height, 0, 0, 1);
+    public SimpleCanvas(float width, float height){
+        this(width, height, UnitsLength.PIXELS);
+    }
+
+    public SimpleCanvas(float width, float height, UnitsLength units){
+        this(units, EnumScalingMode.CROP_TO_FIT, EnumClippingMode.DRAWING, false, false, 1F, width, height, width, height, 0, 0, 1);
     }
 
     public SimpleCanvas(UnitsLength units, EnumScalingMode scalingMode, EnumClippingMode clippingMode, boolean usePlottingScale, boolean useOriginalSizing, float scale, float pageWidth, float pageHeight, float drawingWidth, float drawingHeight, float drawingOffsetX, float drawingOffsetY, float canvasScale){

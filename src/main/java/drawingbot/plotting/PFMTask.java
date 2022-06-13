@@ -3,6 +3,7 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
 import drawingbot.pfm.AbstractSketchPFM;
+import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.GenericSetting;
@@ -91,6 +92,11 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 //set the plotting transform
                 if(pfm.getPlottingResolution() != 1){
                     tools.plottingTransform = AffineTransform.getScaleInstance(1D / pfm.getPlottingResolution(), 1D / pfm.getPlottingResolution());
+                }
+
+
+                if(!isSubTask && drawing.getMetadata(Register.INSTANCE.GEOMETRY_MASKS) != null){
+                    tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.GEOMETRY_MASKS).getClippingShape(drawing.canvas));
                 }
 
                 if(tools.getClippingShape() == null){
@@ -401,5 +407,9 @@ public class PFMTask extends DBTask<PlottedDrawing> {
             getTaskGeometryIterator().reset();
             subDrawings.add(drawing);
         }
+    }
+
+    public boolean isColourMatchTask(){
+        return false;
     }
 }

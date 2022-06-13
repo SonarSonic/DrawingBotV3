@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
+import drawingbot.api.IPlottingTools;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.utils.Metadata;
 import drawingbot.geom.shapes.IGeometry;
@@ -17,6 +18,8 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class PlottedDrawing {
 
@@ -82,7 +85,9 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public <T> void setMetadata(Metadata<T> metadata, T value){
-        metadataMap.put(metadata, value);
+        if(value != null){
+            metadataMap.put(metadata, value);
+        }
     }
 
     public <T> T getMetadata(Metadata<T> metadata){
@@ -194,11 +199,11 @@ public class PlottedDrawing {
     /**
      * This is a destructive action and invalidates the provided plotted group
      */
-    public void mergePlottedGroup(PlottedGroup plottedGroup, boolean simplify, boolean forExport){
+    public void mergePlottedGroup(PlottedGroup plottedGroup, boolean simplify, boolean forExport, BiConsumer<IGeometry, PlottedGroup> consumer){
         if(simplify){
             for(PlottedGroup group : groups.values()){
                 if(group.canMerge(plottedGroup, forExport)){
-                    plottedGroup.geometries.forEach(g -> addGeometry(g, group));
+                    plottedGroup.geometries.forEach(g -> consumer.accept(g, group));
                     return;
                 }
             }
@@ -208,15 +213,27 @@ public class PlottedDrawing {
         newGroup.groupID = getNextGroupID();
         addPlottedGroup(newGroup);
         for(IGeometry geometry : plottedGroup.geometries){
-            addGeometry(geometry, newGroup);
+            consumer.accept(geometry, newGroup);
         }
+    }
+
+
+    public void mergePlottedDrawingClipped(PlottedDrawing drawing, boolean simplify, boolean forExport, PlottingTools tools){
+        mergePlottedDrawing(drawing, simplify, forExport, (geometry, group) -> {
+            tools.currentGroup = group;
+            tools.addGeometry(geometry);
+        });
+    }
+
+    public void mergePlottedDrawingDefault(PlottedDrawing drawing, boolean simplify, boolean forExport){
+        mergePlottedDrawing(drawing, simplify, forExport, this::addGeometry);
     }
 
     /**
      * This is a destructive action and invalidates the provided plotted drawing and all of its plotted groups
      */
-    public void mergePlottedDrawing(PlottedDrawing drawing, boolean simplify, boolean forExport){
-        drawing.groups.values().forEach(g -> mergePlottedGroup(g, simplify, forExport));
+    public void mergePlottedDrawing(PlottedDrawing drawing, boolean simplify, boolean forExport, BiConsumer<IGeometry, PlottedGroup> consumer){
+        drawing.groups.values().forEach(g -> mergePlottedGroup(g, simplify, forExport, consumer));
     }
 
     public void addGeometryToGroups(IGeometry geometry){
