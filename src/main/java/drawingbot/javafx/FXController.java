@@ -22,7 +22,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
@@ -53,7 +52,6 @@ public class FXController {
     public FXImageFilters imageFiltersController;
     public FXPFMControls pfmSettingsController;
     public FXDrawingSets drawingSetsController;
-    public FXMaskingSettings maskingSettingsController;
     public FXVersionControl versionControlController;
 
     public TitledPane titledPaneBatchProcessing = null;
@@ -73,8 +71,6 @@ public class FXController {
         pfmSettingsController.pfmSettings.set(DrawingBotV3.INSTANCE.pfmSettings);
 
         drawingSetsController.drawingSets.set(DrawingBotV3.INSTANCE.drawingSets);
-
-        maskingSettingsController.maskingSettings.set(DrawingBotV3.INSTANCE.maskingSettings);
 
         versionControlController.projectVersions.set(DrawingBotV3.INSTANCE.projectVersions);
 

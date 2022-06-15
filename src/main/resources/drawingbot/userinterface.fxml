@@ -37,9 +37,6 @@
                               <TitledPane maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
                                  <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml" />
                               </TitledPane>
-                              <TitledPane maxHeight="1.7976931348623157E308" text="Mask Settings" VBox.vgrow="ALWAYS">
-                                 <fx:include fx:id="maskingSettings" source="javafx/controllers/maskingsettings.fxml" />
-                              </TitledPane>
                               <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
                                     <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
                               </TitledPane>

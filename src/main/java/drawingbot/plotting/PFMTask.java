@@ -95,8 +95,8 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 }
 
 
-                if(!isSubTask && drawing.getMetadata(Register.INSTANCE.GEOMETRY_MASKS) != null){
-                    tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.GEOMETRY_MASKS).getClippingShape(drawing.canvas));
+                if(!isSubTask && drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE) != null){
+                    tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE));
                 }
 
                 if(tools.getClippingShape() == null){

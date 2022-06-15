@@ -96,7 +96,7 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> PLOTTING_IMAGE;
     public Metadata<BufferedImage> TONE_MAP;
     public Metadata<Object> TONE_MAPPING;
-    public Metadata<GeometryMask> GEOMETRY_MASKS;
+    public Metadata<Shape> CLIPPING_SHAPE;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
@@ -175,9 +175,9 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, true));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, true));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(GEOMETRY_MASKS = new Metadata<>("geometry_mask", GeometryMask.class, true)); //TODO SERIALIZING
+        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, false));
+        MasterRegistry.INSTANCE.registerDrawingMetadata(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
 
         MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
         MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());
