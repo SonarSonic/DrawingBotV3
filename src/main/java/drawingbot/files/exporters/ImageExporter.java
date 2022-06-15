@@ -28,7 +28,11 @@ public class ImageExporter {
         renderer.dispose();
 
         try {
-            ImageIO.write(renderer.createExportImage(), exportTask.extension.substring(1), saveLocation);
+            if(ImageIO.write(renderer.createExportImage(), exportTask.extension.substring(1), saveLocation)){
+                exportTask.updateProgress(1, 1);
+            }else{
+                exportTask.setError("Image Export Failed");
+            }
         } catch (IOException e) {
             exportTask.setError(e.getMessage());
             e.printStackTrace();
@@ -42,7 +46,7 @@ public class ImageExporter {
             exportTask.updateProgress(1, 1);
             return;
         }
-        BufferedImage image = new BufferedImage((int)exportTask.exportDrawing.getCanvas().getScaledWidth(), (int)exportTask.exportDrawing.getCanvas().getScaledHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage((int)exportTask.exportDrawing.getCanvas().getScaledWidth(), (int)exportTask.exportDrawing.getCanvas().getScaledHeight(), ImageExporter.useAlphaChannelOnRaster(exportTask) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
 
         graphics.setColor(ImageTools.getAWTFromFXColor(DrawingBotV3.INSTANCE.drawingArea.canvasColor.get()));
@@ -51,11 +55,14 @@ public class ImageExporter {
         graphics.dispose();
 
         try {
-            ImageIO.write(image, exportTask.extension.substring(1), saveLocation);
+            if(ImageIO.write(image, exportTask.extension.substring(1), saveLocation)){
+                exportTask.updateProgress(1, 1);
+            }else{
+                exportTask.setError("Image Export Failed");
+            }
         } catch (IOException e) {
             exportTask.setError(e.getMessage());
             e.printStackTrace();
         }
-        exportTask.updateProgress(1, 1);
     }
 }

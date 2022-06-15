@@ -173,17 +173,17 @@ public class FXExportController {
         });
 
         textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldOffsetX.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetX, new NumberStringConverter());
+        textFieldOffsetX.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetX, new NumberStringConverter(Utils.defaultDF));
 
         textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldOffsetY.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetY, new NumberStringConverter());
+        textFieldOffsetY.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetY, new NumberStringConverter(Utils.defaultDF));
 
         choiceBoxGCodeUnits.getItems().addAll(UnitsLength.values());
         choiceBoxGCodeUnits.setValue(UnitsLength.MILLIMETRES);
         choiceBoxGCodeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeUnits);
 
         textFieldGCodeCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
-        textFieldGCodeCurveFlatness.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCurveFlatness, new NumberStringConverter());
+        textFieldGCodeCurveFlatness.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCurveFlatness, new NumberStringConverter(Utils.defaultDF));
         textFieldGCodeCurveFlatness.disableProperty().bind(checkBoxGCodeEnableFlattening.selectedProperty().not());
 
         checkBoxGCodeEnableFlattening.setSelected(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEnableFlattening.getValue());

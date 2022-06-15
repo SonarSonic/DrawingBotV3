@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import drawingbot.api.*;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.exporters.GCodeSettings;
-import drawingbot.files.json.presets.PresetProjectSettings;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.format.FilteredImageData;
@@ -73,11 +73,6 @@ public class DrawingBotV3 implements IDrawingManager {
 
     // PATH FINDING \\
     public final PFMSettings pfmSettings = new PFMSettings();
-
-    public final SimpleFloatProperty cyanMultiplier = new SimpleFloatProperty(1F);
-    public final SimpleFloatProperty magentaMultiplier = new SimpleFloatProperty(1F);
-    public final SimpleFloatProperty yellowMultiplier = new SimpleFloatProperty(1F);
-    public final SimpleFloatProperty keyMultiplier = new SimpleFloatProperty(0.75F);
 
     // PEN SETS \\
     public DrawingSets drawingSets = new DrawingSets();

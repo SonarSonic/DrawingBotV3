@@ -151,12 +151,11 @@ public class ImageTools {
         return freshImage;
     }
 
-    public static BufferedImage applyPreCrop(BufferedImage image, AffineTransform transform, Shape cropShape){
-        Rectangle2D bounds = cropShape.getBounds2D();
-        BufferedImage bufferedImage = new BufferedImage((int)bounds.getWidth(), (int)bounds.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    public static BufferedImage applyPreCrop(BufferedImage image, Rectangle2D crop){
+        BufferedImage bufferedImage = new BufferedImage((int)crop.getWidth(), (int)crop.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = bufferedImage.createGraphics();
         //graphics.transform(transform);
-        graphics.drawImage(image, null, (int) -bounds.getX(),(int) -bounds.getY());
+        graphics.drawImage(image, null, (int) -crop.getX(),(int) -crop.getY());
         graphics.dispose();
         return bufferedImage;
     }

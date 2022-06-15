@@ -10,7 +10,9 @@ import java.util.function.Consumer;
 
 public class GeometryClipping {
 
-    public static float accuracy = 0.1F;
+    //TODO someone decide what accuracy is needed or make this configurable
+    public static float curveSplits = 128;
+    public static float accuracy = 0.5F;
 
     public static boolean shouldClip(Shape shape, IGeometry geometry) {
         //inaccurate contains check using bounds instead of accurate shapes for speed
@@ -74,7 +76,7 @@ public class GeometryClipping {
         float[] control1 = new float[]{curve.ctrlx1, curve.ctrly1};
         float[] control2 = new float[]{curve.ctrlx2, curve.ctrly2};
         float[] end = new float[]{curve.x2, curve.y2};
-        double samples = Math.max(256, Utils.distance(curve.x1, curve.y1, curve.ctrlx1, curve.ctrly1) +
+        double samples = Math.max(curveSplits, Utils.distance(curve.x1, curve.y1, curve.ctrlx1, curve.ctrly1) +
                                        Utils.distance(curve.ctrlx1, curve.ctrly1, curve.ctrlx2, curve.ctrly2) +
                                        Utils.distance(curve.ctrlx2, curve.ctrly2, curve.x2, curve.y2));
         double sample = 0;

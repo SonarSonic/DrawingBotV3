@@ -25,21 +25,27 @@ public class JFXShape {
     public UUID uuid;
     public IGeometry geometry;
     public IGeometry transformed;
-    public final Shape jfxShape;
+    public Shape jfxShape;
 
     public AffineTransform awtTransform = new AffineTransform();
-    private final Affine jfxTransform;
+    private Affine jfxTransform;
 
     /**
      * Recommended for SVGs
      */
     public boolean useFastScaling;
 
+    public JFXShape(){}
+
     public JFXShape(IGeometry geometry) {
         this(geometry, false);
     }
 
     public JFXShape(IGeometry geometry, boolean useFastScaling) {
+        init(geometry, useFastScaling);
+    }
+
+    public void init(IGeometry geometry, boolean useFastScaling){
         this.uuid = UUID.randomUUID();
         this.useFastScaling = useFastScaling;
         this.geometry = new GPath(geometry.getAWTShape());
@@ -59,6 +65,7 @@ public class JFXShape {
         this.jfxShape.getStyleClass().setAll(SHAPE_STYLE_CLASS);
 
         JFXShapeManager.INSTANCE.initJFXGeometry(this);
+        updatePseudoClassState();
     }
 
     private AffineTransform liveTransform = null;
@@ -230,6 +237,9 @@ public class JFXShape {
     public static final PseudoClass SUBTRACT_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("masking-remove");
 
     public void updatePseudoClassState(){
+        if(jfxShape == null){
+            return;
+        }
         jfxShape.pseudoClassStateChanged(RESHAPE_PSEUDOCLASS_STATE, type.get()== Type.RESHAPE);
         jfxShape.pseudoClassStateChanged(SUBTRACT_PSEUDOCLASS_STATE, type.get()== Type.SUBTRACT);
         jfxShape.pseudoClassStateChanged(ADD_PSEUDOCLASS_STATE, type.get()== Type.ADD);

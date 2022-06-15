@@ -1,11 +1,18 @@
-package drawingbot.files.json.presets;
+package drawingbot.files.json.projects;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+/**
+ * Legacy Project Loader
+ */
 public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProjectSettings> {
 
     public PresetProjectSettingsLoader(PresetType presetType) {
@@ -14,19 +21,23 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
     }
 
     @Override
+    public String getVersion() {
+        return "2.0.0";
+    }
+
+    @Override
     public PresetProjectSettings getPresetInstance(GenericPreset<PresetProjectSettings> preset) {
+        if(preset.version.equals("1")){
+            return new PresetProjectSettingsLegacy();
+        }
         return new PresetProjectSettings();
     }
 
     @Override
-    public void registerPreset(GenericPreset<PresetProjectSettings> preset) {
-        //MasterRegistry.INSTANCE.registerPFMPreset(preset);
-    }
+    public void registerPreset(GenericPreset<PresetProjectSettings> preset) {}
 
     @Override
-    public void unregisterPreset(GenericPreset<PresetProjectSettings> preset) {
-        //MasterRegistry.INSTANCE.pfmPresets.get(preset.presetSubType).remove(preset);
-    }
+    public void unregisterPreset(GenericPreset<PresetProjectSettings> preset) {}
 
     @Override
     public GenericPreset<PresetProjectSettings> getDefaultPreset() {
@@ -35,23 +46,19 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
 
     @Override
     public List<GenericPreset<?>> getUserCreatedPresets() {
-        /*
-
-        List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (Map.Entry<String, ObservableList<GenericPreset<PresetProjectSettings>>> entry : MasterRegistry.INSTANCE.pfmPresets.entrySet()) {
-            for (GenericPreset<PresetProjectSettings> preset : entry.getValue()) {
-                if (preset.userCreated) {
-                    userCreated.add(preset);
-                }
-            }
-        }
-        return userCreated;
-         */
         return new ArrayList<>();
     }
 
     @Override
     public Collection<GenericPreset<PresetProjectSettings>> getAllPresets() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public PresetProjectSettings fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element) {
+        if(preset.version.equals("1")){
+            return gson.fromJson(element, PresetProjectSettingsLegacy.class);
+        }
+        return gson.fromJson(element, PresetProjectSettings.class);
     }
 }

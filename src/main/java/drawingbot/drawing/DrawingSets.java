@@ -27,6 +27,10 @@ public class DrawingSets implements IProperties {
         }
     }
 
+    public int getActiveSetSlot(){
+        return getDrawingSetSlot(activeDrawingSet.get());
+    }
+
     public int getDrawingSetSlot(ObservableDrawingSet drawingSet){
         return drawingSetSlots.get().indexOf(drawingSet);
     }

@@ -53,7 +53,7 @@ public class FXProjectManagerController {
         projectThumbColumn.setCellValueFactory(param -> param.getValue().thumbnail);
 
         projectNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
-        projectNameColumn.setCellValueFactory(param -> param.getValue().userDefinedName);
+        projectNameColumn.setCellValueFactory(param -> param.getValue().name);
 
         projectDateColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         projectDateColumn.setCellValueFactory(param -> param.getValue().date);
@@ -63,8 +63,12 @@ public class FXProjectManagerController {
         projectFileColumn.setCellValueFactory(param -> param.getValue().file);
         projectFileColumn.setEditable(false);
 
+        projectPFMColumn.setVisible(false);
+        /*
         projectPFMColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         projectPFMColumn.setCellValueFactory(param -> param.getValue().pfm);
         projectPFMColumn.setEditable(false);
+
+         */
     }
 }

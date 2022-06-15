@@ -49,7 +49,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
             ObservableDrawingSet drawingSet = (ObservableDrawingSet)source;
             this.distributionOrder.set(drawingSet.distributionOrder.get());
             this.distributionType.set(drawingSet.distributionType.get());
-            this.colourSeperator.set(drawingSet.colourSeperator.get());
+            this.colourSeperator.set(drawingSet.colourSeperator.get() == null ? Register.DEFAULT_COLOUR_SPLITTER : drawingSet.colourSeperator.get());
         }
 
         this.pens.clear();

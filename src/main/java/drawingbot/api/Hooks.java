@@ -22,6 +22,8 @@ public class Hooks {
     public static final String SERIALIZE_DRAWING_STATE = "SERIALIZE_DRAWING_STATE";
     public static final String DESERIALIZE_DRAWING_STATE = "DESERIALIZE_DRAWING_STATE";
 
+    public static final String GSON_BUILDER_INIT = "GSON_BUILDER_INIT";
+
     public static final String FILE_MENU = "FILE_MENU";
 
     public static final String CHANGE_DRAWING_SET = "CHANGE_DRAWING_SET";

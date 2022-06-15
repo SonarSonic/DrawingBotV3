@@ -1,27 +1,26 @@
-package drawingbot.files.json.presets;
+package drawingbot.files.json.projects;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import drawingbot.files.json.presets.PresetDrawingArea;
+import drawingbot.files.json.presets.PresetDrawingSet;
+import drawingbot.files.json.presets.PresetImageFilters;
+import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumRotation;
 import drawingbot.drawing.ColourSeperationHandler;
-import drawingbot.files.json.AbstractJsonData;
-import drawingbot.files.json.PresetType;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.registry.Register;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class PresetProjectSettings extends AbstractJsonData {
-
-    public String name;
-    public String imagePath;
-    public String timeStamp;
-    public String thumbnailID;
+/**
+ * Legacy Project Data
+ */
+public class PresetProjectSettingsLegacy extends PresetProjectSettings {
 
     public GenericPreset<PresetDrawingArea> drawingArea;
     public GenericPreset<PresetImageFilters> imageFilters;
@@ -40,30 +39,24 @@ public class PresetProjectSettings extends AbstractJsonData {
     public EnumDistributionType distributionType;
     public EnumDistributionOrder distributionOrder;
 
-    public float cyanMultiplier = 1F;
+    public float cyanMultiplier = 1F; //TODO
     public float magentaMultiplier = 1F;
     public float yellowMultiplier = 1F;
     public float keyMultiplier = 0.75F;
 
-    public List<PresetProjectSettings> projectVersions;
+    public List<PresetProjectSettingsLegacy> projectVersions; //TODO TEST ME
 
     public int activeDrawingSlot = 0;
     public List<ObservableDrawingSet> drawingSets;
 
     public JsonObject drawingState;
 
-    public transient boolean isSubProject = false;
-
-    public PresetProjectSettings(){
+    public PresetProjectSettingsLegacy(){
         super();
     }
 
-    public PresetProjectSettings(HashMap<String, JsonElement> settingList){
+    public PresetProjectSettingsLegacy(HashMap<String, JsonElement> settingList){
         super(settingList);
     }
 
-    @Override
-    public PresetType getPresetType() {
-        return Register.PRESET_TYPE_PROJECT;
-    }
 }

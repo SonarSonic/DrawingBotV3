@@ -1,9 +1,11 @@
 package drawingbot.javafx.controllers;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.presets.PresetImageFiltersManager;
 import drawingbot.image.ImageFilterSettings;
+import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
@@ -13,6 +15,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.EnumRotation;
+import drawingbot.utils.Utils;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -24,12 +27,15 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.util.converter.DefaultStringConverter;
+import javafx.util.converter.FloatStringConverter;
+import javafx.util.converter.NumberStringConverter;
 
 import java.awt.image.BufferedImageOp;
 
 public class FXImageFilters {
 
     public final SimpleObjectProperty<ImageFilterSettings> settings = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<FilteredImageData> image = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
@@ -45,6 +51,13 @@ public class FXImageFilters {
     public ComboBox<EnumFilterTypes> comboBoxFilterType = null;
     public ComboBox<GenericFactory<BufferedImageOp>> comboBoxImageFilter = null;
     public Button buttonAddFilter = null;
+
+    public TextField textFieldCropStartX = null;
+    public TextField textFieldCropStartY = null;
+    public TextField textFieldCropEndX = null;
+    public TextField textFieldCropEndY = null;
+    public ToggleButton buttonEditCrop = null;
+    public Button buttonResetCrop;
 
     public ChoiceBox<EnumRotation> choiceBoxRotation = null;
     public CheckBox checkBoxFlipX = null;
@@ -123,6 +136,44 @@ public class FXImageFilters {
         buttonAddFilter.setOnAction(e -> {
             if(comboBoxImageFilter.getValue() != null){
                 FXHelper.addImageFilter(comboBoxImageFilter.getValue(), settings.get());
+            }
+        });
+
+        image.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                textFieldCropStartX.textProperty().unbindBidirectional(oldValue.cropStartX);
+                textFieldCropStartY.textProperty().unbindBidirectional(oldValue.cropStartY);
+                textFieldCropEndX.textProperty().unbindBidirectional(oldValue.cropEndX);
+                textFieldCropEndY.textProperty().unbindBidirectional(oldValue.cropEndY);
+            }
+            if(newValue != null){
+                textFieldCropStartX.textProperty().bindBidirectional(newValue.cropStartX, new NumberStringConverter(Utils.oneDecimal));
+                textFieldCropStartY.textProperty().bindBidirectional(newValue.cropStartY, new NumberStringConverter(Utils.oneDecimal));
+                textFieldCropEndX.textProperty().bindBidirectional(newValue.cropEndX, new NumberStringConverter(Utils.oneDecimal));
+                textFieldCropEndY.textProperty().bindBidirectional(newValue.cropEndY, new NumberStringConverter(Utils.oneDecimal));
+            }
+        });
+
+        textFieldCropStartX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldCropStartY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldCropEndX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldCropEndY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+
+        DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
+            buttonEditCrop.setSelected(newValue == Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING);
+        });
+
+        buttonEditCrop.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING);
+            }else if(DrawingBotV3.INSTANCE.displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING){
+                DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
+            }
+        });
+
+        buttonResetCrop.setOnAction(e -> {
+            if(DrawingBotV3.INSTANCE.openImage.get() != null){
+                DrawingBotV3.INSTANCE.openImage.get().resetCrop();
             }
         });
 

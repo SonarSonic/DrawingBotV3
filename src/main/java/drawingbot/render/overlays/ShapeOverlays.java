@@ -13,7 +13,6 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.css.PseudoClass;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -83,8 +82,16 @@ public class ShapeOverlays extends AbstractOverlay{
         boundingBox.getStyleClass().add(SELECTION_BOUNDING_BOX_STYLE_CLASS);
         boundingBox.setManaged(false);
         boundingBox.setPickOnBounds(false);
-        boundingBox.setOnMousePressed(e -> onHandlePressed(TransformModes.MOVE, e));
-        boundingBox.setOnMouseDragged(e -> onHandleDragged(TransformModes.MOVE, e));
+        boundingBox.setOnMousePressed(e -> {
+            if(e.isPrimaryButtonDown()) {
+                onHandlePressed(TransformModes.MOVE, e);
+            }
+        });
+        boundingBox.setOnMouseDragged(e -> {
+            if(e.isPrimaryButtonDown()) {
+                onHandleDragged(TransformModes.MOVE, e);
+            }
+        });
         boundingBox.setOnMouseReleased(e -> onHandleReleased(TransformModes.MOVE, e));
         boundingBox.setCursor(Cursor.MOVE);
         editOverlaysPane.getChildren().add(boundingBox);

@@ -22,9 +22,8 @@ public class JsonAdapterObservableDrawingSet extends JsonAdapterAbstract<Observa
         settings.add(GenericSetting.createListSetting(ObservableDrawingSet.class, ObservableDrawingPen.class,"pens", new ArrayList<>(), (I, V) -> I.pens.setAll(V)).setGetter((I) -> new ArrayList<>(I.pens)));
         settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionOrder.class, "distributionOrder", List.of(EnumDistributionOrder.values()), EnumDistributionOrder.DARKEST_FIRST, (I, V) -> I.distributionOrder.set(V)).setGetter(I -> I.distributionOrder.get()));
         settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionType.class, "distributionType", List.of(EnumDistributionType.values()), EnumDistributionType.EVEN_WEIGHTED, (I, V) -> I.distributionType.set(V)).setGetter(I -> I.distributionType.get()));
-        settings.add(GenericSetting.createObjectSetting(ObservableDrawingSet.class, ColourSeperationHandler.class, "colourSeperator", Register.DEFAULT_COLOUR_SPLITTER, (I, V) -> I.colourSeperator.set(V)).setGetter(I -> I.colourSeperator.get()));
+        settings.add(GenericSetting.createObjectSetting(ObservableDrawingSet.class, ColourSeperationHandler.class, "colourSeperator", Register.DEFAULT_COLOUR_SPLITTER, (I, V) -> I.colourSeperator.set(V)).setGetter(I -> I.colourSeperator.get()).setValidator(I -> I == null ? Register.DEFAULT_COLOUR_SPLITTER : I));
     }
-
 
     @Override
     public List<GenericSetting<?, ?>> getSettings() {

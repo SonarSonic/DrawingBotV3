@@ -5,7 +5,7 @@ import drawingbot.FXApplication;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.*;
 import drawingbot.files.json.*;
-import drawingbot.files.json.presets.PresetProjectSettings;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogImportPreset;
@@ -151,7 +151,7 @@ public class FXHelper {
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
-            AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(presetType);
+            AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
             if(jsonLoader != null){
                 if(jsonLoader.getDefaultManager() != null){
                     jsonLoader.getDefaultManager().tryApplyPreset(preset);

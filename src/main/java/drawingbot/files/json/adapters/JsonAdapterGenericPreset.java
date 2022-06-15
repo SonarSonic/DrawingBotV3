@@ -25,22 +25,18 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
             //pre-release presets will fail here
             return null;
         }
-        int version = jsonObject.get(VERSION).getAsInt();
+        GenericPreset<IJsonData> preset = new GenericPreset<>();
+        preset.presetType = MasterRegistry.INSTANCE.getPresetType(jsonObject.get(PRESET_TYPE).getAsString());
+        preset.version = jsonObject.get(VERSION).getAsString();
+        preset.presetSubType = jsonObject.get(PRESET_SUB_TYPE).getAsString();
+        preset.presetName = jsonObject.get(PRESET_NAME).getAsString();
+        preset.userCreated = jsonObject.get(USER_CREATED).getAsBoolean();
 
-        if(version == 1){
-            GenericPreset<IJsonData> preset = new GenericPreset<>();
-            preset.presetType = MasterRegistry.INSTANCE.getPresetType(jsonObject.get(PRESET_TYPE).getAsString());
-            preset.version = jsonObject.get(VERSION).getAsInt();
-            preset.presetSubType = jsonObject.get(PRESET_SUB_TYPE).getAsString();
-            preset.presetName = jsonObject.get(PRESET_NAME).getAsString();
-            preset.userCreated = jsonObject.get(USER_CREATED).getAsBoolean();
-
-            Gson gson = JsonLoaderManager.createDefaultGson();
-            AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(preset.presetType);
-            if(manager != null){
-                preset.data = manager.fromJsonElement(gson, preset, jsonObject.get(JSON_DATA));
-                return preset;
-            }
+        Gson gson = JsonLoaderManager.createDefaultGson();
+        AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+        if(manager != null){
+            preset.data = manager.fromJsonElement(gson, preset, jsonObject.get(JSON_DATA));
+            return preset;
         }
         return null;
     }
@@ -55,7 +51,7 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
         jsonObject.addProperty(USER_CREATED, src.userCreated);
 
         Gson gson = JsonLoaderManager.createDefaultGson();
-        AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(src.presetType);
+        AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(src);
         if(manager != null){
             jsonObject.add(JSON_DATA, manager.toJsonElement(gson, src));
             return jsonObject;

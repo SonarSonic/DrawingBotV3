@@ -7,8 +7,10 @@ import drawingbot.image.ImageTools;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
+import drawingbot.render.modes.ImageJFXDisplayMode;
+import drawingbot.render.shapes.JFXShape;
+import javafx.beans.property.SimpleFloatProperty;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -38,6 +40,8 @@ public class FilteredImageData {
         this.targetCanvas = destCanvas;
         this.sourceCanvas = sourceCanvas;
         this.sourceImage = sourceImage;
+        this.resetCrop();
+        this.cropShape = new ImageJFXDisplayMode.Cropping.CropShape(this);
     }
 
     public File getSourceFile(){
@@ -95,16 +99,41 @@ public class FilteredImageData {
 
     ///////////////////////////////////////
 
-    public AffineTransform cropTransform;
-    public Shape cropShape;
+    public final SimpleFloatProperty cropStartX = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty cropEndX = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty cropEndY = new SimpleFloatProperty(0);
+    public JFXShape cropShape;
+
     public BufferedImage preCrop;
     public BufferedImage cropped;
 
     public boolean updateCropping = true;
     public boolean updateAllFilters = true;
 
+
+    public void resetCrop() {
+        this.cropStartX.set(0);
+        this.cropStartY.set(0);
+        this.cropEndX.set(sourceCanvas.getWidth());
+        this.cropEndY.set(sourceCanvas.getHeight());
+    }
+
+    public Rectangle2D getCrop(){
+        float scale = getSourceCanvas().getPlottingScale();
+        float startX = Math.min(cropStartX.get(), cropEndX.get()) * scale;
+        float startY = Math.min(cropStartY.get(), cropEndY.get()) * scale;
+        float width = Math.abs(cropEndX.get() - cropStartX.get()) * scale;
+        float height = Math.abs(cropEndY.get() - cropStartY.get()) * scale;
+        if(width == 0 || height == 0){
+            return new Rectangle2D.Double(0, 0, sourceCanvas.getWidth(), sourceCanvas.getHeight());
+        }
+
+        return new Rectangle2D.Double(startX, startY, width, height);
+    }
+
     public BufferedImage createPreCroppedImage() {
-        return applyPreCropping(sourceImage, cropTransform, cropShape);
+        return applyPreCropping(sourceImage, getCrop());
     }
 
     public BufferedImage createCroppedImage(ICanvas canvas, ImageFilterSettings settings){
@@ -116,7 +145,7 @@ public class FilteredImageData {
         ImageCanvas newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), sourceCanvas, false);
 
         if(cropped == null || updateCropping){
-            preCrop = applyPreCropping(sourceImage, cropTransform, cropShape);
+            preCrop = applyPreCropping(sourceImage, getCrop());
             newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, settings.imageRotation.get().flipAxis);
             cropped = applyCropping(preCrop, newCanvas, settings);
         }
@@ -130,8 +159,8 @@ public class FilteredImageData {
         ICanvas canvas = getSourceCanvas();
 
         //cropping transform
-        if(cropShape != null){
-            Rectangle2D bounds = cropShape.getBounds2D();
+        if(getCrop() != null){
+            Rectangle2D bounds = getCrop();
             transform.preConcatenate(AffineTransform.getTranslateInstance(-bounds.getX(),-bounds.getY()));
             canvas = new SimpleCanvas((float)bounds.getWidth(), (float)bounds.getHeight(), canvas.getUnits());
         }
@@ -150,11 +179,11 @@ public class FilteredImageData {
 
     ///////////////////////////////////////
 
-    public static BufferedImage applyPreCropping(BufferedImage src, AffineTransform transform, Shape shape){
-        if(transform == null || shape == null){
+    public static BufferedImage applyPreCropping(BufferedImage src, Rectangle2D crop){
+        if(crop == null){
             return src;
         }
-        return ImageTools.applyPreCrop(src, transform, shape);
+        return ImageTools.applyPreCrop(src, crop);
     }
 
     public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas, ImageFilterSettings imgFilterSettings){
@@ -165,6 +194,7 @@ public class FilteredImageData {
     public static BufferedImage applyFilters(BufferedImage src, boolean forceUpdate, ImageFilterSettings imgFilterSettings){
         return ImageTools.applyCurrentImageFilters(src, imgFilterSettings, forceUpdate, null);
     }
+
 
     ///////////////////////////////////////
 

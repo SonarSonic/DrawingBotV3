@@ -1,52 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.controlsfx.glyphfont.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
-    <TableView fx:id="tableViewImageFilters" editable="true" layoutX="-1.0" layoutY="52.0" prefHeight="205.0"
-               prefWidth="404.0" tableMenuButtonVisible="true">
-        <columns>
-            <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false"
-                         text="Enable"/>
-            <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false"
-                         text="Filter Type"/>
-            <TableColumn fx:id="columnImageFilterSettings" prefWidth="218.0" sortable="false" text="Settings"/>
-        </columns>
-    </TableView>
-    <ComboBox fx:id="comboBoxImageFilterPreset" layoutX="12.0" layoutY="14.0" prefHeight="25.0" prefWidth="305.0"
-              promptText="New Preset Name"/>
-    <MenuButton fx:id="menuButtonFilterPresets" layoutX="321.0" layoutY="14.0" mnemonicParsing="false" text="Presets"/>
-    <HBox layoutX="7.0" layoutY="271.0" spacing="3.0">
-        <children>
-            <ComboBox fx:id="comboBoxFilterType" prefHeight="25.0" prefWidth="100.0" promptText="Transitions"/>
-            <ComboBox fx:id="comboBoxImageFilter" prefHeight="25.0" prefWidth="223.0"/>
-            <Button fx:id="buttonAddFilter" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Add"/>
-        </children>
-    </HBox>
-    <Separator layoutX="7.0" layoutY="309.0" prefHeight="3.0" prefWidth="378.0"/>
-    <HBox layoutX="10.0" layoutY="317.0" prefHeight="30.0" prefWidth="373.0" spacing="16.0">
-        <children>
-            <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Rotation">
-                <graphic>
-                    <ChoiceBox fx:id="choiceBoxRotation" prefHeight="25.0" prefWidth="79.0"/>
-                </graphic>
-            </Label>
-            <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" prefHeight="25.0"
-                   prefWidth="110.0" text="Flip Horizontal:">
-                <graphic>
-                    <CheckBox fx:id="checkBoxFlipX" mnemonicParsing="false"/>
-                </graphic>
-            </Label>
-            <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="179.0" layoutY="10.0" prefHeight="25.0"
-                   prefWidth="97.0" text="Flip Vertical:">
-                <graphic>
-                    <CheckBox fx:id="checkBoxFlipY" mnemonicParsing="false"/>
-                </graphic>
-            </Label>
-        </children>
-    </HBox>
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
+   <VBox spacing="8.0">
+      <children>
+         <HBox spacing="4.0">
+            <children>
+                <ComboBox fx:id="comboBoxImageFilterPreset" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+                <MenuButton fx:id="menuButtonFilterPresets" mnemonicParsing="false" text="Presets" />
+            </children>
+            <padding>
+               <Insets left="10.0" right="10.0" />
+            </padding>
+         </HBox>
+          <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="369.0" tableMenuButtonVisible="true">
+              <columns>
+                  <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false" text="Enable" />
+                  <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false" text="Filter Type" />
+                  <TableColumn fx:id="columnImageFilterSettings" prefWidth="218.0" sortable="false" text="Settings" />
+              </columns>
+          </TableView>
+          <HBox spacing="3.0">
+              <children>
+                  <ComboBox fx:id="comboBoxFilterType" prefHeight="25.0" prefWidth="100.0" promptText="Transitions" />
+                  <ComboBox fx:id="comboBoxImageFilter" prefHeight="25.0" prefWidth="223.0" />
+                  <Button fx:id="buttonAddFilter" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Add" />
+              </children>
+            <padding>
+               <Insets left="10.0" />
+            </padding>
+          </HBox>
+          <Separator prefHeight="3.0" prefWidth="378.0" />
+         <HBox layoutX="10.0" layoutY="310.0" prefHeight="30.0" prefWidth="373.0" spacing="5.0">
+            <children>
+               <ToggleButton fx:id="buttonEditCrop" contentDisplay="RIGHT" mnemonicParsing="false" prefHeight="25.0" prefWidth="57.0" text="Edit">
+                   <graphic>
+                       <Glyph fontFamily="FontAwesome" icon="CROP" />
+                   </graphic>
+                </ToggleButton>
+               <Label prefHeight="24.0" text="X" />
+               <TextField fx:id="textFieldCropStartX" prefHeight="25.0" prefWidth="54.0" promptText="left" />
+               <Label layoutX="87.0" layoutY="10.0" prefHeight="24.0" text="Y" />
+               <TextField fx:id="textFieldCropStartY" prefHeight="25.0" prefWidth="54.0" promptText="top" />
+               <Label layoutX="149.0" layoutY="10.0" prefHeight="24.0" text="W" />
+               <TextField fx:id="textFieldCropEndX" prefHeight="25.0" prefWidth="54.0" promptText="width" />
+               <Label layoutX="211.0" layoutY="10.0" prefHeight="24.0" text="H" />
+               <TextField fx:id="textFieldCropEndY" prefHeight="25.0" prefWidth="54.0" promptText="height" />
+               <Button fx:id="buttonResetCrop" layoutX="332.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0">
+                    <graphic>
+                        <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                    </graphic>
+                </Button>
+            </children>
+            <padding>
+               <Insets left="10.0" />
+            </padding>
+         </HBox>
+         <Separator layoutX="10.0" layoutY="299.0" prefHeight="3.0" prefWidth="378.0" />
+          <HBox prefHeight="30.0" prefWidth="373.0" spacing="16.0">
+              <children>
+                  <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Rotation">
+                      <graphic>
+                          <ChoiceBox fx:id="choiceBoxRotation" prefHeight="25.0" prefWidth="79.0" />
+                      </graphic>
+                  </Label>
+                  <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" prefHeight="25.0" prefWidth="110.0" text="Flip Horizontal:">
+                      <graphic>
+                          <CheckBox fx:id="checkBoxFlipX" mnemonicParsing="false" />
+                      </graphic>
+                  </Label>
+                  <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="179.0" layoutY="10.0" prefHeight="25.0" prefWidth="97.0" text="Flip Vertical:">
+                      <graphic>
+                          <CheckBox fx:id="checkBoxFlipY" mnemonicParsing="false" />
+                      </graphic>
+                  </Label>
+              </children>
+            <padding>
+               <Insets left="10.0" />
+            </padding>
+          </HBox>
+      </children>
+      <padding>
+         <Insets top="10.0" />
+      </padding>
+   </VBox>
 </AnchorPane>

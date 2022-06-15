@@ -32,7 +32,7 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
 
     @Override
     public void registerSettings() {
-        registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "useOriginalSizing", true, (area, value) -> area.useOriginalSizing.set(value)).setGetter(app -> app.useOriginalSizing.get()).setDisplayName("Use Original Sizing"));
+        registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "useOriginalSizing", false, (area, value) -> area.useOriginalSizing.set(value)).setGetter(app -> app.useOriginalSizing.get()).setDisplayName("Use Original Sizing"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, UnitsLength.class, Register.CATEGORY_UNIQUE, "inputUnits", List.of(UnitsLength.values()), UnitsLength.MILLIMETRES, (area, value) -> area.inputUnits.set(value)).setGetter(app -> app.inputUnits.get()).setDisplayName("Input Units"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumScalingMode.class, Register.CATEGORY_UNIQUE, "scalingMode", List.of(EnumScalingMode.values()), EnumScalingMode.CROP_TO_FIT, (area, value) -> area.scalingMode.set(value)).setGetter(app -> app.scalingMode.get()).setDisplayName("Scaling Mode"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaWidth", 0F, (area, value) -> area.width.set(value)).setGetter(app -> app.width.get()).setValidator(Math::abs).setDisplayName("Width"));

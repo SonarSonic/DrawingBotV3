@@ -67,6 +67,7 @@ public class FXController {
         drawingAreaController.drawingArea.set(DrawingBotV3.INSTANCE.drawingArea);
 
         imageFiltersController.settings.set(DrawingBotV3.INSTANCE.imgFilterSettings);
+        imageFiltersController.image.bind(DrawingBotV3.INSTANCE.openImage);
 
         pfmSettingsController.pfmSettings.set(DrawingBotV3.INSTANCE.pfmSettings);
 

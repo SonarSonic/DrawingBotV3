@@ -10,6 +10,7 @@ import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.projects.ProjectDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
@@ -74,6 +75,7 @@ public class MasterRegistry {
         PLUGINS.forEach(IPlugin::registerPFMSettings);
 
         INSTANCE.sortPFMSettings();
+        INSTANCE.sortDataLoaders();
 
         PLUGINS.forEach(IPlugin::registerDrawingTools);
         PLUGINS.forEach(IPlugin::registerImageFilters);
@@ -616,6 +618,26 @@ public class MasterRegistry {
             }
         }
         return null;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PROJECT DATA LOADER \\\\
+    private Map<String, ProjectDataLoader> dataLoadersMap = new HashMap<>();
+    public List<ProjectDataLoader> dataLoaders = new ArrayList<>();
+
+    public void registerProjectDataLoader(ProjectDataLoader loader){
+        if(dataLoadersMap.containsKey(loader.getKey())){
+            DrawingBotV3.logger.severe("DUPLICATE PROJECT DATA LOADER KEY: " + loader.getKey());
+        }else{
+            DrawingBotV3.logger.fine("Registering Project Data Loader: " + loader.getKey());
+            dataLoadersMap.put(loader.getKey(), loader);
+        }
+    }
+
+    public void sortDataLoaders(){
+        dataLoaders.addAll(dataLoadersMap.values());
+        dataLoaders.sort(Comparator.comparingInt(l -> l.order));
     }
 
 

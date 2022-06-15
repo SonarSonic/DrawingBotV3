@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * TODO REMOVE REDUNDANT FILTER CLASS AND ADD AN ObservableImageFilter Json Adapter
+ */
 public class PresetImageFilters implements IJsonData {
 
     public List<Filter> filters;

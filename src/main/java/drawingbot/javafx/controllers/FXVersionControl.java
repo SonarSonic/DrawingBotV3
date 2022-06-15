@@ -1,7 +1,7 @@
 package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.presets.PresetProjectSettings;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
@@ -55,7 +55,8 @@ public class FXVersionControl {
         versionThumbColumn.setCellValueFactory(param -> param.getValue().thumbnail);
 
         versionNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
-        versionNameColumn.setCellValueFactory(param -> param.getValue().userDefinedName);
+        versionNameColumn.setCellValueFactory(param -> param.getValue().name);
+        versionNameColumn.setEditable(true);
 
         versionDateColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         versionDateColumn.setCellValueFactory(param -> param.getValue().date);
@@ -65,9 +66,12 @@ public class FXVersionControl {
         versionFileColumn.setCellValueFactory(param -> param.getValue().file);
         versionFileColumn.setEditable(false);
 
+        versionPFMColumn.setVisible(false);
+        /*
         versionPFMColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         versionPFMColumn.setCellValueFactory(param -> param.getValue().pfm);
         versionPFMColumn.setEditable(false);
+         */
 
         buttonAddVersion.setOnAction(e -> saveVersion());
         buttonDeleteVersion.setOnAction(e -> FXHelper.deleteItem(tableViewVersions.getSelectionModel().getSelectedItem(), projectVersions.get()));

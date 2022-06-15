@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane  xmlns="http://javafx.com/javafx"
-             xmlns:fx="http://javafx.com/fxml"
-             fx:controller="drawingbot.javafx.controllers.FXVersionControl" prefWidth="423.0">
+<AnchorPane prefHeight="369.0" prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXVersionControl">
 <children>
     <TableView fx:id="tableViewVersions" editable="true" layoutX="-1.0" prefHeight="328.0" prefWidth="403.0" tableMenuButtonVisible="true">
         <columns>

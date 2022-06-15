@@ -15,6 +15,7 @@ import drawingbot.utils.flags.Flags;
 import javafx.embed.swing.SwingFXUtils;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
@@ -117,8 +118,66 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
     public static class Cropping extends GenericImage{
 
         public JFXShapeList croppingList = new JFXShapeList();
-        public JFXShape cropShape = null;
         public boolean init = false;
+
+        public static class CropShape extends JFXShape{
+
+            public FilteredImageData imageData;
+            public boolean transforming = false;
+
+            public CropShape(FilteredImageData imageData) {
+                super(new GRectangle(0, 0, imageData.getSourceCanvas().getScaledWidth(), imageData.getSourceCanvas().getScaledHeight()));
+                this.imageData = imageData;
+                this.setType(JFXShape.Type.RESHAPE);
+                setupListeners();
+            }
+
+            public void refreshGeometry(){
+                Rectangle2D rectangle2D = imageData.getCrop();
+                geometry = new GRectangle((float) rectangle2D.getX(), (float) rectangle2D.getY(), (float) rectangle2D.getWidth(), (float) rectangle2D.getHeight());
+                transformed = geometry;
+                awtTransform = new AffineTransform();
+                updateFromTransform(awtTransform);
+                DrawingBotV3.INSTANCE.onCanvasChanged();
+            }
+
+            @Override
+            public void setAwtTransform(AffineTransform newTransform) {
+                super.setAwtTransform(newTransform);
+                float scale = imageData.getSourceCanvas().getPlottingScale();
+                Rectangle2D rectangle2D = transformed.getAWTShape().getBounds2D();
+                transforming = true;
+                imageData.cropStartX.set((float) rectangle2D.getX() / scale);
+                imageData.cropStartY.set((float) rectangle2D.getY() / scale);
+                imageData.cropEndX.set((float) rectangle2D.getMaxX() / scale);
+                imageData.cropEndY.set((float) rectangle2D.getMaxY() / scale);
+                transforming = false;
+                DrawingBotV3.INSTANCE.onCanvasChanged();
+            }
+
+            public void setupListeners(){
+                imageData.cropStartX.addListener((observable, oldValue, newValue) -> {
+                    if(!transforming){
+                        refreshGeometry();
+                    }
+                });
+                imageData.cropStartY.addListener((observable, oldValue, newValue) -> {
+                    if(!transforming){
+                        refreshGeometry();
+                    }
+                });
+                imageData.cropEndX.addListener((observable, oldValue, newValue) -> {
+                    if(!transforming){
+                        refreshGeometry();
+                    }
+                });
+                imageData.cropEndY.addListener((observable, oldValue, newValue) -> {
+                    if(!transforming){
+                        refreshGeometry();
+                    }
+                });
+            }
+        }
 
         public void init(){
             if(!init){
@@ -131,17 +190,8 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         public void updateCropShape(){
             croppingList.getShapeList().clear();
             if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                croppingList.getShapeList().add(cropShape = new JFXShape(new GRectangle(0, 0, DrawingBotV3.INSTANCE.openImage.get().sourceImage.getWidth(), DrawingBotV3.INSTANCE.openImage.get().sourceImage.getHeight())){
-                    @Override
-                    public void setAwtTransform(AffineTransform newTransform) {
-                        super.setAwtTransform(newTransform);
-                        DrawingBotV3.INSTANCE.onCanvasChanged();
-                        DrawingBotV3.INSTANCE.openImage.get().cropShape = cropShape.transformed.getAWTShape();
-                        DrawingBotV3.INSTANCE.openImage.get().cropTransform = new AffineTransform(cropShape.getCurrentTransform());
-                    }
-                });
-                cropShape.setType(JFXShape.Type.RESHAPE);
-                //cropShape.jfxShape.setFill(new Color(0.5, 1, 0.5, 0.2));
+                DrawingBotV3.INSTANCE.openImage.get().cropShape.setSelected(true);
+                croppingList.getShapeList().add(DrawingBotV3.INSTANCE.openImage.get().cropShape);
             }
         }
 

@@ -14,6 +14,7 @@ public class Utils {
     public final static NumberFormat defaultNF = NumberFormat.getNumberInstance();
     public final static DecimalFormat defaultDF = new DecimalFormat("#.###");
     public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+    public final static DecimalFormat oneDecimal = new DecimalFormat("#.#");
 
     public static NumberFormat gCodeNF;
     public static final int gcode_decimals = 3; // numbers of decimal places used on gcode exports

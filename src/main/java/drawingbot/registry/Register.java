@@ -2,12 +2,11 @@ package drawingbot.registry;
 
 import com.jhlabs.image.*;
 import drawingbot.api.IPlugin;
-import drawingbot.files.loaders.AbstractFileLoader;
-import drawingbot.files.loaders.IFileLoaderFactory;
+import drawingbot.files.json.projects.PresetProjectSettingsLoader;
+import drawingbot.files.json.projects.PresetProjectSettingsManager;
 import drawingbot.files.loaders.ImageFileLoaderFactory;
 import drawingbot.files.loaders.ProjectFileLoaderFactory;
 import drawingbot.geom.converters.*;
-import drawingbot.geom.masking.GeometryMask;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plugins.*;
 import drawingbot.render.overlays.DrawingBorderOverlays;
@@ -36,6 +35,7 @@ import drawingbot.render.modes.ImageJFXDisplayMode;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -51,6 +51,9 @@ public class Register implements IPlugin {
 
     public static PresetType PRESET_TYPE_PROJECT;
     public static PresetProjectSettingsLoader PRESET_LOADER_PROJECT;
+
+    public static PresetType PRESET_TYPE_UI_SETTINGS;
+    public static PresetUISettingsLoader PRESET_LOADER_UI_SETTINGS;
 
     public static PresetType PRESET_TYPE_PFM;
     public static PresetPFMSettingsLoader PRESET_LOADER_PFM;
@@ -80,7 +83,6 @@ public class Register implements IPlugin {
     public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
 
     //// DISPLAY MODES \\\\
-    public IDisplayMode DISPLAY_MODE_IMAGE_CROPPING;
     public IDisplayMode DISPLAY_MODE_IMAGE;
     public IDisplayMode DISPLAY_MODE_DRAWING;
     public IDisplayMode DISPLAY_MODE_ORIGINAL;
@@ -88,6 +90,7 @@ public class Register implements IPlugin {
     public IDisplayMode DISPLAY_MODE_LIGHTENED;
     public IDisplayMode DISPLAY_MODE_TONE_MAP;
     public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
+    public IDisplayMode DISPLAY_MODE_IMAGE_CROPPING;
 
     //// DRAWING METADATA \\\\
     public Metadata<File> ORIGINAL_FILE;
@@ -123,6 +126,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_CONFIGS = new PresetType("config_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings").setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen"));
@@ -132,6 +136,7 @@ public class Register implements IPlugin {
 
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_CONFIGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_UI_SETTINGS = new PresetUISettingsLoader(PRESET_TYPE_UI_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PFM = new PresetPFMSettingsLoader(PRESET_TYPE_PFM));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_FILTERS = new PresetImageFiltersLoader(PRESET_TYPE_FILTERS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_SET = new PresetDrawingSetLoader(PRESET_TYPE_DRAWING_SET));
@@ -139,6 +144,8 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_AREA = new PresetDrawingAreaLoader(PRESET_TYPE_DRAWING_AREA));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_GCODE_SETTINGS = new PresetGCodeSettingsLoader(PRESET_TYPE_GCODE_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
+
+        PresetProjectSettingsManager.registerDefaultDataLoaders();
 
         MasterRegistry.INSTANCE.registerGeometryType("line", GLine.class, GLine::new);
         MasterRegistry.INSTANCE.registerGeometryType("path", GPath.class, GPath::new);
@@ -158,7 +165,6 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_GENERIC, 0);
 
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new ImageJFXDisplayMode.Cropping());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE = new ImageJFXDisplayMode.Image());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_DRAWING = new DrawingJFXDisplayMode.Drawing());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_ORIGINAL = new ImageJFXDisplayMode.Original());
@@ -166,6 +172,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new ImageJFXDisplayMode.Lightened());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new ImageJFXDisplayMode.ToneMap());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new ImageJFXDisplayMode.Cropping());
 
         MasterRegistry.INSTANCE.registerOverlay(RulerOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);

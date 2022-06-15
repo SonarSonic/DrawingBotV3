@@ -26,6 +26,14 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
         this.configFile = new File(FileUtils.getUserDataDirectory(), configFile);
     }
 
+    public boolean canLoadPreset(GenericPreset<?> preset){
+        return preset.presetType == type;
+    }
+
+    public String getVersion(){
+        return "1";
+    }
+
     protected abstract O getPresetInstance(GenericPreset<O> preset);
 
     /**
@@ -89,7 +97,7 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public final GenericPreset<O> createNewPreset(String presetSubType, String presetName, boolean userCreated) {
-        GenericPreset<O> preset = new GenericPreset<>(type, presetSubType, presetName, userCreated);
+        GenericPreset<O> preset = new GenericPreset<>(getVersion(), type, presetSubType, presetName, userCreated);
         preset.data = getPresetInstance(preset);
         return preset;
     }
@@ -160,4 +168,5 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public void loadDefaults(){
 
     }
+
 }
