@@ -201,22 +201,16 @@ public class FXExportController {
         choiceBoxCommentTypes.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCommentType);
 
         textAreaGCodeStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeStartCode);
-        textAreaGCodeStart.setText(GCodeExporter.defaultStartCode);
 
         textAreaGCodeEnd.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEndCode);
-        textAreaGCodeEnd.setText(GCodeExporter.defaultEndCode);
 
         textAreaGCodePenDown.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodePenDownCode);
-        textAreaGCodePenDown.setText(GCodeExporter.defaultPenDownCode);
 
         textAreaGCodePenUp.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodePenUpCode);
-        textAreaGCodePenUp.setText(GCodeExporter.defaultPenUpCode);
 
         textAreaGCodeStartLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeStartLayerCode);
-        textAreaGCodeStartLayer.setText(GCodeExporter.defaultStartLayerCode);
 
         textAreaGCodeEndLayer.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEndLayerCode);
-        textAreaGCodeEndLayer.setText(GCodeExporter.defaultEndLayerCode);
 
         /*
 
