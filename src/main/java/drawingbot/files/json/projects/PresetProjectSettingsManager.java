@@ -168,24 +168,19 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
             @Override
             public void saveData(ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
-                data.imageRotation = DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.get();
-                data.imageFlipHorizontal = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipHorizontal.get();
-                data.imageFlipVertical = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.get();
                 if(DrawingBotV3.INSTANCE.openImage.get() != null){
                     data.cropStartX = DrawingBotV3.INSTANCE.openImage.get().cropStartX.get();
                     data.cropStartY = DrawingBotV3.INSTANCE.openImage.get().cropStartY.get();
                     data.cropEndX = DrawingBotV3.INSTANCE.openImage.get().cropEndX.get();
                     data.cropEndY = DrawingBotV3.INSTANCE.openImage.get().cropEndY.get();
+                    data.imageRotation = DrawingBotV3.INSTANCE.openImage.get().imageRotation.get();
+                    data.imageFlipHorizontal = DrawingBotV3.INSTANCE.openImage.get().imageFlipHorizontal.get();
+                    data.imageFlipVertical = DrawingBotV3.INSTANCE.openImage.get().imageFlipVertical.get();
                 }
             }
 
             @Override
             public void loadData(ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
-                DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.set(data.imageRotation);
-                DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipHorizontal.set(data.imageFlipHorizontal);
-                DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.set(data.imageFlipVertical);
-
-
                 if(!preset.data.imagePath.isEmpty()) {
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
@@ -199,6 +194,9 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                                 imageData.cropStartY.set(data.cropStartY);
                                 imageData.cropEndX.set(data.cropEndX);
                                 imageData.cropEndY.set(data.cropEndY);
+                                imageData.imageRotation.set(data.imageRotation);
+                                imageData.imageFlipHorizontal.set(data.imageFlipHorizontal);
+                                imageData.imageFlipVertical.set(data.imageFlipVertical);
                             }
                         }
                     });

@@ -1,3 +1,54 @@
+### [v1.4.1-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.1-beta-free)
+- Added: **Colour Match - Premium Only** - A new Colour Seperation mode for Sketch PFMs only, it will compare the pens in your drawing set to the colours in the image and when drawing will try to use the best matched pen.
+  You also have a few options to configure colour match further, found to the right of the Colour Seperation drop-down.
+  
+  - "Colour Accuracy" - Decreasing the Colour Accuracy will lower the quality of the colour match and allows pens to draw over areas where they have a higher colour difference. Colour Accuracy relates to a Delta-E colour measurement in the following way
+    - 100: No colour difference
+    - 99: Slight colour difference     
+    - 98: Small colour difference     
+    - 97: Medium colour difference
+    - 96: Large colour difference
+    - 95: Very large colour difference
+  
+  - "Brightness Multiplier" - Decreases the overlap of the pens in the image
+  - "Pen Limit" - Limits the number of pens which can be used when matching, if this value is set to 18, only the 18 best matched pens will be used. If this value is set to 0, there is no limit.
+  - "Use Canvas Colour" - Adds an invisible pen which matches the colour of the Canvas, helps to avoid drawing unnecessary lines.    
+  - "Line Density - from Sketch PFMs" - the line density control found in the Sketch PFMs can also be used to control the Colour Match output.
+  - **For the best results**
+    - Use all the pens of a specific manufacturer, i.e. Use the presets for the set of 60 Staedtler Fineliners, then use the Pen Limit feature, to limit selection to approx 18+ pens allowing colour match to choose your best matched pens for each plot.
+    - Use a bright, saturated image, murky images or ones with a limited colour palette will perform poorly.    
+- Added: **SVG Import & SVG Converter PFM - Premium Only**
+  - You can now import SVGs generated in other softwares or in DrawingBotV3, this opens up many possibilities, such as SVG cropping, rotation, flipping, masking, pen/layer reassignment, layering multiple SVGs and recovering old DBV3 projects. Note: Any text in the SVGs will be blank, you should use "Object to Path" in Inkscape before importing SVGs with text.
+  - SVGs can be also be treated like any other image allowing them to be run through any PFM, they will be rasterised at the highest quality possible before plotting (the image tab will show a low quality preview of the SVG).
+  - You can control the conversion process in the new PFM SVG Converter, it has a few settings.
+      - SVG Path: The path to the SVG to be used, if this isn't set it will use the current imported SVG, if there isn't one the PFM will produce no output. You can however use this PFM as part of a Layers PFM, to layer SVGs together, when you run the PFM like this you can set the SVG Path to use an SVG which hasn't been imported.
+      - Derive Drawing Set: When enabled DrawingBotV3 will generate a new Drawing Pen for each colour in the SVG, allowing you to access them each as layers. This opens up possibilities for splitting SVGs by colour using a per/layer export, or even re-assigning colours to your SVG, once the SVG Converter PFM has been run you'll have access to change the colour of lines with all the tools available with a default drawing.
+  - You can also import an SVG to run through a standard PFM
+ 
+- Added: **Masking - Premium Only** - A new useful settings tab, to allow you to mask areas of the image, you can add shapes masks such as Rectangles and Circles, you can move, resize, rotate, skew with the controls in the viewport area. You can also import SVGs as masks, they will keep their original sizing so you can create detailed masks by importing an SVG with the same dimensions as in drawing area controls.
+- Added: **Image Cropping** - You can now crop images in the Image Processing tab, this allows you to enter values in pixels for cropping the image. You can also hit the "Edit" button and this will display a resizable box in the viewport area which you can then move to create the desired crop. You can also access this cropping feature via the new Display Mode "Image Cropping".
+- Added: **Rulers Overlays** - There are now rulers on the borders of the viewport area to show you an accurate scale of your drawing / image.
+- Added: Lock 1:1 button to the viewport toolbar, to allow viewing drawings at the correct scale relative to the screen, useful for evaluating the density of your plot.
+- Added: Reference Image exports - You can now export the edited reference image used in your plots, via Export / Export Reference Image File.
+- Added: Winsor & Newton ProMarkers, Pens/Drawing Sets - led
+- Added: Bic Cristal and Intensity, Pens/Drawing Sets - led
+- Added: Staedtler Fineliner 305 Sky Blue - Pen Definition - led  
+- Added: Support for Googles WebP Image Files (.webp)
+- Added: Fullscreen Mode, you can enable it be going to View/Fullscreen Mode
+- Added: Frame Hold Start and Frame Hold End to Animation Settings
+- Changed: Increased default render quality in the viewport to x4 the previous quality
+- Changed: You can now send any file type via the Serial Connection, allowing for sending GCode files to compatible plotters.
+- Changed: Image Rotation / Flipping is now Image Specific, when you load a new image these values will be reset.
+- Fixed: Drawings/Images flickering when switching Display Modes.
+- Fixed: Serial Connection commands will now be executed properly on non-HPGL devices.
+- Fixed: Staedtler Fineliner 63 Delft Blue - Pen Definition - led
+- Fixed: Export Directory being used instead of Import Directory when importing files - led
+- Fixed: Removed duplicate Copic Black Pens - led
+- Fixed: "Original Sizing" preset not activating properly  
+- Fixed: GCode Settings not saving properly
+- Fixed: HP-GL Padding/Offsets creating inaccurate drawings outside of the HP-GL bounds
+- Fixed: When exporting with N/Pens the render order will now be used rather than the export order, meaning the order will now match the generated HPGL files correctly.
+
 ### [v1.4.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.0-beta-free)
 
 Note: This update has kept growing and growing, and it’s time it was released, this is a Public Beta, although it has already been through an alpha testing phase.

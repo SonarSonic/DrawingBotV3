@@ -9,7 +9,10 @@ import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.render.shapes.JFXShape;
+import drawingbot.utils.EnumRotation;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -38,6 +41,7 @@ public class FilteredImageData {
     public FilteredImageData(File sourceFile, ICanvas destCanvas, ICanvas sourceCanvas, BufferedImage sourceImage){
         this.sourceFile = sourceFile;
         this.targetCanvas = destCanvas;
+        this.destCanvas = destCanvas;
         this.sourceCanvas = sourceCanvas;
         this.sourceImage = sourceImage;
         this.resetCrop();
@@ -99,6 +103,28 @@ public class FilteredImageData {
 
     ///////////////////////////////////////
 
+    public final SimpleObjectProperty<EnumRotation> imageRotation = new SimpleObjectProperty<>(EnumRotation.R0);
+    public final SimpleBooleanProperty imageFlipHorizontal = new SimpleBooleanProperty(false);
+    public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
+
+    {
+        imageRotation.addListener((observable, oldValue, newValue) -> {
+            if(DrawingBotV3.INSTANCE.openImage.get() == this){
+                DrawingBotV3.INSTANCE.onCanvasChanged();
+            }
+        });
+        imageFlipHorizontal.addListener((observable, oldValue, newValue) -> {
+            if(DrawingBotV3.INSTANCE.openImage.get() == this){
+                DrawingBotV3.INSTANCE.onCanvasChanged();
+            }
+        });
+        imageFlipVertical.addListener((observable, oldValue, newValue) -> {
+            if(DrawingBotV3.INSTANCE.openImage.get() == this){
+                DrawingBotV3.INSTANCE.onCanvasChanged();
+            }
+        });
+    }
+
     public final SimpleFloatProperty cropStartX = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropEndX = new SimpleFloatProperty(0);
@@ -128,7 +154,6 @@ public class FilteredImageData {
         if(width == 0 || height == 0){
             return new Rectangle2D.Double(0, 0, sourceCanvas.getWidth(), sourceCanvas.getHeight());
         }
-
         return new Rectangle2D.Double(startX, startY, width, height);
     }
 
@@ -138,7 +163,7 @@ public class FilteredImageData {
 
     public BufferedImage createCroppedImage(ICanvas canvas, ImageFilterSettings settings){
         BufferedImage image = createPreCroppedImage();
-        return applyCropping(image, canvas, settings);
+        return applyCropping(image, canvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
     }
 
     public void updateAll(ImageFilterSettings settings){
@@ -146,8 +171,8 @@ public class FilteredImageData {
 
         if(cropped == null || updateCropping){
             preCrop = applyPreCropping(sourceImage, getCrop());
-            newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, settings.imageRotation.get().flipAxis);
-            cropped = applyCropping(preCrop, newCanvas, settings);
+            newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
+            cropped = applyCropping(preCrop, newCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
         }
         filteredImage = applyFilters(cropped, updateCropping || updateAllFilters, settings);
         destCanvas = newCanvas;
@@ -167,7 +192,7 @@ public class FilteredImageData {
 
         //rotation transform
         if(settings != null){
-            AffineTransform rotationTransform = ImageTools.getCanvasRotationTransform(canvas, settings.imageRotation.get(), settings.imageFlipHorizontal.get(), settings.imageFlipVertical.get());
+            AffineTransform rotationTransform = ImageTools.getCanvasRotationTransform(canvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
             transform.preConcatenate(rotationTransform);
         }
 
@@ -186,8 +211,8 @@ public class FilteredImageData {
         return ImageTools.applyPreCrop(src, crop);
     }
 
-    public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas, ImageFilterSettings imgFilterSettings){
-        src = ImageTools.rotateImage(src, imgFilterSettings.imageRotation.get(), imgFilterSettings.imageFlipHorizontal.get(), imgFilterSettings.imageFlipVertical.get());
+    public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
+        src = ImageTools.rotateImage(src, imageRotation, flipHorizontal, flipVertical);
         return ImageTools.cropToCanvas(src, canvas);
     }
 

@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
     <AnchorPane>
         <children>
             <VBox spacing="10.0">
@@ -85,14 +85,14 @@
                                     </padding>
                                  </HBox>
                                  <Separator minHeight="20.0" prefWidth="200.0" />
-                                 <Label prefHeight="30.0" prefWidth="112.0" text="Send HPGL File">
+                                 <Label prefHeight="30.0" prefWidth="112.0" text="Send File">
                                     <font>
                                        <Font size="14.0" />
                                     </font>
                                  </Label>
                                  <HBox maxWidth="-Infinity" minWidth="200.0" prefHeight="25.0" prefWidth="370.0">
                                     <children>
-                                       <ComboBox fx:id="comboBoxHPGLFile" editable="true" prefWidth="298.0" promptText="Select HPGL File" />
+                                       <ComboBox fx:id="comboBoxHPGLFile" editable="true" prefWidth="298.0" promptText="Select File" />
                                        <Button fx:id="buttonImportHPGLFile" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" text="Import" />
                                     </children>
                                     <VBox.margin>

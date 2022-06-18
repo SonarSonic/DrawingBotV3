@@ -434,15 +434,17 @@ public class FXHelper {
                 gridPane.addRow(i, label, node);
             }else{
                 TextField field = setting.getEditableTextField();
-                gridPane.addRow(i, label, node, setting.getEditableTextField());
-
                 field.setOnAction(e -> {
                     setting.setValueFromString(field.getText());
                     if(onChanged != null) {
                         onChanged.accept(setting);
                     }
                 });
-
+                if(node != field){
+                    gridPane.addRow(i, label, node, field);
+                }else{
+                    gridPane.addRow(i, label, field);
+                }
             }
             if(onChanged != null){
                 node.setOnMouseReleased(e -> onChanged.accept(setting)); //change on mouse release, not on value change

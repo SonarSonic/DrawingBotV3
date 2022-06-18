@@ -58,9 +58,11 @@ class PresetProjectSettingsManagerLegacy {
         Register.PRESET_LOADER_DRAWING_SET.getDefaultManager().updatePreset(presetDrawingSet);
         presetData.drawingSet = presetDrawingSet;
 
+        /*
         presetData.imageRotation = DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.get();
         presetData.imageFlipHorizontal = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipHorizontal.get();
         presetData.imageFlipVertical = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.get();
+         */
 
         presetData.optimiseForPrint = DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.get();
         presetData.targetPenWidth = DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.get();
@@ -104,9 +106,11 @@ class PresetProjectSettingsManagerLegacy {
         Register.PRESET_LOADER_FILTERS.getDefaultManager().applyPreset(presetData.imageFilters);
         Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(presetData.pfmSettings);
 
+        /*
         DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.set(presetData.imageRotation);
         DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipHorizontal.set(presetData.imageFlipHorizontal);
         DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.set(presetData.imageFlipVertical);
+         */
 
         DrawingBotV3.INSTANCE.drawingArea.optimiseForPrint.set(presetData.optimiseForPrint);
         DrawingBotV3.INSTANCE.drawingArea.targetPenWidth.set(presetData.targetPenWidth); //TODO TEST ME

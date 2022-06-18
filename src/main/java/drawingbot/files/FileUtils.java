@@ -12,6 +12,7 @@ public class FileUtils {
     public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.webp", "*.gif", "*.bmp", "*.jpeg");
     public static final FileChooser.ExtensionFilter IMPORT_VIDEOS = new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.mov", "*.avi");
 
+    public static final FileChooser.ExtensionFilter FILTER_ALL_FILES = new FileChooser.ExtensionFilter("All Files", "*.*");
     public static final FileChooser.ExtensionFilter FILTER_JSON = new FileChooser.ExtensionFilter("JSON - JavaScript Object Notation", "*.json");
     public static final FileChooser.ExtensionFilter FILTER_PROJECT = new FileChooser.ExtensionFilter("DrawingBotV3 - Project File", "*.drawingbotv3");
 

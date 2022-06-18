@@ -134,10 +134,6 @@ public class DrawingBotV3 implements IDrawingManager {
         blendMode.addListener((observable, oldValue, newValue) -> reRender());
         imgFilterSettings.currentFilters.get().addListener((ListChangeListener<ObservableImageFilter>) c -> onImageFiltersChanged());
 
-        imgFilterSettings.imageRotation.addListener((observable, oldValue, newValue) -> onCanvasChanged());
-        imgFilterSettings.imageFlipHorizontal.addListener((observable, oldValue, newValue) -> onCanvasChanged());
-        imgFilterSettings.imageFlipVertical.addListener((observable, oldValue, newValue) -> onCanvasChanged());
-
         activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
@@ -176,7 +172,7 @@ public class DrawingBotV3 implements IDrawingManager {
 
             @Override
             public boolean flipAxis() {
-                return imgFilterSettings.imageRotation.get().flipAxis;
+                return openImage.get() != null && openImage.get().imageRotation.get().flipAxis;
             }
         };
 

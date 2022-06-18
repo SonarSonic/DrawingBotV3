@@ -105,7 +105,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
 
     @Override
     public float getPlottingScale(){
-        return optimiseForPrint.get() ? 1F / targetPenWidth.get() : 1;
+        return optimiseForPrint.get() ? 1F / targetPenWidth.get() : 1F;
     }
 
     @Override

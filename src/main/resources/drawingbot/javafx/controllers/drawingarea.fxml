@@ -39,12 +39,12 @@
                                 <children>
                                     <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Width:">
                                         <graphic>
-                                            <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="72.0" text="0" />
+                                            <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="72.0" />
                                         </graphic>
                                     </Label>
                                     <Label contentDisplay="RIGHT" text="Height:">
                                         <graphic>
-                                            <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="72.0" text="0" />
+                                            <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="72.0" />
                                         </graphic>
                                     </Label>
                               <ChoiceBox fx:id="choiceBoxOrientation" prefHeight="25.0" prefWidth="96.0" />
@@ -78,7 +78,7 @@
                                     </Label>
                                     <Label contentDisplay="RIGHT" graphicTextGap="8.0" prefHeight="25.0" prefWidth="220.0" text="Pen Width (mm):" translateX="12.0">
                                         <graphic>
-                                            <TextField fx:id="textFieldPenWidth" prefHeight="25.0" prefWidth="123.0" text="0" />
+                                            <TextField fx:id="textFieldPenWidth" prefHeight="25.0" prefWidth="123.0" />
                                         </graphic>
                                     </Label>
                                 </children>

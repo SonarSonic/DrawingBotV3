@@ -100,7 +100,7 @@ public class FXDrawingArea {
                 choiceBoxScalingMode.valueProperty().bindBidirectional(newValue.scalingMode);
 
                 checkBoxOptimiseForPrint.selectedProperty().bindBidirectional(newValue.optimiseForPrint);
-                textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter());
+                textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter(Utils.defaultDF));
 
                 colorPickerCanvas.valueProperty().bindBidirectional(newValue.canvasColor);
                 colorPickerBackground.valueProperty().bindBidirectional(newValue.backgroundColor);

@@ -68,15 +68,9 @@ public class FXImageFilters {
         settings.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
                 tableViewImageFilters.itemsProperty().unbind();
-                choiceBoxRotation.valueProperty().unbindBidirectional(oldValue.imageRotation);
-                checkBoxFlipX.selectedProperty().unbindBidirectional(oldValue.imageFlipHorizontal);
-                checkBoxFlipY.selectedProperty().unbindBidirectional(oldValue.imageFlipVertical);
             }
             if(newValue != null){
                 tableViewImageFilters.itemsProperty().bind(newValue.currentFilters);
-                choiceBoxRotation.valueProperty().bindBidirectional(newValue.imageRotation);
-                checkBoxFlipX.selectedProperty().bindBidirectional(newValue.imageFlipHorizontal);
-                checkBoxFlipY.selectedProperty().bindBidirectional(newValue.imageFlipVertical);
             }
         });
 
@@ -145,12 +139,18 @@ public class FXImageFilters {
                 textFieldCropStartY.textProperty().unbindBidirectional(oldValue.cropStartY);
                 textFieldCropEndX.textProperty().unbindBidirectional(oldValue.cropEndX);
                 textFieldCropEndY.textProperty().unbindBidirectional(oldValue.cropEndY);
+                choiceBoxRotation.valueProperty().unbindBidirectional(oldValue.imageRotation);
+                checkBoxFlipX.selectedProperty().unbindBidirectional(oldValue.imageFlipHorizontal);
+                checkBoxFlipY.selectedProperty().unbindBidirectional(oldValue.imageFlipVertical);
             }
             if(newValue != null){
                 textFieldCropStartX.textProperty().bindBidirectional(newValue.cropStartX, new NumberStringConverter(Utils.oneDecimal));
                 textFieldCropStartY.textProperty().bindBidirectional(newValue.cropStartY, new NumberStringConverter(Utils.oneDecimal));
                 textFieldCropEndX.textProperty().bindBidirectional(newValue.cropEndX, new NumberStringConverter(Utils.oneDecimal));
                 textFieldCropEndY.textProperty().bindBidirectional(newValue.cropEndY, new NumberStringConverter(Utils.oneDecimal));
+                choiceBoxRotation.valueProperty().bindBidirectional(newValue.imageRotation);
+                checkBoxFlipX.selectedProperty().bindBidirectional(newValue.imageFlipHorizontal);
+                checkBoxFlipY.selectedProperty().bindBidirectional(newValue.imageFlipVertical);
             }
         });
 

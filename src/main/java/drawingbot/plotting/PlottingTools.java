@@ -37,6 +37,7 @@ public class PlottingTools implements IPlottingTools {
     public int randomSeed = 0;
     public Random random;
     public AffineTransform plottingTransform;
+    public boolean disablePlotting = false;
 
     // CLIPPING \\
     public Shape clippingShape = null;
@@ -225,7 +226,9 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public void addGeometry(IGeometry geometry) {
-
+        if(disablePlotting){
+            return;
+        }
 
         geometry = geometry.transformGeometry(transform);
 
