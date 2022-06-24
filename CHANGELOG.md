@@ -1,3 +1,22 @@
+### [v1.4.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.2-beta-free)
+- Added: New improved button controls for Image Processing, Pen Settings, Version Control and Mask Settings
+- Added: Support for different Plotting Resolution on individual drawing styles in Layers PFM and Mosaic PFMS  
+- Added: Option to specify the naming convention for Inkscape Layers, go to File / Export Settings / SVG.   
+- Added: Option to enable/disable background layer export for SVGs, it will now be disabled by default  
+- Added: Option to disable Grid Snapping when moving masks, found at the top of Mask Settings
+- Added: Controls to manually edit the size of the selection when editing masks, found at the bottom of Mask Settings
+- Improved: When performing actions on items in tables selections will now be more intuitive e.g. when moving items up and down, they will stay selected
+- Improved: Drawing Set render previews will now live update with pen changes    
+- Improved: Increased the size of the text boxes when editing GCode in File / Export Settings / GCode  
+- Improved: When opening projects they will always open in the Drawing display mode, rather than Image.
+- Improved: Standardised the sizing of tables in the UI
+- Fixed: SVG Exports having the wrong scaling when using Inches or Centimeters
+- Fixed: Plotting Resolution not working correctly when in CMYK Colour Separation
+- Fixed: Completely Black Pens not being shown in SVG Exports
+- Fixed: SVG Exports failing in rare cases where closed paths would be merged  
+- Fixed: Export per/n pens being too large on some screens and made the window resizable.
+- Fixed: Removed erroneous pen 222 from Staedtler 36 pen pack - led 
+
 ### [v1.4.1-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.1-beta-free)
 - Added: **Colour Match - Premium Only** - A new Colour Seperation mode for Sketch PFMs only, it will compare the pens in your drawing set to the colours in the image and when drawing will try to use the best matched pen.
   You also have a few options to configure colour match further, found to the right of the Colour Seperation drop-down.
