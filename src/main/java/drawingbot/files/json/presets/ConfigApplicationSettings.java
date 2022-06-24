@@ -35,7 +35,8 @@ public class ConfigApplicationSettings implements IConfigData {
     public UnitsLength lineSortingUnits = UnitsLength.MILLIMETRES;
 
     ///svg settings
-    public boolean svgLayerRenaming = false;
+    public String svgLayerNaming = "%NAME%";
+    public boolean exportSVGBackground = false;
 
     ////vpype settings
     public String pathToVPypeExecutable = "";

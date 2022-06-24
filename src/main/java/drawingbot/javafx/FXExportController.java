@@ -124,11 +124,16 @@ public class FXExportController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////SVG SETTINGS
 
-    public CheckBox checkBoxEnableSVGLayerNaming = null;
+    public ComboBox<String> comboBoxLayerNamingPattern = null;
+    public CheckBox checkBoxExportBackgroundLayer = null;
 
     public void initSVGSettingsPane(){
-        checkBoxEnableSVGLayerNaming.setSelected(ConfigFileHandler.getApplicationSettings().svgLayerRenaming);
-        checkBoxEnableSVGLayerNaming.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().svgLayerRenaming = newValue);
+        comboBoxLayerNamingPattern.setValue(ConfigFileHandler.getApplicationSettings().svgLayerNaming);
+        comboBoxLayerNamingPattern.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().svgLayerNaming = newValue);
+        comboBoxLayerNamingPattern.getItems().addAll("%NAME%", "%INDEX% - %NAME%", "Pen%INDEX%");
+
+        checkBoxExportBackgroundLayer.setSelected(ConfigFileHandler.getApplicationSettings().exportSVGBackground);
+        checkBoxExportBackgroundLayer.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().exportSVGBackground = newValue);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

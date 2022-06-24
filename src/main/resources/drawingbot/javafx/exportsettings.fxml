@@ -162,9 +162,27 @@
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Label>
-                              <Label contentDisplay="RIGHT" text="Rename layers (Pen1, Pen2...)">
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <Label contentDisplay="RIGHT" text="Layer Naming (with wildcards " />
+                                    <Label text="\%INDEX%">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" text=" and " />
+                                    <Label text="\%NAME%">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <Label contentDisplay="RIGHT" layoutX="239.0" layoutY="10.0" text=")" />
+                                 </children>
+                              </HBox>
+                              <ComboBox fx:id="comboBoxLayerNamingPattern" editable="true" prefHeight="25.0" prefWidth="384.0" />
+                              <Label contentDisplay="RIGHT" text="Export Background Layer">
                                  <graphic>
-                                    <CheckBox fx:id="checkBoxEnableSVGLayerNaming" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                    <CheckBox fx:id="checkBoxExportBackgroundLayer" alignment="CENTER_RIGHT" mnemonicParsing="false" />
                                  </graphic>
                               </Label>
                               <Separator prefWidth="200.0" />
