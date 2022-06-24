@@ -206,6 +206,16 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
         return GeometryUtils.copyGeometryData(new GPath(this), this);
     }
 
+    /**
+     * @return a copy of this GPath without any SEG_CLOSE segments, to help when combining paths together as JTS has low tolerance for missing move / close pairs
+     */
+    public GPath copyOpenPath(){
+        GPath path = new GPath();
+        addToPath(true, path);
+        return (GPath) GeometryUtils.copyGeometryData(path, this);
+    }
+
+
     public void markPathDirty(){
         segmentCount = -1;
     }
@@ -236,16 +246,30 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
         PathIterator iterator = getPathIterator(null);
         float[] coords = new float[6];
 
-        boolean addedFirstMove = false;
+        float lastMoveX = 0;
+        float lastMoveY = 0;
+        boolean hasMove = false;
 
-        while (!iterator.isDone()) {
+        while (!iterator.isDone()){
             int type = iterator.currentSegment(coords);
-            if(addedFirstMove || addMove){
-                GPath.move(path, coords, type);
+
+            if(type == PathIterator.SEG_MOVETO){
+                lastMoveX = coords[0];
+                lastMoveY = coords[1];
+                if(!hasMove && !addMove){
+                    hasMove = true;
+                }else{
+                    hasMove = true;
+                    move(path, coords, type);
+                }
+            }else if(type != PathIterator.SEG_CLOSE){
+                move(path, coords, type);
+            }else if(hasMove){
+                move(path, new float[]{lastMoveX, lastMoveY}, PathIterator.SEG_LINETO);
             }
-            addedFirstMove = true;
             iterator.next();
         }
+
     }
 
     @Override
