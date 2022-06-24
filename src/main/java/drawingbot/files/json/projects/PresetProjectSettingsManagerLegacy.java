@@ -166,10 +166,10 @@ class PresetProjectSettingsManagerLegacy {
             DrawingBotV3.INSTANCE.openImage.set(null);
             DrawingBotV3.INSTANCE.setCurrentDrawing(null);
             if(!presetData.imagePath.isEmpty()) {
-                AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(presetData.imagePath), false);
+                AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(presetData.imagePath), false, false);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED) {
-                        FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                        FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
@@ -182,11 +182,11 @@ class PresetProjectSettingsManagerLegacy {
                 DrawingBotV3.INSTANCE.openImage.set(null);
                 DrawingBotV3.INSTANCE.setCurrentDrawing(null);
                 Platform.runLater(() -> {
-                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(presetData.imagePath), false);
+                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(presetData.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
                             FXHelper.importFile((file, chooser) -> {
-                                DrawingBotV3.INSTANCE.openFile(file, false);
+                                DrawingBotV3.INSTANCE.openFile(file, false, false);
                                 DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, presetData.drawingState));
                             }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                         }

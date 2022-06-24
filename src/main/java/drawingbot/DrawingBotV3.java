@@ -392,14 +392,14 @@ public class DrawingBotV3 implements IDrawingManager {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public void openFile(File file, boolean internal) {
-        AbstractFileLoader loadingTask = getImageLoaderTask(file, internal);
+    public void openFile(File file, boolean internal, boolean changeDisplayMode) {
+        AbstractFileLoader loadingTask = getImageLoaderTask(file, internal, changeDisplayMode);
         if(loadingTask != null){
             taskMonitor.queueTask(loadingTask);
         }
     }
 
-    public AbstractFileLoader getImageLoaderTask(File file, boolean internal){
+    public AbstractFileLoader getImageLoaderTask(File file, boolean internal, boolean changeDisplayMode){
         AbstractFileLoader loadingImage = MasterRegistry.INSTANCE.getFileLoader(file, internal);
 
         //if the file loader could provide an image, wipe the current one
@@ -412,7 +412,9 @@ public class DrawingBotV3 implements IDrawingManager {
         loadingImage.setOnSucceeded(e -> {
             if(e.getSource().getValue() != null){
                 openImage.set((FilteredImageData) e.getSource().getValue());
-                Platform.runLater(() -> displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE));
+                if(changeDisplayMode){
+                    Platform.runLater(() -> displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE));
+                }
                 FXApplication.primaryStage.setTitle(DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", '" + file.getName() + "'");
                 loadingImage.onImageDataLoaded();
             }

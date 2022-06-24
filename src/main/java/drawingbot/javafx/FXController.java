@@ -566,7 +566,7 @@ public class FXController {
             boolean success = false;
             if(db.hasFiles()){
                 List<File> files = db.getFiles();
-                DrawingBotV3.INSTANCE.openFile(files.get(0), false);
+                DrawingBotV3.INSTANCE.openFile(files.get(0), false, true);
                 success = true;
             }
             event.setDropCompleted(success);

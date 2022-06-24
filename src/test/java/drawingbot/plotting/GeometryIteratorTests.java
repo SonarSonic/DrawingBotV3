@@ -25,7 +25,7 @@ public class GeometryIteratorTests {
         final CountDownLatch latch = new CountDownLatch(1);
 
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.openFile(new File("images/testimage.jpg"), true);
+            DrawingBotV3.INSTANCE.openFile(new File("images/testimage.jpg"), true, true);
             DrawingBotV3.INSTANCE.openImage.addListener((observable, oldValue, newValue) -> latch.countDown());
         });
         latch.await();

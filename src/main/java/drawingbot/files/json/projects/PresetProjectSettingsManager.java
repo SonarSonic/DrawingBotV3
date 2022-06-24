@@ -182,10 +182,10 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             @Override
             public void loadData(ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
                 if(!preset.data.imagePath.isEmpty()) {
-                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false);
+                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             FilteredImageData imageData = loadingTask.getValue();

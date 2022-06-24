@@ -172,7 +172,7 @@ public class FXApplication extends Application {
             DrawingBotV3.logger.info("Attempting to load file at startup");
             try {
                 File startupFile =  new File(launchArgs[0]);
-                DrawingBotV3.INSTANCE.openFile(startupFile, false);
+                DrawingBotV3.INSTANCE.openFile(startupFile, false, true);
             } catch (Exception e) {
                 DrawingBotV3.logger.log(Level.SEVERE, "Failed to load file at startup", e);
             }

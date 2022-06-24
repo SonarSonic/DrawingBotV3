@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Legacy Project Loader
- */
 public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProjectSettings> {
 
     public PresetProjectSettingsLoader(PresetType presetType) {

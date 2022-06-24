@@ -50,11 +50,11 @@ public class FXHelper {
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
     public static void importImageFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_IMAGES);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, true), FileUtils.IMPORT_IMAGES);
     }
 
     public static void importVideoFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_VIDEOS);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, true), FileUtils.IMPORT_VIDEOS);
     }
 
     public static void importSVGFile(){
@@ -62,7 +62,7 @@ public class FXHelper {
             FXController.showPremiumFeatureDialog();
             return;
         }
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.FILTER_SVG);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, true), FileUtils.FILTER_SVG);
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
