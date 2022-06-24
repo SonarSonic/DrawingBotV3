@@ -243,6 +243,9 @@ public class GeometryUtils {
     public static void toLineStrings(IGeometry geometry, AffineTransform transform, List<LineString> lineStrings){
         List<Coordinate[]> coordinates = ShapeReader.toCoordinates(new FlatteningPathIterator(geometry.getAWTShape().getPathIterator(transform), 6D));
         for (Coordinate[] coordinate : coordinates) {
+            if(coordinate.length < 2){
+                continue;
+            }
             LineString lineString = factory.createLineString(coordinate);
             lineStrings.add(lineString);
         }
