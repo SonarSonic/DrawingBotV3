@@ -122,6 +122,14 @@ public class SVGExporter {
 
                 // Transfer the graphics document into the host document
                 if(group.hasChildNodes()){
+                    //the metadata for the stroke colour is lost when the stroke is black, this is a very ugly work around to prevent that, TODO find a better fix
+                    if(!(drawingPen.source instanceof ICustomPen) && drawingPen.getARGB() == ImageTools.getARGB(255, 0, 0, 0)){
+                        Node node = group.getFirstChild();
+                        if(node instanceof Element){
+                            Element element = (Element) node;
+                            element.setAttribute("stroke", "black");
+                        }
+                    }
                     Node graphicsNode = document.importNode(group, true);
                     svgRoot.appendChild(graphicsNode);
                 }
