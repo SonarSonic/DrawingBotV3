@@ -2,10 +2,11 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.controlsfx.glyphfont.*?>
 
-<AnchorPane prefHeight="369.0" prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXVersionControl">
+<AnchorPane prefHeight="385.0" prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXVersionControl">
 <children>
-    <TableView fx:id="tableViewVersions" editable="true" layoutX="-1.0" prefHeight="328.0" prefWidth="403.0" tableMenuButtonVisible="true">
+    <TableView fx:id="tableViewVersions" editable="true" layoutX="8.0" layoutY="8.0" prefHeight="328.0" prefWidth="390.0" tableMenuButtonVisible="true">
         <columns>
             <TableColumn fx:id="versionThumbColumn" minWidth="7.0" prefWidth="122.0" />
             <TableColumn fx:id="versionNameColumn" prefWidth="130.0" sortable="false" text="Name" />
@@ -14,12 +15,38 @@
             <TableColumn fx:id="versionPFMColumn" minWidth="0.0" prefWidth="144.0" sortable="false" text="PFM" visible="false" />
         </columns>
     </TableView>
-    <HBox layoutX="28.0" layoutY="341.0" spacing="3.0">
+    <HBox alignment="CENTER" layoutX="12.0" layoutY="351.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
         <children>
-            <Button fx:id="buttonAddVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Save" />
-            <Button fx:id="buttonDeleteVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Delete" />
-            <Button fx:id="buttonMoveUpVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Up" />
-            <Button fx:id="buttonMoveDownVersion" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Move Down" />
+            <Button fx:id="buttonAddVersion" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonDeleteVersion" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonLoadVersion" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="EYE" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonMoveUpVersion" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonMoveDownVersion" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonClearVersions" layoutX="320.0" layoutY="10.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                </graphic>
+            </Button>
         </children>
     </HBox>
 </children>

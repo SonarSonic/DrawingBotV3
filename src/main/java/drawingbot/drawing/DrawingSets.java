@@ -3,18 +3,29 @@ package drawingbot.drawing;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DrawingSets implements IProperties {
 
     public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
     public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    {
+        drawingSetSlots.get().addListener((InvalidationListener) observable -> {
+            if(!drawingSetSlots.get().contains(activeDrawingSet.get())){
+                if(!drawingSetSlots.get().isEmpty()){
+                    activeDrawingSet.set(drawingSetSlots.get().get(0));
+                }
+            }
+        });
+    }
 
     public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
 

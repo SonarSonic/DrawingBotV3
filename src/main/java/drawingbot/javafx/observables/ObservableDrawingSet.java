@@ -72,8 +72,10 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         }
     }
 
-    public void addNewPen(IDrawingPen pen){
-        pens.add(new ObservableDrawingPen(pens.size(), pen));
+    public ObservableDrawingPen addNewPen(IDrawingPen pen){
+        ObservableDrawingPen newPen = new ObservableDrawingPen(pens.size(), pen);
+        pens.add(newPen);
+        return newPen;
     }
 
     public int[] calculateRenderOrder(){

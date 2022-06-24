@@ -233,5 +233,13 @@ public class JFXShapeManager{
         return new ActionGrouped(actions);
     }
 
+    public IAction setTransformAction(AffineTransform transform){
+        List<IAction> actions = new ArrayList<>();
+        for(JFXShape shape : selectedShapes){
+            actions.add(new ActionTransformShape(new JFXShapeActionTarget(activeShapeList.get(), shape), transform));
+        }
+        return new ActionGrouped(actions);
+    }
+
     public static final int TRANSLATE = 0, SCALE = 1, ROTATE = 2, SKEW = 3;
 }

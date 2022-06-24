@@ -28,17 +28,17 @@ public class ContextMenuObservableProjectSettings extends ContextMenu {
         getItems().add(new SeparatorMenuItem());
 
         MenuItem menuMoveUp = new MenuItem("Move Up");
-        menuMoveUp.setOnAction(e -> FXHelper.moveItemUp(row.getItem(), DrawingBotV3.INSTANCE.projectVersions));
+        menuMoveUp.setOnAction(e -> FXHelper.moveItemUp(row.getTableView().getSelectionModel(), DrawingBotV3.INSTANCE.projectVersions));
         getItems().add(menuMoveUp);
 
         MenuItem menuMoveDown = new MenuItem("Move Down");
-        menuMoveDown.setOnAction(e -> FXHelper.moveItemDown(row.getItem(), DrawingBotV3.INSTANCE.projectVersions));
+        menuMoveDown.setOnAction(e -> FXHelper.moveItemDown(row.getTableView().getSelectionModel(), DrawingBotV3.INSTANCE.projectVersions));
         getItems().add(menuMoveDown);
 
         getItems().add(new SeparatorMenuItem());
 
         MenuItem menuDelete = new MenuItem("Delete");
-        menuDelete.setOnAction(e -> FXHelper.deleteItem(row.getItem(), DrawingBotV3.INSTANCE.projectVersions));
+        menuDelete.setOnAction(e -> FXHelper.deleteItem(row.getTableView().getSelectionModel(), DrawingBotV3.INSTANCE.projectVersions));
         getItems().add(menuDelete);
     }
 

@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -347,50 +348,81 @@ public class FXHelper {
         button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
     }
 
-    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, Supplier<ObservableList<O>> list, Consumer<O> duplicate){
+    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, Supplier<ObservableList<O>> list, Function<O, O> duplicate){
 
         MenuItem menuMoveUp = new MenuItem("Move Up");
-        menuMoveUp.setOnAction(e -> moveItemUp(row.getItem(), list.get()));
+        menuMoveUp.setOnAction(e -> moveItemUp(row.getTableView().getSelectionModel(), list.get()));
         menu.getItems().add(menuMoveUp);
 
         MenuItem menuMoveDown = new MenuItem("Move Down");
-        menuMoveDown.setOnAction(e -> moveItemDown(row.getItem(), list.get()));
+        menuMoveDown.setOnAction(e -> moveItemDown(row.getTableView().getSelectionModel(), list.get()));
         menu.getItems().add(menuMoveDown);
 
         menu.getItems().add(new SeparatorMenuItem());
 
         MenuItem menuDelete = new MenuItem("Delete");
-        menuDelete.setOnAction(e -> deleteItem(row.getItem(), list.get()));
+        menuDelete.setOnAction(e -> deleteItem(row.getTableView().getSelectionModel(), list.get()));
         menu.getItems().add(menuDelete);
 
         MenuItem menuDuplicate = new MenuItem("Duplicate");
-        menuDuplicate.setOnAction(e -> duplicate.accept(row.getItem()));
+        menuDuplicate.setOnAction(e -> duplicateItem(row.getTableView().getSelectionModel(), list.get(), duplicate));
         menu.getItems().add(menuDuplicate);
     }
 
-    public static <O> void moveItemUp(O item, ObservableList<O> list){
-        if(item == null) return;
-        int index = list.indexOf(item);
-        if(index != 0){
-            list.remove(index);
-            list.add(index-1,item);
+    public static <O> void moveItemUp(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+            int index = list.indexOf(item);
+            if(index != 0){
+                list.remove(index);
+                list.add(index-1,item);
+            }
+            selectionModel.clearSelection();
+            selectionModel.select(item);
         }
     }
 
-    public static <O> void moveItemDown(O item, ObservableList<O> list){
-        if(item == null) return;
-        int index = list.indexOf(item);
-        if(index != list.size()-1){
-            list.remove(index);
-            list.add(index+1, item);
+    public static <O> void moveItemDown(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+
+            int index = list.indexOf(item);
+            if(index != list.size()-1){
+                list.remove(index);
+                list.add(index+1, item);
+            }
+
+            selectionModel.clearSelection();
+            selectionModel.select(item);
         }
     }
 
-    public static <O> void deleteItem(O item, ObservableList<O> list){
-        if(item == null) return;
-        list.remove(item);
+    public static <O> void addItem(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list, Supplier<O> add){
+        O item = add.get();
+        if(item != null){
+            list.add(item);
+            selectionModel.clearSelection();
+            selectionModel.select(item);
+        }
     }
 
+    public static <O> void deleteItem(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+            list.remove(item);
+            selectionModel.clearSelection();
+        }
+    }
+
+    public static <O> void duplicateItem(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list, Function<O, O> duplicate){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+            O newItem = duplicate.apply(item);
+            list.add(newItem);
+            selectionModel.clearSelection();
+            selectionModel.select(newItem);
+        }
+    }
 
     public static void addImageFilter(GenericFactory<BufferedImageOp> filterFactory, ImageFilterSettings settings){
         ObservableImageFilter filter = new ObservableImageFilter(filterFactory);

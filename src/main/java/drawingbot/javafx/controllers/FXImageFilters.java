@@ -10,6 +10,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controls.ContextMenuObservableFilter;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -51,6 +52,11 @@ public class FXImageFilters {
     public ComboBox<EnumFilterTypes> comboBoxFilterType = null;
     public ComboBox<GenericFactory<BufferedImageOp>> comboBoxImageFilter = null;
     public Button buttonAddFilter = null;
+    public Button buttonRemoveFilter = null;
+    public Button buttonDuplicateFilter = null;
+    public Button buttonMoveUpFilter = null;
+    public Button buttonMoveDownFilter = null;
+    public Button buttonClearFilters = null;
 
     public TextField textFieldCropStartX = null;
     public TextField textFieldCropStartY = null;
@@ -132,6 +138,24 @@ public class FXImageFilters {
                 FXHelper.addImageFilter(comboBoxImageFilter.getValue(), settings.get());
             }
         });
+        buttonRemoveFilter.setOnAction(e -> FXHelper.deleteItem(tableViewImageFilters.getSelectionModel(), settings.get().currentFilters.get()));
+        buttonRemoveFilter.setTooltip(new Tooltip("Remove Selected Filter"));
+        buttonRemoveFilter.disableProperty().bind(tableViewImageFilters.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonDuplicateFilter.setOnAction(e -> FXHelper.duplicateItem(tableViewImageFilters.getSelectionModel(), settings.get().currentFilters.get(), ObservableImageFilter::new));
+        buttonDuplicateFilter.setTooltip(new Tooltip("Duplicate Selected Filter"));
+        buttonDuplicateFilter.disableProperty().bind(tableViewImageFilters.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonMoveUpFilter.setOnAction(e -> FXHelper.moveItemUp(tableViewImageFilters.getSelectionModel(), settings.get().currentFilters.get()));
+        buttonMoveUpFilter.setTooltip(new Tooltip("Move Selected Filter Up"));
+        buttonMoveUpFilter.disableProperty().bind(tableViewImageFilters.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonMoveDownFilter.setOnAction(e -> FXHelper.moveItemDown(tableViewImageFilters.getSelectionModel(), settings.get().currentFilters.get()));
+        buttonMoveDownFilter.setTooltip(new Tooltip("Move Selected Filter Down"));
+        buttonMoveDownFilter.disableProperty().bind(tableViewImageFilters.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonClearFilters.setOnAction(e -> settings.get().currentFilters.get().clear());
+        buttonClearFilters.setTooltip(new Tooltip("Clear Filters"));
 
         image.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){

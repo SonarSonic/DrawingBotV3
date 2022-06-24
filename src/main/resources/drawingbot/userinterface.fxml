@@ -23,7 +23,7 @@
                <children>
                   <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox fx:id="vBoxSettings" prefWidth="402.0">
+                        <VBox fx:id="vBoxSettings" prefWidth="404.0">
                            <children>
                               <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
                                    <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />

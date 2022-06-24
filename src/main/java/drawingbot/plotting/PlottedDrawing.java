@@ -11,6 +11,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import javafx.application.Platform;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -292,7 +293,7 @@ public class PlottedDrawing {
                 });
             }
 
-            updatePerPenGeometryStats(this, getPerPenGeometryStats(this));
+            Platform.runLater(() -> updatePerPenGeometryStats(this, getPerPenGeometryStats(this)));
         }
     }
 

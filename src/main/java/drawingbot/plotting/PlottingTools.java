@@ -37,6 +37,7 @@ public class PlottingTools implements IPlottingTools {
     public int randomSeed = 0;
     public Random random;
     public AffineTransform plottingTransform;
+    public AffineTransform hostTaskTransform;
     public boolean disablePlotting = false;
 
     // CLIPPING \\
@@ -250,8 +251,16 @@ public class PlottingTools implements IPlottingTools {
 
         if(clippingShape != null && GeometryClipping.shouldClip(clippingShape, geometry)){
             List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry);
-            geometries.forEach(g -> getPlottedDrawing().addGeometry(g));
+            geometries.forEach(g -> {
+                if(hostTaskTransform != null){
+                    g = g.transformGeometry(hostTaskTransform);
+                }
+                getPlottedDrawing().addGeometry(g);
+            });
         }else{
+            if(hostTaskTransform != null){
+                geometry = geometry.transformGeometry(hostTaskTransform);
+            }
             getPlottedDrawing().addGeometry(geometry);
         }
 

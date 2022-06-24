@@ -48,6 +48,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     // SPECIAL \\
     public boolean useLowQuality = false;
     public int parallelPlots = 3;
+    public boolean enablePlottingResolution = true;
 
     public PFMTask(IDrawingManager drawingManager, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
@@ -90,7 +91,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 preProcessImages();
 
                 //set the plotting transform
-                if(pfm.getPlottingResolution() != 1){
+                if(pfm.getPlottingResolution() != 1 && enablePlottingResolution){
                     tools.plottingTransform = AffineTransform.getScaleInstance(1D / pfm.getPlottingResolution(), 1D / pfm.getPlottingResolution());
                 }
 

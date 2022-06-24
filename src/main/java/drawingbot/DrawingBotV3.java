@@ -301,9 +301,6 @@ public class DrawingBotV3 implements IDrawingManager {
             return;
         }
         updatePenDistribution();
-        if(controller != null && controller.drawingSetsController != null){ //may not be initilized yet
-            controller.drawingSetsController.onDrawingSetChanged(); //TODO REMOVE ME
-        }
     }
 
     public void onImageFilterChanged(ObservableImageFilter filter){

@@ -37,7 +37,7 @@ public class ContextMenuDrawingStyle extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
-        FXHelper.addDefaultTableViewContextMenuItems(this, row, editingStyles, style -> editingStyles.get().add(new ObservableDrawingStyle(drawingsSets.get(), style)));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, editingStyles, style -> new ObservableDrawingStyle(drawingsSets.get(), style));
     }
 
 }

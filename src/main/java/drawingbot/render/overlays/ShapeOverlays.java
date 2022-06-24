@@ -53,6 +53,12 @@ public class ShapeOverlays extends AbstractOverlay{
     public AnchorPane editOverlaysPane;
     public Rectangle boundingBox;
 
+    public final SimpleBooleanProperty updatingBounds = new SimpleBooleanProperty();
+    public final SimpleDoubleProperty drawingBoundingBoxX = new SimpleDoubleProperty();
+    public final SimpleDoubleProperty drawingBoundingBoxY = new SimpleDoubleProperty();
+    public final SimpleDoubleProperty drawingBoundingBoxWidth = new SimpleDoubleProperty();
+    public final SimpleDoubleProperty drawingBoundingBoxHeight = new SimpleDoubleProperty();
+
     public final SimpleBooleanProperty enableRotation = new SimpleBooleanProperty(true);
     public final SimpleBooleanProperty showRotateControls = new SimpleBooleanProperty();
     public final SimpleBooleanProperty showDraggingControls = new SimpleBooleanProperty();
@@ -64,6 +70,7 @@ public class ShapeOverlays extends AbstractOverlay{
     public final AnchorPane geometriesPane = new AnchorPane();
 
     public final List<ISnappingGuide> snappingGuides = new ArrayList<>();
+    public final SimpleBooleanProperty enableSnapping = new SimpleBooleanProperty(true);
     public final RectangleSnappingGuide drawingSnappingGuide = new RectangleSnappingGuide(0,0,0,0);
     public final RectangleSnappingGuide pageSnappingGuide = new RectangleSnappingGuide(0,0,0,0);
 
@@ -92,6 +99,56 @@ public class ShapeOverlays extends AbstractOverlay{
                 onHandleDragged(TransformModes.MOVE, e);
             }
         });
+
+        drawingBoundingBoxX.addListener((observable, oldValue, newValue) -> {
+            if(!updatingBounds.get()){
+                double moveX = newValue.doubleValue() - oldValue.doubleValue();
+                JFXShapeManager.INSTANCE.transformSelected(AffineTransform.getTranslateInstance(moveX, 0));
+                JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
+                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+            }
+        });
+
+        drawingBoundingBoxY.addListener((observable, oldValue, newValue) -> {
+            if(!updatingBounds.get()){
+                double moveY = newValue.doubleValue() - oldValue.doubleValue();
+                JFXShapeManager.INSTANCE.transformSelected(AffineTransform.getTranslateInstance(0, moveY));
+                JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
+                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+            }
+        });
+
+        drawingBoundingBoxWidth.addListener((observable, oldValue, newValue) -> {
+            if(!updatingBounds.get()){
+                double scale = newValue.doubleValue() / oldValue.doubleValue();
+
+                AffineTransform transform = new AffineTransform();
+                transform.translate(drawingBoundingBoxX.get(),  drawingBoundingBoxY.get());
+                transform.scale(scale, 1);
+                transform.translate(-drawingBoundingBoxX.get(),  -drawingBoundingBoxY.get());
+
+                JFXShapeManager.INSTANCE.transformSelected(transform);
+                JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
+                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+            }
+        });
+
+        drawingBoundingBoxHeight.addListener((observable, oldValue, newValue) -> {
+            if(!updatingBounds.get()){
+                double scale = newValue.doubleValue() / oldValue.doubleValue();
+
+                AffineTransform transform = new AffineTransform();
+                transform.translate(drawingBoundingBoxX.get(),  drawingBoundingBoxY.get());
+                transform.scale(1, scale);
+                transform.translate(-drawingBoundingBoxX.get(),  -drawingBoundingBoxY.get());
+
+                JFXShapeManager.INSTANCE.transformSelected(transform);
+                JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
+                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+            }
+        });
+
+
         boundingBox.setOnMouseReleased(e -> onHandleReleased(TransformModes.MOVE, e));
         boundingBox.setCursor(Cursor.MOVE);
         editOverlaysPane.getChildren().add(boundingBox);
@@ -242,10 +299,26 @@ public class ShapeOverlays extends AbstractOverlay{
         globalTransform.setToTransform(scale, 0, origin.getX(), 0, scale, origin.getY());
 
         if(!JFXShapeManager.INSTANCE.selectedShapes.isEmpty()){
+            Bounds drawingBox = createDrawingBoundingBox(JFXShapeManager.INSTANCE.selectedShapes);
+
+            this.updatingBounds.set(true);
+            this.drawingBoundingBoxX.set(Utils.roundToPrecision(drawingBox.getMinX(), 3));
+            this.drawingBoundingBoxY.set(Utils.roundToPrecision(drawingBox.getMinY(), 3));
+            this.drawingBoundingBoxWidth.set(Utils.roundToPrecision(drawingBox.getWidth(), 3));
+            this.drawingBoundingBoxHeight.set(Utils.roundToPrecision(drawingBox.getHeight(), 3));
+            this.updatingBounds.set(false);
+
             Bounds boundingBox = getViewportBoundingBox(JFXShapeManager.INSTANCE.selectedShapes);
             this.boundingBox.relocate(boundingBox.getMinX(), boundingBox.getMinY());
             this.boundingBox.setWidth(boundingBox.getWidth());
             this.boundingBox.setHeight(boundingBox.getHeight());
+        }else{
+            this.updatingBounds.set(true);
+            this.drawingBoundingBoxX.set(0);
+            this.drawingBoundingBoxY.set(0);
+            this.drawingBoundingBoxWidth.set(0);
+            this.drawingBoundingBoxHeight.set(0);
+            this.updatingBounds.set(false);
         }
     }
 
@@ -258,6 +331,9 @@ public class ShapeOverlays extends AbstractOverlay{
     }
 
     public double snapXToGuidelines(double x){
+        if(!enableSnapping.get()){
+            return x;
+        }
         double scale = 1/DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToSceneScale();
         double magnet = 5;
         double snappedX = Double.MAX_VALUE;
@@ -274,6 +350,9 @@ public class ShapeOverlays extends AbstractOverlay{
     }
 
     public double snapYToGuidelines(double y){
+        if(!enableSnapping.get()){
+            return y;
+        }
         double scale = 1/DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToSceneScale();
         double magnet = 5;
         double snappedY = Double.MAX_VALUE;
@@ -290,16 +369,25 @@ public class ShapeOverlays extends AbstractOverlay{
     }
 
     public double snapXToGrid(double x){
+        if(!enableSnapping.get()){
+            return x;
+        }
         double snap = 1 * DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas().getPlottingScale();
         return Utils.roundToMultiple(x, snap);
     }
 
     public double snapYToGrid(double y){
+        if(!enableSnapping.get()){
+            return y;
+        }
         double snap = 1 * DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas().getPlottingScale();
         return Utils.roundToMultiple(y, snap);
     }
 
     public Point2D snapTransformToGuidelines(double deltaX, double deltaY, Bounds bounds){
+        if(!enableSnapping.get()){
+            return new Point2D(deltaX, deltaY);
+        }
 
         //try to snap the left side to the nearest guideline
         double offsetX = bounds.getMinX();
@@ -352,6 +440,10 @@ public class ShapeOverlays extends AbstractOverlay{
     }
 
     public Point2D snapToGuidelines(Point2D point){
+        if(!enableSnapping.get()){
+            return point;
+        }
+
         double snapX = snapXToGuidelines(point.getX());
         double snapY = snapYToGuidelines(point.getY());
         if(snapX == Double.MAX_VALUE){

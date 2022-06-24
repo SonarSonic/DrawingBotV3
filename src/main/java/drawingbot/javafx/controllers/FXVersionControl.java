@@ -8,6 +8,7 @@ import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
 import drawingbot.javafx.controls.TableCellImage;
 import drawingbot.javafx.observables.ObservableProjectSettings;
 import drawingbot.registry.Register;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -33,8 +34,10 @@ public class FXVersionControl {
 
     public Button buttonAddVersion = null;
     public Button buttonDeleteVersion = null;
+    public Button buttonLoadVersion = null;
     public Button buttonMoveUpVersion = null;
     public Button buttonMoveDownVersion = null;
+    public Button buttonClearVersions = null;
 
     @FXML
     public void initialize(){
@@ -74,9 +77,27 @@ public class FXVersionControl {
          */
 
         buttonAddVersion.setOnAction(e -> saveVersion());
-        buttonDeleteVersion.setOnAction(e -> FXHelper.deleteItem(tableViewVersions.getSelectionModel().getSelectedItem(), projectVersions.get()));
-        buttonMoveUpVersion.setOnAction(e -> FXHelper.moveItemUp(tableViewVersions.getSelectionModel().getSelectedItem(), projectVersions.get()));
-        buttonMoveDownVersion.setOnAction(e -> FXHelper.moveItemDown(tableViewVersions.getSelectionModel().getSelectedItem(), projectVersions.get()));
+        buttonAddVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.currentDrawing.get() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.currentDrawing));
+        buttonAddVersion.setTooltip(new Tooltip("Save Version"));
+
+        buttonDeleteVersion.setOnAction(e -> FXHelper.deleteItem(tableViewVersions.getSelectionModel(), projectVersions.get()));
+        buttonDeleteVersion.setTooltip(new Tooltip("Remove selected version"));
+        buttonDeleteVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonLoadVersion.setOnAction(e -> Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(tableViewVersions.getSelectionModel().getSelectedItem().preset.get()));
+        buttonLoadVersion.setTooltip(new Tooltip("Load the selected version"));
+        buttonLoadVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonMoveUpVersion.setOnAction(e -> FXHelper.moveItemUp(tableViewVersions.getSelectionModel(), projectVersions.get()));
+        buttonMoveUpVersion.setTooltip(new Tooltip("Move selected version up"));
+        buttonMoveUpVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonMoveDownVersion.setOnAction(e -> FXHelper.moveItemDown(tableViewVersions.getSelectionModel(), projectVersions.get()));
+        buttonMoveDownVersion.setTooltip(new Tooltip("Move selected version down"));
+        buttonMoveDownVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
+
+        buttonClearVersions.setOnAction(e -> projectVersions.get().clear());
+        buttonClearVersions.setTooltip(new Tooltip("Clear Versions"));
     }
 
     public void saveVersion(){

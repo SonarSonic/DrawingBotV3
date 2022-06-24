@@ -428,11 +428,11 @@ public class MasterRegistry {
     public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
 
     public EnumFilterTypes getDefaultImageFilterType(){
-        return imgFilterFactories.keySet().stream().findFirst().orElse(null);
+        return EnumFilterTypes.COLOURS;
     }
 
     public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
-        return imgFilterFactories.get(type).stream().findFirst().orElse(null);
+        return imgFilterFactories.get(type).stream().filter(i -> i.getName().equals("Contrast")).findFirst().orElse(null);
     }
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){

@@ -78,7 +78,7 @@ public class PFMTaskImage extends PFMTask {
             imgPlotting = ImageTools.deepCopy(imageData.createPreCroppedImage());
         }
 
-        if(enableImageFiltering){
+        if(pfm.getPlottingResolution() != 1 && enablePlottingResolution){
             updateMessage("Pre-Processing - Resize");
             imgPlotting = Scalr.resize(imgPlotting, Scalr.Method.ULTRA_QUALITY, (int)(imgPlotting.getWidth() * pfm().getPlottingResolution()), (int)(imgPlotting.getHeight()* pfm().getPlottingResolution()));
         }

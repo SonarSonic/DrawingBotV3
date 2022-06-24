@@ -41,6 +41,11 @@ public class ControlPenPalette extends Control {
         hBox = new HBox();
         swatchMap = new HashMap<>();
 
+        minWidthProperty().bind(paletteWidth);
+        minHeightProperty().bind(paletteHeight);
+        prefWidthProperty().bind(hBox.prefWidthProperty());
+        prefHeightProperty().bind(hBox.prefHeightProperty());
+
         penList.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
                 oldValue.removeListener(LIST_CHANGE_LISTENER);
@@ -117,7 +122,7 @@ public class ControlPenPalette extends Control {
 
     ///////////
 
-    public final SimpleDoubleProperty paletteWidth = new SimpleDoubleProperty();
+    public final SimpleDoubleProperty paletteWidth = new SimpleDoubleProperty(60);
 
     public double getPaletteWidth() {
         return paletteWidth.get();

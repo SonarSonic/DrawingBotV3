@@ -170,17 +170,15 @@ public class FXStylesController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         buttonAddStyle.setOnAction(e -> editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.INSTANCE.drawingSets, choiceBoxAddPFM.getValue())));
-        buttonRemoveStyle.setOnAction(e -> FXHelper.deleteItem(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
+        buttonRemoveStyle.setOnAction(e -> FXHelper.deleteItem(stylesTableView.getSelectionModel(), editingStyles));
         buttonDuplicateStyle.setOnAction(e -> {
             ObservableDrawingStyle style = stylesTableView.getSelectionModel().getSelectedItem();
             if(style != null) {
                 editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.INSTANCE.drawingSets, style));
             }
         });
-        buttonMoveUpStyle.setOnAction(e -> FXHelper.moveItemUp(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
-        buttonMoveDownStyle.setOnAction(e -> FXHelper.moveItemDown(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
-        buttonMoveDownStyle.setOnAction(e -> FXHelper.moveItemDown(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
-
+        buttonMoveUpStyle.setOnAction(e -> FXHelper.moveItemUp(stylesTableView.getSelectionModel(), editingStyles));
+        buttonMoveDownStyle.setOnAction(e -> FXHelper.moveItemDown(stylesTableView.getSelectionModel(), editingStyles));
     }
 
 

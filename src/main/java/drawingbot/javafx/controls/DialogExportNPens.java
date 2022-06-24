@@ -5,6 +5,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -41,15 +42,19 @@ public class DialogExportNPens extends Dialog<Integer> {
         nPens.addListener((observable, oldValue, newValue) -> updatePenGroups());
 
         VBox vBox = new VBox();
+
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(flow);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setMaxHeight(640);
-        scrollPane.setPrefWidth(400);
         scrollPane.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(scrollPane, Priority.ALWAYS);
         vBox.getChildren().addAll(label, scrollPane);
-        setGraphic(vBox);
+
+        getDialogPane().setPrefWidth(500);
+        getDialogPane().setPrefHeight(500);
+
+        getDialogPane().setContent(vBox);
+        setResizable(true);
 
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);

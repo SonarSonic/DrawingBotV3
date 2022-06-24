@@ -5,37 +5,70 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.glyphfont.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
-   <VBox spacing="8.0">
+<AnchorPane prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
+   <VBox fillWidth="false" prefWidth="404.0" spacing="8.0">
       <children>
-         <HBox spacing="4.0">
+         <HBox prefHeight="25.0" prefWidth="412.0" spacing="4.0">
             <children>
-                <ComboBox fx:id="comboBoxImageFilterPreset" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+                <ComboBox fx:id="comboBoxImageFilterPreset" prefHeight="25.0" prefWidth="316.0" promptText="New Preset Name" />
                 <MenuButton fx:id="menuButtonFilterPresets" mnemonicParsing="false" text="Presets" />
             </children>
             <padding>
-               <Insets left="10.0" right="10.0" />
+               <Insets right="10.0" />
             </padding>
          </HBox>
-          <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="369.0" tableMenuButtonVisible="true">
+          <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="390.0" tableMenuButtonVisible="true">
               <columns>
                   <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false" text="Enable" />
                   <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false" text="Filter Type" />
                   <TableColumn fx:id="columnImageFilterSettings" prefWidth="218.0" sortable="false" text="Settings" />
               </columns>
+            <VBox.margin>
+               <Insets />
+            </VBox.margin>
           </TableView>
           <HBox spacing="3.0">
               <children>
-                  <ComboBox fx:id="comboBoxFilterType" prefHeight="25.0" prefWidth="100.0" promptText="Transitions" />
-                  <ComboBox fx:id="comboBoxImageFilter" prefHeight="25.0" prefWidth="223.0" />
-                  <Button fx:id="buttonAddFilter" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Add" />
+                  <ComboBox fx:id="comboBoxFilterType" prefHeight="25.0" prefWidth="118.0" promptText="Transitions" />
+                  <ComboBox fx:id="comboBoxImageFilter" prefHeight="25.0" prefWidth="267.0" />
               </children>
-            <padding>
-               <Insets left="10.0" />
-            </padding>
           </HBox>
-          <Separator prefHeight="3.0" prefWidth="378.0" />
-         <HBox layoutX="10.0" layoutY="310.0" prefHeight="30.0" prefWidth="373.0" spacing="5.0">
+          <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="388.0" spacing="10.0">
+              <children>
+                  <Button fx:id="buttonAddFilter" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                      <graphic>
+                          <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                      </graphic>
+                  </Button>
+                  <Button fx:id="buttonRemoveFilter" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                      <graphic>
+                          <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                      </graphic>
+                  </Button>
+                  <Button fx:id="buttonDuplicateFilter" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                      <graphic>
+                          <Glyph fontFamily="FontAwesome" icon="COPY" />
+                      </graphic>
+                  </Button>
+                  <Button fx:id="buttonMoveUpFilter" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                      <graphic>
+                          <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                      </graphic>
+                  </Button>
+                  <Button fx:id="buttonMoveDownFilter" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                      <graphic>
+                          <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                      </graphic>
+                  </Button>
+                  <Button fx:id="buttonClearFilters" layoutX="320.0" layoutY="10.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                      <graphic>
+                          <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                      </graphic>
+                  </Button>
+              </children>
+          </HBox>
+          <Separator prefHeight="16.0" prefWidth="378.0" />
+         <HBox layoutX="10.0" layoutY="310.0" prefHeight="30.0" prefWidth="391.0" spacing="5.0">
             <children>
                <ToggleButton fx:id="buttonEditCrop" contentDisplay="RIGHT" mnemonicParsing="false" prefHeight="25.0" prefWidth="57.0" text="Edit">
                    <graphic>
@@ -56,12 +89,9 @@
                     </graphic>
                 </Button>
             </children>
-            <padding>
-               <Insets left="10.0" />
-            </padding>
          </HBox>
          <Separator layoutX="10.0" layoutY="299.0" prefHeight="3.0" prefWidth="378.0" />
-          <HBox prefHeight="30.0" prefWidth="373.0" spacing="16.0">
+          <HBox prefHeight="30.0" prefWidth="391.0" spacing="16.0">
               <children>
                   <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Rotation">
                       <graphic>
@@ -79,13 +109,10 @@
                       </graphic>
                   </Label>
               </children>
-            <padding>
-               <Insets left="10.0" />
-            </padding>
           </HBox>
       </children>
       <padding>
-         <Insets top="10.0" />
+         <Insets left="8.0" top="10.0" />
       </padding>
    </VBox>
 </AnchorPane>
