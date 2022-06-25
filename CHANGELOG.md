@@ -1,4 +1,4 @@
-### [v1.4.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.2-beta-free)
+### [v1.4.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.2-stable-free)
 - Added: New improved button controls for Image Processing, Pen Settings, Version Control and Mask Settings
 - Added: Support for different Plotting Resolution on individual drawing styles in Layers PFM and Mosaic PFMS  
 - Added: Option to specify the naming convention for Inkscape Layers, go to File / Export Settings / SVG.   
