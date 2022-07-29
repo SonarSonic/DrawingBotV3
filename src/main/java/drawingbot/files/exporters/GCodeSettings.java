@@ -24,13 +24,19 @@ public class GCodeSettings implements IProperties {
 
     public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(gcodeOffsetX, gcodeOffsetY, gcodeUnits, gcodeStartCode, gcodeEndCode, gcodePenDownCode, gcodePenUpCode, gcodeStartLayerCode, gcodeEndLayerCode, gcodeCurveFlatness, gcodeEnableFlattening, gcodeCenterZeroPoint, gcodeCommentType);
 
-
     public float getGCodeXOffset(){
         return gcodeUnits.get().toMM(gcodeOffsetX.get());
     }
 
     public float getGCodeYOffset(){
         return gcodeUnits.get().toMM(gcodeOffsetY.get());
+    }
+
+    public GCodeSettings(){
+        gcodeUnits.addListener((observable, oldValue, newValue) -> {
+            gcodeOffsetX.set(UnitsLength.convert(gcodeOffsetX.get(), oldValue, newValue));
+            gcodeOffsetY.set(UnitsLength.convert(gcodeOffsetY.get(), oldValue, newValue));
+        });
     }
 
     @Override

@@ -28,6 +28,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleFloatProperty drawingAreaPaddingRight = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaPaddingGangedValue = new SimpleFloatProperty(0);
     public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumOrientation> orientation = new SimpleObjectProperty<>(EnumOrientation.PORTRAIT);
 
@@ -86,7 +87,64 @@ public class ObservableCanvas implements ICanvas, IProperties {
             }
 
         }));
+
+        inputUnits.addListener((observable, oldValue, newValue) -> {
+            internalChange.set(true);
+            width.set(UnitsLength.convert(width.get(), oldValue, newValue));
+            height.set(UnitsLength.convert(height.get(), oldValue, newValue));
+            if(drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(UnitsLength.convert(drawingAreaPaddingGangedValue.get(), oldValue, newValue));
+            }else{
+                drawingAreaPaddingLeft.set(UnitsLength.convert(drawingAreaPaddingLeft.get(), oldValue, newValue));
+                drawingAreaPaddingRight.set(UnitsLength.convert(drawingAreaPaddingRight.get(), oldValue, newValue));
+                drawingAreaPaddingTop.set(UnitsLength.convert(drawingAreaPaddingTop.get(), oldValue, newValue));
+                drawingAreaPaddingBottom.set(UnitsLength.convert(drawingAreaPaddingBottom.get(), oldValue, newValue));
+            }
+            internalChange.set(false);
+        });
+
+        updateGangedPadding();
+        drawingAreaGangPadding.addListener((observable, oldValue, newValue) -> {
+            updateGangedPadding();
+        });
+
+        //keep the ganged value updated so it always matches the last entered value
+        drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
+        drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
+        drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
+        drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
     }
+
+    public void updateGangedPadding(){
+        if(drawingAreaGangPadding.get()){
+            drawingAreaPaddingLeft.bindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingRight.bindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingTop.bindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingBottom.bindBidirectional(drawingAreaPaddingGangedValue);
+        }else{
+            drawingAreaPaddingLeft.unbindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingRight.unbindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingTop.unbindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingBottom.unbindBidirectional(drawingAreaPaddingGangedValue);
+        }
+    }
+
 
     @Override
     public UnitsLength getUnits() {

@@ -10,7 +10,6 @@ import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -23,7 +22,6 @@ import javafx.util.converter.NumberStringConverter;
 public class FXDrawingArea {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
-    public final SimpleStringProperty drawingAreaPaddingGangValue = new SimpleStringProperty("0");
 
     ////////////////////////////////////////////////////////
 
@@ -36,7 +34,6 @@ public class FXDrawingArea {
     public Pane paneDrawingAreaCustom = null;
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
-    //public ToggleButton buttonRotate = null;
     public ChoiceBox<EnumOrientation> choiceBoxOrientation = null;
     public TextField textFieldPaddingLeft = null;
     public TextField textFieldPaddingRight = null;
@@ -64,7 +61,6 @@ public class FXDrawingArea {
                 textFieldDrawingWidth.textProperty().unbindBidirectional(oldValue.width);
                 textFieldDrawingHeight.textProperty().unbindBidirectional(oldValue.height);
 
-                updatePaddingBindings(false);
                 textFieldPaddingLeft.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingLeft);
                 textFieldPaddingRight.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingRight);
                 textFieldPaddingTop.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingTop);
@@ -108,7 +104,6 @@ public class FXDrawingArea {
 
                 choiceBoxOrientation.valueProperty().bindBidirectional(newValue.orientation);
                 choiceBoxOrientation.disableProperty().bind(Bindings.createBooleanBinding(() -> newValue.width.get() == newValue.height.get(), newValue.width, newValue.height));
-                updatePaddingBindings(newValue.drawingAreaGangPadding.get());
             }
         });
 
@@ -151,9 +146,6 @@ public class FXDrawingArea {
         textFieldPaddingTop.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldPaddingBottom.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        checkBoxGangPadding.selectedProperty().addListener((observable, oldValue, newValue) -> updatePaddingBindings(newValue));
-        updatePaddingBindings(checkBoxGangPadding.isSelected());
-
         choiceBoxScalingMode.getItems().addAll(EnumScalingMode.values());
         choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
 
@@ -180,29 +172,6 @@ public class FXDrawingArea {
             };
         }
         return presetManager;
-    }
-
-    public boolean isGanged = false;
-
-    public void updatePaddingBindings(boolean ganged){
-        if(isGanged == ganged){
-            return;
-        }
-
-        if(ganged){
-            drawingAreaPaddingGangValue.set("0");
-            textFieldPaddingLeft.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingRight.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingTop.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingBottom.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            isGanged = true;
-        }else{
-            textFieldPaddingLeft.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingRight.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingTop.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingBottom.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            isGanged = false;
-        }
     }
 
 }
