@@ -20,6 +20,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "1189.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "841.0"
@@ -34,6 +35,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "841.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "594.0"
@@ -48,6 +50,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "594.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "420.0"
@@ -62,6 +65,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "420.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "297.0"
@@ -76,6 +80,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "297.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "210.0"
@@ -90,6 +95,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "210.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "148.0"
@@ -104,6 +110,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "148.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "105.0"
@@ -118,6 +125,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "105.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "74.0"
@@ -132,6 +140,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "105.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "52.0"
@@ -146,6 +155,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "52.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "37.0"
@@ -160,6 +170,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "37.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "26.0"
