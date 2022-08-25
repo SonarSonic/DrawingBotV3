@@ -17,12 +17,12 @@ public class JsonAdapterObservableDrawingSet extends JsonAdapterAbstract<Observa
 
     static{
         settings = new ArrayList<>();
-        settings.add(GenericSetting.createStringSetting(ObservableDrawingSet.class, "type", "", (I, V) -> I.type.set(V)).setGetter(I -> I.type.get()));
-        settings.add(GenericSetting.createStringSetting(ObservableDrawingSet.class, "name", "", (I, V) -> I.name.set(V)).setGetter(I -> I.name.get()));
-        settings.add(GenericSetting.createListSetting(ObservableDrawingSet.class, ObservableDrawingPen.class,"pens", new ArrayList<>(), (I, V) -> I.pens.setAll(V)).setGetter((I) -> new ArrayList<>(I.pens)));
-        settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionOrder.class, "distributionOrder", List.of(EnumDistributionOrder.values()), EnumDistributionOrder.DARKEST_FIRST, (I, V) -> I.distributionOrder.set(V)).setGetter(I -> I.distributionOrder.get()));
-        settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionType.class, "distributionType", List.of(EnumDistributionType.values()), EnumDistributionType.EVEN_WEIGHTED, (I, V) -> I.distributionType.set(V)).setGetter(I -> I.distributionType.get()));
-        settings.add(GenericSetting.createObjectSetting(ObservableDrawingSet.class, ColourSeperationHandler.class, "colourSeperator", Register.DEFAULT_COLOUR_SPLITTER, (I, V) -> I.colourSeperator.set(V)).setGetter(I -> I.colourSeperator.get()).setValidator(I -> I == null ? Register.DEFAULT_COLOUR_SPLITTER : I));
+        settings.add(GenericSetting.createStringSetting(ObservableDrawingSet.class, "type", "", i -> i.type));
+        settings.add(GenericSetting.createStringSetting(ObservableDrawingSet.class, "name", "", i -> i.name));
+        settings.add(GenericSetting.createListSetting(ObservableDrawingSet.class, ObservableDrawingPen.class,"pens", new ArrayList<>(), i -> i.pens));
+        settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionOrder.class, "distributionOrder", List.of(EnumDistributionOrder.values()), EnumDistributionOrder.DARKEST_FIRST, i -> i.distributionOrder));
+        settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionType.class, "distributionType", List.of(EnumDistributionType.values()), EnumDistributionType.EVEN_WEIGHTED, i -> i.distributionType));
+        settings.add(GenericSetting.createObjectSetting(ObservableDrawingSet.class, ColourSeperationHandler.class, "colourSeperator", Register.DEFAULT_COLOUR_SPLITTER, i -> i.colourSeperator).setValidator(i -> i == null ? Register.DEFAULT_COLOUR_SPLITTER : i));
     }
 
     @Override

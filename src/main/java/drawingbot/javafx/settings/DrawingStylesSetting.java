@@ -13,22 +13,30 @@ import java.util.function.BiConsumer;
 
 public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> {
 
+    public static StringConverter<?> stringConverter = new StringConverter<>() {
+
+        @Override
+        public String toString(Object object) {
+            return object.toString();
+        }
+
+        @Override
+        public Object fromString(String string) {
+            throw new UnsupportedOperationException("Unidentified objects can't be deserialized");
+        }
+    };
+
     protected DrawingStylesSetting(GenericSetting<C, DrawingStyleSet> toCopy) {
         super(toCopy, toCopy.getValue());
     }
 
-    public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue, BiConsumer<C, DrawingStyleSet> setter) {
-        super(pfmClass, DrawingStyleSet.class, category, settingName, defaultValue, new StringConverter<>() {
-            @Override
-            public String toString(DrawingStyleSet object) {
-                return object.styles.toString();
-            }
+    public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue) {
+        super(pfmClass, DrawingStyleSet.class, category, settingName, defaultValue);
+    }
 
-            @Override
-            public DrawingStyleSet fromString(String string) {
-                throw new UnsupportedOperationException("Drawing styles can not be set by the user");
-            }
-        }, value -> value, setter);
+    @Override
+    protected StringConverter<DrawingStyleSet> defaultStringConverter() {
+        return (StringConverter<DrawingStyleSet>) stringConverter;
     }
 
     @Override

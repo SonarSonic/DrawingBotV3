@@ -209,9 +209,9 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Min", -72, -360, 360, (pfm, value) -> pfm.startAngleMin = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Max", -52, -360, 360, (pfm, value) -> pfm.startAngleMax = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Drawing Delta Angle", 360F, -360F, 360F, (pfm, value) -> pfm.drawingDeltaAngle = value).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading", false, (pfm, value) -> pfm.enableShading = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading Threshold", 50, 0, 100, (pfm, value) -> pfm.shadingThreshold = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading Delta Angle", 180F, -360F, 360F, (pfm, value) -> pfm.shadingDeltaAngle = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Shading", "Shading", false, (pfm, value) -> pfm.enableShading = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading", "Shading Threshold", 50, 0, 100, (pfm, value) -> pfm.shadingThreshold = value/100).createDisableBinding("Shading", false));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, "Shading", "Shading Delta Angle", 180F, -360F, 360F, (pfm, value) -> pfm.shadingDeltaAngle = value).setRandomiseExclude(true).createDisableBinding("Shading", false));
 
         //// SKETCH SQUARES \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquares.class, CATEGORY_UNIQUE, "Start Angle", 45, -360, 360, (pfm, value) -> pfm.startAngle = value));
@@ -225,17 +225,22 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Density", 75F, 0F, 1000F, (pfm, value) -> pfm.density = value));
 
         //// ABSTRACT SKETCH PFM \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Line Density", 75F, 0F, 100F, (pfm, value) -> pfm.lineDensity = value/100).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Min Line length", 2, 2, Short.MAX_VALUE, (pfm, value) -> pfm.minLineLength = value).setSafeRange(2, 500));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Max Line length", 40, 2, Short.MAX_VALUE, (pfm, value) -> pfm.maxLineLength = value).setSafeRange(2, 500));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Max Line Limit", -1, -1, Integer.MAX_VALUE, (pfm, value) -> pfm.maxLines = value).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Squiggle Length", 500, 1, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleLength = value).setSafeRange(1, 5000));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Squiggle Max Deviation", 25, 0, 100, (pfm, value) -> pfm.squiggleDeviation = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Segments", "Line Density", 75F, 0F, 100F, (pfm, value) -> pfm.lineDensity = value/100).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Min Length", 2, 2, Short.MAX_VALUE, (pfm, value) -> pfm.minLineLength = value).setSafeRange(2, 500).addAltKey("Min Line length"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Length", 40, 2, Short.MAX_VALUE, (pfm, value) -> pfm.maxLineLength = value).setSafeRange(2, 500).addAltKey("Max Line length"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Limit", -1, -1, Integer.MAX_VALUE, (pfm, value) -> pfm.maxLines = value).setRandomiseExclude(true).addAltKey("Max Line Limit"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Min Length", 25, 0, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleMinLength = value).setSafeRange(0, 5000).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Length", 500, 1, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleMaxLength = value).setSafeRange(1, 5000).addAltKey("Squiggle Length"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Deviation", 25, 0, 100, (pfm, value) -> pfm.squiggleMaxDeviation = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Style", "Directionality", 0, 0, 100, (pfm, value) -> pfm.directionality = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Style", "Distortion", 0, 0, 100, (pfm, value) -> pfm.distortion = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Style", "Angularity", 0, 0, 100, (pfm, value) -> pfm.angularity = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Style", "Should Lift Pen", true, (pfm, value) -> pfm.shouldLiftPen = value).setRandomiseExclude(true));
+
 
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Adjust Brightness", 50, 1, 255, (pfm, value) -> pfm.adjustbrightness = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Unlimited Tests", false, (pfm, value) -> pfm.unlimitedTests = value).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Neighbour Tests", 20, 1, 3200, (pfm, value) -> pfm.lineTests = value).setSafeRange(0, 360));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Should Lift Pen", true, (pfm, value) -> pfm.shouldLiftPen = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, "Segments", "Unlimited Tests", false, (pfm, value) -> pfm.unlimitedTests = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Angle Tests", 20, 1, 3200, (pfm, value) -> pfm.lineTests = value).setSafeRange(0, 360).addAltKey("Neighbour Tests").createDisableBinding("Unlimited Tests", true));
 
     }
 

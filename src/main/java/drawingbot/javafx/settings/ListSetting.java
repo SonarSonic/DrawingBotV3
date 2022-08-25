@@ -14,6 +14,19 @@ import java.util.function.BiConsumer;
 
 public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
 
+    public static StringConverter<?> stringConverter = new StringConverter<>() {
+
+        @Override
+        public String toString(Object object) {
+            return object.toString();
+        }
+
+        @Override
+        public Object fromString(String string) {
+            throw new UnsupportedOperationException("Unidentified objects can't be deserialized");
+        }
+    };
+
     public final Class<O> objectType;
     public final Type listType;
 
@@ -23,20 +36,15 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
         this.listType = toCopy.listType;
     }
 
-    public ListSetting(Class<C> clazz, Class<O> objectType, String category, String settingName, ArrayList<O> defaultValue, BiConsumer<C, ArrayList<O>> setter) {
-        super(clazz, (Class<ArrayList<O>>) defaultValue.getClass(), category, settingName, defaultValue, new StringConverter<>() {
-            @Override
-            public String toString(ArrayList<O> object) {
-                return object.toString();
-            }
-
-            @Override
-            public ArrayList<O> fromString(String string) {
-                throw new UnsupportedOperationException("Unidentified objects can't be deserialized");
-            }
-        }, value -> value, setter);
+    public ListSetting(Class<C> clazz, Class<O> objectType, String category, String settingName, ArrayList<O> defaultValue) {
+        super(clazz, (Class<ArrayList<O>>) defaultValue.getClass(), category, settingName, defaultValue);
         this.objectType = objectType;
         this.listType = TypeToken.getParameterized(ArrayList.class, objectType).getType();
+    }
+
+    @Override
+    protected StringConverter<ArrayList<O>> defaultStringConverter() {
+        return (StringConverter<ArrayList<O>>) stringConverter;
     }
 
     @Override

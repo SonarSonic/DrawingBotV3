@@ -5,12 +5,16 @@ import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.util.StringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 
 public class OptionSetting<C, V> extends GenericSetting<C, V> {
+
+    public static StringConverter<Integer> stringConverter = new IntegerStringConverter();
 
     public List<V> values;
 
@@ -19,10 +23,37 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
         this.values = new ArrayList<>(toCopy.values);
     }
 
-    public OptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, StringConverter<V> converter, List<V> values, BiConsumer<C, V> setter) {
-        super(clazz, type, category, settingName, defaultValue, converter, v -> values.contains(v) ? v : defaultValue, setter);
+    public OptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, List<V> values) {
+        super(clazz, type, category, settingName, defaultValue);
         this.values = values;
-        this.setRandomiser(random -> values.get(random.nextInt(values.size()-1)));
+        this.setStringConverter(new StringConverter<V>() {
+            @Override
+            public String toString(V object) {
+                return object.toString();
+            }
+            @Override
+            public V fromString(String string) {
+                for(V v : values){
+                    if(v.toString().equals(string)){
+                        return v;
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
+    @Override
+    protected V defaultValidate(V value) {
+        if(values == null){
+            return value;//avoid crash when the setting is being initialised
+        }
+        return values.contains(value) ? value : defaultValue;
+    }
+
+    @Override
+    protected V defaultRandomise(ThreadLocalRandom random) {
+        return values.get(random.nextInt(values.size()-1));
     }
 
     @Override
