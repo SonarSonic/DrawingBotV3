@@ -10,8 +10,10 @@
     <TableView fx:id="tableViewVersions" editable="true" layoutX="8.0" layoutY="8.0" prefHeight="349.0" prefWidth="386.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="versionThumbColumn" minWidth="7.0" prefWidth="122.0" />
+            <TableColumn fx:id="versionRatingColumn" prefWidth="95.0" sortable="false" text="Rating" />
             <TableColumn fx:id="versionNameColumn" prefWidth="130.0" sortable="false" text="Name" />
             <TableColumn fx:id="versionDateColumn" editable="false" minWidth="0.0" prefWidth="130.0" sortable="false" text="Date" />
+            <TableColumn fx:id="versionNotesColumn" prefWidth="47.0" sortable="false" text="Notes" visible="false" />
             <TableColumn fx:id="versionFileColumn" editable="false" prefWidth="47.0" sortable="false" text="File" visible="false" />
             <TableColumn fx:id="versionPFMColumn" minWidth="0.0" prefWidth="144.0" sortable="false" text="PFM" visible="false" />
         </columns>

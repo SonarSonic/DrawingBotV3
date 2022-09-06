@@ -7,6 +7,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
 import drawingbot.javafx.controls.TableCellImage;
+import drawingbot.javafx.controls.TableCellRating;
 import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.registry.Register;
 import drawingbot.render.overlays.NotificationOverlays;
@@ -31,7 +32,9 @@ public class FXVersionControl {
     public TableView<ObservableVersion> tableViewVersions = null;
     public TableColumn<ObservableVersion, Image> versionThumbColumn = null;
     public TableColumn<ObservableVersion, String> versionNameColumn = null;
+    public TableColumn<ObservableVersion, Double> versionRatingColumn = null;
     public TableColumn<ObservableVersion, String> versionDateColumn = null;
+    public TableColumn<ObservableVersion, String> versionNotesColumn = null;
 
     public TableColumn<ObservableVersion, String> versionPFMColumn = null;
     public TableColumn<ObservableVersion, String> versionFileColumn = null;
@@ -65,9 +68,21 @@ public class FXVersionControl {
         versionNameColumn.setCellValueFactory(param -> param.getValue().name);
         versionNameColumn.setEditable(true);
 
+        versionRatingColumn.setCellFactory(param -> new TableCellRating<>(5, false, v -> v.rating));
+        versionRatingColumn.setCellValueFactory(param -> param.getValue().rating.asObject());
+        versionRatingColumn.setEditable(true);
+
         versionDateColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         versionDateColumn.setCellValueFactory(param -> param.getValue().date);
         versionDateColumn.setEditable(false);
+
+        versionNotesColumn.setCellFactory(param -> {
+            TextFieldTableCell<ObservableVersion, String> cell = new TextFieldTableCell<>(new DefaultStringConverter());
+            cell.setWrapText(true);
+            return cell;
+        });
+        versionNotesColumn.setCellValueFactory(param -> param.getValue().notes);
+        versionNotesColumn.setEditable(true);
 
         versionFileColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         versionFileColumn.setCellValueFactory(param -> param.getValue().file);

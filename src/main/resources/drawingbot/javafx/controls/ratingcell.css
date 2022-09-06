@@ -1,0 +1,13 @@
+.rating > .container {
+    -fx-spacing: 2;
+}
+.rating > .container > .button {
+    -fx-background-color: transparent;
+    -fx-padding: 8 8;
+    -fx-background-image-repeat: no-repeat;
+    -fx-background-size: contain;
+}
+
+.rating > .container > .button:hover {
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 8, 0.0 , 0 , 0 );
+}

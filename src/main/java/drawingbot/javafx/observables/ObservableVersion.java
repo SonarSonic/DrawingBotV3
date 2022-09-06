@@ -23,8 +23,10 @@ public class ObservableVersion {
     public final SimpleObjectProperty<UUID> uuid = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<Image> thumbnail = new SimpleObjectProperty<>();
     public final SimpleStringProperty name = new SimpleStringProperty();
+    public final SimpleDoubleProperty rating = new SimpleDoubleProperty();
     public final SimpleStringProperty date = new SimpleStringProperty();
     public final SimpleStringProperty file = new SimpleStringProperty();
+    public final SimpleStringProperty notes = new SimpleStringProperty();
     public final SimpleStringProperty thumbnailID = new SimpleStringProperty("");
     private SimpleObjectProperty<GenericPreset<PresetProjectSettings>> preset = new SimpleObjectProperty<>();
 
@@ -32,8 +34,10 @@ public class ObservableVersion {
         this.uuid.set(UUID.randomUUID());
         this.thumbnail.set(copy.thumbnail.get());
         this.name.set(copy.name.get());
+        this.rating.set(copy.rating.get());
         this.date.set(copy.date.get());
         this.file.set(copy.file.get());
+        this.notes.set(copy.notes.get());
         this.thumbnailID.set(copy.thumbnailID.get());
         this.preset.set(FXHelper.copyPreset(copy.preset.get()));
         preset.get().data.isSubProject = copy.preset.get().data.isSubProject;
@@ -43,9 +47,11 @@ public class ObservableVersion {
         this.uuid.set(UUID.randomUUID());
         this.thumbnail.set(null);
         this.name.set(preset.data.name);
+        this.rating.set(preset.data.rating);
         this.date.set(preset.data.timeStamp);
         this.thumbnailID.set(preset.data.thumbnailID);
         this.file.set(preset.data.imagePath);
+        this.notes.set(preset.data.notes);
         this.preset.set(preset);
         preset.data.isSubProject = isSubProject;
         loadThumbnail();
@@ -58,6 +64,8 @@ public class ObservableVersion {
 
     public void updatePreset(){
         preset.get().data.name = name.get();
+        preset.get().data.rating = rating.get();
+        preset.get().data.notes = notes.get();
     }
 
     private void loadThumbnail(){

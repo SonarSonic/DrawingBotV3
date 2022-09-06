@@ -11,8 +11,10 @@ public class PresetProjectSettings extends AbstractJsonData {
 
     public String name = "";
     public String imagePath = "";
+    public String notes = "";
     public String timeStamp = "";
     public String thumbnailID = "";
+    public double rating = 0D;
 
     public transient boolean isSubProject = false;
 
