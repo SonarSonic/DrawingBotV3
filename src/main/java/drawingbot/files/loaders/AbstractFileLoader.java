@@ -3,6 +3,7 @@ package drawingbot.files.loaders;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.format.FilteredImageData;
+import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
 
 import java.io.File;
@@ -31,6 +32,7 @@ public abstract class AbstractFileLoader extends DBTask<FilteredImageData> {
      * Called after the imagedata has been loaded into DrawingBotV3, allowing the loader to run additional steps
      */
     public void onFileLoaded(){
+        NotificationOverlays.INSTANCE.showWithSubtitle("Loaded " + getFileType(), file.toString());
     }
 
 }

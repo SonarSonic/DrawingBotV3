@@ -10,6 +10,7 @@ import drawingbot.geom.converters.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plugins.*;
 import drawingbot.render.overlays.DrawingBorderOverlays;
+import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.render.overlays.ShapeOverlays;
 import drawingbot.render.overlays.RulerOverlays;
 import drawingbot.utils.DBConstants;
@@ -177,6 +178,7 @@ public class Register implements IPlugin {
 
         MasterRegistry.INSTANCE.registerOverlay(RulerOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(NotificationOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(ShapeOverlays.INSTANCE);
 
         MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));

@@ -18,6 +18,7 @@ import drawingbot.javafx.settings.AbstractNumberSetting;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
+import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
@@ -34,6 +35,9 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.control.Notifications;
+import org.controlsfx.control.action.Action;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Desktop;
 import java.awt.image.BufferedImageOp;
@@ -168,6 +172,11 @@ public class FXHelper {
                 AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
                 AbstractPresetManager<IJsonData> manager = loader == null ? null : loader.getDefaultManager();
 
+                if(manager != null){
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.presetName, file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset)));
+                }else{
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.presetName, file.toString());
+                }
 
             }
         }, presetType.filters, "Select a preset to import");
@@ -207,6 +216,7 @@ public class FXHelper {
             Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
 
             JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
+            NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
         }else{
             saveProjectAs();
         }
@@ -236,6 +246,7 @@ public class FXHelper {
                 Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
+                NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
             });
         }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", projectName);
     }
@@ -246,11 +257,14 @@ public class FXHelper {
             JsonLoaderManager.exportPresetFile(file, preset);
 
             if(showDialog){
+                NotificationOverlays.INSTANCE.showWithSubtitle("Preset Exported: " + preset.presetName, file.toString(), new Action("Open Folder", event -> openFolder(file.getParentFile())));
+                /*
                 DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
                 Optional<Boolean> openFolder = exportPreset.showAndWait();
                 if(openFolder.isPresent() && openFolder.get()){
                     FXHelper.openFolder(file.getParentFile());
                 }
+                 */
             }
         }, preset.presetType.filters, "Save preset", initialName);
     }

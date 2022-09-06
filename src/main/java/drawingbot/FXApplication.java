@@ -147,6 +147,7 @@ public class FXApplication extends Application {
         RulerOverlays.INSTANCE.setActive(true);
         //DrawingBorderOverlays.INSTANCE.setActive(true);
         ShapeOverlays.INSTANCE.setActive(true);
+        NotificationOverlays.INSTANCE.setActive(true);
 
         // set up main drawing loop
         drawTimer = new DrawTimer(this);

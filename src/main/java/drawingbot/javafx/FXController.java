@@ -18,6 +18,7 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
+import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.*;
 import drawingbot.utils.flags.Flags;
@@ -164,6 +165,7 @@ public class FXController {
             ObservableProject project = new ObservableProject();
             DrawingBotV3.INSTANCE.activeProjects.add(project);
             DrawingBotV3.INSTANCE.activeProject.set(project);
+            NotificationOverlays.INSTANCE.show("Created New Project");
         });
         menuNew.setGraphic(fontAwesome.create(FontAwesome.Glyph.FILE).color(Color.SLATEGRAY));
         menuNew.setAccelerator(KeyCombination.valueOf("Ctrl + N"));

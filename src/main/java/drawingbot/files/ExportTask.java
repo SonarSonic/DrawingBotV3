@@ -13,6 +13,7 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.DrawingGeometryIterator;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
 import javafx.application.Platform;
 import javafx.scene.control.Dialog;
@@ -215,8 +216,10 @@ public class ExportTask extends DBTask<Boolean> {
         }
         if(!error.isEmpty()){
             updateMessage("Export Error: " + error);
+            NotificationOverlays.INSTANCE.showWithSubtitle("Export Error", error);
         }else{
             updateMessage("Finished");
+            NotificationOverlays.INSTANCE.showWithSubtitle("File Exported", saveLocation.getPath(), new Action("Open", e -> FXHelper.openFolder(saveLocation)), new Action("Open Folder", e -> FXHelper.openFolder(saveLocation.getParentFile())));
         }
         DrawingBotV3.logger.info("Export Task: Finished " + saveLocation.getPath());
         return true;

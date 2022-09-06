@@ -9,6 +9,7 @@ import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.Register;
+import drawingbot.render.overlays.NotificationOverlays;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -50,5 +51,6 @@ public class ProjectFileLoader extends AbstractFileLoader{
 
     @Override
     public void onFileLoaded(){
+        NotificationOverlays.INSTANCE.showWithSubtitle("Loaded Project", file.toString());
     }
 }

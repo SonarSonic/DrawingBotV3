@@ -9,6 +9,7 @@ import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
 import drawingbot.javafx.controls.TableCellImage;
 import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.registry.Register;
+import drawingbot.render.overlays.NotificationOverlays;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -111,6 +112,7 @@ public class FXVersionControl {
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
             Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
             list.add(new ObservableVersion(preset, true));
+            NotificationOverlays.INSTANCE.showWithSubtitle("Saved New Version", preset.data.imagePath);
         });
     }
 
