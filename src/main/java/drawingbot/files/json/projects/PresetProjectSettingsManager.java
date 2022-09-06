@@ -13,21 +13,22 @@ import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.observables.ObservableProjectSettings;
+import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
 import javafx.concurrent.Worker;
+import javafx.scene.Node;
+import javafx.scene.control.TitledPane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 
 public class PresetProjectSettingsManager extends AbstractPresetManager<PresetProjectSettings> {
 
@@ -36,19 +37,19 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
     }
 
     @Override
-    public GenericPreset<PresetProjectSettings> updatePreset(GenericPreset<PresetProjectSettings> preset) {
-        PlottedDrawing renderedDrawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
-        preset.data.imagePath = DrawingBotV3.INSTANCE.openImage.get() != null && DrawingBotV3.INSTANCE.openImage.get().getSourceFile() != null ? DrawingBotV3.INSTANCE.openImage.get().getSourceFile().getPath() : "";
+    public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
+        PlottedDrawing renderedDrawing = context.taskManager().getCurrentDrawing();
+        preset.data.imagePath = context.project.openImage.get() != null && context.project.openImage.get().getSourceFile() != null ? context.project.openImage.get().getSourceFile().getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
         preset.data.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
         if(preset.data instanceof PresetProjectSettingsLegacy){
-            PresetProjectSettingsManagerLegacy.updatePreset(preset);
+            PresetProjectSettingsManagerLegacy.updatePreset(context, preset);
         }else{
             Gson gson = JsonLoaderManager.createDefaultGson();
             for(ProjectDataLoader loader : MasterRegistry.INSTANCE.dataLoaders){
                 try {
-                    loader.save(gson, preset);
+                    loader.save(context, gson, preset);
                 } catch (Exception exception) {
                     DrawingBotV3.logger.severe("Failed to save project data: " + loader.getKey());
                     exception.printStackTrace();
@@ -59,7 +60,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         if(renderedDrawing != null){
             //run the thumbnail generation task
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
-            ExportTask task = new ExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
+            ExportTask task = new ExportTask(context, Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
             task.exportScale = 400 / renderedDrawing.canvas.getWidth(UnitsLength.PIXELS);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
@@ -67,15 +68,15 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
     }
 
     @Override
-    public void applyPreset(GenericPreset<PresetProjectSettings> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
         if(preset.data instanceof PresetProjectSettingsLegacy){
-            PresetProjectSettingsManagerLegacy.applyPreset(preset);
+            PresetProjectSettingsManagerLegacy.applyPreset(context, preset);
             return;
         }
         Gson gson = JsonLoaderManager.createDefaultGson();
         for(ProjectDataLoader loader : MasterRegistry.INSTANCE.dataLoaders){
             try {
-                loader.load(gson, preset);
+                loader.load(context, gson, preset);
             } catch (Exception exception) {
                 DrawingBotV3.logger.severe("Failed to load project data: " + loader.getKey());
                 exception.printStackTrace();
@@ -106,40 +107,66 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         public float cropEndY = 0;
     }
 
+    public static class UIGlobalState {
+
+        public List<FXHelper.UINodeState> nodes = new ArrayList<>();
+
+    }
+
+
     public static void registerDefaultDataLoaders(){
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("ui_state", UIGlobalState.class, UIGlobalState::new, 0){
+
+            @Override
+            public void loadData(DBTaskContext context, UIGlobalState data, GenericPreset<PresetProjectSettings> preset) {
+                if(!preset.data.isSubProject){
+                    FXHelper.loadUIStates(data.nodes);
+                }
+            }
+
+            @Override
+            public void saveData(DBTaskContext context, UIGlobalState data, GenericPreset<PresetProjectSettings> preset) {
+                if(!preset.data.isSubProject) {
+                    data.nodes.clear();
+                    FXHelper.saveUIStates(data.nodes);
+                }
+            }
+        });
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_DRAWING_AREA, 0));
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_FILTERS, 0));
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_PFM, 0){
 
             @Override
-            public JsonElement saveData(Gson gson, GenericPreset<PresetProjectSettings> preset) {
+            public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
                 if(preset.data.name == null || preset.data.name.isEmpty()){
-                    preset.data.name = DrawingBotV3.INSTANCE.pfmSettings.factory.get().getDisplayName();
+                    preset.data.name = context.project.getPFMSettings().getPFMFactory().getDisplayName();
                 }
-                return super.saveData(gson, preset);
+                return super.saveData(context, gson, preset);
             }
 
             @Override
-            public void loadData(Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
-                super.loadData(gson, element, preset);
+            public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
+                super.loadData(context, gson, element, preset);
             }
         });
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_UI_SETTINGS, 0));
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("versions", VersionData.class, VersionData::new, 5) {
 
             @Override
-            public void saveData(VersionData data, GenericPreset<PresetProjectSettings> preset) {
-                for(ObservableProjectSettings projectVersion : DrawingBotV3.INSTANCE.projectVersions){
-                    data.versions.add(projectVersion.preset.get());
+            public void saveData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
+                for(ObservableVersion projectVersion : context.project().getProjectVersions()){
+                    projectVersion.updatePreset();
+                    data.versions.add(projectVersion.getPreset());
                 }
             }
 
             @Override
-            public void loadData(VersionData data, GenericPreset<PresetProjectSettings> preset) {
+            public void loadData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
                 if(!preset.data.isSubProject){ //don't override the loaded projects if they belong to a sub project
-                    DrawingBotV3.INSTANCE.projectVersions.clear();
+                    context.project().getProjectVersions().clear();
                     for(GenericPreset<PresetProjectSettings> version : data.versions){
-                        DrawingBotV3.INSTANCE.projectVersions.add(new ObservableProjectSettings(version, true));
+                        context.project().getProjectVersions().add(new ObservableVersion(version, true));
                     }
                 }
             }
@@ -148,44 +175,44 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("drawing_sets", DrawingSetData.class, DrawingSetData::new, 0) {
 
             @Override
-            public void saveData(DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
-                data.drawingSets.addAll(DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get());
-                data.activeSet = DrawingBotV3.INSTANCE.drawingSets.getActiveSetSlot();
+            public void saveData(DBTaskContext context, DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
+                data.drawingSets.addAll(context.project().getDrawingSets().getDrawingSetSlots());
+                data.activeSet = context.project().getDrawingSets().getActiveSetSlot();
             }
 
             @Override
-            public void loadData(DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
-                DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get().clear();
-                DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get().addAll(data.drawingSets);
+            public void loadData(DBTaskContext context, DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
+                context.project().getDrawingSets().getDrawingSetSlots().clear();
+                context.project().getDrawingSets().getDrawingSetSlots().addAll(data.drawingSets);
 
                 //set to the first set first, so the fallback from getDrawingSetForSlot is safe.
-                DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.set(data.drawingSets.get(0));
-                DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.set(DrawingBotV3.INSTANCE.drawingSets.getDrawingSetForSlot(data.activeSet));
+                context.project().getDrawingSets().setActiveDrawingSet(data.drawingSets.get(0));
+                context.project().getDrawingSets().setActiveDrawingSet(context.project().getDrawingSets().getDrawingSetForSlot(data.activeSet));
             }
         });
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("image_settings", ImageSettings.class, ImageSettings::new, 10) {
 
             @Override
-            public void saveData(ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
-                if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                    data.cropStartX = DrawingBotV3.INSTANCE.openImage.get().cropStartX.get();
-                    data.cropStartY = DrawingBotV3.INSTANCE.openImage.get().cropStartY.get();
-                    data.cropEndX = DrawingBotV3.INSTANCE.openImage.get().cropEndX.get();
-                    data.cropEndY = DrawingBotV3.INSTANCE.openImage.get().cropEndY.get();
-                    data.imageRotation = DrawingBotV3.INSTANCE.openImage.get().imageRotation.get();
-                    data.imageFlipHorizontal = DrawingBotV3.INSTANCE.openImage.get().imageFlipHorizontal.get();
-                    data.imageFlipVertical = DrawingBotV3.INSTANCE.openImage.get().imageFlipVertical.get();
+            public void saveData(DBTaskContext context, ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
+                if(context.project.openImage.get() != null){
+                    data.cropStartX = context.project.openImage.get().cropStartX.get();
+                    data.cropStartY = context.project.openImage.get().cropStartY.get();
+                    data.cropEndX = context.project.openImage.get().cropEndX.get();
+                    data.cropEndY = context.project.openImage.get().cropEndY.get();
+                    data.imageRotation = context.project.openImage.get().imageRotation.get();
+                    data.imageFlipHorizontal = context.project.openImage.get().imageFlipHorizontal.get();
+                    data.imageFlipVertical = context.project.openImage.get().imageFlipVertical.get();
                 }
             }
 
             @Override
-            public void loadData(ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
+            public void loadData(DBTaskContext context, ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
                 if(!preset.data.imagePath.isEmpty()) {
-                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(new File(preset.data.imagePath), false, false);
+                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             FilteredImageData imageData = loadingTask.getValue();
@@ -201,6 +228,8 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                         }
                     });
                     DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
+                }else{
+                    context.project.openImage.set(null);
                 }
             }
         });

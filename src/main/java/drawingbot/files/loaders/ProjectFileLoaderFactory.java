@@ -1,6 +1,7 @@
 package drawingbot.files.loaders;
 
 import drawingbot.files.FileUtils;
+import drawingbot.files.json.projects.DBTaskContext;
 
 import java.io.File;
 
@@ -12,10 +13,10 @@ public class ProjectFileLoaderFactory implements IFileLoaderFactory{
     }
 
     @Override
-    public AbstractFileLoader createLoader(File file, boolean internal) {
+    public AbstractFileLoader createLoader(DBTaskContext context, File file, boolean internal) {
         String extension = FileUtils.getExtension(file.toString());
         if(extension.equalsIgnoreCase(".drawingbotv3")) {
-            return new ProjectFileLoader(file, internal);
+            return new ProjectFileLoader(context, file, internal);
         }
         return null;
     }

@@ -281,7 +281,7 @@ public class ShapeOverlays extends AbstractOverlay{
 
         //TODO DON'T UPDATE ALL OF THIS ON EVERY TICK IF WE CAN HELP IT
 
-        ICanvas refCanvas = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas();
+        ICanvas refCanvas = DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas();
         drawingSnappingGuide.rect.x = refCanvas.getDrawingOffsetX();
         drawingSnappingGuide.rect.y = refCanvas.getDrawingOffsetY();
         drawingSnappingGuide.rect.width = refCanvas.getDrawingWidth();
@@ -293,9 +293,9 @@ public class ShapeOverlays extends AbstractOverlay{
         pageSnappingGuide.rect.height = refCanvas.getHeight();
 
         Point2D viewportOrigin = DrawingBotV3.INSTANCE.controller.viewportScrollPane.localToScene(0, 0);
-        Point2D origin = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToScene(new Point2D(0, 0)).subtract(viewportOrigin);
+        Point2D origin = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(new Point2D(0, 0)).subtract(viewportOrigin);
 
-        double scale = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToSceneScale() * refCanvas.getPlottingScale();
+        double scale = DrawingBotV3.project().displayMode.get().getRenderer().rendererToSceneScale() * refCanvas.getPlottingScale();
         globalTransform.setToTransform(scale, 0, origin.getX(), 0, scale, origin.getY());
 
         if(!JFXShapeManager.INSTANCE.selectedShapes.isEmpty()){
@@ -334,7 +334,7 @@ public class ShapeOverlays extends AbstractOverlay{
         if(!enableSnapping.get()){
             return x;
         }
-        double scale = 1/DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToSceneScale();
+        double scale = 1/DrawingBotV3.project().displayMode.get().getRenderer().rendererToSceneScale();
         double magnet = 5;
         double snappedX = Double.MAX_VALUE;
         for(ISnappingGuide guide : snappingGuides){
@@ -353,7 +353,7 @@ public class ShapeOverlays extends AbstractOverlay{
         if(!enableSnapping.get()){
             return y;
         }
-        double scale = 1/DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToSceneScale();
+        double scale = 1/DrawingBotV3.project().displayMode.get().getRenderer().rendererToSceneScale();
         double magnet = 5;
         double snappedY = Double.MAX_VALUE;
         for(ISnappingGuide guide : snappingGuides){
@@ -372,7 +372,7 @@ public class ShapeOverlays extends AbstractOverlay{
         if(!enableSnapping.get()){
             return x;
         }
-        double snap = 1 * DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas().getPlottingScale();
+        double snap = 1 * DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale();
         return Utils.roundToMultiple(x, snap);
     }
 
@@ -380,7 +380,7 @@ public class ShapeOverlays extends AbstractOverlay{
         if(!enableSnapping.get()){
             return y;
         }
-        double snap = 1 * DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas().getPlottingScale();
+        double snap = 1 * DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale();
         return Utils.roundToMultiple(y, snap);
     }
 
@@ -497,8 +497,8 @@ public class ShapeOverlays extends AbstractOverlay{
         if(!JFXShapeManager.INSTANCE.selectedShapes.isEmpty()){
             JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::startTransform);
             originalSize = createDrawingBoundingBox(JFXShapeManager.INSTANCE.selectedShapes);
-            mouseOrigin = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().sceneToRenderer(new Point2D(event.getSceneX(), event.getSceneY()));
-            mouseOrigin = mouseOrigin.multiply(1/DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
+            mouseOrigin = DrawingBotV3.project().displayMode.get().getRenderer().sceneToRenderer(new Point2D(event.getSceneX(), event.getSceneY()));
+            mouseOrigin = mouseOrigin.multiply(1/DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
             isDragging = true;
             wasDragging = false;
         }
@@ -513,8 +513,8 @@ public class ShapeOverlays extends AbstractOverlay{
 
         AffineTransform transform = new AffineTransform();
 
-        Point2D mousePoint = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().sceneToRenderer(new Point2D(event.getSceneX(), event.getSceneY()));
-        mousePoint = mousePoint.multiply(1/DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
+        Point2D mousePoint = DrawingBotV3.project().displayMode.get().getRenderer().sceneToRenderer(new Point2D(event.getSceneX(), event.getSceneY()));
+        mousePoint = mousePoint.multiply(1/DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
 
         Point2D anchorPoint = resizeMode.anchorPoint(originalSize);
 

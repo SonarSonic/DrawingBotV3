@@ -1,6 +1,7 @@
 package drawingbot.files.json.presets;
 
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -17,11 +18,11 @@ public abstract class PresetImageFiltersManager extends AbstractPresetManager<Pr
         super(presetLoader);
     }
 
-    public abstract Property<ObservableList<ObservableImageFilter>> imageFiltersProperty();
+    public abstract Property<ObservableList<ObservableImageFilter>> imageFiltersProperty(DBTaskContext context);
 
     @Override
-    public GenericPreset<PresetImageFilters> updatePreset(GenericPreset<PresetImageFilters> preset) {
-        ObservableList<ObservableImageFilter> filterList = imageFiltersProperty().getValue();
+    public GenericPreset<PresetImageFilters> updatePreset(DBTaskContext context, GenericPreset<PresetImageFilters> preset) {
+        ObservableList<ObservableImageFilter> filterList = imageFiltersProperty(context).getValue();
         if(filterList != null){
             preset.data.filters.clear();
             filterList.forEach(preset.data::copyFilter);
@@ -30,8 +31,8 @@ public abstract class PresetImageFiltersManager extends AbstractPresetManager<Pr
     }
 
     @Override
-    public void applyPreset(GenericPreset<PresetImageFilters> preset) {
-        ObservableList<ObservableImageFilter> filterList = imageFiltersProperty().getValue();
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetImageFilters> preset) {
+        ObservableList<ObservableImageFilter> filterList = imageFiltersProperty(context).getValue();
         if(filterList != null) {
             filterList.clear();
             for (int i = 0; i < preset.data.filters.size(); i++) {

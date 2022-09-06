@@ -5,6 +5,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
@@ -20,8 +21,8 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
         super(PresetDrawingSet.class, presetType,"user_set_presets.json");
         setDefaultManager(new PresetDrawingSetManager(this) {
             @Override
-            public ObservableDrawingSet getSelectedDrawingSet() {
-                return DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get();
+            public ObservableDrawingSet getSelectedDrawingSet(DBTaskContext context) {
+                return context.project().getDrawingSets().getActiveDrawingSet();
             }
         });
     }

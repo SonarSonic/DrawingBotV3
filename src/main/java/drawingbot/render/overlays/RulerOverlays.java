@@ -126,15 +126,15 @@ public class RulerOverlays extends AbstractOverlay {
 
     @Override
     public void doRender() {
-        if(DrawingBotV3.INSTANCE.displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
-            DrawingBotV3.INSTANCE.displayMode.get().getRenderFlags().markForClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER);
+        if(DrawingBotV3.project().displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
+            DrawingBotV3.project().displayMode.get().getRenderFlags().markForClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER);
             Point2D drawingOrigin = new Point2D(0D, 0D);
-            ICanvas canvas = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas();
+            ICanvas canvas = DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas();
 
             Point2D viewportOrigin = DrawingBotV3.INSTANCE.controller.viewportScrollPane.localToScene(0, 0);
 
-            Point2D drawingOriginScene = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToScene(drawingOrigin).subtract(viewportOrigin);
-            Point2D drawingEndScene = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToScene(new Point2D(canvas.getScaledWidth(), canvas.getScaledHeight())).subtract(viewportOrigin);
+            Point2D drawingOriginScene = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(drawingOrigin).subtract(viewportOrigin);
+            Point2D drawingEndScene = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(new Point2D(canvas.getScaledWidth(), canvas.getScaledHeight())).subtract(viewportOrigin);
 
             double drawingEndX = canvas.getWidth();
             double drawingEndY = canvas.getHeight();

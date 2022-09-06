@@ -135,20 +135,20 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
         return false;
     }
 
-    public abstract JsonElement toJsonElement(Gson gson,  GenericPreset<?> preset);
+    public abstract JsonElement toJsonElement(Gson gson, GenericPreset<?> preset);
 
-    public abstract O fromJsonElement(Gson gson,  GenericPreset<?> preset, JsonElement element);
+    public abstract O fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element);
 
     public final void queueJsonUpdate() {
         //run later to prevent json update happen before services have been created
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
+            DrawingBotV3.INSTANCE.backgroundService.submit(() -> saveToJSON());
         });
     }
 
     public void loadFromJSON(){
         PresetContainerJsonFile<O> presets = JsonLoaderManager.getOrCreateJSONFile(PresetContainerJsonFile.class, configFile, c -> new PresetContainerJsonFile<O>());
-        presets.jsonMap.forEach(this::tryRegisterPreset);
+        presets.jsonMap.forEach(preset -> tryRegisterPreset(preset));
         onJSONLoaded();
     }
 

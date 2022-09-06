@@ -3,6 +3,7 @@ package drawingbot.geom;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
+import drawingbot.files.json.presets.ConfigApplicationSettings;
 import drawingbot.geom.operation.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.files.ConfigFileHandler;
@@ -70,6 +71,8 @@ public class GeometryUtils {
     }
 
     public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
+        ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
+
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
         if(task.exportHandler.isVector && !forceBypassOptimisation && ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
@@ -78,9 +81,7 @@ public class GeometryUtils {
             if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
-            //geometryOperations.add(new GeometryOperationSortGroupOrder());
         }
-
         return geometryOperations;
 
     }

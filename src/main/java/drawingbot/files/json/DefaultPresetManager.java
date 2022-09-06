@@ -1,5 +1,6 @@
 package drawingbot.files.json;
 
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 
@@ -27,27 +28,27 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
 
     public abstract void registerSettings();
 
-    public abstract I getInstance();
+    public abstract I getInstance(DBTaskContext context);
 
     @Override
-    public GenericPreset<O> updatePreset(GenericPreset<O> preset) {
-        I instance = getInstance();
+    public GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset) {
+        I instance = getInstance(context);
         if(instance != null){
             GenericSetting.updateSettingsFromInstance(settings, instance);
-            preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
+            preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
         }
         return preset;
     }
 
     @Override
-    public void applyPreset(GenericPreset<O> preset) {
-        I instance = getInstance();
+    public void applyPreset(DBTaskContext context, GenericPreset<O> preset) {
+        I instance = getInstance(context);
         if(instance != null) {
-            GenericSetting.applySettings(preset.data.settingList, settings);
+            GenericSetting.applySettings(preset.data.settings, settings);
 
             List<GenericSetting<?, ?>> toApply = settings;
             if (changesOnly) {
-                toApply = GenericSetting.filterSettings(toApply, preset.data.settingList.keySet());
+                toApply = GenericSetting.filterSettings(toApply, preset.data.settings.keySet());
             }
             GenericSetting.applySettingsToInstance(toApply, instance);
         }

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane minHeight="350.0" minWidth="400.0" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXExportController">
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXExportController">
    <children>
       <TabPane minHeight="400.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -203,7 +203,7 @@
                                 <content>
                                    <AnchorPane minHeight="0.0" minWidth="0.0">
                                       <children>
-                                         <VBox prefHeight="101.0" prefWidth="379.0" spacing="4.0">
+                                         <VBox prefHeight="83.0" prefWidth="379.0" spacing="4.0">
                                             <children>
                                                <HBox spacing="8.0">
                                                   <children>
@@ -233,7 +233,7 @@
                                                       <Insets top="10.0" />
                                                    </padding>
                                                </HBox>
-                                               <Separator prefHeight="20.0" prefWidth="200.0" />
+                                               <Separator prefHeight="10.0" prefWidth="200.0" />
                                                 <HBox spacing="88.0">
                                                    <children>
                                                       <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" text="X Axis Mirror :">
@@ -263,11 +263,11 @@
                                    </AnchorPane>
                                 </content>
                              </ScrollPane>
-                              <ScrollPane prefHeight="160.0" prefWidth="381.0">
+                              <ScrollPane>
                                 <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="153.0" prefWidth="361.0">
+                                  <AnchorPane minHeight="0.0" minWidth="0.0">
                                        <children>
-                                          <VBox prefHeight="153.0" prefWidth="361.0" spacing="4.0">
+                                          <VBox prefHeight="180.0" prefWidth="361.0" spacing="4.0">
                                              <children>
                                                 <HBox spacing="42.0">
                                                    <children>
@@ -292,10 +292,10 @@
                                                       <Insets top="10.0" />
                                                    </padding>
                                                 </HBox>
-                                                <Separator minHeight="20.0" prefHeight="20.0" prefWidth="20.0" />
-                                                <HBox spacing="40.0">
+                                                <Separator minHeight="10.0" prefHeight="10.0" prefWidth="10.0" />
+                                                <HBox spacing="32.0">
                                                    <children>
-                                                      <Label contentDisplay="RIGHT" text="Rotation">
+                                                      <Label contentDisplay="RIGHT" text="Rotation:">
                                                          <font>
                                                             <Font name="System Bold" size="12.0" />
                                                          </font>
@@ -313,8 +313,8 @@
                                                       </Label>
                                                    </children>
                                                 </HBox>
-                                                <Separator minHeight="20.0" prefHeight="20.0" prefWidth="20.0" />
-                                                <HBox spacing="56.0">
+                                                <Separator minHeight="10.0" prefHeight="10.0" prefWidth="10.0" />
+                                                <HBox spacing="52.0">
                                                    <children>
                                                       <Label contentDisplay="RIGHT" text="Pen Velocity:">
                                                          <font>
@@ -324,12 +324,25 @@
                                                             <TextField fx:id="textFieldHPGLPenSpeed" prefHeight="25.0" prefWidth="60.0" text="0" />
                                                          </graphic>
                                                       </Label>
-                                                      <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" text="Pen Number">
+                                                      <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" text="Pen Number:">
                                                          <font>
                                                             <Font name="System Bold" size="12.0" />
                                                          </font>
                                                          <graphic>
                                                             <TextField fx:id="textFieldHPGLPenNumber" prefHeight="25.0" prefWidth="60.0" text="0" />
+                                                         </graphic>
+                                                      </Label>
+                                                   </children>
+                                                </HBox>
+                                                <Separator layoutX="14.0" layoutY="96.0" minHeight="10.0" prefHeight="10.0" prefWidth="10.0" />
+                                                <HBox layoutX="14.0" layoutY="130.0" spacing="2.0">
+                                                   <children>
+                                                      <Label contentDisplay="RIGHT" layoutX="204.0" layoutY="10.0" text="Pen Force:">
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                         <graphic>
+                                                            <TextField fx:id="textFieldHPGLPenForce" prefHeight="25.0" prefWidth="60.0" text="0" />
                                                          </graphic>
                                                       </Label>
                                                    </children>
@@ -352,11 +365,11 @@
            </Tab>
           <Tab text="GCode">
             <content>
-              <AnchorPane fx:id="anchorPaneGCodeSettings" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane fx:id="anchorPaneGCodeSettings" minHeight="0.0" minWidth="0.0">
                 <children>
                     <ComboBox fx:id="comboBoxGCodePreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
                     <MenuButton fx:id="menuButtonGCodePresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />
-                        <ScrollPane hbarPolicy="NEVER" layoutX="11.0" layoutY="41.0" prefHeight="271.0" prefWidth="379.0">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="11.0" layoutY="41.0">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0">
                                  <children>

@@ -41,7 +41,7 @@ public class FXVPypeController {
         comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
         comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(newValue);
+                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue);
                 if(!ConfigFileHandler.getApplicationSettings().vPypePresetName.equals(newValue.presetName)){
                     ConfigFileHandler.getApplicationSettings().vPypePresetName = newValue.presetName;
                     ConfigFileHandler.getApplicationSettings().markDirty();

@@ -2,7 +2,10 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.geom.GeometryUtils;
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.DialogExportNPens;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -13,6 +16,7 @@ import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.utils.DBTask;
 import javafx.application.Platform;
 import javafx.scene.control.Dialog;
+import org.controlsfx.control.action.Action;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -42,7 +46,8 @@ public class ExportTask extends DBTask<Boolean> {
     public DrawingGeometryIterator exportIterator;
     public Map<ObservableDrawingPen, Integer> exportPenStats;
 
-    public ExportTask(DrawingExportHandler exportHandler, Mode exportMode, PlottedDrawing plottedDrawing, IGeometryFilter geometryFilter, String extension, File saveLocation, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask){
+    public ExportTask(DBTaskContext context, DrawingExportHandler exportHandler, Mode exportMode, PlottedDrawing plottedDrawing, IGeometryFilter geometryFilter, String extension, File saveLocation, boolean overwrite, boolean forceBypassOptimisation, boolean isSubTask){
+        super(context);
         this.exportHandler = exportHandler;
         this.exportMode = exportMode;
         this.plottedDrawing = plottedDrawing;
@@ -111,7 +116,7 @@ public class ExportTask extends DBTask<Boolean> {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
 
         if(!isSubTask){
-            updateTitle(exportHandler.displayName + ": " + saveLocation.getPath());
+            updateTitle(exportHandler.description + ": " + saveLocation.getPath());
             //show confirmation dialog, for special formats
             if(exportHandler.confirmDialog != null){
                 CountDownLatch latch = new CountDownLatch(1);
@@ -139,14 +144,14 @@ public class ExportTask extends DBTask<Boolean> {
 
         switch (exportMode){
             case PER_DRAWING:
-                updateTitle(exportHandler.displayName + ": 1 / 1" + " - " + saveLocation.getPath());
+                updateTitle(exportHandler.description + ": 1 / 1" + " - " + saveLocation.getPath());
                 doExport(geometryFilter, saveLocation);
                 break;
             case PER_GROUP:
                 Collection<PlottedGroup> groups = plottedDrawing.groups.values();
                 int groupPos = 0;
                 for(PlottedGroup group : groups){
-                    updateTitle(exportHandler.displayName + ": " + (groupPos+1) + " / " + groups.size() + " - " + saveLocation.getPath());
+                    updateTitle(exportHandler.description + ": " + (groupPos+1) + " / " + groups.size() + " - " + saveLocation.getPath());
                     File fileName = new File(baseSaveLocation.getPath() + "_group" + (groupPos+1) + extension);
                     if(!group.geometries.isEmpty()){
                         doExport((drawing, geometry, pen) -> geometryFilter.filter(drawing, geometry, pen) && geometry.getGroupID() == group.groupID, fileName);
@@ -160,7 +165,7 @@ public class ExportTask extends DBTask<Boolean> {
                 for(ObservableDrawingSet drawingSet : plottedDrawing.drawingSets.drawingSetSlots.get()){
                     int penPos = 0;
                     for(ObservableDrawingPen drawingPen : drawingSet.pens){
-                        updateTitle(exportHandler.displayName + ": " + " Set: " + (setPos+1) + " / " + plottedDrawing.drawingSets.drawingSetSlots.get().size() +  " Pen: " + (penPos+1) + " / " + drawingSet.pens.size() + " - " + saveLocation.getPath());
+                        updateTitle(exportHandler.description + ": " + " Set: " + (setPos+1) + " / " + plottedDrawing.drawingSets.drawingSetSlots.get().size() +  " Pen: " + (penPos+1) + " / " + drawingSet.pens.size() + " - " + saveLocation.getPath());
                         File fileName = new File(baseSaveLocation.getPath() + "_set" + (setPos+1) + "_pen" + (penPos+1) + "_" + drawingPen.getName() + extension);
                         if(drawingPen.isEnabled() && activePens.contains(drawingPen)){
                             doExport((drawing, geometry, pen) -> geometryFilter.filter(drawing, geometry, pen) && pen == drawingPen, fileName);
@@ -196,7 +201,7 @@ public class ExportTask extends DBTask<Boolean> {
                             }
                         }
                         if(!nextPens.isEmpty()){
-                            updateTitle(exportHandler.displayName + ": " + " Pens: " + (i+1) + " to " + (i+nextPens.size()) + " - " + saveLocation.getPath());
+                            updateTitle(exportHandler.description + ": " + " Pens: " + (i+1) + " to " + (i+nextPens.size()) + " - " + saveLocation.getPath());
                             File fileName = new File(baseSaveLocation.getPath() + "_pens" + (i+1) + "_to_" + (i+nextPens.size()) + extension);
                             doExport((drawing, geometry, pen) -> geometryFilter.filter(drawing, geometry, pen) && nextPens.contains(pen), fileName);
                         }

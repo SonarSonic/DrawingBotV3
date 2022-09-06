@@ -5,8 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.glyphfont.*?>
 
-<AnchorPane prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
-   <VBox fillWidth="false" prefWidth="404.0" spacing="8.0">
+<VBox prefWidth="430.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
       <children>
          <HBox prefHeight="25.0" prefWidth="412.0" spacing="4.0">
             <children>
@@ -17,7 +16,7 @@
                <Insets right="10.0" />
             </padding>
          </HBox>
-          <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="390.0" tableMenuButtonVisible="true">
+          <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="390.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
               <columns>
                   <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false" text="Enable" />
                   <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false" text="Filter Type" />
@@ -112,7 +111,6 @@
           </HBox>
       </children>
       <padding>
-         <Insets left="8.0" top="10.0" />
+         <Insets left="8.0" right="30.0" top="10.0" />
       </padding>
-   </VBox>
-</AnchorPane>
+</VBox>

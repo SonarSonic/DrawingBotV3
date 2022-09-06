@@ -36,7 +36,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
     public ObservableDrawingSet(IDrawingSet<?> source){
         this.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
-        this.distributionType.set(EnumDistributionType.getRecommendedType());
+        this.distributionType.set(EnumDistributionType.EVEN_WEIGHTED);
         this.colourSeperator.set(Register.DEFAULT_COLOUR_SPLITTER);
 
         loadDrawingSet(source);

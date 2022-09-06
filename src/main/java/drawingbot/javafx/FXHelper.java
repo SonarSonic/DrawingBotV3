@@ -1,13 +1,17 @@
 package drawingbot.javafx;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.*;
 import drawingbot.files.json.*;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.DialogExportPreset;
+import drawingbot.javafx.controls.DialogGenericRename;
 import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
@@ -16,6 +20,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -35,7 +40,9 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -48,14 +55,16 @@ import java.util.logging.Level;
  */
 public class FXHelper {
 
+    public static final List<Node> persistentNodes = new ArrayList<>();
+
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
     public static void importImageFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, true), FileUtils.IMPORT_IMAGES);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES);
     }
 
     public static void importVideoFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, true), FileUtils.IMPORT_VIDEOS);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_VIDEOS);
     }
 
     public static void importSVGFile(){
@@ -63,7 +72,13 @@ public class FXHelper {
             FXController.showPremiumFeatureDialog();
             return;
         }
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false, true), FileUtils.FILTER_SVG);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.FILTER_SVG);
+    }
+
+    public static void importProject(){
+        importFile((file, chooser) -> {
+            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true);
+        }, FileUtils.FILTER_PROJECT);
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
@@ -124,38 +139,48 @@ public class FXHelper {
     }
 
     public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
-        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+        PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
         if(drawing == null){
             return;
         }
-        String initialFileName = "";
         File originalFile = drawing.getOriginalFile();
-        if(originalFile != null){
-            initialFileName = FileUtils.removeExtension(originalFile.getName()) + "_plotted";
+        if(DrawingBotV3.project().file.get() != null){
+            originalFile = DrawingBotV3.project().file.get();
+        }
+        if(originalFile == null){
+            originalFile = new File(FileUtils.getUserDataDirectory() + File.separator + "Untitled");
+        }
+
+        String saveLocation = null;
+        int iteration = 1;
+        while(saveLocation == null || new File(FileUtils.getExportDirectory() + File.separator + saveLocation + exportHandler.getDefaultExtension()).exists()){
+            saveLocation = FileUtils.removeExtension(originalFile.getName()) + "_plotted_" + iteration++;
         }
         exportFile((file, chooser) -> {
             DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
-        }, exportHandler.filters, exportHandler.getDialogTitle(), initialFileName);
+        }, exportHandler.filters, exportHandler.getDialogTitle(), saveLocation);
     }
 
-    public static void importPreset(PresetType presetType, boolean apply, boolean showDialog){
+    public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
         importFile((file, chooser) -> {
-            GenericPreset<IJsonData> preset = loadPresetFile(presetType, file, apply);
+            GenericPreset<IJsonData> preset = loadPresetFile(context, presetType, file, apply);
             if(showDialog){
-                DialogImportPreset importPreset = new DialogImportPreset(preset);
-                importPreset.show();
+                AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+                AbstractPresetManager<IJsonData> manager = loader == null ? null : loader.getDefaultManager();
+
+
             }
         }, presetType.filters, "Select a preset to import");
     }
 
-    public static GenericPreset<IJsonData> loadPresetFile(PresetType presetType, File file, boolean apply){
+    public static GenericPreset<IJsonData> loadPresetFile(DBTaskContext context, PresetType presetType, File file, boolean apply){
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
             AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
             if(jsonLoader != null){
                 if(jsonLoader.getDefaultManager() != null){
-                    jsonLoader.getDefaultManager().tryApplyPreset(preset);
+                    jsonLoader.getDefaultManager().tryApplyPreset(context, preset);
                 }
             }else{
                 DrawingBotV3.logger.severe("Preset type is missing JsonLoader: " + presetType.id);
@@ -164,20 +189,60 @@ public class FXHelper {
         return preset;
     }
 
-    public static void exportProject(File initialDirectory, String initialName){
+    public static <D extends IJsonData> GenericPreset<D> loadPresetFile(DBTaskContext context, AbstractJsonLoader<D> loader, File file, boolean apply){
+        GenericPreset<D> preset = (GenericPreset<D>) JsonLoaderManager.importPresetFile(file, loader.type);
+        FileUtils.updateImportDirectory(file.getParentFile());
+        if(preset != null && apply){
+            if(loader.getDefaultManager() != null){
+                loader.getDefaultManager().tryApplyPreset(context, preset);
+            }
+        }
+        return preset;
+    }
+
+    public static void saveProject(){
+        final DBTaskContext context = DrawingBotV3.context();
+        if(context.project().file.get() != null){
+            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
+
+            JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
+        }else{
+            saveProjectAs();
+        }
+    }
+
+    public static void saveProjectAs(){
+        final DBTaskContext context = DrawingBotV3.context();
+        File folder = FileUtils.getExportDirectory();
+        String projectName = context.project().name.get();
+
+        PlottedDrawing renderedDrawing = DrawingBotV3.project().getCurrentDrawing();
+        if(renderedDrawing != null){
+            File originalFile = renderedDrawing.getOriginalFile();
+            if(originalFile != null){
+                folder = originalFile.getParentFile();
+                projectName = FileUtils.removeExtension(originalFile.getName());
+            }
+        }
+
         exportFile((file, chooser) -> {
+            context.project.file.set(file);
+            context.project.name.set(FileUtils.removeExtension(file.getName()));
             DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
+                FileUtils.updateExportDirectory(file.getParentFile());
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(preset);
+                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
             });
-        }, initialDirectory, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", initialName);
+        }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", projectName);
     }
 
     public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
         exportFile((file, chooser) -> {
+            FileUtils.updateExportDirectory(file.getParentFile());
             JsonLoaderManager.exportPresetFile(file, preset);
 
             if(showDialog){
@@ -188,6 +253,18 @@ public class FXHelper {
                 }
             }
         }, preset.presetType.filters, "Save preset", initialName);
+    }
+
+    public static <D extends IJsonData> GenericPreset<D> copyPreset(GenericPreset<D> preset){
+        AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+        assert loader != null;
+
+        Gson gson = JsonLoaderManager.createDefaultGson();
+        JsonElement element = loader.toJsonElement(gson, preset);
+
+        GenericPreset<IJsonData> copy = loader.createNewPreset(preset.presetSubType, preset.presetName, preset.userCreated);
+        copy.data = loader.fromJsonElement(gson, copy, element);
+        return (GenericPreset<D>) copy;
     }
 
     public static void openURL(String url) {
@@ -266,7 +343,7 @@ public class FXHelper {
             if(editingPreset == null){
                 return;
             }
-            editingPreset = manager.get().tryUpdatePreset(editingPreset);
+            editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
             if(editingPreset != null){
                 DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
                 DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
@@ -286,7 +363,7 @@ public class FXHelper {
             }
             String originalName = current.presetName;
             boolean isDefault = current == loader.getDefaultPreset();
-            GenericPreset<O> preset = manager.get().tryUpdatePreset(current);
+            GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
             if(preset != null){
                 setter.accept(preset);
 
@@ -328,7 +405,7 @@ public class FXHelper {
         });
 
         importPreset.setOnAction(e -> {
-            FXHelper.importPreset(loader.type, false, true);
+            FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
         });
         exportPreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
@@ -446,6 +523,12 @@ public class FXHelper {
         }
     }
 
+    public static void openRenameDialog(Supplier<StringProperty> propertySupplier){
+        DialogGenericRename dialog = new DialogGenericRename(() -> propertySupplier.get().get());
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(s -> propertySupplier.get().set(s));
+    }
+
     public static GridPane createSettingsGridPane(Collection<GenericSetting<?, ?>> settings, Consumer<GenericSetting<?, ?>> onChanged){
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.TOP_LEFT);
@@ -455,7 +538,7 @@ public class FXHelper {
 
         int i = 0;
         for(GenericSetting<?, ?> setting : settings){
-            Label label = new Label(setting.key.getValue() + ": ");
+            Label label = new Label(setting.getKey() + ": ");
             label.setAlignment(Pos.TOP_LEFT);
             Node node = setting.getJavaFXNode(true);
             node.minWidth(200);
@@ -497,6 +580,80 @@ public class FXHelper {
         Text textNode = new Text(text);
         textNode.setStyle("-fx-font-size: "+ size +"px; -fx-font-weight: " + weight);
         flow.getChildren().add(textNode);
+    }
+
+
+
+
+    public static class UINodeState {
+
+        public String id = "";
+        public boolean expanded = false;
+
+        public UINodeState(){} //for gson
+
+        public UINodeState(Node node){
+            saveState(node);
+        }
+
+        public void saveState(Node node){
+            id = node.getId();
+            if(node instanceof TitledPane){
+                TitledPane pane = (TitledPane) node;
+                expanded = pane.isExpanded();
+            }
+        }
+
+        public void loadState(Node node){
+            if(!node.getId().equals(id)){
+                return;
+            }
+            if(node instanceof TitledPane){
+                TitledPane pane = (TitledPane) node;
+                pane.setExpanded(expanded);
+            }
+        }
+
+        public String getID(){
+            return id;
+        }
+    }
+
+    public static void makePersistent(List<? extends Node> nodes){
+        nodes.forEach(FXHelper::makePersistent);
+    }
+
+    public static void makePersistent(Node node){
+        if(!persistentNodes.contains(node)){
+            persistentNodes.add(node);
+        }
+    }
+
+    @Nullable
+    public static Node findPersistentNode(String fxID){
+        for(Node node : persistentNodes){
+            if(node.getId().equals(fxID)){
+                return node;
+            }
+        }
+        return FXApplication.primaryScene.getRoot().lookup(fxID);
+    }
+
+    public static void loadUIStates(List<FXHelper.UINodeState> nodes){
+        for(FXHelper.UINodeState state : nodes){
+            Node node = FXHelper.findPersistentNode(state.getID());
+            if(node != null){
+                state.loadState(node);
+            }
+        }
+    }
+
+    public static void saveUIStates(List<FXHelper.UINodeState> nodes){
+        for(Node node : FXHelper.persistentNodes){
+            if(node.getId() != null && !node.getId().isEmpty()){
+                nodes.add(new FXHelper.UINodeState(node));
+            }
+        }
     }
 
 }

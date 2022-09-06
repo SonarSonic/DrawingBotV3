@@ -2,6 +2,8 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.geom.GeometryClipping;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -83,6 +85,18 @@ public class PlottingTools implements IPlottingTools {
 
     public void setClippingShape(Shape clippingShape) {
         this.clippingShape = clippingShape;
+    }
+
+    public DBTaskContext context(){
+        return pfmTask.context;
+    }
+
+    public ObservableProject project(){
+        return context().project;
+    }
+
+    public ITaskManager taskManager(){
+        return context().taskManager;
     }
 
     ////////////////////////////////////////////////////////
@@ -276,7 +290,7 @@ public class PlottingTools implements IPlottingTools {
     public void clearAllGeometries() {
         getPlottedDrawing().clearGeometries();
         if(pfmTask != null){
-            pfmTask.drawingManager.clearDrawingRender();
+            pfmTask.context.taskManager.clearDrawingRender();
         }
     }
 

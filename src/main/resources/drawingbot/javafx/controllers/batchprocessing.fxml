@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="anchorPaneBatchProcessing" prefHeight="440.0" prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
-    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="49.0" text="Input Folder:">
+<VBox fx:id="vboxBatchProcessing" prefHeight="440.0" prefWidth="430.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
+   <HBox alignment="CENTER">
+      <children>
+          <Button fx:id="buttonSelectInputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
+          <Button fx:id="buttonSelectOutputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Output Folder" />
+      </children>
+   </HBox>
+    <Label contentDisplay="RIGHT" text="Input Folder:">
         <graphic>
             <Label fx:id="labelInputFolder" text="Label" />
         </graphic>
@@ -14,13 +21,9 @@
             <Label fx:id="labelOutputFolder" text="Label" />
         </graphic>
     </Label>
-    <Button fx:id="buttonSelectInputFolder" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
-    <Button fx:id="buttonSelectOutputFolder" layoutX="202.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Output Folder" />
-    <Button fx:id="buttonStartBatchProcessing" layoutX="14.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Start Batch Processing" />
-    <Button fx:id="buttonStopBatchProcessing" cancelButton="true" disable="true" layoutX="202.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Stop Batch Processing" />
     <Separator layoutX="14.0" layoutY="105.0" prefHeight="0.0" prefWidth="376.0" />
     <Label layoutX="14.0" layoutY="117.0" text="Export Options:" />
-    <TableView fx:id="tableViewBatchExport" editable="true" layoutX="8.0" layoutY="144.0" prefHeight="189.0" prefWidth="390.0">
+    <TableView fx:id="tableViewBatchExport" editable="true" layoutX="8.0" layoutY="144.0" prefHeight="189.0" prefWidth="390.0" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="tableColumnFileFormat" prefWidth="174.0" text="File Format" />
             <TableColumn fx:id="tableColumnPerDrawing" minWidth="3.000030517578125" text="per/drawing" />
@@ -28,9 +31,18 @@
             <TableColumn fx:id="tableColumnPerGroup" minWidth="3.000030517578125" text="per/group" />
         </columns>
     </TableView>
-    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="344.0" text="Overwrite Existing Files">
+    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="344.0" prefHeight="24.0" prefWidth="142.0" text="Overwrite Existing Files">
         <graphic>
             <CheckBox fx:id="checkBoxOverwrite" contentDisplay="RIGHT" mnemonicParsing="false" />
         </graphic>
     </Label>
-</AnchorPane>
+   <HBox alignment="CENTER">
+      <children>
+          <Button fx:id="buttonStartBatchProcessing" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Start Batch Processing" />
+          <Button fx:id="buttonStopBatchProcessing" cancelButton="true" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Stop Batch Processing" />
+      </children>
+   </HBox>
+   <padding>
+      <Insets bottom="10.0" left="8.0" right="30.0" top="10.0" />
+   </padding>
+</VBox>

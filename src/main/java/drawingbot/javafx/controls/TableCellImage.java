@@ -17,6 +17,7 @@ public class TableCellImage<S> extends TableCell<S, Image> {
             imageView.fitWidthProperty().unbind();
             imageView.fitWidthProperty().bind(newValue.widthProperty());
         });
+        setGraphic(imageView);
     }
 
     @Override
@@ -24,14 +25,10 @@ public class TableCellImage<S> extends TableCell<S, Image> {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
-            setText(null);
-            setGraphic(null);
+            imageView.setVisible(false);
         } else {
-            //FIXME sizing of the table doesn't update when this is used in the first row.
-            setText(null);
+            imageView.setVisible(true);
             imageView.setImage(item);
-            setGraphic(imageView);
-            getTableView().refresh();
         }
     }
 }

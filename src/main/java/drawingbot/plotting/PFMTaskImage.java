@@ -3,6 +3,7 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IPFMImage;
 import drawingbot.api.IPixelData;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
 import drawingbot.image.format.FilteredImageData;
@@ -31,8 +32,8 @@ public class PFMTaskImage extends PFMTask {
     public ImageFilterSettings imgFilterSettings;
     public boolean enableImageFiltering = true;
 
-    public PFMTaskImage(IDrawingManager taskManager, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, List<GenericSetting<?, ?>> pfmSettings, @Nullable ImageFilterSettings imgFilterSettings, FilteredImageData imageData){
-        super(taskManager, drawing, pfmFactory, drawingPenSet, pfmSettings);
+    public PFMTaskImage(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, List<GenericSetting<?, ?>> pfmSettings, @Nullable ImageFilterSettings imgFilterSettings, FilteredImageData imageData){
+        super(context, drawing, pfmFactory, drawingPenSet, pfmSettings);
         this.imgFilterSettings = imgFilterSettings;
         this.imageData = imageData;
         this.drawing.setMetadata(Register.INSTANCE.ORIGINAL_FILE, imageData.getSourceFile());

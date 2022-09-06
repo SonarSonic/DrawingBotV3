@@ -9,20 +9,22 @@ import java.util.function.Function;
 public class DrawingExportHandler {
 
     public final Category category;
-    public final String displayName;
+    public final String registryName;
+    public final String description;
     public final boolean isVector;
     public final FileChooser.ExtensionFilter[] filters;
     public final IExportMethod exportMethod;
     public final Function<ExportTask, Dialog<Boolean>> confirmDialog;
     public boolean isPremium = false;
 
-    public DrawingExportHandler(Category category, String displayName, boolean isVector, IExportMethod exportMethod, FileChooser.ExtensionFilter... filters){
-        this(category, displayName, isVector, exportMethod, null, filters);
+    public DrawingExportHandler(Category category, String registryName, String description, boolean isVector, IExportMethod exportMethod, FileChooser.ExtensionFilter... filters){
+        this(category, registryName, description, isVector, exportMethod, null, filters);
     }
 
-    public DrawingExportHandler(Category category, String displayName, boolean isVector, IExportMethod exportMethod, Function<ExportTask, Dialog<Boolean>> confirmDialog, FileChooser.ExtensionFilter... filters){
+    public DrawingExportHandler(Category category, String registryName, String description, boolean isVector, IExportMethod exportMethod, Function<ExportTask, Dialog<Boolean>> confirmDialog, FileChooser.ExtensionFilter... filters){
         this.category = category;
-        this.displayName = displayName;
+        this.registryName = registryName;
+        this.description = description;
         this.isVector = isVector;
         this.exportMethod = exportMethod;
         this.confirmDialog = confirmDialog;
@@ -34,13 +36,21 @@ public class DrawingExportHandler {
         return this;
     }
 
+    public String getDefaultExtension(){
+        return filters[0].getExtensions().get(0).substring(1);
+    }
+
     public String getDialogTitle(){
-        return "Save " + displayName;
+        return "Save " + description;
+    }
+
+    public String getRegistryName(){
+        return registryName;
     }
 
     @Override
     public String toString() {
-        return displayName;
+        return description;
     }
 
     public enum Category {

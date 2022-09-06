@@ -9,10 +9,10 @@ import java.util.HashMap;
 
 public class PresetProjectSettings extends AbstractJsonData {
 
-    public String name;
-    public String imagePath;
-    public String timeStamp;
-    public String thumbnailID;
+    public String name = "";
+    public String imagePath = "";
+    public String timeStamp = "";
+    public String thumbnailID = "";
 
     public transient boolean isSubProject = false;
 

@@ -37,32 +37,32 @@ public abstract class ProjectDataLoader {
     /**
      * Loads the project
      */
-    public void load(Gson gson, GenericPreset<PresetProjectSettings> preset){
+    public void load(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset){
         if(!isEnabled()){
             return;
         }
-        JsonElement element = preset.data.settingList.get(getKey());
+        JsonElement element = preset.data.settings.get(getKey());
         if(element != null){
-            loadData(gson, element, preset);
+            loadData(context, gson, element, preset);
         }
     }
 
-    public void loadData(Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset){}
+    public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset){}
 
     /**
      * Saves the project
      */
-    public void save(Gson gson, GenericPreset<PresetProjectSettings> preset){
+    public void save(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset){
         if(!isEnabled()){
             return;
         }
-        JsonElement element = saveData(gson, preset);
+        JsonElement element = saveData(context, gson, preset);
         if(element != null){
-            preset.data.settingList.put(getKey(), element);
+            preset.data.settings.put(getKey(), element);
         }
     }
 
-    public JsonElement saveData(Gson gson, GenericPreset<PresetProjectSettings> preset){
+    public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset){
         return null;
     }
 
@@ -78,17 +78,17 @@ public abstract class ProjectDataLoader {
         }
 
         @Override
-        public void loadData(Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
+        public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
             GenericPreset<O> data = gson.fromJson(element, type);
-            if(preset != null){
-                manager.getDefaultManager().applyPreset(data);
+            if(data != null){
+                manager.getDefaultManager().applyPreset(context, data);
             }
         }
 
         @Override
-        public JsonElement saveData(Gson gson, GenericPreset<PresetProjectSettings> preset) {
+        public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
             GenericPreset<O> data = manager.createNewPreset();
-            manager.getDefaultManager().updatePreset(data);
+            manager.getDefaultManager().updatePreset(context, data);
             return gson.toJsonTree(data, type);
         }
     }
@@ -105,20 +105,20 @@ public abstract class ProjectDataLoader {
         }
 
         @Override
-        public final void loadData(Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
+        public final void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
             D data = gson.fromJson(element, dataType);
-            loadData(data, preset);
+            loadData(context, data, preset);
         }
 
-        public abstract void loadData(D data, GenericPreset<PresetProjectSettings> preset);
+        public abstract void loadData(DBTaskContext context, D data, GenericPreset<PresetProjectSettings> preset);
 
         @Override
-        public final JsonElement saveData(Gson gson, GenericPreset<PresetProjectSettings> preset) {
+        public final JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
             D data = supplier.get();
-            saveData(data, preset);
+            saveData(context, data, preset);
             return gson.toJsonTree(data, dataType);
         }
 
-        public abstract void saveData(D data, GenericPreset<PresetProjectSettings> preset);
+        public abstract void saveData(DBTaskContext context, D data, GenericPreset<PresetProjectSettings> preset);
     }
 }

@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.plotting.canvas.CanvasUtils;
@@ -17,6 +18,7 @@ import java.awt.image.BufferedImage;
  */
 public class ImageRenderer {
 
+    public final DBTaskContext context;
     public ICanvas canvas;
     public EnumBlendMode blendMode;
     public boolean isVideo;
@@ -35,10 +37,11 @@ public class ImageRenderer {
     private double linearScale;
 
     public ImageRenderer(ExportTask exportTask, boolean isVideo) {
-        this(exportTask.exportDrawing.getCanvas(), DrawingBotV3.INSTANCE.blendMode.get(), isVideo, ImageExporter.useAlphaChannelOnRaster(exportTask));
+        this(exportTask.context, exportTask.exportDrawing.getCanvas(), exportTask.context.project().blendMode.get(), isVideo, ImageExporter.useAlphaChannelOnRaster(exportTask));
     }
 
-    public ImageRenderer(ICanvas canvas, EnumBlendMode blendMode, boolean isVideo, boolean useAlphaChannel) {
+    public ImageRenderer(DBTaskContext context, ICanvas canvas, EnumBlendMode blendMode, boolean isVideo, boolean useAlphaChannel) {
+        this.context = context;
         this.canvas = canvas;
         this.blendMode = blendMode;
         this.isVideo = isVideo;
@@ -58,7 +61,7 @@ public class ImageRenderer {
             scaledHeight = (int) (canvas.getScaledHeight() * linearScale);
 
             activeImage = new BufferedImage(scaledWidth, scaledHeight, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-            graphics = createFreshGraphics2D(activeImage, blendMode, isVideo, !useAlphaChannel);
+            graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, !useAlphaChannel);
 
             graphics.scale(linearScale, linearScale);
         } else {
@@ -66,7 +69,7 @@ public class ImageRenderer {
             scaledHeight = rasterHeight;
 
             activeImage = new BufferedImage(scaledWidth, scaledHeight, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-            graphics = createFreshGraphics2D(activeImage, blendMode, isVideo, !useAlphaChannel);
+            graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, !useAlphaChannel);
         }
     }
 
@@ -76,7 +79,7 @@ public class ImageRenderer {
             setup();
             graphics.dispose();
         }
-        graphics = createFreshGraphics2D(activeImage, blendMode, isVideo, false);
+        graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, false);
         graphics.scale(linearScale, linearScale);
         return graphics;
     }
@@ -104,13 +107,13 @@ public class ImageRenderer {
     }
 
 
-    public static Graphics2D createFreshGraphics2D(BufferedImage image, EnumBlendMode blendMode, boolean isVideo, boolean drawBackground){
+    public static Graphics2D createFreshGraphics2D(DBTaskContext context, BufferedImage image, EnumBlendMode blendMode, boolean isVideo, boolean drawBackground){
         Graphics2D graphics = image.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if(drawBackground){
-            Graphics2DExporter.drawBackground(graphics, image.getWidth(), image.getHeight());
+            Graphics2DExporter.drawBackground(context, graphics, image.getWidth(), image.getHeight());
         }
 
         if(blendMode != EnumBlendMode.NORMAL){

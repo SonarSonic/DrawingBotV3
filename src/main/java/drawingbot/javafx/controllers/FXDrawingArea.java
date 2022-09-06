@@ -1,8 +1,10 @@
 package drawingbot.javafx.controllers;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingArea;
 import drawingbot.files.json.presets.PresetDrawingAreaManager;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.plotting.canvas.ObservableCanvas;
@@ -115,7 +117,7 @@ public class FXDrawingArea {
         comboBoxDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
         comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getDrawingAreaPresetManager().applyPreset(newValue);
+                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
@@ -166,7 +168,7 @@ public class FXDrawingArea {
         if(presetManager == null){
             return presetManager = new PresetDrawingAreaManager(Register.PRESET_LOADER_DRAWING_AREA) {
                 @Override
-                public ObservableCanvas getInstance() {
+                public ObservableCanvas getInstance(DBTaskContext context) {
                     return drawingArea.get();
                 }
             };

@@ -63,8 +63,7 @@ public class SVGExporter {
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
             }
 
-            if(ConfigFileHandler.getApplicationSettings().exportSVGBackground && !DrawingBotV3.INSTANCE.drawingArea.canvasColor.get().equals(Color.WHITE)){
-                /////BACKGROUND
+            if(ConfigFileHandler.getApplicationSettings().exportSVGBackground){
                 // Create a fresh document to draw background
                 Document backgroundGraphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
 
@@ -83,7 +82,7 @@ public class SVGExporter {
                 backgroundGraphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
                 backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
-                Graphics2DExporter.drawBackground(backgroundGraphics, width, height);
+                Graphics2DExporter.drawBackground(exportTask.context, backgroundGraphics, width, height);
                 Graphics2DExporter.preDraw(exportTask, backgroundGraphics);
                 Graphics2DExporter.postDraw(exportTask, backgroundGraphics);
 

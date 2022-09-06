@@ -10,6 +10,9 @@ public class Hooks {
     public static final String NEW_PLOTTING_TASK = "NEW_PLOTTING_TASK";
     public static final String NEW_EXPORT_TASK = "NEW_EXPORT_TASK";
 
+    public static final String INIT_OBSERVABLE_PROJECT = "INIT_OBSERVABLE_PROJECT";
+    public static final String COPY_OBSERVABLE_PROJECT = "COPY_OBSERVABLE_PROJECT";
+
     public static final String FX_CONTROLLER_PRE_INIT = "FX_CONTROLLER_PRE_INIT";
     public static final String FX_CONTROLLER_POST_INIT = "FX_CONTROLLER_POST_INIT";
 

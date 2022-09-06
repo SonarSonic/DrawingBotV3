@@ -28,15 +28,15 @@ public class DrawingBorderOverlays extends AbstractOverlay {
     public void doRender() {
         super.doRender();
 
-        if (DrawingBotV3.INSTANCE.displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
-            DrawingBotV3.INSTANCE.displayMode.get().getRenderFlags().markForClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER);
+        if (DrawingBotV3.project().displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
+            DrawingBotV3.project().displayMode.get().getRenderFlags().markForClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER);
             Point2D drawingOrigin = new Point2D(0D, 0D);
-            ICanvas canvas = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().getRefCanvas();
+            ICanvas canvas = DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas();
 
             Point2D viewportOrigin = DrawingBotV3.INSTANCE.controller.viewportScrollPane.localToScene(0, 0);
 
-            Point2D drawingOriginScene = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToScene(drawingOrigin).subtract(viewportOrigin);
-            Point2D drawingEndScene = DrawingBotV3.INSTANCE.displayMode.get().getRenderer().rendererToScene(new Point2D(canvas.getScaledWidth(), canvas.getScaledHeight())).subtract(viewportOrigin);
+            Point2D drawingOriginScene = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(drawingOrigin).subtract(viewportOrigin);
+            Point2D drawingEndScene = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(new Point2D(canvas.getScaledWidth(), canvas.getScaledHeight())).subtract(viewportOrigin);
             rectangle.relocate(drawingOriginScene.getX(), drawingOriginScene.getY());
             rectangle.setWidth(drawingEndScene.getX() - drawingOriginScene.getX());
             rectangle.setHeight(drawingEndScene.getY() - drawingOriginScene.getY());

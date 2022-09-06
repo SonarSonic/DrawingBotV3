@@ -4,9 +4,8 @@ import drawingbot.api.*;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
 import drawingbot.image.PixelDataARGBY;
-import drawingbot.pfm.helpers.BresenhamHelper;
-import drawingbot.pfm.helpers.ColourSampleTest;
-import drawingbot.pfm.helpers.LuminanceTestLine;
+import drawingbot.pfm.helpers.*;
+import drawingbot.plotting.PlottingTools;
 import drawingbot.utils.Utils;
 
 import java.util.ArrayList;
@@ -116,6 +115,24 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         return points;
     }
 
+    public static void findNearestDarkestPixel(IPixelData pixels, int srcX, int srcY, int[] dest){
+        List<int[]> darkest = findDarkestPixels(pixels);
+
+        double best = Double.MAX_VALUE;
+        int[] nearest = null;
+        for(int[] point : darkest){
+            double dist = Utils.distance(srcX, srcY, point[0], point[1]);
+            if(dist < best){
+                best = dist;
+                nearest = point;
+            }
+        }
+        if(nearest != null){
+            dest[0] = nearest[0];
+            dest[1] = nearest[1];
+        }
+    }
+
     /** returns a random pixel of the darkest pixels found*/
     public void findDarkestPixel(IPixelData pixels, int[] dest){
         List<int[]> darkestPixels = findDarkestPixels(pixels);
@@ -137,6 +154,69 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         return luminanceTest.getDarkestSample();
     }
 
+    /**
+     * Finds the darkest line from the given start point, choosing between a naive approach or bresenham circle tests for faster results
+     */
+    public static float findDarkestLineWithVariance(PlottingTools tools, BresenhamHelper bresenham, IPixelData pixels, IPixelData reference, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float lastAngle, float drawingDeltaAngle, boolean shading, float directionality, float distortion, float angularity, int[] darkestDst){
+        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true);
+        VarianceTest varianceTest = new VarianceTest();
+
+        int[] darkestResult = new int[2];
+        float[] samples = new float[]{-1, -1, -1, -1, -1};
+
+
+        runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
+            darkestDst[0] = -1;
+            darkestDst[1] = -1;
+
+            luminanceTest.resetTest();
+            luminanceTest.resetSamples();
+            bresenham.plotLine(startX, startY, x, y, (xT, yT) -> {
+                luminanceTest.addSample(pixels, xT, yT);
+            });
+            if(darkestDst[0] == -1){
+                return;
+            }
+            float luminance = luminanceTest.getDarkestSample();
+
+            float variance = 0;
+            if(directionality > 0){
+                varianceTest.resetTest();
+                bresenham.plotLine(startX, startY, darkestDst[0], darkestDst[1], (xT, yT) -> {
+                    varianceTest.addSample(reference, xT, yT);
+                });
+                variance = varianceTest.getVariance();
+            }
+
+            float noise = 0;
+            if(distortion > 0){
+                noise = tools.randomFloat(0, 255);
+            }
+
+            float angleDiff = 0;
+            if(angularity > 0){
+                float angle = (float) getAngle(startX, startY, darkestDst[0], darkestDst[1]);
+                angleDiff = Math.abs(getAngleDifference(angle, lastAngle))/10F;
+            }
+
+            float sample = luminance + (angleDiff * angularity) + (noise * distortion) + (variance * directionality);
+
+            if(samples[0] == -1 || sample < samples[0]){
+                samples[0] = sample;
+                samples[1] = luminance;
+                samples[2] = angleDiff;
+                samples[3] = noise;
+                samples[4] = variance;
+                darkestResult[0] = darkestDst[0];
+                darkestResult[1] = darkestDst[1];
+            }
+        });
+
+        darkestDst[0] = darkestResult[0];
+        darkestDst[1] = darkestResult[1];
+
+        return samples[1];
+    }
 
     /**
      * Returns the end coordinates of each line test
@@ -169,13 +249,24 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         }
     }
 
-    public double getAngle(int startX, int startY, int targetX, int targetY) {
+    public static double getAngle(int startX, int startY, int targetX, int targetY) {
         double angle = Math.toDegrees(Math.atan2(targetY - startY, targetX - startX));
         angle %= 360;
         if(angle < 0){
             angle += 360;
         }
         return angle;
+    }
+
+    public static float getAngleDifference(float a1, float a2) {
+        double val = a1 - a2;
+        if (val > Math.PI) {
+            val -= 2 * Math.PI;
+        }
+        if (val < -Math.PI) {
+            val += 2 * Math.PI;
+        }
+        return (float) val;
     }
 
     /** returns a line which intersects through the entire image going through the specified point */

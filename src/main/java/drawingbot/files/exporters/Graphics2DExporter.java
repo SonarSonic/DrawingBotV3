@@ -3,6 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageTools;
 import drawingbot.render.RenderUtils;
 
@@ -13,8 +14,8 @@ import java.awt.*;
  */
 public class Graphics2DExporter {
 
-    public static void drawBackground(Graphics2D graphics, int width, int height){
-        graphics.setColor(ImageTools.getAWTFromFXColor(DrawingBotV3.INSTANCE.drawingArea.canvasColor.getValue()));
+    public static void drawBackground(DBTaskContext context, Graphics2D graphics, int width, int height){
+        graphics.setColor(ImageTools.getAWTFromFXColor(context.project.getDrawingArea().canvasColor.getValue()));
         graphics.fillRect(0, 0, width, height);
     }
 

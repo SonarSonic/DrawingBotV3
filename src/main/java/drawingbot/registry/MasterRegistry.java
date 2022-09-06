@@ -10,6 +10,7 @@ import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ProjectDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
@@ -270,7 +271,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(){
-        return getObservablePFMSettingsList(DrawingBotV3.INSTANCE.pfmSettings.factory.get());
+        return getObservablePFMSettingsList(DrawingBotV3.project().getPFMSettings().getPFMFactory());
     }
 
     public ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(PFMFactory<?> factory){
@@ -278,7 +279,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(){
-        return getObservablePFMPresetList(DrawingBotV3.INSTANCE.pfmSettings.factory.get());
+        return getObservablePFMPresetList(DrawingBotV3.project().getPFMSettings().getPFMFactory());
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(PFMFactory<?> loader){
@@ -552,24 +553,28 @@ public class MasterRegistry {
         return exportHandler;
     }
 
-    public AbstractFileLoader getFileLoader(File file, boolean internal){
+    public AbstractFileLoader getFileLoader(DBTaskContext context, File file, boolean internal){
         for(IFileLoaderFactory factory : fileLoaderFactories){
-            AbstractFileLoader loader = factory.createLoader(file, internal);
+            AbstractFileLoader loader = factory.createLoader(context, file, internal);
             if(loader != null){
                 return loader;
             }
         }
-        return fallbackFileLoaderFactory.createLoader(file, internal);
+        return fallbackFileLoaderFactory.createLoader(context, file, internal);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// EXPORTERS \\\\
-    public List<DrawingExportHandler> drawingExportHandlers = new ArrayList<>();
+    public Map<String, DrawingExportHandler> drawingExportHandlers = new LinkedHashMap<>();
 
     public DrawingExportHandler registerDrawingExportHandler(DrawingExportHandler exportHandler){
-        DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.displayName);
-        this.drawingExportHandlers.add(exportHandler);
+        DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.getRegistryName() + " " + exportHandler.description);
+        if(drawingExportHandlers.containsKey(exportHandler.getRegistryName())){
+            DrawingBotV3.logger.severe("Duplicate Export Handler: " + exportHandler.getRegistryName());
+            return exportHandler;
+        }
+        this.drawingExportHandlers.put(exportHandler.getRegistryName(), exportHandler);
         return exportHandler;
     }
 
@@ -677,10 +682,10 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// METADATA \\\\
-    public List<Metadata<?>> drawingMetadata = new ArrayList<>();
+    public List<Metadata<?>> metadataTypes = new ArrayList<>();
 
-    public void registerDrawingMetadata(Metadata<?> metadata){
-        drawingMetadata.add(metadata);
+    public void registerMetadataType(Metadata<?> metadata){
+        this.metadataTypes.add(metadata);
     }
 
 }

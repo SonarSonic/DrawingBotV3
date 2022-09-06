@@ -3,10 +3,11 @@ package drawingbot.javafx.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 public class FXBatchProcessing {
 
-    public AnchorPane anchorPaneBatchProcessing = null;
+    public VBox vboxBatchProcessing = null;
 
     public Label labelInputFolder = null;
     public Label labelOutputFolder = null;

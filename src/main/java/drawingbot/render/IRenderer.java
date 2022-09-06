@@ -69,6 +69,6 @@ public interface IRenderer {
     }
 
     default Color getCurrentBackground(){
-        return DrawingBotV3.INSTANCE.drawingArea.backgroundColor.get();
+        return DrawingBotV3.project().getDrawingArea().backgroundColor.get();
     }
 }

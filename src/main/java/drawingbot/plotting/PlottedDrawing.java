@@ -1,7 +1,6 @@
 package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
-import drawingbot.api.IPlottingTools;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.utils.Metadata;
 import drawingbot.geom.shapes.IGeometry;
@@ -11,6 +10,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import drawingbot.utils.MetadataMap;
 import javafx.application.Platform;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +20,6 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class PlottedDrawing {
 
@@ -29,7 +28,7 @@ public class PlottedDrawing {
 
     public final List<IGeometry> geometries;
     public final Map<Integer, PlottedGroup> groups;
-    public Map<Metadata<?>, Object> metadataMap;
+    public MetadataMap metadata;
 
     public long vertexCount;
     public int displayedShapeMin = -1;
@@ -45,14 +44,14 @@ public class PlottedDrawing {
         this.drawingSets = drawingSets;
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = new ConcurrentHashMap<>();
-        this.metadataMap = new ConcurrentHashMap<>();
+        this.metadata = new MetadataMap(new ConcurrentHashMap<>());
     }
 
     /**
      * Copies the base groups of the plotted drawing only
      */
     public void copyBase(PlottedDrawing reference){
-        metadataMap = new ConcurrentHashMap<>(reference.metadataMap);
+        metadata = new MetadataMap(new ConcurrentHashMap<>(reference.metadata.data));
         for(PlottedGroup group : reference.groups.values()){
             PlottedGroup newGroup = new PlottedGroup(group);
             addPlottedGroup(newGroup);
@@ -86,20 +85,11 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public <T> void setMetadata(Metadata<T> metadata, T value){
-        if(value != null){
-            metadataMap.put(metadata, value);
-        }
+        this.metadata.setMetadata(metadata, value);
     }
 
     public <T> T getMetadata(Metadata<T> metadata){
-        Object obj = metadataMap.get(metadata);
-        if(obj == null){
-            return null;
-        }
-        if(!metadata.type.isInstance(obj)){
-            return null;
-        }
-        return metadata.type.cast(obj);
+        return this.metadata.getMetadata(metadata);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -44,6 +44,7 @@ dependencies {
     implementation "com.aparapi:aparapi:${aparapi_version}"
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
     implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
+    implementation 'org.fxmisc.easybind:easybind:1.0.3'
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
 

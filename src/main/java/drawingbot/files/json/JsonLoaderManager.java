@@ -8,6 +8,7 @@ import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.files.FileUtils;
 import drawingbot.files.json.adapters.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;

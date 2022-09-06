@@ -1,20 +1,21 @@
 package drawingbot.files.json;
 
 import com.google.gson.JsonElement;
-import drawingbot.files.json.IJsonData;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
 
 public abstract class AbstractJsonData implements IJsonData {
 
-    public HashMap<String, JsonElement> settingList;
+    @SerializedName(value = "settings", alternate = "settingList")
+    public HashMap<String, JsonElement> settings;
 
     public AbstractJsonData(){
-        settingList = new HashMap<>();
+        settings = new HashMap<>();
     }
 
-    public AbstractJsonData(HashMap<String, JsonElement> settingList){
-        this.settingList = settingList;
+    public AbstractJsonData(HashMap<String, JsonElement> settings){
+        this.settings = settings;
     }
 
 }

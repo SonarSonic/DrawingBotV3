@@ -123,7 +123,7 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public void clearCanvas(){
-        clearCanvas(DrawingBotV3.INSTANCE.drawingArea.canvasColor.getValue());
+        clearCanvas(DrawingBotV3.project().drawingArea.get().canvasColor.getValue());
     }
 
     public void clearCanvas(Color color){
@@ -190,7 +190,7 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public void updateCanvasScaling(){
-        if(DrawingBotV3.INSTANCE.dpiScaling.get()){
+        if(DrawingBotV3.project().dpiScaling.get()){
             canvas.setScaleX(1);
             canvas.setScaleY(1);
         }else{

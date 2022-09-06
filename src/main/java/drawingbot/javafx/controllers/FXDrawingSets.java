@@ -12,6 +12,7 @@ import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingPen;
 import drawingbot.files.json.presets.PresetDrawingSet;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -39,7 +40,6 @@ import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class FXDrawingSets {
@@ -110,6 +110,8 @@ public class FXDrawingSets {
             if(oldValue != null){
                 comboBoxDrawingSets.itemsProperty().unbind();
                 comboBoxDrawingSets.valueProperty().unbindBidirectional(oldValue.activeDrawingSet);
+
+                onChangedActiveDrawingSet(oldValue.activeDrawingSet.get(), null);
                 oldValue.activeDrawingSet.removeListener(activeSetListener);
 
                 drawingSetTableView.itemsProperty().unbind();
@@ -138,7 +140,7 @@ public class FXDrawingSets {
 
         comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
         comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet());
-        comboBoxDrawingSet.valueProperty().addListener((observable, oldValue, newValue) -> changeDrawingSet(newValue));
+        comboBoxDrawingSet.valueProperty().addListener((observable, oldValue, newValue) -> drawingSets.get().changeDrawingSet(newValue));
         comboBoxDrawingSet.setCellFactory(param -> new ComboCellDrawingSet<>());
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
@@ -191,8 +193,8 @@ public class FXDrawingSets {
 
 
         penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
-                DrawingBotV3.INSTANCE.reRender();
+            if(DrawingBotV3.project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
+                DrawingBotV3.project().reRender();
             }
         });
 
@@ -323,8 +325,8 @@ public class FXDrawingSets {
         });
 
         drawingSetTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
-                DrawingBotV3.INSTANCE.reRender();
+            if(DrawingBotV3.project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
+                DrawingBotV3.project().reRender();
             }
             drawingSets.get().activeDrawingSet.set(newValue);
         });
@@ -383,7 +385,7 @@ public class FXDrawingSets {
         penListener = c -> DrawingBotV3.INSTANCE.onDrawingSetChanged();
         distributionOrderListener = (observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged();
         distributionTypeListener = (observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingSetChanged();
-        colourSeperatorListener = (observable, oldValue, newValue) -> changeColourSplitter(oldValue, newValue, drawingSets.get());
+        colourSeperatorListener = (observable, oldValue, newValue) -> changeColourSplitter(DrawingBotV3.context(), oldValue, newValue, drawingSets.get());
     }
 
     private void addListeners(ObservableDrawingSet newValue){
@@ -429,24 +431,17 @@ public class FXDrawingSets {
 
     }
 
-    public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
-        if(set != null){
-            drawingSets.get().activeDrawingSet.get().loadDrawingSet(set);
-            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set, drawingSets.get());
-        }
-    }
-
-    public void changeColourSplitter(ColourSeperationHandler oldValue, ColourSeperationHandler newValue, DrawingSets drawingSets){
+    public void changeColourSplitter(DBTaskContext context, ColourSeperationHandler oldValue, ColourSeperationHandler newValue, DrawingSets drawingSets){
         if(oldValue == newValue){
             return;
         }
         if(oldValue.wasApplied()){
-            oldValue.resetSettings(drawingSets);
+            oldValue.resetSettings(context, drawingSets);
             oldValue.setApplied(false);
         }
 
         if(newValue.onUserSelected()){
-            newValue.applySettings(drawingSets);
+            newValue.applySettings(context, drawingSets);
             newValue.setApplied(true);
         }
     }

@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -12,13 +13,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
-public interface IDrawingManager {
+public interface ITaskManager {
 
     PlottedDrawing createNewPlottedDrawing();
 
-    PFMTask initPFMTask(ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask);
+    PFMTask initPFMTask(DBTaskContext context, ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask);
 
-    PFMTask initPFMTask(PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask);
+    PFMTask initPFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask);
 
     default void onPlottingTaskStageFinished(PFMTask task, EnumTaskStage stage){}
 

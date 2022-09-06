@@ -1,6 +1,8 @@
 package drawingbot.files.loaders;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.format.FilteredImageData;
 
@@ -9,8 +11,8 @@ import java.io.File;
 
 public class ImageFileLoader extends AbstractFileLoader {
 
-    public ImageFileLoader(File file, boolean internal) {
-        super(file, internal);
+    public ImageFileLoader(DBTaskContext context, File file, boolean internal) {
+        super(context, file, internal);
     }
 
     @Override
@@ -28,11 +30,16 @@ public class ImageFileLoader extends AbstractFileLoader {
         BufferedImage source = BufferedImageLoader.loadImage(file.toString(), internal);
 
         updateMessage("Filtering");
-        FilteredImageData filtered = new FilteredImageData(file, DrawingBotV3.INSTANCE.drawingArea, source);
-        filtered.updateAll(DrawingBotV3.INSTANCE.imgFilterSettings);
+        FilteredImageData filtered = new FilteredImageData(context, file, context.project.getDrawingArea(), source);
+        filtered.updateAll(context.project.getImageSettings());
 
         updateMessage("Finished");
         updateProgress(1, 1);
         return filtered;
+    }
+
+    @Override
+    public String getFileType() {
+        return "Image File";
     }
 }

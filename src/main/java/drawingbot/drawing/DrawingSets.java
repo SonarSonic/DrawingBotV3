@@ -1,5 +1,8 @@
 package drawingbot.drawing;
 
+import drawingbot.api.Hooks;
+import drawingbot.api.IDrawingPen;
+import drawingbot.api.IDrawingSet;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
@@ -15,7 +18,24 @@ import java.util.List;
 
 public class DrawingSets implements IProperties {
 
+    ///////////////////////////////////////////////
+
     public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
+
+    public ObservableDrawingSet getActiveDrawingSet() {
+        return activeDrawingSet.get();
+    }
+
+    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSetProperty() {
+        return activeDrawingSet;
+    }
+
+    public void setActiveDrawingSet(ObservableDrawingSet activeDrawingSet) {
+        this.activeDrawingSet.set(activeDrawingSet);
+    }
+
+    ///////////////////////////////////////////////
+
     public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
     {
         drawingSetSlots.get().addListener((InvalidationListener) observable -> {
@@ -26,6 +46,20 @@ public class DrawingSets implements IProperties {
             }
         });
     }
+
+    public ObservableList<ObservableDrawingSet> getDrawingSetSlots() {
+        return drawingSetSlots.get();
+    }
+
+    public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlotsProperty() {
+        return drawingSetSlots;
+    }
+
+    public void setDrawingSetSlots(ObservableList<ObservableDrawingSet> drawingSetSlots) {
+        this.drawingSetSlots.set(drawingSetSlots);
+    }
+
+    ///////////////////////////////////////////////
 
     public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
 
@@ -61,6 +95,13 @@ public class DrawingSets implements IProperties {
             }
         }
         return null;
+    }
+
+    public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
+        if(set != null){
+            activeDrawingSet.get().loadDrawingSet(set);
+            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set, this);
+        }
     }
 
     public DrawingSets copy(){

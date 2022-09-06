@@ -2,6 +2,7 @@ package drawingbot.files.json;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import drawingbot.DrawingBotV3;
 import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.MasterRegistry;
@@ -26,7 +27,7 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
         GenericPreset<O> defaultPreset = getDefaultPreset();
         AbstractPresetManager<O> presetManager = getDefaultManager();
         if(defaultPreset != null && presetManager != null){
-            presetManager.applyPreset(defaultPreset);
+            presetManager.applyPreset(DrawingBotV3.context(), defaultPreset);
         }
     }
 
@@ -111,7 +112,7 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
      * @return the presets data, from the given json element
      */
     @Override
-    public O fromJsonElement(Gson gson,  GenericPreset<?> preset, JsonElement element){
+    public O fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element){
         return gson.fromJson(element, getType());
     }
 

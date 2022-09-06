@@ -6,6 +6,7 @@ import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.IConfigData;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 
@@ -25,12 +26,12 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
         registerTypes();
         setDefaultManager(new AbstractPresetManager<>(this) {
             @Override
-            public GenericPreset<IConfigData> updatePreset(GenericPreset<IConfigData> preset) {
+            public GenericPreset<IConfigData> updatePreset(DBTaskContext context, GenericPreset<IConfigData> preset) {
                 return configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.updatePreset(preset);
             }
 
             @Override
-            public void applyPreset(GenericPreset<IConfigData> preset) {
+            public void applyPreset(DBTaskContext context, GenericPreset<IConfigData> preset) {
                 configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.applyPreset(preset);
             }
         });

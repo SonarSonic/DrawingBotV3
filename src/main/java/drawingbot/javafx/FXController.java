@@ -4,6 +4,10 @@ import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
 import drawingbot.files.*;
+import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.javafx.controllers.*;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
@@ -14,11 +18,15 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
+import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.*;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -27,6 +35,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
 import javafx.scene.control.*;
 
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -35,9 +44,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
+import org.fxmisc.easybind.EasyBind;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
@@ -64,17 +75,6 @@ public class FXController {
     public void initialize(){
         DrawingBotV3.logger.entering("FX Controller", "initialize");
 
-        drawingAreaController.drawingArea.set(DrawingBotV3.INSTANCE.drawingArea);
-
-        imageFiltersController.settings.set(DrawingBotV3.INSTANCE.imgFilterSettings);
-        imageFiltersController.image.bind(DrawingBotV3.INSTANCE.openImage);
-
-        pfmSettingsController.pfmSettings.set(DrawingBotV3.INSTANCE.pfmSettings);
-
-        drawingSetsController.drawingSets.set(DrawingBotV3.INSTANCE.drawingSets);
-
-        versionControlController.projectVersions.set(DrawingBotV3.INSTANCE.projectVersions);
-
         try{
             Hooks.runHook(Hooks.FX_CONTROLLER_PRE_INIT, this);
             initToolbar();
@@ -92,6 +92,16 @@ public class FXController {
         }
 
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
+    }
+
+    public void setupBindings(){
+        drawingAreaController.drawingArea.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.drawingArea));
+        imageFiltersController.settings.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.imageSettings));
+        imageFiltersController.image.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.openImage));
+        pfmSettingsController.pfmSettings.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.pfmSettings));
+        drawingSetsController.drawingSets.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.drawingSets));
+        versionControlController.projectVersions.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.projectVersions));
+        JFXShapeManager.INSTANCE.activeShapeList.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.maskingSettings.get().shapeList));
     }
 
     public Stage exportSettingsStage;
@@ -124,6 +134,7 @@ public class FXController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////GLOBAL CONTAINERS
     public VBox vBoxMain = null;
+    public SplitPane splitPane = null;
 
     public ScrollPane scrollPaneSettings = null;
     public VBox vBoxSettings = null;
@@ -133,6 +144,9 @@ public class FXController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// TOOL BAR
 
+    public TabPane tabPaneProjects = null;
+
+    public MenuBar menuBar = null;
     public Menu menuFile = null;
     public Menu menuView = null;
     public Menu menuFilters = null;
@@ -142,27 +156,34 @@ public class FXController {
     public Map<TitledPane, Node> settingsContent = new LinkedHashMap<>();
 
     public void initToolbar(){
-        MenuItem menuOpen = new MenuItem("Open Project");
-        menuOpen.setOnAction(e -> FXHelper.importPreset(Register.PRESET_TYPE_PROJECT, true, false));
+
+        FontAwesome fontAwesome = new FontAwesome();
+
+        MenuItem menuNew = new MenuItem("New");
+        menuNew.setOnAction(e -> {
+            ObservableProject project = new ObservableProject();
+            DrawingBotV3.INSTANCE.activeProjects.add(project);
+            DrawingBotV3.INSTANCE.activeProject.set(project);
+        });
+        menuNew.setGraphic(fontAwesome.create(FontAwesome.Glyph.FILE).color(Color.SLATEGRAY));
+        menuNew.setAccelerator(KeyCombination.valueOf("Ctrl + N"));
+        menuFile.getItems().add(menuNew);
+
+        MenuItem menuOpen = new MenuItem("Open");
+        menuOpen.setOnAction(e -> FXHelper.importProject());
+        menuOpen.setGraphic(fontAwesome.create(FontAwesome.Glyph.FOLDER_OPEN).color(Color.SLATEGRAY));
+        menuOpen.setAccelerator(KeyCombination.valueOf("Ctrl + O"));
         menuFile.getItems().add(menuOpen);
 
-        MenuItem menuSave = new MenuItem("Save Project");
-        menuSave.disableProperty().bind(DrawingBotV3.INSTANCE.currentDrawing.isNull());
-        menuSave.setOnAction(e -> {
-            File folder = FileUtils.getExportDirectory();
-            String projectName = "New Project";
-
-            PlottedDrawing renderedDrawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
-            if(renderedDrawing != null){
-                File originalFile = renderedDrawing.getOriginalFile();
-                if(originalFile != null){
-                    folder = originalFile.getParentFile();
-                    projectName = FileUtils.removeExtension(originalFile.getName());
-                }
-            }
-            FXHelper.exportProject(folder, projectName);
-        });
+        MenuItem menuSave = new MenuItem("Save");
+        menuSave.setOnAction(e -> FXHelper.saveProject());
+        menuSave.setGraphic(fontAwesome.create(FontAwesome.Glyph.SAVE).color(Color.SLATEGRAY));
+        menuSave.setAccelerator(KeyCombination.valueOf("Ctrl + S"));
         menuFile.getItems().add(menuSave);
+
+        MenuItem menuSaveAs = new MenuItem("Save As");
+        menuSaveAs.setOnAction(e -> FXHelper.saveProjectAs());
+        menuFile.getItems().add(menuSaveAs);
 
         menuFile.getItems().add(new SeparatorMenuItem());
         /*
@@ -198,16 +219,16 @@ public class FXController {
         for(ExportTask.Mode exportMode : ExportTask.Mode.values()){
             Menu menuExport = new Menu(exportMode.getDisplayName());
             for(DrawingExportHandler.Category category : DrawingExportHandler.Category.values()){
-                for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
+                for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers.values()){
                     if(format.category != category){
                         continue;
                     }
                     if(format.isPremium && !FXApplication.isPremiumEnabled){
-                        MenuItem item = new MenuItem(format.displayName + " (Premium)");
+                        MenuItem item = new MenuItem(format.description + " (Premium)");
                         item.setOnAction(e -> showPremiumFeatureDialog());
                         menuExport.getItems().add(item);
                     }else{
-                        MenuItem item = new MenuItem(format.displayName);
+                        MenuItem item = new MenuItem(format.description);
                         item.setOnAction(e -> FXHelper.exportFile(format, exportMode));
                         menuExport.getItems().add(item);
                     }
@@ -216,7 +237,7 @@ public class FXController {
                     menuExport.getItems().add(new SeparatorMenuItem());
                 }
             }
-            menuExport.disableProperty().bind(DrawingBotV3.INSTANCE.currentDrawing.isNull());
+            menuExport.disableProperty().bind(Bindings.isNull(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing)));
             menuFile.getItems().add(menuExport);
         }
 
@@ -226,11 +247,11 @@ public class FXController {
 
         MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
         menuExportToVPype.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
+            if(DrawingBotV3.project().getCurrentDrawing() != null){
                 vpypeSettingsStage.show();
             }
         });
-        menuExportToVPype.disableProperty().bind(DrawingBotV3.INSTANCE.currentDrawing.isNull());
+        menuExportToVPype.disableProperty().bind(Bindings.isNull(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing)));
 
         menuFile.getItems().add(menuExportToVPype);
 
@@ -250,6 +271,7 @@ public class FXController {
 
         MenuItem menuQuit = new MenuItem("Quit");
         menuQuit.setOnAction(e -> Platform.exit());
+        menuQuit.setGraphic(fontAwesome.create(FontAwesome.Glyph.CLOSE).color(Color.SLATEGRAY));
         menuFile.getItems().add(menuQuit);
 
         //view
@@ -259,8 +281,11 @@ public class FXController {
                 allPanes.add((TitledPane) node);
             }
         }
+        FXHelper.makePersistent(allPanes);
+
         MenuItem fullScreen = new MenuItem("Fullscreen Mode");
         fullScreen.setOnAction(a -> FXApplication.primaryStage.setFullScreen(!FXApplication.primaryStage.isFullScreen()));
+        fullScreen.setAccelerator(KeyCombination.valueOf("Ctrl + F"));
         menuView.getItems().add(fullScreen);
         menuView.getItems().add(new SeparatorMenuItem());
 
@@ -276,21 +301,30 @@ public class FXController {
                 Stage currentStage = settingsStages.get(pane);
                 if(currentStage == null){
 
+                    Node content = pane.getContent();
+
+                    boolean allowResizing = content instanceof VBox;
+
                     //create the stage
                     Stage settingsStage = new Stage(StageStyle.DECORATED);
                     settingsStage.initModality(Modality.NONE);
                     settingsStage.initOwner(FXApplication.primaryStage);
                     settingsStage.setTitle(pane.getText());
-                    settingsStage.setResizable(false);
+                    settingsStage.setResizable(allowResizing);
 
                     //create the root node
                     ScrollPane scrollPane = new ScrollPane();
                     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                     scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-                    scrollPane.setPrefWidth(420);
+                    if(allowResizing){
+                        scrollPane.setFitToWidth(true);
+                        scrollPane.setFitToHeight(true);
+                        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+                        HBox.setHgrow(scrollPane, Priority.ALWAYS);
+                        scrollPane.setPrefWidth(420);
+                    }
 
                     //transfer the content
-                    Node content = pane.getContent();
                     pane.setAnimated(false);
                     pane.setExpanded(true);
                     pane.layout();
@@ -334,7 +368,7 @@ public class FXController {
 
             for(GenericFactory<BufferedImageOp> factory : entry.getValue()){
                 MenuItem item = new MenuItem(factory.getName());
-                item.setOnAction(e -> FXHelper.addImageFilter(factory, DrawingBotV3.INSTANCE.imgFilterSettings));
+                item.setOnAction(e -> FXHelper.addImageFilter(factory, DrawingBotV3.project().imageSettings.get()));
                 type.getItems().add(item);
             }
 
@@ -351,15 +385,81 @@ public class FXController {
 
         MenuItem documentation = new MenuItem("View Documentation");
         documentation.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_HOME));
+        documentation.setGraphic(fontAwesome.create(FontAwesome.Glyph.INFO).color(Color.SLATEGRAY));
         menuHelp.getItems().add(documentation);
 
         MenuItem sourceCode = new MenuItem("View Source Code");
         sourceCode.setOnAction(e -> FXHelper.openURL(DBConstants.URL_GITHUB_REPO));
+        sourceCode.setGraphic(fontAwesome.create(FontAwesome.Glyph.CODE).color(Color.SLATEGRAY));
         menuHelp.getItems().add(sourceCode);
 
         MenuItem configFolder = new MenuItem("Open Configs Folder");
         configFolder.setOnAction(e -> FXHelper.openFolder(new File(FileUtils.getUserDataDirectory())));
+        configFolder.setGraphic(fontAwesome.create(FontAwesome.Glyph.FOLDER).color(Color.SLATEGRAY));
         menuHelp.getItems().add(configFolder);
+
+
+        if(!FXApplication.isPremiumEnabled){
+            MenuItem upgrade = new MenuItem("Upgrade");
+            upgrade.setOnAction(e -> FXHelper.openURL(DBConstants.URL_UPGRADE));
+            upgrade.setGraphic(fontAwesome.create(FontAwesome.Glyph.ARROW_UP).color(Color.SLATEGRAY));
+            menuHelp.getItems().add(upgrade);
+        }
+
+        DrawingBotV3.INSTANCE.activeProjects.forEach(this::onProjectAdded);
+        DrawingBotV3.INSTANCE.activeProjects.addListener((ListChangeListener<ObservableProject>) c -> {
+            while(c.next()){
+                c.getRemoved().forEach(this::onProjectRemoved);
+                c.getAddedSubList().forEach(this::onProjectAdded);
+            }
+        });
+
+        tabPaneProjects.minHeightProperty().bind(Bindings.createDoubleBinding(() -> DrawingBotV3.INSTANCE.activeProjects.size() > 1 ? 27D : 0D, DrawingBotV3.INSTANCE.activeProjects));
+        tabPaneProjects.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            ObservableProject project = (ObservableProject) newValue.getProperties().get(ObservableProject.class);
+            DrawingBotV3.INSTANCE.activeProject.set(project);
+        });
+        DrawingBotV3.INSTANCE.activeProject.addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                tabPaneProjects.getSelectionModel().select(newValue.tab.get());
+            }
+        });
+
+    }
+
+    public void onProjectRemoved(ObservableProject project){
+        Tab tab = project.tab.get();
+        tabPaneProjects.getTabs().remove(tab);
+    }
+
+    public void onProjectAdded(ObservableProject project){
+        Tab tab = new Tab();
+        tab.textProperty().bind(project.name);
+        tab.setContextMenu(new ContextMenuObservableProject(() -> DrawingBotV3.INSTANCE.activeProjects, () -> project));
+
+        /*
+        tab.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue && DrawingBotV3.INSTANCE.activeProject.get() != project){
+                DrawingBotV3.INSTANCE.activeProject.set(project);
+            }
+        });
+
+         */
+        tab.getProperties().put(ObservableProject.class, project);
+        tab.setOnClosed(e -> {
+            DrawingBotV3.INSTANCE.activeProjects.remove(project);
+            if(DrawingBotV3.INSTANCE.activeProjects.isEmpty()){
+                DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
+                DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
+            }else{
+                DrawingBotV3.INSTANCE.activeProject.set(DrawingBotV3.INSTANCE.activeProjects.get(0));
+            }
+        });
+        tab.setClosable(true);
+        tabPaneProjects.getTabs().add(tab);
+        project.tab.set(tab);
+
+        DrawingBotV3.INSTANCE.activeProject.set(project);
     }
 
     public void redockSettingsPane(TitledPane pane){
@@ -375,6 +475,7 @@ public class FXController {
 
     ////VIEWPORT WINDOW
     public VBox vBoxViewportContainer = null;
+    public NotificationPane notificationPane = null;
     public ZoomableScrollPane viewportScrollPane = null;
     public AnchorPane viewportOverlayAnchorPane = null;
 
@@ -406,7 +507,7 @@ public class FXController {
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMax = lines;
@@ -416,7 +517,7 @@ public class FXController {
         });
 
         rangeSliderDisplayedLines.lowValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMin = lines;
@@ -426,7 +527,7 @@ public class FXController {
         });
 
         textFieldDisplayedShapesMax.setOnAction(e -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
                 drawing.displayedShapeMax = lines;
@@ -437,7 +538,7 @@ public class FXController {
         });
 
         textFieldDisplayedShapesMin.setOnAction(e -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
             if(drawing != null){
                 int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
                 drawing.displayedShapeMin = lines;
@@ -446,8 +547,7 @@ public class FXController {
                 DrawingBotV3.INSTANCE.reRender();
             }
         });
-
-        DrawingBotV3.INSTANCE.currentDrawing.addListener((observable, oldValue, newValue) -> {
+        EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing).addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Platform.runLater(() -> {
                     rangeSliderDisplayedLines.setLowValue(0.0F);
@@ -469,15 +569,23 @@ public class FXController {
 
         });
 
-        checkBoxApplyToExport.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.exportRange);
+        DrawingBotV3.INSTANCE.activeProject.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                checkBoxApplyToExport.selectedProperty().unbindBidirectional(oldValue.exportRange);
+                comboBoxBlendMode.valueProperty().unbindBidirectional(oldValue.blendMode);
+                toggleDPIScaling.selectedProperty().unbindBidirectional(oldValue.dpiScaling);
+            }
+            if(newValue != null){
+                checkBoxApplyToExport.selectedProperty().bindBidirectional(newValue.exportRange);
+                comboBoxBlendMode.valueProperty().bindBidirectional(newValue.blendMode);
+                toggleDPIScaling.selectedProperty().bindBidirectional(newValue.dpiScaling);
+            }
+        });
 
         choiceBoxDisplayMode.getItems().addAll(MasterRegistry.INSTANCE.displayModes.filtered(d->!d.isHidden()));
         choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.displayMode);
 
         comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
-        comboBoxBlendMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.blendMode);
-
-        toggleDPIScaling.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.dpiScaling);
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
         /*
@@ -513,11 +621,13 @@ public class FXController {
 
         viewportScrollPane.contentProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
+
+                ObservableObjectValue<Color> backgroundColor = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.backgroundColor);
                 newValue.styleProperty().unbind();
                 newValue.styleProperty().bind(Bindings.createStringBinding(() -> {
-                    Color c = DrawingBotV3.INSTANCE.drawingArea.backgroundColor.get();
+                    Color c = backgroundColor.get();
                     return "-fx-background-color: rgb(" + (int)(c.getRed()*255) + "," + (int)(c.getGreen()*255) + ", " + (int)(c.getBlue()*255) + ", " + c.getOpacity() + ");";
-                }, DrawingBotV3.INSTANCE.drawingArea.backgroundColor));
+                }, backgroundColor));
             }
         });
 
@@ -546,9 +656,6 @@ public class FXController {
         viewportOverlayAnchorPane.setClip(overlayClip);
         viewportOverlayAnchorPane.getStylesheets().add(FXController.class.getResource(STYLESHEET_VIEWPORT_OVERLAYS).toExternalForm());
 
-
-
-
         vBoxViewportContainer.getChildren().add(viewportScrollPane);
         vBoxViewportContainer.getChildren().add(viewportOverlayAnchorPane);
 
@@ -566,7 +673,7 @@ public class FXController {
             boolean success = false;
             if(db.hasFiles()){
                 List<File> files = db.getFiles();
-                DrawingBotV3.INSTANCE.openFile(files.get(0), false, true);
+                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, true);
                 success = true;
             }
             event.setDropCompleted(success);
@@ -652,14 +759,16 @@ public class FXController {
     public Button buttonSaveVersion = null;
 
     public void initPlottingControls(){
-        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting());
+        buttonStartPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.startPlotting(DrawingBotV3.context()));
         buttonStartPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting);
-        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting());
+        buttonStopPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.stopPlotting(DrawingBotV3.context()));
         buttonStopPlotting.disableProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isPlotting.not());
-        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting());
+        buttonResetPlotting.setOnAction(param -> DrawingBotV3.INSTANCE.resetPlotting(DrawingBotV3.context()));
+
+        Binding<PlottedDrawing> binding = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing);
 
         buttonSaveVersion.setOnAction(param -> versionControlController.saveVersion());
-        buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.currentDrawing.get() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.currentDrawing));
+        buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || binding.getValue() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, binding));
     }
 
 

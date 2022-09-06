@@ -8,7 +8,6 @@ import drawingbot.geom.operation.GeometryOperationOptimize;
 import drawingbot.geom.operation.GeometryOperationSimplify;
 import drawingbot.geom.operation.GeometryOperationUnsimplify;
 import drawingbot.geom.shapes.*;
-import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import org.junit.Assert;
@@ -25,8 +24,8 @@ public class PlottedDrawingTests {
     @Before
     public void createDrawing() {
         SimpleCanvas canvas = new SimpleCanvas(1000, 1000);
-        toCopy = new PlottedDrawing(canvas, DrawingBotV3.INSTANCE.drawingSets);
-        toCopy.newPlottedGroup(DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get(), null);
+        toCopy = new PlottedDrawing(canvas, DrawingBotV3.project().getDrawingSets());
+        toCopy.newPlottedGroup(DrawingBotV3.project().getDrawingSets().activeDrawingSet.get(), null);
         toCopy.addGeometry(new GCubicCurve(50, 50, 100, 100, 100, 100, 50, 50));
         toCopy.addGeometry(new GLine(0, 0, 1000, 1000));
         toCopy.addGeometry(new GEllipse(50, 50, 100, 100));
@@ -53,7 +52,7 @@ public class PlottedDrawingTests {
         PlottedDrawing drawing = toCopy.copy();
         Assert.assertEquals(drawing.geometries.size(), toCopy.geometries.size());
         Assert.assertEquals(drawing.groups.size(), toCopy.groups.size());
-        Assert.assertEquals(drawing.metadataMap.size(), toCopy.metadataMap.size());
+        Assert.assertEquals(drawing.metadata.data.size(), toCopy.metadata.data.size());
         Assert.assertEquals(drawing.vertexCount, toCopy.vertexCount);
         Assert.assertEquals(drawing.displayedShapeMin, toCopy.displayedShapeMin);
         Assert.assertEquals(drawing.displayedShapeMax, toCopy.displayedShapeMax);

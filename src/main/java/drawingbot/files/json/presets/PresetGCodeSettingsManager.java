@@ -5,6 +5,7 @@ import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.DefaultPresetManager;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.UnitsLength;
 
@@ -34,7 +35,7 @@ public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetGCode
     }
 
     @Override
-    public GCodeSettings getInstance() {
+    public GCodeSettings getInstance(DBTaskContext context) {
         return DrawingBotV3.INSTANCE.gcodeSettings;
     }
 }

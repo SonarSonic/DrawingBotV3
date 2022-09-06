@@ -179,13 +179,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(ShapeOverlays.INSTANCE);
 
-        MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
 
         MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
         MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());
@@ -703,13 +703,13 @@ public class Register implements IPlugin {
 
     @Override
     public void registerDrawingExportHandlers(){
-        EXPORT_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "Export SVG (.svg)", true, SVGExporter::exportBasicSVG, FileUtils.FILTER_SVG));
-        EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "Export Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
-        EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "Export Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
-        EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
-        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
-        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
-        EXPORT_REF_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "Export Reference Image File (.png, .jpg, etc.)", false, ImageExporter::exportReferenceImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
+        EXPORT_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "svg_default", "Export SVG (.svg)", true, SVGExporter::exportBasicSVG, FileUtils.FILTER_SVG));
+        EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "svg_inkscape", "Export Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
+        EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_default", "Export Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
+        EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "pdf_default", "Export PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
+        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_default", "Export GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_test", "Export GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_REF_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_reference", "Export Reference Image File (.png, .jpg, etc.)", false, ImageExporter::exportReferenceImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
     }
 
     public static ColourSeperationHandler DEFAULT_COLOUR_SPLITTER;

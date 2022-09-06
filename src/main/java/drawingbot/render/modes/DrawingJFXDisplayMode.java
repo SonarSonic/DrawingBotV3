@@ -17,14 +17,14 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
     public void preRender(JavaFXRenderer jfr) {
         super.preRender(jfr);
         //setup the canvas
-        if(DrawingBotV3.INSTANCE.getRenderedTask() != null && DrawingBotV3.INSTANCE.getRenderedTask().stage != EnumTaskStage.FINISHED){
-            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getRenderedTask().drawing.getCanvas());
-        }else if(DrawingBotV3.INSTANCE.getCurrentDrawing() != null){
-            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.getCurrentDrawing().getCanvas());
-        }else if(DrawingBotV3.INSTANCE.openImage.get() != null) {
-            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.openImage.get().getTargetCanvas());
+        if(DrawingBotV3.taskManager().getRenderedTask() != null && DrawingBotV3.taskManager().getRenderedTask().stage != EnumTaskStage.FINISHED){
+            jfr.setupCanvasSize(DrawingBotV3.taskManager().getRenderedTask().drawing.getCanvas());
+        }else if(DrawingBotV3.taskManager().getCurrentDrawing() != null){
+            jfr.setupCanvasSize(DrawingBotV3.taskManager().getCurrentDrawing().getCanvas());
+        }else if(DrawingBotV3.project().openImage.get() != null) {
+            jfr.setupCanvasSize(DrawingBotV3.project().openImage.get().getTargetCanvas());
         }else{
-            jfr.setupCanvasSize(DrawingBotV3.INSTANCE.drawingArea);
+            jfr.setupCanvasSize(DrawingBotV3.project().drawingArea.get());
         }
     }
 
@@ -32,8 +32,8 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
     public void doRender(JavaFXRenderer jfr) {
         super.doRender(jfr);
 
-        if(DrawingBotV3.INSTANCE.getRenderedTask() != null){
-            PFMTask renderedTask = DrawingBotV3.INSTANCE.getRenderedTask();
+        if(DrawingBotV3.taskManager().getRenderedTask() != null){
+            PFMTask renderedTask = DrawingBotV3.taskManager().getRenderedTask();
             if (renderedTask.stage == EnumTaskStage.DO_PROCESS) {
                 WrappedGeometryIterator iterator = renderedTask.getTaskGeometryIterator();
                 if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
@@ -53,12 +53,12 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
             }
             return;
         }
-        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+        PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
         if(drawing != null){
             if(drawingIterator == null || drawingIterator.currentDrawing != drawing){
                 drawingIterator = new DrawingGeometryIterator(drawing);
             }
-            EnumBlendMode blendMode = DrawingBotV3.INSTANCE.blendMode.get();
+            EnumBlendMode blendMode = DrawingBotV3.project().blendMode.get();
             if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED)) {
                 jfr.clearCanvas();
                 drawingIterator.reset(drawing);

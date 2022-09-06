@@ -20,4 +20,12 @@ public class ImageFilterSettings implements IProperties {
     public ObservableList<Property<?>> getProperties() {
         return observables;
     }
+
+    public ImageFilterSettings copy(){
+        ImageFilterSettings copy = new ImageFilterSettings();
+        for(ObservableImageFilter filter : currentFilters.get()){
+            copy.currentFilters.get().add(new ObservableImageFilter(filter));
+        }
+        return copy;
+    }
 }

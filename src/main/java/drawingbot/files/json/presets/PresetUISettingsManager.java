@@ -1,23 +1,17 @@
 package drawingbot.files.json.presets;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.exporters.GCodeBuilder;
-import drawingbot.files.exporters.GCodeExporter;
-import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.DefaultPresetManager;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.plotting.canvas.ObservableCanvas;
-import drawingbot.registry.Register;
-import drawingbot.utils.EnumOrientation;
-import drawingbot.utils.EnumScalingMode;
-import drawingbot.utils.UnitsLength;
 import javafx.scene.paint.Color;
 
 import java.util.List;
 
-public class PresetUISettingsManager extends DefaultPresetManager<PresetUISettings, DrawingBotV3> {
+public class PresetUISettingsManager extends DefaultPresetManager<PresetUISettings, ObservableProject> {
 
     public PresetUISettingsManager(PresetUISettingsLoader presetLoader) {
         super(presetLoader);
@@ -25,14 +19,14 @@ public class PresetUISettingsManager extends DefaultPresetManager<PresetUISettin
 
     @Override
     public void registerSettings() {
-        registerSetting(GenericSetting.createOptionSetting(DrawingBotV3.class, EnumBlendMode.class, "blendMode", List.of(EnumBlendMode.values()), EnumBlendMode.NORMAL, (settings, value) -> settings.blendMode.set(value)).setGetter(settings -> settings.blendMode.get()));
-        registerSetting(GenericSetting.createColourSetting(DrawingBotV3.class, "canvasColor", Color.WHITE, (settings, value) -> settings.drawingArea.canvasColor.set(value)).setGetter(settings -> settings.drawingArea.canvasColor.get()));
-        registerSetting(GenericSetting.createColourSetting(DrawingBotV3.class, "backgroundColor", ObservableCanvas.backgroundColourDefault, (settings, value) -> settings.drawingArea.backgroundColor.set(value)).setGetter(settings -> settings.drawingArea.backgroundColor.get()));
+        registerSetting(GenericSetting.createOptionSetting(ObservableProject.class, EnumBlendMode.class, "blendMode", List.of(EnumBlendMode.values()), EnumBlendMode.NORMAL, i -> i.blendMode));
+        registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "canvasColor", Color.WHITE, i -> i.drawingArea.get().canvasColor));
+        registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "backgroundColor", ObservableCanvas.backgroundColourDefault, i -> i.drawingArea.get().backgroundColor));
         
     }
 
     @Override
-    public DrawingBotV3 getInstance() {
-        return DrawingBotV3.INSTANCE;
+    public ObservableProject getInstance(DBTaskContext context) {
+        return context.project();
     }
 }

@@ -1,7 +1,7 @@
 package drawingbot.image.format;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
 import drawingbot.plotting.PlottedDrawing;
@@ -21,6 +21,7 @@ import java.io.File;
 
 public class FilteredImageData {
 
+    public DBTaskContext context;
     private final File sourceFile;
     private final ICanvas targetCanvas;
 
@@ -30,15 +31,16 @@ public class FilteredImageData {
     public ICanvas destCanvas;
     public BufferedImage filteredImage;
 
-    public FilteredImageData(File sourceFile, BufferedImage sourceImage){
-        this(sourceFile, DrawingBotV3.INSTANCE.drawingArea, sourceImage);
+    public FilteredImageData(DBTaskContext context, File sourceFile, BufferedImage sourceImage){
+        this(context, sourceFile, context.project.getDrawingArea(), sourceImage);
     }
 
-    public FilteredImageData(File sourceFile, ICanvas destCanvas, BufferedImage sourceImage){
-        this(sourceFile, destCanvas, new SimpleCanvas(sourceImage.getWidth(), sourceImage.getHeight()), sourceImage);
+    public FilteredImageData(DBTaskContext context, File sourceFile, ICanvas destCanvas, BufferedImage sourceImage){
+        this(context, sourceFile, destCanvas, new SimpleCanvas(sourceImage.getWidth(), sourceImage.getHeight()), sourceImage);
     }
 
-    public FilteredImageData(File sourceFile, ICanvas destCanvas, ICanvas sourceCanvas, BufferedImage sourceImage){
+    public FilteredImageData(DBTaskContext context, File sourceFile, ICanvas destCanvas, ICanvas sourceCanvas, BufferedImage sourceImage){
+        this.context = context;
         this.sourceFile = sourceFile;
         this.targetCanvas = destCanvas;
         this.destCanvas = destCanvas;
@@ -109,18 +111,18 @@ public class FilteredImageData {
 
     {
         imageRotation.addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.openImage.get() == this){
-                DrawingBotV3.INSTANCE.onCanvasChanged();
+            if(context.project().openImage.get() == this){
+                context.project().onCanvasChanged();
             }
         });
         imageFlipHorizontal.addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.openImage.get() == this){
-                DrawingBotV3.INSTANCE.onCanvasChanged();
+            if(context.project().openImage.get() == this){
+                context.project().onCanvasChanged();
             }
         });
         imageFlipVertical.addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE.openImage.get() == this){
-                DrawingBotV3.INSTANCE.onCanvasChanged();
+            if(context.project().openImage.get() == this){
+                context.project().onCanvasChanged();
             }
         });
     }

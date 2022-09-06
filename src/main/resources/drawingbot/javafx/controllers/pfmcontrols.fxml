@@ -4,8 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
-   <VBox fillWidth="false" prefWidth="404.0" spacing="8.0">
+<VBox prefWidth="430.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
       <children>
           <Label contentDisplay="RIGHT" graphicTextGap="8.0" prefHeight="25.0" prefWidth="403.0" text="Path Finding Module: ">
               <graphic>
@@ -28,15 +27,14 @@
                 <MenuButton fx:id="menuButtonPFMPresets" mnemonicParsing="false" text="Presets" />
             </children>
          </HBox>
-      
-          <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" prefHeight="237.0" prefWidth="390.0" tableMenuButtonVisible="true">
-              <columns>
-                  <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="132.0" text="Setting" />
-                  <TableColumn fx:id="tableColumnControl" prefWidth="137.0" text="Control" />
-                  <TableColumn fx:id="tableColumnValue" prefWidth="89.0" text="Value" />
-                  <TableColumn fx:id="tableColumnLock" prefWidth="45.0" text="Randomise Exclude" visible="false" />
-              </columns>
-          </TableView>
+      <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" tableMenuButtonVisible="true">
+        <columns>
+          <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="161.0" text="Setting" />
+          <TreeTableColumn fx:id="treeTableColumnControl" minWidth="0.0" prefWidth="152.0" text="Control" />
+            <TreeTableColumn fx:id="treeTableColumnValue" minWidth="0.0" prefWidth="87.0" text="Value" />
+            <TreeTableColumn fx:id="treeTableColumnLock" minWidth="1.0" prefWidth="25.0" text="Randomise Exclude" />
+        </columns>
+      </TreeTableView>
          <HBox prefHeight="25.0" spacing="8.0">
             <children>
                 <Button fx:id="buttonPFMSettingReset" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
@@ -47,14 +45,11 @@
                   </HBox.margin></Button>
             </children>
             <VBox.margin>
-               <Insets left="6.0" />
+               <Insets />
             </VBox.margin>
          </HBox>
-      
-          <Separator prefHeight="3.0" prefWidth="412.0" />
       </children>
       <padding>
-         <Insets left="8.0" top="8.0" />
+         <Insets bottom="10.0" left="8.0" right="30.0" top="10.0" />
       </padding>
-   </VBox>
-</AnchorPane>
+</VBox>

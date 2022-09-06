@@ -4,13 +4,14 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.presets.PresetImageFiltersManager;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controls.ContextMenuObservableFilter;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -30,6 +31,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.NumberStringConverter;
+import org.fxmisc.easybind.EasyBind;
 
 import java.awt.image.BufferedImageOp;
 
@@ -86,7 +88,7 @@ public class FXImageFilters {
         comboBoxImageFilterPreset.setValue(Register.PRESET_LOADER_FILTERS.getDefaultPreset());
         comboBoxImageFilterPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getImageFiltersPresetManager().applyPreset(newValue);
+                getImageFiltersPresetManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
@@ -183,21 +185,21 @@ public class FXImageFilters {
         textFieldCropEndX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldCropEndY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
+        EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(ObservableProject::displayModeProperty).addListener((observable, oldValue, newValue) -> {
             buttonEditCrop.setSelected(newValue == Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING);
         });
 
         buttonEditCrop.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
-                DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING);
-            }else if(DrawingBotV3.INSTANCE.displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING){
-                DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
+                DrawingBotV3.project().displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING);
+            }else if(DrawingBotV3.project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING){
+                DrawingBotV3.project().displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
             }
         });
 
         buttonResetCrop.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.openImage.get() != null){
-                DrawingBotV3.INSTANCE.openImage.get().resetCrop();
+            if(DrawingBotV3.project().openImage.get() != null){
+                DrawingBotV3.project().openImage.get().resetCrop();
             }
         });
 
@@ -214,7 +216,7 @@ public class FXImageFilters {
 
     public final AbstractPresetManager<PresetImageFilters> imageFiltersPresetManager = new PresetImageFiltersManager(Register.PRESET_LOADER_FILTERS) {
         @Override
-        public Property<ObservableList<ObservableImageFilter>> imageFiltersProperty() {
+        public Property<ObservableList<ObservableImageFilter>> imageFiltersProperty(DBTaskContext context) {
             return settings.get().currentFilters;
         }
     };

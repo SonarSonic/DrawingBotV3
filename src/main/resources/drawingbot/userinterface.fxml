@@ -7,9 +7,9 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXController">
+<VBox fx:id="vBoxMain" prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXController">
   <children>
-    <MenuBar VBox.vgrow="NEVER">
+    <MenuBar fx:id="menuBar" VBox.vgrow="NEVER">
       <menus>
         <Menu fx:id="menuFile" mnemonicParsing="false" text="File" />
         <Menu fx:id="menuView" mnemonicParsing="false" text="View" />
@@ -17,27 +17,28 @@
         <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help" />
       </menus>
     </MenuBar>
-      <HBox VBox.vgrow="ALWAYS">
-         <children>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+      <TabPane fx:id="tabPaneProjects" maxHeight="0.0" minHeight="27.0" prefHeight="0.0" prefWidth="1287.0" tabClosingPolicy="ALL_TABS" />
+      <SplitPane fx:id="splitPane" dividerPositions="0.0, 0.5" VBox.vgrow="ALWAYS">
+         <items>
+            <VBox HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
                <children>
                   <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
                         <VBox fx:id="vBoxSettings" prefWidth="404.0">
                            <children>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
+                              <TitledPane fx:id="titledPaneDrawingArea" expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
                                    <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />
                               </TitledPane>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
+                              <TitledPane fx:id="titledPaneImageProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
                                    <fx:include fx:id="imageFilters" source="javafx/controllers/imagefilters.fxml" />
                               </TitledPane>
-                              <TitledPane expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
+                              <TitledPane fx:id="titledPanePathFindingControls" expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
                                    <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml" />
                               </TitledPane>
-                              <TitledPane maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
+                              <TitledPane fx:id="titledPanePenSettings" maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
                                  <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml" />
                               </TitledPane>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
+                              <TitledPane fx:id="titledPaneVersionControl" expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
                                     <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
                               </TitledPane>
                               <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Batch Processing">
@@ -49,7 +50,7 @@
                   </ScrollPane>
                   <Pane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="43.0" prefWidth="419.0" VBox.vgrow="NEVER">
                      <children>
-                        <Button fx:id="buttonStartPlotting" layoutX="9.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" style="-fx-base: -fx-default-button;" text="Start" />
+                        <Button fx:id="buttonStartPlotting" layoutX="9.0" layoutY="8.0" prefHeight="25.0" prefWidth="88.0" style="-fx-base: -fx-default-button;" text="Start" />
                         <Button fx:id="buttonStopPlotting" cancelButton="true" layoutX="104.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Stop" />
                         <Button fx:id="buttonResetPlotting" cancelButton="true" layoutX="198.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Reset" />
                         <Button fx:id="buttonSaveVersion" cancelButton="true" layoutX="317.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Save Version" />
@@ -153,8 +154,9 @@
                   </HBox>
                </children>
             </VBox>
-         </children>
-      </HBox>
+            <NotificationPane fx:id="notificationPane" prefHeight="200.0" prefWidth="200.0" />
+         </items>
+      </SplitPane>
      <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
         <children>
            <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="1.0" />

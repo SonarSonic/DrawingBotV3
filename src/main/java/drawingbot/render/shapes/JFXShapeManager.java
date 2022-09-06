@@ -1,5 +1,6 @@
 package drawingbot.render.shapes;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.actions.IAction;
 import drawingbot.api_impl.actions.ActionGrouped;
 import drawingbot.render.overlays.ShapeOverlays;
@@ -15,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
+import org.fxmisc.easybind.EasyBind;
 
 import java.awt.geom.AffineTransform;
 import java.util.*;
@@ -24,7 +26,6 @@ public class JFXShapeManager{
     public static final Map<UUID, JFXShapeList> globalShapeListMap = new HashMap<>();
     public static final JFXShapeManager INSTANCE = new JFXShapeManager();
 
-    public final JFXShapeList globalShapeList = new JFXShapeList();
     public final SimpleBooleanProperty hasSelection = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<JFXShapeList> activeShapeList = new SimpleObjectProperty<>();
 
@@ -43,11 +44,12 @@ public class JFXShapeManager{
                 displayedShapes.clear();
                 //oldValue.actionManager.wipeHistory();
             }
-            newValue = newValue == null ? globalShapeList : newValue;
-            newValue.getShapeList().addListener(geometryListListener);
-            newValue.getShapeList().forEach(this::onGeometryAdded);
+            if(newValue != null){
+                //newValue = newValue == null ? globalShapeList : newValue;
+                newValue.getShapeList().addListener(geometryListListener);
+                newValue.getShapeList().forEach(this::onGeometryAdded);
+            }
         });
-        activeShapeList.setValue(globalShapeList);
 
         displayedShapes.addListener(this::onDisplayedListChanged);
         selectedShapes.addListener(this::onSelectionListChanged);

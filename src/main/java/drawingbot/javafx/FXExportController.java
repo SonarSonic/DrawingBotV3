@@ -6,7 +6,6 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.exporters.GCodeBuilder;
-import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.json.presets.PresetGCodeSettings;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
@@ -18,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
+import org.fxmisc.easybind.EasyBind;
 
 public class FXExportController {
 
@@ -106,7 +106,7 @@ public class FXExportController {
         choiceBoxFilterUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
         choiceBoxFilterUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineFilteringUnits = newValue);
 
-        //sort
+        ///sort
 
         checkBoxSort.setSelected(ConfigFileHandler.getApplicationSettings().lineSortingEnabled);
         checkBoxSort.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingEnabled = newValue);
@@ -165,7 +165,7 @@ public class FXExportController {
         comboBoxGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
         comboBoxGCodePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultManager().tryApplyPreset(newValue);
+                Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
@@ -256,7 +256,7 @@ public class FXExportController {
             ConfigFileHandler.getApplicationSettings().exportDPI = Float.parseFloat(newValue);
             updateImageSequenceStats();
         });
-        textFieldDPI.disableProperty().bind(DrawingBotV3.INSTANCE.drawingArea.useOriginalSizing);
+        textFieldDPI.disableProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.useOriginalSizing));
         
         textFieldFPS.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 25F));
         textFieldFPS.setText("" + ConfigFileHandler.getApplicationSettings().framesPerSecond);
@@ -301,7 +301,7 @@ public class FXExportController {
     }
 
     public void updateImageSequenceStats(){
-        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+        PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
 
         int frameCount = ConfigFileHandler.getApplicationSettings().getFrameCount();
         int geometriesPerFrame = drawing == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(drawing.getGeometryCount());
@@ -312,9 +312,9 @@ public class FXExportController {
             frameCount = (int) drawing.getVertexCount();
         }
         
-        if(DrawingBotV3.INSTANCE.openImage.get() != null){
-            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.INSTANCE.openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
-            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.INSTANCE.openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+        if(DrawingBotV3.project().openImage.get() != null){
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.project().openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.project().openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
             labelExportSize.setText(exportWidth + " x " + exportHeight);
         }else{
             labelExportSize.setText("0 x 0");
@@ -351,6 +351,7 @@ public class FXExportController {
 
     public TextField textFieldHPGLPenSpeed = null;
     public TextField textFieldHPGLPenNumber = null;
+    public TextField textFieldHPGLPenForce = null;
 
 
     public void initHPGLSettingsPane(){

@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.PresetType;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.MasterRegistry;
@@ -23,7 +24,7 @@ public class PresetVpypeSettingsLoader extends AbstractPresetLoader<PresetVpypeS
             }
 
             @Override
-            public VpypeSettings getInstance() {
+            public VpypeSettings getInstance(DBTaskContext context) {
                 return DrawingBotV3.INSTANCE.vpypeSettings;
             }
         });
@@ -41,6 +42,6 @@ public class PresetVpypeSettingsLoader extends AbstractPresetLoader<PresetVpypeS
 
     public static GenericPreset<PresetVpypeSettings> getPresetOrDefault(String presetName){
         Optional<GenericPreset<PresetVpypeSettings>> preset = Register.PRESET_LOADER_VPYPE_SETTINGS.presets.stream().filter(p -> p.presetName.equals(presetName)).findFirst();
-        return preset.orElseGet(Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultPreset);
+        return preset.orElseGet(() -> Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
     }
 }

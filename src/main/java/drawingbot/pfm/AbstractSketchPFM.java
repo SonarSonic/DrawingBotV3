@@ -2,16 +2,19 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.GLine;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     //user settings
-    public int squiggleLength;
-    public float squiggleDeviation;
+    public int squiggleMinLength;
+    public int squiggleMaxLength;
+    public float squiggleMaxDeviation;
 
     public int adjustbrightness;
     public float lineDensity;
@@ -22,6 +25,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public int maxLines;
 
     public boolean shouldLiftPen;
+    public boolean shouldDrawMoves;
+
+    public float directionality;
+    public float distortion;
+    public float angularity;
 
     //process specific
     public double initialLuminance;
@@ -44,6 +52,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             minLineLength = maxLineLength;
             maxLineLength = value;
         }
+        if(squiggleMaxLength < squiggleMinLength){
+            int value = squiggleMinLength;
+            squiggleMinLength = squiggleMaxLength;
+            squiggleMaxLength = value;
+        }
         initialLuminance = this.tools.getPixelData().getAverageLuminance();
     }
 
@@ -51,32 +64,47 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public BiConsumer<IPixelData, int[]> findDarkestMethod = AbstractDarkestPFM::findDarkestArea;
+    public int[] last = new int[]{-1, -1};
     public int[] current = new int[]{-1, -1};
     public int[] darkest = new int[]{-1, -1};
 
     @Override
     public void run() {
         while(!tools.isFinished()){
-            findDarkestMethod.accept(tools.getPixelData(), darkest);
+            if(shouldLiftPen || current[0] == -1){
+                findDarkestMethod.accept(tools.getPixelData(), darkest);
+                if(shouldDrawMoves){
+                    addSegments(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness, null);
+                }
+            }else{
+                findDarkestNeighbour(tools.getPixelData(), last, current, darkest);
+                addSegments(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness, null);
+                tools.getPixelData().adjustLuminance(current[0], current[1], 1);
 
-            if(!shouldLiftPen && current[0] != -1){
-                addGeometry(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness);
+                last[0] = current[0];
+                last[1] = current[1];
+
+                current[0] = darkest[0];
+                current[1] = darkest[1];
             }
 
             float initialDarkness = tools.getPixelData().getLuminance(darkest[0], darkest[1]);
-            float allowableDarkness = initialDarkness + Math.max(1, 255*squiggleDeviation);
+            float allowableDarkness = initialDarkness + Math.max(1, 255 * squiggleMaxDeviation);
+
+            last[0] = current[0];
+            last[1] = current[1];
 
             current[0] = darkest[0];
             current[1] = darkest[1];
 
             beginSquiggle();
 
-            for (int s = 0; s < squiggleLength; s++) {
+            for (int s = 0; s < squiggleMaxLength; s++) {
 
-                float next = findDarkestNeighbour(tools.getPixelData(), current, darkest);
+                float next = findDarkestNeighbour(tools.getPixelData(), last, current, darkest);
 
                 //if the first line has been drawn and the next neighbour isn't dark enough to add to the squiggle, end it prematurely
-                if(s > 3 && (next == -1 || next > allowableDarkness || next > tools.getPixelData().getAverageLuminance())){
+                if(s > 3 && (s >= squiggleMinLength - 1) && (next == -1 || next > allowableDarkness || next > tools.getPixelData().getAverageLuminance())){
                     endSquiggle();
 
                     //there are no valid lines from this point, brighten it slightly so we don't test it again immediately.
@@ -84,10 +112,17 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
                     break;
                 }
 
-                addGeometry(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness);
+                if(next != -1){
+                    addSegments(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness, null); //TODO
 
-                current[0] = darkest[0];
-                current[1] = darkest[1];
+                    last[0] = current[0];
+                    last[1] = current[1];
+
+                    current[0] = darkest[0];
+                    current[1] = darkest[1];
+                }else{
+                    break;
+                }
 
                 if(updateProgress(tools) || tools.isFinished()){
                     endSquiggle();
@@ -110,7 +145,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         //used by Curve PFMs
     }
 
-    public void addGeometry(IPixelData pixelData, int x1, int y1, int x2, int y2, int adjust){
+    public void addSegments(IPixelData pixelData, int x1, int y1, int x2, int y2, int adjust, Consumer<IGeometry> segments){
         addGeometryWithColourSamples(pixelData, new GLine(x1, y1, x2, y2), adjust);
     }
 
@@ -129,7 +164,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     /**
      * @return returns the darkness of this new neighbour
      */
-    protected abstract float findDarkestNeighbour(IPixelData pixels, int[] point, int[] darkestDst);
+    protected abstract float findDarkestNeighbour(IPixelData pixels, int[] lastPoint, int[] currentPoint, int[] darkestDst);
 
     @Override
     public int minLineLength() {
