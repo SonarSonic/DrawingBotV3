@@ -11,9 +11,11 @@ import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.UnitsLength;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
+import org.locationtech.jts.linearref.LinearGeometryBuilder;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 import java.awt.geom.AffineTransform;
@@ -49,7 +51,15 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                 if(!(entry.getKey().source instanceof ICustomPen)){
 
                     if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
-                        entry.getValue().forEach(geometry -> newDrawing.addGeometry(geometry.copyGeometry(), newGroup));
+                        entry.getValue().forEach(geometry -> {
+                            IGeometry newGeometry;
+                            if(ConfigFileHandler.getApplicationSettings().multipassEnabled){
+                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, ConfigFileHandler.getApplicationSettings().multipassCount);
+                            }else{
+                                newGeometry = geometry.copyGeometry();
+                            }
+                            newDrawing.addGeometry(newGeometry, newGroup);
+                        });
                     }else{
                         List<IGeometry> geometries = optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback);
                         for(IGeometry geometry : geometries){
@@ -120,6 +130,27 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             progressCallback.updateTitle("Line Filtering: ");
             float tolerance = UnitsLength.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, UnitsLength.MILLIMETRES);
             lineStrings = lineFilter(lineStrings, tolerance, progressCallback);
+        }
+
+        if(settings.multipassEnabled && settings.multipassCount > 1){
+            LinearGeometryBuilder builder = new LinearGeometryBuilder(GeometryUtils.factory);
+            for(LineString oldString : lineStrings){
+
+                for(int i = 0; i < settings.multipassCount; i ++){
+                    Coordinate[] coordinates = oldString.getCoordinates();
+                    if((i % 2) == 0){ //if the pass is even
+                        for(int c = 0; c < coordinates.length; c++){
+                            builder.add(coordinates[c]);
+                        }
+                    }else{ //if the pass is odd
+                        for(int c = coordinates.length-1; c >= 0; c--){
+                            builder.add(coordinates[c]);
+                        }
+                    }
+                }
+                builder.endLine();
+            }
+            lineStrings = LinearComponentExtracter.getLines(builder.getGeometry(), true);
         }
 
         if(settings.lineSortingEnabled){

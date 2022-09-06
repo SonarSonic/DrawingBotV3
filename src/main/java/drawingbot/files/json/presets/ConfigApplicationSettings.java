@@ -34,6 +34,9 @@ public class ConfigApplicationSettings implements IConfigData {
     public float lineSortingTolerance = 1F;
     public UnitsLength lineSortingUnits = UnitsLength.MILLIMETRES;
 
+    public boolean multipassEnabled = true;
+    public int multipassCount = 1;
+
     ///svg settings
     public String svgLayerNaming = "%NAME%";
     public boolean exportSVGBackground = false;

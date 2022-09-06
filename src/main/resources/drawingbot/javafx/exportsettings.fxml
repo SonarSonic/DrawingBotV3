@@ -136,6 +136,33 @@
                                                 <ChoiceBox fx:id="choiceBoxSortUnits" prefHeight="25.0" prefWidth="100.0" />
                                              </children>
                                           </HBox>
+                                          <Separator layoutX="10.0" layoutY="190.0" prefWidth="200.0" />
+                                          <Label contentDisplay="RIGHT" graphicTextGap="10.0" layoutX="10.0" layoutY="199.0" text="Line Multipass">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                             <graphic>
+                                                <Label text="Draws over each geometry multiple times">
+                                                   <font>
+                                                      <Font name="System Italic" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </graphic>
+                                          </Label>
+                                          <HBox fillHeight="false" layoutX="10.0" layoutY="222.0" spacing="10.0">
+                                             <children>
+                                                <Label contentDisplay="RIGHT" prefHeight="25.0" text="Enabled">
+                                                   <graphic>
+                                                      <CheckBox fx:id="checkBoxMultipass" contentDisplay="RIGHT" mnemonicParsing="false" />
+                                                   </graphic>
+                                                </Label>
+                                                <Label contentDisplay="RIGHT" text="Passes">
+                                                   <graphic>
+                                                      <TextField fx:id="textFieldMultipassCount" prefHeight="25.0" prefWidth="126.0" />
+                                                   </graphic>
+                                                </Label>
+                                             </children>
+                                          </HBox>
                                        </children>
                                     </VBox>
                                  </children>

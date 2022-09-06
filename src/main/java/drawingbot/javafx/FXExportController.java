@@ -61,6 +61,9 @@ public class FXExportController {
     public TextField textFieldSortTolerance = null;
     public ChoiceBox<UnitsLength> choiceBoxSortUnits = null;
 
+    public CheckBox checkBoxMultipass = null;
+    public TextField textFieldMultipassCount = null;
+
     public void initPathOptimisationPane(){
         checkBoxEnableOptimisation.setSelected(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled);
         checkBoxEnableOptimisation.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled = newValue);
@@ -118,6 +121,17 @@ public class FXExportController {
         choiceBoxSortUnits.setValue(ConfigFileHandler.getApplicationSettings().lineSortingUnits);
         choiceBoxSortUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
         choiceBoxSortUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingUnits = newValue);
+
+        ///multipass
+
+        checkBoxMultipass.setSelected(ConfigFileHandler.getApplicationSettings().multipassEnabled);
+        checkBoxMultipass.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().multipassEnabled = newValue);
+
+        textFieldMultipassCount.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 1));
+        textFieldMultipassCount.setText("" + ConfigFileHandler.getApplicationSettings().multipassCount);
+        textFieldMultipassCount.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().multipassCount = Integer.parseInt(newValue));
+
+
     }
 
 
