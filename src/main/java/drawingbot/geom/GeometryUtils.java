@@ -3,17 +3,14 @@ package drawingbot.geom;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
-import drawingbot.files.json.presets.ConfigApplicationSettings;
 import drawingbot.geom.operation.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.shapes.*;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
-import javafx.geometry.Rectangle2D;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
@@ -71,14 +68,13 @@ public class GeometryUtils {
     }
 
     public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
-        ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
 
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
-        if(task.exportHandler.isVector && !forceBypassOptimisation && ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
+        if(task.exportHandler.isVector && !forceBypassOptimisation && DrawingBotV3.INSTANCE.getProgramSettings().pathOptimisationEnabled.getValue()){
 
             geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
-            if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
+            if(DrawingBotV3.INSTANCE.getProgramSettings().lineSortingEnabled.get()){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
         }

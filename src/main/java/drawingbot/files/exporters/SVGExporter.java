@@ -4,11 +4,8 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.utils.UnitsLength;
-import javafx.scene.paint.Color;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
@@ -63,7 +60,7 @@ public class SVGExporter {
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
             }
 
-            if(ConfigFileHandler.getApplicationSettings().exportSVGBackground){
+            if(DrawingBotV3.INSTANCE.getProgramSettings().exportSVGBackground.get()){
                 // Create a fresh document to draw background
                 Document backgroundGraphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
 
@@ -99,7 +96,7 @@ public class SVGExporter {
             int index = 0;
             for(ObservableDrawingPen drawingPen : exportTask.exportRenderOrder){
 
-                String layerName = formatLayerName(ConfigFileHandler.getApplicationSettings().svgLayerNaming, drawingPen.getDisplayName(), "" + (index+1));
+                String layerName = formatLayerName(DrawingBotV3.INSTANCE.getProgramSettings().svgLayerNaming.get(), drawingPen.getDisplayName(), "" + (index+1));
 
                 // Create a fresh document to draw each pen into
                 Document graphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);

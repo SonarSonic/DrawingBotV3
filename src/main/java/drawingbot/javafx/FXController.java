@@ -14,6 +14,8 @@ import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.FXProgramSettings;
+import drawingbot.javafx.util.JFXUtils;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -25,6 +27,7 @@ import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -120,6 +123,9 @@ public class FXController {
     public Stage projectManagerStage;
     public FXProjectManagerController projectManagerController;
 
+    public Stage preferencesStage;
+    public FXPreferences preferencesController;
+
 
     public void initSeparateStages() {
         exportController = FXHelper.initSeparateStage("/drawingbot/javafx/exportsettings.fxml", exportSettingsStage = new Stage(), "Export Settings", Modality.APPLICATION_MODAL);
@@ -127,6 +133,7 @@ public class FXController {
         mosaicController = FXHelper.initSeparateStage("/drawingbot/javafx/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), "Mosaic Settings", Modality.APPLICATION_MODAL);
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
         projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
+        preferencesController = FXHelper.initSeparateStage("/drawingbot/javafx/preferences.fxml", preferencesStage = new Stage(), "Preferences", Modality.APPLICATION_MODAL);
 
         FXHelper.initSeparateStageWithController("/drawingbot/javafx/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
     }
@@ -258,6 +265,14 @@ public class FXController {
         menuFile.getItems().add(menuExportToVPype);
 
         menuFile.getItems().add(new SeparatorMenuItem());
+
+        MenuItem menuPreferences = new MenuItem("Preferences");
+        menuPreferences.setOnAction(e -> {
+            preferencesStage.show();
+            FXProgramSettings.preferencesFx.show();
+        });
+        menuFile.getItems().add(menuPreferences);
+
 
         MenuItem menuExportSettings = new MenuItem("Export Settings");
         menuExportSettings.setOnAction(e -> exportSettingsStage.show());
@@ -571,7 +586,7 @@ public class FXController {
 
         });
 
-        DrawingBotV3.INSTANCE.activeProject.addListener((observable, oldValue, newValue) -> {
+        JFXUtils.subscribeListener(DrawingBotV3.INSTANCE.activeProject, (observable, oldValue, newValue) -> {
             if(oldValue != null){
                 checkBoxApplyToExport.selectedProperty().unbindBidirectional(oldValue.exportRange);
                 comboBoxBlendMode.valueProperty().unbindBidirectional(oldValue.blendMode);

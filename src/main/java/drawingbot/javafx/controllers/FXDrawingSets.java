@@ -173,8 +173,7 @@ public class FXDrawingSets {
         Optional<MenuItem> setAsDefaultSet = menuButtonDrawingSetPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
         setAsDefaultSet.ifPresent(menuItem -> menuItem.setOnAction(e -> {
             if (comboBoxDrawingSet.getValue() != null) {
-                ConfigFileHandler.getApplicationSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingSet.getValue().getCodeName());
-                ConfigFileHandler.getApplicationSettings().markDirty();
+                DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingSet.getValue().getCodeName());
             }
         }));
 
@@ -266,8 +265,7 @@ public class FXDrawingSets {
         Optional<MenuItem> setAsDefaultPen = menuButtonDrawingPenPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
         setAsDefaultPen.ifPresent(menuItem -> menuItem.setOnAction(e -> {
             if (comboBoxDrawingPen.getValue() != null) {
-                ConfigFileHandler.getApplicationSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
-                ConfigFileHandler.getApplicationSettings().markDirty();
+                DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
             }
         }));
 

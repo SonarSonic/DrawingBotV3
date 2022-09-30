@@ -1,7 +1,12 @@
 package drawingbot.javafx.settings;
 
+import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.util.StringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.LongStringConverter;
@@ -23,8 +28,8 @@ public class FloatSetting<C> extends AbstractNumberSetting<C, Float> {
         super(clazz, Float.class, category, settingName, defaultValue);
     }
 
-    public FloatSetting(Class<C> pfmClass, String category, String settingName, float defaultValue, float minValue, float maxValue){
-        super(pfmClass, Float.class, category, settingName, defaultValue, minValue, maxValue);
+    public FloatSetting(Class<C> clazz, String category, String settingName, float defaultValue, float minValue, float maxValue){
+        super(clazz, Float.class, category, settingName, defaultValue, minValue, maxValue);
     }
 
     public FloatSetting<C> setPrecision(int precision){
@@ -55,5 +60,33 @@ public class FloatSetting<C> extends AbstractNumberSetting<C, Float> {
     @Override
     public GenericSetting<C, Float> copy() {
         return new FloatSetting<>(this);
+    }
+
+    //////////////////////////
+
+    private FloatProperty property = null;
+
+    public FloatProperty asFloatProperty(){
+        if(property == null){
+            property = new SimpleFloatProperty(getValue());
+            BidirectionalBinding.bindNumber(property, valueProperty());
+        }
+        return property;
+    }
+
+    //////////////////////////
+
+    private DoubleProperty propertyD = null;
+
+    public DoubleProperty asDoubleProperty(){
+        if(propertyD == null){
+            propertyD = new SimpleDoubleProperty(getValue());
+
+            propertyD.setValue(getValue());
+            propertyD.getValue();
+            propertyD.addListener((observable, oldValue, newValue) -> valueProperty().set(newValue.floatValue()));
+            valueProperty().addListener((observable, oldValue, newValue) -> propertyD.set(newValue.doubleValue()));
+        }
+        return propertyD;
     }
 }

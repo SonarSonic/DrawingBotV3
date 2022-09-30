@@ -63,8 +63,8 @@ public class CanvasUtils {
         return new int[]{imageCropWidth, imageCropHeight, imageCropX, imageCropY, finalWidth, finalHeight};
     }
 
-    public static float getExportWidth(ICanvas canvas, float DPI){
-        float exportWidth;
+    public static double getExportWidth(ICanvas canvas, double DPI){
+        double exportWidth;
         if(canvas.getUnits() == UnitsLength.PIXELS){
             exportWidth = canvas.getWidth(UnitsLength.PIXELS) * canvas.getPlottingScale();
         }else{
@@ -73,8 +73,8 @@ public class CanvasUtils {
         return exportWidth;
     }
 
-    public static float getExportHeight(ICanvas canvas, float DPI){
-        float exportHeight;
+    public static double getExportHeight(ICanvas canvas, double DPI){
+        double exportHeight;
         if(canvas.getUnits() == UnitsLength.PIXELS){
             exportHeight = canvas.getHeight(UnitsLength.PIXELS) * canvas.getPlottingScale();
         }else{
@@ -83,7 +83,7 @@ public class CanvasUtils {
         return exportHeight;
     }
 
-    public static int getRasterExportWidth(ICanvas canvas, float DPI, boolean isVideo){
+    public static int getRasterExportWidth(ICanvas canvas, double DPI, boolean isVideo){
         return getRasterExportWidth((int) getExportWidth(canvas, DPI), isVideo);
     }
 
@@ -94,7 +94,7 @@ public class CanvasUtils {
         return canvasWidth;
     }
 
-    public static int getRasterExportHeight(ICanvas canvas, float DPI, boolean isVideo){
+    public static int getRasterExportHeight(ICanvas canvas, double DPI, boolean isVideo){
         return getRasterExportHeight((int) getExportHeight(canvas, DPI), isVideo);
     }
 

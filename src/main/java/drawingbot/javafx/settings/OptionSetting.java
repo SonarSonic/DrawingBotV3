@@ -2,8 +2,11 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -16,14 +19,14 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
 
     public static StringConverter<Integer> stringConverter = new IntegerStringConverter();
 
-    public List<V> values;
+    public ObservableList<V> values;
 
     protected OptionSetting(OptionSetting<C, V> toCopy) {
         super(toCopy, toCopy.getValue());
-        this.values = new ArrayList<>(toCopy.values);
+        this.values = toCopy.values; //NOTE: We're using the same instance here.
     }
 
-    public OptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, List<V> values) {
+    public OptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, ObservableList<V> values) {
         super(clazz, type, category, settingName, defaultValue);
         this.values = values;
         this.setStringConverter(new StringConverter<V>() {
@@ -41,6 +44,10 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
                 return null;
             }
         });
+    }
+
+    public final ObservableList<V> getOptions() {
+        return values;
     }
 
     @Override
@@ -61,6 +68,8 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
         ChoiceBox<V> choiceBox = new ChoiceBox<>();
         choiceBox.setItems(FXCollections.observableArrayList(values));
         choiceBox.valueProperty().bindBidirectional(value);
+        HBox.setHgrow(choiceBox, Priority.ALWAYS);
+        choiceBox.setMaxWidth(Double.MAX_VALUE);
         return choiceBox;
     }
 

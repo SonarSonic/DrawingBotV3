@@ -1,13 +1,13 @@
 package drawingbot.geom.operation;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IProgressCallback;
-import drawingbot.files.ConfigFileHandler;
-import drawingbot.files.json.presets.ConfigApplicationSettings;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.spatial.STRTreeSequencerLineString;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.ProgramSettings;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.UnitsLength;
@@ -53,8 +53,8 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                     if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
                         entry.getValue().forEach(geometry -> {
                             IGeometry newGeometry;
-                            if(ConfigFileHandler.getApplicationSettings().multipassEnabled){
-                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, ConfigFileHandler.getApplicationSettings().multipassCount);
+                            if(DrawingBotV3.INSTANCE.getProgramSettings().multipassEnabled.get()){
+                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, DrawingBotV3.INSTANCE.getProgramSettings().multipassCount.get());
                             }else{
                                 newGeometry = geometry.copyGeometry();
                             }
@@ -112,31 +112,31 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         }
 
         GeometryUtils.printEstimatedTravelDistance(lineStrings);
-        ConfigApplicationSettings settings = ConfigFileHandler.getApplicationSettings();
+        ProgramSettings settings = DrawingBotV3.INSTANCE.getProgramSettings();
 
-        if(settings.lineSimplifyEnabled){
+        if(settings.lineSimplifyEnabled.get()){
             progressCallback.updateTitle("Line Simplifying: ");
-            float tolerance = UnitsLength.convert(settings.lineSimplifyTolerance, settings.lineSimplifyUnits, UnitsLength.MILLIMETRES);
+            double tolerance = UnitsLength.convert(settings.lineSimplifyTolerance.get(), settings.lineSimplifyUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineSimplify(lineStrings, tolerance, progressCallback);
         }
 
-        if(settings.lineMergingEnabled){
+        if(settings.lineMergingEnabled.get()){
             progressCallback.updateTitle("Line Merging: ");
-            float tolerance = UnitsLength.convert(settings.lineMergingTolerance, settings.lineMergingUnits, UnitsLength.MILLIMETRES);
+            double tolerance = UnitsLength.convert(settings.lineMergingTolerance.get(), settings.lineMergingUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineMerge(lineStrings, tolerance, progressCallback, 3);
         }
 
-        if(settings.lineFilteringEnabled){
+        if(settings.lineFilteringEnabled.get()){
             progressCallback.updateTitle("Line Filtering: ");
-            float tolerance = UnitsLength.convert(settings.lineFilteringTolerance, settings.lineFilteringUnits, UnitsLength.MILLIMETRES);
+            double tolerance = UnitsLength.convert(settings.lineFilteringTolerance.get(), settings.lineFilteringUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineFilter(lineStrings, tolerance, progressCallback);
         }
 
-        if(settings.multipassEnabled && settings.multipassCount > 1){
+        if(settings.multipassEnabled.get() && settings.multipassCount.get() > 1){
             LinearGeometryBuilder builder = new LinearGeometryBuilder(GeometryUtils.factory);
             for(LineString oldString : lineStrings){
 
-                for(int i = 0; i < settings.multipassCount; i ++){
+                for(int i = 0; i < settings.multipassCount.get(); i ++){
                     Coordinate[] coordinates = oldString.getCoordinates();
                     if((i % 2) == 0){ //if the pass is even
                         for(int c = 0; c < coordinates.length; c++){
@@ -153,9 +153,9 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             lineStrings = LinearComponentExtracter.getLines(builder.getGeometry(), true);
         }
 
-        if(settings.lineSortingEnabled){
+        if(settings.lineSortingEnabled.get()){
             progressCallback.updateTitle("Line Sorting: ");
-            float tolerance = UnitsLength.convert(settings.lineSortingTolerance, settings.lineSortingUnits, UnitsLength.MILLIMETRES);
+            double tolerance = UnitsLength.convert(settings.lineSortingTolerance.getValue(), settings.lineSortingUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineSort(lineStrings, tolerance, progressCallback);
         }
         GeometryUtils.printEstimatedTravelDistance(lineStrings);

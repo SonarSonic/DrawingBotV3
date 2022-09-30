@@ -7,13 +7,13 @@ import drawingbot.api.IProperties;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DrawingSets implements IProperties {
@@ -61,7 +61,7 @@ public class DrawingSets implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
 
     public DrawingSets(){}
 
@@ -117,7 +117,7 @@ public class DrawingSets implements IProperties {
     }
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 }

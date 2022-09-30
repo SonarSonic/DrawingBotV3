@@ -3,6 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.UnitsLength;
+import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 
@@ -22,7 +23,7 @@ public class GCodeSettings implements IProperties {
     public final SimpleBooleanProperty gcodeCenterZeroPoint = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<GCodeBuilder.CommentType> gcodeCommentType = new SimpleObjectProperty<>(GCodeBuilder.CommentType.BRACKETS);
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(gcodeOffsetX, gcodeOffsetY, gcodeUnits, gcodeStartCode, gcodeEndCode, gcodePenDownCode, gcodePenUpCode, gcodeStartLayerCode, gcodeEndLayerCode, gcodeCurveFlatness, gcodeEnableFlattening, gcodeCenterZeroPoint, gcodeCommentType);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(gcodeOffsetX, gcodeOffsetY, gcodeUnits, gcodeStartCode, gcodeEndCode, gcodePenDownCode, gcodePenUpCode, gcodeStartLayerCode, gcodeEndLayerCode, gcodeCurveFlatness, gcodeEnableFlattening, gcodeCenterZeroPoint, gcodeCommentType);
 
     public float getGCodeXOffset(){
         return gcodeUnits.get().toMM(gcodeOffsetX.get());
@@ -40,7 +41,7 @@ public class GCodeSettings implements IProperties {
     }
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 

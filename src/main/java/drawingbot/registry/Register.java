@@ -47,7 +47,7 @@ public class Register implements IPlugin {
     public static Register INSTANCE = new Register();
 
     //// PRESET LOADERS \\\\
-    public static PresetType PRESET_TYPE_CONFIGS;
+    public static PresetType PRESET_TYPE_APPLICATION_SETTINGS;
     public static ConfigJsonLoader PRESET_LOADER_CONFIGS;
 
     public static PresetType PRESET_TYPE_PROJECT;
@@ -125,7 +125,7 @@ public class Register implements IPlugin {
     @Override
     public void preInit() {
 
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_CONFIGS = new PresetType("config_settings"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_APPLICATION_SETTINGS = new PresetType("config_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings").setDefaultsPerSubType(true));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings"));
@@ -136,7 +136,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings"));
 
-        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_CONFIGS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_APPLICATION_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_UI_SETTINGS = new PresetUISettingsLoader(PRESET_TYPE_UI_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PFM = new PresetPFMSettingsLoader(PRESET_TYPE_PFM));

@@ -1,9 +1,9 @@
 package drawingbot.javafx.settings;
 
+import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.*;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -49,6 +49,18 @@ public class IntegerSetting<C> extends AbstractNumberSetting<C, Integer> {
     @Override
     public GenericSetting<C, Integer> copy() {
         return new IntegerSetting<>(this);
+    }
+
+    //////////////////////////
+
+    private IntegerProperty property = null;
+
+    public IntegerProperty asIntegerProperty(){
+        if(property == null){
+            property = new SimpleIntegerProperty(getValue());
+            BidirectionalBinding.bindNumber(property, valueProperty());
+        }
+        return property;
     }
 
 }

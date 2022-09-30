@@ -7,9 +7,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+
 /**
  * Attach this listener to a list of ObservableValues, to get change updates for all of them.
  */
+/*
 public class ElementChangeListener implements ListChangeListener<ObservableValue> {
 
     public final ChangeListener valueListener;
@@ -29,6 +31,8 @@ public class ElementChangeListener implements ListChangeListener<ObservableValue
     }
 
     public static ElementChangeListener addElementChangeListener(IProperties listenable, ChangeListener<?> valueListener){
-        return new ElementChangeListener(listenable.getProperties(), valueListener);
+        return new ElementChangeListener(listenable.getObservables(), valueListener);
     }
 }
+
+ */

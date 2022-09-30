@@ -7,6 +7,7 @@ import drawingbot.utils.EnumOrientation;
 import drawingbot.utils.EnumScalingMode;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.UnitsLength;
+import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -43,7 +44,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
     public final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(backgroundColourDefault);
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
 
     public ObservableCanvas(){
 
@@ -234,7 +235,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     }
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 }

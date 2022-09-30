@@ -1,7 +1,12 @@
 package drawingbot.javafx.settings;
 
+import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.FloatStringConverter;
@@ -23,8 +28,8 @@ public class DoubleSetting<C> extends AbstractNumberSetting<C, Double> {
         super(clazz, Double.class, category, settingName, defaultValue);
     }
 
-    public DoubleSetting(Class<C> pfmClass, String category, String settingName, double defaultValue, double minValue, double maxValue){
-        super(pfmClass, Double.class, category, settingName, defaultValue, minValue, maxValue);
+    public DoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, double minValue, double maxValue){
+        super(clazz, Double.class, category, settingName, defaultValue, minValue, maxValue);
     }
 
     public DoubleSetting<C> setPrecision(int precision){
@@ -55,5 +60,28 @@ public class DoubleSetting<C> extends AbstractNumberSetting<C, Double> {
     @Override
     public GenericSetting<C, Double> copy() {
         return new DoubleSetting<>(this);
+    }
+
+    //////////////////////////
+
+    private DoubleProperty property = null;
+
+    public DoubleProperty asDoubleProperty(){
+        if(property == null){
+            property = new SimpleDoubleProperty(getValue()){
+                @Override
+                public double get() {
+                    return validate(super.get());
+                }
+
+                @Override
+                public void set(double newValue) {
+                    super.set(validate(newValue));
+                }
+
+            };
+            BidirectionalBinding.bindNumber(property, valueProperty());
+        }
+        return property;
     }
 }

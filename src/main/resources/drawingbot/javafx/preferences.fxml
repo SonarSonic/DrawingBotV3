@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane  hgap="4.0" prefHeight="600.0" prefWidth="900.0" vgap="4.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXPreferences">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" minWidth="100.0" prefWidth="200.0" />
+          <ColumnConstraints hgrow="ALWAYS" minWidth="600.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="35.0" minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TextField fx:id="textFieldSearchBar" promptText="Search" />
+            <TreeView fx:id="treeViewCategories" GridPane.rowIndex="1" />
+            <ScrollPane fx:id="scrollPaneContent" fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+               <content>
+                  <GridPane hgap="4.0" vgap="4.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="ALWAYS" maxWidth="583.0" minWidth="10.0" prefWidth="183.0" />
+                      <ColumnConstraints hgrow="ALWAYS" maxWidth="417.0" minWidth="10.0" prefWidth="415.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                     <children>
+                        <ChoiceBox maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+                     </children>
+                  </GridPane>
+               </content></ScrollPane>
+         </children>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+      </GridPane>

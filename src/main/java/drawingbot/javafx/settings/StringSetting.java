@@ -2,6 +2,10 @@ package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.Register;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
@@ -42,5 +46,17 @@ public class StringSetting<C> extends GenericSetting<C, String> {
     @Override
     public GenericSetting<C, String> copy() {
         return new StringSetting<>(this);
+    }
+
+    //////////////////////////
+
+    private StringProperty property = null;
+
+    public StringProperty asStringProperty(){
+        if(property == null){
+            property = new SimpleStringProperty(getValue());
+            property.bindBidirectional(valueProperty());
+        }
+        return property;
     }
 }

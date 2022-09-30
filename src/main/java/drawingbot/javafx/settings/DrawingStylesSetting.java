@@ -30,8 +30,8 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
         super(toCopy, toCopy.getValue());
     }
 
-    public DrawingStylesSetting(Class<C> pfmClass, String category, String settingName, DrawingStyleSet defaultValue) {
-        super(pfmClass, DrawingStyleSet.class, category, settingName, defaultValue);
+    public DrawingStylesSetting(Class<C> clazz, String category, String settingName, DrawingStyleSet defaultValue) {
+        super(clazz, DrawingStyleSet.class, category, settingName, defaultValue);
     }
 
     @Override

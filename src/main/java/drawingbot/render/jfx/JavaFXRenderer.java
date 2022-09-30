@@ -2,14 +2,11 @@ package drawingbot.render.jfx;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.image.ImageFilteringTask;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.IRenderer;
 import drawingbot.render.modes.AbstractJFXDisplayMode;
 import drawingbot.utils.flags.Flags;
-import javafx.beans.binding.Bindings;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
@@ -209,8 +206,8 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public int getMaxTextureSize(){
-        if(ConfigFileHandler.getApplicationSettings().maxTextureSize != -1){
-            return ConfigFileHandler.getApplicationSettings().maxTextureSize;
+        if(DrawingBotV3.INSTANCE.getProgramSettings().maxTextureSize.get() != -1){
+            return DrawingBotV3.INSTANCE.getProgramSettings().maxTextureSize.get();
         }
         return defaultMaxTextureSize;
     }

@@ -4,6 +4,7 @@ import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeList;
+import javafx.beans.Observable;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -97,10 +98,10 @@ public class MaskingSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(bypassMasking, showMasks);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(bypassMasking, showMasks);
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 }

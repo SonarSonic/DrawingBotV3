@@ -7,6 +7,7 @@ import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.javafx.preferences.FXProgramSettings;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.jfx.JavaFXRenderer;
@@ -46,6 +47,8 @@ public class FXApplication extends Application {
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
     public static MouseMonitor mouseMonitor;
+
+    public static boolean isDeveloperMode = true;//TODO CHANGE ME
 
     public static void main(String[] args) {
         launchArgs = args;
@@ -100,7 +103,7 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE = new DrawingBotV3();
         DrawingBotV3.INSTANCE.init();
 
-        DrawingBotV3.logger.info("DrawingBotV3: Loading Empty Project");
+        DrawingBotV3.logger.info("DrawingBotV3: Loading Dummy Project");
         DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
         DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
         DrawingBotV3.INSTANCE.activeProject.get().init();
@@ -145,9 +148,11 @@ public class FXApplication extends Application {
 
         //TODO PRESET DEFAULTS
         RulerOverlays.INSTANCE.setActive(true);
-        //DrawingBorderOverlays.INSTANCE.setActive(true);
+        DrawingBorderOverlays.INSTANCE.setActive(false);
         ShapeOverlays.INSTANCE.setActive(true);
         NotificationOverlays.INSTANCE.setActive(true);
+
+        FXProgramSettings.init();
 
         // set up main drawing loop
         drawTimer = new DrawTimer(this);
@@ -166,7 +171,6 @@ public class FXApplication extends Application {
             applyDBStyle(primaryStage);
             primaryStage.show();
         }
-
 
         DrawingBotV3.logger.info("Plugins: Load JFX Stages");
         for(IPlugin plugin : MasterRegistry.PLUGINS){
@@ -222,7 +226,7 @@ public class FXApplication extends Application {
     }
 
     public static void applyCurrentTheme(Scene scene){
-        if (ConfigFileHandler.getApplicationSettings().darkTheme) {
+        if (DrawingBotV3.INSTANCE.getProgramSettings().darkTheme.get()) {
             scene.getRoot().setStyle("-fx-base: rgba(30, 30, 30, 255); -fx-accent: rgba(0, 100, 134, 255);");
         } else {
             scene.getRoot().setStyle("");

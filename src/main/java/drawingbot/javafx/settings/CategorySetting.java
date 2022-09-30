@@ -6,7 +6,7 @@ public class CategorySetting<C>  extends BooleanSetting<C> {
         super(toCopy);
     }
 
-    public CategorySetting(Class<C> pfmClass, String category, String settingName, Boolean defaultValue) {
-        super(pfmClass, category, settingName, defaultValue);
+    public CategorySetting(Class<C> clazz, String category, String settingName, Boolean defaultValue) {
+        super(clazz, category, settingName, defaultValue);
     }
 }

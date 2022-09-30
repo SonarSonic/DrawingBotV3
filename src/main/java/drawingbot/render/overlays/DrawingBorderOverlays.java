@@ -3,6 +3,7 @@ package drawingbot.render.overlays;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.utils.flags.Flags;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -11,17 +12,22 @@ public class DrawingBorderOverlays extends AbstractOverlay {
 
     public static final DrawingBorderOverlays INSTANCE = new DrawingBorderOverlays();
 
+    public static final SimpleObjectProperty<Color> borderColour = new SimpleObjectProperty<>(Color.BLACK);
+
     public Rectangle rectangle;
 
     @Override
     public void init() {
         rectangle = new Rectangle(0, 0, 400, 400);
-        rectangle.setStroke(Color.BLACK);
+        rectangle.strokeProperty().bind(borderColour);
         rectangle.setFill(Color.TRANSPARENT);
         rectangle.setManaged(false);
         rectangle.setVisible(false);
         rectangle.setMouseTransparent(true);
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(rectangle);
+        activeProperty().addListener((observable, oldValue, newValue) -> {
+            DrawingBotV3.project().displayMode.get().getRenderFlags().setFlag(Flags.CANVAS_CHANGED, true);
+        });
     }
 
     @Override

@@ -38,7 +38,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     }
 
     private void registerTypes(){
-        registerConfigFactory(ConfigApplicationSettings.class, "application_settings", ConfigApplicationSettings::new, false);
+        //registerConfigFactory(PresetApplicationSettings.class, "application_settings", PresetApplicationSettings::new, false);
     }
 
     private <C extends IConfigData> void registerConfigFactory(Class<C> clazz, String name, Supplier<C> create, boolean isHidden){

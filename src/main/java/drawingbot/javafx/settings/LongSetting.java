@@ -1,7 +1,9 @@
 package drawingbot.javafx.settings;
 
+import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
+import javafx.beans.property.*;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
@@ -21,8 +23,8 @@ public class LongSetting<C> extends AbstractNumberSetting<C, Long> {
         super(clazz, Long.class, category, settingName, defaultValue);
     }
 
-    public LongSetting(Class<C> pfmClass, String category, String settingName, long defaultValue, long minValue, long maxValue){
-        super(pfmClass, Long.class, category, settingName, defaultValue, minValue, maxValue);
+    public LongSetting(Class<C> clazz, String category, String settingName, long defaultValue, long minValue, long maxValue){
+        super(clazz, Long.class, category, settingName, defaultValue, minValue, maxValue);
     }
 
     @Override
@@ -48,6 +50,34 @@ public class LongSetting<C> extends AbstractNumberSetting<C, Long> {
     @Override
     public GenericSetting<C, Long> copy() {
         return new LongSetting<>(this);
+    }
+
+    //////////////////////////
+
+    private LongProperty property = null;
+
+    public LongProperty asLongProperty(){
+        if(property == null){
+            property = new SimpleLongProperty(getValue());
+            BidirectionalBinding.bindNumber(property, valueProperty());
+        }
+        return property;
+    }
+
+    //////////////////////////
+
+    private DoubleProperty propertyD = null;
+
+    public DoubleProperty asDoubleProperty(){
+        if(propertyD == null){
+            propertyD = new SimpleDoubleProperty(getValue());
+
+            propertyD.setValue(getValue());
+            propertyD.getValue();
+            propertyD.addListener((observable, oldValue, newValue) -> valueProperty().set(newValue.longValue()));
+            valueProperty().addListener((observable, oldValue, newValue) -> propertyD.set(newValue.doubleValue()));
+        }
+        return propertyD;
     }
 
 }

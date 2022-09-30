@@ -2,7 +2,7 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.JsonLoaderManager;
-import drawingbot.files.json.presets.ConfigApplicationSettings;
+import drawingbot.files.json.presets.PresetApplicationSettings;
 import drawingbot.registry.Register;
 
 import java.io.*;
@@ -11,8 +11,6 @@ import java.util.logging.*;
 import java.util.logging.Formatter;
 
 public class ConfigFileHandler {
-
-    public static ConfigApplicationSettings applicationSettings;
 
     public static void init() {
         //create the user data directory
@@ -31,11 +29,7 @@ public class ConfigFileHandler {
         JsonLoaderManager.loadConfigFiles();
 
         //load any config objects for use during the loading phases
-        applicationSettings = Register.PRESET_LOADER_CONFIGS.getConfigData(ConfigApplicationSettings.class);
-    }
-
-    public static ConfigApplicationSettings getApplicationSettings(){
-        return applicationSettings;
+        //applicationSettings = Register.PRESET_LOADER_CONFIGS.getConfigData(PresetApplicationSettings.class);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

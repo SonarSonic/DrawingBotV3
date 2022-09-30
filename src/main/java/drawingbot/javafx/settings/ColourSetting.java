@@ -2,6 +2,9 @@ package drawingbot.javafx.settings;
 
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericSetting;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
@@ -28,8 +31,8 @@ public class ColourSetting<C> extends GenericSetting<C, Color> {
         super(toCopy, toCopy.getValue());
     }
 
-    public ColourSetting(Class<C> pfmClass, String category, String settingName, Color defaultValue) {
-        super(pfmClass, Color.class, category, settingName, defaultValue);
+    public ColourSetting(Class<C> clazz, String category, String settingName, Color defaultValue) {
+        super(clazz, Color.class, category, settingName, defaultValue);
     }
 
     @Override

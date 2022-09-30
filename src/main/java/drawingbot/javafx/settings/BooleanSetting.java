@@ -1,6 +1,11 @@
 package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.util.StringConverter;
@@ -17,8 +22,8 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
         super(toCopy, toCopy.getValue());
     }
 
-    public BooleanSetting(Class<C> pfmClass, String category, String settingName, Boolean defaultValue) {
-        super(pfmClass, Boolean.class, category, settingName, defaultValue);
+    public BooleanSetting(Class<C> clazz, String category, String settingName, Boolean defaultValue) {
+        super(clazz, Boolean.class, category, settingName, defaultValue);
     }
 
     @Override
@@ -45,5 +50,17 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
     @Override
     public GenericSetting<C, Boolean> copy() {
         return new BooleanSetting<>(this);
+    }
+
+    //////////////////////////
+
+    private BooleanProperty property = null;
+
+    public BooleanProperty asBooleanProperty(){
+        if(property == null){
+            property = new SimpleBooleanProperty(getValue());
+            property.bindBidirectional(valueProperty());
+        }
+        return property;
     }
 }

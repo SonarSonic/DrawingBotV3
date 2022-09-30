@@ -1,5 +1,8 @@
 package drawingbot.utils;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 public enum UnitsLength {
 
     MILLIMETRES("mm", "mm", 1F),
@@ -10,6 +13,8 @@ public enum UnitsLength {
     public String displayName;
     public String suffix;
     public float convertToMM;
+
+    public static final ObservableList<UnitsLength> OBSERVABLE_LIST = FXCollections.observableArrayList(UnitsLength.values());
 
     UnitsLength(String displayName, String suffix, float convertToMM) {
         this.displayName = displayName;
@@ -37,7 +42,21 @@ public enum UnitsLength {
         return (value * from.convertToMM) / to.convertToMM;
     }
 
+    public static double convert(double value, UnitsLength from, UnitsLength to){
+        if(from == to){
+            return value;
+        }
+        return (value * from.convertToMM) / to.convertToMM;
+    }
+
     public static float convert(float value, float toConvertToMM, float fromConvertToMM){
+        if(toConvertToMM == fromConvertToMM){
+            return value;
+        }
+        return (value * fromConvertToMM) / toConvertToMM;
+    }
+
+    public static double convert(double value, double toConvertToMM, double fromConvertToMM){
         if(toConvertToMM == fromConvertToMM){
             return value;
         }

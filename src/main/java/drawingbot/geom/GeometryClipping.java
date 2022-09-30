@@ -37,7 +37,7 @@ public class GeometryClipping {
         }
         geometries.forEach(g -> GeometryUtils.copyGeometryData(g, geometry));
 
-        assert geometries.size() != 1 || geometries.get(0).getAWTShape().equals(geometry.getAWTShape());
+        //assert geometries.size() != 1 || geometries.get(0).getAWTShape().equals(geometry.getAWTShape());
 
         return geometries;
     }

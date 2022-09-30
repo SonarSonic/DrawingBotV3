@@ -4,17 +4,17 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.json.presets.PresetGCodeSettings;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
+import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.util.converter.FloatStringConverter;
+import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.fxmisc.easybind.EasyBind;
@@ -30,7 +30,7 @@ public class FXExportController {
         initImageSequencePane();
         initHPGLSettingsPane();
 
-        DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnHidden(e -> ConfigFileHandler.getApplicationSettings().markDirty());
+        //TODO FIX SAVING OF SETTINGS! DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnHidden(e -> DrawingBotV3.INSTANCE.getSettings().markDirty());
 
         DrawingBotV3.INSTANCE.controller.exportSettingsStage.setOnShown(e -> updateImageSequenceStats());
 
@@ -65,71 +65,56 @@ public class FXExportController {
     public TextField textFieldMultipassCount = null;
 
     public void initPathOptimisationPane(){
-        checkBoxEnableOptimisation.setSelected(ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled);
-        checkBoxEnableOptimisation.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled = newValue);
+        checkBoxEnableOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().pathOptimisationEnabled.valueProperty());
 
         paneOptimisationControls.disableProperty().bind(checkBoxEnableOptimisation.selectedProperty().not());
 
         ///simplify
 
-        checkBoxSimplify.setSelected(ConfigFileHandler.getApplicationSettings().lineSimplifyEnabled);
-        checkBoxSimplify.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSimplifyEnabled = newValue);
+        checkBoxSimplify.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineSimplifyEnabled.valueProperty());
 
-        textFieldSimplifyTolerance.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 0.1F));
-        textFieldSimplifyTolerance.setText("" + ConfigFileHandler.getApplicationSettings().lineSimplifyTolerance);
-        textFieldSimplifyTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSimplifyTolerance = Float.parseFloat(newValue));
+        textFieldSimplifyTolerance.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 0.1D));
+        textFieldSimplifyTolerance.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineSimplifyTolerance.asDoubleProperty(), new NumberStringConverter(Utils.defaultDF));
 
-        choiceBoxSimplifyUnits.setValue(ConfigFileHandler.getApplicationSettings().lineSimplifyUnits);
         choiceBoxSimplifyUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
-        choiceBoxSimplifyUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSimplifyUnits = newValue);
+        choiceBoxSimplifyUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineSimplifyUnits.valueProperty());
 
         ///merge
 
-        checkBoxMerge.setSelected(ConfigFileHandler.getApplicationSettings().lineMergingEnabled);
-        checkBoxMerge.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineMergingEnabled = newValue);
+        checkBoxMerge.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineMergingEnabled.valueProperty());
 
-        textFieldMergeTolerance.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 0.5F));
-        textFieldMergeTolerance.setText("" + ConfigFileHandler.getApplicationSettings().lineMergingTolerance);
-        textFieldMergeTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineMergingTolerance = Float.parseFloat(newValue));
+        textFieldMergeTolerance.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 0.5D));
+        textFieldMergeTolerance.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineMergingTolerance.asDoubleProperty(), new NumberStringConverter(Utils.defaultDF));
 
-        choiceBoxMergeUnits.setValue(ConfigFileHandler.getApplicationSettings().lineMergingUnits);
         choiceBoxMergeUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
-        choiceBoxMergeUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineMergingUnits = newValue);
+        choiceBoxMergeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineMergingUnits.valueProperty());
 
         ///filter
 
-        checkBoxFilter.setSelected(ConfigFileHandler.getApplicationSettings().lineFilteringEnabled);
-        checkBoxFilter.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineFilteringEnabled = newValue);
+        checkBoxFilter.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineFilteringEnabled.valueProperty());
 
-        textFieldFilterTolerance.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 0.5F));
-        textFieldFilterTolerance.setText("" + ConfigFileHandler.getApplicationSettings().lineFilteringTolerance);
-        textFieldFilterTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineFilteringTolerance = Float.parseFloat(newValue));
+        textFieldFilterTolerance.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 0.5D));
+        textFieldFilterTolerance.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineFilteringTolerance.asDoubleProperty(), new NumberStringConverter(Utils.defaultDF));
 
-        choiceBoxFilterUnits.setValue(ConfigFileHandler.getApplicationSettings().lineFilteringUnits);
         choiceBoxFilterUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
-        choiceBoxFilterUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineFilteringUnits = newValue);
+        choiceBoxFilterUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineFilteringUnits.valueProperty());
 
         ///sort
 
-        checkBoxSort.setSelected(ConfigFileHandler.getApplicationSettings().lineSortingEnabled);
-        checkBoxSort.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingEnabled = newValue);
+        checkBoxSort.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineSortingEnabled.valueProperty());
 
-        textFieldSortTolerance.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 1F));
-        textFieldSortTolerance.setText("" + ConfigFileHandler.getApplicationSettings().lineSortingTolerance);
-        textFieldSortTolerance.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingTolerance = Float.parseFloat(newValue));
+        textFieldSortTolerance.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 1D));
+        textFieldSortTolerance.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineSortingTolerance.asDoubleProperty(), new NumberStringConverter(Utils.defaultDF));
 
-        choiceBoxSortUnits.setValue(ConfigFileHandler.getApplicationSettings().lineSortingUnits);
         choiceBoxSortUnits.setItems(FXCollections.observableArrayList(UnitsLength.values()));
-        choiceBoxSortUnits.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().lineSortingUnits = newValue);
+        choiceBoxSortUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().lineSortingUnits.valueProperty());
 
         ///multipass
 
-        checkBoxMultipass.setSelected(ConfigFileHandler.getApplicationSettings().multipassEnabled);
-        checkBoxMultipass.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().multipassEnabled = newValue);
+        checkBoxMultipass.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().multipassEnabled.valueProperty());
 
         textFieldMultipassCount.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 1));
-        textFieldMultipassCount.setText("" + ConfigFileHandler.getApplicationSettings().multipassCount);
-        textFieldMultipassCount.textProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().multipassCount = Integer.parseInt(newValue));
+        textFieldMultipassCount.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().multipassCount.asIntegerProperty(), new NumberStringConverter(Utils.defaultDF));
 
 
     }
@@ -142,12 +127,11 @@ public class FXExportController {
     public CheckBox checkBoxExportBackgroundLayer = null;
 
     public void initSVGSettingsPane(){
-        comboBoxLayerNamingPattern.setValue(ConfigFileHandler.getApplicationSettings().svgLayerNaming);
-        comboBoxLayerNamingPattern.valueProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().svgLayerNaming = newValue);
+        comboBoxLayerNamingPattern.setEditable(true);
+        comboBoxLayerNamingPattern.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().svgLayerNaming.valueProperty());
         comboBoxLayerNamingPattern.getItems().addAll("%NAME%", "%INDEX% - %NAME%", "Pen%INDEX%");
 
-        checkBoxExportBackgroundLayer.setSelected(ConfigFileHandler.getApplicationSettings().exportSVGBackground);
-        checkBoxExportBackgroundLayer.selectedProperty().addListener((observable, oldValue, newValue) -> ConfigFileHandler.getApplicationSettings().exportSVGBackground = newValue);
+        checkBoxExportBackgroundLayer.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().exportSVGBackground.valueProperty());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,17 +175,17 @@ public class FXExportController {
             comboBoxGCodePreset.setButtonCell(new ComboBoxListCell<>());
         });
 
-        textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldOffsetX.textFormatterProperty().setValue(new TextFormatter<>(new DoubleStringConverter(), 0D));
         textFieldOffsetX.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetX, new NumberStringConverter(Utils.defaultDF));
 
-        textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldOffsetY.textFormatterProperty().setValue(new TextFormatter<>(new DoubleStringConverter(), 0D));
         textFieldOffsetY.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetY, new NumberStringConverter(Utils.defaultDF));
 
         choiceBoxGCodeUnits.getItems().addAll(UnitsLength.values());
         choiceBoxGCodeUnits.setValue(UnitsLength.MILLIMETRES);
         choiceBoxGCodeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeUnits);
 
-        textFieldGCodeCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.1F));
+        textFieldGCodeCurveFlatness.textFormatterProperty().setValue(new TextFormatter<>(new DoubleStringConverter(), 0.1D));
         textFieldGCodeCurveFlatness.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.gcodeSettings.gcodeCurveFlatness, new NumberStringConverter(Utils.defaultDF));
         textFieldGCodeCurveFlatness.disableProperty().bind(checkBoxGCodeEnableFlattening.selectedProperty().not());
 
@@ -264,51 +248,32 @@ public class FXExportController {
 
     public void initImageSequencePane(){
 
-        textFieldDPI.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 300F));
-        textFieldDPI.setText("" + ConfigFileHandler.getApplicationSettings().exportDPI);
-        textFieldDPI.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().exportDPI = Float.parseFloat(newValue);
-            updateImageSequenceStats();
-        });
+        InvalidationListener updateListener = observable -> updateImageSequenceStats();
+
+        textFieldDPI.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 300D));
+        textFieldDPI.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().exportDPI.asDoubleProperty(), new NumberStringConverter(Utils.defaultDF));
+        textFieldDPI.textProperty().addListener(updateListener);
         textFieldDPI.disableProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.useOriginalSizing));
         
-        textFieldFPS.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 25F));
-        textFieldFPS.setText("" + ConfigFileHandler.getApplicationSettings().framesPerSecond);
-        textFieldFPS.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().framesPerSecond = Float.parseFloat(newValue);
-            updateImageSequenceStats();
-        });
-
+        textFieldFPS.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 25D));
+        textFieldFPS.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().framesPerSecond.asIntegerProperty(), new NumberStringConverter(Utils.defaultDF));
+        textFieldFPS.textProperty().addListener(updateListener);
 
         textFieldDuration.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 5));
-        textFieldDuration.setText("" + ConfigFileHandler.getApplicationSettings().duration);
-        textFieldDuration.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().duration = Integer.parseInt(newValue);
-            updateImageSequenceStats();
-        });
+        textFieldDuration.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().duration.asIntegerProperty(), new NumberStringConverter(Utils.defaultDF));
+        textFieldDuration.textProperty().addListener(updateListener);
 
         textFieldHoldStart.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 1));
-        textFieldHoldStart.setText("" + ConfigFileHandler.getApplicationSettings().frameHoldStart);
-        textFieldHoldStart.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().frameHoldStart = Integer.parseInt(newValue);
-            updateImageSequenceStats();
-        });
-
+        textFieldHoldStart.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().frameHoldStart.asIntegerProperty(), new NumberStringConverter(Utils.defaultDF));
+        textFieldHoldStart.textProperty().addListener(updateListener);
 
         textFieldHoldEnd.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 1));
-        textFieldHoldEnd.setText("" + ConfigFileHandler.getApplicationSettings().frameHoldEnd);
-        textFieldHoldEnd.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().frameHoldEnd = Integer.parseInt(newValue);
-            updateImageSequenceStats();
-        });
+        textFieldHoldEnd.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().frameHoldEnd.asIntegerProperty(), new NumberStringConverter(Utils.defaultDF));
+        textFieldHoldEnd.textProperty().addListener(updateListener);
 
-
-        choiceBoxTimeUnits.setValue(ConfigFileHandler.getApplicationSettings().durationUnits);
         choiceBoxTimeUnits.setItems(FXCollections.observableArrayList(UnitsTime.values()));
-        choiceBoxTimeUnits.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().durationUnits = newValue;
-            updateImageSequenceStats();
-        });
+        choiceBoxTimeUnits.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.getProgramSettings().durationUnits.valueProperty());
+        choiceBoxTimeUnits.valueProperty().addListener(updateListener);
 
         updateImageSequenceStats();
 
@@ -317,9 +282,9 @@ public class FXExportController {
     public void updateImageSequenceStats(){
         PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
 
-        int frameCount = ConfigFileHandler.getApplicationSettings().getFrameCount();
-        int geometriesPerFrame = drawing == null ? 0 : ConfigFileHandler.getApplicationSettings().getGeometriesPerFrame(drawing.getGeometryCount());
-        long verticesPerFrame = drawing == null ? 0 : ConfigFileHandler.getApplicationSettings().getVerticesPerFrame(drawing.getVertexCount());
+        int frameCount = DrawingBotV3.INSTANCE.getProgramSettings().getFrameCount();
+        int geometriesPerFrame = drawing == null ? 0 : DrawingBotV3.INSTANCE.getProgramSettings().getGeometriesPerFrame(drawing.getGeometryCount());
+        long verticesPerFrame = drawing == null ? 0 : DrawingBotV3.INSTANCE.getProgramSettings().getVerticesPerFrame(drawing.getVertexCount());
 
 
         if(verticesPerFrame == 1 && frameCount > verticesPerFrame){
@@ -327,8 +292,8 @@ public class FXExportController {
         }
         
         if(DrawingBotV3.project().openImage.get() != null){
-            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.project().openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
-            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.project().openImage.get().getTargetCanvas(), ConfigFileHandler.getApplicationSettings().exportDPI, false);
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.project().openImage.get().getTargetCanvas(), DrawingBotV3.INSTANCE.getProgramSettings().exportDPI.get(), false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.project().openImage.get().getTargetCanvas(), DrawingBotV3.INSTANCE.getProgramSettings().exportDPI.get(), false);
             labelExportSize.setText(exportWidth + " x " + exportHeight);
         }else{
             labelExportSize.setText("0 x 0");

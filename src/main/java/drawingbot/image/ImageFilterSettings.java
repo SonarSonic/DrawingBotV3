@@ -3,9 +3,8 @@ package drawingbot.image;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.util.PropertyUtil;
-import drawingbot.utils.EnumRotation;
+import javafx.beans.Observable;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,10 +13,10 @@ public class ImageFilterSettings implements IProperties {
 
     public final SimpleObjectProperty<ObservableList<ObservableImageFilter>> currentFilters = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(currentFilters);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(currentFilters);
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 

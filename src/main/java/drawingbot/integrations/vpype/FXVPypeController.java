@@ -16,8 +16,6 @@ public class FXVPypeController {
 
     public void initialize(){
         initVPypeSettingsPane();
-
-        DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.setOnHidden(e -> ConfigFileHandler.getApplicationSettings().markDirty());
     }
 
 
@@ -39,16 +37,12 @@ public class FXVPypeController {
     public void initVPypeSettingsPane(){
 
         comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
+        comboBoxVPypePreset.setValue(Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
         comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue);
-                if(!ConfigFileHandler.getApplicationSettings().vPypePresetName.equals(newValue.presetName)){
-                    ConfigFileHandler.getApplicationSettings().vPypePresetName = newValue.presetName;
-                    ConfigFileHandler.getApplicationSettings().markDirty();
-                }
             }
         });
-        comboBoxVPypePreset.setValue(PresetVpypeSettingsLoader.getPresetOrDefault(ConfigFileHandler.getApplicationSettings().vPypePresetName));
 
         FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
             comboBoxVPypePreset.setValue(preset);
@@ -65,13 +59,6 @@ public class FXVPypeController {
         checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeBypassOptimisation);
 
         textBoxVPypeExecutablePath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable);
-        textBoxVPypeExecutablePath.setText(ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable);
-        textBoxVPypeExecutablePath.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable = textBoxVPypeExecutablePath.getText();
-            ConfigFileHandler.getApplicationSettings().markDirty();
-        });
-
-
         buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable(DrawingBotV3.INSTANCE.vpypeSettings));
 
         buttonCancel.setOnAction(e -> DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.hide());

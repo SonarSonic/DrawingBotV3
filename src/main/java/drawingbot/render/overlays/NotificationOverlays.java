@@ -3,7 +3,6 @@ package drawingbot.render.overlays;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.Node;
 import javafx.scene.text.TextFlow;
 import org.controlsfx.control.NotificationPane;
@@ -12,7 +11,6 @@ import org.controlsfx.control.action.Action;
 public class NotificationOverlays extends AbstractOverlay{
 
     public static final NotificationOverlays INSTANCE = new NotificationOverlays();
-    public static SimpleIntegerProperty displayTimeSecs = new SimpleIntegerProperty(5);
 
     private NotificationPane notificationPane;
 
@@ -59,6 +57,10 @@ public class NotificationOverlays extends AbstractOverlay{
     }
 
     public void showWithSubtitle(String text, String subtitle, final Action... actions){
+        if(!DrawingBotV3.INSTANCE.getProgramSettings().notificationsEnabled.get()){
+            return;
+        }
+
         if(!Platform.isFxApplicationThread()){
             Platform.runLater(() -> showWithSubtitle(text, subtitle, actions));
             return;
@@ -71,12 +73,15 @@ public class NotificationOverlays extends AbstractOverlay{
         FXHelper.addText(flow, 14, "Bold", text + "\n");
         FXHelper.addText(flow, 12, "Normal", subtitle);
         notificationPane.show("", flow, actions);
-        setDisplayTime(displayTimeSecs.get());
+        setDisplayTime(DrawingBotV3.INSTANCE.getProgramSettings().notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text + " : " + subtitle);
     }
 
     public void show(final String text) {
+        if(!DrawingBotV3.INSTANCE.getProgramSettings().notificationsEnabled.get()){
+            return;
+        }
         if(!Platform.isFxApplicationThread()){
             Platform.runLater(() -> show(text));
             return;
@@ -85,12 +90,15 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
         notificationPane.show(text);
-        setDisplayTime(displayTimeSecs.get());
+        setDisplayTime(DrawingBotV3.INSTANCE.getProgramSettings().notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text);
     }
 
     public void show(final String text, final Node graphic) {
+        if(!DrawingBotV3.INSTANCE.getProgramSettings().notificationsEnabled.get()){
+            return;
+        }
         if(!Platform.isFxApplicationThread()){
             Platform.runLater(() -> show(text, graphic));
             return;
@@ -99,12 +107,15 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
         notificationPane.show(text, graphic);
-        setDisplayTime(displayTimeSecs.get());
+        setDisplayTime(DrawingBotV3.INSTANCE.getProgramSettings().notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text);
     }
 
     public void show(final String text, final Node graphic, final Action... actions) {
+        if(!DrawingBotV3.INSTANCE.getProgramSettings().notificationsEnabled.get()){
+            return;
+        }
         if(!Platform.isFxApplicationThread()){
             Platform.runLater(() -> show(text, graphic, actions));
             return;
@@ -113,7 +124,7 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
         notificationPane.show(text, graphic, actions);
-        setDisplayTime(displayTimeSecs.get());
+        setDisplayTime(DrawingBotV3.INSTANCE.getProgramSettings().notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text);
     }

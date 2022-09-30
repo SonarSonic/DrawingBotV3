@@ -1,3 +1,13 @@
+### [v1.4.3-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.3-stable-free)
+- Added: Ability to have multiple projects open simultaneously  
+- Added: 'Directionality' & 'Distortion'
+  
+- Added: 'Notes'
+- Improved: PFM Controls now have category headings
+- Improved: The main settings panel can now be resized horizontally.
+- Improved: When undocked individual settings tabs can be resized horizontally & vertically.
+- Fixed: Issue preventing versions being renamed
+
 ### [v1.4.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.2-stable-free)
 - Added: New improved button controls for Image Processing, Pen Settings, Version Control and Mask Settings
 - Added: Support for different Plotting Resolution on individual drawing styles in Layers PFM and Mosaic PFMS  

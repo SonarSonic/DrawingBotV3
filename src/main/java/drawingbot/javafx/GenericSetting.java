@@ -5,8 +5,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
+import drawingbot.javafx.preferences.ProgramSettings;
 import drawingbot.javafx.settings.*;
 import drawingbot.registry.Register;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -23,7 +27,7 @@ import java.util.function.Function;
 
 /**a simple setting which can be easily altered in java fx, which can be randomised, reset, converted to and from a string & parsed to json.
  * it can be applied to an instance when needed or permanently attached to an instance */
-public abstract class GenericSetting<C, V> {
+public abstract class GenericSetting<C, V> implements Observable {
 
     public final Class<C> clazz; //the class this setting can be applied to or belongs to
     public final Class<V> type; //the object type of the value this setting represents
@@ -47,7 +51,7 @@ public abstract class GenericSetting<C, V> {
         this.setValue(newValue);
     }
 
-    public GenericSetting(Class<C> clazz, Class<V> type, String category, String key, V defaultValue) {
+    public GenericSetting(@Nullable Class<C> clazz, Class<V> type, String category, String key, V defaultValue) {
         this.clazz = clazz;
         this.type = type;
         this.setCategory(category);
@@ -56,7 +60,6 @@ public abstract class GenericSetting<C, V> {
         this.setDefaultValue(defaultValue);
         this.setValue(defaultValue);
     }
-
     ////////////////////////////////
 
     private String category;
@@ -180,6 +183,10 @@ public abstract class GenericSetting<C, V> {
         }
     };
 
+    public V get() {
+        return getValue();
+    }
+
     public V getValue() {
         if(validator != null){
             return validate(value.getValue());
@@ -195,6 +202,10 @@ public abstract class GenericSetting<C, V> {
         return getStringConverter().toString(value);
     }
 
+    public void set(Object v) {
+        setValue(v);
+    }
+
     public void setValue(Object v){
         V cast = type.cast(v);
         value.setValue(validate(cast));
@@ -204,9 +215,27 @@ public abstract class GenericSetting<C, V> {
         value.setValue(getStringConverter().fromString(obj));
     }
     
-    public ObjectProperty<V> valueProperty(){
+    public SimpleObjectProperty<V> valueProperty(){
         return value;
     }
+
+    ////////////////////////////////
+
+    /**
+     * We implement Observable so it becomes simple to use a Generic Setting in a list of Observables.
+     * For example when using it in conjunction with {@link drawingbot.api.IProperties}
+     */
+
+    @Override
+    public void addListener(InvalidationListener listener) {
+        valueProperty().addListener(listener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener listener) {
+        valueProperty().removeListener(listener);
+    }
+
 
     ////////////////////////////////
 
@@ -359,8 +388,9 @@ public abstract class GenericSetting<C, V> {
     public GenericSetting<C, V> createDisableBinding(String targetKey, boolean value){
         setBindingFactory((setting, settings) -> {
             GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
-            if(disablingSetting != null && disablingSetting.type.equals(Boolean.class)){
-                setting.disabledProperty().bind(disablingSetting.valueProperty().isEqualTo(value));
+            if(disablingSetting instanceof BooleanSetting){
+                BooleanSetting<?> booleanSetting = (BooleanSetting<?>) disablingSetting;
+                setting.disabledProperty().bind(Bindings.createBooleanBinding(() -> booleanSetting.getValue() == value, disablingSetting.valueProperty()));
             }
         });
         return this;
@@ -684,7 +714,11 @@ public abstract class GenericSetting<C, V> {
     }
 
     public static <C> BooleanSetting<C> createBooleanSetting(Class<C> clazz, String category, String settingName, Boolean defaultValue, BiConsumer<C, Boolean> setter){
-        return (BooleanSetting<C>) new BooleanSetting<>(clazz, category, settingName, defaultValue).setSetter(setter);
+        return (BooleanSetting<C>) createBooleanSetting(clazz, category, settingName, defaultValue).setSetter(setter);
+    }
+
+    public static <C> BooleanSetting<C> createBooleanSetting(Class<C> clazz, String category, String settingName, Boolean defaultValue){
+        return new BooleanSetting<>(clazz, category, settingName, defaultValue);
     }
 
     public static <C> StringSetting<C> createStringSetting(Class<C> clazz, String settingName, String defaultValue, Function<C, StringProperty> supplier){
@@ -700,7 +734,11 @@ public abstract class GenericSetting<C, V> {
     }
 
     public static <C> StringSetting<C> createStringSetting(Class<C> clazz, String category, String settingName, String defaultValue, BiConsumer<C, String> setter){
-        return (StringSetting<C>) new StringSetting<>(clazz, category, settingName, defaultValue).setSetter(setter);
+        return (StringSetting<C>) createStringSetting(clazz, category, settingName, defaultValue).setSetter(setter);
+    }
+
+    public static <C> StringSetting<C> createStringSetting(Class<C> clazz, String category, String settingName, String defaultValue){
+        return new StringSetting<>(clazz, category, settingName, defaultValue);
     }
 
     public static <C> IntegerSetting<C> createIntSetting(Class<C> clazz, String settingName, int defaultValue, Function<C, IntegerProperty> supplier){
@@ -716,7 +754,10 @@ public abstract class GenericSetting<C, V> {
     }
 
     public static <C> IntegerSetting<C> createIntSetting(Class<C> clazz, String category, String settingName, int defaultValue, BiConsumer<C, Integer> setter){
-        return (IntegerSetting<C>) new IntegerSetting<>(clazz, category, settingName, defaultValue).setSetter(setter);
+        return (IntegerSetting<C>) createIntSetting(clazz, category, settingName, defaultValue).setSetter(setter);
+    }
+    public static <C> IntegerSetting<C> createIntSetting(Class<C> clazz, String category, String settingName, int defaultValue){
+        return new IntegerSetting<>(clazz, category, settingName, defaultValue);
     }
 
     public static <C> FloatSetting<C> createFloatSetting(Class<C> clazz, String settingName, float defaultValue, Function<C, FloatProperty> supplier){
@@ -783,6 +824,10 @@ public abstract class GenericSetting<C, V> {
         return (IntegerSetting<C>) new IntegerSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue).setSetter(setter);
     }
 
+    public static <C> IntegerSetting<C> createRangedIntSetting(Class<C> clazz, String category, String settingName, int defaultValue, int minValue, int maxValue){
+        return new IntegerSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue);
+    }
+
     public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> clazz, String settingName, float defaultValue, float minValue, float maxValue, Function<C, FloatProperty> supplier){
         return createRangedFloatSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, minValue, maxValue, supplier);
     }
@@ -812,7 +857,11 @@ public abstract class GenericSetting<C, V> {
     }
 
     public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, double minValue, double maxValue, BiConsumer<C, Double> setter){
-        return (DoubleSetting<C>) new DoubleSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue).setSetter(setter);
+        return (DoubleSetting<C>) createRangedDoubleSetting(clazz, category, settingName, defaultValue, minValue, maxValue).setSetter(setter);
+    }
+
+    public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, double minValue, double maxValue){
+        return new DoubleSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue);
     }
 
     public static <C> LongSetting<C> createRangedLongSetting(Class<C> clazz, String settingName, long defaultValue, long minValue, long maxValue, Function<C, LongProperty> supplier){
@@ -880,19 +929,23 @@ public abstract class GenericSetting<C, V> {
         return (ObjectSetting<C, V>) new ObjectSetting<>(clazz, objectType, category, settingName, defaultValue).setSetter(setter);
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, List<V> values, V defaultValue, Function<C, ObjectProperty<V>> supplier){
-        return createOptionSetting(clazz, type, category, settingName, values, defaultValue, (I, V) -> supplier.apply(I).set(V)).setGetter(I -> supplier.apply(I).get());
+    public static <C, V> OptionSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, ObservableList<V> values, V defaultValue, Function<C, ObjectProperty<V>> supplier){
+        return (OptionSetting<C, V>) createOptionSetting(clazz, type, category, settingName, values, defaultValue, (I, V) -> supplier.apply(I).set(V)).setGetter(I -> supplier.apply(I).get());
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String settingName, List<V> values, V defaultValue, Function<C, ObjectProperty<V>> supplier){
-        return createOptionSetting(clazz, type, settingName, values, defaultValue, (I, V) -> supplier.apply(I).set(V)).setGetter(I -> supplier.apply(I).get());
+    public static <C, V> OptionSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String settingName, ObservableList<V> values, V defaultValue, Function<C, ObjectProperty<V>> supplier){
+        return (OptionSetting<C, V>) createOptionSetting(clazz, type, settingName, values, defaultValue, (I, V) -> supplier.apply(I).set(V)).setGetter(I -> supplier.apply(I).get());
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String settingName, List<V> values, V defaultValue, BiConsumer<C, V> setter) {
+    public static <C, V> OptionSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String settingName, ObservableList<V> values, V defaultValue, BiConsumer<C, V> setter) {
         return createOptionSetting(clazz, type, Register.CATEGORY_UNIQUE, settingName, values, defaultValue, setter);
     }
 
-    public static <C, V> GenericSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, List<V> values, V defaultValue, BiConsumer<C, V> setter){
-        return new OptionSetting<>(clazz, type, category, settingName, defaultValue, values).setSetter(setter);
+    public static <C, V> OptionSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, ObservableList<V> values, V defaultValue, BiConsumer<C, V> setter){
+        return (OptionSetting<C, V>) createOptionSetting(clazz, type, category, settingName, values, defaultValue).setSetter(setter);
+    }
+
+    public static <C, V> OptionSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, ObservableList<V> values, V defaultValue){
+        return new OptionSetting<>(clazz, type, category, settingName, defaultValue, values);
     }
 }

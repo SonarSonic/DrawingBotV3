@@ -1,6 +1,7 @@
 package drawingbot.registry;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.api.*;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
@@ -92,7 +93,7 @@ public class MasterRegistry {
 
     @Nullable
     public String getDefaultPresetName(PresetType presetType, String presetSubType){
-        return ConfigFileHandler.getApplicationSettings().defaultPresets.get(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
+        return DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.get(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
     }
 
     @Nullable
@@ -136,11 +137,9 @@ public class MasterRegistry {
 
     public void setDefaultPreset(GenericPreset<?> preset){
         if(preset.presetType.defaultsPerSubType){
-            ConfigFileHandler.getApplicationSettings().defaultPresets.put(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
-            ConfigFileHandler.getApplicationSettings().markDirty();
+            DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
         }else{
-            ConfigFileHandler.getApplicationSettings().defaultPresets.put(preset.presetType.id, preset.presetName);
-            ConfigFileHandler.getApplicationSettings().markDirty();
+            DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(preset.presetType.id, preset.presetName);
         }
     }
 
@@ -263,7 +262,7 @@ public class MasterRegistry {
     public ObservableList<PFMFactory<?>> getObservablePFMLoaderList(){
         ObservableList<PFMFactory<?>> list = FXCollections.observableArrayList();
         for(PFMFactory<?> loader : pfmFactories){
-            if(!loader.isHidden() || ConfigFileHandler.getApplicationSettings().isDeveloperMode){
+            if(!loader.isHidden() || FXApplication.isDeveloperMode){
                 list.add(loader);
             }
         }

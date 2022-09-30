@@ -6,6 +6,7 @@ import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumDistributionType;
+import javafx.beans.Observable;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -86,7 +87,7 @@ public class PFMSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(factory, settings, nextDistributionType);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(factory, settings, nextDistributionType);
 
     {
         treeRoot.set(generatePFMSettingTree(settings.get()));
@@ -137,7 +138,7 @@ public class PFMSettings implements IProperties {
     }
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 
