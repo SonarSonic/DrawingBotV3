@@ -7,6 +7,7 @@ import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.plotting.canvas.ObservableCanvas;
+import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class PresetUISettingsManager extends DefaultPresetManager<PresetUISettin
 
     @Override
     public void registerSettings() {
-        registerSetting(GenericSetting.createOptionSetting(ObservableProject.class, EnumBlendMode.class, "blendMode", List.of(EnumBlendMode.values()), EnumBlendMode.NORMAL, i -> i.blendMode));
+        registerSetting(GenericSetting.createOptionSetting(ObservableProject.class, EnumBlendMode.class, "blendMode", FXCollections.observableArrayList(EnumBlendMode.values()), EnumBlendMode.NORMAL, i -> i.blendMode));
         registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "canvasColor", Color.WHITE, i -> i.drawingArea.get().canvasColor));
         registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "backgroundColor", ObservableCanvas.backgroundColourDefault, i -> i.drawingArea.get().backgroundColor));
         
