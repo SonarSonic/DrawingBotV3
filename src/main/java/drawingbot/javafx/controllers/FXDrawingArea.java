@@ -43,9 +43,9 @@ public class FXDrawingArea {
     public TextField textFieldPaddingBottom = null;
     public CheckBox checkBoxGangPadding = null;
 
-    public ChoiceBox<EnumScalingMode> choiceBoxScalingMode = null;
+    public ChoiceBox<EnumCroppingMode> choiceBoxCroppingMode = null;
 
-    public CheckBox checkBoxOptimiseForPrint = null;
+    public ChoiceBox<EnumRescaleMode> choiceBoxRescaleMode = null;
     public TextField textFieldPenWidth = null;
 
     public ColorPicker colorPickerCanvas = null;
@@ -69,9 +69,9 @@ public class FXDrawingArea {
                 textFieldPaddingBottom.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingBottom);
                 checkBoxGangPadding.selectedProperty().unbindBidirectional(oldValue.drawingAreaGangPadding);
 
-                choiceBoxScalingMode.valueProperty().unbindBidirectional(oldValue.scalingMode);
+                choiceBoxCroppingMode.valueProperty().unbindBidirectional(oldValue.croppingMode);
 
-                checkBoxOptimiseForPrint.selectedProperty().unbindBidirectional(oldValue.optimiseForPrint);
+                choiceBoxRescaleMode.valueProperty().unbindBidirectional(oldValue.rescaleMode);
                 textFieldPenWidth.textProperty().unbindBidirectional(oldValue.targetPenWidth);
 
                 colorPickerCanvas.valueProperty().unbindBidirectional(oldValue.canvasColor);
@@ -95,9 +95,9 @@ public class FXDrawingArea {
                 textFieldPaddingBottom.textProperty().bindBidirectional(newValue.drawingAreaPaddingBottom, new NumberStringConverter(Utils.defaultDF));
                 checkBoxGangPadding.selectedProperty().bindBidirectional(newValue.drawingAreaGangPadding);
 
-                choiceBoxScalingMode.valueProperty().bindBidirectional(newValue.scalingMode);
+                choiceBoxCroppingMode.valueProperty().bindBidirectional(newValue.croppingMode);
 
-                checkBoxOptimiseForPrint.selectedProperty().bindBidirectional(newValue.optimiseForPrint);
+                choiceBoxRescaleMode.valueProperty().bindBidirectional(newValue.rescaleMode);
                 textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter(Utils.defaultDF));
 
                 colorPickerCanvas.valueProperty().bindBidirectional(newValue.canvasColor);
@@ -148,11 +148,14 @@ public class FXDrawingArea {
         textFieldPaddingTop.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldPaddingBottom.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        choiceBoxScalingMode.getItems().addAll(EnumScalingMode.values());
-        choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
+        choiceBoxCroppingMode.getItems().addAll(EnumCroppingMode.values());
+        choiceBoxCroppingMode.setValue(EnumCroppingMode.CROP_TO_FIT);
+
+        choiceBoxRescaleMode.getItems().addAll(EnumRescaleMode.values());
+        choiceBoxRescaleMode.setValue(EnumRescaleMode.HIGH_QUALITY);
 
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
-        textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
+        textFieldPenWidth.disableProperty().bind(choiceBoxRescaleMode.valueProperty().isEqualTo(EnumRescaleMode.OFF));
 
         choiceBoxClippingMode.getItems().addAll(EnumClippingMode.values());
         choiceBoxClippingMode.setValue(EnumClippingMode.DRAWING);

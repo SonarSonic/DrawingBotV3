@@ -3,7 +3,8 @@ package drawingbot.plotting.canvas;
 import drawingbot.api.ICanvas;
 import drawingbot.image.ImageTools;
 import drawingbot.utils.EnumClippingMode;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumCroppingMode;
+import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 
 import java.awt.image.BufferedImage;
@@ -15,8 +16,6 @@ public class ImageCanvas implements ICanvas {
 
     public ICanvas targetCanvas;
     public ICanvas imageCanvas;
-    //private final int imageWidth;
-    //private final int imageHeight;
     private final boolean flipAxis;
 
     public ImageCanvas(ICanvas targetCanvas, BufferedImage refImage, boolean flipAxis){
@@ -43,7 +42,7 @@ public class ImageCanvas implements ICanvas {
 
     public float getImageOffsetX(){
         float imageOffsetX = 0;
-        if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
+        if(getCroppingMode() == EnumCroppingMode.SCALE_TO_FIT){
             float currentRatio = getImageWidth() / getImageHeight();
             float targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
             float targetWidth = Math.round(targetCanvas.getDrawingHeight() * currentRatio);
@@ -55,7 +54,7 @@ public class ImageCanvas implements ICanvas {
 
     public float getImageOffsetY(){
         float imageOffsetY = 0;
-        if(getScalingMode() == EnumScalingMode.SCALE_TO_FIT){
+        if(getCroppingMode() == EnumCroppingMode.SCALE_TO_FIT){
             float currentRatio = getImageWidth() / getImageHeight();
             float targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
             float targetHeight = Math.round(getDrawingWidth() / currentRatio);
@@ -74,11 +73,11 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public EnumScalingMode getScalingMode() {
+    public EnumCroppingMode getCroppingMode() {
         if(useOriginalSizing()){
-            return imageCanvas.getScalingMode();
+            return imageCanvas.getCroppingMode();
         }
-        return targetCanvas.getScalingMode();
+        return targetCanvas.getCroppingMode();
     }
 
     @Override
@@ -90,11 +89,11 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public boolean optimiseForPrint() {
+    public EnumRescaleMode getRescaleMode() {
         if(useOriginalSizing()){
-            return imageCanvas.optimiseForPrint();
+            return EnumRescaleMode.OFF;
         }
-        return targetCanvas.optimiseForPrint();
+        return targetCanvas.getRescaleMode();
     }
 
     @Override
@@ -107,16 +106,30 @@ public class ImageCanvas implements ICanvas {
         if(useOriginalSizing()){
             return imageCanvas.getPlottingScale();
         }
-        if(!optimiseForPrint() && getUnits() != UnitsLength.PIXELS){
+        if(getRescaleMode().isHighQuality() || !getRescaleMode().shouldRescale() && getUnits() != UnitsLength.PIXELS){
             int[] imageSize = ImageTools.getEffectiveImageSize(targetCanvas, (int)getImageWidth(), (int)getImageHeight());
 
             float currentRatio = (float) imageSize[0] / (float)imageSize[1];
             float targetRatio = getDrawingWidth() / getDrawingHeight();
 
-            return currentRatio < targetRatio ? imageSize[1] / getDrawingHeight(UnitsLength.PIXELS) : imageSize[0] / getDrawingWidth(UnitsLength.PIXELS) ;
+            float scale = currentRatio < targetRatio ? imageSize[1] / getDrawingHeight(UnitsLength.PIXELS) : imageSize[0] / getDrawingWidth(UnitsLength.PIXELS);
+            float target = targetCanvas.getPlottingScale();
+            return Math.max(scale, target);
         }
-
         return targetCanvas.getPlottingScale();
+    }
+
+    @Override
+    public float getTargetPenWidth() {
+        if(!useOriginalSizing() && getRescaleMode().isHighQuality()){
+            return getPlottingScale() / targetCanvas.getPlottingScale();
+        }
+        return 1F;
+    }
+
+    @Override
+    public float getCanvasScale(){
+        return 1F;
     }
 
     @Override

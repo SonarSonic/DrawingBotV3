@@ -109,9 +109,9 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
         return getAWTColor();
     }
 
-    public BasicStroke getAWTStroke(){
-        if(awtStroke == null){
-            awtStroke = new BasicStroke(strokeSize.get(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    public BasicStroke getAWTStroke(float lineWidth){
+        if(awtStroke == null || awtStroke.getLineWidth() != lineWidth){
+            awtStroke = new BasicStroke(lineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
         }
         return awtStroke;
     }

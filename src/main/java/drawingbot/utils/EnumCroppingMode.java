@@ -1,6 +1,6 @@
 package drawingbot.utils;
 
-public enum EnumScalingMode {
+public enum EnumCroppingMode {
     CROP_TO_FIT,
     SCALE_TO_FIT,
     STRETCH_TO_FIT;

@@ -11,7 +11,7 @@ import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.api.ICanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumRotation;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumCroppingMode;
 import drawingbot.utils.UnitsLength;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
@@ -197,7 +197,7 @@ public class ImageTools {
             return tx;
         }
 
-        final EnumScalingMode mode = destCanvas.getScalingMode();
+        final EnumCroppingMode mode = destCanvas.getCroppingMode();
         switch (mode) {
             case CROP_TO_FIT -> {
                 int[] crops = CanvasUtils.getCroppedImageSize(destCanvas, (int)sourceCanvas.getScaledWidth(), (int)sourceCanvas.getScaledHeight());
@@ -205,13 +205,13 @@ public class ImageTools {
                 int height = crops[1];
                 int cropX = crops[2];
                 int cropY = crops[3];
-                if(destCanvas.optimiseForPrint()) {
+                if(destCanvas.getRescaleMode().shouldRescale()) {
                     tx.scale(destCanvas.getScaledDrawingWidth() / width, destCanvas.getScaledDrawingHeight() / height);
                 }
                 tx.translate(-cropX, -cropY);
             }
             case SCALE_TO_FIT -> {
-                if(destCanvas.optimiseForPrint()) {
+                if(destCanvas.getRescaleMode().shouldRescale()) {
                     double widthScale = destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth();
                     double heightScale = destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight();
                     double rescale = Math.min(widthScale, heightScale);
@@ -221,7 +221,7 @@ public class ImageTools {
                 }
             }
             case STRETCH_TO_FIT -> {
-                if(destCanvas.optimiseForPrint()) {
+                if(destCanvas.getRescaleMode().shouldRescale()) {
                     tx.scale(destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth(), destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight());
                 }else{
                     double currentRatio = sourceCanvas.getScaledWidth() / sourceCanvas.getScaledHeight();
@@ -259,7 +259,7 @@ public class ImageTools {
 
     public static int[] getEffectiveImageSize(ICanvas canvas, int width, int height){
         int[] size = new int[]{width, height};
-        switch (canvas.getScalingMode()){
+        switch (canvas.getCroppingMode()){
             case CROP_TO_FIT:
                 int[] crops = CanvasUtils.getCroppedImageSize(canvas, width, height);
                 size[0] = crops[0];
@@ -283,7 +283,7 @@ public class ImageTools {
         int finalHeight = (int)(canvas.getDrawingHeight(UnitsLength.PIXELS) * canvas.getPlottingScale());
 
         //crop the image in it's original resolution
-        final EnumScalingMode mode = canvas.getScalingMode();
+        final EnumCroppingMode mode = canvas.getCroppingMode();
         switch (mode){
             case CROP_TO_FIT:
                 int[] crops = CanvasUtils.getCroppedImageSize(canvas, image.getWidth(), image.getHeight());

@@ -7,11 +7,10 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumOrientation;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumCroppingMode;
+import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 import javafx.collections.FXCollections;
-
-import java.util.List;
 
 public abstract class PresetDrawingAreaManager extends DefaultPresetManager<PresetDrawingArea, ObservableCanvas> {
 
@@ -36,7 +35,8 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
     public void registerSettings() {
         registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "useOriginalSizing", false, i -> i.useOriginalSizing).setDisplayName("Use Original Sizing"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, UnitsLength.class, Register.CATEGORY_UNIQUE, "inputUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES, i -> i.inputUnits).setDisplayName("Input Units"));
-        registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumScalingMode.class, Register.CATEGORY_UNIQUE, "scalingMode", FXCollections.observableArrayList(EnumScalingMode.values()), EnumScalingMode.CROP_TO_FIT, i -> i.scalingMode).setDisplayName("Scaling Mode"));
+        registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumCroppingMode.class, Register.CATEGORY_UNIQUE, "scalingMode", FXCollections.observableArrayList(EnumCroppingMode.values()), EnumCroppingMode.CROP_TO_FIT, i -> i.croppingMode).setDisplayName("Cropping Mode"));
+        registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumRescaleMode.class, Register.CATEGORY_UNIQUE, "rescaleMode", FXCollections.observableArrayList(EnumRescaleMode.values()), EnumRescaleMode.HIGH_QUALITY, i -> i.rescaleMode).setDisplayName("Rescale Mode"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaWidth", 0F, i -> i.width).setValidator(Math::abs).setDisplayName("Width"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaHeight", 0F, i -> i.height).setValidator(Math::abs).setDisplayName("Height"));
         registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaGang", true, i -> i.drawingAreaGangPadding).setDisplayName("Gang Padding"));
@@ -44,7 +44,6 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingRight", 0F, i -> i.drawingAreaPaddingRight).setValidator(Math::abs).setDisplayName("Padding Right"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingTop", 0F, i -> i.drawingAreaPaddingTop).setValidator(Math::abs).setDisplayName("Padding Top"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingBottom", 0F, i -> i.drawingAreaPaddingBottom).setValidator(Math::abs).setDisplayName("Padding Bottom"));
-        registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "optimiseForPrint", true, i -> i.optimiseForPrint).setDisplayName("Optimise for Print"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "targetPenWidth", 0.3F, i -> i.targetPenWidth).setValidator(Math::abs).setDisplayName("Target pen width"));
     }
 }

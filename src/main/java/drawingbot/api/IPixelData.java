@@ -1,13 +1,13 @@
 package drawingbot.api;
 
+import drawingbot.image.ImageTools;
+
+import java.awt.image.BufferedImage;
+
 /**
  * Represents an image file as raw pixel data, which you can read from / write to.
  * There are lots of convenience methods for providing individual values for alpha, red, green, blue, hue, saturation, luminance
  * It is recommended to change individual values rather than using ARGB methods.
- *
- * Can be one of three colour modes: 0 = ARGB, 1 = HSB, 2 = Luminance (Y), 3 = ARGBY, 4 = Hybrid
- * The chosen mode will affect the efficiency of accessing pixel data
- * See: {@link IPFMImage#getColourMode()}
  *
  * It's also specifically optimised to provide averages efficiently, enabling more frequent progress bar updates.
  *
@@ -415,5 +415,13 @@ public interface IPixelData {
      * instead use {@link IPFMImage#getTransparentARGB()}
      */
     void setTransparentARGB(int argb);
+
+    default void loadData(IPixelData source){
+        ImageTools.copy(source, this);
+    }
+
+    default void loadData(BufferedImage source){
+        ImageTools.copyToPixelData(source, this);
+    }
 
 }

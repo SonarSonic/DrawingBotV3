@@ -84,19 +84,16 @@ public class PFMTaskImage extends PFMTask {
             imgPlotting = Scalr.resize(imgPlotting, Scalr.Method.ULTRA_QUALITY, (int)(imgPlotting.getWidth() * pfm().getPlottingResolution()), (int)(imgPlotting.getHeight()* pfm().getPlottingResolution()));
         }
 
-
-        DrawingBotV3.logger.fine("Creating Pixel Data");
-        pixelDataReference = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
-        pixelDataPlotting = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
-        pixelDataPlotting.setTransparentARGB(pfm().getTransparentARGB());
-
         DrawingBotV3.logger.fine("Creating Reference Image");
-        ImageTools.copyToPixelData(imgPlotting, pixelDataReference);
+        pixelDataReference = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
+        pixelDataReference.loadData(imgPlotting);
         this.drawing.setMetadata(Register.INSTANCE.REFERENCE_IMAGE, imgPlotting);
 
         DrawingBotV3.logger.fine("Creating Plotting Image");
         imgPlotting = pfm().preFilter(imgPlotting);
-        ImageTools.copyToPixelData(imgPlotting, pixelDataPlotting);
+        pixelDataPlotting = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
+        pixelDataPlotting.setTransparentARGB(pfm().getTransparentARGB());
+        pixelDataPlotting.loadData(imgPlotting);
         this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, imgPlotting);
     }
 

@@ -15,6 +15,7 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.Register;
+import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -64,7 +65,7 @@ class PresetProjectSettingsManagerLegacy {
         presetData.imageFlipVertical = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.get();
          */
 
-        presetData.optimiseForPrint = context.project.getDrawingArea().optimiseForPrint.get();
+        presetData.optimiseForPrint = context.project.getDrawingArea().getRescaleMode().shouldRescale();
         presetData.targetPenWidth = context.project.getDrawingArea().targetPenWidth.get();
         presetData.colourSplitter = context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.get();
         presetData.distributionType = context.project.getDrawingSets().getDrawingSetForSlot(0).distributionType.get();
@@ -112,7 +113,7 @@ class PresetProjectSettingsManagerLegacy {
         DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.set(presetData.imageFlipVertical);
          */
 
-        context.project.getDrawingArea().optimiseForPrint.set(presetData.optimiseForPrint);
+        context.project.getDrawingArea().rescaleMode.set(presetData.optimiseForPrint ? EnumRescaleMode.HIGH_QUALITY : EnumRescaleMode.OFF);
         context.project.getDrawingArea().targetPenWidth.set(presetData.targetPenWidth); //TODO TEST ME
 
 

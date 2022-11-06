@@ -3,7 +3,7 @@ package drawingbot.pfm;
 import drawingbot.api.*;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
-import drawingbot.image.PixelDataARGBY;
+import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.pfm.helpers.*;
 import drawingbot.plotting.PlottingTools;
 import drawingbot.utils.Utils;
@@ -19,7 +19,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
 
     @Override
     public IPixelData createPixelData(int width, int height) {
-        return new PixelDataARGBY(width, height);
+        return PixelDataGraphicsComposite.create(width, height);
     }
 
     @Override
@@ -336,16 +336,15 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ColourSampleTest defaultColourTest = new ColourSampleTest();
+    public PFMRenderPipe renderPipe = new PFMRenderPipe();
 
     public void addGeometryWithColourSamples(IPixelData pixelData, IGeometry geometry, int adjust){
-        int colourSamples = adjustGeometryLuminance(pixelData, geometry, adjust);
+        int colourSamples = eraseGeometry(pixelData, geometry, adjust);
         tools.addGeometry(geometry, -1, colourSamples);
     }
 
-    public int adjustGeometryLuminance(IPixelData pixelData, IGeometry geometry, int adjust){
-        defaultColourTest.resetColourSamples(adjust);
-        geometry.renderBresenham(tools.bresenham, (x,y) -> defaultColourTest.addSample(pixelData, x, y));
-        return defaultColourTest.getCurrentAverage();
+    public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust){
+        return renderPipe.eraseGeometry(pixelData, geometry, adjust, tools.getCanvas().getTargetPenWidth());
     }
 
 }

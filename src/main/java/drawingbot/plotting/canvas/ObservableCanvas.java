@@ -2,11 +2,8 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
-import drawingbot.utils.EnumClippingMode;
-import drawingbot.utils.EnumOrientation;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.*;
 import drawingbot.javafx.util.PropertyUtil;
-import drawingbot.utils.UnitsLength;
 import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -19,7 +16,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     private static final float defaultWidth = 210, defaultHeight = 297; //DEFAULT - A4 Paper
 
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
-    public final SimpleObjectProperty<EnumScalingMode> scalingMode = new SimpleObjectProperty<>(EnumScalingMode.CROP_TO_FIT);
+    public final SimpleObjectProperty<EnumCroppingMode> croppingMode = new SimpleObjectProperty<>(EnumCroppingMode.CROP_TO_FIT);
     public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(EnumClippingMode.DRAWING);
     public final SimpleObjectProperty<UnitsLength> inputUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
@@ -33,8 +30,9 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumOrientation> orientation = new SimpleObjectProperty<>(EnumOrientation.PORTRAIT);
 
-    public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
     public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
+
+    public final SimpleObjectProperty<EnumRescaleMode> rescaleMode = new SimpleObjectProperty<>(EnumRescaleMode.HIGH_QUALITY);
 
     //the default JFX viewport background colours
     public static final Color backgroundColourDefault = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
@@ -44,7 +42,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
     public final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(backgroundColourDefault);
 
-    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(useOriginalSizing, croppingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, rescaleMode, targetPenWidth, canvasColor);
 
     public ObservableCanvas(){
 
@@ -153,8 +151,8 @@ public class ObservableCanvas implements ICanvas, IProperties {
     }
 
     @Override
-    public EnumScalingMode getScalingMode() {
-        return scalingMode.get();
+    public EnumCroppingMode getCroppingMode() {
+        return croppingMode.get();
     }
 
     @Override
@@ -163,8 +161,18 @@ public class ObservableCanvas implements ICanvas, IProperties {
     }
 
     @Override
+    public EnumRescaleMode getRescaleMode() {
+        return rescaleMode.get();
+    }
+
+    @Override
     public float getPlottingScale(){
-        return optimiseForPrint.get() ? 1F / targetPenWidth.get() : 1F;
+        return getRescaleMode().shouldRescale() ? 1F / targetPenWidth.get() : 1F;
+    }
+
+    @Override
+    public float getTargetPenWidth() {
+        return targetPenWidth.get();
     }
 
     @Override
@@ -208,15 +216,10 @@ public class ObservableCanvas implements ICanvas, IProperties {
         return useOriginalSizing.get();
     }
 
-    @Override
-    public boolean optimiseForPrint(){
-        return optimiseForPrint.get();
-    }
-
     public ObservableCanvas copy(){
         ObservableCanvas copy = new ObservableCanvas();
         copy.useOriginalSizing.set(useOriginalSizing.get());
-        copy.scalingMode.set(scalingMode.get());
+        copy.croppingMode.set(croppingMode.get());
         copy.clippingMode.set(clippingMode.get());
         copy.inputUnits.set(inputUnits.get());
 
@@ -228,7 +231,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
         copy.drawingAreaPaddingBottom.set(drawingAreaPaddingBottom.get());
         copy.drawingAreaGangPadding.set(drawingAreaGangPadding.get());
 
-        copy.optimiseForPrint.set(optimiseForPrint.get());
+        copy.rescaleMode.set(rescaleMode.get());
         copy.targetPenWidth.set(targetPenWidth.get());
         copy.canvasColor.set(canvasColor.get());
         return copy;

@@ -2,6 +2,7 @@ package drawingbot.javafx;
 
 import com.google.gson.JsonObject;
 import drawingbot.javafx.settings.*;
+import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
 import junit.framework.TestCase;
 import org.junit.Assert;
@@ -52,7 +53,7 @@ public class GenericSettingTest extends TestCase {
         settingList.add(testColorSetting = (ColourSetting<SettingsTest>) GenericSetting.createColourSetting(SettingsTest.class, "testColor", Color.AQUA, (c, v) -> c.testColor = v).setGetter(c -> c.testColor));
         settingList.add(testListSetting = (ListSetting<SettingsTest, Integer>) GenericSetting.createListSetting(SettingsTest.class, Integer.class, "testList", new ArrayList<>(List.of(100, 500, 1000, 1500)), (c, v) -> c.testList = v).setGetter(c -> c.testList));
         settingList.add(testObjectSetting = (ObjectSetting<SettingsTest, ObjectTest>) GenericSetting.createObjectSetting(SettingsTest.class, ObjectTest.class, "testObject", new ObjectTest("test", 100), (c, v) -> c.testObject = v).setGetter(c -> c.testObject));
-        settingList.add(testOptionSetting = (OptionSetting<SettingsTest, OptionTest>) GenericSetting.createOptionSetting(SettingsTest.class, OptionTest.class, "testOption", List.of(OptionTest.values()), OptionTest.TEST1, (c, v) -> c.testOption = v).setGetter(c -> c.testOption));
+        settingList.add(testOptionSetting = (OptionSetting<SettingsTest, OptionTest>) GenericSetting.createOptionSetting(SettingsTest.class, OptionTest.class, "testOption", FXCollections.observableArrayList(OptionTest.values()), OptionTest.TEST1, (c, v) -> c.testOption = v).setGetter(c -> c.testOption));
 
     }
 
