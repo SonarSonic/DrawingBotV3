@@ -1,5 +1,6 @@
 package drawingbot.javafx.settings;
 
+import com.google.gson.JsonElement;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.Register;
 import javafx.beans.property.BooleanProperty;
@@ -46,6 +47,12 @@ public class StringSetting<C> extends GenericSetting<C, String> {
     @Override
     public GenericSetting<C, String> copy() {
         return new StringSetting<>(this);
+    }
+
+    //////////////////////////
+
+    public String getValueFromJsonElement(JsonElement element){
+        return element.getAsString();
     }
 
     //////////////////////////

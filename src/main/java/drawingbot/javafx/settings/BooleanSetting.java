@@ -1,5 +1,6 @@
 package drawingbot.javafx.settings;
 
+import com.google.gson.JsonElement;
 import drawingbot.javafx.GenericSetting;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
@@ -50,6 +51,12 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
     @Override
     public GenericSetting<C, Boolean> copy() {
         return new BooleanSetting<>(this);
+    }
+
+    //////////////////////////
+
+    public Boolean getValueFromJsonElement(JsonElement element){
+        return element.getAsBoolean();
     }
 
     //////////////////////////

@@ -59,7 +59,7 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
 
     @Override
     protected Node createJavaFXNode(boolean label) {
-        return new Label("Object");
+        return new Label("LIST");
     }
 
     @Override

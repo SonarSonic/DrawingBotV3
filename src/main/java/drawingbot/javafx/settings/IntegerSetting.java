@@ -1,5 +1,6 @@
 package drawingbot.javafx.settings;
 
+import com.google.gson.JsonElement;
 import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
@@ -49,6 +50,12 @@ public class IntegerSetting<C> extends AbstractNumberSetting<C, Integer> {
     @Override
     public GenericSetting<C, Integer> copy() {
         return new IntegerSetting<>(this);
+    }
+
+    //////////////////////////
+
+    public Integer getValueFromJsonElement(JsonElement element){
+        return element.getAsInt();
     }
 
     //////////////////////////

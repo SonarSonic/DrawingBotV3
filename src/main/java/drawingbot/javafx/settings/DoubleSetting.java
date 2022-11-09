@@ -1,5 +1,6 @@
 package drawingbot.javafx.settings;
 
+import com.google.gson.JsonElement;
 import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
@@ -60,6 +61,12 @@ public class DoubleSetting<C> extends AbstractNumberSetting<C, Double> {
     @Override
     public GenericSetting<C, Double> copy() {
         return new DoubleSetting<>(this);
+    }
+
+    //////////////////////////
+
+    public Double getValueFromJsonElement(JsonElement element){
+        return element.getAsDouble();
     }
 
     //////////////////////////
