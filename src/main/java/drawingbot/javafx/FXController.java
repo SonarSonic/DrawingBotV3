@@ -529,7 +529,7 @@ public class FXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
-                DrawingBotV3.INSTANCE.reRender();
+                DrawingBotV3.INSTANCE.updatePenDistribution();
             }
         });
 
@@ -539,7 +539,7 @@ public class FXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
-                DrawingBotV3.INSTANCE.reRender();
+                DrawingBotV3.INSTANCE.updatePenDistribution();
             }
         });
 
@@ -550,7 +550,7 @@ public class FXController {
                 drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
                 rangeSliderDisplayedLines.setHighValue((double)lines / drawing.getGeometryCount());
-                DrawingBotV3.INSTANCE.reRender();
+                DrawingBotV3.INSTANCE.updatePenDistribution();
             }
         });
 
@@ -561,7 +561,7 @@ public class FXController {
                 drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
                 rangeSliderDisplayedLines.setLowValue((double)lines / drawing.getGeometryCount());
-                DrawingBotV3.INSTANCE.reRender();
+                DrawingBotV3.INSTANCE.updatePenDistribution();
             }
         });
         EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing).addListener((observable, oldValue, newValue) -> {

@@ -36,6 +36,7 @@ import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.*;
 import drawingbot.plotting.PFMTask;
+import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -96,14 +97,16 @@ public class DrawingBotV3 {
     // THREADS \\
     public ExecutorService taskService = initTaskService();
     public ExecutorService backgroundService = initBackgroundService();
+    public ExecutorService lazyBackgroundService = initLazyBackgroundService();
     public ExecutorService imageFilteringService = initImageFilteringService();
-    public ExecutorService parallelPlottingService = initParallelPlottingService();
+    //public ExecutorService parallelPlottingService = initParallelPlottingService();
     public ExecutorService serialConnectionWriteService = initSerialConnectionService();
 
     public TaskMonitor taskMonitor = new TaskMonitor(taskService);
 
     // GUI \\
     public FXController controller;
+    public FlagStates globalFlags = new FlagStates(Flags.GLOBAL_CATEGORY);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,7 +200,7 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void updateUI(){
+    public void tick(){
 
         taskMonitor.tick();
 
@@ -236,6 +239,18 @@ public class DrawingBotV3 {
 
         //tick all plugins
         MasterRegistry.PLUGINS.forEach(IPlugin::tick);
+
+        if(globalFlags.anyMatch(Flags.UPDATE_PEN_DISTRIBUTION)){
+            globalFlags.setFlag(Flags.UPDATE_PEN_DISTRIBUTION, false);
+            lazyBackgroundService.submit(() -> {
+                PlottedDrawing drawing = project().getCurrentDrawing();
+                if(drawing != null){
+                    drawing.updatePenDistribution();
+                }
+                DrawingBotV3.INSTANCE.reRender();
+            });
+        }
+
     }
 
 
@@ -274,8 +289,7 @@ public class DrawingBotV3 {
 
     public void updatePenDistribution(){
         if(project().currentDrawing.get() != null){
-            project().currentDrawing.get().updatePenDistribution();
-            reRender();
+            globalFlags.setFlag(Flags.UPDATE_PEN_DISTRIBUTION, true);
         }
     }
 
@@ -506,6 +520,15 @@ public class DrawingBotV3 {
 
     public ExecutorService initBackgroundService(){
         return Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
+            t.setDaemon(true);
+            t.setUncaughtExceptionHandler(exceptionHandler);
+            return t ;
+        });
+    }
+
+    public ExecutorService initLazyBackgroundService(){
+        return Executors.newCachedThreadPool(r -> {
             Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
             t.setDaemon(true);
             t.setUncaughtExceptionHandler(exceptionHandler);

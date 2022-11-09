@@ -388,7 +388,7 @@ public class PlottedDrawing {
 
         //tally all the geometries per group / per pen
         for(IGeometry geometry : plottedDrawing.geometries){
-            if(geometry.getPenIndex() >= 0){
+            if(geometry.getPenIndex() >= 0 && geometry.getGeometryIndex() >= plottedDrawing.displayedShapeMin && geometry.getGeometryIndex() <= plottedDrawing.displayedShapeMax){
                 Map<Integer, Integer> stats = perGroupStats.get(plottedDrawing.getPlottedGroup(geometry.getGroupID()));
                 if(stats != null){
                     stats.putIfAbsent(geometry.getPenIndex(), 0);
@@ -436,24 +436,45 @@ public class PlottedDrawing {
         int[] renderOrder = set.source.drawingSet.calculateRenderOrder();
 
         if(!random){
+            int startIndex = set.getGeometryList().get(0).getGeometryIndex();
+            int endIndex = set.getGeometryList().get(set.getGeometryList().size()-1).getGeometryIndex();
+
+            startIndex = set.plottedDrawing.displayedShapeMin == -1 ? startIndex : Math.max(set.plottedDrawing.displayedShapeMin, startIndex);
+            endIndex = set.plottedDrawing.displayedShapeMax == -1 ? endIndex : Math.min(set.plottedDrawing.displayedShapeMax, endIndex);
+
+            int geometryCount = endIndex-startIndex;
+
+            currentGeometry = startIndex;
+
             for(int i = 0; i < renderOrder.length; i++){
                 int penNumber = renderOrder[i];
                 ObservableDrawingPen pen = set.source.drawingSet.getPen(penNumber);
                 if(pen.isEnabled()){
-
                     //update percentage
                     float percentage = (weighted ? (float)pen.distributionWeight.get() : 100) / totalWeight;
+
                     //update geometry count
-                    int geometriesPerPen = (int)(percentage * set.getGeometryCount());
+                    int geometriesPerPen = (int)(percentage * geometryCount);
 
                     //set pen references
-                    int end = i == renderOrder.length-1 ? set.getGeometryCount() : currentGeometry + geometriesPerPen;
+                    int end = i == renderOrder.length-1 ? startIndex + geometryCount : currentGeometry + geometriesPerPen;
                     for (; currentGeometry < end; currentGeometry++) {
                         IGeometry geometry = set.getGeometryList().get(currentGeometry);
                         geometry.setPenIndex(penNumber);
                     }
                 }
             }
+            if(startIndex != 0){
+                for(int i = 0; i < startIndex; i ++){
+                    set.getGeometryList().get(i).setPenIndex(-1);
+                }
+            }
+            if(endIndex != set.getGeometryList().size()-1){
+                for(int i = endIndex; i < set.getGeometryList().size()-1; i ++){
+                    set.getGeometryList().get(i).setPenIndex(-1);
+                }
+            }
+
         }else{
             Random rand = new Random(0);
 

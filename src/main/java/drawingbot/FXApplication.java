@@ -271,7 +271,7 @@ public class FXApplication extends Application {
                     o.doRender();
                 }
             });
-            DrawingBotV3.INSTANCE.updateUI();
+            DrawingBotV3.INSTANCE.tick();
 
             DrawingBotV3.project().displayMode.get().getRenderer().postRender();
             MasterRegistry.INSTANCE.overlays.forEach(o -> {
