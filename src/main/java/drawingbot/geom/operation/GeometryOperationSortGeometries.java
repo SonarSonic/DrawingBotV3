@@ -4,7 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.spatial.STRTreeSequencer;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.preferences.ProgramSettings;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.UnitsLength;
@@ -19,7 +19,7 @@ public class GeometryOperationSortGeometries extends AbstractGeometryOperation{
 
     @Override
     public PlottedDrawing run(PlottedDrawing originalDrawing) {
-        ProgramSettings settings = DrawingBotV3.INSTANCE.getProgramSettings();
+        DBPreferences settings = DrawingBotV3.INSTANCE.getPreferences();
         double tolerance = UnitsLength.convert(settings.lineSortingTolerance.get(), settings.lineSortingUnits.get(), UnitsLength.MILLIMETRES);
 
         for(PlottedGroup group : originalDrawing.groups.values()){

@@ -1,8 +1,5 @@
 package drawingbot.utils;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 public enum UnitsLength {
 
     MILLIMETRES("mm", "mm", 1F),
@@ -13,8 +10,6 @@ public enum UnitsLength {
     public String displayName;
     public String suffix;
     public float convertToMM;
-
-    public static final ObservableList<UnitsLength> OBSERVABLE_LIST = FXCollections.observableArrayList(UnitsLength.values());
 
     UnitsLength(String displayName, String suffix, float convertToMM) {
         this.displayName = displayName;

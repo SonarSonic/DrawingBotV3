@@ -27,7 +27,7 @@
                 <MenuButton fx:id="menuButtonPFMPresets" mnemonicParsing="false" text="Presets" />
             </children>
          </HBox>
-      <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" tableMenuButtonVisible="true">
+      <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
         <columns>
           <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="161.0" text="Setting" />
           <TreeTableColumn fx:id="treeTableColumnControl" minWidth="0.0" prefWidth="152.0" text="Control" />

@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractJsonLoader<O extends IJsonData> {
 
     public final PresetType type;
@@ -31,7 +30,7 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     }
 
     public String getVersion(){
-        return "1";
+        return "1.1";
     }
 
     protected abstract O getPresetInstance(GenericPreset<O> preset);
@@ -142,13 +141,13 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public final void queueJsonUpdate() {
         //run later to prevent json update happen before services have been created
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.backgroundService.submit(() -> saveToJSON());
+            DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
         });
     }
 
     public void loadFromJSON(){
         PresetContainerJsonFile<O> presets = JsonLoaderManager.getOrCreateJSONFile(PresetContainerJsonFile.class, configFile, c -> new PresetContainerJsonFile<O>());
-        presets.jsonMap.forEach(preset -> tryRegisterPreset(preset));
+        presets.jsonMap.forEach(this::tryRegisterPreset);
         onJSONLoaded();
     }
 

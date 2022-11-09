@@ -7,7 +7,7 @@ import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.spatial.STRTreeSequencerLineString;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.preferences.ProgramSettings;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.UnitsLength;
@@ -53,8 +53,8 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                     if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
                         entry.getValue().forEach(geometry -> {
                             IGeometry newGeometry;
-                            if(DrawingBotV3.INSTANCE.getProgramSettings().multipassEnabled.get()){
-                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, DrawingBotV3.INSTANCE.getProgramSettings().multipassCount.get());
+                            if(DrawingBotV3.INSTANCE.getPreferences().multipassEnabled.get()){
+                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, DrawingBotV3.INSTANCE.getPreferences().multipassCount.get());
                             }else{
                                 newGeometry = geometry.copyGeometry();
                             }
@@ -112,7 +112,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         }
 
         GeometryUtils.printEstimatedTravelDistance(lineStrings);
-        ProgramSettings settings = DrawingBotV3.INSTANCE.getProgramSettings();
+        DBPreferences settings = DrawingBotV3.INSTANCE.getPreferences();
 
         if(settings.lineSimplifyEnabled.get()){
             progressCallback.updateTitle("Line Simplifying: ");

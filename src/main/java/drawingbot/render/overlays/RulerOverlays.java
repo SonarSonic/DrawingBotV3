@@ -98,6 +98,8 @@ public class RulerOverlays extends AbstractOverlay {
         Rectangle yAxisClip = new Rectangle(0, 0, 30, 200);
         yAxisClip.heightProperty().bind(DrawingBotV3.INSTANCE.controller.viewportScrollPane.heightProperty());
         anchorPaneYAxisWrapper.setClip(yAxisClip);
+
+        activeProperty().bindBidirectional(DrawingBotV3.INSTANCE.settings.get().rulersEnabled.asBooleanProperty());
     }
 
     @Override

@@ -13,7 +13,7 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
     private final List<GenericSetting<?, ?>> settings = new ArrayList<>();
     public boolean changesOnly;
 
-    public DefaultPresetManager(AbstractPresetLoader<O> presetLoader) {
+    public DefaultPresetManager(AbstractJsonLoader<O> presetLoader) {
         super(presetLoader);
         registerSettings();
     }
@@ -24,6 +24,10 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
 
     public final void registerSetting(GenericSetting<?, ?>setting){
         settings.add(setting);
+    }
+
+    public final void registerSettings(List<GenericSetting<?, ?>> setting){
+        settings.addAll(setting);
     }
 
     public abstract void registerSettings();

@@ -76,6 +76,7 @@ public class ShapeOverlays extends AbstractOverlay{
 
     @Override
     public void init() {
+        setActive(true);
         snappingGuides.add(drawingSnappingGuide);
         snappingGuides.add(pageSnappingGuide);
 

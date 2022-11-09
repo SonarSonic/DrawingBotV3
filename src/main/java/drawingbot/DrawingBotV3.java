@@ -19,7 +19,7 @@ import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.integrations.vpype.VpypeSettings;
-import drawingbot.javafx.preferences.ProgramSettings;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.ITaskManager;
 import drawingbot.javafx.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -59,9 +59,9 @@ public class DrawingBotV3 {
     public static JavaFXRenderer RENDERER;
     public static IRenderer OPENGL_RENDERER;
 
-    public final ObjectProperty<ProgramSettings> settings = new SimpleObjectProperty<>(new ProgramSettings());
+    public final ObjectProperty<DBPreferences> settings = new SimpleObjectProperty<>(DBPreferences.INSTANCE);
 
-    public ProgramSettings getProgramSettings() {
+    public DBPreferences getPreferences() {
         return settings.get();
     }
 

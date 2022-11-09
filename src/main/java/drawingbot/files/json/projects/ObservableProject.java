@@ -13,6 +13,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.observables.ObservableVersion;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
@@ -201,7 +202,7 @@ public class ObservableProject implements ITaskManager {
     public final SimpleObjectProperty<EnumBlendMode> blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
     public final SimpleObjectProperty<Bounds> canvasBoundsInScene = new SimpleObjectProperty<>(new BoundingBox(0, 0, 0, 0));
 
-    public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(false);
+    public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(DBPreferences.INSTANCE.defaultRangeExport.get());
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
 
     //VPYPE SETTINGS

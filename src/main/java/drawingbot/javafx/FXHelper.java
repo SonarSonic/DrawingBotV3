@@ -10,9 +10,7 @@ import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
-import drawingbot.javafx.controls.DialogExportPreset;
 import drawingbot.javafx.controls.DialogGenericRename;
-import drawingbot.javafx.controls.DialogImportPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
 import drawingbot.plotting.PlottedDrawing;
@@ -21,6 +19,7 @@ import drawingbot.registry.Register;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -35,7 +34,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.control.Notifications;
 import org.controlsfx.control.action.Action;
 import org.jetbrains.annotations.Nullable;
 
@@ -341,17 +339,10 @@ public class FXHelper {
         FXApplication.childStages.add(stage);
     }
 
-    public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, MenuButton button, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
+    @Deprecated
+    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
 
         MenuItem newPreset = new MenuItem("Save Preset");
-        MenuItem updatePreset = new MenuItem("Update Preset");
-        MenuItem renamePreset = new MenuItem("Rename Preset");
-        MenuItem deletePreset = new MenuItem("Delete Preset");
-
-        MenuItem importPreset = new MenuItem("Import Preset");
-        MenuItem exportPreset = new MenuItem("Export Preset");
-        MenuItem setDefault = new MenuItem("Set As Default");
-
         newPreset.setOnAction(e -> {
             GenericPreset<O> editingPreset = loader.createNewPreset();
             if(editingPreset == null){
@@ -370,6 +361,7 @@ public class FXHelper {
             }
         });
 
+        MenuItem updatePreset = new MenuItem("Update Preset");
         updatePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
@@ -387,6 +379,7 @@ public class FXHelper {
             }
         });
 
+        MenuItem renamePreset = new MenuItem("Rename Preset");
         renamePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null || !current.userCreated){
@@ -408,6 +401,7 @@ public class FXHelper {
             }
         });
 
+        MenuItem deletePreset = new MenuItem("Delete Preset");
         deletePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
@@ -418,9 +412,12 @@ public class FXHelper {
             }
         });
 
+        MenuItem importPreset = new MenuItem("Import Preset");
         importPreset.setOnAction(e -> {
             FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
         });
+
+        MenuItem exportPreset = new MenuItem("Export Preset");
         exportPreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
@@ -429,11 +426,116 @@ public class FXHelper {
             FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
         });
 
+        MenuItem setDefault = new MenuItem("Set As Default");
         setDefault.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current != null){
                 MasterRegistry.INSTANCE.setDefaultPreset(current);
             }
+        });
+
+        button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
+    }
+
+    public static <O extends IJsonData> MenuButton createPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+        MenuButton button = new MenuButton("Presets");
+        setupPresetMenuButton(button, loader, manager, editableCategory, property);
+        return button;
+    }
+
+    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+
+        MenuItem newPreset = new MenuItem("Save Preset");
+        newPreset.setOnAction(e -> {
+            GenericPreset<O> editingPreset = loader.createNewPreset();
+            if(editingPreset == null){
+                return;
+            }
+            editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
+            if(editingPreset != null){
+                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
+                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
+                Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
+                if(result.isPresent()){
+                    loader.tryEditPreset(editingPreset);
+                    loader.trySavePreset(editingPreset);
+                    property.setValue(editingPreset);
+                }
+            }
+        });
+
+        MenuItem updatePreset = new MenuItem("Update Preset");
+        updatePreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            String originalName = current.presetName;
+            boolean isDefault = current == loader.getDefaultPreset();
+            GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
+            if(preset != null){
+                property.setValue(preset);
+
+                if(isDefault && !originalName.equals(preset.presetName)){
+                    MasterRegistry.INSTANCE.setDefaultPreset(preset);
+                }
+            }
+        });
+
+        MenuItem renamePreset = new MenuItem("Rename Preset");
+        renamePreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null || !current.userCreated){
+                return;
+            }
+            String originalName = current.presetName;
+            boolean isDefault = current == loader.getDefaultPreset();
+
+            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current, editableCategory);
+            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Rename preset");
+            Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
+            if(result.isPresent()){
+                loader.tryEditPreset(current);
+                property.setValue(current);
+
+                if(isDefault && !originalName.equals(current.presetName)){
+                    MasterRegistry.INSTANCE.setDefaultPreset(current);
+                }
+            }
+        });
+
+        MenuItem deletePreset = new MenuItem("Delete Preset");
+        deletePreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            if(loader.tryDeletePreset(current)){
+                property.setValue(loader.getDefaultPreset());
+            }
+        });
+
+        MenuItem importPreset = new MenuItem("Import Preset");
+        importPreset.setOnAction(e -> {
+            FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
+        });
+
+        MenuItem exportPreset = new MenuItem("Export Preset");
+        exportPreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
+        });
+
+        MenuItem setDefault = new MenuItem("Set As Default");
+        setDefault.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            MasterRegistry.INSTANCE.setDefaultPreset(current);
         });
 
         button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);

@@ -36,7 +36,8 @@ public class PFMRenderPipe {
     }
 
     public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust, float lineWidth, PixelDataComposite.ICompositeFunction function){
-        if(pixelData instanceof PixelDataGraphicsComposite data){
+        if(pixelData instanceof PixelDataGraphicsComposite){
+            PixelDataGraphicsComposite data = (PixelDataGraphicsComposite) pixelData;
             Graphics2D graphics2D = data.getGraphics2D();
             data.enableBlending(function);
             graphics2D.setStroke(getDefaultStroke(lineWidth));

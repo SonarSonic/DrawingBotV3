@@ -25,7 +25,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.util.converter.DefaultStringConverter;
@@ -39,6 +38,7 @@ public class FXImageFilters {
 
     public final SimpleObjectProperty<ImageFilterSettings> settings = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<FilteredImageData> image = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetImageFilters>> selectedImagePreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
@@ -83,22 +83,17 @@ public class FXImageFilters {
         });
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
-        comboBoxImageFilterPreset.setValue(Register.PRESET_LOADER_FILTERS.getDefaultPreset());
-        comboBoxImageFilterPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+        selectedImagePreset.setValue(Register.PRESET_LOADER_FILTERS.getDefaultPreset());
+        selectedImagePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 getImageFiltersPresetManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_FILTERS, this::getImageFiltersPresetManager, menuButtonFilterPresets, false, comboBoxImageFilterPreset::getValue, (preset) -> {
-            comboBoxImageFilterPreset.setValue(preset);
+        comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
+        comboBoxImageFilterPreset.valueProperty().bindBidirectional(selectedImagePreset);
 
-            ///force update rendering
-            comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
-            comboBoxImageFilterPreset.setButtonCell(new ComboBoxListCell<>());
-        });
+        FXHelper.setupPresetMenuButton(menuButtonFilterPresets, Register.PRESET_LOADER_FILTERS, this::getImageFiltersPresetManager, false, selectedImagePreset);
 
         tableViewImageFilters.setRowFactory(param -> {
             TableRow<ObservableImageFilter> row = new TableRow<>();

@@ -28,6 +28,9 @@ public class DrawingBorderOverlays extends AbstractOverlay {
         activeProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().displayMode.get().getRenderFlags().setFlag(Flags.CANVAS_CHANGED, true);
         });
+
+        activeProperty().bindBidirectional(DrawingBotV3.INSTANCE.settings.get().drawingBordersEnabled.valueProperty());
+        borderColour.bindBidirectional(DrawingBotV3.INSTANCE.settings.get().drawingBordersColor.valueProperty());
     }
 
     @Override

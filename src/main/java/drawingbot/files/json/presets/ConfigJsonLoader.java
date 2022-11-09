@@ -2,72 +2,103 @@ package drawingbot.files.json.presets;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import drawingbot.files.json.AbstractJsonLoader;
-import drawingbot.files.json.AbstractPresetManager;
-import drawingbot.files.json.PresetType;
-import drawingbot.files.json.IConfigData;
+import com.google.gson.JsonObject;
+import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.preferences.DBPreferences;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
-public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
+/**
+ * Design principles of "Configs" - configs are able to change settings before the DBV3.INSTANCE has even been created.
+ * Therefore any references to the INSTANCE will crash, so context should be passed as null, the config shouldn't require "context"
+ */
+public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
 
-    public HashMap<String, GenericFactory<IConfigData>> configFactories = new HashMap<>();
-    public HashMap<Class<? extends IConfigData>, GenericPreset<IConfigData>> configs = new HashMap<>();
+    public HashMap<String, IPresetManager<AbstractJsonData>> presetManagers = new HashMap<>();
+    public HashMap<String, Supplier<? extends AbstractJsonData>> presetFactories = new HashMap<>();
+    public HashMap<String, Class<? extends AbstractJsonData>> presetClass = new HashMap<>();
+    public HashMap<String, GenericPreset<AbstractJsonData>> configs = new HashMap<>();
+    public boolean loading;
 
     public ConfigJsonLoader(PresetType presetType) {
         super(presetType, "config_settings.json");
         registerTypes();
         setDefaultManager(new AbstractPresetManager<>(this) {
             @Override
-            public GenericPreset<IConfigData> updatePreset(DBTaskContext context, GenericPreset<IConfigData> preset) {
-                return configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.updatePreset(preset);
+            public GenericPreset<AbstractJsonData> updatePreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
+                IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.presetSubType);
+                if(manager != null){
+                    manager.updatePreset(null, preset);
+                }
+                return preset;
             }
 
             @Override
-            public void applyPreset(DBTaskContext context, GenericPreset<IConfigData> preset) {
-                configs.get(configFactories.get(preset.presetSubType).getInstanceClass()).data.applyPreset(preset);
+            public void applyPreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
+                IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.presetSubType);
+                if(manager != null){
+                    manager.applyPreset(null, preset);
+                }
             }
         });
     }
 
     private void registerTypes(){
-        //registerConfigFactory(PresetApplicationSettings.class, "application_settings", PresetApplicationSettings::new, false);
+        registerConfigFactory(PresetApplicationSettings.class, new DefaultPresetManager<AbstractJsonData, DBPreferences>(this) {
+
+            @Override
+            public void registerSettings() {
+                registerSettings(DBPreferences.INSTANCE.settings);
+            }
+
+            @Override
+            public DBPreferences getInstance(DBTaskContext context) {
+                return DBPreferences.INSTANCE;
+            }
+        }, "application_settings", PresetApplicationSettings::new, false);
     }
 
-    private <C extends IConfigData> void registerConfigFactory(Class<C> clazz, String name, Supplier<C> create, boolean isHidden){
-        configFactories.put(name, (GenericFactory<IConfigData>)new GenericFactory<C>(clazz, name, create, isHidden));
-        registerPreset(createNewPreset(name, "config", false)); //add default config, overwritten if the json contains one, prevents crash if we can't read the files
+    private void registerConfigFactory(Class<? extends AbstractJsonData> clazz, IPresetManager<AbstractJsonData> presetManager, String name, Supplier<AbstractJsonData> create, boolean isHidden){
+        presetManagers.put(name, presetManager);
+        presetFactories.put(name, create);
+        presetClass.put(name, clazz);
     }
 
-    public <D> D getConfigData(Class<D> type){
-        GenericPreset<IConfigData> preset = configs.get(type);
-        Objects.requireNonNull(preset);
-        if(type.isInstance(preset.data)){
-            return (D) preset.data;
+    @Override
+    protected void onJSONLoaded() {
+        super.onJSONLoaded();
+        loading = true;
+        //if a preset currently exists, load it, if it doesn't create one
+        for(Map.Entry<String, IPresetManager<AbstractJsonData>> managerEntry : presetManagers.entrySet()){
+            GenericPreset<AbstractJsonData> preset = configs.get(managerEntry.getKey());
+            if(preset == null){
+                preset = createNewPreset(managerEntry.getKey(), "config", false);
+                getDefaultManager().updatePreset(null, preset);
+                registerPreset(preset);
+            }else{
+                getDefaultManager().applyPreset(null, preset);
+            }
         }
-        throw new NullPointerException("Invalid Config Data");
+        loading = false;
+        queueJsonUpdate();
     }
 
     @Override
-    protected IConfigData getPresetInstance(GenericPreset<IConfigData> preset) {
-        return configFactories.get(preset.presetSubType).instance();
+    protected AbstractJsonData getPresetInstance(GenericPreset<AbstractJsonData> preset) {
+        return presetFactories.get(preset.presetSubType).get();
     }
 
     @Override
-    protected void registerPreset(GenericPreset<IConfigData> preset) {
-        configs.put(configFactories.get(preset.presetSubType).getInstanceClass(), preset);
+    protected void registerPreset(GenericPreset<AbstractJsonData> preset) {
+        configs.put(preset.presetSubType, preset);
     }
 
     @Override
-    protected void unregisterPreset(GenericPreset<IConfigData> preset) {
-        configs.remove(configFactories.get(preset.presetSubType).getInstanceClass());
+    protected void unregisterPreset(GenericPreset<AbstractJsonData> preset) {
+        configs.remove(preset.presetSubType);
     }
 
     @Override
@@ -76,23 +107,42 @@ public class ConfigJsonLoader extends AbstractJsonLoader<IConfigData> {
     }
 
     @Override
-    public Collection<GenericPreset<IConfigData>> getAllPresets() {
+    public Collection<GenericPreset<AbstractJsonData>> getAllPresets() {
         return configs.values();
     }
 
     @Override
     public JsonElement toJsonElement(Gson gson, GenericPreset<?> preset) {
-        return gson.toJsonTree(preset.data, configFactories.get(preset.presetSubType).getInstanceClass());
+        return gson.toJsonTree(preset.data, presetClass.get(preset.presetSubType));
     }
 
     @Override
-    public IConfigData fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element) {
-        return gson.fromJson(element, configFactories.get(preset.presetSubType).getInstanceClass());
+    public AbstractJsonData fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element) {
+        //LEGACY COMPATIBILITY: in old versions the config data was not wrapped in a "settings" map
+        if(preset.version.equals("1")){
+            if(element instanceof JsonObject){
+                JsonObject object = (JsonObject) element;
+                if(!object.has("settings")){
+                    JsonObject newObject = new JsonObject();
+                    JsonObject settings = new JsonObject();
+                    ArrayList<String> keySet = new ArrayList<>(object.keySet());
+                    keySet.forEach(s -> settings.add(s, object.remove(s)));
+                    newObject.add("settings", settings);
+                    element = newObject;
+                }
+            }
+        }
+        return gson.fromJson(element, presetClass.get(preset.presetSubType));
     }
 
-    @Override
-    public void loadFromJSON() {
-        super.loadFromJSON();
-        queueJsonUpdate(); //saves the defaults to the config file
+    public void markDirty(){
+        if(loading){
+            return;
+        }
+        //at the moment there is only one preset per config, TODO, when this changes this logic should too
+        for(GenericPreset<AbstractJsonData> preset : getAllPresets()){
+            getDefaultManager().updatePreset(null, preset);
+        }
+        queueJsonUpdate();
     }
 }

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<GridPane  hgap="4.0" prefHeight="600.0" prefWidth="900.0" vgap="4.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXPreferences">
+<GridPane hgap="4.0" prefHeight="600.0" prefWidth="900.0" vgap="4.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.preferences.FXPreferences">
         <columnConstraints>
           <ColumnConstraints hgrow="NEVER" minWidth="100.0" prefWidth="200.0" />
           <ColumnConstraints hgrow="ALWAYS" minWidth="600.0" />
@@ -31,13 +33,21 @@
                      <padding>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                      </padding>
-                     <children>
-                        <ChoiceBox maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
-                     </children>
                   </GridPane>
                </content></ScrollPane>
+      <Label fx:id="labelHeading" GridPane.columnIndex="1">
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
          </children>
          <padding>
             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
          </padding>
+        <stylesheets>
+            <URL value="@preference-styles.css" />
+        </stylesheets>
       </GridPane>

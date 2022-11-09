@@ -8,6 +8,7 @@ import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
@@ -20,8 +21,6 @@ import drawingbot.registry.Register;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
 import javafx.concurrent.Worker;
-import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -47,7 +46,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             PresetProjectSettingsManagerLegacy.updatePreset(context, preset);
         }else{
             Gson gson = JsonLoaderManager.createDefaultGson();
-            for(ProjectDataLoader loader : MasterRegistry.INSTANCE.dataLoaders){
+            for(PresetDataLoader<PresetProjectSettings> loader : MasterRegistry.INSTANCE.projectDataLoaders){
                 try {
                     loader.save(context, gson, preset);
                 } catch (Exception exception) {
@@ -74,7 +73,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             return;
         }
         Gson gson = JsonLoaderManager.createDefaultGson();
-        for(ProjectDataLoader loader : MasterRegistry.INSTANCE.dataLoaders){
+        for(PresetDataLoader<PresetProjectSettings> loader : MasterRegistry.INSTANCE.projectDataLoaders){
             try {
                 loader.load(context, gson, preset);
             } catch (Exception exception) {
@@ -115,7 +114,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
 
     public static void registerDefaultDataLoaders(){
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("ui_state", UIGlobalState.class, UIGlobalState::new, 0){
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class, "ui_state", UIGlobalState.class, UIGlobalState::new, 0){
 
             @Override
             public void loadData(DBTaskContext context, UIGlobalState data, GenericPreset<PresetProjectSettings> preset) {
@@ -133,9 +132,9 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         });
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_DRAWING_AREA, 0));
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_FILTERS, 0));
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_PFM, 0){
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_DRAWING_AREA, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_FILTERS, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_PFM, 0){
 
             @Override
             public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
@@ -150,8 +149,8 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                 super.loadData(context, gson, element, preset);
             }
         });
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.Preset<>(Register.PRESET_LOADER_UI_SETTINGS, 0));
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("versions", VersionData.class, VersionData::new, 5) {
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_UI_SETTINGS, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"versions", VersionData.class, VersionData::new, 5) {
 
             @Override
             public void saveData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
@@ -172,7 +171,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         });
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("drawing_sets", DrawingSetData.class, DrawingSetData::new, 0) {
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"drawing_sets", DrawingSetData.class, DrawingSetData::new, 0) {
 
             @Override
             public void saveData(DBTaskContext context, DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
@@ -191,7 +190,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         });
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new ProjectDataLoader.DataInstance<>("image_settings", ImageSettings.class, ImageSettings::new, 10) {
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"image_settings", ImageSettings.class, ImageSettings::new, 10) {
 
             @Override
             public void saveData(DBTaskContext context, ImageSettings data, GenericPreset<PresetProjectSettings> preset) {

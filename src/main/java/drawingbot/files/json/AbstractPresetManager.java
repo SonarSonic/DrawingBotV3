@@ -3,7 +3,7 @@ package drawingbot.files.json;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 
-public abstract class AbstractPresetManager<O extends IJsonData> {
+public abstract class AbstractPresetManager<O extends IJsonData> implements IPresetManager<O> {
 
     public AbstractJsonLoader<O> presetLoader;
 

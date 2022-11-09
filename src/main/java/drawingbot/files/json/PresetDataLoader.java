@@ -1,21 +1,22 @@
-package drawingbot.files.json.projects;
+package drawingbot.files.json;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import drawingbot.files.json.AbstractPresetLoader;
-import drawingbot.files.json.IJsonData;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-public abstract class ProjectDataLoader {
+public abstract class PresetDataLoader<MASTER extends AbstractJsonData> {
 
+    public Class<MASTER> masterType;
     public final String key;
     public final int order;
 
-    public ProjectDataLoader(String key, int order){
+    public PresetDataLoader(Class<MASTER> masterType, String key, int order){
+        this.masterType = masterType;
         this.key = key;
         this.order = order;
     }
@@ -37,7 +38,7 @@ public abstract class ProjectDataLoader {
     /**
      * Loads the project
      */
-    public void load(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset){
+    public void load(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset){
         if(!isEnabled()){
             return;
         }
@@ -47,12 +48,12 @@ public abstract class ProjectDataLoader {
         }
     }
 
-    public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset){}
+    public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<MASTER> preset){}
 
     /**
      * Saves the project
      */
-    public void save(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset){
+    public void save(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset){
         if(!isEnabled()){
             return;
         }
@@ -62,63 +63,63 @@ public abstract class ProjectDataLoader {
         }
     }
 
-    public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset){
+    public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset){
         return null;
     }
 
-    public static class Preset<O extends IJsonData> extends ProjectDataLoader{
+    public static class Preset<SUB extends IJsonData, MASTER extends AbstractJsonData> extends PresetDataLoader<MASTER> {
 
-        public final AbstractPresetLoader<O> manager;
+        public final AbstractPresetLoader<SUB> manager;
         public Type type;
 
-        public Preset(AbstractPresetLoader<O> manager, int order) {
-            super(manager.getDefaultManager().getPresetType().id, order);
+        public Preset(Class<MASTER> masterType, AbstractPresetLoader<SUB> manager, int order) {
+            super(masterType, manager.getDefaultManager().getPresetType().id, order);
             this.manager = manager;
             this.type = TypeToken.getParameterized(GenericPreset.class, manager.dataType).getType();
         }
 
         @Override
-        public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
-            GenericPreset<O> data = gson.fromJson(element, type);
+        public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<MASTER> preset) {
+            GenericPreset<SUB> data = gson.fromJson(element, type);
             if(data != null){
                 manager.getDefaultManager().applyPreset(context, data);
             }
         }
 
         @Override
-        public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
-            GenericPreset<O> data = manager.createNewPreset();
+        public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset) {
+            GenericPreset<SUB> data = manager.createNewPreset();
             manager.getDefaultManager().updatePreset(context, data);
             return gson.toJsonTree(data, type);
         }
     }
 
-    public static abstract class DataInstance<D> extends ProjectDataLoader{
+    public static abstract class DataInstance<MASTER extends AbstractJsonData, D> extends PresetDataLoader<MASTER> {
 
         public Class<D> dataType;
         public Supplier<D> supplier;
 
-        public DataInstance(String key, Class<D> dataType, Supplier<D> supplier, int order) {
-            super(key, order);
+        public DataInstance(Class<MASTER> masterType, String key, Class<D> dataType, Supplier<D> supplier, int order) {
+            super(masterType, key, order);
             this.dataType = dataType;
             this.supplier = supplier;
         }
 
         @Override
-        public final void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
+        public final void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<MASTER> preset) {
             D data = gson.fromJson(element, dataType);
             loadData(context, data, preset);
         }
 
-        public abstract void loadData(DBTaskContext context, D data, GenericPreset<PresetProjectSettings> preset);
+        public abstract void loadData(DBTaskContext context, D data, GenericPreset<MASTER> preset);
 
         @Override
-        public final JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
+        public final JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset) {
             D data = supplier.get();
             saveData(context, data, preset);
             return gson.toJsonTree(data, dataType);
         }
 
-        public abstract void saveData(DBTaskContext context, D data, GenericPreset<PresetProjectSettings> preset);
+        public abstract void saveData(DBTaskContext context, D data, GenericPreset<MASTER> preset);
     }
 }

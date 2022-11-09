@@ -2,6 +2,7 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.*;
 import drawingbot.javafx.util.PropertyUtil;
 import javafx.beans.Observable;
@@ -17,7 +18,7 @@ public class ObservableCanvas implements ICanvas, IProperties {
 
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumCroppingMode> croppingMode = new SimpleObjectProperty<>(EnumCroppingMode.CROP_TO_FIT);
-    public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(EnumClippingMode.DRAWING);
+    public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultClippingMode.get());
     public final SimpleObjectProperty<UnitsLength> inputUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     public final SimpleFloatProperty width = new SimpleFloatProperty(0);
@@ -30,17 +31,17 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumOrientation> orientation = new SimpleObjectProperty<>(EnumOrientation.PORTRAIT);
 
-    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
+    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(DBPreferences.INSTANCE.defaultPenWidth.get());
 
-    public final SimpleObjectProperty<EnumRescaleMode> rescaleMode = new SimpleObjectProperty<>(EnumRescaleMode.HIGH_QUALITY);
+    public final SimpleObjectProperty<EnumRescaleMode> rescaleMode = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultRescalingMode.get());
 
     //the default JFX viewport background colours
     public static final Color backgroundColourDefault = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
     public static final Color backgroundColourDark = new Color(65 / 255F, 65 / 255F, 65 / 255F, 1F);
 
     //not saved
-    public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
-    public final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(backgroundColourDefault);
+    public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultCanvasColour.get());
+    public final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultBackgroundColour.get());
 
     public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(useOriginalSizing, croppingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, rescaleMode, targetPenWidth, canvasColor);
 

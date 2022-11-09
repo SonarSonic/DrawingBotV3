@@ -5,14 +5,14 @@ import drawingbot.FXApplication;
 import drawingbot.api.*;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.projects.ProjectDataLoader;
+import drawingbot.files.json.PresetDataLoader;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
@@ -23,6 +23,7 @@ import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogImageFilter;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSketchLines;
 import drawingbot.render.IDisplayMode;
@@ -93,7 +94,7 @@ public class MasterRegistry {
 
     @Nullable
     public String getDefaultPresetName(PresetType presetType, String presetSubType){
-        return DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.get(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
+        return DrawingBotV3.INSTANCE.getPreferences().getDefaultPreset(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
     }
 
     @Nullable
@@ -137,9 +138,9 @@ public class MasterRegistry {
 
     public void setDefaultPreset(GenericPreset<?> preset){
         if(preset.presetType.defaultsPerSubType){
-            DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
+            DrawingBotV3.INSTANCE.getPreferences().setDefaultPreset(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
         }else{
-            DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(preset.presetType.id, preset.presetName);
+            DrawingBotV3.INSTANCE.getPreferences().setDefaultPreset(preset.presetType.id, preset.presetName);
         }
     }
 
@@ -164,7 +165,7 @@ public class MasterRegistry {
     public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
 
     public PFMFactory<?> getDefaultPFM(){
-        return pfmFactories.stream().filter(factory -> factory.getInstanceClass().equals(PFMSketchLines.class)).findFirst().orElse(null);
+        return pfmFactories.stream().filter(factory -> factory.getName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getInstanceClass().equals(PFMSketchLines.class)).findFirst().orElse(null));
     }
 
     public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){
@@ -194,9 +195,9 @@ public class MasterRegistry {
         }
     }
 
-    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
+    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, String category, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
         DrawingBotV3.logger.fine("Registering PFM: " + name);
-        PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
+        PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, category, create, isHidden);
         pfmFactories.add(factory);
         if(registerDefaultPreset){
             Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(name, "Default", false));
@@ -627,21 +628,21 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PROJECT DATA LOADER \\\\
-    private Map<String, ProjectDataLoader> dataLoadersMap = new HashMap<>();
-    public List<ProjectDataLoader> dataLoaders = new ArrayList<>();
+    private Map<String, PresetDataLoader<PresetProjectSettings>> projectDataLoadersMap = new HashMap<>();
+    public List<PresetDataLoader<PresetProjectSettings>> projectDataLoaders = new ArrayList<>();
 
-    public void registerProjectDataLoader(ProjectDataLoader loader){
-        if(dataLoadersMap.containsKey(loader.getKey())){
+    public void registerProjectDataLoader(PresetDataLoader<PresetProjectSettings> loader){
+        if(projectDataLoadersMap.containsKey(loader.getKey())){
             DrawingBotV3.logger.severe("DUPLICATE PROJECT DATA LOADER KEY: " + loader.getKey());
         }else{
             DrawingBotV3.logger.fine("Registering Project Data Loader: " + loader.getKey());
-            dataLoadersMap.put(loader.getKey(), loader);
+            projectDataLoadersMap.put(loader.getKey(), loader);
         }
     }
 
     public void sortDataLoaders(){
-        dataLoaders.addAll(dataLoadersMap.values());
-        dataLoaders.sort(Comparator.comparingInt(l -> l.order));
+        projectDataLoaders.addAll(projectDataLoadersMap.values());
+        projectDataLoaders.sort(Comparator.comparingInt(l -> l.order));
     }
 
 

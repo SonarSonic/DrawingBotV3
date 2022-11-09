@@ -83,6 +83,13 @@ public class Register implements IPlugin {
     public static final String CATEGORY_DEFAULT = "Default"; // Priority = 10
     public static final String CATEGORY_UNIQUE = "Unique"; // Priority = 5
     public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
+    public static final String CATEGORY_PFM_SKETCH = "Sketch";
+    public static final String CATEGORY_PFM_VORONOI = "Voronoi";
+    public static final String CATEGORY_PFM_ADAPTIVE = "Adaptive";
+    public static final String CATEGORY_PFM_MOSAIC = "Mosaic";
+    public static final String CATEGORY_PFM_SPECIAL = "Special";
+    public static final String CATEGORY_PFM_WIP = "W.I.P";
+
 
     //// DISPLAY MODES \\\\
     public IDisplayMode DISPLAY_MODE_IMAGE;
@@ -196,10 +203,10 @@ public class Register implements IPlugin {
 
     @Override
     public void registerPFMS() {
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false, true).hasSampledARGB(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false, false).hasSampledARGB(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false, true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", CATEGORY_PFM_SKETCH, PFMSketchLines::new, false, true).hasSampledARGB(true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", CATEGORY_PFM_SKETCH, PFMSketchSquares::new, false, false).hasSampledARGB(true);
+        MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", CATEGORY_PFM_SPECIAL, PFMSpiral::new, false, true).setTransparentCMYK(false);
+        MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", CATEGORY_PFM_SPECIAL, PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
     }
 
     @Override

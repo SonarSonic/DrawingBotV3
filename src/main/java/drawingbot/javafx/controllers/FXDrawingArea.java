@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingArea;
 import drawingbot.files.json.presets.PresetDrawingAreaManager;
+import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
@@ -24,6 +25,7 @@ import javafx.util.converter.NumberStringConverter;
 public class FXDrawingArea {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetDrawingArea>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
@@ -113,22 +115,17 @@ public class FXDrawingArea {
 
         colorPickerCanvas.setValue(Color.WHITE);
 
-        comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
-        comboBoxDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
-        comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+        selectedDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
+        selectedDrawingAreaPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
-            comboBoxDrawingAreaPreset.setValue(preset);
+        comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
+        comboBoxDrawingAreaPreset.valueProperty().bindBidirectional(selectedDrawingAreaPreset);
 
-            ///force update rendering
-            comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
-            comboBoxDrawingAreaPreset.setButtonCell(new ComboBoxListCell<>());
-        });
-
+        FXHelper.setupPresetMenuButton(menuButtonDrawingAreaPresets, Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, false, selectedDrawingAreaPreset);
 
         /////SIZING OPTIONS
 

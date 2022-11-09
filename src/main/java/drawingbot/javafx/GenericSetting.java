@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
-import drawingbot.javafx.preferences.ProgramSettings;
 import drawingbot.javafx.settings.*;
 import drawingbot.registry.Register;
 import javafx.beans.InvalidationListener;
@@ -327,6 +326,10 @@ public abstract class GenericSetting<C, V> implements Observable {
         return this;
     }
 
+    public void createDefaultSetter(){
+        setSetter((C, V) -> setValue(V));
+    }
+
     ////////////////////////////////
 
     @Nullable
@@ -340,6 +343,17 @@ public abstract class GenericSetting<C, V> implements Observable {
     public GenericSetting<C, V> setGetter(Function<C, V> getter){
         this.getter = getter;
         return this;
+    }
+
+    public void createDefaultGetter(){
+        setGetter((C) -> getValue());
+    }
+
+    ////////////////////////////////
+
+    public void createDefaultGetterAndSetter(){
+        createDefaultSetter();
+        createDefaultGetter();
     }
 
     ////////////////////////////////
@@ -756,6 +770,7 @@ public abstract class GenericSetting<C, V> implements Observable {
     public static <C> IntegerSetting<C> createIntSetting(Class<C> clazz, String category, String settingName, int defaultValue, BiConsumer<C, Integer> setter){
         return (IntegerSetting<C>) createIntSetting(clazz, category, settingName, defaultValue).setSetter(setter);
     }
+
     public static <C> IntegerSetting<C> createIntSetting(Class<C> clazz, String category, String settingName, int defaultValue){
         return new IntegerSetting<>(clazz, category, settingName, defaultValue);
     }
@@ -773,7 +788,11 @@ public abstract class GenericSetting<C, V> implements Observable {
     }
 
     public static <C> FloatSetting<C> createFloatSetting(Class<C> clazz, String category, String settingName, float defaultValue, BiConsumer<C, Float> setter){
-        return (FloatSetting<C>) new FloatSetting<>(clazz, category, settingName, defaultValue).setSetter(setter);
+        return (FloatSetting<C>) createFloatSetting(clazz, category, settingName, defaultValue).setSetter(setter);
+    }
+
+    public static <C> FloatSetting<C> createFloatSetting(Class<C> clazz, String category, String settingName, float defaultValue){
+        return new FloatSetting<>(clazz, category, settingName, defaultValue);
     }
 
     public static <C> DoubleSetting<C> createDoubleSetting(Class<C> clazz, String settingName, double defaultValue, Function<C, DoubleProperty> supplier){
@@ -789,7 +808,11 @@ public abstract class GenericSetting<C, V> implements Observable {
     }
 
     public static <C> DoubleSetting<C> createDoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue, BiConsumer<C, Double> setter){
-        return (DoubleSetting<C>) new DoubleSetting<>(clazz, category, settingName, defaultValue).setSetter(setter);
+        return (DoubleSetting<C>) createDoubleSetting(clazz, category, settingName, defaultValue).setSetter(setter);
+    }
+
+    public static <C> DoubleSetting<C> createDoubleSetting(Class<C> clazz, String category, String settingName, double defaultValue){
+        return new DoubleSetting<>(clazz, category, settingName, defaultValue);
     }
 
     public static <C> LongSetting<C> createLongSetting(Class<C> clazz, String settingName, long defaultValue, Function<C, LongProperty> supplier){
@@ -893,7 +916,10 @@ public abstract class GenericSetting<C, V> implements Observable {
     }
 
     public static <C> ColourSetting<C> createColourSetting(Class<C> clazz, String category, String settingName, Color defaultValue, BiConsumer<C, Color> setter){
-        return (ColourSetting<C>) new ColourSetting<>(clazz, category, settingName, defaultValue).setSetter(setter);
+        return (ColourSetting<C>) createColourSetting(clazz, category, settingName, defaultValue).setSetter(setter);
+    }
+    public static <C> ColourSetting<C> createColourSetting(Class<C> clazz, String category, String settingName, Color defaultValue){
+        return new ColourSetting<>(clazz, category, settingName, defaultValue);
     }
 
 

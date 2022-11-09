@@ -392,7 +392,7 @@
            </Tab>
           <Tab text="GCode">
             <content>
-              <AnchorPane fx:id="anchorPaneGCodeSettings" minHeight="0.0" minWidth="0.0">
+              <AnchorPane fx:id="anchorPaneGCodeSettings" minHeight="0.0" minWidth="0.0" prefHeight="540.0" prefWidth="400.0">
                 <children>
                     <ComboBox fx:id="comboBoxGCodePreset" layoutX="12.0" layoutY="9.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
                     <MenuButton fx:id="menuButtonGCodePresets" layoutX="321.0" layoutY="9.0" mnemonicParsing="false" text="Presets" />

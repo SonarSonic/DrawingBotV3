@@ -1,14 +1,12 @@
 package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.Hooks;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingSets;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingPen;
 import drawingbot.files.json.presets.PresetDrawingSet;
@@ -17,6 +15,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
@@ -145,7 +144,8 @@ public class FXDrawingSets {
         comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager, menuButtonDrawingSetPresets, true,
+        //TODO SIMPLIFY ?
+        FXHelper.setupPresetMenuButton(menuButtonDrawingSetPresets, Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager, true,
                 () -> {
                     if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
                         PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
@@ -173,7 +173,7 @@ public class FXDrawingSets {
         Optional<MenuItem> setAsDefaultSet = menuButtonDrawingSetPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
         setAsDefaultSet.ifPresent(menuItem -> menuItem.setOnAction(e -> {
             if (comboBoxDrawingSet.getValue() != null) {
-                DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingSet.getValue().getCodeName());
+                DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingPen.getValue().getCodeName());
             }
         }));
 
@@ -240,7 +240,7 @@ public class FXDrawingSets {
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(drawingSets, true));
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager, menuButtonDrawingPenPresets, true,
+        FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager, true,
                 () -> {
                     if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
                         PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();
@@ -265,7 +265,7 @@ public class FXDrawingSets {
         Optional<MenuItem> setAsDefaultPen = menuButtonDrawingPenPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
         setAsDefaultPen.ifPresent(menuItem -> menuItem.setOnAction(e -> {
             if (comboBoxDrawingPen.getValue() != null) {
-                DrawingBotV3.INSTANCE.getProgramSettings().defaultPresets.put(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
+                DrawingBotV3.INSTANCE.getPreferences().setDefaultPreset(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
             }
         }));
 

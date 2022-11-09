@@ -1,10 +1,11 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.Register;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
 
@@ -18,6 +19,7 @@ public class FXVPypeController {
         initVPypeSettingsPane();
     }
 
+    public final SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset = new SimpleObjectProperty<>();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////VPYPE OPTIMISATION
@@ -35,22 +37,17 @@ public class FXVPypeController {
 
 
     public void initVPypeSettingsPane(){
-
-        comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
-        comboBoxVPypePreset.setValue(Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
-        comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+        selectedVPypePreset.setValue(Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
+        selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
-            comboBoxVPypePreset.setValue(preset);
+        comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
+        comboBoxVPypePreset.valueProperty().bindBidirectional(selectedVPypePreset);
 
-            ///force update rendering
-            comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
-            comboBoxVPypePreset.setButtonCell(new ComboBoxListCell<>());
-        });
+        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, false, selectedVPypePreset);
 
         textAreaVPypeCommand.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeCommand);
 

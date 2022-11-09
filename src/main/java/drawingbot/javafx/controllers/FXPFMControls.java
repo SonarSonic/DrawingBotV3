@@ -2,6 +2,7 @@ package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
+import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.json.presets.PresetPFMSettingsManager;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -29,6 +30,7 @@ import javafx.scene.control.cell.*;
 public class FXPFMControls {
 
     public final SimpleObjectProperty<PFMSettings> pfmSettings = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetPFMSettings>> selectedPFMPreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
@@ -88,21 +90,17 @@ public class FXPFMControls {
         comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
         comboBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> changePathFinderModule(newValue));
 
-
-        comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
-        comboBoxPFMPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+        selectedPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
+        selectedPFMPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
-            comboBoxPFMPreset.setValue(preset);
+        comboBoxPFMPreset.setItems(Register.PRESET_LOADER_PFM.presets);
+        comboBoxPFMPreset.valueProperty().bindBidirectional(selectedPFMPreset);
 
-            ///force update rendering
-            comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(pfmSettings.getValue().factory.get()));
-            comboBoxPFMPreset.setButtonCell(new ComboBoxListCell<>());
-        });
+        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, false, selectedPFMPreset);
 
         treeTableViewPFMSettings.setRowFactory(param -> {
             TreeTableRow<GenericSetting<?, ?>> row = new TreeTableRow<>();

@@ -107,6 +107,7 @@ public class JsonLoaderManager {
         }
 
     }
+
     public static void loadDefaults(){
         for(AbstractJsonLoader<?> manager : MasterRegistry.INSTANCE.presetLoaders){
             if(manager != Register.PRESET_LOADER_CONFIGS){

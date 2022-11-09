@@ -1,0 +1,33 @@
+.preference-default.label{
+    -fx-font-size: 12;
+    -fx-padding: 0 10 0 24;
+}
+
+.preference-title{
+    -fx-padding: 0 0 0 0;
+}
+
+.preference-title.label{
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+}
+
+.preference-subtitle{
+    -fx-font-size: 12;
+    -fx-font-style: italic;
+}
+
+.preference-grid{
+    -fx-hgap: 4;
+    -fx-vgap: 8;
+    -fx-padding: 12 12 64 12;
+}
+
+.preference-separator{
+    -fx-padding: 0 0 0 10;
+    -fx-translate-y: 8;
+}
+
+.preference-reset-button{
+    -fx-background-color: transparent;
+}

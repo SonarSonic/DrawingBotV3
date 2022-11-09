@@ -60,7 +60,7 @@ public class SVGExporter {
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
             }
 
-            if(DrawingBotV3.INSTANCE.getProgramSettings().exportSVGBackground.get()){
+            if(DrawingBotV3.INSTANCE.getPreferences().exportSVGBackground.get()){
                 // Create a fresh document to draw background
                 Document backgroundGraphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
 
@@ -96,7 +96,7 @@ public class SVGExporter {
             int index = 0;
             for(ObservableDrawingPen drawingPen : exportTask.exportRenderOrder){
 
-                String layerName = formatLayerName(DrawingBotV3.INSTANCE.getProgramSettings().svgLayerNaming.get(), drawingPen.getDisplayName(), "" + (index+1));
+                String layerName = formatLayerName(DrawingBotV3.INSTANCE.getPreferences().svgLayerNaming.get(), drawingPen.getDisplayName(), "" + (index+1));
 
                 // Create a fresh document to draw each pen into
                 Document graphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);

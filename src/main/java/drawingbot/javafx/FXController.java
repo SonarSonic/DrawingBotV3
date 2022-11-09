@@ -4,21 +4,17 @@ import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
 import drawingbot.files.*;
-import drawingbot.files.json.JsonLoaderManager;
-import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.javafx.controllers.*;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.preferences.FXProgramSettings;
+import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.javafx.util.JFXUtils;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.render.shapes.JFXShapeManager;
@@ -27,7 +23,6 @@ import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -39,7 +34,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
 import javafx.scene.control.*;
 
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -269,7 +263,6 @@ public class FXController {
         MenuItem menuPreferences = new MenuItem("Preferences");
         menuPreferences.setOnAction(e -> {
             preferencesStage.show();
-            FXProgramSettings.preferencesFx.show();
         });
         menuFile.getItems().add(menuPreferences);
 
@@ -582,8 +575,6 @@ public class FXController {
                 labelPlottedShapes.setText(Utils.defaultNF.format(0));
                 labelPlottedVertices.setText(Utils.defaultNF.format(0));
             }
-
-
         });
 
         JFXUtils.subscribeListener(DrawingBotV3.INSTANCE.activeProject, (observable, oldValue, newValue) -> {

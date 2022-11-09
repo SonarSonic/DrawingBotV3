@@ -4,16 +4,13 @@ import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.JsonLoaderManager;
-import drawingbot.javafx.preferences.FXProgramSettings;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.registry.Register;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.render.overlays.*;
-import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
@@ -146,13 +143,7 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Renderers: Load Overlays");
         MasterRegistry.INSTANCE.overlays.forEach(AbstractOverlay::init);
 
-        //TODO PRESET DEFAULTS
-        RulerOverlays.INSTANCE.setActive(true);
-        DrawingBorderOverlays.INSTANCE.setActive(false);
-        ShapeOverlays.INSTANCE.setActive(true);
-        NotificationOverlays.INSTANCE.setActive(true);
-
-        FXProgramSettings.init();
+        //FXProgramSettings.init();
 
         // set up main drawing loop
         drawTimer = new DrawTimer(this);
@@ -163,6 +154,8 @@ public class FXApplication extends Application {
 
         DrawingBotV3.logger.info("Plugins: Post Init");
         MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
+
+        DBPreferences.INSTANCE.postInit();
 
         if(!isHeadless){
             DrawingBotV3.INSTANCE.projectName.set("Untitled");
@@ -226,7 +219,7 @@ public class FXApplication extends Application {
     }
 
     public static void applyCurrentTheme(Scene scene){
-        if (DrawingBotV3.INSTANCE.getProgramSettings().darkTheme.get()) {
+        if (DrawingBotV3.INSTANCE.getPreferences().darkTheme.get()) {
             scene.getRoot().setStyle("-fx-base: rgba(30, 30, 30, 255); -fx-accent: rgba(0, 100, 134, 255);");
         } else {
             scene.getRoot().setStyle("");

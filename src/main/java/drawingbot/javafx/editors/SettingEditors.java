@@ -2,21 +2,75 @@ package drawingbot.javafx.editors;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
+import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.ToggleSwitch;
+import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
+import org.controlsfx.property.editor.Editors;
+import org.controlsfx.property.editor.PropertyEditor;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class SettingEditors {
 
+    public static DefaultPropertyEditorFactory defaultPropertyEditorFactory = new DefaultPropertyEditorFactory();
+
+    public static Node createEditor(Property property, Class<?> type){
+        PropertyEditor editor = defaultPropertyEditorFactory.call(new PropertySheet.Item() {
+            @Override
+            public Class<?> getType() {
+                return type;
+            }
+
+            @Override
+            public String getCategory() {
+                return "";
+            }
+
+            @Override
+            public String getName() {
+                return "";
+            }
+
+            @Override
+            public String getDescription() {
+                return "";
+            }
+
+            @Override
+            public Object getValue() {
+                return property.getValue();
+            }
+
+            @Override
+            public void setValue(Object value) {
+                property.setValue(value);
+            }
+
+            @Override
+            public Optional<ObservableValue<? extends Object>> getObservableValue() {
+                return Optional.of(property);
+            }
+        });
+        editor.setValue(property.getValue());
+        HBox.setHgrow(editor.getEditor(), Priority.ALWAYS);
+        return editor.getEditor();
+    }
     public static Node createEditor(GenericSetting<?, ?> generic){
         Node editor = null;
         if(generic instanceof BooleanSetting){
@@ -44,9 +98,6 @@ public class SettingEditors {
             StringSetting<?> setting = (StringSetting<?>) generic;
             editor = createTextEditor(setting.valueProperty());
         }
-        if(editor != null){
-            editor.disableProperty().bindBidirectional(generic.disabledProperty());
-        }
         return editor;
     }
 
@@ -72,7 +123,6 @@ public class SettingEditors {
         TextField textField = new TextField();
         textField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), doubleSetting.getDefaultValue()));
         textField.textProperty().bindBidirectional(doubleSetting.valueProperty(), new DoubleStringConverter());
-        textField.disableProperty().bindBidirectional(doubleSetting.disabledProperty());
         return textField;
     }
 
@@ -87,7 +137,6 @@ public class SettingEditors {
         TextField textField = new TextField();
         textField.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), floatProperty.getDefaultValue()));
         textField.textProperty().bindBidirectional(floatProperty.valueProperty(), new FloatStringConverter());
-        textField.disableProperty().bindBidirectional(floatProperty.disabledProperty());
         return textField;
     }
 
@@ -102,7 +151,6 @@ public class SettingEditors {
         TextField textField = new TextField();
         textField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), integerSetting.getDefaultValue()));
         textField.textProperty().bindBidirectional(integerSetting.valueProperty(), new IntegerStringConverter());
-        textField.disableProperty().bindBidirectional(integerSetting.disabledProperty());
         return textField;
     }
 
@@ -117,7 +165,6 @@ public class SettingEditors {
         TextField textField = new TextField();
         textField.setTextFormatter(new TextFormatter<>(new LongStringConverter(), longSetting.getDefaultValue()));
         textField.textProperty().bindBidirectional(longSetting.valueProperty(), new LongStringConverter());
-        textField.disableProperty().bindBidirectional(longSetting.disabledProperty());
         return textField;
     }
 
@@ -154,9 +201,16 @@ public class SettingEditors {
         return datePicker;
     }
 
+    public static Node createTextAreaEditorLazy(Property<?> stringProperty){
+        return createTextAreaEditor((Property<String>)stringProperty);
+    }
+
     public static Node createTextAreaEditor(Property<String> booleanProperty){
         TextArea textArea = new TextArea();
         textArea.textProperty().bindBidirectional(booleanProperty);
+        VBox.setVgrow(textArea, Priority.ALWAYS);
+        textArea.setPrefRowCount(6);
+        textArea.setMinHeight(100);
         return textArea;
     }
 

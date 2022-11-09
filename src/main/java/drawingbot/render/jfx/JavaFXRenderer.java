@@ -206,8 +206,8 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public int getMaxTextureSize(){
-        if(DrawingBotV3.INSTANCE.getProgramSettings().maxTextureSize.get() != -1){
-            return DrawingBotV3.INSTANCE.getProgramSettings().maxTextureSize.get();
+        if(DrawingBotV3.INSTANCE.getPreferences().maxTextureSize.get() != -1){
+            return DrawingBotV3.INSTANCE.getPreferences().maxTextureSize.get();
         }
         return defaultMaxTextureSize;
     }

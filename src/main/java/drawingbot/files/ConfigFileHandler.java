@@ -2,8 +2,6 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.JsonLoaderManager;
-import drawingbot.files.json.presets.PresetApplicationSettings;
-import drawingbot.registry.Register;
 
 import java.io.*;
 import java.util.*;

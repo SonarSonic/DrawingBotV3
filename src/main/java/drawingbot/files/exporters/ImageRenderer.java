@@ -48,8 +48,8 @@ public class ImageRenderer {
     }
 
     private void setup() {
-        rasterWidth = CanvasUtils.getRasterExportWidth(canvas, DrawingBotV3.INSTANCE.getProgramSettings().exportDPI.get(), isVideo);
-        rasterHeight = CanvasUtils.getRasterExportHeight(canvas, DrawingBotV3.INSTANCE.getProgramSettings().exportDPI.get(), isVideo);
+        rasterWidth = CanvasUtils.getRasterExportWidth(canvas, DrawingBotV3.INSTANCE.getPreferences().exportDPI.get(), isVideo);
+        rasterHeight = CanvasUtils.getRasterExportHeight(canvas, DrawingBotV3.INSTANCE.getPreferences().exportDPI.get(), isVideo);
 
         //apply the scaling caused by the new DPI.
         double scale = (double) rasterWidth / canvas.getScaledWidth();

@@ -5,3 +5,4 @@
 - 1:1 doesn't work anymore
 - Remove file exported popup for thumbnails
 - Changing blend mode has no action
+- GCode, can't scroll down
