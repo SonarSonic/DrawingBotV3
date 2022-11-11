@@ -14,6 +14,7 @@ import drawingbot.render.overlays.NotificationOverlays;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -23,7 +24,9 @@ import javafx.util.converter.DefaultStringConverter;
 import org.controlsfx.control.Rating;
 import org.fxmisc.easybind.EasyBind;
 
-public class FXVersionControl {
+import java.util.List;
+
+public class FXVersionControl extends AbstractFXController {
 
     public final SimpleObjectProperty<ObservableList<ObservableVersion>> projectVersions = new SimpleObjectProperty<>();
 
@@ -129,6 +132,13 @@ public class FXVersionControl {
             list.add(new ObservableVersion(preset, true));
             NotificationOverlays.INSTANCE.showWithSubtitle("Saved New Version", preset.data.imagePath);
         });
+    }
+
+    ////////////////////////////////////////////////////////
+
+    @Override
+    public List<Styleable> getPersistentNodes(){
+        return List.of(versionThumbColumn, versionNameColumn, versionRatingColumn, versionDateColumn, versionNotesColumn, versionPFMColumn, versionFileColumn);
     }
 
 }

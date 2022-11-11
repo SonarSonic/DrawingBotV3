@@ -11,6 +11,7 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.DialogGenericRename;
+import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
 import drawingbot.plotting.PlottedDrawing;
@@ -21,13 +22,16 @@ import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.WritableValue;
 import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TableColumnHeader;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -42,10 +46,7 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -57,7 +58,7 @@ import java.util.logging.Level;
  */
 public class FXHelper {
 
-    public static final List<Node> persistentNodes = new ArrayList<>();
+    public static final List<Styleable> persistentStyleables = new ArrayList<>();
 
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
@@ -699,35 +700,88 @@ public class FXHelper {
     }
 
 
+    public static class PropertyAccessor<C, T>{
+
+        public Class<C> clazz;
+        public Class<T> type;
+        public String key;
+        public Function<C, ? extends WritableValue<T>> accessor;
+
+        public PropertyAccessor(Class<C> clazz, String key, Class<T> type, Function<C, ? extends WritableValue<T>> accessor){
+            this.clazz = clazz;
+            this.type = type;
+            this.key = key;
+            this.accessor = accessor;
+        }
+
+        public boolean canAccess(Object obj){
+            return clazz.isInstance(obj);
+        }
+
+        public WritableValue<T> getProperty(Object obj){
+            return accessor.apply(clazz.cast(obj));
+        }
+
+        public String readProperty(Object obj, Gson gson){
+            return gson.toJson(getProperty(obj).getValue(), type);
+        }
+
+        public void writeProperty(Object obj, String value, Gson gson){
+            getProperty(obj).setValue(gson.fromJson(value, type));
+        }
+
+        public String getKey(){
+            return key;
+        }
+
+        public String getRegistryKey(){
+            return clazz.getSimpleName() + ":" + key;
+        }
+
+    }
+
+    public static List<PropertyAccessor<?, ?>> nodePropertyAccessors = new ArrayList<>();
+    static {
+        nodePropertyAccessors.add(new PropertyAccessor<>(TitledPane.class, "expanded", Boolean.class, TitledPane::expandedProperty));
+        nodePropertyAccessors.add(new PropertyAccessor<>(TableColumnBase.class, "visible", Boolean.class, TableColumnBase::visibleProperty));
+        nodePropertyAccessors.add(new PropertyAccessor<>(ZoomableScrollPane.class, "scale", Number.class, ZoomableScrollPane::scaleProperty));
+    }
 
 
     public static class UINodeState {
 
         public String id = "";
-        public boolean expanded = false;
+        public HashMap<String, String> properties = new HashMap<>();
 
         public UINodeState(){} //for gson
 
-        public UINodeState(Node node){
-            saveState(node);
+        public UINodeState(String id, Object obj){
+            this.id = id;
+            saveState(obj);
         }
 
-        public void saveState(Node node){
-            id = node.getId();
-            if(node instanceof TitledPane){
-                TitledPane pane = (TitledPane) node;
-                expanded = pane.isExpanded();
+        public void saveState(Object node){
+            Gson gson = JsonLoaderManager.createDefaultGson();
+            HashMap<String, String> properties = new HashMap<>();
+
+            for(PropertyAccessor<?, ?> propertyAccessor : nodePropertyAccessors){
+                if(propertyAccessor.canAccess(node)){
+                    properties.put(propertyAccessor.getRegistryKey(), propertyAccessor.readProperty(node, gson));
+                }
             }
+
+            this.properties = properties;
         }
 
-        public void loadState(Node node){
-            if(!node.getId().equals(id)){
-                return;
+        public void loadState(Object node){
+            Gson gson = JsonLoaderManager.createDefaultGson();
+
+            for(PropertyAccessor<?, ?> propertyAccessor : nodePropertyAccessors){
+                if(properties.containsKey(propertyAccessor.getRegistryKey()) && propertyAccessor.canAccess(node)){
+                    propertyAccessor.writeProperty(node, properties.get(propertyAccessor.getRegistryKey()), gson);
+                }
             }
-            if(node instanceof TitledPane){
-                TitledPane pane = (TitledPane) node;
-                pane.setExpanded(expanded);
-            }
+
         }
 
         public String getID(){
@@ -735,39 +789,40 @@ public class FXHelper {
         }
     }
 
-    public static void makePersistent(List<? extends Node> nodes){
-        nodes.forEach(FXHelper::makePersistent);
+    public static void makePersistent(List<? extends Styleable> styleables){
+        styleables.forEach(FXHelper::makePersistent);
     }
 
-    public static void makePersistent(Node node){
-        if(!persistentNodes.contains(node)){
-            persistentNodes.add(node);
+    public static void makePersistent(Styleable styleable){
+        if(styleable != null && !persistentStyleables.contains(styleable)){
+            persistentStyleables.add(styleable);
         }
     }
 
     @Nullable
-    public static Node findPersistentNode(String fxID){
-        for(Node node : persistentNodes){
+    public static Styleable findPersistentStyleable(String fxID){
+        for(Styleable node : persistentStyleables){
             if(node.getId().equals(fxID)){
                 return node;
             }
         }
-        return FXApplication.primaryScene.getRoot().lookup(fxID);
+        //return FXApplication.primaryScene.getRoot().lookup(fxID);
+        return null;
     }
 
-    public static void loadUIStates(List<FXHelper.UINodeState> nodes){
-        for(FXHelper.UINodeState state : nodes){
-            Node node = FXHelper.findPersistentNode(state.getID());
-            if(node != null){
-                state.loadState(node);
+    public static void loadUIStates(List<FXHelper.UINodeState> states){
+        for(FXHelper.UINodeState state : states){
+            Styleable styleable = FXHelper.findPersistentStyleable(state.getID());
+            if(styleable != null && styleable.getId().equals(state.getID())){
+                state.loadState(styleable);
             }
         }
     }
 
-    public static void saveUIStates(List<FXHelper.UINodeState> nodes){
-        for(Node node : FXHelper.persistentNodes){
-            if(node.getId() != null && !node.getId().isEmpty()){
-                nodes.add(new FXHelper.UINodeState(node));
+    public static void saveUIStates(List<FXHelper.UINodeState> states){
+        for(Styleable styleable : FXHelper.persistentStyleables){
+            if(styleable.getId() != null && !styleable.getId().isEmpty()){
+                states.add(new FXHelper.UINodeState(styleable.getId(), styleable));
             }
         }
     }

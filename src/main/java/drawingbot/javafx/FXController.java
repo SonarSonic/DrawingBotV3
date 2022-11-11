@@ -53,7 +53,7 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-public class FXController {
+public class FXController extends AbstractFXController {
 
     public static final String STYLESHEET_VIEWPORT_OVERLAYS = "viewport-overlays.css";
 
@@ -88,6 +88,16 @@ public class FXController {
         }catch (Exception e){
             DrawingBotV3.logger.log(Level.SEVERE, "Failed to initialize JAVA FX", e);
         }
+
+        //note: it's better to do this here, it means if we create other instances of the controller classes elsewhere their nodes won't clash with the main UIs ones
+        FXHelper.makePersistent(drawingAreaController.getPersistentNodes());
+        FXHelper.makePersistent(imageFiltersController.getPersistentNodes());
+        FXHelper.makePersistent(pfmSettingsController.getPersistentNodes());
+        FXHelper.makePersistent(drawingSetsController.getPersistentNodes());
+        FXHelper.makePersistent(versionControlController.getPersistentNodes());
+        FXHelper.makePersistent(batchProcessingController.getPersistentNodes());
+        FXHelper.makePersistent(viewportScrollPane);
+
 
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
@@ -621,7 +631,7 @@ public class FXController {
         viewportScrollPane.setMaxWidth(Double.MAX_VALUE);
         viewportScrollPane.setMaxHeight(Double.MAX_VALUE);
         viewportScrollPane.setPannable(true);
-        viewportScrollPane.scaleProperty.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.scale.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));

@@ -27,7 +27,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 
 //TODO PRESETS MAY STILL APPLY TO THE MASTER REGISTRY LISTS
-public class FXPFMControls {
+public class FXPFMControls extends AbstractFXController {
 
     public final SimpleObjectProperty<PFMSettings> pfmSettings = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<GenericPreset<PresetPFMSettings>> selectedPFMPreset = new SimpleObjectProperty<>();

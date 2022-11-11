@@ -1,7 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -10,19 +10,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
 //SRC: https://stackoverflow.com/questions/39827911/javafx-8-scaling-zooming-scrollpane-relative-to-mouse-position
 public class ZoomableScrollPane extends ScrollPane {
 
-    public SimpleDoubleProperty scaleProperty = new SimpleDoubleProperty(1D);
-
-    public double scaleValue = 1D;
-    public double zoomIntensity = 0.02;
-    public Node target;
-    public Node overlays;
-    public Node zoomNode;
+    private Node target;
+    private Node zoomNode;
 
     public ZoomableScrollPane(){
         super();
@@ -39,8 +33,10 @@ public class ZoomableScrollPane extends ScrollPane {
         this.target = target;
         this.zoomNode = new Group(target);
         setContent(outerNode(zoomNode));
-        updateScale();
+        setScale(1);
     }
+
+    ////////////////////////////////////////////////////////
 
     private Node outerNode(Node node){
         Node outerNode = centeredNode(node);
@@ -57,14 +53,48 @@ public class ZoomableScrollPane extends ScrollPane {
         return vBox;
     }
 
-    public void updateScale() {
-        scaleProperty.set(scaleValue);
-        if(!DrawingBotV3.project().displayMode.get().getRenderer().isOpenGL()){
-            target.setScaleX(scaleValue);
-            target.setScaleY(scaleValue);
-            DrawingBotV3.RENDERER.updateCanvasScaling();
-        }
+    ////////////////////////////////////////////////////////
+
+    public SimpleDoubleProperty scale = new SimpleDoubleProperty(1D);
+    {
+        scale.addListener((observable, oldValue, newValue) -> {
+            if(!DrawingBotV3.project().displayMode.get().getRenderer().isOpenGL()){
+                target.setScaleX(scale.get());
+                target.setScaleY(scale.get());
+                DrawingBotV3.RENDERER.updateCanvasScaling();
+            }
+        });
     }
+
+    public double getScale() {
+        return scale.get();
+    }
+
+    public DoubleProperty scaleProperty() {
+        return scale;
+    }
+
+    public void setScale(double scale) {
+        this.scale.set(scale);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    public SimpleDoubleProperty zoomIntensity = new SimpleDoubleProperty(0.02D);
+
+    public double getZoomIntensity() {
+        return zoomIntensity.get();
+    }
+
+    public SimpleDoubleProperty zoomIntensityProperty() {
+        return zoomIntensity;
+    }
+
+    public void setZoomIntensity(double zoomIntensity) {
+        this.zoomIntensity.set(zoomIntensity);
+    }
+
+    ////////////////////////////////////////////////////////
 
     public void onScroll(double wheelDelta, Point2D mousePoint) {
         if(DrawingBotV3.project().dpiScaling.get()){
@@ -74,8 +104,7 @@ public class ZoomableScrollPane extends ScrollPane {
             mousePoint = getContent().sceneToLocal(mousePoint);
         }
 
-
-        double zoomFactor = Math.exp(wheelDelta * zoomIntensity);
+        double zoomFactor = Math.exp(wheelDelta * zoomIntensity.get());
 
         Bounds viewportBounds = getViewportBounds();
         Bounds innerBounds;
@@ -89,8 +118,7 @@ public class ZoomableScrollPane extends ScrollPane {
         double valX = this.getHvalue() * (innerBounds.getWidth() - viewportBounds.getWidth());
         double valY = this.getVvalue() * (innerBounds.getHeight() - viewportBounds.getHeight());
 
-        scaleValue = scaleValue * zoomFactor;
-        updateScale();
+        setScale(scale.get() * zoomFactor);
         DrawingBotV3.OPENGL_RENDERER.updateCanvasPosition();
         this.layout(); // refresh ScrollPane scroll positions & target bounds
 

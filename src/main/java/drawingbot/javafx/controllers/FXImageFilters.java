@@ -22,6 +22,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -33,8 +34,9 @@ import javafx.util.converter.NumberStringConverter;
 import org.fxmisc.easybind.EasyBind;
 
 import java.awt.image.BufferedImageOp;
+import java.util.List;
 
-public class FXImageFilters {
+public class FXImageFilters extends AbstractFXController {
 
     public final SimpleObjectProperty<ImageFilterSettings> settings = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<FilteredImageData> image = new SimpleObjectProperty<>();
@@ -223,4 +225,8 @@ public class FXImageFilters {
 
     ////////////////////////////////////////////////////////
 
+    @Override
+    public List<Styleable> getPersistentNodes(){
+        return List.of(tableViewImageFilters, columnEnableImageFilter, columnImageFilterType, columnImageFilterSettings);
+    }
 }

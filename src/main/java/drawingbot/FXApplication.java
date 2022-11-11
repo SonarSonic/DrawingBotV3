@@ -45,7 +45,7 @@ public class FXApplication extends Application {
     public static boolean isHeadless;
     public static MouseMonitor mouseMonitor;
 
-    public static boolean isDeveloperMode = true;//TODO CHANGE ME
+    public static boolean isDeveloperMode = false;
 
     public static void main(String[] args) {
         launchArgs = args;

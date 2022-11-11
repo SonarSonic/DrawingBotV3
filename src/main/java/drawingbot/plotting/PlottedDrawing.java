@@ -388,7 +388,7 @@ public class PlottedDrawing {
 
         //tally all the geometries per group / per pen
         for(IGeometry geometry : plottedDrawing.geometries){
-            if(geometry.getPenIndex() >= 0 && geometry.getGeometryIndex() >= plottedDrawing.displayedShapeMin && geometry.getGeometryIndex() <= plottedDrawing.displayedShapeMax){
+            if(geometry.getPenIndex() >= 0 && geometry.getGeometryIndex() >= plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= plottedDrawing.getDisplayedShapeMax()){
                 Map<Integer, Integer> stats = perGroupStats.get(plottedDrawing.getPlottedGroup(geometry.getGroupID()));
                 if(stats != null){
                     stats.putIfAbsent(geometry.getPenIndex(), 0);

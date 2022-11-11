@@ -22,7 +22,7 @@ import javafx.scene.paint.Color;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-public class FXDrawingArea {
+public class FXDrawingArea extends AbstractFXController {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<GenericPreset<PresetDrawingArea>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();

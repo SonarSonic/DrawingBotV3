@@ -26,6 +26,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -39,9 +40,11 @@ import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class FXDrawingSets {
+public class FXDrawingSets extends AbstractFXController {
 
     public SimpleObjectProperty<DrawingSets> drawingSets = new SimpleObjectProperty<>();
 
@@ -370,6 +373,7 @@ public class FXDrawingSets {
 
         buttonClearDrawingSets.setOnAction(e -> drawingSets.get().drawingSetSlots.get().clear());
         buttonClearDrawingSets.setTooltip(new Tooltip("Clear Drawing Sets"));
+
     }
 
     //// DRAWING SET LISTENERS \\\\
@@ -479,7 +483,12 @@ public class FXDrawingSets {
         return drawingSetPresetManager;
     }
 
-
     ////////////////////////////////////////////////////////
+
+
+    @Override
+    public List<Styleable> getPersistentNodes(){
+        return List.of(penEnableColumn, penTypeColumn, penNameColumn, penColourColumn, penColourColumn, penStrokeColumn, penPercentageColumn, penWeightColumn, penLinesColumn, drawingSetNameColumn, drawingSetPensColumn, drawingSetDistributionTypeColumn, drawingSetDistributionOrderColumn, drawingSetColourSeperatorColumn,/*drawingSetShapesColumn,*/drawingSetPercentageColumn);
+    }
 
 }

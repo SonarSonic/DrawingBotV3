@@ -247,7 +247,7 @@ public class DrawingBotV3 {
                 if(drawing != null){
                     drawing.updatePenDistribution();
                 }
-                DrawingBotV3.INSTANCE.reRender();
+                Platform.runLater(() -> DrawingBotV3.INSTANCE.reRender());
             });
         }
 
@@ -437,8 +437,7 @@ public class DrawingBotV3 {
     //// MOUSE EVENTS
 
     public void resetView(){
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.scaleValue = project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1;
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.updateScale();
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.setScale(project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.layout();
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
