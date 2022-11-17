@@ -78,6 +78,14 @@ public class ZoomableScrollPane extends ScrollPane {
         this.scale.set(scale);
     }
 
+    public void zoomIn(){
+        setScale(getScale() + 0.1);
+    }
+
+    public void zoomOut(){
+        setScale(Math.max(0.01, getScale() - 0.1));
+    }
+
     ////////////////////////////////////////////////////////
 
     public SimpleDoubleProperty zoomIntensity = new SimpleDoubleProperty(0.02D);

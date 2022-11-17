@@ -2,6 +2,8 @@ package drawingbot.pfm.helpers;
 
 import drawingbot.api.IPixelData;
 
+import java.util.function.Consumer;
+
 public class VarianceTest extends PixelTest{
 
     public int max = 0;
@@ -38,5 +40,11 @@ public class VarianceTest extends PixelTest{
     public void addSample(int luminance) {
         max = Math.max(max, luminance);
         min = Math.min(min, luminance);
+    }
+
+    public int runVarianceTest(IPixelData data, Consumer<BresenhamHelper.IPixelSetter> testConsumer){
+        resetTest();
+        testConsumer.accept((xT, yT) -> addSample(data, xT, yT));
+        return getVariance();
     }
 }
