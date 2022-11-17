@@ -3,21 +3,27 @@ package drawingbot.javafx.preferences;
 import static drawingbot.javafx.GenericSetting.*;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.api.ISettings;
+import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.ExportTask;
+import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.PresetType;
+import drawingbot.files.json.presets.PresetGCodeSettings;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.*;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.plotting.canvas.ObservableCanvas;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.utils.EnumClippingMode;
-import drawingbot.utils.EnumRescaleMode;
-import drawingbot.utils.UnitsLength;
-import drawingbot.utils.UnitsTime;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import drawingbot.utils.*;
+import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -61,7 +67,7 @@ public class DBPreferences implements ISettings {
 
     ///////////////////////////////////////////////
 
-    //// DRAWING AREA \\\\
+    //// DEFAULTS \\\\
     public final StringSetting<?> defaultPFM = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultPFM", "Sketch Lines PFM"));
     public final ColourSetting<?> defaultCanvasColour = register(createColourSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultCanvasColour", Color.WHITE));
     public final ColourSetting<?> defaultBackgroundColour = register(createColourSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultBackgroundColour", ObservableCanvas.backgroundColourDefault));
@@ -98,6 +104,11 @@ public class DBPreferences implements ISettings {
 
     ///////////////////////////////////////////////
 
+    //// USER INTERFACE \\\\
+    public final OptionSetting<?, EnumWindowSize> uiWindowSize = register(createOptionSetting(DBPreferences.class, EnumWindowSize.class, CATEGORY_USER_INTERFACE, "uiWindowSize", FXCollections.observableArrayList(EnumWindowSize.values()), EnumWindowSize.DEFAULT));
+    public final BooleanSetting<?> restoreLayout = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "restoreLayout", true));
+    public final BooleanSetting<?> restoreProjectLayout = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "restoreProjectLayout", true));
+
     //// OVERLAYS \\\\
     public final BooleanSetting<?> rulersEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "rulersEnabled", true));
     public final BooleanSetting<?> drawingBordersEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "drawingBordersEnabled", false));
@@ -123,15 +134,28 @@ public class DBPreferences implements ISettings {
 
     public final DoubleSetting<?> exportDPI = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "exportDPI", 300D, 1D, Short.MAX_VALUE));
 
+    //// GCODE SETTINGS \\\\
+
+    public final GCodeSettings gcodeSettings = new GCodeSettings();
+    public final SimpleObjectProperty<GenericPreset<PresetGCodeSettings>> selectedGCodePreset = new SimpleObjectProperty<>();
+    public final BooleanSetting<?> showGCodeExportSettings = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "showGCodeExportSettings", false));
+
     ///////////////////////////////////////////////
 
     //// ANIMATION SETTINGS \\\\
 
-    public final IntegerSetting<?> framesPerSecond = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "framesPerSecond", 25));
+    public final IntegerSetting<?> framesPerSecond = (IntegerSetting<?>) register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "framesPerSecond", 25).addRecommendedValues(24, 25, 30, 50, 60));
     public final IntegerSetting<?> duration = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "duration", 5));
     public final IntegerSetting<?> frameHoldStart = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "frameHoldStart", 1));
     public final IntegerSetting<?> frameHoldEnd = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "frameHoldEnd", 1));
     public final OptionSetting<?, UnitsTime> durationUnits = register(createOptionSetting(DBPreferences.class, UnitsTime.class, CATEGORY_ANIMATION, "durationUnits", UnitsTime.OBSERVABLE_LIST, UnitsTime.SECONDS));
+
+    //// ANIMATION STATS \\\\\
+
+    public final StringProperty imageExportSize = new SimpleStringProperty();
+    public final StringProperty animationFrameCount = new SimpleStringProperty();
+    public final StringProperty animationGeometriesPFrame = new SimpleStringProperty();
+    public final StringProperty animationVerticesPFrame = new SimpleStringProperty();
 
     ///////////////////////////////////////////////
 
@@ -207,6 +231,32 @@ public class DBPreferences implements ISettings {
         return Math.max(1, count / getFrameCount());
     }
 
+    public void updateImageSequenceStats(){
+        PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
+
+        int frameCount = getFrameCount();
+        int geometriesPerFrame = drawing == null ? 0 : getGeometriesPerFrame(drawing.getGeometryCount());
+        long verticesPerFrame = drawing == null ? 0 : getVerticesPerFrame(drawing.getVertexCount());
+
+
+        if(verticesPerFrame == 1 && frameCount > verticesPerFrame){
+            frameCount = (int) drawing.getVertexCount();
+        }
+
+        if(DrawingBotV3.project().openImage.get() != null){
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.project().openImage.get().getTargetCanvas(), exportDPI.get(), false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.project().openImage.get().getTargetCanvas(), exportDPI.get(), false);
+            DBPreferences.INSTANCE.imageExportSize.set(exportWidth + " x " + exportHeight);
+
+        }else{
+            DBPreferences.INSTANCE.imageExportSize.set("0 x 0");
+        }
+
+        DBPreferences.INSTANCE.animationFrameCount.set("" + Utils.defaultNF.format(frameCount));
+        DBPreferences.INSTANCE.animationGeometriesPFrame.set("" + Utils.defaultNF.format(geometriesPerFrame));
+        DBPreferences.INSTANCE.animationVerticesPFrame.set("" + Utils.defaultNF.format(verticesPerFrame));
+    }
+
     public void postInit(){
         defaultCanvasColour.addListener(observable -> {
             DrawingBotV3.project().getDrawingArea().canvasColor.set(defaultCanvasColour.getValue());
@@ -228,6 +278,26 @@ public class DBPreferences implements ISettings {
         });
         defaultRangeExport.addListener(observable -> {
             DrawingBotV3.project().exportRange.set(defaultRangeExport.getValue());
+        });
+
+        InvalidationListener imageStatsListener = observable -> updateImageSequenceStats();
+        exportDPI.addListener(imageStatsListener);
+        framesPerSecond.addListener(imageStatsListener);
+        duration.addListener(imageStatsListener);
+        frameHoldStart.addListener(imageStatsListener);
+        frameHoldEnd.addListener(imageStatsListener);
+        durationUnits.addListener(imageStatsListener);
+        updateImageSequenceStats();
+
+        selectedGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
+        selectedGCodePreset.addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), newValue);
+            }
+        });
+
+        uiWindowSize.addListener(observable -> {
+            uiWindowSize.get().setupStage(FXApplication.primaryStage);
         });
     }
 

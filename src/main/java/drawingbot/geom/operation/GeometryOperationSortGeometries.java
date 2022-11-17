@@ -19,7 +19,7 @@ public class GeometryOperationSortGeometries extends AbstractGeometryOperation{
 
     @Override
     public PlottedDrawing run(PlottedDrawing originalDrawing) {
-        DBPreferences settings = DrawingBotV3.INSTANCE.getPreferences();
+        DBPreferences settings = DBPreferences.INSTANCE;
         double tolerance = UnitsLength.convert(settings.lineSortingTolerance.get(), settings.lineSortingUnits.get(), UnitsLength.MILLIMETRES);
 
         for(PlottedGroup group : originalDrawing.groups.values()){

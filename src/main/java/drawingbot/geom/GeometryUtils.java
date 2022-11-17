@@ -7,6 +7,7 @@ import drawingbot.geom.operation.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.shapes.*;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.MasterRegistry;
@@ -71,10 +72,10 @@ public class GeometryUtils {
 
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
-        if(task.exportHandler.isVector && !forceBypassOptimisation && DrawingBotV3.INSTANCE.getPreferences().pathOptimisationEnabled.getValue()){
+        if(task.exportHandler.isVector && !forceBypassOptimisation && DBPreferences.INSTANCE.pathOptimisationEnabled.getValue()){
 
             geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
-            if(DrawingBotV3.INSTANCE.getPreferences().lineSortingEnabled.get()){
+            if(DBPreferences.INSTANCE.lineSortingEnabled.get()){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
         }

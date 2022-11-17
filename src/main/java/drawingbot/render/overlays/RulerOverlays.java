@@ -2,6 +2,7 @@ package drawingbot.render.overlays;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.Utils;
 import drawingbot.utils.flags.Flags;
 import javafx.geometry.Insets;
@@ -99,7 +100,7 @@ public class RulerOverlays extends AbstractOverlay {
         yAxisClip.heightProperty().bind(DrawingBotV3.INSTANCE.controller.viewportScrollPane.heightProperty());
         anchorPaneYAxisWrapper.setClip(yAxisClip);
 
-        activeProperty().bindBidirectional(DrawingBotV3.INSTANCE.settings.get().rulersEnabled.asBooleanProperty());
+        activeProperty().bindBidirectional(DBPreferences.INSTANCE.rulersEnabled.asBooleanProperty());
     }
 
     @Override

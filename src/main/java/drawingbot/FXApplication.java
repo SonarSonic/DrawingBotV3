@@ -219,7 +219,7 @@ public class FXApplication extends Application {
     }
 
     public static void applyCurrentTheme(Scene scene){
-        if (DrawingBotV3.INSTANCE.getPreferences().darkTheme.get()) {
+        if (DBPreferences.INSTANCE.darkTheme.get()) {
             scene.getRoot().setStyle("-fx-base: rgba(30, 30, 30, 255); -fx-accent: rgba(0, 100, 134, 255);");
         } else {
             scene.getRoot().setStyle("");

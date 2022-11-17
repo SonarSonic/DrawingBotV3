@@ -59,12 +59,6 @@ public class DrawingBotV3 {
     public static JavaFXRenderer RENDERER;
     public static IRenderer OPENGL_RENDERER;
 
-    public final ObjectProperty<DBPreferences> settings = new SimpleObjectProperty<>(DBPreferences.INSTANCE);
-
-    public DBPreferences getPreferences() {
-        return settings.get();
-    }
-
     // DISPLAY \\
     public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
 

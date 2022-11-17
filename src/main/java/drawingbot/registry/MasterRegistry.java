@@ -24,6 +24,7 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogImageFilter;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSketchLines;
 import drawingbot.render.IDisplayMode;
@@ -88,13 +89,17 @@ public class MasterRegistry {
         init = true;
     }
 
+    public static void postInit(){
+        PLUGINS.forEach(IPlugin::registerPreferencePages);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PRESETS \\\\
 
     @Nullable
     public String getDefaultPresetName(PresetType presetType, String presetSubType){
-        return DrawingBotV3.INSTANCE.getPreferences().getDefaultPreset(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
+        return DBPreferences.INSTANCE.getDefaultPreset(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
     }
 
     @Nullable
@@ -138,9 +143,9 @@ public class MasterRegistry {
 
     public void setDefaultPreset(GenericPreset<?> preset){
         if(preset.presetType.defaultsPerSubType){
-            DrawingBotV3.INSTANCE.getPreferences().setDefaultPreset(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
+            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
         }else{
-            DrawingBotV3.INSTANCE.getPreferences().setDefaultPreset(preset.presetType.id, preset.presetName);
+            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id, preset.presetName);
         }
     }
 
@@ -686,6 +691,36 @@ public class MasterRegistry {
 
     public void registerMetadataType(Metadata<?> metadata){
         this.metadataTypes.add(metadata);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PREFERENCES \\\\
+    public FXPreferences.TreeNode root = FXPreferences.root();
+
+    public void registerPreferencesPage(FXPreferences.TreeNode treeNode){
+        registerPreferencesPage("", treeNode);
+    }
+
+    public void registerPreferencesPage(String breadcrumb, FXPreferences.TreeNode treeNode){
+        if(!breadcrumb.isEmpty()){
+            String[] pages = breadcrumb.split("#");
+            FXPreferences.TreeNode parentPage = root;
+            pages: for(String pageName : pages){
+                for(FXPreferences.TreeNode child : parentPage.getChildren()){
+                    if(child.getName().equals(pageName)){
+                        parentPage = child;
+                        continue pages;
+                    }
+                }
+                parentPage.getChildren().add(parentPage = FXPreferences.node(pageName));
+            }
+            parentPage.getChildren().add(treeNode);
+        }else{
+            root.getChildren().add(treeNode);
+        }
+
     }
 
 }

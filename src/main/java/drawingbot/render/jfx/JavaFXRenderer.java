@@ -3,6 +3,7 @@ package drawingbot.render.jfx;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.image.ImageFilteringTask;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.IRenderer;
 import drawingbot.render.modes.AbstractJFXDisplayMode;
@@ -206,8 +207,8 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     public int getMaxTextureSize(){
-        if(DrawingBotV3.INSTANCE.getPreferences().maxTextureSize.get() != -1){
-            return DrawingBotV3.INSTANCE.getPreferences().maxTextureSize.get();
+        if(DBPreferences.INSTANCE.maxTextureSize.get() != -1){
+            return DBPreferences.INSTANCE.maxTextureSize.get();
         }
         return defaultMaxTextureSize;
     }

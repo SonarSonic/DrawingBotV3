@@ -9,6 +9,7 @@ import drawingbot.files.loaders.ProjectFileLoaderFactory;
 import drawingbot.geom.converters.*;
 import drawingbot.javafx.controls.DialogExportDialog;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.plugins.*;
 import drawingbot.render.overlays.DrawingBorderOverlays;
 import drawingbot.render.overlays.NotificationOverlays;
@@ -729,4 +730,8 @@ public class Register implements IPlugin {
         DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("Default"));
      }
 
+    @Override
+    public void registerPreferencePages() {
+        FXPreferences.registerDefaults();
+    }
 }

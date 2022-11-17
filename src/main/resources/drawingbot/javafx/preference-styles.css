@@ -19,7 +19,7 @@
 
 .preference-grid{
     -fx-hgap: 4;
-    -fx-vgap: 8;
+    -fx-vgap: 6;
     -fx-padding: 12 12 64 12;
 }
 

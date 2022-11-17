@@ -30,6 +30,36 @@ public class SettingEditors {
 
     public static DefaultPropertyEditorFactory defaultPropertyEditorFactory = new DefaultPropertyEditorFactory();
 
+    public static Node createEditor(GenericSetting<?, ?> generic){
+        Node editor = null;
+        if(generic instanceof BooleanSetting){
+            BooleanSetting<?> setting = (BooleanSetting<?>) generic;
+            editor = createSwitchEditor(setting.valueProperty());
+        }else if(generic instanceof ColourSetting){
+            ColourSetting<?> setting = (ColourSetting<?>) generic;
+            editor = createColorEditor(setting.valueProperty());
+        }else if(generic instanceof DoubleSetting){
+            DoubleSetting<?> setting = (DoubleSetting<?>) generic;
+            editor = createDoubleTextEditor(setting);
+        }else if(generic instanceof FloatSetting){
+            FloatSetting<?> setting = (FloatSetting<?>) generic;
+            editor = createFloatTextEditor(setting);
+        }else if(generic instanceof IntegerSetting){
+            IntegerSetting<?> setting = (IntegerSetting<?>) generic;
+            editor = createIntegerTextEditor(setting);
+        }else if(generic instanceof LongSetting){
+            LongSetting<?> setting = (LongSetting<?>) generic;
+            editor = createLongTextEditor(setting);
+        }else if(generic instanceof OptionSetting){
+            OptionSetting<?, ?> setting = (OptionSetting<?, ?>) generic;
+            editor = createChoiceEditor(setting);
+        }else if(generic instanceof StringSetting){
+            StringSetting<?> setting = (StringSetting<?>) generic;
+            editor = createTextEditor(setting.valueProperty());
+        }
+        return editor;
+    }
+
     public static Node createEditor(Property property, Class<?> type){
         PropertyEditor editor = defaultPropertyEditorFactory.call(new PropertySheet.Item() {
             @Override
@@ -70,35 +100,6 @@ public class SettingEditors {
         editor.setValue(property.getValue());
         HBox.setHgrow(editor.getEditor(), Priority.ALWAYS);
         return editor.getEditor();
-    }
-    public static Node createEditor(GenericSetting<?, ?> generic){
-        Node editor = null;
-        if(generic instanceof BooleanSetting){
-            BooleanSetting<?> setting = (BooleanSetting<?>) generic;
-            editor = createSwitchEditor(setting.valueProperty());
-        }else if(generic instanceof ColourSetting){
-            ColourSetting<?> setting = (ColourSetting<?>) generic;
-            editor = createColorEditor(setting.valueProperty());
-        }else if(generic instanceof DoubleSetting){
-            DoubleSetting<?> setting = (DoubleSetting<?>) generic;
-            editor = createDoubleTextEditor(setting);
-        }else if(generic instanceof FloatSetting){
-            FloatSetting<?> setting = (FloatSetting<?>) generic;
-            editor = createFloatTextEditor(setting);
-        }else if(generic instanceof IntegerSetting){
-            IntegerSetting<?> setting = (IntegerSetting<?>) generic;
-            editor = createIntegerTextEditor(setting);
-        }else if(generic instanceof LongSetting){
-            LongSetting<?> setting = (LongSetting<?>) generic;
-            editor = createLongTextEditor(setting);
-        }else if(generic instanceof OptionSetting){
-            OptionSetting<?, ?> setting = (OptionSetting<?, ?>) generic;
-            editor = createChoiceEditor(setting);
-        }else if(generic instanceof StringSetting){
-            StringSetting<?> setting = (StringSetting<?>) generic;
-            editor = createTextEditor(setting.valueProperty());
-        }
-        return editor;
     }
 
     public static Node createCheckboxEditor(Property<Boolean> booleanProperty){
@@ -209,6 +210,7 @@ public class SettingEditors {
         TextArea textArea = new TextArea();
         textArea.textProperty().bindBidirectional(booleanProperty);
         VBox.setVgrow(textArea, Priority.ALWAYS);
+        HBox.setHgrow(textArea, Priority.ALWAYS);
         textArea.setPrefRowCount(6);
         textArea.setMinHeight(100);
         return textArea;

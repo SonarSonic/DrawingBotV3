@@ -2,6 +2,10 @@ package drawingbot.javafx.preferences;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
+import drawingbot.api.IDrawingPen;
+import drawingbot.api.IDrawingSet;
+import drawingbot.drawing.DrawingPen;
+import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.IJsonData;
@@ -10,9 +14,10 @@ import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controls.ComboCellDrawingPen;
+import drawingbot.javafx.controls.ComboCellDrawingSet;
 import drawingbot.javafx.controls.ComboCellNamedSetting;
 import drawingbot.javafx.editors.SettingEditors;
-import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.settings.BooleanSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -30,6 +35,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.layout.*;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.ToggleSwitch;
@@ -54,228 +60,323 @@ public class FXPreferences {
     public Label labelHeading = null;
     public TreeView<TreeNode> treeViewCategories = null;
     public ScrollPane scrollPaneContent = null;
+
     public TreeNode root = null;
+
+    public static PageNode gcodePage;
+    public static PageNode imageAnimationPage;
+
+    public static void registerDefaults(){
+        DBPreferences settings = DBPreferences.INSTANCE;
+
+
+        MasterRegistry.INSTANCE.registerPreferencesPage(FXPreferences.page("General", builder -> {
+                    builder.addAll(
+                            new FXPreferences.LabelNode("Defaults").setTitleStyling(),
+                            new FXPreferences.SettingNode("Path Finding Module", settings.defaultPFM) {
+                                @Override
+                                public Node createEditor() {
+                                    ComboBox<PFMFactory<?>> comboBoxPFM = new ComboBox<>();
+                                    comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
+                                    comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
+                                    comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+                                    comboBoxPFM.setOnAction(e -> {
+                                        settings.defaultPFM.setValue(comboBoxPFM.getValue().getName());
+                                    });
+                                    return comboBoxPFM;
+                                }
+                            },
+                            new FXPreferences.SettingNode("Pen Width (mm)", settings.defaultPenWidth),
+                            new FXPreferences.SettingNode("Rescaling Mode", settings.defaultRescalingMode),
+                            new FXPreferences.SettingNode("Canvas Colour", settings.defaultCanvasColour),
+                            new FXPreferences.SettingNode("Background Colour", settings.defaultBackgroundColour),
+                            new FXPreferences.SettingNode("Clipping Mode", settings.defaultClippingMode),
+                            new FXPreferences.SettingNode("Blend Mode", settings.defaultBlendMode),
+                            new FXPreferences.SettingNode("Apply Shapes Slider to Export", settings.defaultRangeExport),
+                            new FXPreferences.LabelNode("", () -> {
+                                javafx.scene.control.Button button = new javafx.scene.control.Button("Reset All");
+                                button.setOnAction(e -> {
+                                    settings.defaultPFM.resetSetting();
+                                    settings.defaultPenWidth.resetSetting();
+                                    settings.defaultRescalingMode.resetSetting();
+                                    settings.defaultCanvasColour.resetSetting();
+                                    settings.defaultBackgroundColour.resetSetting();
+                                    settings.defaultClippingMode.resetSetting();
+                                });
+                                return button;
+                            }),
+
+                            new FXPreferences.LabelNode("Preset Defaults").setTitleStyling(),
+                            new FXPreferences.LabelNode("Drawing Area", () -> FXPreferences.createDefaultPresetComboBox(Register.PRESET_LOADER_DRAWING_AREA)),
+                            new FXPreferences.LabelNode("Image Processing", () -> FXPreferences.createDefaultPresetComboBox(Register.PRESET_LOADER_FILTERS)),
+                            new FXPreferences.LabelNode("GCode Settings", () -> FXPreferences.createDefaultPresetComboBox(Register.PRESET_LOADER_GCODE_SETTINGS)),
+                            new FXPreferences.LabelNode("vPype Settings", () -> FXPreferences.createDefaultPresetComboBox(Register.PRESET_LOADER_VPYPE_SETTINGS)),
+                            new FXPreferences.LabelNode("Default Pen Set", () -> {
+                                ComboBox<String> comboBoxSetType = new ComboBox<>();
+                                ComboBox<IDrawingSet<IDrawingPen>> comboBoxDrawingSet = new ComboBox<>();
+                                comboBoxSetType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredSets.keySet()));
+                                comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet().getType());
+                                comboBoxSetType.setPrefWidth(100);
+                                comboBoxSetType.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                    comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(newValue));
+                                    comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.registeredSets.get(newValue).get(0));
+                                });
+                                comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
+                                comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet());
+                                comboBoxDrawingSet.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                    if(newValue != null){
+                                        DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_SET.id, newValue.getCodeName());
+                                    }
+                                });
+                                comboBoxDrawingSet.setPrefWidth(250);
+                                comboBoxDrawingSet.setCellFactory(param -> new ComboCellDrawingSet<>());
+                                comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
+                                comboBoxDrawingSet.setPromptText("Select a Drawing Set");
+                                HBox hBox = new HBox();
+                                hBox.getChildren().add(comboBoxSetType);
+                                hBox.getChildren().add(comboBoxDrawingSet);
+                                hBox.setSpacing(4);
+
+                                DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
+                                    comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet().getType());
+                                    comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet());
+                                });
+
+                                return hBox;
+                            }),
+                            new FXPreferences.LabelNode("Default Pen", () -> {
+                                ComboBox<String> comboBoxPenType = new ComboBox<>();
+                                ComboBox<DrawingPen> comboBoxDrawingPen = new ComboBox<>();
+
+                                comboBoxPenType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredPens.keySet()));
+                                comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());
+                                comboBoxPenType.setPrefWidth(100);
+
+                                comboBoxPenType.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                    comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(newValue));
+                                    comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultPen(newValue));
+                                });
+
+                                ComboBoxListViewSkin<DrawingPen> comboBoxDrawingPenSkin = new ComboBoxListViewSkin<>(comboBoxDrawingPen);
+                                comboBoxDrawingPenSkin.hideOnClickProperty().set(false);
+                                comboBoxDrawingPen.setSkin(comboBoxDrawingPenSkin);
+
+                                comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(comboBoxPenType.getValue()));
+                                comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
+                                comboBoxDrawingPen.setPrefWidth(250);
+                                comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(null, false));
+                                comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(null,false));
+                                comboBoxDrawingPen.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                    if(newValue != null){
+                                        DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_PENS.id, newValue.getCodeName());
+                                    }
+                                });
+                                HBox hBox = new HBox();
+                                hBox.getChildren().add(comboBoxPenType);
+                                hBox.getChildren().add(comboBoxDrawingPen);
+                                hBox.setSpacing(4);
+
+                                DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
+                                    comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());
+                                    comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
+                                });
+                                return hBox;
+                            }),
+                            new FXPreferences.LabelNode("", () -> {
+                                javafx.scene.control.Button button = new javafx.scene.control.Button("Reset All");
+                                button.setOnAction(e -> {
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_AREA.type.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_FILTERS.type.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_VPYPE_SETTINGS.type.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_SET.type.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_PENS.type.id);
+                                });
+                                return button;
+                            })
+                    );
+                    builder.add(new FXPreferences.LabelNode("PFM Default Presets").setTitleStyling());
+                    for (PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
+                        if (!factory.isHidden() && (!factory.isPremiumFeature() || FXApplication.isPremiumEnabled)) {
+                            builder.add(new FXPreferences.LabelNode(factory.getDisplayName(), () -> {
+                                ObservableList<GenericPreset<PresetPFMSettings>> presets = MasterRegistry.INSTANCE.getObservablePFMPresetList(factory);
+                                ComboBox<GenericPreset<PresetPFMSettings>> comboBox = new ComboBox<>();
+                                comboBox.setItems(presets);
+                                comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getName(), "Default"));
+                                DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
+                                    comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getName(), "Default"));
+                                });
+                                comboBox.setOnAction(e -> {
+                                    DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
+                                });
+                                comboBox.setPrefWidth(200);
+                                return comboBox;
+                            }));
+                        }
+                    }
+                    builder.add(new FXPreferences.LabelNode("", () -> {
+                        javafx.scene.control.Button button = new Button("Reset All");
+                        button.setOnAction(e -> {
+                            for (PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
+                                settings.clearDefaultPreset(Register.PRESET_TYPE_PFM, factory.getName());
+                            }
+                        });
+                        return button;
+                    }));
+
+
+                }
+        ));
+        MasterRegistry.INSTANCE.registerPreferencesPage(node("Export Settings",
+                page("Path Optimisation",
+                        new SettingNode("Enabled", settings.pathOptimisationEnabled).setTitleStyling().setHideFromTree(true),
+                        new LabelNode("Vector outputs (e.g. svg, pdf, gcode, hpgl) will be optimised before being exported, reducing plotting time.").setSubtitleStyling(),
+
+                        new LabelNode("Line Simplifying").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Simplifies lines using the Douglas Peucker Algorithm").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode("Enabled", settings.lineSimplifyEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new SettingUnitsNode("Tolerance", settings.lineSimplifyTolerance, settings.lineSimplifyUnits).setDisabledProperty(settings.lineSimplifyEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
+
+                        new LabelNode("Line Merging").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Merges start/end points within the given tolerance").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode("Enabled", settings.lineMergingEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new SettingUnitsNode("Tolerance", settings.lineMergingTolerance, settings.lineMergingUnits).setDisabledProperty(settings.lineMergingEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
+
+                        new LabelNode("Line Filtering").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Remove lines shorter than the tolerance").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode("Enabled", settings.lineFilteringEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new SettingUnitsNode("Tolerance", settings.lineFilteringTolerance, settings.lineFilteringUnits).setDisabledProperty(settings.lineFilteringEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())) ,
+
+                        new LabelNode("Line Sorting").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Sorts lines to minimise air time").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode("Enabled", settings.lineSortingEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new SettingUnitsNode("Tolerance", settings.lineSortingTolerance, settings.lineSortingUnits).setDisabledProperty(settings.lineSortingEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
+
+                        new LabelNode("Line Multipass").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Draws over each geometry multiple times").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode("Enabled", settings.multipassEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new SettingNode("Passes", settings.multipassCount).setDisabledProperty(settings.multipassEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not()))
+
+                ),
+                page("SVG",
+                        new LabelNode("General").setTitleStyling(),
+                        new SettingNode("Export Background Layer", settings.exportSVGBackground),
+                        new LabelNode("Inkscape SVG").setTitleStyling(),
+                        new LabelNode("Create a custom layer naming pattern (with wildcards %INDEX% and %NAME%)").setSubtitleStyling(),
+                        new SettingNode("Layer Name", settings.svgLayerNaming){
+                            @Override
+                            public Node createEditor() {
+                                ComboBox<String> comboBoxLayerNamingPattern = new ComboBox<>();
+                                comboBoxLayerNamingPattern.setEditable(true);
+                                comboBoxLayerNamingPattern.valueProperty().bindBidirectional(settings.svgLayerNaming.valueProperty());
+                                comboBoxLayerNamingPattern.getItems().addAll("%NAME%", "%INDEX% - %NAME%", "Pen%INDEX%");
+                                return comboBoxLayerNamingPattern;
+                            }
+                        }
+                ),
+                gcodePage = page("GCode",
+                        new PropertyNode("GCode Preset", settings.selectedGCodePreset, GenericPreset.class){
+                            @Override
+                            public Node createEditor() {
+                                HBox hBox = new HBox();
+                                ComboBox<GenericPreset<PresetGCodeSettings>> comboBox = new ComboBox<>();
+                                comboBox.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
+                                comboBox.valueProperty().bindBidirectional(settings.selectedGCodePreset);
+                                HBox.setHgrow(comboBox, Priority.ALWAYS);
+                                hBox.getChildren().add(comboBox);
+
+                                MenuButton menuButton = FXHelper.createPresetMenuButton(Register.PRESET_LOADER_GCODE_SETTINGS, Register.PRESET_LOADER_GCODE_SETTINGS::getDefaultManager, false, settings.selectedGCodePreset);
+                                HBox.setHgrow(menuButton, Priority.SOMETIMES);
+                                hBox.getChildren().add(menuButton);
+                                return hBox;
+                            }
+                        }.setTitleStyling(),
+                        new LabelNode("Layout").setTitleStyling(),
+                        new PropertyNode("Units", settings.gcodeSettings.gcodeUnits, UnitsLength.class),
+                        new PropertyNode("X Offset", settings.gcodeSettings.gcodeOffsetX, Float.class),
+                        new PropertyNode( "Y Offset", settings.gcodeSettings.gcodeOffsetY, Float.class),
+                        new PropertyNode("Curve Flattening", settings.gcodeSettings.gcodeEnableFlattening, Boolean.class),
+                        new PropertyNode( "Curve Flatness", settings.gcodeSettings.gcodeCurveFlatness, Float.class).setDisabledProperty(settings.gcodeSettings.gcodeEnableFlattening.not()),
+                        new PropertyNode("Center Zero Point", settings.gcodeSettings.gcodeCenterZeroPoint, Boolean.class),
+                        new PropertyNode("Comment Type", settings.gcodeSettings.gcodeCommentType, GCodeBuilder.CommentType.class),
+                        new LabelNode("Custom GCode").setTitleStyling(),
+                        new PropertyNode("Start", settings.gcodeSettings.gcodeStartCode, String.class){
+                            @Override
+                            public Node createEditor() {
+                                return SettingEditors.createTextAreaEditorLazy(property);
+                            }
+                        },
+                        new PropertyNode("End", settings.gcodeSettings.gcodeEndCode, String.class){
+                            @Override
+                            public Node createEditor() {
+                                return SettingEditors.createTextAreaEditorLazy(property);
+                            }
+                        },
+                        new PropertyNode("Pen Down", settings.gcodeSettings.gcodePenDownCode, String.class){
+                            @Override
+                            public Node createEditor() {
+                                return SettingEditors.createTextAreaEditorLazy(property);
+                            }
+                        },
+                        new PropertyNode("Pen Up", settings.gcodeSettings.gcodePenUpCode, String.class){
+                            @Override
+                            public Node createEditor() {
+                                return SettingEditors.createTextAreaEditorLazy(property);
+                            }
+                        },
+                        new LabelNode("").setTitleStyling(),
+                        new LabelNode("With wildcard %LAYER_NAME%").setSubtitleStyling(),
+                        new PropertyNode("Start Layer", settings.gcodeSettings.gcodeStartLayerCode, String.class){
+                            @Override
+                            public Node createEditor() {
+                                return SettingEditors.createTextAreaEditorLazy(property);
+                            }
+                        },
+                        new LabelNode("").setTitleStyling(),
+                        new LabelNode("With wildcard %LAYER_NAME%").setSubtitleStyling(),
+                        new PropertyNode("End Layer", settings.gcodeSettings.gcodeEndLayerCode, String.class){
+                            @Override
+                            public Node createEditor() {
+                                return SettingEditors.createTextAreaEditorLazy(property);
+                            }
+                        }
+                ),
+                //node("HPGL"),
+                imageAnimationPage = page("Image & Animation",
+                        new LabelNode("Resolution").setTitleStyling(),
+                        new SettingNode("Export DPI", settings.exportDPI),
+                        new PropertyNode("Image Export Size", settings.imageExportSize, String.class).setEditable(false),
+                        new LabelNode("Animations").setTitleStyling(),
+                        new SettingNode("Frames per second", settings.framesPerSecond),
+                        new SettingUnitsNode("Duration", settings.duration, settings.durationUnits),
+                        new SettingNode("Frames Hold Start", settings.frameHoldStart),
+                        new SettingNode("Frames Hold End", settings.frameHoldEnd),
+                        new LabelNode(""),
+                        new PropertyNode("Frame Count", settings.animationFrameCount, String.class).setEditable(false),
+                        new PropertyNode("Geometries per frame", settings.animationGeometriesPFrame, String.class).setEditable(false),
+                        new PropertyNode("Vertices per frame", settings.animationVerticesPFrame, String.class).setEditable(false)
+                )
+        ));
+                MasterRegistry.INSTANCE.registerPreferencesPage(page("User Interface",
+                        new LabelNode("Rulers").setTitleStyling(),
+                        new SettingNode("Enabled", settings.rulersEnabled),
+
+                        new LabelNode("Drawing Borders").setTitleStyling(),
+                        new SettingNode("Enabled", settings.drawingBordersEnabled),
+                        new SettingNode( "Colour", settings.drawingBordersColor).setDisabledProperty(settings.drawingBordersEnabled.asBooleanProperty().not()),
+
+                        new LabelNode("Notifications").setTitleStyling(),
+                        new SettingNode("Enabled", settings.notificationsEnabled),
+                        new SettingNode("Screen Time", settings.notificationsScreenTime).setDisabledProperty(settings.notificationsEnabled.asBooleanProperty().not()),
+                        new LabelNode("Set this value to 0 if you don't want notifications to disappear").setSubtitleStyling()
+                ));
+    }
 
     @FXML
     public void initialize(){
         DrawingBotV3.INSTANCE.controller.preferencesStage.setResizable(true);
         DrawingBotV3.INSTANCE.controller.preferencesStage.setOnHidden(e -> Register.PRESET_LOADER_CONFIGS.markDirty());
 
-        DBPreferences settings = DrawingBotV3.INSTANCE.getPreferences();
-        root = root(
-                page("General", builder -> {
-                            builder.addAll(
-                                    new LabelNode("Defaults").setTitleStyling(),
-                                    new SettingNode("Path Finding Module", settings.defaultPFM) {
-                                        @Override
-                                        public Node createEditor() {
-                                            ComboBox<PFMFactory<?>> comboBoxPFM = new ComboBox<>();
-                                            comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
-                                            comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
-                                            comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-                                            comboBoxPFM.setOnAction(e -> {
-                                                settings.defaultPFM.setValue(comboBoxPFM.getValue().getName());
-                                            });
-                                            return comboBoxPFM;
-                                        }
-                                    },
-                                    new SettingNode("Pen Width (mm)", settings.defaultPenWidth),
-                                    new SettingNode("Rescaling Mode", settings.defaultRescalingMode),
-                                    new SettingNode("Canvas Colour", settings.defaultCanvasColour),
-                                    new SettingNode("Background Colour", settings.defaultBackgroundColour),
-                                    new SettingNode("Clipping Mode", settings.defaultClippingMode),
-                                    new SettingNode("Blend Mode", settings.defaultBlendMode),
-                                    new SettingNode("Apply Shapes Slider to Export", settings.defaultRangeExport),
-                                    new LabelNode("", () -> {
-                                        Button button = new Button("Reset All");
-                                        button.setOnAction(e -> {
-                                            settings.defaultPFM.resetSetting();
-                                            settings.defaultPenWidth.resetSetting();
-                                            settings.defaultRescalingMode.resetSetting();
-                                            settings.defaultCanvasColour.resetSetting();
-                                            settings.defaultBackgroundColour.resetSetting();
-                                            settings.defaultClippingMode.resetSetting();
-                                        });
-                                        return button;
-                                    }),
-                                    new LabelNode("Preset Defaults").setTitleStyling(),
-                                    new LabelNode("Drawing Area", () -> createDefaultPresetComboBox(Register.PRESET_LOADER_DRAWING_AREA)),
-                                    new LabelNode("Image Processing", () -> createDefaultPresetComboBox(Register.PRESET_LOADER_FILTERS)),
-                                    new LabelNode("VPype Settings", () -> createDefaultPresetComboBox(Register.PRESET_LOADER_VPYPE_SETTINGS)),
-                                    new LabelNode("", () -> {
-                                        Button button = new Button("Reset All");
-                                        button.setOnAction(e -> {
-                                            settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_AREA.type.id);
-                                            settings.clearDefaultPreset(Register.PRESET_LOADER_FILTERS.type.id);
-                                            settings.clearDefaultPreset(Register.PRESET_LOADER_VPYPE_SETTINGS.type.id);
-                                        });
-                                        return button;
-                                    })
-                            );
-                            builder.add(new LabelNode("PFM Default Presets").setTitleStyling());
-                            for (PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
-                                if (!factory.isHidden() && (!factory.isPremiumFeature() || FXApplication.isPremiumEnabled)) {
-                                    builder.add(new LabelNode(factory.getDisplayName(), () -> {
-                                        ObservableList<GenericPreset<PresetPFMSettings>> presets = MasterRegistry.INSTANCE.getObservablePFMPresetList(factory);
-                                        ComboBox<GenericPreset<PresetPFMSettings>> comboBox = new ComboBox<>();
-                                        comboBox.setItems(presets);
-                                        comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getName(), "Default"));
-                                        DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
-                                            comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getName(), "Default"));
-                                        });
-                                        comboBox.setOnAction(e -> {
-                                            DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
-                                        });
-                                        comboBox.setPrefWidth(200);
-                                        return comboBox;
-                                    }));
-                                }
-                            }
-                            builder.add(new LabelNode("", () -> {
-                                Button button = new Button("Reset All");
-                                button.setOnAction(e -> {
-                                    for (PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
-                                        settings.clearDefaultPreset(Register.PRESET_TYPE_PFM, factory.getName());
-                                    }
-                                });
-                                return button;
-                            }));
-
-
-                        }
-                ),
-                node("Export Settings",
-                    page("Path Optimisation",
-                            new SettingNode("Enabled", settings.pathOptimisationEnabled).setTitleStyling().setHideFromTree(true),
-                            new LabelNode("Vector outputs (e.g. svg, pdf, gcode, hpgl) will be optimised before being exported, reducing plotting time.").setSubtitleStyling(),
-
-                            new LabelNode("Line Simplifying").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
-                            new LabelNode("Simplifies lines using the Douglas Peucker Algorithm").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
-                            new SettingNode("Enabled", settings.lineSimplifyEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                            new SettingUnitsNode("Tolerance", settings.lineSimplifyTolerance, settings.lineSimplifyUnits).setDisabledProperty(settings.lineSimplifyEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
-
-                            new LabelNode("Line Merging").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
-                            new LabelNode("Merges start/end points within the given tolerance").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
-                            new SettingNode("Enabled", settings.lineMergingEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                            new SettingUnitsNode("Tolerance", settings.lineMergingTolerance, settings.lineMergingUnits).setDisabledProperty(settings.lineMergingEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
-
-                            new LabelNode("Line Filtering").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
-                            new LabelNode("Remove lines shorter than the tolerance").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
-                            new SettingNode("Enabled", settings.lineFilteringEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                            new SettingUnitsNode("Tolerance", settings.lineFilteringTolerance, settings.lineFilteringUnits).setDisabledProperty(settings.lineFilteringEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())) ,
-
-                            new LabelNode("Line Sorting").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
-                            new LabelNode("Sorts lines to minimise air time").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
-                            new SettingNode("Enabled", settings.lineSortingEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                            new SettingUnitsNode("Tolerance", settings.lineSortingTolerance, settings.lineSortingUnits).setDisabledProperty(settings.lineSortingEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
-
-                            new LabelNode("Line Multipass").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
-                            new LabelNode("Draws over each geometry multiple times").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
-                            new SettingNode("Enabled", settings.multipassEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                            new SettingNode("Passes", settings.multipassCount).setDisabledProperty(settings.multipassEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not()))
-
-                    ),
-                    page("SVG",
-                            new LabelNode("General").setTitleStyling(),
-                            new SettingNode("Export Background Layer", settings.exportSVGBackground),
-                            new LabelNode("Inkscape SVG").setTitleStyling(),
-                            new LabelNode("Create a custom layer naming pattern (with wildcards %INDEX% and %NAME%)").setSubtitleStyling(),
-                            new SettingNode("Layer Name", settings.svgLayerNaming){
-                                @Override
-                                public Node createEditor() {
-                                    ComboBox<String> comboBoxLayerNamingPattern = new ComboBox<>();
-                                    comboBoxLayerNamingPattern.setEditable(true);
-                                    comboBoxLayerNamingPattern.valueProperty().bindBidirectional(settings.svgLayerNaming.valueProperty());
-                                    comboBoxLayerNamingPattern.getItems().addAll("%NAME%", "%INDEX% - %NAME%", "Pen%INDEX%");
-                                    return comboBoxLayerNamingPattern;
-                                }
-                            }
-                    ),
-                    page("GCode",
-                            new PropertyNode("GCode Preset", DrawingBotV3.INSTANCE.controller.exportController.selectedGCodePreset, GenericPreset.class){
-                                @Override
-                                public Node createEditor() {
-                                    HBox hBox = new HBox();
-                                    ComboBox<GenericPreset<PresetGCodeSettings>> comboBox = new ComboBox<>();
-                                    comboBox.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
-                                    comboBox.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.controller.exportController.selectedGCodePreset);
-                                    HBox.setHgrow(comboBox, Priority.ALWAYS);
-                                    hBox.getChildren().add(comboBox);
-
-                                    MenuButton menuButton = FXHelper.createPresetMenuButton(Register.PRESET_LOADER_GCODE_SETTINGS, Register.PRESET_LOADER_GCODE_SETTINGS::getDefaultManager, false, DrawingBotV3.INSTANCE.controller.exportController.selectedGCodePreset);
-                                    HBox.setHgrow(menuButton, Priority.SOMETIMES);
-                                    hBox.getChildren().add(menuButton);
-                                    return hBox;
-                                }
-                            }.setTitleStyling(),
-                            new LabelNode("Layout").setTitleStyling(),
-                            new PropertyNode("Units", DrawingBotV3.INSTANCE.gcodeSettings.gcodeUnits, UnitsLength.class),
-                            new PropertyNode("X Offset", DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetX, Float.class),
-                            new PropertyNode( "Y Offset", DrawingBotV3.INSTANCE.gcodeSettings.gcodeOffsetY, Float.class),
-                            new PropertyNode("Curve Flattening", DrawingBotV3.INSTANCE.gcodeSettings.gcodeEnableFlattening, Boolean.class),
-                            new PropertyNode( "Curve Flatness", DrawingBotV3.INSTANCE.gcodeSettings.gcodeCurveFlatness, Float.class).setDisabledProperty(DrawingBotV3.INSTANCE.gcodeSettings.gcodeEnableFlattening.not()),
-                            new PropertyNode("Center Zero Point", DrawingBotV3.INSTANCE.gcodeSettings.gcodeCenterZeroPoint, Boolean.class),
-                            new PropertyNode("Comment Type", DrawingBotV3.INSTANCE.gcodeSettings.gcodeCommentType, GCodeBuilder.CommentType.class),
-                            new LabelNode("Custom GCode").setTitleStyling(),
-                            new PropertyNode("Start", DrawingBotV3.INSTANCE.gcodeSettings.gcodeStartCode, String.class){
-                                @Override
-                                public Node createEditor() {
-                                    return SettingEditors.createTextAreaEditorLazy(property);
-                                }
-                            },
-                            new PropertyNode("End", DrawingBotV3.INSTANCE.gcodeSettings.gcodeEndCode, String.class){
-                                @Override
-                                public Node createEditor() {
-                                    return SettingEditors.createTextAreaEditorLazy(property);
-                                }
-                            },
-                            new PropertyNode("Pen Down", DrawingBotV3.INSTANCE.gcodeSettings.gcodePenDownCode, String.class){
-                                @Override
-                                public Node createEditor() {
-                                    return SettingEditors.createTextAreaEditorLazy(property);
-                                }
-                            },
-                            new PropertyNode("Pen Up", DrawingBotV3.INSTANCE.gcodeSettings.gcodePenUpCode, String.class){
-                                @Override
-                                public Node createEditor() {
-                                    return SettingEditors.createTextAreaEditorLazy(property);
-                                }
-                            },
-                            new LabelNode("").setTitleStyling(),
-                            new LabelNode("With wildcard %LAYER_NAME%").setSubtitleStyling(),
-                            new PropertyNode("Start Layer", DrawingBotV3.INSTANCE.gcodeSettings.gcodeStartLayerCode, String.class){
-                                @Override
-                                public Node createEditor() {
-                                    return SettingEditors.createTextAreaEditorLazy(property);
-                                }
-                            },
-                            new LabelNode("").setTitleStyling(),
-                            new LabelNode("With wildcard %LAYER_NAME%").setSubtitleStyling(),
-                            new PropertyNode("End Layer", DrawingBotV3.INSTANCE.gcodeSettings.gcodeEndLayerCode, String.class){
-                                @Override
-                                public Node createEditor() {
-                                    return SettingEditors.createTextAreaEditorLazy(property);
-                                }
-                            }
-                        ),
-                    //node("HPGL"),
-                    page("Image & Animation")
-                ),
-                page("User Interface",
-
-                    new LabelNode("Rulers").setTitleStyling(),
-                    new SettingNode("Enabled", settings.rulersEnabled),
-
-                    new LabelNode("Drawing Borders").setTitleStyling(),
-                    new SettingNode("Enabled", settings.drawingBordersEnabled),
-                    new SettingNode( "Colour", settings.drawingBordersColor).setDisabledProperty(settings.drawingBordersEnabled.asBooleanProperty().not()),
-
-                    new LabelNode("Notifications").setTitleStyling(),
-                    new SettingNode("Enabled", settings.notificationsEnabled),
-                    new SettingNode("Screen Time", settings.notificationsScreenTime).setDisabledProperty(settings.notificationsEnabled.asBooleanProperty().not()),
-                    new LabelNode("Set this value to 0 if you don't want notifications to disappear").setSubtitleStyling()
-                )
-        );
+        root = MasterRegistry.INSTANCE.root;
 
         treeViewCategories.setShowRoot(false);
         treeViewCategories.setRoot(build(root));
@@ -329,7 +430,7 @@ public class FXPreferences {
         return root;
     }
 
-    public boolean prune(TreeItem<TreeNode> treeItem, String search){
+    public static boolean prune(TreeItem<TreeNode> treeItem, String search){
         if(treeItem.getValue().isHiddenFromTree()){
             return false;
         }
@@ -350,22 +451,22 @@ public class FXPreferences {
         }
     }
 
-    private void sort(TreeItem<TreeNode> node, Comparator<TreeItem<TreeNode>> comparator) {
+    private static void sort(TreeItem<TreeNode> node, Comparator<TreeItem<TreeNode>> comparator) {
         node.getChildren().sort(comparator);
         for (TreeItem<TreeNode> child : node.getChildren()) {
             sort(child, comparator);
         }
     }
 
-    public TreeNode root(TreeNode...children){
+    public static TreeNode root(TreeNode...children){
         return new TreeNode("root", children);
     }
 
-    public TreeNode node(String name, TreeNode...children){
+    public static TreeNode node(String name, TreeNode...children){
         return new TreeNode(name, children);
     }
 
-    public PageNode page(String name, TreeNode...children){
+    public static PageNode page(String name, TreeNode...children){
         return new PageNode(name, children){
 
             @Override
@@ -376,7 +477,7 @@ public class FXPreferences {
             }
         };
     }
-    public PageNode page(String name, Consumer<ObservableList<TreeNode>> builder){
+    public static PageNode page(String name, Consumer<ObservableList<TreeNode>> builder){
         PageNode pageNode = new PageNode(name){
 
             @Override
@@ -465,18 +566,18 @@ public class FXPreferences {
 
      */
 
-    public void property(GridPane gridPane, String displayName, Property<?> property, Class<?> type){
+    public static void property(GridPane gridPane, String displayName, Property<?> property, Class<?> type){
         Label label = new Label(displayName);
         gridPane.addRow(gridPane.getRowCount(), label, SettingEditors.createEditor(property, type));
     }
 
-    public void node(GridPane gridPane, Node node){
+    public static void node(GridPane gridPane, Node node){
         gridPane.add(node, 0, gridPane.getRowCount(), 2, 1);
     }
 
     public static DefaultPropertyEditorFactory defaultPropertyEditorFactory = new DefaultPropertyEditorFactory();
 
-    public PropertyEditor<?> getPropertyEditor(PropertySheet.Item item){
+    public static PropertyEditor<?> getPropertyEditor(PropertySheet.Item item){
         //TODO CUSTOM EDITORS
         if(item instanceof SettingProperty && ((SettingProperty) item).setting instanceof BooleanSetting){
             return createSwitchEditor(item);
@@ -554,8 +655,8 @@ public class FXPreferences {
             gridPane.getStyleClass().add("preference-grid");
 
             ColumnConstraints column1 = new ColumnConstraints(-1, -1, -1, Priority.NEVER, HPos.LEFT, true);
-            ColumnConstraints column2 = new ColumnConstraints(-1, -1, -1, Priority.NEVER, HPos.LEFT, true);
-            ColumnConstraints column3 = new ColumnConstraints(-1, -1, -1, Priority.NEVER, HPos.LEFT, true);
+            ColumnConstraints column2 = new ColumnConstraints(-1, -1, -1, Priority.SOMETIMES, HPos.LEFT, true);
+            ColumnConstraints column3 = new ColumnConstraints(-1, -1, -1, Priority.SOMETIMES, HPos.LEFT, true);
 
             gridPane.getColumnConstraints().addAll(column1, column2, column3);
 
@@ -683,9 +784,9 @@ public class FXPreferences {
         }
 
         public Node getContent(){
-            //if(content == null){
+            if(content == null){
                 content = buildContent();
-            //}
+            }
             return content;
         }
 
@@ -828,6 +929,7 @@ public class FXPreferences {
                 return SettingEditors.createSwitchEditor(booleanSetting.valueProperty());
             }
              */
+
             return SettingEditors.createEditor(setting.valueProperty(), setting.type);
         }
 
@@ -861,11 +963,17 @@ public class FXPreferences {
 
         public Property<?> property;
         public Class<?> type;
+        public boolean editable = true;
 
         public PropertyNode(String name, Property<?> property, Class<?> type, TreeNode... children) {
             super(name, children);
             this.property = property;
             this.type = type;
+        }
+
+        public PropertyNode setEditable(boolean editable){
+            this.editable = editable;
+            return this;
         }
 
         public Node createEditor(){
@@ -879,11 +987,18 @@ public class FXPreferences {
             label.getStyleClass().add(labelStyle);
 
 
-            Node editor = createEditor();
-            editor.getStyleClass().add(labelStyle);
-            if(editor instanceof Control){
-                Control control = (Control) editor;
-                control.setPrefWidth(200);
+            Node editor = null;
+            if(editable){
+                editor = createEditor();
+                editor.getStyleClass().add(labelStyle);
+                if(editor instanceof Control){
+                    Control control = (Control) editor;
+                    control.setPrefWidth(200);
+                }
+            }else{
+                Label propertyLabel = new Label();
+                propertyLabel.textProperty().bind(Bindings.createStringBinding(() -> String.valueOf(property.getValue()), property));
+                editor = propertyLabel;
             }
 
             builder.addRow(label, editor);
@@ -927,7 +1042,7 @@ public class FXPreferences {
 
     /////////////////////////
 
-    public <O extends IJsonData> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(AbstractPresetLoader<O> loader){
+    public static <O extends IJsonData> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(AbstractPresetLoader<O> loader){
         ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
         comboBox.setItems(loader.presets);
         comboBox.setValue(loader.getDefaultPreset());
@@ -937,7 +1052,6 @@ public class FXPreferences {
         comboBox.setOnAction(e -> {
             DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
         });
-
         return comboBox;
     }
 

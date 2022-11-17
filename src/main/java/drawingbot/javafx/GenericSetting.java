@@ -11,6 +11,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
@@ -216,6 +217,26 @@ public abstract class GenericSetting<C, V> implements Observable {
     
     public SimpleObjectProperty<V> valueProperty(){
         return value;
+    }
+
+    ////////////////////////////////
+
+    public ObservableList<V> recommendedValues;
+
+    public GenericSetting<C, V> addRecommendedValues(V... values){
+        if(recommendedValues == null){
+            recommendedValues = FXCollections.observableArrayList();
+        }
+        recommendedValues.addAll(values);
+        return this;
+    }
+
+    public boolean hasRecommendedValues(){
+        return recommendedValues != null && !recommendedValues.isEmpty();
+    }
+
+    public ObservableList<V> getRecommendedValues() {
+        return recommendedValues;
     }
 
     ////////////////////////////////
@@ -952,7 +973,11 @@ public abstract class GenericSetting<C, V> implements Observable {
     }
 
     public static <C, V> ObjectSetting<C, V> createObjectSetting(Class<C> clazz, Class<V> objectType, String category, String settingName, V defaultValue, BiConsumer<C, V> setter){
-        return (ObjectSetting<C, V>) new ObjectSetting<>(clazz, objectType, category, settingName, defaultValue).setSetter(setter);
+        return (ObjectSetting<C, V>) createObjectSettingBase(clazz, objectType, category, settingName, defaultValue).setSetter(setter);
+    }
+
+    public static <C, V> ObjectSetting<C, V> createObjectSettingBase(Class<C> clazz, Class<V> objectType, String category, String settingName, V defaultValue){
+        return new ObjectSetting<>(clazz, objectType, category, settingName, defaultValue);
     }
 
     public static <C, V> OptionSetting<C, V> createOptionSetting(Class<C> clazz, Class<V> type, String category, String settingName, ObservableList<V> values, V defaultValue, Function<C, ObjectProperty<V>> supplier){

@@ -2,6 +2,7 @@ package drawingbot.render.overlays;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.flags.Flags;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
@@ -29,8 +30,8 @@ public class DrawingBorderOverlays extends AbstractOverlay {
             DrawingBotV3.project().displayMode.get().getRenderFlags().setFlag(Flags.CANVAS_CHANGED, true);
         });
 
-        activeProperty().bindBidirectional(DrawingBotV3.INSTANCE.settings.get().drawingBordersEnabled.valueProperty());
-        borderColour.bindBidirectional(DrawingBotV3.INSTANCE.settings.get().drawingBordersColor.valueProperty());
+        activeProperty().bindBidirectional(DBPreferences.INSTANCE.drawingBordersEnabled.valueProperty());
+        borderColour.bindBidirectional(DBPreferences.INSTANCE.drawingBordersColor.valueProperty());
     }
 
     @Override

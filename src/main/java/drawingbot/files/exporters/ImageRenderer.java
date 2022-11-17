@@ -6,6 +6,7 @@ import drawingbot.files.ExportTask;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.CanvasUtils;
 import org.imgscalr.Scalr;
 
@@ -48,8 +49,8 @@ public class ImageRenderer {
     }
 
     private void setup() {
-        rasterWidth = CanvasUtils.getRasterExportWidth(canvas, DrawingBotV3.INSTANCE.getPreferences().exportDPI.get(), isVideo);
-        rasterHeight = CanvasUtils.getRasterExportHeight(canvas, DrawingBotV3.INSTANCE.getPreferences().exportDPI.get(), isVideo);
+        rasterWidth = CanvasUtils.getRasterExportWidth(canvas, DBPreferences.INSTANCE.exportDPI.get(), isVideo);
+        rasterHeight = CanvasUtils.getRasterExportHeight(canvas, DBPreferences.INSTANCE.exportDPI.get(), isVideo);
 
         //apply the scaling caused by the new DPI.
         double scale = (double) rasterWidth / canvas.getScaledWidth();

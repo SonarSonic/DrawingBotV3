@@ -6,6 +6,7 @@ import drawingbot.files.FileUtils;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.api.ICanvas;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.Limit;
 
 import java.awt.geom.AffineTransform;
@@ -54,7 +55,7 @@ public class GCodeExporter {
     }
 
     public static void exportGCode(ExportTask exportTask, File saveLocation){
-        exportGCode(exportTask, DrawingBotV3.INSTANCE.gcodeSettings, saveLocation);
+        exportGCode(exportTask, DBPreferences.INSTANCE.gcodeSettings, saveLocation);
     }
 
     public static void exportGCode(ExportTask exportTask, GCodeSettings settings, File saveLocation){
@@ -98,7 +99,7 @@ public class GCodeExporter {
     }
 
     public static void exportGCodeTest(ExportTask exportTask, File saveLocation){
-        exportGCodeTest(exportTask, DrawingBotV3.INSTANCE.gcodeSettings, saveLocation);
+        exportGCodeTest(exportTask, DBPreferences.INSTANCE.gcodeSettings, saveLocation);
     }
 
     public static void exportGCodeTest(ExportTask exportTask, GCodeSettings settings, File saveLocation){

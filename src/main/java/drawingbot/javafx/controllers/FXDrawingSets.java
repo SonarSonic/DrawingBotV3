@@ -176,7 +176,7 @@ public class FXDrawingSets extends AbstractFXController {
         Optional<MenuItem> setAsDefaultSet = menuButtonDrawingSetPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
         setAsDefaultSet.ifPresent(menuItem -> menuItem.setOnAction(e -> {
             if (comboBoxDrawingSet.getValue() != null) {
-                DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingPen.getValue().getCodeName());
+                DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_SET.id, comboBoxDrawingSet.getValue().getCodeName());
             }
         }));
 
@@ -268,7 +268,7 @@ public class FXDrawingSets extends AbstractFXController {
         Optional<MenuItem> setAsDefaultPen = menuButtonDrawingPenPresets.getItems().stream().filter(menuItem -> menuItem.getText() != null && menuItem.getText().equals("Set As Default")).findFirst();
         setAsDefaultPen.ifPresent(menuItem -> menuItem.setOnAction(e -> {
             if (comboBoxDrawingPen.getValue() != null) {
-                DrawingBotV3.INSTANCE.getPreferences().setDefaultPreset(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
+                DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_PENS.id, comboBoxDrawingPen.getValue().getCodeName());
             }
         }));
 

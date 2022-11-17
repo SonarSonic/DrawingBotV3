@@ -2,6 +2,7 @@ package drawingbot.render.overlays;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
+import drawingbot.javafx.preferences.DBPreferences;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.text.TextFlow;
@@ -25,6 +26,8 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.resize(600, 70);
         notificationPane.getStylesheets().add(NotificationOverlays.class.getResource("notifications.css").toExternalForm());
         DrawingBotV3.INSTANCE.controller.vBoxMain.getChildren().add(notificationPane);
+
+        activeProperty().bindBidirectional(DBPreferences.INSTANCE.notificationsEnabled.asBooleanProperty());
     }
 
     @Override
@@ -35,6 +38,8 @@ public class NotificationOverlays extends AbstractOverlay{
     @Override
     protected void deactivate() {
         notificationPane.setVisible(false);
+        notificationPane.hide();
+        notificationPane.setMouseTransparent(true);
     }
 
     @Override
@@ -57,7 +62,7 @@ public class NotificationOverlays extends AbstractOverlay{
     }
 
     public void showWithSubtitle(String text, String subtitle, final Action... actions){
-        if(!DrawingBotV3.INSTANCE.getPreferences().notificationsEnabled.get()){
+        if(!isActive()){
             return;
         }
 
@@ -73,13 +78,13 @@ public class NotificationOverlays extends AbstractOverlay{
         FXHelper.addText(flow, 14, "Bold", text + "\n");
         FXHelper.addText(flow, 12, "Normal", subtitle);
         notificationPane.show("", flow, actions);
-        setDisplayTime(DrawingBotV3.INSTANCE.getPreferences().notificationsScreenTime.get());
+        setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text + " : " + subtitle);
     }
 
     public void show(final String text) {
-        if(!DrawingBotV3.INSTANCE.getPreferences().notificationsEnabled.get()){
+        if(!isActive()){
             return;
         }
         if(!Platform.isFxApplicationThread()){
@@ -90,13 +95,13 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
         notificationPane.show(text);
-        setDisplayTime(DrawingBotV3.INSTANCE.getPreferences().notificationsScreenTime.get());
+        setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text);
     }
 
     public void show(final String text, final Node graphic) {
-        if(!DrawingBotV3.INSTANCE.getPreferences().notificationsEnabled.get()){
+        if(!isActive()){
             return;
         }
         if(!Platform.isFxApplicationThread()){
@@ -107,13 +112,13 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
         notificationPane.show(text, graphic);
-        setDisplayTime(DrawingBotV3.INSTANCE.getPreferences().notificationsScreenTime.get());
+        setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text);
     }
 
     public void show(final String text, final Node graphic, final Action... actions) {
-        if(!DrawingBotV3.INSTANCE.getPreferences().notificationsEnabled.get()){
+        if(!isActive()){
             return;
         }
         if(!Platform.isFxApplicationThread()){
@@ -124,7 +129,7 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
         notificationPane.show(text, graphic, actions);
-        setDisplayTime(DrawingBotV3.INSTANCE.getPreferences().notificationsScreenTime.get());
+        setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text);
     }

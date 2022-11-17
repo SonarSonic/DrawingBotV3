@@ -53,8 +53,8 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                     if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
                         entry.getValue().forEach(geometry -> {
                             IGeometry newGeometry;
-                            if(DrawingBotV3.INSTANCE.getPreferences().multipassEnabled.get()){
-                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, DrawingBotV3.INSTANCE.getPreferences().multipassCount.get());
+                            if(DBPreferences.INSTANCE.multipassEnabled.get()){
+                                newGeometry = GeometryUtils.createMultiPassGeometry(geometry, DBPreferences.INSTANCE.multipassCount.get());
                             }else{
                                 newGeometry = geometry.copyGeometry();
                             }
@@ -112,7 +112,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         }
 
         GeometryUtils.printEstimatedTravelDistance(lineStrings);
-        DBPreferences settings = DrawingBotV3.INSTANCE.getPreferences();
+        DBPreferences settings = DBPreferences.INSTANCE;
 
         if(settings.lineSimplifyEnabled.get()){
             progressCallback.updateTitle("Line Simplifying: ");
