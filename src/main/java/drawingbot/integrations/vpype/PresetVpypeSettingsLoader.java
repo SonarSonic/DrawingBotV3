@@ -18,7 +18,7 @@ public class PresetVpypeSettingsLoader extends AbstractPresetLoader<PresetVpypeS
         super(PresetVpypeSettings.class, presetType, "user_vpype_presets.json");
         setDefaultManager(new DefaultPresetManager<>(this) {
             @Override
-            public void registerSettings() {
+            public void registerDataLoaders() {
                 registerSetting(GenericSetting.createStringSetting(VpypeSettings.class, "vPypeCommand", "show", (settings, value) -> settings.vPypeCommand.setValue(value)).setGetter(settings -> settings.vPypeCommand.getValue()));
                 registerSetting(GenericSetting.createBooleanSetting(VpypeSettings.class, "vPypeBypassOptimisation", false, (settings, value) -> settings.vPypeBypassOptimisation.setValue(value)).setGetter(settings -> settings.vPypeBypassOptimisation.getValue()));
             }

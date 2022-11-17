@@ -10,6 +10,7 @@ import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.observables.ObservableVersion;
@@ -26,7 +27,6 @@ import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
-import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.EnumTaskStage;
 import drawingbot.utils.Metadata;
 import drawingbot.utils.MetadataMap;
@@ -344,7 +344,7 @@ public class ObservableProject implements ITaskManager {
 
     ////////////////////////////
 
-    private final List<FXHelper.UINodeState> nodeStates = new ArrayList<>();
+    private final List<UINodeState> nodeStates = new ArrayList<>();
 
     public void unload(){
         nodeStates.clear();

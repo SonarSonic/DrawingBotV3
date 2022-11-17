@@ -3,11 +3,14 @@ package drawingbot;
 import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
+import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
+import drawingbot.render.IDisplayMode;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.render.overlays.*;
@@ -24,6 +27,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
@@ -79,6 +83,9 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Plugins: Pre-Init");
         MasterRegistry.PLUGINS.forEach(IPlugin::preInit);
 
+        DrawingBotV3.logger.info("Json Loaders: Init");
+        MasterRegistry.INSTANCE.presetLoaders.forEach(AbstractJsonLoader::init);
+
         DrawingBotV3.logger.info("DrawingBotV3: Loading Configuration");
         ConfigFileHandler.init();
 
@@ -105,6 +112,9 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
         DrawingBotV3.INSTANCE.activeProject.get().init();
 
+        MasterRegistry.postInit();
+        DBPreferences.INSTANCE.postInit();
+
         DrawingBotV3.logger.info("Json Loader: Load JSON Files");
         JsonLoaderManager.loadJSONFiles();
 
@@ -116,7 +126,15 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE.controller.setupBindings();
 
         Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-        FXApplication.primaryScene = new Scene(root, visualBounds.getWidth()/1.2, visualBounds.getHeight()/1.2, false, SceneAntialiasing.BALANCED);
+        FXApplication.primaryScene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight(), false, SceneAntialiasing.BALANCED);
+        DBPreferences.INSTANCE.uiWindowSize.get().setupStage(primaryStage);
+
+        //// ADD ACCELERATORS \\\\
+        int keypad = 1;
+        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
+            FXApplication.primaryScene.getAccelerators().put(KeyCombination.valueOf("Shift + " + keypad), () -> DrawingBotV3.INSTANCE.displayMode.set(displayMode));
+            keypad++;
+        }
 
         if(!isHeadless) {
             primaryStage.setScene(primaryScene);
@@ -155,8 +173,6 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Plugins: Post Init");
         MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
 
-        DBPreferences.INSTANCE.postInit();
-
         if(!isHeadless){
             DrawingBotV3.INSTANCE.projectName.set("Untitled");
             primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", " + "'" + DrawingBotV3.INSTANCE.projectNameBinding.get() + "'", DrawingBotV3.INSTANCE.applicationName, DrawingBotV3.INSTANCE.versionName, DrawingBotV3.INSTANCE.projectNameBinding));
@@ -193,6 +209,10 @@ public class FXApplication extends Application {
             }
         }
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        //secondary config load, shouldn't cause any clashes, ensure things like UI elements are setup correctly
+        JsonLoaderManager.loadConfigFiles();
+
         DrawingBotV3.logger.info("DrawingBotV3: Loaded");
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,6 +248,12 @@ public class FXApplication extends Application {
 
     public void onFirstTick(){
         //NOP
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        Register.PRESET_LOADER_CONFIGS.markDirty();
     }
 
     public static class DrawTimer extends AnimationTimer{

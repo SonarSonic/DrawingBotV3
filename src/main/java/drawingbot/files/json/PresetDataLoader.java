@@ -54,9 +54,11 @@ public abstract class PresetDataLoader<MASTER extends AbstractJsonData> {
      * Saves the project
      */
     public void save(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset){
+        /* Save the data anyway, so it can be loaded later if the Data Loader is re-enabled
         if(!isEnabled()){
             return;
         }
+         */
         JsonElement element = saveData(context, gson, preset);
         if(element != null){
             preset.data.settings.put(getKey(), element);

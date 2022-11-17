@@ -6,7 +6,7 @@
 
 <AnchorPane prefHeight="327.0" prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
 <children>
-    <VBox prefWidth="410.0" spacing="8.0">
+    <VBox prefHeight="325.0" prefWidth="430.0" spacing="8.0">
         <children>
             <HBox spacing="4.0">
                 <children>

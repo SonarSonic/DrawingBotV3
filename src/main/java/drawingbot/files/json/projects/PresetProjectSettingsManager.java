@@ -13,6 +13,8 @@ import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.plotting.PlottedDrawing;
@@ -108,7 +110,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     public static class UIGlobalState {
 
-        public List<FXHelper.UINodeState> nodes = new ArrayList<>();
+        public List<UINodeState> nodes = new ArrayList<>();
 
     }
 
@@ -126,9 +128,13 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             @Override
             public void saveData(DBTaskContext context, UIGlobalState data, GenericPreset<PresetProjectSettings> preset) {
                 if(!preset.data.isSubProject) {
-                    data.nodes.clear();
                     FXHelper.saveUIStates(data.nodes);
                 }
+            }
+
+            @Override
+            public boolean isEnabled() {
+                return DBPreferences.INSTANCE.restoreProjectLayout.get();
             }
         });
 

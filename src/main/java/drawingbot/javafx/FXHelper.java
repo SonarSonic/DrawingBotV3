@@ -14,6 +14,10 @@ import drawingbot.javafx.controls.DialogGenericRename;
 import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
+import drawingbot.javafx.util.PropertyAccessorAbstract;
+import drawingbot.javafx.util.PropertyAccessorProp;
+import drawingbot.javafx.util.PropertyAccessor;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -22,7 +26,6 @@ import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.WritableValue;
 import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXMLLoader;
@@ -31,7 +34,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableColumnHeader;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -707,95 +709,59 @@ public class FXHelper {
         flow.getChildren().add(textNode);
     }
 
+    public static List<PropertyAccessorAbstract> nodePropertyAccessors = new ArrayList<>();
 
-    public static class PropertyAccessor<C, T>{
 
-        public Class<C> clazz;
-        public Class<T> type;
-        public String key;
-        public Function<C, ? extends WritableValue<T>> accessor;
+    public static class SplitPaneDataFormat { //must be public static for GSON
 
-        public PropertyAccessor(Class<C> clazz, String key, Class<T> type, Function<C, ? extends WritableValue<T>> accessor){
-            this.clazz = clazz;
-            this.type = type;
-            this.key = key;
-            this.accessor = accessor;
+        public double[] positions;
+
+        public SplitPaneDataFormat() { //for gson
+            super();
         }
 
-        public boolean canAccess(Object obj){
-            return clazz.isInstance(obj);
+        public SplitPaneDataFormat(double[] positions) {
+            this.positions = positions;
         }
-
-        public WritableValue<T> getProperty(Object obj){
-            return accessor.apply(clazz.cast(obj));
-        }
-
-        public String readProperty(Object obj, Gson gson){
-            return gson.toJson(getProperty(obj).getValue(), type);
-        }
-
-        public void writeProperty(Object obj, String value, Gson gson){
-            getProperty(obj).setValue(gson.fromJson(value, type));
-        }
-
-        public String getKey(){
-            return key;
-        }
-
-        public String getRegistryKey(){
-            return clazz.getSimpleName() + ":" + key;
-        }
-
     }
 
-    public static List<PropertyAccessor<?, ?>> nodePropertyAccessors = new ArrayList<>();
     static {
-        nodePropertyAccessors.add(new PropertyAccessor<>(TitledPane.class, "expanded", Boolean.class, TitledPane::expandedProperty));
-        nodePropertyAccessors.add(new PropertyAccessor<>(TableColumnBase.class, "visible", Boolean.class, TableColumnBase::visibleProperty));
-        nodePropertyAccessors.add(new PropertyAccessor<>(ZoomableScrollPane.class, "scale", Number.class, ZoomableScrollPane::scaleProperty));
-    }
 
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(TitledPane.class, "expanded", Boolean.class, TitledPane::expandedProperty));
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(TableColumnBase.class, "visible", Boolean.class, TableColumnBase::visibleProperty));
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(ZoomableScrollPane.class, "scale", Number.class, ZoomableScrollPane::scaleProperty));
+        nodePropertyAccessors.add(new PropertyAccessor<>(SplitPane.class, SplitPaneDataFormat.class, "dividers"){
 
-    public static class UINodeState {
-
-        public String id = "";
-        public HashMap<String, String> properties = new HashMap<>();
-
-        public UINodeState(){} //for gson
-
-        public UINodeState(String id, Object obj){
-            this.id = id;
-            saveState(obj);
-        }
-
-        public void saveState(Object node){
-            Gson gson = JsonLoaderManager.createDefaultGson();
-            HashMap<String, String> properties = new HashMap<>();
-
-            for(PropertyAccessor<?, ?> propertyAccessor : nodePropertyAccessors){
-                if(propertyAccessor.canAccess(node)){
-                    properties.put(propertyAccessor.getRegistryKey(), propertyAccessor.readProperty(node, gson));
-                }
+            @Override
+            public SplitPaneDataFormat getData(SplitPane splitPane) {
+                return new SplitPaneDataFormat(splitPane.getDividerPositions());
             }
 
-            this.properties = properties;
-        }
-
-        public void loadState(Object node){
-            Gson gson = JsonLoaderManager.createDefaultGson();
-
-            for(PropertyAccessor<?, ?> propertyAccessor : nodePropertyAccessors){
-                if(properties.containsKey(propertyAccessor.getRegistryKey()) && propertyAccessor.canAccess(node)){
-                    propertyAccessor.writeProperty(node, properties.get(propertyAccessor.getRegistryKey()), gson);
+            @Override
+            public void setData(SplitPane splitPane, @Nullable SplitPaneDataFormat dataFormat) {
+                if(dataFormat != null){
+                    splitPane.setDividerPositions(dataFormat.positions);
                 }
             }
+        });
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(Node.class, "position", FXController.NodePosition.class){
 
-        }
+            public boolean canAccess(Object obj){
+                return obj instanceof Node && FXController.hasPosition((Node) obj);
+            }
 
-        public String getID(){
-            return id;
-        }
+            @Override
+            public FXController.NodePosition getData(Node node) {
+                return FXController.getPosition(node);
+            }
+
+            @Override
+            public void setData(Node node, FXController.NodePosition position) {
+                FXController.loadPosition(node, position);
+            }
+        });
     }
+
 
     public static void makePersistent(List<? extends Styleable> styleables){
         styleables.forEach(FXHelper::makePersistent);
@@ -818,8 +784,8 @@ public class FXHelper {
         return null;
     }
 
-    public static void loadUIStates(List<FXHelper.UINodeState> states){
-        for(FXHelper.UINodeState state : states){
+    public static void loadUIStates(List<UINodeState> states){
+        for(UINodeState state : states){
             Styleable styleable = FXHelper.findPersistentStyleable(state.getID());
             if(styleable != null && styleable.getId().equals(state.getID())){
                 state.loadState(styleable);
@@ -827,10 +793,12 @@ public class FXHelper {
         }
     }
 
-    public static void saveUIStates(List<FXHelper.UINodeState> states){
+    public static void saveUIStates(List<UINodeState> states){
+        states.clear();
+
         for(Styleable styleable : FXHelper.persistentStyleables){
             if(styleable.getId() != null && !styleable.getId().isEmpty()){
-                states.add(new FXHelper.UINodeState(styleable.getId(), styleable));
+                states.add(new UINodeState(styleable.getId(), styleable));
             }
         }
     }

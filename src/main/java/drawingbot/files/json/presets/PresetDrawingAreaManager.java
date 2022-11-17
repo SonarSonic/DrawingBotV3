@@ -32,7 +32,7 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
     }
 
     @Override
-    public void registerSettings() {
+    public void registerDataLoaders() {
         registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "useOriginalSizing", false, i -> i.useOriginalSizing).setDisplayName("Use Original Sizing"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, UnitsLength.class, Register.CATEGORY_UNIQUE, "inputUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES, i -> i.inputUnits).setDisplayName("Input Units"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumCroppingMode.class, Register.CATEGORY_UNIQUE, "scalingMode", FXCollections.observableArrayList(EnumCroppingMode.values()), EnumCroppingMode.CROP_TO_FIT, i -> i.croppingMode).setDisplayName("Cropping Mode"));

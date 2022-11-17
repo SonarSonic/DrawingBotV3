@@ -25,6 +25,8 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
         this.configFile = new File(FileUtils.getUserDataDirectory(), configFile);
     }
 
+    public void init(){}
+
     public boolean canLoadPreset(GenericPreset<?> preset){
         return preset.presetType == type;
     }
@@ -140,9 +142,11 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
 
     public final void queueJsonUpdate() {
         //run later to prevent json update happen before services have been created
-        Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
-        });
+        Platform.runLater(this::doJsonUpdate);
+    }
+
+    public final void doJsonUpdate() {
+        DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
     }
 
     public void loadFromJSON(){

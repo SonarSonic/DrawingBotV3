@@ -11,6 +11,7 @@ import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.javafx.util.JFXUtils;
 import drawingbot.plotting.PlottedDrawing;
@@ -21,14 +22,20 @@ import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.*;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.css.PseudoClass;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
@@ -45,7 +52,6 @@ import javafx.stage.StageStyle;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.Glyph;
 import org.fxmisc.easybind.EasyBind;
 
 import java.awt.image.BufferedImageOp;
@@ -75,6 +81,7 @@ public class FXController extends AbstractFXController {
 
         try{
             Hooks.runHook(Hooks.FX_CONTROLLER_PRE_INIT, this);
+            initGlobals();
             initToolbar();
             initViewport();
             initPlottingControls();
@@ -144,10 +151,19 @@ public class FXController extends AbstractFXController {
     public VBox vBoxMain = null;
     public SplitPane splitPane = null;
 
-    public ScrollPane scrollPaneSettings = null;
-    public VBox vBoxSettings = null;
+    public VBox vBoxLeftContainer;
+    public ScrollPane scrollPaneSettingsLeft = null;
+    public VBox vBoxSettingsLeft = null;
+
+    public VBox vBoxRightContainer;
+    public ScrollPane scrollPaneSettingsRight = null;
+    public VBox vBoxSettingsRight = null;
 
     public DialogPresetRename presetEditorDialog = new DialogPresetRename();
+
+    public void initGlobals(){
+        FXHelper.makePersistent(splitPane);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// TOOL BAR
@@ -159,9 +175,10 @@ public class FXController extends AbstractFXController {
     public Menu menuView = null;
     public Menu menuFilters = null;
     public Menu menuHelp = null;
-
-    public Map<TitledPane, Stage> settingsStages = new LinkedHashMap<>();
-    public Map<TitledPane, Node> settingsContent = new LinkedHashMap<>();
+    public static ArrayList<Pane> parentPanes = new ArrayList<>();
+    public static ArrayList<TitledPane> allPanes = new ArrayList<>();
+    public Rectangle hiddenDragRectangleRight = null;
+    public Rectangle hiddenDragRectangleLeft = null;
 
     public void initToolbar(){
 
@@ -296,12 +313,71 @@ public class FXController extends AbstractFXController {
         menuFile.getItems().add(menuQuit);
 
         //view
-        ArrayList<TitledPane> allPanes = new ArrayList<>();
-        for(Node node : vBoxSettings.getChildren()){
+        allPanes = new ArrayList<>();
+
+        hiddenDragRectangleLeft = createHiddenDragOverlay(splitPane, HPos.LEFT);
+        vBoxMain.getChildren().add(hiddenDragRectangleLeft);
+        vBoxSettingsLeft.getChildren().addListener((InvalidationListener) observable -> {
+            hiddenDragRectangleLeft.setVisible(vBoxSettingsLeft.getChildren().isEmpty());
+        });
+        setDefaultDragEvents(hiddenDragRectangleLeft);
+
+        hiddenDragRectangleRight = createHiddenDragOverlay(splitPane, HPos.RIGHT);
+        vBoxMain.getChildren().add(hiddenDragRectangleRight);
+        vBoxSettingsRight.getChildren().addListener((InvalidationListener) observable -> {
+            hiddenDragRectangleRight.setVisible(vBoxSettingsRight.getChildren().isEmpty());
+        });
+        setDefaultDragEvents(hiddenDragRectangleRight);
+
+        for(Node node : vBoxSettingsLeft.getChildren()){
             if(node instanceof TitledPane){
                 allPanes.add((TitledPane) node);
             }
         }
+        parentPanes.add(vBoxSettingsLeft);
+        setDefaultDragEvents(scrollPaneSettingsLeft);
+
+        for(Node node : vBoxSettingsRight.getChildren()){
+            if(node instanceof TitledPane){
+                allPanes.add((TitledPane) node);
+            }
+        }
+        parentPanes.add(vBoxSettingsRight);
+        setDefaultDragEvents(scrollPaneSettingsRight);
+
+        vBoxSettingsRight.getChildren().addListener((InvalidationListener) observable -> {
+            if(vBoxSettingsRight.getChildren().isEmpty()){
+                scrollPaneSettingsRight.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                scrollPaneSettingsRight.setMaxWidth(0);
+                scrollPaneSettingsRight.setPrefWidth(0);
+                vBoxRightContainer.setMaxWidth(0);
+                splitPane.setDividerPositions(0, 1);
+            }else{
+                scrollPaneSettingsRight.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                scrollPaneSettingsRight.setMaxWidth(-1);
+                scrollPaneSettingsRight.setPrefWidth(420);
+                vBoxRightContainer.setMaxWidth(-1);
+                splitPane.setDividerPositions(0, 1);
+            }
+        });
+
+        vBoxSettingsLeft.getChildren().addListener((InvalidationListener) observable -> {
+            if(vBoxSettingsLeft.getChildren().isEmpty()){
+                scrollPaneSettingsLeft.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                scrollPaneSettingsLeft.setMaxWidth(0);
+                scrollPaneSettingsLeft.setPrefWidth(0);
+                vBoxLeftContainer.setMaxWidth(0);
+                splitPane.setDividerPositions(1, 1);
+            }else{
+                scrollPaneSettingsLeft.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                scrollPaneSettingsLeft.setMaxWidth(-1);
+                scrollPaneSettingsLeft.setPrefWidth(420);
+                vBoxLeftContainer.setMaxWidth(-1);
+                splitPane.setDividerPositions(0, 1);
+            }
+        });
+
+
         FXHelper.makePersistent(allPanes);
 
         MenuItem fullScreen = new MenuItem("Fullscreen Mode");
@@ -316,72 +392,21 @@ public class FXController extends AbstractFXController {
                 Platform.runLater(() -> allPanes.forEach(p -> p.expandedProperty().setValue(p == pane)));
             });
             menuView.getItems().add(viewButton);
-            Button undock = new Button("", new Glyph("FontAwesome", FontAwesome.Glyph.LINK));
 
-            undock.setOnAction(e -> {
-                Stage currentStage = settingsStages.get(pane);
-                if(currentStage == null){
-
-                    Node content = pane.getContent();
-
-                    boolean allowResizing = content instanceof VBox;
-
-                    //create the stage
-                    Stage settingsStage = new Stage(StageStyle.DECORATED);
-                    settingsStage.initModality(Modality.NONE);
-                    settingsStage.initOwner(FXApplication.primaryStage);
-                    settingsStage.setTitle(pane.getText());
-                    settingsStage.setResizable(allowResizing);
-
-                    //create the root node
-                    ScrollPane scrollPane = new ScrollPane();
-                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-                    if(allowResizing){
-                        scrollPane.setFitToWidth(true);
-                        scrollPane.setFitToHeight(true);
-                        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-                        HBox.setHgrow(scrollPane, Priority.ALWAYS);
-                        scrollPane.setPrefWidth(420);
-                    }
-
-                    //transfer the content
-                    pane.setAnimated(false);
-                    pane.setExpanded(true);
-                    pane.layout();
-
-                    pane.setContent(new AnchorPane());
-                    scrollPane.setContent(content);
-
-                    pane.setExpanded(false);
-                    pane.setAnimated(true);
-
-                    //save the reference for later
-                    settingsStages.put(pane, settingsStage);
-                    settingsContent.put(pane, content);
-
-
-                    //show the scene
-                    Scene scene = new Scene(scrollPane);
-                    settingsStage.setScene(scene);
-                    settingsStage.setOnCloseRequest(event -> redockSettingsPane(pane));
-                    FXApplication.applyDBStyle(settingsStage);
-                    settingsStage.show();
-                }else{
-                    redockSettingsPane(pane);
-                    currentStage.close();
-                }
-            });
-
-            pane.setContentDisplay(ContentDisplay.RIGHT);
-            pane.setGraphic(undock);
-            undock.translateXProperty().bind(Bindings.createDoubleBinding(
-                    () -> pane.getWidth() - undock.getLayoutX() - undock.getWidth() - 30,
-                    pane.widthProperty())
-            );
+            pane.pseudoClassStateChanged(PSEUDO_CLASS_DRAG_TITLE_PANE_OVER, false);
+            pane.setOnDragDetected(onDragDetected(pane));
+            setDefaultDragEvents(pane);
         }
 
+        menuView.getItems().add(new SeparatorMenuItem());
 
+        MenuItem expandAll = new MenuItem("Expand All");
+        expandAll.setOnAction(e -> allPanes.forEach(pane -> pane.setExpanded(true)));
+        menuView.getItems().add(expandAll);
+
+        MenuItem closeAll = new MenuItem("Close All");
+        closeAll.setOnAction(e -> allPanes.forEach(pane -> pane.setExpanded(false)));
+        menuView.getItems().add(closeAll);
 
         //filters
         for(Map.Entry<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> entry : MasterRegistry.INSTANCE.imgFilterFactories.entrySet()){
@@ -483,14 +508,6 @@ public class FXController extends AbstractFXController {
         DrawingBotV3.INSTANCE.activeProject.set(project);
     }
 
-    public void redockSettingsPane(TitledPane pane){
-        Node content = settingsContent.get(pane);
-        pane.setContent(content);
-
-        settingsStages.put(pane, null);
-        settingsContent.put(pane, null);
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// VIEWPORT PANE
 
@@ -525,6 +542,8 @@ public class FXController extends AbstractFXController {
     //public CheckBox checkBoxDarkTheme = null;
 
     public void initViewport(){
+
+        setDefaultDragEvents(vBoxViewportContainer);
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
@@ -617,10 +636,6 @@ public class FXController extends AbstractFXController {
 
          */
 
-
-        //DrawingBotV3.INSTANCE.displayGrid.bind(checkBoxShowGrid.selectedProperty());
-        //DrawingBotV3.INSTANCE.displayGrid.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.reRender());
-
         viewportScrollPane = new ZoomableScrollPane();
 
         viewportScrollPane.setFitToWidth(true);
@@ -678,14 +693,24 @@ public class FXController extends AbstractFXController {
         vBoxViewportContainer.getChildren().add(viewportScrollPane);
         vBoxViewportContainer.getChildren().add(viewportOverlayAnchorPane);
 
+        viewportScrollPane.setOnDragEntered(onDragEntered(viewportScrollPane));
+        viewportScrollPane.setOnDragExited(onDragExited(viewportScrollPane));
+        viewportScrollPane.setOnDragDone(onDragDone(viewportScrollPane));
+
+        EventHandler<? super DragEvent> onPaneOver = onDragOver(viewportScrollPane);
         viewportScrollPane.setOnDragOver(event -> {
 
             if (event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.LINK);
+            }else{
+                //divert to the pane event if we didn't find any files
+                onPaneOver.handle(event);
+                return;
             }
             event.consume();
         });
 
+        EventHandler<? super DragEvent> onPaneDropped = onDragDropped(viewportScrollPane);
         viewportScrollPane.setOnDragDropped(event -> {
 
             Dragboard db = event.getDragboard();
@@ -695,8 +720,13 @@ public class FXController extends AbstractFXController {
                 DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, true);
                 success = true;
             }
-            event.setDropCompleted(success);
 
+            if(!success){
+                //divert to the pane event if we didn't find any files
+                onPaneDropped.handle(event);
+                return;
+            }
+            event.setDropCompleted(success);
             event.consume();
         });
 
@@ -772,6 +802,7 @@ public class FXController extends AbstractFXController {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //// PLOTTING CONTROLS
 
+    public Pane panePlottingTools;
     public Button buttonStartPlotting = null;
     public Button buttonStopPlotting = null;
     public Button buttonResetPlotting = null;
@@ -788,6 +819,16 @@ public class FXController extends AbstractFXController {
 
         buttonSaveVersion.setOnAction(param -> versionControlController.saveVersion());
         buttonSaveVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || binding.getValue() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, binding));
+
+
+        vBoxSettingsLeft.getChildren().addListener((InvalidationListener) observable -> {
+            if(vBoxSettingsLeft.getChildren().isEmpty() && panePlottingTools.getParent() != vBoxRightContainer){
+                vBoxRightContainer.getChildren().add(panePlottingTools);
+            }else if(panePlottingTools.getParent() != vBoxLeftContainer){
+                vBoxLeftContainer.getChildren().add(panePlottingTools);
+            }
+        });
+
     }
 
 
@@ -829,26 +870,219 @@ public class FXController extends AbstractFXController {
         labelOpenDestinationFolder.visibleProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.wasExporting.get() || DrawingBotV3.INSTANCE.taskMonitor.isExporting.get(), DrawingBotV3.INSTANCE.taskMonitor.isExporting, DrawingBotV3.INSTANCE.taskMonitor.wasExporting));
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// TITLED PANE - DRAG HANDLING \\\\
+
+    public static final DataFormat DATA_FORMAT_DRAG_TITLE_PANE = new DataFormat("application/dbv3-drag");
+    private static final PseudoClass PSEUDO_CLASS_DRAG_TITLE_PANE_OVER = PseudoClass.getPseudoClass("drag-over");
+    private static final BooleanProperty isDragging = new SimpleBooleanProperty(false);
+
+    /**
+     * All events except on drag detected, i.e. allows receiving nodes but not dragging
+     */
+    public void setDefaultDragEvents(Node target){
+        target.setOnDragEntered(onDragEntered(target));
+        target.setOnDragOver(onDragOver(target));
+        target.setOnDragExited(onDragExited(target));
+        target.setOnDragDropped(onDragDropped(target));
+        target.setOnDragDone(onDragDone(target));
+    }
+
+    public EventHandler<? super MouseEvent> onDragDetected(Node target){
+        return event -> {
+            Dragboard db = target.startDragAndDrop(TransferMode.MOVE);
+
+            ClipboardContent content = new ClipboardContent();
+            content.put(DATA_FORMAT_DRAG_TITLE_PANE, target.getId());
+            db.setContent(content);
+
+            isDragging.set(true);
+        };
+    }
+
+    public EventHandler<? super DragEvent> onDragOver(Node target){
+        return event -> {
+            if (event.getGestureSource() != target && event.getDragboard().hasContent(DATA_FORMAT_DRAG_TITLE_PANE)) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        };
+    }
+
+    public EventHandler<? super DragEvent> onDragEntered(Node target){
+        return event -> {
+            if (event.getGestureSource() != target && event.getDragboard().hasContent(DATA_FORMAT_DRAG_TITLE_PANE)) {
+                target.pseudoClassStateChanged(PSEUDO_CLASS_DRAG_TITLE_PANE_OVER, true);
+            }
+            event.consume();
+        };
+    }
+
+    public EventHandler<? super DragEvent> onDragExited(Node target){
+        return event -> {
+            if (event.getGestureSource() != target && event.getDragboard().hasContent(DATA_FORMAT_DRAG_TITLE_PANE)) {
+                target.pseudoClassStateChanged(PSEUDO_CLASS_DRAG_TITLE_PANE_OVER, false);
+            }
+            event.consume();
+        };
+    }
+
+    public EventHandler<? super DragEvent> onDragDropped(Node target){
+        return event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasContent(DATA_FORMAT_DRAG_TITLE_PANE)) {
+                String sourceID = (String) db.getContent(DATA_FORMAT_DRAG_TITLE_PANE);
+                TitledPane source = null;
+                for(TitledPane titledPane : allPanes){
+                    if(titledPane.getId().equals(sourceID)){
+                        source = titledPane;
+                    }
+                }
+                if(source != null){
+                    if(target instanceof TitledPane){
+                        if(target.getParent() instanceof VBox && source.getParent() instanceof VBox){
+                            VBox srcParent = (VBox) source.getParent();
+                            VBox dstParent = (VBox) target.getParent();
+                            if(srcParent == dstParent){
+                                int targetIndex = srcParent.getChildren().indexOf(target);
+                                int currentIndex = srcParent.getChildren().indexOf(source);
+                                srcParent.getChildren().remove(source);
+                                srcParent.getChildren().add(targetIndex > currentIndex ? targetIndex : targetIndex, source);
+                            }else{
+                                srcParent.getChildren().remove(source);
+                                dstParent.getChildren().add(dstParent.getChildren().indexOf(target), source);
+                            }
+                            success = true;
+                        }
+                    }else if(target == scrollPaneSettingsLeft || target == scrollPaneSettingsRight){
+                        if(source.getParent() instanceof VBox){
+                            VBox srcParent = (VBox) source.getParent();
+                            VBox dstParent = (target == scrollPaneSettingsLeft ? vBoxSettingsLeft : vBoxSettingsRight);
+                            srcParent.getChildren().remove(source);
+                            dstParent.getChildren().add(source);
+                            success = true;
+                        }
+                    }else if(target == viewportScrollPane || target == vBoxViewportContainer){
+                        undockTitlePane(source);
+                        success = true;
+                    }else if(target == hiddenDragRectangleRight || target == hiddenDragRectangleLeft){
+                        VBox srcParent = (VBox) source.getParent();
+                        VBox dstParent = target == hiddenDragRectangleRight ? vBoxSettingsRight : vBoxSettingsLeft;
+                        srcParent.getChildren().remove(source);
+                        dstParent.getChildren().add(source);
+                        success = true;
+                    }
+                }
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        };
+    }
+
+    public EventHandler<? super DragEvent> onDragDone(Node target){
+        return event -> {
+            isDragging.set(false);
+        };
+    }
+
+    public Map<TitledPane, Stage> settingsStages = new LinkedHashMap<>();
+    public Map<TitledPane, Node> settingsContent = new LinkedHashMap<>();
+
+    public void undockTitlePane(TitledPane pane){
+        Stage currentStage = settingsStages.get(pane);
+        if(currentStage == null){
+
+            Node content = pane.getContent();
+
+            boolean allowResizing = content instanceof VBox;
+
+            //create the stage
+            Stage settingsStage = new Stage(StageStyle.DECORATED);
+            settingsStage.initModality(Modality.NONE);
+            settingsStage.initOwner(FXApplication.primaryStage);
+            settingsStage.setTitle(pane.getText());
+            settingsStage.setResizable(allowResizing);
+
+            //create the root node
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+            if(allowResizing){
+                scrollPane.setFitToWidth(true);
+                scrollPane.setFitToHeight(true);
+                VBox.setVgrow(scrollPane, Priority.ALWAYS);
+                HBox.setHgrow(scrollPane, Priority.ALWAYS);
+                scrollPane.setPrefWidth(420);
+            }
+
+            //transfer the content
+            pane.setAnimated(false);
+            pane.setExpanded(true);
+            pane.layout();
+
+            pane.setContent(new AnchorPane());
+            scrollPane.setContent(content);
+
+            pane.setExpanded(false);
+            pane.setAnimated(true);
+
+            //save the reference for later
+            settingsStages.put(pane, settingsStage);
+            settingsContent.put(pane, content);
+
+
+            //show the scene
+            Scene scene = new Scene(scrollPane);
+            settingsStage.setScene(scene);
+            settingsStage.setOnCloseRequest(event -> redockSettingsPane(pane));
+            FXApplication.applyDBStyle(settingsStage);
+            settingsStage.show();
+        }else{
+            redockSettingsPane(pane);
+            currentStage.close();
+        }
+    }
+
+    public void redockSettingsPane(TitledPane pane){
+        Node content = settingsContent.get(pane);
+        pane.setContent(content);
+
+        settingsStages.put(pane, null);
+        settingsContent.put(pane, null);
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////PRE PROCESSING PANE
 
+    //TODO MAKE THIS INTO A MORE UNIVERSAL METHOD, i.e. not just a right hand rectangle
+    public static Rectangle createHiddenDragOverlay(Region target, HPos pos){
+        Rectangle rectangle = new Rectangle();
+        rectangle.setManaged(false);
+        rectangle.setWidth(60);
+        switch (pos){
+            case LEFT -> {
+                rectangle.heightProperty().bind(target.heightProperty());
+                rectangle.xProperty().bind(target.layoutXProperty());
+                rectangle.yProperty().bind(target.layoutYProperty());
+                rectangle.getStyleClass().add("drag-receiver-left");
+            }
+            case CENTER -> {
+                //NOP
+            }
+            case RIGHT -> {
+                rectangle.heightProperty().bind(target.heightProperty());
+                rectangle.xProperty().bind(target.layoutXProperty().subtract(rectangle.widthProperty()).add(target.widthProperty()));
+                rectangle.yProperty().bind(target.layoutYProperty());
+                rectangle.getStyleClass().add("drag-receiver-right");
+            }
+        }
 
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////PEN SETTINGS
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////VERSION CONTROL
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////BATCH PROCESSING
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        rectangle.setFill(Color.TRANSPARENT);
+        rectangle.mouseTransparentProperty().bind(isDragging.not());
+        return rectangle;
+    }
 
     public static void showPremiumFeatureDialog(){
         DialogPremiumFeature premiumFeature = new DialogPremiumFeature();
@@ -857,6 +1091,51 @@ public class FXController extends AbstractFXController {
         if(upgrade.isPresent() && upgrade.get()){
             FXHelper.openURL(DBConstants.URL_UPGRADE);
         }
+    }
+
+    public static class NodePosition {
+
+        public int childIndex;
+        public String parentID;
+
+        public NodePosition(int childIndex, String parentID) {
+            this.childIndex = childIndex;
+            this.parentID = parentID;
+        }
+    }
+
+    public static boolean hasPosition(Node pane){
+        return allPanes.contains(pane);
+    }
+
+    public static NodePosition getPosition(Node pane){
+        if(!allPanes.contains(pane) || pane.getParent() == null){
+            return null;
+        }
+        String parentID = pane.getParent().getId();
+        int childIndex = pane.getParent().getChildrenUnmodifiable().indexOf(pane);
+
+        return new NodePosition(childIndex, parentID);
+    }
+
+    public static void loadPosition(Node pane, NodePosition position){
+        if(pane == null || position == null || pane.getParent() == null){
+            return;
+        }
+        Pane srcParent = (Pane) pane.getParent();
+        Pane dstParent = getParentPane(position.parentID);
+
+        if(dstParent == null){
+            return;
+        }
+
+        srcParent.getChildren().remove(pane);
+        int targetIndex = Math.max(0, Math.min(position.childIndex, dstParent.getChildren().size()-1));
+        dstParent.getChildren().add(targetIndex, pane);
+    }
+
+    public static Pane getParentPane(String parentID){
+        return parentPanes.stream().filter(pane -> pane.getId().equals(parentID)).findFirst().orElse(null);
     }
 
     //// PRESET MENU BUTTON \\\\

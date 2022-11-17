@@ -373,6 +373,11 @@ public class FXPreferences {
                 )
         ));
                 MasterRegistry.INSTANCE.registerPreferencesPage(page("User Interface",
+                        new LabelNode("General").setTitleStyling(),
+                        new SettingNode("Default Window Size", settings.uiWindowSize),
+                        new SettingNode("Restore Last Layout", settings.restoreLayout),
+                        new SettingNode("Restore Project Layout", settings.restoreProjectLayout),
+
                         new LabelNode("Rulers").setTitleStyling(),
                         new SettingNode("Enabled", settings.rulersEnabled),
 

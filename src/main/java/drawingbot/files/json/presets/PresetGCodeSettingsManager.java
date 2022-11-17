@@ -1,16 +1,14 @@
 package drawingbot.files.json.presets;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.DefaultPresetManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.UnitsLength;
 import javafx.collections.FXCollections;
-
-import java.util.List;
 
 public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetGCodeSettings, GCodeSettings> {
 
@@ -19,7 +17,7 @@ public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetGCode
     }
 
     @Override
-    public void registerSettings() {
+    public void registerDataLoaders() {
         registerSetting(GenericSetting.createRangedFloatSetting(GCodeSettings.class, "gcodeOffsetX", 0F, 0F, Float.MAX_VALUE, i -> i.gcodeOffsetX));
         registerSetting(GenericSetting.createRangedFloatSetting(GCodeSettings.class, "gcodeOffsetY", 0F, 0F, Float.MAX_VALUE, i -> i.gcodeOffsetY));
         registerSetting(GenericSetting.createOptionSetting(GCodeSettings.class, UnitsLength.class, "gcodeUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES, i -> i.gcodeUnits));
@@ -37,6 +35,6 @@ public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetGCode
 
     @Override
     public GCodeSettings getInstance(DBTaskContext context) {
-        return DrawingBotV3.INSTANCE.gcodeSettings;
+        return DBPreferences.INSTANCE.gcodeSettings;
     }
 }

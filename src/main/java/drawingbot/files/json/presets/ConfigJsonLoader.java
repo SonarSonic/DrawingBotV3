@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.PresetProjectSettingsManager;
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
 
@@ -25,7 +27,6 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
 
     public ConfigJsonLoader(PresetType presetType) {
         super(presetType, "config_settings.json");
-        registerTypes();
         setDefaultManager(new AbstractPresetManager<>(this) {
             @Override
             public GenericPreset<AbstractJsonData> updatePreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
@@ -46,12 +47,30 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
         });
     }
 
-    private void registerTypes(){
+    @Override
+    public void init(){
         registerConfigFactory(PresetApplicationSettings.class, new DefaultPresetManager<AbstractJsonData, DBPreferences>(this) {
 
             @Override
-            public void registerSettings() {
+            public void registerDataLoaders() {
                 registerSettings(DBPreferences.INSTANCE.settings);
+                registerPresetDataLoader(new PresetDataLoader.DataInstance<>(AbstractJsonData.class, "ui_state", PresetProjectSettingsManager.UIGlobalState.class, PresetProjectSettingsManager.UIGlobalState::new, 0){
+
+                    @Override
+                    public void loadData(DBTaskContext context, PresetProjectSettingsManager.UIGlobalState data, GenericPreset<AbstractJsonData> preset) {
+                        FXHelper.loadUIStates(data.nodes);
+                    }
+
+                    @Override
+                    public void saveData(DBTaskContext context, PresetProjectSettingsManager.UIGlobalState data, GenericPreset<AbstractJsonData> preset) {
+                        FXHelper.saveUIStates(data.nodes);
+                    }
+
+                    @Override
+                    public boolean isEnabled() {
+                        return DBPreferences.INSTANCE.restoreLayout.get();
+                    }
+                });
             }
 
             @Override
@@ -83,7 +102,6 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
             }
         }
         loading = false;
-        queueJsonUpdate();
     }
 
     @Override
