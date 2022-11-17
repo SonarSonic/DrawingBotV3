@@ -7,7 +7,6 @@ import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.javafx.FXController;
-import drawingbot.javafx.FXExportController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
@@ -30,8 +29,7 @@ public class PremiumPluginDummy implements IPlugin {
     public void preInit() {
         Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableBatchProcessingUI);
         Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableColourSplitterUI);
-        Hooks.addHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this::disableHPGLUI);
-        Hooks.addHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this::disableOpenGL);
+        Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableOpenGL);
         Hooks.addHook(Hooks.FILE_MENU, this::initMenuOption);
 
         MasterRegistry.INSTANCE.registerDisplayMode(new IDisplayMode() {
@@ -116,18 +114,6 @@ public class PremiumPluginDummy implements IPlugin {
          */
         return objects;
     }
-
-    public Object[] disableHPGLUI(Object...objects) {
-        FXExportController controller = (FXExportController) objects[0];
-        controller.anchorPaneHPGLSettings.setDisable(true);
-        controller.tabHPGLSettings.getTabPane().setOnMouseClicked(e -> {
-            if(controller.tabHPGLSettings.isSelected()){
-                FXController.showPremiumFeatureDialog();
-            }
-        });
-        return objects;
-    }
-
 
     public Object[] disableOpenGL(Object...values) {
         DrawingBotV3.INSTANCE.controller.choiceBoxDisplayMode.valueProperty().addListener((observable, oldValue, newValue) -> {

@@ -16,9 +16,6 @@ public class Hooks {
     public static final String FX_CONTROLLER_PRE_INIT = "FX_CONTROLLER_PRE_INIT";
     public static final String FX_CONTROLLER_POST_INIT = "FX_CONTROLLER_POST_INIT";
 
-    public static final String FX_EXPORT_CONTROLLER_PRE_INIT = "FX_EXPORT_CONTROLLER_PRE_INIT";
-    public static final String FX_EXPORT_CONTROLLER_POST_INIT = "FX_EXPORT_CONTROLLER_POST_INIT";
-
     public static final String SERIAL_CONNECTION_CONTROLLER = "SERIAL_CONNECTION_CONTROLLER";
     public static final String SERIAL_CONNECTION_STAGE = "SERIAL_CONNECTION_STAGE";
 

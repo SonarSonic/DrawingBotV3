@@ -123,10 +123,10 @@ public class ExportTask extends DBTask<Boolean> {
                 CountDownLatch latch = new CountDownLatch(1);
                 AtomicReference<Boolean> result = new AtomicReference<>(false);
                 Platform.runLater(() -> {
-                    Dialog<Boolean> hpglDialog = exportHandler.confirmDialog.apply(this);
-                    hpglDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
-                    hpglDialog.setOnHidden(e -> latch.countDown());
-                    hpglDialog.showAndWait();
+                    Dialog<Boolean> confirmDialog = exportHandler.confirmDialog.apply(this);
+                    confirmDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
+                    confirmDialog.setOnHidden(e -> latch.countDown());
+                    confirmDialog.showAndWait();
                 });
 
                 latch.await();
@@ -231,10 +231,10 @@ public class ExportTask extends DBTask<Boolean> {
     }
 
     public enum Mode {
-        PER_DRAWING("Export per/drawing"),
-        PER_PEN("Export per/pen"),
-        PER_GROUP("Export per/group"),
-        PER_N_PENS("Export per/n pens");
+        PER_DRAWING("per/drawing"),
+        PER_PEN("per/pen"),
+        PER_GROUP("per/group"),
+        PER_N_PENS("per/n pens");
 
         private final String displayName;
 

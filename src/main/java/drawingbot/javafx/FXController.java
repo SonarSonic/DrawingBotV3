@@ -112,9 +112,6 @@ public class FXController extends AbstractFXController {
         JFXShapeManager.INSTANCE.activeShapeList.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.maskingSettings.get().shapeList));
     }
 
-    public Stage exportSettingsStage;
-    public FXExportController exportController;
-
     public Stage vpypeSettingsStage;
     public FXVPypeController vpypeController;
 
@@ -132,7 +129,6 @@ public class FXController extends AbstractFXController {
 
 
     public void initSeparateStages() {
-        exportController = FXHelper.initSeparateStage("/drawingbot/javafx/exportsettings.fxml", exportSettingsStage = new Stage(), "Export Settings", Modality.APPLICATION_MODAL);
         vpypeController = FXHelper.initSeparateStage("/drawingbot/javafx/vpypesettings.fxml", vpypeSettingsStage = new Stage(), "vpype Settings", Modality.APPLICATION_MODAL);
         mosaicController = FXHelper.initSeparateStage("/drawingbot/javafx/mosaicsettings.fxml", mosaicSettingsStage = new Stage(), "Mosaic Settings", Modality.APPLICATION_MODAL);
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
