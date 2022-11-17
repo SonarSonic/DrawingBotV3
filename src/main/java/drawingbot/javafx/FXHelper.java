@@ -62,6 +62,10 @@ public class FXHelper {
 
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
+    public static void importFile(){
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
+    }
+
     public static void importImageFile(){
         importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES);
     }
@@ -86,6 +90,10 @@ public class FXHelper {
 
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
         importFile(callback, new FileChooser.ExtensionFilter[]{filter}, "Select a file to import");
+    }
+
+    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter... filters){
+        importFile(callback, filters, "Select a file to import");
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title){

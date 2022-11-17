@@ -8,6 +8,7 @@ import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.adapters.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -49,6 +50,7 @@ public class JsonLoaderManager {
             builder.setPrettyPrinting();
             builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
             builder.registerTypeHierarchyAdapter(ColourSeperationHandler.class, new JsonAdapterColourSplitter());
+            builder.registerTypeHierarchyAdapter(DrawingExportHandler.class, new JsonAdapterDrawingExportHandler());
             builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
             builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
             builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
@@ -109,9 +111,9 @@ public class JsonLoaderManager {
     }
 
     public static void loadDefaults(){
-        for(AbstractJsonLoader<?> manager : MasterRegistry.INSTANCE.presetLoaders){
-            if(manager != Register.PRESET_LOADER_CONFIGS){
-                manager.loadDefaults();
+        for(AbstractJsonLoader<?> loaders : MasterRegistry.INSTANCE.presetLoaders){
+            if(loaders != Register.PRESET_LOADER_CONFIGS){
+                loaders.loadDefaults();
             }
         }
     }

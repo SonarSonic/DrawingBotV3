@@ -1,11 +1,14 @@
 package drawingbot.files;
 
+import com.google.gson.annotations.JsonAdapter;
+import drawingbot.files.json.adapters.JsonAdapterDrawingExportHandler;
 import javafx.scene.control.Dialog;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.function.Function;
 
+@JsonAdapter(JsonAdapterDrawingExportHandler.class)
 public class DrawingExportHandler {
 
     public final Category category;

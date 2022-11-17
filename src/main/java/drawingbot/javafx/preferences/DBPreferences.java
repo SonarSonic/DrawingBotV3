@@ -76,6 +76,8 @@ public class DBPreferences implements ISettings {
     public final OptionSetting<?, EnumRescaleMode> defaultRescalingMode = register(createOptionSetting(DBPreferences.class, EnumRescaleMode.class, CATEGORY_GENERAL, "defaultRescaleNode", FXCollections.observableArrayList(EnumRescaleMode.values()), EnumRescaleMode.HIGH_QUALITY));
     public final BooleanSetting<?> defaultRangeExport = register(createBooleanSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultRangeExport", true));
     public final OptionSetting<?, EnumBlendMode> defaultBlendMode = register(createOptionSetting(DBPreferences.class, EnumBlendMode.class, CATEGORY_GENERAL, "defaultBlendMode", FXCollections.observableArrayList(EnumBlendMode.values()), EnumBlendMode.NORMAL));
+    public final OptionSetting<?, ExportTask.Mode> quickExportMode = register(createOptionSetting(DBPreferences.class, ExportTask.Mode.class, CATEGORY_GENERAL, "defaultExportMode", FXCollections.observableArrayList(ExportTask.Mode.values()), ExportTask.Mode.PER_DRAWING));
+    public final StringSetting<?> quickExportHandler = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportHandler", "svg_default"));
 
     ///////////////////////////////////////////////
 
@@ -210,6 +212,14 @@ public class DBPreferences implements ISettings {
     }
 
     ////
+
+    public DrawingExportHandler getQuickExportHandler(){
+        DrawingExportHandler handler = MasterRegistry.INSTANCE.drawingExportHandlers.get(quickExportHandler.get());
+        if(handler == null){
+            quickExportHandler.set(Register.EXPORT_SVG.getRegistryName());
+        }
+        return handler;
+    }
 
     public int getFrameCount(){
         return (int)(framesPerSecond.get() * durationUnits.get().toSeconds(duration.get()));

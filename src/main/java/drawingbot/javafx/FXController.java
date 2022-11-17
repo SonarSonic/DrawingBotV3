@@ -207,6 +207,7 @@ public class FXController extends AbstractFXController {
 
         MenuItem menuImport = new MenuItem("Import Image");
         menuImport.setOnAction(e -> FXHelper.importImageFile());
+        menuImport.setAccelerator(KeyCombination.valueOf("Ctrl + I"));
         menuFile.getItems().add(menuImport);
 
         MenuItem menuVideo = new MenuItem("Import Video");
@@ -225,8 +226,17 @@ public class FXController extends AbstractFXController {
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
+        MenuItem menuQuickExport = new MenuItem("Quick Export");
+        menuQuickExport.textProperty().bind(Bindings.createStringBinding(() -> "Quick Export: " + DBPreferences.INSTANCE.getQuickExportHandler() + " - " + DBPreferences.INSTANCE.quickExportMode.get().getDisplayName(), DBPreferences.INSTANCE.quickExportMode, DBPreferences.INSTANCE.quickExportHandler));
+        menuQuickExport.setOnAction(e -> FXHelper.exportFile(DBPreferences.INSTANCE.getQuickExportHandler(), DBPreferences.INSTANCE.quickExportMode.get()));
+        menuQuickExport.disableProperty().bind(Bindings.isNull(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing)));
+        menuQuickExport.setAccelerator(KeyCombination.valueOf("Ctrl + E"));
+        menuFile.getItems().add(menuQuickExport);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
         for(ExportTask.Mode exportMode : ExportTask.Mode.values()){
-            Menu menuExport = new Menu(exportMode.getDisplayName());
+            Menu menuExport = new Menu("Export " + exportMode.getDisplayName());
             for(DrawingExportHandler.Category category : DrawingExportHandler.Category.values()){
                 for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers.values()){
                     if(format.category != category){
@@ -271,11 +281,6 @@ public class FXController extends AbstractFXController {
             preferencesStage.show();
         });
         menuFile.getItems().add(menuPreferences);
-
-
-        MenuItem menuExportSettings = new MenuItem("Export Settings");
-        menuExportSettings.setOnAction(e -> exportSettingsStage.show());
-        menuFile.getItems().add(menuExportSettings);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 

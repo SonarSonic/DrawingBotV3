@@ -105,6 +105,22 @@ public class FXPreferences {
                                 });
                                 return button;
                             }),
+                            new FXPreferences.LabelNode("Quick Export").setTitleStyling(),
+                            new FXPreferences.SettingNode("Mode", settings.quickExportMode),
+                            new FXPreferences.LabelNode("Type", () -> {
+                                ComboBox<DrawingExportHandler> comboBox = new ComboBox<>();
+                                comboBox.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.drawingExportHandlers.values()));
+                                comboBox.setValue(settings.getQuickExportHandler());
+                                comboBox.setOnAction(e -> {
+                                    settings.quickExportHandler.set(comboBox.getValue().getRegistryName());
+                                });
+                                settings.quickExportHandler.addListener(observable -> {
+                                    if(!settings.quickExportHandler.get().equals(comboBox.getValue().getRegistryName())){
+                                        comboBox.setValue(settings.getQuickExportHandler());
+                                    }
+                                });
+                                return comboBox;
+                            }),
 
                             new FXPreferences.LabelNode("Preset Defaults").setTitleStyling(),
                             new FXPreferences.LabelNode("Drawing Area", () -> FXPreferences.createDefaultPresetComboBox(Register.PRESET_LOADER_DRAWING_AREA)),
