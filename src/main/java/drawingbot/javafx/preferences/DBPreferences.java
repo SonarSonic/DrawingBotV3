@@ -135,6 +135,7 @@ public class DBPreferences implements ISettings {
     //// IMAGE SETTINGS \\\\
 
     public final DoubleSetting<?> exportDPI = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "exportDPI", 300D, 1D, Short.MAX_VALUE));
+    public final BooleanSetting<?> transparentPNG = register(createBooleanSetting(DBPreferences.class, CATEGORY_IMAGE, "transparentPNG", false));
 
     //// GCODE SETTINGS \\\\
 

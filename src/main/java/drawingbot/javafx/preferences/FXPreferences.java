@@ -360,6 +360,7 @@ public class FXPreferences {
                 imageAnimationPage = page("Image & Animation",
                         new LabelNode("Resolution").setTitleStyling(),
                         new SettingNode("Export DPI", settings.exportDPI),
+                        new SettingNode("Export Transparent PNGs", settings.transparentPNG),
                         new PropertyNode("Image Export Size", settings.imageExportSize, String.class).setEditable(false),
                         new LabelNode("Animations").setTitleStyling(),
                         new SettingNode("Frames per second", settings.framesPerSecond),

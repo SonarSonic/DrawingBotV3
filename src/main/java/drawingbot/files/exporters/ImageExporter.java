@@ -1,9 +1,9 @@
 package drawingbot.files.exporters;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.preferences.DBPreferences;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,7 +14,7 @@ import java.io.IOException;
 public class ImageExporter {
 
     public static boolean useAlphaChannelOnRaster(ExportTask exportTask){
-        return exportTask.extension.equals(".png"); //TODO CHANGE ME?
+        return DBPreferences.INSTANCE.transparentPNG.get() && exportTask.extension.equals(".png");
     }
 
     public static void exportImage(ExportTask exportTask, File saveLocation) {
