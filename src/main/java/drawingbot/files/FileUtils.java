@@ -33,12 +33,15 @@ public class FileUtils {
 
     public static File removeExtension(File file){
         String path = file.toString();
-        path = path.substring(0, path.lastIndexOf('.'));
-        return new File(path);
+        return new File(removeExtension(path));
     }
 
     public static String removeExtension(String string){
-        string = string.substring(0, string.lastIndexOf('.'));
+        int end = string.lastIndexOf(".");
+        if(end == -1){
+            return string;
+        }
+        string = string.substring(0, end);
         return string;
     }
 

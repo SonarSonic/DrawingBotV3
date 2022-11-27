@@ -26,7 +26,7 @@ import drawingbot.javafx.controls.DialogImageFilter;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.pfm.PFMSketchLines;
+import drawingbot.pfm.PFMSketchLinesBasic;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.overlays.AbstractOverlay;
 import drawingbot.utils.EnumFilterTypes;
@@ -170,7 +170,7 @@ public class MasterRegistry {
     public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
 
     public PFMFactory<?> getDefaultPFM(){
-        return pfmFactories.stream().filter(factory -> factory.getName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getInstanceClass().equals(PFMSketchLines.class)).findFirst().orElse(null));
+        return pfmFactories.stream().filter(factory -> factory.getName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getName().equals("Sketch Lines PFM")).findFirst().orElse(null));
     }
 
     public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){

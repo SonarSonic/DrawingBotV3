@@ -1,3 +1,59 @@
+### [v1.5.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.0-beta-free)
+- Added **High Quality Mode** for image rescaling, produces more consistent results across different paper / pen sizes and results in better quality plots.
+- Added **Preferences Menu** - Much more finer control over settings in DBV3, with more settings on the way!
+  - General Panel: Here you can change some DrawingBotV3 default settings, like default pfms, canvas colour, pen width, pfm presets etc.
+  - User Interface: In this panel you can enable / disable rulers, drawing borders and notifications.
+  - Export Settings: This is the new home for all your usual Export Settings.
+  - NOTE: Search Function is currently limited, but will search settings individually too.
+- Added: **'Directionality', 'Distortion', 'Angularity', 'Edge Power', 'Sobel Power', 'Luminance Power' and 'Squiggle Min Length'** to All Sketch PFMs
+  - Directionality - forces the lines to follow the natural contours of the image
+  - Distortion - adds some noise to the generated lines, creating more stylised images.
+  - Angularity - higher angularity results in lines which don't change direction as frequently, resulting in more sweeping curves in curve pfms
+  - Edge Power - used to exaggerate key edges in the image
+  - Sobel Power - used to exaggerate a cartoonish quality for the plot
+  - Luminance Power - typically PFMs will follow dark areas in the image when creating lines, this slider can be used to decrease the influence of brightness which in turn will favour other style options like Directionarity or Edge Power etc.
+  - Squiggle Min Length - prevents incredibly short squiggles from being created, shortening plotting times - thanks to HanzPetrov
+- Added: "Connected Lines" - Option to Spiral PFM - creating one continuous polyline for the spiral, massively reducing the amount of pen lifts required.
+- Added: "Pen Force" to HPGL Presets for use with the HP 7550
+- Added: 'Curve Offset' options to Cubic Beziers and Quad Beziers - These options allow you to control the 'wiggle' of the curve
+- Added: Notifications (W.I.P) - Pop-Ups to show you additional information when images are imported / files are exported.
+- Added "Rating" and "Notes" columns to Version Control
+- Added: "Multipass" - Path Optimisation option to draw over each geometry in a drawing multiple times.
+- Added: Ability to have multiple projects open simultaneously in the same window
+- Added: **Quick Export** - Added the option to Export Drawings with a single click, or by pressing CTRL + E - you can customize the type of file exported in File/Preferences/General/Quick Export
+- Added: Option to disable/enable Transparent PNG export.
+- Improved: **Colour Match Support for all PFMs** - All PFMs now support the colour match seperation option!
+- Improved: **Huge Speed Improvements** for all Adaptive PFMs, up too **x4 quicker.**
+- Improved: **Massive Speed Improvements** for the Adaptive Tree PFM, up too **x20 quicker** for large images.
+- Improved: **Cubic Beziers Rewrite** - the cubic beziers PFM has been re-written and now can create much higher quality curves
+- Improved: Speed Improvements to Sketch PFMs especially up to **x3 quicker** for larger images
+- Improved: Sketch PFMs now use a more accurate erasing method, this results in a slower processing time, but better quality lines.
+- Improved: Exporting files of the same name, will now have automatically incremented names e.g. name_1, name_2 etc.
+- Improved: The pens in the drawing will now be re-distributed when the shapes range slider is adjusted.
+- Improved: PFM Controls now have category headings which can be collapsed, this helps to show the relationship between settings and makes it easier to find them again.
+- Improved: Settings panels can now be dragged and dropped, you can drag them to be on the right hand side of the viewport, or drag them over the viewport to undock them, you can also drag them over each other to swap them.
+- Improved: The user interface layout will now be saved on exit & restored with projects (this can be configured in preferences)
+- Improved: The main settings panel can now be resized horizontally.
+- Improved: When undocked individual settings tabs can be resized horizontally & vertically.
+- Improved: When changing Input Units in the Drawing Area panel, the values will automatically update
+- Improved: New icons and options in the File Menu.
+- Improved: Added Keyboard Shortcuts for common actions
+   - New Project = Ctrl + N
+   - Open Project = Ctrl + O
+   - Save Project = Ctrl + S
+   - Import Image = Ctrl + I
+   - Quick Export = Ctrl + E
+   - Switch Display Modes; Drawing = Image + 1, Drawing = Shift + 2... etc.
+- Fixed: Batch Processing Options not being saved with the project file  
+- Fixed: HPGL Presets not saving pen velocity
+- Fixed: Issue with Adaptive PFMs sometimes creating one-off spots in otherwise consistent areas.
+- Fixed: Open GL Renderer having glitched splits on curve pfms.
+- Fixed: Issue preventing versions being renamed
+- Fixed: Some in-built drawing area presets having the wrong Input Units.
+- Fixed: Default Drawing Sets not reloading
+  
+- Please consider supporting the development of DrawingBotV3 by donating [here](https://drawingbotv3.ollielansdell.co.uk/product/donation/). Thank you!
+
 ### [v1.4.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.2-stable-free)
 - Added: New improved button controls for Image Processing, Pen Settings, Version Control and Mask Settings
 - Added: Support for different Plotting Resolution on individual drawing styles in Layers PFM and Mosaic PFMS  

@@ -114,7 +114,7 @@ class PresetProjectSettingsManagerLegacy {
          */
 
         context.project.getDrawingArea().rescaleMode.set(presetData.optimiseForPrint ? EnumRescaleMode.HIGH_QUALITY : EnumRescaleMode.OFF);
-        context.project.getDrawingArea().targetPenWidth.set(presetData.targetPenWidth); //TODO TEST ME
+        context.project.getDrawingArea().targetPenWidth.set(presetData.targetPenWidth);
 
 
         context.project.blendMode.set(presetData.blendMode);

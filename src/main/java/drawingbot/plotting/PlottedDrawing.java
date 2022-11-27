@@ -11,6 +11,7 @@ import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.MetadataMap;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import org.jetbrains.annotations.Nullable;
 
@@ -421,7 +422,6 @@ public class PlottedDrawing {
     public static void updateEvenDistribution(DistributionSet set, boolean weighted, boolean random){
         updatePenNumbers(set);
 
-        int currentGeometry = 0;
         int totalWeight = 0;
         int[] weights = new int[set.source.drawingSet.pens.size()];
         for(int i = 0; i < set.source.drawingSet.pens.size(); i++){
@@ -435,18 +435,19 @@ public class PlottedDrawing {
 
         int[] renderOrder = set.source.drawingSet.calculateRenderOrder();
 
+        if(set.getGeometryList().isEmpty()){
+            return;
+        }
+
         if(!random){
-            int startIndex = set.getGeometryList().get(0).getGeometryIndex();
-            int endIndex = set.getGeometryList().get(set.getGeometryList().size()-1).getGeometryIndex();
-
-            startIndex = set.plottedDrawing.displayedShapeMin == -1 ? startIndex : Math.max(set.plottedDrawing.displayedShapeMin, startIndex);
-            endIndex = set.plottedDrawing.displayedShapeMax == -1 ? endIndex : Math.min(set.plottedDrawing.displayedShapeMax, endIndex);
-
-            int geometryCount = endIndex-startIndex;
-
-            currentGeometry = startIndex;
-
-            for(int i = 0; i < renderOrder.length; i++){
+            int geometryCount = 0;
+            for(IGeometry geometry : set.getGeometryList()){
+                if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()){ //TODO MAKE THIS A FILTER THING!!
+                    geometryCount ++;
+                }
+            }
+            int currentIndex = 0;
+            order: for(int i = 0; i < renderOrder.length; i++){
                 int penNumber = renderOrder[i];
                 ObservableDrawingPen pen = set.source.drawingSet.getPen(penNumber);
                 if(pen.isEnabled()){
@@ -455,23 +456,21 @@ public class PlottedDrawing {
 
                     //update geometry count
                     int geometriesPerPen = (int)(percentage * geometryCount);
+                    int currentCount = 0;
 
                     //set pen references
-                    int end = i == renderOrder.length-1 ? startIndex + geometryCount : currentGeometry + geometriesPerPen;
-                    for (; currentGeometry < end; currentGeometry++) {
-                        IGeometry geometry = set.getGeometryList().get(currentGeometry);
-                        geometry.setPenIndex(penNumber);
+                    for (; currentIndex < set.getGeometryList().size()-1; currentIndex++) {
+                        IGeometry geometry = set.getGeometryList().get(currentIndex);
+                        if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()) { //TODO MAKE THIS A FILTER THING!!
+                            geometry.setPenIndex(penNumber);
+                            currentCount++;
+                        }else{
+                            geometry.setPenIndex(-1);
+                        }
+                        if(currentCount >= geometriesPerPen && i != renderOrder.length-1){ // if it's the last pen ignore the geometries per pen count;
+                            continue order;
+                        }
                     }
-                }
-            }
-            if(startIndex != 0){
-                for(int i = 0; i < startIndex; i ++){
-                    set.getGeometryList().get(i).setPenIndex(-1);
-                }
-            }
-            if(endIndex != set.getGeometryList().size()-1){
-                for(int i = endIndex; i < set.getGeometryList().size()-1; i ++){
-                    set.getGeometryList().get(i).setPenIndex(-1);
                 }
             }
 
@@ -498,9 +497,11 @@ public class PlottedDrawing {
         for(PlottedGroup group : set.plottedGroups){
             for(IGeometry geometry : group.geometries){
                 int originalIndex = geometry.getPFMPenIndex();
-                ObservableDrawingPen drawingPen = group.originalDrawingSetOrder.get(originalIndex);
-                int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
-                geometry.setPenIndex(currentIndex);
+                if(Utils.within(originalIndex, 0, group.originalDrawingSetOrder.size()-1)){
+                    ObservableDrawingPen drawingPen = group.originalDrawingSetOrder.get(originalIndex);
+                    int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
+                    geometry.setPenIndex(currentIndex);
+                }
             }
         }
 

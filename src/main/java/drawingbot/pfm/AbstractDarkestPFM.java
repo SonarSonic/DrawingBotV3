@@ -5,10 +5,10 @@ import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
 import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.pfm.helpers.*;
-import drawingbot.plotting.PlottingTools;
 import drawingbot.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -25,6 +25,12 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     @Override
     public int getTransparentARGB() {
         return ImageTools.getARGB(0, 255, 255, 255);
+    }
+
+    @Override
+    public void setup() {
+        super.setup();
+        renderPipe.setRescaleMode(tools.getCanvas().getRescaleMode());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,23 +102,26 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
      */
     public static List<int[]> findDarkestPixels(IPixelData pixels){
         List<int[]> points = new ArrayList<>();
-        int luminance = pixels.getLuminance(0,0);
+        findDarkestPixels(pixels, points);
+        return points;
+    }
 
+    public static void findDarkestPixels(IPixelData pixels, Collection<int[]> dst){
+        int luminance = pixels.getLuminance(0,0);
 
         for(int x = 0; x < pixels.getWidth(); x ++){
             for(int y = 0; y < pixels.getHeight(); y ++){
                 int c = pixels.getLuminance(x, y);
                 if(c == luminance) {
-                    points.add(new int[]{x, y});
+                    dst.add(new int[]{x, y, c});
                 }
                 if(c < luminance) {
-                    points.clear();
-                    points.add(new int[]{x, y});
+                    dst.clear();
+                    dst.add(new int[]{x, y, c});
                     luminance = c;
                 }
             }
         }
-        return points;
     }
 
     public static void findNearestDarkestPixel(IPixelData pixels, int srcX, int srcY, int[] dest){
@@ -147,7 +156,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
      */
     public static float findDarkestLine(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
         LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true);
-        runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
+        forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
             luminanceTest.resetSamples();
             bresenham.plotLine(startX, startY, x, y, (xT, yT) -> luminanceTest.addSample(pixels, xT, yT));
         });
@@ -155,73 +164,9 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     }
 
     /**
-     * Finds the darkest line from the given start point, choosing between a naive approach or bresenham circle tests for faster results
-     */
-    public static float findDarkestLineWithVariance(PlottingTools tools, BresenhamHelper bresenham, IPixelData pixels, IPixelData reference, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float lastAngle, float drawingDeltaAngle, boolean shading, float directionality, float distortion, float angularity, int[] darkestDst){
-        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true);
-        VarianceTest varianceTest = new VarianceTest();
-
-        int[] darkestResult = new int[2];
-        float[] samples = new float[]{-1, -1, -1, -1, -1};
-
-
-        runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
-            darkestDst[0] = -1;
-            darkestDst[1] = -1;
-
-            luminanceTest.resetTest();
-            luminanceTest.resetSamples();
-            bresenham.plotLine(startX, startY, x, y, (xT, yT) -> {
-                luminanceTest.addSample(pixels, xT, yT);
-            });
-            if(darkestDst[0] == -1){
-                return;
-            }
-            float luminance = luminanceTest.getDarkestSample();
-
-            float variance = 0;
-            if(directionality > 0){
-                varianceTest.resetTest();
-                bresenham.plotLine(startX, startY, darkestDst[0], darkestDst[1], (xT, yT) -> {
-                    varianceTest.addSample(reference, xT, yT);
-                });
-                variance = varianceTest.getVariance();
-            }
-
-            float noise = 0;
-            if(distortion > 0){
-                noise = tools.randomFloat(0, 255);
-            }
-
-            float angleDiff = 0;
-            if(angularity > 0){
-                float angle = (float) getAngle(startX, startY, darkestDst[0], darkestDst[1]);
-                angleDiff = Math.abs(getAngleDifference(angle, lastAngle))/10F;
-            }
-
-            float sample = luminance + (angleDiff * angularity) + (noise * distortion) + (variance * directionality);
-
-            if(samples[0] == -1 || sample < samples[0]){
-                samples[0] = sample;
-                samples[1] = luminance;
-                samples[2] = angleDiff;
-                samples[3] = noise;
-                samples[4] = variance;
-                darkestResult[0] = darkestDst[0];
-                darkestResult[1] = darkestDst[1];
-            }
-        });
-
-        darkestDst[0] = darkestResult[0];
-        darkestDst[1] = darkestResult[1];
-
-        return samples[1];
-    }
-
-    /**
      * Returns the end coordinates of each line test
      */
-    public static void runDarkestTest(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
+    public static void forAvailableEndPoints(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
         if(drawingDeltaAngle == 360 && !shading && (maxTests == -1 || bresenham.getBresenhamCircleSize(maxLength) <= maxTests)){
             bresenham.plotCircle(startX, startY, maxLength, (x1, y1) -> processSafePixels(bresenham, pixels, startX, startY, x1, y1, safe, consumer));
         }else{

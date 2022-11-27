@@ -132,7 +132,7 @@ public interface IPlottingTools {
 
     float findDarkestLine(IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst);
 
-    void runDarkestTest(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer);
+    void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer);
 
     ////////////////////////////////////////////////////////
 
@@ -185,6 +185,8 @@ public interface IPlottingTools {
     void setCurrentPen(IDrawingPen drawingPen);
 
     void setCurrentPen(int penNumber);
+
+    int getBestPen(int x, int y);
 
     ////////////////////////////////////////////////////////
 

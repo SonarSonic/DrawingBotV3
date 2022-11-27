@@ -116,7 +116,8 @@ public class PremiumPluginDummy implements IPlugin {
     }
 
     public Object[] disableOpenGL(Object...values) {
-        DrawingBotV3.INSTANCE.controller.choiceBoxDisplayMode.valueProperty().addListener((observable, oldValue, newValue) -> {
+        FXController controller = (FXController) values[0];
+        controller.choiceBoxDisplayMode.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null && newValue.getRenderer() != null && !newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled){
                 FXController.showPremiumFeatureDialog();
                 Platform.runLater(() -> DrawingBotV3.project().displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));

@@ -90,6 +90,32 @@
           "Shading": "true"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "Light Wiggle",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Curve Offset B": "20",
+          "Curve Offset A": "-20"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "Wiggle",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Curve Offset B": "50",
+          "Curve Offset A": "-50"
+        }
+      }
     }
   ]
 }

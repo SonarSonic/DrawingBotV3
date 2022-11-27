@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 
-public class PFMSketchSquares extends AbstractSketchPFM {
+public class PFMSketchSquaresBasic extends AbstractSketchPFM {
 
     public float startAngle;
 

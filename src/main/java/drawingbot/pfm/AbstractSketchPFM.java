@@ -3,6 +3,7 @@ package drawingbot.pfm;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.image.PixelTargetCache;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
 
@@ -27,10 +28,6 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public boolean shouldLiftPen;
     public boolean shouldDrawMoves;
 
-    public float directionality;
-    public float distortion;
-    public float angularity;
-
     //process specific
     public double initialLuminance;
 
@@ -43,6 +40,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public PixelTargetCache targetCache;
 
     @Override
     public void setup() {
@@ -58,6 +56,8 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             squiggleMaxLength = value;
         }
         initialLuminance = this.tools.getPixelData().getAverageLuminance();
+        targetCache = new PixelTargetCache(tools.getPixelData());
+        findDarkestMethod = (pixelData, dst) -> targetCache.updateNextDarkestPixel(dst);
     }
 
 

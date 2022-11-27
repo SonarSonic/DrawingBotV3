@@ -4,6 +4,8 @@ import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.PixelDataComposite;
 import drawingbot.image.PixelDataGraphicsComposite;
+import drawingbot.utils.EnumRescaleMode;
+import drawingbot.utils.Utils;
 
 import java.awt.*;
 
@@ -14,7 +16,12 @@ public class PFMRenderPipe {
 
     private BasicStroke defaultStroke = null;
     private Color defaultColor = null;
-    public BresenhamHelper bresenhamHelper = null;
+    public BresenhamHelper bresenhamHelper = new BresenhamHelper();
+    public EnumRescaleMode rescaleMode = EnumRescaleMode.HIGH_QUALITY;
+
+    public void setRescaleMode(EnumRescaleMode rescaleMode) {
+        this.rescaleMode = rescaleMode;
+    }
 
     public BasicStroke getDefaultStroke(float lineWidth){
         if(defaultStroke == null || defaultStroke.getLineWidth() != lineWidth){

@@ -8,7 +8,7 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox fx:id="vBoxMain" prefHeight="848.0" prefWidth="1124.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXController">
+<VBox fx:id="vBoxMain" prefHeight="848.0" prefWidth="1124.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXController">
    <stylesheets>
       <URL value="@default-styles.css" />
    </stylesheets>
@@ -26,9 +26,9 @@
          <items>
             <VBox fx:id="vBoxLeftContainer" HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
                <children>
-                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox fx:id="vBoxSettingsLeft" prefWidth="404.0">
+                        <VBox fx:id="vBoxSettingsLeft" prefWidth="430.0">
                            <children>
                               <TitledPane fx:id="titledPaneDrawingArea" expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
                                    <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />
@@ -63,7 +63,7 @@
                   </Pane>
                </children>
             </VBox>
-            <VBox fx:id="vBoxViewportContainer" HBox.hgrow="ALWAYS">
+            <VBox fx:id="vBoxViewportContainer" prefWidth="945.0" HBox.hgrow="ALWAYS">
                <children>
                   <ToolBar prefHeight="40.0">
                      <items>
@@ -142,7 +142,7 @@
                <children>
                   <ScrollPane fx:id="scrollPaneSettingsRight" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="0.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox fx:id="vBoxSettingsRight" prefWidth="404.0" />
+                        <VBox fx:id="vBoxSettingsRight" prefWidth="430.0" />
                      </content>
                   </ScrollPane>
                </children>

@@ -2,7 +2,7 @@ package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
 
-public class PFMSketchLines extends AbstractSketchPFM {
+public class PFMSketchLinesBasic extends AbstractSketchPFM {
 
     public int startAngleMin;
     public int startAngleMax;
@@ -20,13 +20,7 @@ public class PFMSketchLines extends AbstractSketchPFM {
         float startAngle = tools.randomFloat(startAngleMin, startAngleMax) + 0.5F;
         int nextLineLength = tools.randomInt(minLineLength, maxLineLength);
 
-        float lastAngle = startAngle;
-
-        if(lastPoint[0] != -1 && current[0] != -1){
-            lastAngle = (float) getAngle(lastPoint[0], lastPoint[1], current[0], current[0]);
-        }
-
-        return AbstractDarkestPFM.findDarkestLineWithVariance(tools, tools.bresenham, pixels, tools.getReferencePixelData(), current[0], current[1], minLineLength, nextLineLength, unlimitedTests ? -1 : lineTests, startAngle, lastAngle, deltaAngle, shading, directionality, distortion, angularity, darkestDst);
+        return tools.findDarkestLine(pixels, current[0], current[1], minLineLength, nextLineLength, unlimitedTests ? -1 : lineTests, startAngle, deltaAngle, shading, darkestDst);
     }
 
 }

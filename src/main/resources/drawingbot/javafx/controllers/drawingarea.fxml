@@ -4,9 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="327.0" prefWidth="404.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
-<children>
-    <VBox prefHeight="325.0" prefWidth="430.0" spacing="8.0">
+<VBox prefHeight="327.0" prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
+
         <children>
             <HBox spacing="4.0">
                 <children>
@@ -31,7 +30,7 @@
                     <Insets left="10.0" />
                 </padding>
             </HBox>
-            <Pane fx:id="paneDrawingAreaCustom" prefWidth="390.0">
+            <Pane fx:id="paneDrawingAreaCustom">
                 <children>
                     <VBox layoutX="5.0" layoutY="-1.0" prefWidth="384.0" spacing="8.0">
                         <children>
@@ -86,7 +85,7 @@
                     <Insets left="4.0" top="10.0" />
                 </VBox.margin>
             </Pane>
-            <Pane fx:id="paneDrawingAreaCustom1" prefWidth="394.0">
+            <Pane fx:id="paneDrawingAreaCustom1">
                 <children>
                     <VBox layoutX="5.0" layoutY="-1.0" prefWidth="384.0" spacing="8.0">
                         <children>
@@ -115,8 +114,6 @@
             </Pane>
         </children>
         <padding>
-            <Insets bottom="10.0" left="8.0" right="20.0" top="10.0" />
+            <Insets bottom="10.0" left="8.0" right="8.0" top="10.0" />
         </padding>
     </VBox>
-</children>
-</AnchorPane>

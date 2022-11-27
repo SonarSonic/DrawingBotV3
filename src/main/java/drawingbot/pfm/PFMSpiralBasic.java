@@ -8,7 +8,7 @@ import drawingbot.utils.Utils;
 import java.awt.geom.Point2D;
 
 /**https://github.com/krummrey/SpiralFromImage*/
-public class PFMSpiral extends AbstractPFMImage {
+public class PFMSpiralBasic extends AbstractPFMImage {
 
     public float distBetweenRings = 7;                  // Distance between rings
     public float density = 75;                          // Density
@@ -27,7 +27,7 @@ public class PFMSpiral extends AbstractPFMImage {
     public double centreXScale = 0.5;
     public double centreYScale = 0.5;
     public double fillPercentage = 1.0;
-
+    public boolean connected = true;
 
     @Override
     public IPixelData createPixelData(int width, int height) {
@@ -37,6 +37,13 @@ public class PFMSpiral extends AbstractPFMImage {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void run() {
+        //adjust for HQ mode
+        if(tools.getCanvas().getRescaleMode().isHighQuality()){
+            distBetweenRings = distBetweenRings * (tools.getCanvas().getTargetPenWidth());
+            density = density * (tools.getCanvas().getTargetPenWidth());
+            ampScale = ampScale * (tools.getCanvas().getTargetPenWidth());
+            mask = (int) (mask * (tools.getCanvas().getTargetPenWidth()));
+        }
         radius = distBetweenRings / 2;
         k = density / radius;
         alpha = k;
@@ -60,6 +67,7 @@ public class PFMSpiral extends AbstractPFMImage {
         xb = 0;
         ya = 0;
         yb = 0;
+        float lastX = -1; float lastY = -1;
 
         // Have we reached the far corner of the image?
         boolean draw;
@@ -94,21 +102,36 @@ public class PFMSpiral extends AbstractPFMImage {
                 // If the sampled color is the mask color do not write to the shape
                 if (mask <= b) {
                     draw = false;
+                    lastX = -1;
+                    lastY = -1;
                 } else {
                     draw = true;
                 }
             } else {
                 // We are outside of the image
                 draw = false;
+                lastX = -1;
+                lastY = -1;
             }
 
             if(draw){
-                tools.addGeometry(new GLine(xa, ya, xb, yb), -1, -1);
+                int penIndex = getPenIndex(x, y);
+                if(connected && lastX != -1 && lastY != -1){
+                    tools.addGeometry(new GLine(lastX, lastY, xa, ya), penIndex, -1);
+                }
+                tools.addGeometry(new GLine(xa, ya, xb, yb), penIndex, -1);
+
+                lastX = xb;
+                lastY = yb;
             }
 
             float startRadius = distBetweenRings / 2;
             tools.updateProgress(radius-startRadius, endRadius-startRadius);
         }
+    }
+
+    public int getPenIndex(float x, float y){
+        return -1;
     }
 
 }

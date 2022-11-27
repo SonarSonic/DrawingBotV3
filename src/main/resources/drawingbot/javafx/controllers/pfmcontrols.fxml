@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefWidth="430.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
+<VBox prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
       <children>
           <Label contentDisplay="RIGHT" graphicTextGap="8.0" prefHeight="25.0" prefWidth="403.0" text="Path Finding Module: ">
               <graphic>
@@ -27,15 +27,15 @@
                 <MenuButton fx:id="menuButtonPFMPresets" mnemonicParsing="false" text="Presets" />
             </children>
          </HBox>
-      <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+      <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" prefWidth="311.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
         <columns>
-          <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="161.0" text="Setting" />
-          <TreeTableColumn fx:id="treeTableColumnControl" minWidth="0.0" prefWidth="152.0" text="Control" />
-            <TreeTableColumn fx:id="treeTableColumnValue" minWidth="0.0" prefWidth="87.0" text="Value" />
-            <TreeTableColumn fx:id="treeTableColumnLock" minWidth="1.0" prefWidth="25.0" text="Randomise Exclude" />
+          <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="144.0" text="Setting" />
+          <TreeTableColumn fx:id="treeTableColumnControl" minWidth="0.0" prefWidth="139.0" text="Control" />
+            <TreeTableColumn fx:id="treeTableColumnValue" minWidth="0.0" prefWidth="96.0" text="Value" />
+            <TreeTableColumn fx:id="treeTableColumnLock" minWidth="1.0" prefWidth="14.0" text="Randomise Exclude" />
         </columns>
       </TreeTableView>
-         <HBox prefHeight="25.0" spacing="8.0">
+         <HBox alignment="CENTER" prefHeight="25.0" spacing="8.0">
             <children>
                 <Button fx:id="buttonPFMSettingReset" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
                 <Button fx:id="buttonPFMSettingRandom" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
@@ -50,6 +50,6 @@
          </HBox>
       </children>
       <padding>
-         <Insets bottom="10.0" left="8.0" right="30.0" top="10.0" />
+         <Insets bottom="10.0" left="8.0" right="8.0" top="10.0" />
       </padding>
 </VBox>

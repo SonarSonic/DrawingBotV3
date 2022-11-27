@@ -115,6 +115,10 @@ public class PFMTaskImage extends PFMTask {
         pixelDataPlotting = null;
     }
 
+    public int getBestPen(int x, int y){
+        return 0;
+    }
+
     public File getImageFile(){
         return imageData.getSourceFile();
     }

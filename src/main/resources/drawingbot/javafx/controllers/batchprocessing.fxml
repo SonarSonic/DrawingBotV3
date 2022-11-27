@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="vboxBatchProcessing" prefHeight="440.0" prefWidth="430.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
+<VBox fx:id="vboxBatchProcessing" prefHeight="440.0" prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
    <HBox alignment="CENTER">
       <children>
           <Button fx:id="buttonSelectInputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
@@ -27,8 +27,8 @@
         <columns>
             <TableColumn fx:id="tableColumnFileFormat" prefWidth="174.0" text="File Format" />
             <TableColumn fx:id="tableColumnPerDrawing" minWidth="3.000030517578125" text="per/drawing" />
-            <TableColumn fx:id="tableColumnPerPen" minWidth="3.000030517578125" text="per/pen" />
-            <TableColumn fx:id="tableColumnPerGroup" minWidth="3.000030517578125" text="per/group" />
+            <TableColumn fx:id="tableColumnPerPen" minWidth="3.000030517578125" prefWidth="65.0" text="per/pen" />
+            <TableColumn fx:id="tableColumnPerGroup" minWidth="3.000030517578125" prefWidth="72.0" text="per/group" />
         </columns>
     </TableView>
     <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="344.0" prefHeight="24.0" prefWidth="142.0" text="Overwrite Existing Files">
@@ -43,6 +43,6 @@
       </children>
    </HBox>
    <padding>
-      <Insets bottom="10.0" left="8.0" right="30.0" top="10.0" />
+      <Insets bottom="10.0" left="8.0" right="10.0" top="10.0" />
    </padding>
 </VBox>

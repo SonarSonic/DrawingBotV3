@@ -327,8 +327,8 @@ public class PlottingTools implements IPlottingTools {
     }
 
     @Override
-    public void runDarkestTest(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer) {
-        AbstractDarkestPFM.runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, safe, consumer);
+    public void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer) {
+        AbstractDarkestPFM.forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, safe, consumer);
     }
 
     ////////////////////////////////////////////////////////
@@ -465,6 +465,14 @@ public class PlottingTools implements IPlottingTools {
     @Override
     public void setCurrentPen(int penNumber){
         currentPen = penNumber;
+    }
+
+    @Override
+    public int getBestPen(int x, int y) {
+        if(!(pfmTask instanceof PFMTaskImage)){
+            return 0;
+        }
+        return ((PFMTaskImage) pfmTask).getBestPen(x, y);
     }
 
     ////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.glyphfont.*?>
 
-<VBox prefWidth="430.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXVersionControl">
+<VBox prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXVersionControl">
 <children>
     <TableView fx:id="tableViewVersions" editable="true" layoutX="8.0" layoutY="8.0" prefHeight="349.0" prefWidth="386.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
         <columns>
@@ -54,6 +54,6 @@
     </HBox>
 </children>
    <padding>
-      <Insets bottom="10.0" left="8.0" right="30.0" top="10.0" />
+      <Insets bottom="10.0" left="8.0" right="8.0" top="10.0" />
    </padding>
 </VBox>
