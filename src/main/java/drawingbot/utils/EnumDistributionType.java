@@ -1,6 +1,7 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.DistributionSet;
@@ -28,7 +29,11 @@ public enum EnumDistributionType {
     }
 
     public static EnumDistributionType getRecommendedType(){
-        return getRecommendedType(DrawingBotV3.INSTANCE.drawingSets.activeDrawingSet.get(), DrawingBotV3.INSTANCE.pfmSettings.factory.get());
+        return getRecommendedType(DrawingBotV3.context());
+    }
+
+    public static EnumDistributionType getRecommendedType(DBTaskContext context){
+        return getRecommendedType(context.project.getDrawingSets().getActiveDrawingSet(), context.project.getPFMSettings().getPFMFactory());
     }
 
     public static EnumDistributionType getRecommendedType(ObservableDrawingSet drawingSet, PFMFactory<?> factory){

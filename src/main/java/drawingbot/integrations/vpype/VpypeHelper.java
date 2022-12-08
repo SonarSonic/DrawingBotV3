@@ -21,7 +21,7 @@ public class VpypeHelper {
 
     public static void exportToVpype(VpypeSettings settings){
         Platform.runLater(() -> {
-            PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
             if(drawing!= null){
 
                 String userCommand = settings.vPypeCommand.getValue();
@@ -48,7 +48,7 @@ public class VpypeHelper {
         d.setInitialDirectory(settings.vPypeExecutable.getValue().isEmpty() ? FileUtils.getImportDirectory() : new File(settings.vPypeExecutable.getValue()).getParentFile());
         File file = d.showOpenDialog(null);
         if(file != null){
-            settings.vPypeExecutable.set(file.getPath());
+            settings.vPypeExecutable.setValue(file.getPath());
         }
     }
 

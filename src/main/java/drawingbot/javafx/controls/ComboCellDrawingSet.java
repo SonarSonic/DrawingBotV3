@@ -1,8 +1,13 @@
 package drawingbot.javafx.controls;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.observables.ObservableDrawingSet;
+import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -11,6 +16,10 @@ import javafx.scene.shape.Rectangle;
 import java.util.List;
 
 public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListCell<S> {
+
+    private ObservableDrawingSet currentDrawingSet = null;
+    private final InvalidationListener graphicListener = observable -> setGraphic(createStaticPenPalette(currentDrawingSet.getPens()));
+    private final InvalidationListener textListener = observable -> setText("  " + currentDrawingSet.getName());
 
     public ComboCellDrawingSet() {
         super();
@@ -21,16 +30,26 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
     public void updateItem(S item, boolean empty) {
         super.updateItem(item, empty);
 
+        if(currentDrawingSet != null){
+            currentDrawingSet.pens.removeListener(graphicListener);
+            currentDrawingSet.name.removeListener(textListener);
+            currentDrawingSet = null;
+        }
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
         } else {
             setText("  " + item.toString());
-            setGraphic(createPenPalette(item.getPens()));
+            setGraphic(createStaticPenPalette(item.getPens()));
+            if(item instanceof ObservableDrawingSet){
+                currentDrawingSet = (ObservableDrawingSet) item;
+                currentDrawingSet.name.addListener(textListener);
+                setGraphic(new ControlPenPalette(currentDrawingSet.pens));
+            }
         }
     }
 
-    public static HBox createPenPalette(List<? extends IDrawingPen> drawingPens){
+    public static HBox createStaticPenPalette(List<? extends IDrawingPen> drawingPens){
         HBox box = new HBox();
         int minColourWidth = 2;
         int maxColourWidth = 20;

@@ -10,6 +10,9 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import drawingbot.utils.MetadataMap;
+import drawingbot.utils.Utils;
+import javafx.application.Platform;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -17,6 +20,7 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 public class PlottedDrawing {
 
@@ -25,7 +29,7 @@ public class PlottedDrawing {
 
     public final List<IGeometry> geometries;
     public final Map<Integer, PlottedGroup> groups;
-    public Map<Metadata<?>, Object> metadataMap;
+    public MetadataMap metadata;
 
     public long vertexCount;
     public int displayedShapeMin = -1;
@@ -41,14 +45,14 @@ public class PlottedDrawing {
         this.drawingSets = drawingSets;
         this.geometries = Collections.synchronizedList(new ArrayList<>());
         this.groups = new ConcurrentHashMap<>();
-        this.metadataMap = new ConcurrentHashMap<>();
+        this.metadata = new MetadataMap(new ConcurrentHashMap<>());
     }
 
     /**
      * Copies the base groups of the plotted drawing only
      */
     public void copyBase(PlottedDrawing reference){
-        metadataMap = new ConcurrentHashMap<>(reference.metadataMap);
+        metadata = new MetadataMap(new ConcurrentHashMap<>(reference.metadata.data));
         for(PlottedGroup group : reference.groups.values()){
             PlottedGroup newGroup = new PlottedGroup(group);
             addPlottedGroup(newGroup);
@@ -82,18 +86,11 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public <T> void setMetadata(Metadata<T> metadata, T value){
-        metadataMap.put(metadata, value);
+        this.metadata.setMetadata(metadata, value);
     }
 
     public <T> T getMetadata(Metadata<T> metadata){
-        Object obj = metadataMap.get(metadata);
-        if(obj == null){
-            return null;
-        }
-        if(!metadata.type.isInstance(obj)){
-            return null;
-        }
-        return metadata.type.cast(obj);
+        return this.metadata.getMetadata(metadata);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,11 +191,11 @@ public class PlottedDrawing {
     /**
      * This is a destructive action and invalidates the provided plotted group
      */
-    public void mergePlottedGroup(PlottedGroup plottedGroup, boolean simplify, boolean forExport){
+    public void mergePlottedGroup(PlottedGroup plottedGroup, boolean simplify, boolean forExport, BiConsumer<IGeometry, PlottedGroup> consumer){
         if(simplify){
             for(PlottedGroup group : groups.values()){
                 if(group.canMerge(plottedGroup, forExport)){
-                    plottedGroup.geometries.forEach(g -> addGeometry(g, group));
+                    plottedGroup.geometries.forEach(g -> consumer.accept(g, group));
                     return;
                 }
             }
@@ -208,15 +205,27 @@ public class PlottedDrawing {
         newGroup.groupID = getNextGroupID();
         addPlottedGroup(newGroup);
         for(IGeometry geometry : plottedGroup.geometries){
-            addGeometry(geometry, newGroup);
+            consumer.accept(geometry, newGroup);
         }
+    }
+
+
+    public void mergePlottedDrawingClipped(PlottedDrawing drawing, boolean simplify, boolean forExport, PlottingTools tools){
+        mergePlottedDrawing(drawing, simplify, forExport, (geometry, group) -> {
+            tools.currentGroup = group;
+            tools.addGeometry(geometry);
+        });
+    }
+
+    public void mergePlottedDrawingDefault(PlottedDrawing drawing, boolean simplify, boolean forExport){
+        mergePlottedDrawing(drawing, simplify, forExport, this::addGeometry);
     }
 
     /**
      * This is a destructive action and invalidates the provided plotted drawing and all of its plotted groups
      */
-    public void mergePlottedDrawing(PlottedDrawing drawing, boolean simplify, boolean forExport){
-        drawing.groups.values().forEach(g -> mergePlottedGroup(g, simplify, forExport));
+    public void mergePlottedDrawing(PlottedDrawing drawing, boolean simplify, boolean forExport, BiConsumer<IGeometry, PlottedGroup> consumer){
+        drawing.groups.values().forEach(g -> mergePlottedGroup(g, simplify, forExport, consumer));
     }
 
     public void addGeometryToGroups(IGeometry geometry){
@@ -275,7 +284,7 @@ public class PlottedDrawing {
                 });
             }
 
-            updatePerPenGeometryStats(this, getPerPenGeometryStats(this));
+            Platform.runLater(() -> updatePerPenGeometryStats(this, getPerPenGeometryStats(this)));
         }
     }
 
@@ -380,7 +389,7 @@ public class PlottedDrawing {
 
         //tally all the geometries per group / per pen
         for(IGeometry geometry : plottedDrawing.geometries){
-            if(geometry.getPenIndex() >= 0){
+            if(geometry.getPenIndex() >= 0 && geometry.getGeometryIndex() >= plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= plottedDrawing.getDisplayedShapeMax()){
                 Map<Integer, Integer> stats = perGroupStats.get(plottedDrawing.getPlottedGroup(geometry.getGroupID()));
                 if(stats != null){
                     stats.putIfAbsent(geometry.getPenIndex(), 0);
@@ -413,7 +422,6 @@ public class PlottedDrawing {
     public static void updateEvenDistribution(DistributionSet set, boolean weighted, boolean random){
         updatePenNumbers(set);
 
-        int currentGeometry = 0;
         int totalWeight = 0;
         int[] weights = new int[set.source.drawingSet.pens.size()];
         for(int i = 0; i < set.source.drawingSet.pens.size(); i++){
@@ -427,25 +435,45 @@ public class PlottedDrawing {
 
         int[] renderOrder = set.source.drawingSet.calculateRenderOrder();
 
+        if(set.getGeometryList().isEmpty()){
+            return;
+        }
+
         if(!random){
-            for(int i = 0; i < renderOrder.length; i++){
+            int geometryCount = 0;
+            for(IGeometry geometry : set.getGeometryList()){
+                if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()){ //TODO MAKE THIS A FILTER THING!!
+                    geometryCount ++;
+                }
+            }
+            int currentIndex = 0;
+            order: for(int i = 0; i < renderOrder.length; i++){
                 int penNumber = renderOrder[i];
                 ObservableDrawingPen pen = set.source.drawingSet.getPen(penNumber);
                 if(pen.isEnabled()){
-
                     //update percentage
                     float percentage = (weighted ? (float)pen.distributionWeight.get() : 100) / totalWeight;
+
                     //update geometry count
-                    int geometriesPerPen = (int)(percentage * set.getGeometryCount());
+                    int geometriesPerPen = (int)(percentage * geometryCount);
+                    int currentCount = 0;
 
                     //set pen references
-                    int end = i == renderOrder.length-1 ? set.getGeometryCount() : currentGeometry + geometriesPerPen;
-                    for (; currentGeometry < end; currentGeometry++) {
-                        IGeometry geometry = set.getGeometryList().get(currentGeometry);
-                        geometry.setPenIndex(penNumber);
+                    for (; currentIndex < set.getGeometryList().size()-1; currentIndex++) {
+                        IGeometry geometry = set.getGeometryList().get(currentIndex);
+                        if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()) { //TODO MAKE THIS A FILTER THING!!
+                            geometry.setPenIndex(penNumber);
+                            currentCount++;
+                        }else{
+                            geometry.setPenIndex(-1);
+                        }
+                        if(currentCount >= geometriesPerPen && i != renderOrder.length-1){ // if it's the last pen ignore the geometries per pen count;
+                            continue order;
+                        }
                     }
                 }
             }
+
         }else{
             Random rand = new Random(0);
 
@@ -469,9 +497,11 @@ public class PlottedDrawing {
         for(PlottedGroup group : set.plottedGroups){
             for(IGeometry geometry : group.geometries){
                 int originalIndex = geometry.getPFMPenIndex();
-                ObservableDrawingPen drawingPen = group.originalDrawingSetOrder.get(originalIndex);
-                int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
-                geometry.setPenIndex(currentIndex);
+                if(Utils.within(originalIndex, 0, group.originalDrawingSetOrder.size()-1)){
+                    ObservableDrawingPen drawingPen = group.originalDrawingSetOrder.get(originalIndex);
+                    int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
+                    geometry.setPenIndex(currentIndex);
+                }
             }
         }
 

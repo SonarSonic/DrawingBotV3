@@ -1,10 +1,11 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.Register;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxListCell;
 
@@ -16,10 +17,9 @@ public class FXVPypeController {
 
     public void initialize(){
         initVPypeSettingsPane();
-
-        DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.setOnHidden(e -> ConfigFileHandler.getApplicationSettings().markDirty());
     }
 
+    public final SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset = new SimpleObjectProperty<>();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     ////VPYPE OPTIMISATION
@@ -37,26 +37,17 @@ public class FXVPypeController {
 
 
     public void initVPypeSettingsPane(){
-
-        comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
-        comboBoxVPypePreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+        selectedVPypePreset.setValue(Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
+        selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(newValue);
-                if(!ConfigFileHandler.getApplicationSettings().vPypePresetName.equals(newValue.presetName)){
-                    ConfigFileHandler.getApplicationSettings().vPypePresetName = newValue.presetName;
-                    ConfigFileHandler.getApplicationSettings().markDirty();
-                }
+                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
-        comboBoxVPypePreset.setValue(PresetVpypeSettingsLoader.getPresetOrDefault(ConfigFileHandler.getApplicationSettings().vPypePresetName));
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, menuButtonVPypePresets, false, comboBoxVPypePreset::getValue, (preset) -> {
-            comboBoxVPypePreset.setValue(preset);
+        comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
+        comboBoxVPypePreset.valueProperty().bindBidirectional(selectedVPypePreset);
 
-            ///force update rendering
-            comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
-            comboBoxVPypePreset.setButtonCell(new ComboBoxListCell<>());
-        });
+        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, false, selectedVPypePreset);
 
         textAreaVPypeCommand.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeCommand);
 
@@ -65,13 +56,6 @@ public class FXVPypeController {
         checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeBypassOptimisation);
 
         textBoxVPypeExecutablePath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable);
-        textBoxVPypeExecutablePath.setText(ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable);
-        textBoxVPypeExecutablePath.textProperty().addListener((observable, oldValue, newValue) -> {
-            ConfigFileHandler.getApplicationSettings().pathToVPypeExecutable = textBoxVPypeExecutablePath.getText();
-            ConfigFileHandler.getApplicationSettings().markDirty();
-        });
-
-
         buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable(DrawingBotV3.INSTANCE.vpypeSettings));
 
         buttonCancel.setOnAction(e -> DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.hide());

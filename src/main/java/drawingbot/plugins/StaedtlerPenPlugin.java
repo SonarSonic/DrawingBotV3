@@ -39,6 +39,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         registerPenWithCode("3", new DrawingPen("Staedtler Fineliner", "3 Blue", ImageTools.getARGB(255, 0, 69, 159)));
         registerPenWithCode("30", new DrawingPen("Staedtler Fineliner", "30 Pale Blue", ImageTools.getARGB(255, 0, 153, 206)));
         registerPenWithCode("301", new DrawingPen("Staedtler Fineliner", "301 Neon Blue", ImageTools.getARGB(255, 0, 188, 251)));
+        registerPenWithCode("305", new DrawingPen("Staedtler Fineliner", "305 Sky Blue", ImageTools.getARGB(255, 146, 206, 230)));
         registerPenWithCode("32", new DrawingPen("Staedtler Fineliner", "32 Azur", ImageTools.getARGB(255, 191, 224, 236)));
         registerPenWithCode("34", new DrawingPen("Staedtler Fineliner", "34 Aqua Blue", ImageTools.getARGB(255, 140, 203, 234)));
         registerPenWithCode("36", new DrawingPen("Staedtler Fineliner", "36 Indigo Blue", ImageTools.getARGB(255, 55, 71, 102)));
@@ -66,7 +67,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         registerPenWithCode("6", new DrawingPen("Staedtler Fineliner", "6 Violet", ImageTools.getARGB(255, 94, 51, 106)));
         registerPenWithCode("61", new DrawingPen("Staedtler Fineliner", "61 Red Violet", ImageTools.getARGB(255, 181, 6, 129)));
         registerPenWithCode("62", new DrawingPen("Staedtler Fineliner", "62 Lavender", ImageTools.getARGB(255, 192, 139, 209)));
-        registerPenWithCode("63", new DrawingPen("Staedtler Fineliner", "63 Delft Blue", ImageTools.getARGB(255, 188, 74, 33)));
+        registerPenWithCode("63", new DrawingPen("Staedtler Fineliner", "63 Delft Blue", ImageTools.getARGB(255, 116, 161, 203)));
         registerPenWithCode("68", new DrawingPen("Staedtler Fineliner", "68 Lilac", ImageTools.getARGB(255, 132, 98, 152)));
         registerPenWithCode("69", new DrawingPen("Staedtler Fineliner", "69 Dark Mauve", ImageTools.getARGB(255, 70, 48, 99)));
 
@@ -80,7 +81,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         registerPenWithCode("82", new DrawingPen("Staedtler Fineliner", "82 Light Grey", ImageTools.getARGB(255, 176, 180, 185)));
         registerPenWithCode("83", new DrawingPen("Staedtler Fineliner", "83 Warm Grey", ImageTools.getARGB(255, 108, 129, 124)));
         registerPenWithCode("85", new DrawingPen("Staedtler Fineliner", "85 Dove Grey", ImageTools.getARGB(255, 131, 133, 137)));
-        registerPenWithCode("86", new DrawingPen("Staedtler Fineliner", "85 Stone Grey", ImageTools.getARGB(255, 165, 161, 160)));
+        registerPenWithCode("86", new DrawingPen("Staedtler Fineliner", "86 Stone Grey", ImageTools.getARGB(255, 165, 161, 160)));
 
         registerPenWithCode("9", new DrawingPen("Staedtler Fineliner", "9 Black", ImageTools.getARGB(255, 1, 1, 1)));
 
@@ -94,7 +95,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Galaxy - 6 x Pen Set", getDrawingPensFromCodes(10, 30, 36, 54, 6, 61)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Dino - 6 x Pen Set", getDrawingPensFromCodes(10, 24, 36, 38, 54, 550)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Flamingo - 6 x Pen Set", getDrawingPensFromCodes(61, 20, 6, 23, 222, 21)));
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Hygge - 6 x Pen Set", getDrawingPensFromCodes(14, 26, 305, 36, 59, 82)));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Hygge - 6 x Pen Set", getDrawingPensFromCodes(260, 305, 430, 62, 63, 82)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 3 x Pen Set", getDrawingPensFromCodes(2, 3, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 4 x Pen Set", getDrawingPensFromCodes(2, 3, 5, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 10 x Pen Set", getDrawingPensFromCodes(1, 2, 20, 3, 34, 4, 5, 51, 76, 9)));
@@ -103,7 +104,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 20 x Pen Set", getDrawingPensFromCodes(1, 2, 20, 23, 3, 30, 34, 37, 4, 5, 51, 54, 57, 6, 61, 7, 76, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 24 x Pen Set", getDrawingPensFromCodes(1, 2, 20, 21, 23, 260, 29, 3, 30, 34, 37, 4, 43, 5, 51, 53, 54, 55, 57, 6, 61, 62, 63, 69, 7, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 30 x Pen Set", getDrawingPensFromCodes(1, 10, 16, 2, 20, 21, 222, 24, 29, 3, 30, 34, 36, 37, 38, 4, 43, 430, 51, 52, 53, 54, 550, 6, 61, 73, 76, 8, 82, 9)));
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 36 x Pen Set", getDrawingPensFromCodes(1, 101, 2, 20, 201, 21, 221, 222, 23, 260, 29, 3, 30, 301, 34, 37, 4, 401, 43, 5, 501, 51, 53, 54, 55, 57, 6, 61, 62, 63, 69, 7, 76, 77, 8, 82, 9)));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 36 x Pen Set", getDrawingPensFromCodes(1, 101, 2, 20, 201, 21, 221, 23, 260, 29, 3, 30, 301, 34, 37, 4, 401, 43, 5, 501, 51, 53, 54, 55, 57, 6, 61, 62, 63, 69, 7, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 40 x Pen Set", getDrawingPensFromCodes(1, 101, 110, 2, 20, 201, 21, 221, 222, 23, 24, 260, 29, 3, 30, 301, 34, 36, 37, 4, 401, 5, 501, 51, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 42 x Pen Set", getDrawingPensFromCodes(1, 101, 110, 2, 20, 201, 21, 221, 222, 23, 260, 29, 3, 30, 301, 34, 36, 37, 4, 401, 43, 48, 5, 501, 51, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 50 x Pen Set", getDrawingPensFromCodes(1, 10, 101, 110, 16, 2, 20 ,201, 21, 221, 222, 23, 24, 260, 29, 3, 30, 301, 34, 36, 37, 38, 4, 401, 43, 430, 48, 5, 501, 51, 52, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));

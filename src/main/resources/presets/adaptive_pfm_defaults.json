@@ -8,23 +8,24 @@
       "userCreated": false,
       "data": {
         "settingList": {
-          "Angular Velocity": "1.0",
-          "Max Radius": "18.0",
-          "Min Velocity": "0.2",
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "1.5",
+          "Max Radius": "20.0",
+          "Min Velocity": "3.0",
           "Ignore White": "false",
           "Merge TSP Paths": "true",
-          "Min Radius": "2.0",
+          "Min Radius": "1.5",
           "Edge Threshold": "250.0",
-          "Azimuth Angle Min": "-45.0",
+          "Azimuth Angle Min": "0.0",
           "Polar Angle Min": "0.0",
-          "Stipple Min Radius": "1.0",
-          "Use Accurate TSP": "false",
-          "Polar Angle Max": "45.0",
+          "Stipple Min Radius": "0.5",
+          "Polar Angle Max": "0.0",
           "Edge Retention": "true",
-          "Stipple Max Radius": "10.0",
+          "Stipple Max Radius": "25.0",
           "Azimuth Angle Max": "0.0",
-          "Curve Tension": "1.0",
-          "Max Velocity": "4.0"
+          "Curve Tension": "0.5",
+          "Max Velocity": "6.0",
+          "Random Seed": "0"
         }
       }
     },
@@ -55,7 +56,7 @@
           "Plotting Resolution": "1.0",
           "Stipple Max Radius": "15.0",
           "Ignore White": "false",
-          "Stipple Min Radius": "0.5",
+          "Stipple Min Radius": "1",
           "Triangulate Corners": "false",
           "Random Seed": "0"
         }
@@ -272,7 +273,7 @@
           "Plotting Resolution": "1.0",
           "Stipple Max Radius": "18.0",
           "Ignore White": "false",
-          "Stipple Min Radius": "1.0",
+          "Stipple Min Radius": "0.75",
           "Random Seed": "0"
         }
       }
@@ -289,7 +290,7 @@
           "Stipple Max Radius": "15.0",
           "Ignore White": "false",
           "Merge TSP Paths": "true",
-          "Stipple Min Radius": "0.8",
+          "Stipple Min Radius": "0.5",
           "Random Seed": "0"
         }
       }

@@ -1,6 +1,7 @@
 package drawingbot.render.opengl;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.render.IRenderer;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -20,13 +21,28 @@ public class OpenGLRendererImpl implements IRenderer {
     }
 
     @Override
-    public void draw() {
+    public void preRender() {
+        //NOP
+    }
+
+    @Override
+    public void doRender() {
+        //NOP
+    }
+
+    @Override
+    public void postRender() {
         //NOP
     }
 
     @Override
     public void switchToRenderer() {
         DrawingBotV3.RENDERER.switchToRenderer();
+    }
+
+    @Override
+    public double rendererToSceneScale() {
+        return DrawingBotV3.RENDERER.rendererToSceneScale();
     }
 
     @Override
@@ -52,6 +68,11 @@ public class OpenGLRendererImpl implements IRenderer {
     @Override
     public Pane getPane() {
         return DrawingBotV3.RENDERER.pane;
+    }
+
+    @Override
+    public ICanvas getRefCanvas() {
+        return DrawingBotV3.RENDERER.getRefCanvas();
     }
 
     @Override

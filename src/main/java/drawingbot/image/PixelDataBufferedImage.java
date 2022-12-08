@@ -4,10 +4,11 @@ import drawingbot.utils.Utils;
 
 import java.awt.image.*;
 
-public class PixelDataBufferedImage extends PixelDataAbstract implements ObservableWritableRaster.IPixelListener {
+public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelListener, IPixelListenable {
 
     public RawData data;
     public BufferedImage image;
+    public IPixelListener listener;
 
     public PixelDataBufferedImage(int width, int height){
         super(width, height);
@@ -18,8 +19,10 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements Observa
     @Override
     public void onPixelChanged(int x, int y) {
         int argb = image.getRGB(x, y);
-
         data.setData(x, y, ImageTools.alpha(argb) == 0 ? 255 : ImageTools.getPerceivedLuminanceFromRGB(ImageTools.red(argb), ImageTools.green(argb), ImageTools.blue(argb)));
+        if(listener != null){
+            listener.onPixelChanged(x, y);
+        }
     }
 
     @Override
@@ -139,5 +142,15 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements Observa
     @Override
     public double getAverageLuminance() {
         return data.getAverage();
+    }
+
+    @Override
+    public void addListener(IPixelListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener(IPixelListener listener) {
+        this.listener = null;
     }
 }

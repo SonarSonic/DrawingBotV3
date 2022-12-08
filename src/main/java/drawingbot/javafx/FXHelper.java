@@ -1,22 +1,33 @@
 package drawingbot.javafx;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.*;
 import drawingbot.files.json.*;
-import drawingbot.files.json.presets.PresetProjectSettings;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
-import drawingbot.javafx.controls.DialogExportPreset;
-import drawingbot.javafx.controls.DialogImportPreset;
+import drawingbot.javafx.controls.DialogGenericRename;
+import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
+import drawingbot.javafx.util.PropertyAccessorAbstract;
+import drawingbot.javafx.util.PropertyAccessorProp;
+import drawingbot.javafx.util.PropertyAccessor;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
+import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
+import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -29,16 +40,18 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.control.action.Action;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Desktop;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -47,25 +60,49 @@ import java.util.logging.Level;
  */
 public class FXHelper {
 
+    public static final List<Styleable> persistentStyleables = new ArrayList<>();
+
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
+    public static void importFile(){
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
+    }
+
     public static void importImageFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_IMAGES);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES);
     }
 
     public static void importVideoFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(file, false), FileUtils.IMPORT_VIDEOS);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_VIDEOS);
+    }
+
+    public static void importSVGFile(){
+        if(!FXApplication.isPremiumEnabled){
+            FXController.showPremiumFeatureDialog();
+            return;
+        }
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.FILTER_SVG);
+    }
+
+    public static void importProject(){
+        importFile((file, chooser) -> {
+            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true);
+        }, FileUtils.FILTER_PROJECT);
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
         importFile(callback, new FileChooser.ExtensionFilter[]{filter}, "Select a file to import");
     }
 
+    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter... filters){
+        importFile(callback, filters, "Select a file to import");
+    }
+
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title){
         importFile((file, fileChooser) -> {
             FileUtils.updateImportDirectory(file.getParentFile());
             callback.accept(file, fileChooser);
-        }, FileUtils.getExportDirectory(), filters, title);
+        }, FileUtils.getImportDirectory(), filters, title);
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title){
@@ -115,38 +152,53 @@ public class FXHelper {
     }
 
     public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
-        PlottedDrawing drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+        PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
         if(drawing == null){
             return;
         }
-        String initialFileName = "";
         File originalFile = drawing.getOriginalFile();
-        if(originalFile != null){
-            initialFileName = FileUtils.removeExtension(originalFile.getName()) + "_plotted";
+        if(DrawingBotV3.project().file.get() != null){
+            originalFile = DrawingBotV3.project().file.get();
+        }
+        if(originalFile == null){
+            originalFile = new File(FileUtils.getUserDataDirectory() + File.separator + "Untitled");
+        }
+
+        String saveLocation = null;
+        int iteration = 1;
+        while(saveLocation == null || new File(FileUtils.getExportDirectory() + File.separator + saveLocation + exportHandler.getDefaultExtension()).exists()){
+            saveLocation = FileUtils.removeExtension(originalFile.getName()) + "_plotted_" + iteration++;
         }
         exportFile((file, chooser) -> {
             DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
-        }, exportHandler.filters, exportHandler.getDialogTitle(), initialFileName);
+        }, exportHandler.filters, exportHandler.getDialogTitle(), saveLocation);
     }
 
-    public static void importPreset(PresetType presetType, boolean apply, boolean showDialog){
+    public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
         importFile((file, chooser) -> {
-            GenericPreset<IJsonData> preset = loadPresetFile(presetType, file, apply);
+            GenericPreset<IJsonData> preset = loadPresetFile(context, presetType, file, apply);
             if(showDialog){
-                DialogImportPreset importPreset = new DialogImportPreset(preset);
-                importPreset.show();
+                AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+                AbstractPresetManager<IJsonData> manager = loader == null ? null : loader.getDefaultManager();
+
+                if(manager != null){
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.presetName, file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset)));
+                }else{
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.presetName, file.toString());
+                }
+
             }
         }, presetType.filters, "Select a preset to import");
     }
 
-    public static GenericPreset<IJsonData> loadPresetFile(PresetType presetType, File file, boolean apply){
+    public static GenericPreset<IJsonData> loadPresetFile(DBTaskContext context, PresetType presetType, File file, boolean apply){
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
         FileUtils.updateImportDirectory(file.getParentFile());
         if(preset != null && apply){
-            AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(presetType);
+            AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
             if(jsonLoader != null){
                 if(jsonLoader.getDefaultManager() != null){
-                    jsonLoader.getDefaultManager().tryApplyPreset(preset);
+                    jsonLoader.getDefaultManager().tryApplyPreset(context, preset);
                 }
             }else{
                 DrawingBotV3.logger.severe("Preset type is missing JsonLoader: " + presetType.id);
@@ -155,30 +207,87 @@ public class FXHelper {
         return preset;
     }
 
-    public static void exportProject(File initialDirectory, String initialName){
+    public static <D extends IJsonData> GenericPreset<D> loadPresetFile(DBTaskContext context, AbstractJsonLoader<D> loader, File file, boolean apply){
+        GenericPreset<D> preset = (GenericPreset<D>) JsonLoaderManager.importPresetFile(file, loader.type);
+        FileUtils.updateImportDirectory(file.getParentFile());
+        if(preset != null && apply){
+            if(loader.getDefaultManager() != null){
+                loader.getDefaultManager().tryApplyPreset(context, preset);
+            }
+        }
+        return preset;
+    }
+
+    public static void saveProject(){
+        final DBTaskContext context = DrawingBotV3.context();
+        if(context.project().file.get() != null){
+            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
+
+            JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
+            NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
+        }else{
+            saveProjectAs();
+        }
+    }
+
+    public static void saveProjectAs(){
+        final DBTaskContext context = DrawingBotV3.context();
+        File folder = FileUtils.getExportDirectory();
+        String projectName = context.project().name.get();
+
+        PlottedDrawing renderedDrawing = DrawingBotV3.project().getCurrentDrawing();
+        if(renderedDrawing != null){
+            File originalFile = renderedDrawing.getOriginalFile();
+            if(originalFile != null){
+                folder = originalFile.getParentFile();
+                projectName = FileUtils.removeExtension(originalFile.getName());
+            }
+        }
+
         exportFile((file, chooser) -> {
+            context.project.file.set(file);
+            context.project.name.set(FileUtils.removeExtension(file.getName()));
             DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
+                FileUtils.updateExportDirectory(file.getParentFile());
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(preset);
+                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
+                NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
             });
-        }, initialDirectory, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", initialName);
+        }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", projectName);
     }
 
     public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
         exportFile((file, chooser) -> {
+            FileUtils.updateExportDirectory(file.getParentFile());
             JsonLoaderManager.exportPresetFile(file, preset);
 
             if(showDialog){
+                NotificationOverlays.INSTANCE.showWithSubtitle("Preset Exported: " + preset.presetName, file.toString(), new Action("Open Folder", event -> openFolder(file.getParentFile())));
+                /*
                 DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
                 Optional<Boolean> openFolder = exportPreset.showAndWait();
                 if(openFolder.isPresent() && openFolder.get()){
                     FXHelper.openFolder(file.getParentFile());
                 }
+                 */
             }
         }, preset.presetType.filters, "Save preset", initialName);
+    }
+
+    public static <D extends IJsonData> GenericPreset<D> copyPreset(GenericPreset<D> preset){
+        AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+        assert loader != null;
+
+        Gson gson = JsonLoaderManager.createDefaultGson();
+        JsonElement element = loader.toJsonElement(gson, preset);
+
+        GenericPreset<IJsonData> copy = loader.createNewPreset(preset.presetSubType, preset.presetName, preset.userCreated);
+        copy.data = loader.fromJsonElement(gson, copy, element);
+        return (GenericPreset<D>) copy;
     }
 
     public static void openURL(String url) {
@@ -205,18 +314,31 @@ public class FXHelper {
         }
     }
 
-
-    public static void initSeparateStage(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
+    public static void initSeparateStageWithController(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
         try {
-            FXMLLoader exportUILoader = new FXMLLoader(FXApplication.class.getResource(fmxlPath));
+            FXMLLoader exportUILoader = new FXMLLoader(FXController.class.getResource(fmxlPath));
             exportUILoader.setController(controller);
-            initSeparateStage(exportUILoader.load(), stage, stageTitle, modality);
+            initSeparateStageProps(exportUILoader.load(), stage, stageTitle, modality);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void initSeparateStage(Parent parent, Stage stage, String stageTitle, Modality modality){
+    public static <T> T initSeparateStage(String fmxlPath, Stage stage, String stageTitle, Modality modality){
+        try {
+            FXMLLoader exportUILoader = new FXMLLoader(FXController.class.getResource(fmxlPath));
+            Parent root = exportUILoader.load();
+            T controller = exportUILoader.getController();
+            exportUILoader.setController(controller);
+            initSeparateStageProps(root, stage, stageTitle, modality);
+            return controller;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void initSeparateStageProps(Parent parent, Stage stage, String stageTitle, Modality modality){
         Scene scene = new Scene(parent);
         stage.initModality(modality);
         stage.initOwner(FXApplication.primaryStage);
@@ -228,23 +350,16 @@ public class FXHelper {
         FXApplication.childStages.add(stage);
     }
 
-    public static <O extends IJsonData> void setupPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, MenuButton button, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
+    @Deprecated
+    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
 
         MenuItem newPreset = new MenuItem("Save Preset");
-        MenuItem updatePreset = new MenuItem("Update Preset");
-        MenuItem renamePreset = new MenuItem("Rename Preset");
-        MenuItem deletePreset = new MenuItem("Delete Preset");
-
-        MenuItem importPreset = new MenuItem("Import Preset");
-        MenuItem exportPreset = new MenuItem("Export Preset");
-        MenuItem setDefault = new MenuItem("Set As Default");
-
         newPreset.setOnAction(e -> {
             GenericPreset<O> editingPreset = loader.createNewPreset();
             if(editingPreset == null){
                 return;
             }
-            editingPreset = manager.get().tryUpdatePreset(editingPreset);
+            editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
             if(editingPreset != null){
                 DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
                 DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
@@ -257,6 +372,7 @@ public class FXHelper {
             }
         });
 
+        MenuItem updatePreset = new MenuItem("Update Preset");
         updatePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
@@ -264,7 +380,7 @@ public class FXHelper {
             }
             String originalName = current.presetName;
             boolean isDefault = current == loader.getDefaultPreset();
-            GenericPreset<O> preset = manager.get().tryUpdatePreset(current);
+            GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
             if(preset != null){
                 setter.accept(preset);
 
@@ -274,6 +390,7 @@ public class FXHelper {
             }
         });
 
+        MenuItem renamePreset = new MenuItem("Rename Preset");
         renamePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null || !current.userCreated){
@@ -295,6 +412,7 @@ public class FXHelper {
             }
         });
 
+        MenuItem deletePreset = new MenuItem("Delete Preset");
         deletePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
@@ -305,9 +423,12 @@ public class FXHelper {
             }
         });
 
+        MenuItem importPreset = new MenuItem("Import Preset");
         importPreset.setOnAction(e -> {
-            FXHelper.importPreset(loader.type, false, true);
+            FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
         });
+
+        MenuItem exportPreset = new MenuItem("Export Preset");
         exportPreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null){
@@ -316,6 +437,7 @@ public class FXHelper {
             FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
         });
 
+        MenuItem setDefault = new MenuItem("Set As Default");
         setDefault.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current != null){
@@ -326,50 +448,185 @@ public class FXHelper {
         button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
     }
 
-    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, Supplier<ObservableList<O>> list, Consumer<O> duplicate){
+    public static <O extends IJsonData> MenuButton createPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+        MenuButton button = new MenuButton("Presets");
+        setupPresetMenuButton(button, loader, manager, editableCategory, property);
+        return button;
+    }
+
+    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+
+        MenuItem newPreset = new MenuItem("Save Preset");
+        newPreset.setOnAction(e -> {
+            GenericPreset<O> editingPreset = loader.createNewPreset();
+            if(editingPreset == null){
+                return;
+            }
+            editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
+            if(editingPreset != null){
+                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
+                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
+                Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
+                if(result.isPresent()){
+                    loader.tryEditPreset(editingPreset);
+                    loader.trySavePreset(editingPreset);
+                    property.setValue(editingPreset);
+                }
+            }
+        });
+
+        MenuItem updatePreset = new MenuItem("Update Preset");
+        updatePreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            String originalName = current.presetName;
+            boolean isDefault = current == loader.getDefaultPreset();
+            GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
+            if(preset != null){
+                property.setValue(preset);
+
+                if(isDefault && !originalName.equals(preset.presetName)){
+                    MasterRegistry.INSTANCE.setDefaultPreset(preset);
+                }
+            }
+        });
+
+        MenuItem renamePreset = new MenuItem("Rename Preset");
+        renamePreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null || !current.userCreated){
+                return;
+            }
+            String originalName = current.presetName;
+            boolean isDefault = current == loader.getDefaultPreset();
+
+            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current, editableCategory);
+            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Rename preset");
+            Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
+            if(result.isPresent()){
+                loader.tryEditPreset(current);
+                property.setValue(current);
+
+                if(isDefault && !originalName.equals(current.presetName)){
+                    MasterRegistry.INSTANCE.setDefaultPreset(current);
+                }
+            }
+        });
+
+        MenuItem deletePreset = new MenuItem("Delete Preset");
+        deletePreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            if(loader.tryDeletePreset(current)){
+                property.setValue(loader.getDefaultPreset());
+            }
+        });
+
+        MenuItem importPreset = new MenuItem("Import Preset");
+        importPreset.setOnAction(e -> {
+            FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
+        });
+
+        MenuItem exportPreset = new MenuItem("Export Preset");
+        exportPreset.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
+        });
+
+        MenuItem setDefault = new MenuItem("Set As Default");
+        setDefault.setOnAction(e -> {
+            GenericPreset<O> current = property.getValue();
+            if(current == null){
+                return;
+            }
+            MasterRegistry.INSTANCE.setDefaultPreset(current);
+        });
+
+        button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
+    }
+
+    public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, Supplier<ObservableList<O>> list, Function<O, O> duplicate){
 
         MenuItem menuMoveUp = new MenuItem("Move Up");
-        menuMoveUp.setOnAction(e -> moveItemUp(row.getItem(), list.get()));
+        menuMoveUp.setOnAction(e -> moveItemUp(row.getTableView().getSelectionModel(), list.get()));
         menu.getItems().add(menuMoveUp);
 
         MenuItem menuMoveDown = new MenuItem("Move Down");
-        menuMoveDown.setOnAction(e -> moveItemDown(row.getItem(), list.get()));
+        menuMoveDown.setOnAction(e -> moveItemDown(row.getTableView().getSelectionModel(), list.get()));
         menu.getItems().add(menuMoveDown);
 
         menu.getItems().add(new SeparatorMenuItem());
 
         MenuItem menuDelete = new MenuItem("Delete");
-        menuDelete.setOnAction(e -> deleteItem(row.getItem(), list.get()));
+        menuDelete.setOnAction(e -> deleteItem(row.getTableView().getSelectionModel(), list.get()));
         menu.getItems().add(menuDelete);
 
         MenuItem menuDuplicate = new MenuItem("Duplicate");
-        menuDuplicate.setOnAction(e -> duplicate.accept(row.getItem()));
+        menuDuplicate.setOnAction(e -> duplicateItem(row.getTableView().getSelectionModel(), list.get(), duplicate));
         menu.getItems().add(menuDuplicate);
     }
 
-    public static <O> void moveItemUp(O item, ObservableList<O> list){
-        if(item == null) return;
-        int index = list.indexOf(item);
-        if(index != 0){
-            list.remove(index);
-            list.add(index-1,item);
+    public static <O> void moveItemUp(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+            int index = list.indexOf(item);
+            if(index != 0){
+                list.remove(index);
+                list.add(index-1,item);
+            }
+            selectionModel.clearSelection();
+            selectionModel.select(item);
         }
     }
 
-    public static <O> void moveItemDown(O item, ObservableList<O> list){
-        if(item == null) return;
-        int index = list.indexOf(item);
-        if(index != list.size()-1){
-            list.remove(index);
-            list.add(index+1, item);
+    public static <O> void moveItemDown(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+
+            int index = list.indexOf(item);
+            if(index != list.size()-1){
+                list.remove(index);
+                list.add(index+1, item);
+            }
+
+            selectionModel.clearSelection();
+            selectionModel.select(item);
         }
     }
 
-    public static <O> void deleteItem(O item, ObservableList<O> list){
-        if(item == null) return;
-        list.remove(item);
+    public static <O> void addItem(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list, Supplier<O> add){
+        O item = add.get();
+        if(item != null){
+            list.add(item);
+            selectionModel.clearSelection();
+            selectionModel.select(item);
+        }
     }
 
+    public static <O> void deleteItem(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+            list.remove(item);
+            selectionModel.clearSelection();
+        }
+    }
+
+    public static <O> void duplicateItem(TableView.TableViewSelectionModel<O> selectionModel, ObservableList<O> list, Function<O, O> duplicate){
+        O item = selectionModel.getSelectedItem();
+        if(item != null){
+            O newItem = duplicate.apply(item);
+            list.add(newItem);
+            selectionModel.clearSelection();
+            selectionModel.select(newItem);
+        }
+    }
 
     public static void addImageFilter(GenericFactory<BufferedImageOp> filterFactory, ImageFilterSettings settings){
         ObservableImageFilter filter = new ObservableImageFilter(filterFactory);
@@ -393,6 +650,12 @@ public class FXHelper {
         }
     }
 
+    public static void openRenameDialog(Supplier<StringProperty> propertySupplier){
+        DialogGenericRename dialog = new DialogGenericRename(() -> propertySupplier.get().get());
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(s -> propertySupplier.get().set(s));
+    }
+
     public static GridPane createSettingsGridPane(Collection<GenericSetting<?, ?>> settings, Consumer<GenericSetting<?, ?>> onChanged){
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.TOP_LEFT);
@@ -402,7 +665,7 @@ public class FXHelper {
 
         int i = 0;
         for(GenericSetting<?, ?> setting : settings){
-            Label label = new Label(setting.key.getValue() + ": ");
+            Label label = new Label(setting.getKey() + ": ");
             label.setAlignment(Pos.TOP_LEFT);
             Node node = setting.getJavaFXNode(true);
             node.minWidth(200);
@@ -413,14 +676,17 @@ public class FXHelper {
                 gridPane.addRow(i, label, node);
             }else{
                 TextField field = setting.getEditableTextField();
-                gridPane.addRow(i, label, node, setting.getEditableTextField());
                 field.setOnAction(e -> {
                     setting.setValueFromString(field.getText());
                     if(onChanged != null) {
                         onChanged.accept(setting);
                     }
                 });
-
+                if(node != field){
+                    gridPane.addRow(i, label, node, field);
+                }else{
+                    gridPane.addRow(i, label, field);
+                }
             }
             if(onChanged != null){
                 node.setOnMouseReleased(e -> onChanged.accept(setting)); //change on mouse release, not on value change
@@ -441,6 +707,100 @@ public class FXHelper {
         Text textNode = new Text(text);
         textNode.setStyle("-fx-font-size: "+ size +"px; -fx-font-weight: " + weight);
         flow.getChildren().add(textNode);
+    }
+
+    public static List<PropertyAccessorAbstract> nodePropertyAccessors = new ArrayList<>();
+
+
+    public static class SplitPaneDataFormat { //must be public static for GSON
+
+        public double[] positions;
+
+        public SplitPaneDataFormat() { //for gson
+            super();
+        }
+
+        public SplitPaneDataFormat(double[] positions) {
+            this.positions = positions;
+        }
+    }
+
+    static {
+
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(TitledPane.class, "expanded", Boolean.class, TitledPane::expandedProperty));
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(TableColumnBase.class, "visible", Boolean.class, TableColumnBase::visibleProperty));
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(ZoomableScrollPane.class, "scale", Number.class, ZoomableScrollPane::scaleProperty));
+        nodePropertyAccessors.add(new PropertyAccessor<>(SplitPane.class, SplitPaneDataFormat.class, "dividers"){
+
+            @Override
+            public SplitPaneDataFormat getData(SplitPane splitPane) {
+                return new SplitPaneDataFormat(splitPane.getDividerPositions());
+            }
+
+            @Override
+            public void setData(SplitPane splitPane, @Nullable SplitPaneDataFormat dataFormat) {
+                if(dataFormat != null){
+                    splitPane.setDividerPositions(dataFormat.positions);
+                }
+            }
+        });
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(Node.class, "position", FXController.NodePosition.class){
+
+            public boolean canAccess(Object obj){
+                return obj instanceof Node && FXController.hasPosition((Node) obj);
+            }
+
+            @Override
+            public FXController.NodePosition getData(Node node) {
+                return FXController.getPosition(node);
+            }
+
+            @Override
+            public void setData(Node node, FXController.NodePosition position) {
+                FXController.loadPosition(node, position);
+            }
+        });
+    }
+
+
+    public static void makePersistent(List<? extends Styleable> styleables){
+        styleables.forEach(FXHelper::makePersistent);
+    }
+
+    public static void makePersistent(Styleable styleable){
+        if(styleable != null && !persistentStyleables.contains(styleable)){
+            persistentStyleables.add(styleable);
+        }
+    }
+
+    @Nullable
+    public static Styleable findPersistentStyleable(String fxID){
+        for(Styleable node : persistentStyleables){
+            if(node.getId().equals(fxID)){
+                return node;
+            }
+        }
+        //return FXApplication.primaryScene.getRoot().lookup(fxID);
+        return null;
+    }
+
+    public static void loadUIStates(List<UINodeState> states){
+        for(UINodeState state : states){
+            Styleable styleable = FXHelper.findPersistentStyleable(state.getID());
+            if(styleable != null && styleable.getId().equals(state.getID())){
+                state.loadState(styleable);
+            }
+        }
+    }
+
+    public static void saveUIStates(List<UINodeState> states){
+        states.clear();
+
+        for(Styleable styleable : FXHelper.persistentStyleables){
+            if(styleable.getId() != null && !styleable.getId().isEmpty()){
+                states.add(new UINodeState(styleable.getId(), styleable));
+            }
+        }
     }
 
 }

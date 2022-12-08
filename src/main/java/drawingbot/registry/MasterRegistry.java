@@ -1,25 +1,34 @@
 package drawingbot.registry;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.api.*;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.PresetDataLoader;
+import drawingbot.files.json.projects.PresetProjectSettings;
+import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.geom.shapes.JFXGeometryConverter;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogImageFilter;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.pfm.PFMSketchLines;
+import drawingbot.pfm.PFMSketchLinesBasic;
 import drawingbot.render.IDisplayMode;
+import drawingbot.render.overlays.AbstractOverlay;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.Metadata;
 import javafx.collections.FXCollections;
@@ -29,6 +38,7 @@ import javafx.scene.control.Dialog;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImageOp;
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -69,6 +79,7 @@ public class MasterRegistry {
         PLUGINS.forEach(IPlugin::registerPFMSettings);
 
         INSTANCE.sortPFMSettings();
+        INSTANCE.sortDataLoaders();
 
         PLUGINS.forEach(IPlugin::registerDrawingTools);
         PLUGINS.forEach(IPlugin::registerImageFilters);
@@ -78,13 +89,17 @@ public class MasterRegistry {
         init = true;
     }
 
+    public static void postInit(){
+        PLUGINS.forEach(IPlugin::registerPreferencePages);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PRESETS \\\\
 
     @Nullable
     public String getDefaultPresetName(PresetType presetType, String presetSubType){
-        return ConfigFileHandler.getApplicationSettings().defaultPresets.get(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
+        return DBPreferences.INSTANCE.getDefaultPreset(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
     }
 
     @Nullable
@@ -128,11 +143,9 @@ public class MasterRegistry {
 
     public void setDefaultPreset(GenericPreset<?> preset){
         if(preset.presetType.defaultsPerSubType){
-            ConfigFileHandler.getApplicationSettings().defaultPresets.put(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
-            ConfigFileHandler.getApplicationSettings().markDirty();
+            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
         }else{
-            ConfigFileHandler.getApplicationSettings().defaultPresets.put(preset.presetType.id, preset.presetName);
-            ConfigFileHandler.getApplicationSettings().markDirty();
+            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id, preset.presetName);
         }
     }
 
@@ -157,7 +170,7 @@ public class MasterRegistry {
     public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
 
     public PFMFactory<?> getDefaultPFM(){
-        return pfmFactories.stream().filter(factory -> factory.getInstanceClass().equals(PFMSketchLines.class)).findFirst().orElse(null);
+        return pfmFactories.stream().filter(factory -> factory.getName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getName().equals("Sketch Lines PFM")).findFirst().orElse(null));
     }
 
     public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){
@@ -183,13 +196,13 @@ public class MasterRegistry {
 
     public void sortPFMSettings(){
         for(ObservableList<GenericSetting<?, ?>> settingsList : MasterRegistry.INSTANCE.pfmSettings.values()){
-            settingsList.sort(Comparator.comparingInt(value -> -getCategoryPriority(value.category)));
+            settingsList.sort(Comparator.comparingInt(value -> -getCategoryPriority(value.getCategory())));
         }
     }
 
-    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
+    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, String category, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
         DrawingBotV3.logger.fine("Registering PFM: " + name);
-        PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, create, isHidden);
+        PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, category, create, isHidden);
         pfmFactories.add(factory);
         if(registerDefaultPreset){
             Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(name, "Default", false));
@@ -198,7 +211,7 @@ public class MasterRegistry {
     }
 
     public <C, V> void registerPFMSetting(GenericSetting<C, V> setting){
-        DrawingBotV3.logger.fine("Registering PFM Setting: " + setting.key.getValue());
+        DrawingBotV3.logger.fine("Registering PFM Setting: " + setting.getKey());
         for(PFMFactory<?> factory : pfmFactories){
             if(setting.isAssignableFrom(factory.getInstanceClass())){
                 GenericSetting<C,V> copy = setting.copy();
@@ -231,7 +244,7 @@ public class MasterRegistry {
         if(factory != null){
             ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
             for(GenericSetting<?, ?> setting : settings){
-                if(setting.key.getValue().equals(name)){
+                if(setting.getKey().equals(name)){
                     return setting;
                 }
             }
@@ -244,7 +257,7 @@ public class MasterRegistry {
         if(factory != null){
             ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
             for(GenericSetting<?, ?> setting : settings){
-                if(setting.key.getValue().equals(name)){
+                if(setting.getKey().equals(name)){
                     settings.remove(setting);
                     return;
                 }
@@ -255,7 +268,7 @@ public class MasterRegistry {
     public ObservableList<PFMFactory<?>> getObservablePFMLoaderList(){
         ObservableList<PFMFactory<?>> list = FXCollections.observableArrayList();
         for(PFMFactory<?> loader : pfmFactories){
-            if(!loader.isHidden() || ConfigFileHandler.getApplicationSettings().isDeveloperMode){
+            if(!loader.isHidden() || FXApplication.isDeveloperMode){
                 list.add(loader);
             }
         }
@@ -263,7 +276,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(){
-        return getObservablePFMSettingsList(DrawingBotV3.INSTANCE.pfmSettings.factory.get());
+        return getObservablePFMSettingsList(DrawingBotV3.project().getPFMSettings().getPFMFactory());
     }
 
     public ObservableList<GenericSetting<?, ?>> getObservablePFMSettingsList(PFMFactory<?> factory){
@@ -271,7 +284,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(){
-        return getObservablePFMPresetList(DrawingBotV3.INSTANCE.pfmSettings.factory.get());
+        return getObservablePFMPresetList(DrawingBotV3.project().getPFMSettings().getPFMFactory());
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(PFMFactory<?> loader){
@@ -421,11 +434,11 @@ public class MasterRegistry {
     public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
 
     public EnumFilterTypes getDefaultImageFilterType(){
-        return imgFilterFactories.keySet().stream().findFirst().orElse(null);
+        return EnumFilterTypes.COLOURS;
     }
 
     public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
-        return imgFilterFactories.get(type).stream().findFirst().orElse(null);
+        return imgFilterFactories.get(type).stream().filter(i -> i.getName().equals("Contrast")).findFirst().orElse(null);
     }
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
@@ -440,7 +453,7 @@ public class MasterRegistry {
     }
 
     public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
-        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.key.getValue());
+        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.getKey());
         imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
         imgFilterSettings.get(setting.clazz).add(setting);
     }
@@ -516,12 +529,57 @@ public class MasterRegistry {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //// OVERLAYS \\\\
+    public ObservableList<AbstractOverlay> overlays = FXCollections.observableArrayList();
+
+    public AbstractOverlay registerOverlay(AbstractOverlay displayMode){
+        DrawingBotV3.logger.fine("Registering Overlay: " + displayMode.getName());
+        this.overlays.add(displayMode);
+        return displayMode;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// LOADERS \\\\
+    public List<IFileLoaderFactory> fileLoaderFactories = new ArrayList<>();
+    public IFileLoaderFactory fallbackFileLoaderFactory;
+
+    public void setFallbackFileLoaderFactory(IFileLoaderFactory fallbackFileLoaderFactory) {
+        this.fallbackFileLoaderFactory = fallbackFileLoaderFactory;
+    }
+
+    public IFileLoaderFactory getFallbackFileLoaderFactory(){
+        return fallbackFileLoaderFactory;
+    }
+
+    public IFileLoaderFactory registerFileLoaderFactory(IFileLoaderFactory exportHandler){
+        DrawingBotV3.logger.fine("Registering File Loader: " + exportHandler.getName());
+        this.fileLoaderFactories.add(exportHandler);
+        return exportHandler;
+    }
+
+    public AbstractFileLoader getFileLoader(DBTaskContext context, File file, boolean internal){
+        for(IFileLoaderFactory factory : fileLoaderFactories){
+            AbstractFileLoader loader = factory.createLoader(context, file, internal);
+            if(loader != null){
+                return loader;
+            }
+        }
+        return fallbackFileLoaderFactory.createLoader(context, file, internal);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     //// EXPORTERS \\\\
-    public List<DrawingExportHandler> drawingExportHandlers = new ArrayList<>();
+    public Map<String, DrawingExportHandler> drawingExportHandlers = new LinkedHashMap<>();
 
     public DrawingExportHandler registerDrawingExportHandler(DrawingExportHandler exportHandler){
-        DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.displayName);
-        this.drawingExportHandlers.add(exportHandler);
+        DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.getRegistryName() + " " + exportHandler.description);
+        if(drawingExportHandlers.containsKey(exportHandler.getRegistryName())){
+            DrawingBotV3.logger.severe("Duplicate Export Handler: " + exportHandler.getRegistryName());
+            return exportHandler;
+        }
+        this.drawingExportHandlers.put(exportHandler.getRegistryName(), exportHandler);
         return exportHandler;
     }
 
@@ -572,6 +630,26 @@ public class MasterRegistry {
         return null;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PROJECT DATA LOADER \\\\
+    private Map<String, PresetDataLoader<PresetProjectSettings>> projectDataLoadersMap = new HashMap<>();
+    public List<PresetDataLoader<PresetProjectSettings>> projectDataLoaders = new ArrayList<>();
+
+    public void registerProjectDataLoader(PresetDataLoader<PresetProjectSettings> loader){
+        if(projectDataLoadersMap.containsKey(loader.getKey())){
+            DrawingBotV3.logger.severe("DUPLICATE PROJECT DATA LOADER KEY: " + loader.getKey());
+        }else{
+            DrawingBotV3.logger.fine("Registering Project Data Loader: " + loader.getKey());
+            projectDataLoadersMap.put(loader.getKey(), loader);
+        }
+    }
+
+    public void sortDataLoaders(){
+        projectDataLoaders.addAll(projectDataLoadersMap.values());
+        projectDataLoaders.sort(Comparator.comparingInt(l -> l.order));
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -587,14 +665,62 @@ public class MasterRegistry {
         this.geometryFactories.put(name, factory);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// GEOMETRY TO JFX CONVERTERS \\\\
+
+    public List<JFXGeometryConverter> jfxGeometryConverters = new ArrayList<>();
+    public JFXGeometryConverter fallbackConverter = null;
+
+    public void registerJFXGeometryConverter(JFXGeometryConverter converter){
+        jfxGeometryConverters.add(converter);
+    }
+
+    public void setFallbackJFXGeometryConverter(JFXGeometryConverter fallbackConverter) {
+        this.fallbackConverter = fallbackConverter;
+    }
+
+    public JFXGeometryConverter getFallbackJFXGeometryConverter(){
+        return fallbackConverter;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// METADATA \\\\
-    public List<Metadata<?>> drawingMetadata = new ArrayList<>();
+    public List<Metadata<?>> metadataTypes = new ArrayList<>();
 
-    public void registerDrawingMetadata(Metadata<?> metadata){
-        drawingMetadata.add(metadata);
+    public void registerMetadataType(Metadata<?> metadata){
+        this.metadataTypes.add(metadata);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// PREFERENCES \\\\
+    public FXPreferences.TreeNode root = FXPreferences.root();
+
+    public void registerPreferencesPage(FXPreferences.TreeNode treeNode){
+        registerPreferencesPage("", treeNode);
+    }
+
+    public void registerPreferencesPage(String breadcrumb, FXPreferences.TreeNode treeNode){
+        if(!breadcrumb.isEmpty()){
+            String[] pages = breadcrumb.split("#");
+            FXPreferences.TreeNode parentPage = root;
+            pages: for(String pageName : pages){
+                for(FXPreferences.TreeNode child : parentPage.getChildren()){
+                    if(child.getName().equals(pageName)){
+                        parentPage = child;
+                        continue pages;
+                    }
+                }
+                parentPage.getChildren().add(parentPage = FXPreferences.node(pageName));
+            }
+            parentPage.getChildren().add(treeNode);
+        }else{
+            root.getChildren().add(treeNode);
+        }
+
     }
 
 }

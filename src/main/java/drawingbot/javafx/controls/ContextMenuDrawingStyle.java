@@ -17,7 +17,7 @@ public class ContextMenuDrawingStyle extends ContextMenu {
     public ContextMenuDrawingStyle(Supplier<ObservableList<ObservableDrawingStyle>> editingStyles, Supplier<DrawingSets> drawingsSets, TableRow<ObservableDrawingStyle> row) {
         super();
 
-        if(DrawingBotV3.INSTANCE.pfmSettings.factory.get().isLayeredPFM()){
+        if(DrawingBotV3.context().project.getPFMSettings().factory.get().isLayeredPFM()){
             MenuItem clearMaskColour = new MenuItem("Clear Mask Colour");
             clearMaskColour.setOnAction(e -> row.getItem().maskColor.set(null));
             getItems().add(clearMaskColour);
@@ -37,7 +37,7 @@ public class ContextMenuDrawingStyle extends ContextMenu {
 
         getItems().add(new SeparatorMenuItem());
 
-        FXHelper.addDefaultTableViewContextMenuItems(this, row, editingStyles, style -> editingStyles.get().add(new ObservableDrawingStyle(drawingsSets.get(), style)));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, editingStyles, style -> new ObservableDrawingStyle(drawingsSets.get(), style));
     }
 
 }

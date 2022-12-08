@@ -18,13 +18,13 @@ public class PropertyUtilTest extends TestCase {
 
     public void testBooleanListener(){
         AtomicBoolean received = new AtomicBoolean(false);
-        Property<?> target = canvas.optimiseForPrint;
+        Property<?> target = canvas.useOriginalSizing;
         PropertyListListener<ObservableCanvas> listener = PropertyUtil.addPropertyListListener(canvas, (value, changed) -> {
             if(changed.contains(target)){
                 received.set(true);
             }
         });
-        canvas.optimiseForPrint.set(!canvas.optimiseForPrint.get());
+        canvas.useOriginalSizing.set(!canvas.useOriginalSizing.get());
         PropertyUtil.removePropertyListListener(canvas, listener);
         assertTrue(received.get());
     }

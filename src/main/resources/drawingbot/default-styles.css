@@ -1,0 +1,24 @@
+.titled-pane:drag-over > .title {
+    -fx-background-color: -fx-accent, -fx-inner-border, -fx-body-color;
+}
+
+.scroll-pane:drag-over {
+    -fx-background-color: -fx-accent, -fx-background;
+}
+
+.drag-receiver-right {
+     -fx-fill: transparent;
+}
+
+.drag-receiver-right:drag-over {
+    -fx-fill: linear-gradient(to right, transparent, rgba(0,147,255,0.3));
+}
+
+
+.drag-receiver-left {
+     -fx-fill: transparent;
+}
+
+.drag-receiver-left:drag-over {
+    -fx-fill: linear-gradient(to left, transparent, rgba(0,147,255,0.3));
+}

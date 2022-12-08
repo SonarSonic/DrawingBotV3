@@ -24,10 +24,12 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
     public boolean hasSampledARGB = false;
 
     public boolean requiresPremium = false;
+    public String category = "";
 
-    public PFMFactory(Class<C> clazz, String name, Supplier<C> create, boolean isHidden) {
+    public PFMFactory(Class<C> clazz, String name, String category, Supplier<C> create, boolean isHidden) {
         super(clazz, name, create, isHidden);
         this.distributionType = EnumDistributionType.getRecommendedType(null, null);
+        this.category = category;
     }
 
     /**

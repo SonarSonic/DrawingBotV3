@@ -25,15 +25,15 @@ public class GeometryIteratorTests {
         final CountDownLatch latch = new CountDownLatch(1);
 
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.openFile(new File("images/testimage.jpg"), true);
-            DrawingBotV3.INSTANCE.openImage.addListener((observable, oldValue, newValue) -> latch.countDown());
+            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), new File("images/testimage.jpg"), true, true);
+            DrawingBotV3.project().openImage.addListener((observable, oldValue, newValue) -> latch.countDown());
         });
         latch.await();
 
         final CountDownLatch latch2 = new CountDownLatch(1);
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.pfmSettings.factory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-            DrawingBotV3.INSTANCE.startPlotting();
+            DrawingBotV3.project().getPFMSettings().setPFMFactory(MasterRegistry.INSTANCE.getDefaultPFM());
+            DrawingBotV3.INSTANCE.startPlotting(DrawingBotV3.context());
 
             DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                 if(newValue.intValue() == 0){ //when the value changes we add export tasks for every type
@@ -42,7 +42,7 @@ public class GeometryIteratorTests {
             });
         });
         latch2.await();
-        drawing = DrawingBotV3.INSTANCE.getCurrentDrawing();
+        drawing = DrawingBotV3.taskManager().getCurrentDrawing();
     }
 
     @Test

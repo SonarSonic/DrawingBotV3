@@ -3,13 +3,12 @@ package drawingbot.pfm;
 import drawingbot.api.*;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
-import drawingbot.image.PixelDataARGBY;
-import drawingbot.pfm.helpers.BresenhamHelper;
-import drawingbot.pfm.helpers.ColourSampleTest;
-import drawingbot.pfm.helpers.LuminanceTestLine;
+import drawingbot.image.PixelDataGraphicsComposite;
+import drawingbot.pfm.helpers.*;
 import drawingbot.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -20,12 +19,18 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
 
     @Override
     public IPixelData createPixelData(int width, int height) {
-        return new PixelDataARGBY(width, height);
+        return PixelDataGraphicsComposite.create(width, height);
     }
 
     @Override
     public int getTransparentARGB() {
         return ImageTools.getARGB(0, 255, 255, 255);
+    }
+
+    @Override
+    public void setup() {
+        super.setup();
+        renderPipe.setRescaleMode(tools.getCanvas().getRescaleMode());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,23 +102,44 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
      */
     public static List<int[]> findDarkestPixels(IPixelData pixels){
         List<int[]> points = new ArrayList<>();
-        int luminance = pixels.getLuminance(0,0);
+        findDarkestPixels(pixels, points);
+        return points;
+    }
 
+    public static void findDarkestPixels(IPixelData pixels, Collection<int[]> dst){
+        int luminance = pixels.getLuminance(0,0);
 
         for(int x = 0; x < pixels.getWidth(); x ++){
             for(int y = 0; y < pixels.getHeight(); y ++){
                 int c = pixels.getLuminance(x, y);
                 if(c == luminance) {
-                    points.add(new int[]{x, y});
+                    dst.add(new int[]{x, y, c});
                 }
                 if(c < luminance) {
-                    points.clear();
-                    points.add(new int[]{x, y});
+                    dst.clear();
+                    dst.add(new int[]{x, y, c});
                     luminance = c;
                 }
             }
         }
-        return points;
+    }
+
+    public static void findNearestDarkestPixel(IPixelData pixels, int srcX, int srcY, int[] dest){
+        List<int[]> darkest = findDarkestPixels(pixels);
+
+        double best = Double.MAX_VALUE;
+        int[] nearest = null;
+        for(int[] point : darkest){
+            double dist = Utils.distance(srcX, srcY, point[0], point[1]);
+            if(dist < best){
+                best = dist;
+                nearest = point;
+            }
+        }
+        if(nearest != null){
+            dest[0] = nearest[0];
+            dest[1] = nearest[1];
+        }
     }
 
     /** returns a random pixel of the darkest pixels found*/
@@ -130,18 +156,17 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
      */
     public static float findDarkestLine(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
         LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true);
-        runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
+        forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
             luminanceTest.resetSamples();
             bresenham.plotLine(startX, startY, x, y, (xT, yT) -> luminanceTest.addSample(pixels, xT, yT));
         });
         return luminanceTest.getDarkestSample();
     }
 
-
     /**
      * Returns the end coordinates of each line test
      */
-    public static void runDarkestTest(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
+    public static void forAvailableEndPoints(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
         if(drawingDeltaAngle == 360 && !shading && (maxTests == -1 || bresenham.getBresenhamCircleSize(maxLength) <= maxTests)){
             bresenham.plotCircle(startX, startY, maxLength, (x1, y1) -> processSafePixels(bresenham, pixels, startX, startY, x1, y1, safe, consumer));
         }else{
@@ -169,13 +194,24 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         }
     }
 
-    public double getAngle(int startX, int startY, int targetX, int targetY) {
+    public static double getAngle(int startX, int startY, int targetX, int targetY) {
         double angle = Math.toDegrees(Math.atan2(targetY - startY, targetX - startX));
         angle %= 360;
         if(angle < 0){
             angle += 360;
         }
         return angle;
+    }
+
+    public static float getAngleDifference(float a1, float a2) {
+        double val = a1 - a2;
+        if (val > Math.PI) {
+            val -= 2 * Math.PI;
+        }
+        if (val < -Math.PI) {
+            val += 2 * Math.PI;
+        }
+        return (float) val;
     }
 
     /** returns a line which intersects through the entire image going through the specified point */
@@ -245,16 +281,15 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ColourSampleTest defaultColourTest = new ColourSampleTest();
+    public PFMRenderPipe renderPipe = new PFMRenderPipe();
 
     public void addGeometryWithColourSamples(IPixelData pixelData, IGeometry geometry, int adjust){
-        int colourSamples = adjustGeometryLuminance(pixelData, geometry, adjust);
+        int colourSamples = eraseGeometry(pixelData, geometry, adjust);
         tools.addGeometry(geometry, -1, colourSamples);
     }
 
-    public int adjustGeometryLuminance(IPixelData pixelData, IGeometry geometry, int adjust){
-        defaultColourTest.resetColourSamples(adjust);
-        geometry.renderBresenham(tools.bresenham, (x,y) -> defaultColourTest.addSample(pixelData, x, y));
-        return defaultColourTest.getCurrentAverage();
+    public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust){
+        return renderPipe.eraseGeometry(pixelData, geometry, adjust, tools.getCanvas().getTargetPenWidth());
     }
 
 }

@@ -1,8 +1,10 @@
 package drawingbot.javafx;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.drawing.DrawingStyle;
 import drawingbot.drawing.DrawingStyleSet;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
@@ -13,6 +15,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.DBConstants;
 import javafx.application.Platform;
+import javafx.beans.binding.Binding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -27,6 +30,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import org.fxmisc.easybind.EasyBind;
 
 import java.util.ArrayList;
 
@@ -71,7 +75,7 @@ public class FXStylesController {
             masterStyles.clear();
             masterStyles.addAll(editingStyles);
         }
-        boolean isLayeredPFM = DrawingBotV3.INSTANCE.pfmSettings.factory.get().isLayeredPFM();
+        boolean isLayeredPFM = DrawingBotV3.project().getPFMSettings().getPFMFactory().isLayeredPFM();
 
         DrawingBotV3.INSTANCE.controller.mosaicSettingsStage.setTitle("Editing Drawing Styles" + (master != null ? ": Editing Slave" : ": Editing Master"));
 
@@ -79,7 +83,7 @@ public class FXStylesController {
         styleMaskColorColumn.setVisible(isLayeredPFM);
 
         editingStyles.clear();
-        set.styles.forEach(style ->  editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.INSTANCE.drawingSets, style)));
+        set.styles.forEach(style ->  editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.project().getDrawingSets(), style)));
         editing = stylesSetting;
         DrawingBotV3.INSTANCE.controller.mosaicSettingsStage.show();
     }
@@ -122,7 +126,7 @@ public class FXStylesController {
                     event.consume();
                 }
             });
-            row.setContextMenu(new ContextMenuDrawingStyle(() -> editingStyles, () -> DrawingBotV3.INSTANCE.drawingSets, row)); //TODO
+            row.setContextMenu(new ContextMenuDrawingStyle(() -> editingStyles, () -> DrawingBotV3.project().getDrawingSets(), row)); //TODO
             return row;
         });
 
@@ -155,7 +159,12 @@ public class FXStylesController {
         styleMaskColorColumn.setCellFactory(TableCellColorPicker::new);
         styleMaskColorColumn.setCellValueFactory(param -> param.getValue().maskColor);
 
-        styleDrawingSetColumn.setCellFactory(param -> new ComboBoxTableCell<>(DrawingBotV3.INSTANCE.drawingSets.drawingSetSlots.get()));
+        Binding<ObservableList<ObservableDrawingSet>> drawingSets = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(ObservableProject::drawingSetsProperty).selectObject(DrawingSets::drawingSetSlotsProperty);
+        styleDrawingSetColumn.setCellFactory(param -> {
+            ComboBoxTableCell<ObservableDrawingStyle, ObservableDrawingSet> cell = new ComboBoxTableCell<>();
+            EasyBind.listBind(cell.getItems(), drawingSets.getValue());
+            return cell;
+        });
         styleDrawingSetColumn.setCellValueFactory(param -> param.getValue().drawingSet);
 
 
@@ -169,18 +178,16 @@ public class FXStylesController {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        buttonAddStyle.setOnAction(e -> editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.INSTANCE.drawingSets, choiceBoxAddPFM.getValue())));
-        buttonRemoveStyle.setOnAction(e -> FXHelper.deleteItem(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
+        buttonAddStyle.setOnAction(e -> editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.project().getDrawingSets(), choiceBoxAddPFM.getValue())));
+        buttonRemoveStyle.setOnAction(e -> FXHelper.deleteItem(stylesTableView.getSelectionModel(), editingStyles));
         buttonDuplicateStyle.setOnAction(e -> {
             ObservableDrawingStyle style = stylesTableView.getSelectionModel().getSelectedItem();
             if(style != null) {
-                editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.INSTANCE.drawingSets, style));
+                editingStyles.add(new ObservableDrawingStyle(DrawingBotV3.project().getDrawingSets(), style));
             }
         });
-        buttonMoveUpStyle.setOnAction(e -> FXHelper.moveItemUp(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
-        buttonMoveDownStyle.setOnAction(e -> FXHelper.moveItemDown(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
-        buttonMoveDownStyle.setOnAction(e -> FXHelper.moveItemDown(stylesTableView.getSelectionModel().getSelectedItem(), editingStyles));
-
+        buttonMoveUpStyle.setOnAction(e -> FXHelper.moveItemUp(stylesTableView.getSelectionModel(), editingStyles));
+        buttonMoveDownStyle.setOnAction(e -> FXHelper.moveItemDown(stylesTableView.getSelectionModel(), editingStyles));
     }
 
 
@@ -233,7 +240,7 @@ public class FXStylesController {
         });
 
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_PFM, Register.PRESET_LOADER_PFM::getDefaultManager, menuButtonPFMPresets, false, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, Register.PRESET_LOADER_PFM::getDefaultManager, false, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering
@@ -252,7 +259,7 @@ public class FXStylesController {
         tableColumnLock.setCellFactory(param -> new CheckBoxTableCell<>(index -> tableColumnLock.getCellObservableValue(index)));
         tableColumnLock.setCellValueFactory(param -> param.getValue().randomiseExclude);
 
-        tableColumnSetting.setCellValueFactory(param -> param.getValue().key);
+        tableColumnSetting.setCellValueFactory(param -> param.getValue().displayNameProperty());
 
         tableColumnValue.setCellFactory(param -> {
             TextFieldTableCell<GenericSetting<?, ?>, Object> cell = new TextFieldTableCell<>();
@@ -264,7 +271,7 @@ public class FXStylesController {
         tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
         tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(comboBoxPFMPreset.getValue()));
+        buttonPFMSettingReset.setOnAction(e -> Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(DrawingBotV3.context(), comboBoxPFMPreset.getValue()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));

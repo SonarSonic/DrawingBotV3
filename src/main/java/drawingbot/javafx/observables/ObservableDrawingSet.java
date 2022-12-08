@@ -36,7 +36,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
     public ObservableDrawingSet(IDrawingSet<?> source){
         this.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
-        this.distributionType.set(EnumDistributionType.getRecommendedType());
+        this.distributionType.set(EnumDistributionType.EVEN_WEIGHTED);
         this.colourSeperator.set(Register.DEFAULT_COLOUR_SPLITTER);
 
         loadDrawingSet(source);
@@ -49,7 +49,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
             ObservableDrawingSet drawingSet = (ObservableDrawingSet)source;
             this.distributionOrder.set(drawingSet.distributionOrder.get());
             this.distributionType.set(drawingSet.distributionType.get());
-            this.colourSeperator.set(drawingSet.colourSeperator.get());
+            this.colourSeperator.set(drawingSet.colourSeperator.get() == null ? Register.DEFAULT_COLOUR_SPLITTER : drawingSet.colourSeperator.get());
         }
 
         this.pens.clear();
@@ -64,8 +64,18 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         Platform.runLater(() -> DrawingBotV3.INSTANCE.onDrawingSetChanged()); //TODO REMOVE ME!
     }
 
-    public void addNewPen(IDrawingPen pen){
-        pens.add(new ObservableDrawingPen(pens.size(), pen));
+    public void mergePens(List<ObservableDrawingPen> pens){
+        for(IDrawingPen pen : pens){
+            if(!containsPen(pen)){
+                pens.add(new ObservableDrawingPen(pens.size(), pen));
+            }
+        }
+    }
+
+    public ObservableDrawingPen addNewPen(IDrawingPen pen){
+        ObservableDrawingPen newPen = new ObservableDrawingPen(pens.size(), pen);
+        pens.add(newPen);
+        return newPen;
     }
 
     public int[] calculateRenderOrder(){

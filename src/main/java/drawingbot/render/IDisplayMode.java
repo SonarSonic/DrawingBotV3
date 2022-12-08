@@ -14,4 +14,8 @@ public interface IDisplayMode {
 
     FlagStates getRenderFlags();
 
+    default boolean isHidden(){
+        return false;
+    }
+
 }

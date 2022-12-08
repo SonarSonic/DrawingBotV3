@@ -2,7 +2,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.11'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id "org.beryx.runtime" version "1.12.7"
 }
 
@@ -43,6 +43,8 @@ dependencies {
     implementation "org.apache.bcel:bcel:${bcel_version}"
     implementation "com.aparapi:aparapi:${aparapi_version}"
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
+    implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
+    implementation 'org.fxmisc.easybind:easybind:1.0.3'
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
 

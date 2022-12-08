@@ -1,12 +1,16 @@
 package drawingbot.javafx.controllers;
 
+import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
-public class FXBatchProcessing {
+import java.util.List;
 
-    public AnchorPane anchorPaneBatchProcessing = null;
+public class FXBatchProcessing extends AbstractFXController {
+
+    public VBox vboxBatchProcessing = null;
 
     public Label labelInputFolder = null;
     public Label labelOutputFolder = null;
@@ -29,4 +33,8 @@ public class FXBatchProcessing {
         ///NOP
     }
 
+    @Override
+    public List<Styleable> getPersistentNodes() {
+        return List.of(tableColumnFileFormat, tableColumnPerDrawing, tableColumnPerPen, tableColumnPerGroup);
+    }
 }

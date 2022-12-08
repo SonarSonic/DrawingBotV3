@@ -5,11 +5,12 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
 import drawingbot.geom.operation.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.geom.shapes.*;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
@@ -68,17 +69,16 @@ public class GeometryUtils {
     }
 
     public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
+
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
-        if(task.exportHandler.isVector && !forceBypassOptimisation && ConfigFileHandler.getApplicationSettings().pathOptimisationEnabled){
+        if(task.exportHandler.isVector && !forceBypassOptimisation && DBPreferences.INSTANCE.pathOptimisationEnabled.getValue()){
 
             geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
-            if(ConfigFileHandler.getApplicationSettings().lineSortingEnabled){
+            if(DBPreferences.INSTANCE.lineSortingEnabled.get()){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
-            //geometryOperations.add(new GeometryOperationSortGroupOrder());
         }
-
         return geometryOperations;
 
     }
@@ -241,6 +241,9 @@ public class GeometryUtils {
     public static void toLineStrings(IGeometry geometry, AffineTransform transform, List<LineString> lineStrings){
         List<Coordinate[]> coordinates = ShapeReader.toCoordinates(new FlatteningPathIterator(geometry.getAWTShape().getPathIterator(transform), 6D));
         for (Coordinate[] coordinate : coordinates) {
+            if(coordinate.length < 2){
+                continue;
+            }
             LineString lineString = factory.createLineString(coordinate);
             lineStrings.add(lineString);
         }
@@ -272,6 +275,59 @@ public class GeometryUtils {
 
     public static GPath geometryToGPath(Geometry string, AffineTransform transform){
         return new GPath(new ShapeWriter().toShape(string), transform);
+    }
+
+    public static IGeometry createMultiPassGeometry(IGeometry geometry, int multiPassCount){
+        if(multiPassCount <= 1){
+            return geometry.copyGeometry();
+        }
+        GPath finalPath = new GPath(geometry.getAWTShape());
+        GeometryUtils.copyGeometryData(finalPath, geometry);
+
+        GPath normalPath = (GPath) finalPath.copyGeometry();
+        GPath reversedPath = GeometryUtils.reverseGPath(normalPath);
+
+        for(int i = 1; i < multiPassCount; i ++){
+            if((i % 2) == 0){ //if the pass is even
+                normalPath.addToPath(false, finalPath);
+            }else{ //if the pass is odd
+                reversedPath.addToPath(false, finalPath);
+            }
+        }
+        return finalPath;
+    }
+
+    public static GPath reverseGPath(GPath gPath){
+        GPath reversedPath = new GPath();
+        GeometryUtils.copyGeometryData(reversedPath, gPath);
+
+        List<IGeometry> geometries = new ArrayList<>();
+        splitGPath(gPath, geometries::add);
+        Collections.reverse(geometries);
+
+        IPathElement last = null;
+        for(IGeometry geometry : geometries){
+            IPathElement pathElement = (IPathElement) geometry;
+
+            if(last == null || !last.getP1().equals(pathElement.getP2())){
+                reversedPath.moveTo(pathElement.getP2().getX(), pathElement.getP2().getY());
+            }
+
+            if(geometry instanceof GLine){
+                GLine gLine = (GLine) geometry;
+                reversedPath.lineTo(gLine.x1, gLine.y1);
+            }
+            if(geometry instanceof GQuadCurve){
+                GQuadCurve gQuad = (GQuadCurve) geometry;
+                reversedPath.quadTo(gQuad.ctrlx, gQuad.ctrly, gQuad.x1, gQuad.y1);
+            }
+            if(geometry instanceof GCubicCurve){
+                GCubicCurve gCubic = (GCubicCurve) geometry;
+                reversedPath.curveTo(gCubic.ctrlx2, gCubic.ctrly2, gCubic.ctrlx1, gCubic.ctrly1, gCubic.x1, gCubic.y1);
+            }
+            last = pathElement;
+        }
+        return reversedPath;
     }
 
     public static void splitGPath(GPath gPath, Consumer<IGeometry> consumer){
@@ -401,6 +457,30 @@ public class GeometryUtils {
             count+=geometryList.size();
         }
         return count;
+    }
+
+    public static javafx.scene.shape.Shape convertGeometryToJFXShape(IGeometry geometry){
+        for(JFXGeometryConverter converter : MasterRegistry.INSTANCE.jfxGeometryConverters){
+            if(converter.canConvert(geometry)){
+                return converter.convert(geometry);
+            }
+        }
+        return MasterRegistry.INSTANCE.getFallbackJFXGeometryConverter().convert(geometry);
+    }
+
+    public static boolean updateJFXShapeFromGeometry(javafx.scene.shape.Shape shape, IGeometry geometry){
+        for(JFXGeometryConverter converter : MasterRegistry.INSTANCE.jfxGeometryConverters){
+            if(converter.canUpdate(shape)){
+                converter.update(shape, geometry);
+                return true;
+            }
+        }
+        JFXGeometryConverter fallback = MasterRegistry.INSTANCE.getFallbackJFXGeometryConverter();
+        if(fallback.canUpdate(shape)){
+            fallback.update(shape, geometry);
+            return true;
+        }
+        return false;
     }
 
 }

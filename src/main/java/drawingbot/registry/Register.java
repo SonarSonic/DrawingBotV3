@@ -1,8 +1,21 @@
 package drawingbot.registry;
 
 import com.jhlabs.image.*;
+import drawingbot.FXApplication;
 import drawingbot.api.IPlugin;
+import drawingbot.files.json.projects.PresetProjectSettingsLoader;
+import drawingbot.files.json.projects.PresetProjectSettingsManager;
+import drawingbot.files.loaders.ImageFileLoaderFactory;
+import drawingbot.files.loaders.ProjectFileLoaderFactory;
+import drawingbot.geom.converters.*;
+import drawingbot.javafx.controls.DialogExportDialog;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.FXPreferences;
+import drawingbot.plugins.*;
+import drawingbot.render.overlays.DrawingBorderOverlays;
+import drawingbot.render.overlays.NotificationOverlays;
+import drawingbot.render.overlays.ShapeOverlays;
+import drawingbot.render.overlays.RulerOverlays;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Metadata;
 import drawingbot.files.json.presets.*;
@@ -10,11 +23,6 @@ import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.drawing.*;
 import drawingbot.geom.shapes.*;
-import drawingbot.plugins.CopicPenPlugin;
-import drawingbot.plugins.SakuraPenPlugin;
-import drawingbot.plugins.DiamineInkPlugin;
-import drawingbot.plugins.SpecialPenPlugin;
-import drawingbot.plugins.StaedtlerPenPlugin;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.files.exporters.*;
@@ -23,14 +31,15 @@ import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
 import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.controls.DialogExportGCodeBegin;
 import drawingbot.pfm.*;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.modes.DrawingJFXDisplayMode;
 import drawingbot.render.modes.ImageJFXDisplayMode;
+import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,11 +50,14 @@ public class Register implements IPlugin {
     public static Register INSTANCE = new Register();
 
     //// PRESET LOADERS \\\\
-    public static PresetType PRESET_TYPE_CONFIGS;
+    public static PresetType PRESET_TYPE_APPLICATION_SETTINGS;
     public static ConfigJsonLoader PRESET_LOADER_CONFIGS;
 
     public static PresetType PRESET_TYPE_PROJECT;
     public static PresetProjectSettingsLoader PRESET_LOADER_PROJECT;
+
+    public static PresetType PRESET_TYPE_UI_SETTINGS;
+    public static PresetUISettingsLoader PRESET_LOADER_UI_SETTINGS;
 
     public static PresetType PRESET_TYPE_PFM;
     public static PresetPFMSettingsLoader PRESET_LOADER_PFM;
@@ -73,6 +85,13 @@ public class Register implements IPlugin {
     public static final String CATEGORY_DEFAULT = "Default"; // Priority = 10
     public static final String CATEGORY_UNIQUE = "Unique"; // Priority = 5
     public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
+    public static final String CATEGORY_PFM_SKETCH = "Sketch";
+    public static final String CATEGORY_PFM_VORONOI = "Voronoi";
+    public static final String CATEGORY_PFM_ADAPTIVE = "Adaptive";
+    public static final String CATEGORY_PFM_MOSAIC = "Mosaic";
+    public static final String CATEGORY_PFM_SPECIAL = "Special";
+    public static final String CATEGORY_PFM_WIP = "W.I.P";
+
 
     //// DISPLAY MODES \\\\
     public IDisplayMode DISPLAY_MODE_IMAGE;
@@ -82,6 +101,7 @@ public class Register implements IPlugin {
     public IDisplayMode DISPLAY_MODE_LIGHTENED;
     public IDisplayMode DISPLAY_MODE_TONE_MAP;
     public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
+    public IDisplayMode DISPLAY_MODE_IMAGE_CROPPING;
 
     //// DRAWING METADATA \\\\
     public Metadata<File> ORIGINAL_FILE;
@@ -90,6 +110,7 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> PLOTTING_IMAGE;
     public Metadata<BufferedImage> TONE_MAP;
     public Metadata<Object> TONE_MAPPING;
+    public Metadata<Shape> CLIPPING_SHAPE;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
@@ -102,19 +123,22 @@ public class Register implements IPlugin {
 
     @Override
     public void registerPlugins(List<IPlugin> newPlugins) {
+        newPlugins.add(new BicPensPlugin());
         newPlugins.add(new CopicPenPlugin());
         newPlugins.add(new SakuraPenPlugin());
         newPlugins.add(new DiamineInkPlugin());
         newPlugins.add(new StaedtlerPenPlugin());
+        newPlugins.add(new WinsorNewtonPenPlugin());
         newPlugins.add(new SpecialPenPlugin());
     }
 
     @Override
     public void preInit() {
 
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_CONFIGS = new PresetType("config_settings"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_APPLICATION_SETTINGS = new PresetType("config_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings").setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen"));
@@ -122,8 +146,9 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings"));
 
-        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_CONFIGS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_APPLICATION_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_UI_SETTINGS = new PresetUISettingsLoader(PRESET_TYPE_UI_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PFM = new PresetPFMSettingsLoader(PRESET_TYPE_PFM));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_FILTERS = new PresetImageFiltersLoader(PRESET_TYPE_FILTERS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_SET = new PresetDrawingSetLoader(PRESET_TYPE_DRAWING_SET));
@@ -132,12 +157,21 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_GCODE_SETTINGS = new PresetGCodeSettingsLoader(PRESET_TYPE_GCODE_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
 
+        PresetProjectSettingsManager.registerDefaultDataLoaders();
+
         MasterRegistry.INSTANCE.registerGeometryType("line", GLine.class, GLine::new);
         MasterRegistry.INSTANCE.registerGeometryType("path", GPath.class, GPath::new);
         MasterRegistry.INSTANCE.registerGeometryType("cubic", GCubicCurve.class, GCubicCurve::new);
         MasterRegistry.INSTANCE.registerGeometryType("quad", GQuadCurve.class, GQuadCurve::new);
         MasterRegistry.INSTANCE.registerGeometryType("rect", GRectangle.class, GRectangle::new);
         MasterRegistry.INSTANCE.registerGeometryType("ellipse", GEllipse.class, GEllipse::new);
+
+        MasterRegistry.INSTANCE.setFallbackJFXGeometryConverter(new JFXPathConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXLineConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXEllipseConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXRectangleConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXCubicCurveConverter());
+        MasterRegistry.INSTANCE.registerJFXGeometryConverter(new JFXQuadCurveConverter());
 
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_DEFAULT, 10);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);
@@ -150,21 +184,33 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new ImageJFXDisplayMode.Lightened());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new ImageJFXDisplayMode.ToneMap());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new ImageJFXDisplayMode.Cropping());
 
-        MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, true));
-        MasterRegistry.INSTANCE.registerDrawingMetadata(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, true));
+        MasterRegistry.INSTANCE.registerOverlay(RulerOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(NotificationOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(ShapeOverlays.INSTANCE);
+
+        MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(REFERENCE_IMAGE = new Metadata<>("reference_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(PLOTTING_IMAGE = new Metadata<>("plotting_image", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
+
+        MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
+        MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());
     }
 
     @Override
     public void registerPFMS() {
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchLines.class, "Sketch Lines PFM", PFMSketchLines::new, false, true).hasSampledARGB(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSketchSquares.class, "Sketch Squares PFM", PFMSketchSquares::new, false, false).hasSampledARGB(true);
-        MasterRegistry.INSTANCE.registerPFM(PFMSpiral.class, "Spiral PFM", PFMSpiral::new, false, true).setTransparentCMYK(false);
-        MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
+        if(!FXApplication.isPremiumEnabled){ //swap out the basic PFMS for the premium ones
+            MasterRegistry.INSTANCE.registerPFM(PFMSketchLinesBasic.class, "Sketch Lines PFM", CATEGORY_PFM_SKETCH, PFMSketchLinesBasic::new, false, true).hasSampledARGB(true);
+            MasterRegistry.INSTANCE.registerPFM(PFMSketchSquaresBasic.class, "Sketch Squares PFM", CATEGORY_PFM_SKETCH, PFMSketchSquaresBasic::new, false, false).hasSampledARGB(true);
+            MasterRegistry.INSTANCE.registerPFM(PFMSpiralBasic.class, "Spiral PFM", CATEGORY_PFM_SPECIAL, PFMSpiralBasic::new, false, true).setTransparentCMYK(false);
+            MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", CATEGORY_PFM_SPECIAL, PFMTest::new, true, true).setDistributionType(EnumDistributionType.SINGLE_PEN);
+        }
     }
 
     @Override
@@ -174,36 +220,39 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractPFM.class, CATEGORY_DEFAULT, "Random Seed", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, (pfm, value) -> pfm.tools.setRandomSeed(value)).setToneMappingExclude(true));
 
         //// SKETCH LINES \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Min", -72, -360, 360, (pfm, value) -> pfm.startAngleMin = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Start Angle Max", -52, -360, 360, (pfm, value) -> pfm.startAngleMax = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Drawing Delta Angle", 360F, -360F, 360F, (pfm, value) -> pfm.drawingDeltaAngle = value).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading", false, (pfm, value) -> pfm.enableShading = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading Threshold", 50, 0, 100, (pfm, value) -> pfm.shadingThreshold = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Shading Delta Angle", 180F, -360F, 360F, (pfm, value) -> pfm.shadingDeltaAngle = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLinesBasic.class, CATEGORY_GENERIC, "Start Angle Min", -72, -360, 360, (pfm, value) -> pfm.startAngleMin = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchLinesBasic.class, CATEGORY_GENERIC, "Start Angle Max", -52, -360, 360, (pfm, value) -> pfm.startAngleMax = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLinesBasic.class, CATEGORY_GENERIC, "Drawing Delta Angle", 360F, -360F, 360F, (pfm, value) -> pfm.drawingDeltaAngle = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLinesBasic.class, "Shading", "Shading", false, (pfm, value) -> pfm.enableShading = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLinesBasic.class, "Shading", "Shading Threshold", 50, 0, 100, (pfm, value) -> pfm.shadingThreshold = value/100).createDisableBinding("Shading", false));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSketchLinesBasic.class, "Shading", "Shading Delta Angle", 180F, -360F, 360F, (pfm, value) -> pfm.shadingDeltaAngle = value).setRandomiseExclude(true).createDisableBinding("Shading", false));
 
         //// SKETCH SQUARES \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquares.class, CATEGORY_UNIQUE, "Start Angle", 45, -360, 360, (pfm, value) -> pfm.startAngle = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquaresBasic.class, CATEGORY_UNIQUE, "Start Angle", 45, -360, 360, (pfm, value) -> pfm.startAngle = value));
 
         //// SPIRAL \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Spiral Size", 100F, 0F, 100F, (pfm, value) -> pfm.fillPercentage = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Centre X", 50F, 0F, 100F, (pfm, value) -> pfm.centreXScale = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Centre Y", 50F, 0F, 100F, (pfm, value) -> pfm.centreYScale = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Ring Spacing", 7F, 0F, 100F, (pfm, value) -> pfm.distBetweenRings = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Amplitude", 4.5F, 0F, 50F, (pfm, value) -> pfm.ampScale = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiral.class, CATEGORY_UNIQUE, "Density", 75F, 0F, 1000F, (pfm, value) -> pfm.density = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Spiral Size", 100F, 0F, 100F, (pfm, value) -> pfm.fillPercentage = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Centre X", 50F, 0F, 100F, (pfm, value) -> pfm.centreXScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Centre Y", 50F, 0F, 100F, (pfm, value) -> pfm.centreYScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Ring Spacing", 7F, 0F, 100F, (pfm, value) -> pfm.distBetweenRings = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Amplitude", 4.5F, 0F, 50F, (pfm, value) -> pfm.ampScale = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Density", 75F, 0F, 1000F, (pfm, value) -> pfm.density = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Connected Lines", true, (pfm, value) -> pfm.connected = value));
 
         //// ABSTRACT SKETCH PFM \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Line Density", 75F, 0F, 100F, (pfm, value) -> pfm.lineDensity = value/100).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Min Line length", 2, 2, Short.MAX_VALUE, (pfm, value) -> pfm.minLineLength = value).setSafeRange(2, 500));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Max Line length", 40, 2, Short.MAX_VALUE, (pfm, value) -> pfm.maxLineLength = value).setSafeRange(2, 500));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Max Line Limit", -1, -1, Integer.MAX_VALUE, (pfm, value) -> pfm.maxLines = value).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Squiggle Length", 500, 1, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleLength = value).setSafeRange(1, 5000));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Squiggle Max Deviation", 25, 0, 100, (pfm, value) -> pfm.squiggleDeviation = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Segments", "Line Density", 75F, 0F, 100F, (pfm, value) -> pfm.lineDensity = value/100).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Min Length", 2, 2, Short.MAX_VALUE, (pfm, value) -> pfm.minLineLength = value).setSafeRange(2, 500).addAltKey("Min Line length"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Length", 40, 2, Short.MAX_VALUE, (pfm, value) -> pfm.maxLineLength = value).setSafeRange(2, 500).addAltKey("Max Line length"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Limit", -1, -1, Integer.MAX_VALUE, (pfm, value) -> pfm.maxLines = value).setRandomiseExclude(true).addAltKey("Max Line Limit"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Min Length", 25, 0, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleMinLength = value).setSafeRange(0, 5000).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Length", 500, 1, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleMaxLength = value).setSafeRange(1, 5000).addAltKey("Squiggle Length"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Deviation", 25, 0, 100, (pfm, value) -> pfm.squiggleMaxDeviation = value/100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Style", "Should Lift Pen", true, (pfm, value) -> pfm.shouldLiftPen = value).setRandomiseExclude(true));
+
 
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Adjust Brightness", 50, 1, 255, (pfm, value) -> pfm.adjustbrightness = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLines.class, CATEGORY_GENERIC, "Unlimited Tests", false, (pfm, value) -> pfm.unlimitedTests = value).setRandomiseExclude(true));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Neighbour Tests", 20, 1, 3200, (pfm, value) -> pfm.lineTests = value).setSafeRange(0, 360));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Should Lift Pen", true, (pfm, value) -> pfm.shouldLiftPen = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLinesBasic.class, "Segments", "Unlimited Tests", false, (pfm, value) -> pfm.unlimitedTests = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Angle Tests", 20, 1, 3200, (pfm, value) -> pfm.lineTests = value).setSafeRange(0, 360).addAltKey("Neighbour Tests").createDisableBinding("Unlimited Tests", true));
 
     }
 
@@ -368,11 +417,11 @@ public class Register implements IPlugin {
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, DiffuseFilter.class, "Diffuse", DiffuseFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(DiffuseFilter.class, "Scale", 4, 0, 100, DiffuseFilter::setScale));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DiffuseFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DiffuseFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, DisplaceFilter.class, "Displace", DisplaceFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(DisplaceFilter.class, "Amount", 1, 0, 100, DisplaceFilter::setAmount));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DisplaceFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(DisplaceFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, KaleidoscopeFilter.class, "Kaleidoscope", KaleidoscopeFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(KaleidoscopeFilter.class, "Centre X", 0.5F, 0F, 1F, KaleidoscopeFilter::setCentreX));
@@ -381,7 +430,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(KaleidoscopeFilter.class, "Angle 2", -180, 0, 180, KaleidoscopeFilter::setAngle2).setMajorTick(90));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(KaleidoscopeFilter.class, "Radius", 0F, 0F, 200F, KaleidoscopeFilter::setRadius));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(KaleidoscopeFilter.class, "Sides", 3, 0, 32, KaleidoscopeFilter::setSides));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(KaleidoscopeFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(KaleidoscopeFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, MarbleFilter.class, "Marble", MarbleFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(MarbleFilter.class, "Scale", 4, 0, 100, (filter, value) -> {
@@ -390,7 +439,7 @@ public class Register implements IPlugin {
         }));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(MarbleFilter.class, "Amount", 1, 0, 1, MarbleFilter::setAmount));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(MarbleFilter.class, "Turbulence", 1, 0, 15, MarbleFilter::setTurbulence));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(MarbleFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(MarbleFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.CLAMP, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         /// MISSING: OFFSET - NOT REALLY NEEDED
 
@@ -403,13 +452,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(RippleFilter.class, "X Wavelength", 16F, 0F, 100F, RippleFilter::setXWavelength));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(RippleFilter.class, "Y Amplitude", 0F, 0F, 100F, RippleFilter::setYAmplitude));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(RippleFilter.class, "Y Wavelength", 16F, 0F, 100F, RippleFilter::setYWavelength));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, EnumWaveType.class, "Shape", List.of(EnumWaveType.values()), EnumWaveType.SINE, (filter, value) -> filter.setWaveType(value.getWaveType())));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, EnumWaveType.class, "Shape", FXCollections.observableArrayList(EnumWaveType.values()), EnumWaveType.SINE, (filter, value) -> filter.setWaveType(value.getWaveType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(RippleFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.DISTORT, ShearFilter.class, "Shear", ShearFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ShearFilter.class, "X Angle", -60F, 0F, 60F, ShearFilter::setXAngle).setMajorTick(30F));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ShearFilter.class, "Y Angle", -60F, 0F, 60F, ShearFilter::setYAngle).setMajorTick(30F));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShearFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShearFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         /// MISSING: SPHERE - REQUIRES ADDITIONAL RENDERING
 
@@ -420,7 +469,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(SwimFilter.class, "Turbulence", 1F, 1F, 10F, SwimFilter::setTurbulence));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(SwimFilter.class, "Amount", 1F, 0F, 100F, SwimFilter::setAmount));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(SwimFilter.class, "Time", 0F, 0F, 100F, SwimFilter::setTime));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(SwimFilter.class, EnumEdgeAction.class, "Edges", List.of(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(SwimFilter.class, EnumEdgeAction.class, "Edges", FXCollections.observableArrayList(EnumEdgeAction.values()), EnumEdgeAction.TRANSPARENT, (filter, value) -> filter.setEdgeAction(value.getEdgeAction())));
 
         /// MISSING: TWIRL - REQUIRES ADDITIONAL RENDERING
 
@@ -429,8 +478,8 @@ public class Register implements IPlugin {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.EDGES, EdgeFilter.class, "Detect Edges", EdgeFilter::new, false);
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, EnumEdgeDetect.class, "Horizontal", List.of(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setHEdgeMatrix(value.getHorizontalMatrix())));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, EnumEdgeDetect.class, "Vertical", List.of(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setVEdgeMatrix(value.getVerticalMatrix())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, EnumEdgeDetect.class, "Horizontal", FXCollections.observableArrayList(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setHEdgeMatrix(value.getHorizontalMatrix())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(EdgeFilter.class, EnumEdgeDetect.class, "Vertical", FXCollections.observableArrayList(EnumEdgeDetect.values()), EnumEdgeDetect.SOBEL, (filter, value) -> filter.setVEdgeMatrix(value.getVerticalMatrix())));
 
         /// MISSING DIFFERENCE OF GAUSSIANS
 
@@ -511,7 +560,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(CrystallizeFilter.class, "Angle", 0, 0, 360, CrystallizeFilter::setAngle).setMajorTick(90));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(CrystallizeFilter.class, "Randomness", 0F, 0F, 1F, CrystallizeFilter::setRandomness));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(CrystallizeFilter.class, "Edges", 0.4F, 0F, 1F, CrystallizeFilter::setEdgeThickness));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(CrystallizeFilter.class, EnumPixellateGridType.class, "Grid Type", List.of(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(CrystallizeFilter.class, EnumPixellateGridType.class, "Grid Type", FXCollections.observableArrayList(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(CrystallizeFilter.class, "Fade Edges", false, CrystallizeFilter::setFadeEdges));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createColourSetting(CrystallizeFilter.class, "Edge Colour", Color.BLACK, (filter, value) -> filter.setEdgeColor(ImageTools.getARGBFromColor(value))));
 
@@ -524,7 +573,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(PointillizeFilter.class, "Randomness", 0F, 0F, 1F, PointillizeFilter::setRandomness));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(PointillizeFilter.class, "Dot Size", 0.4F, 0F, 1F, PointillizeFilter::setEdgeThickness));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(PointillizeFilter.class, "Fuzziness", 0.1F, 0F, 1F, PointillizeFilter::setFuzziness));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(PointillizeFilter.class, EnumPixellateGridType.class, "Grid Type", List.of(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(PointillizeFilter.class, EnumPixellateGridType.class, "Grid Type", FXCollections.observableArrayList(EnumPixellateGridType.values()), EnumPixellateGridType.HEXAGONAL, (filter, value) -> filter.setGridType(value.getGridType())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(PointillizeFilter.class, "Fill", false, PointillizeFilter::setFadeEdges));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createColourSetting(PointillizeFilter.class, "Edge Colour", Color.BLACK, (filter, value) -> filter.setEdgeColor(ImageTools.getARGBFromColor(value))));
 
@@ -551,7 +600,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.STYLIZE, NoiseFilter.class, "Noise", NoiseFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(NoiseFilter.class, "Amount", 25, 0, 100, NoiseFilter::setAmount));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(NoiseFilter.class, "Density", 1.0F, 0F, 1F, NoiseFilter::setDensity));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(NoiseFilter.class, EnumNoiseDistribution.class, "Grid Type", List.of(EnumNoiseDistribution.values()), EnumNoiseDistribution.GAUSSIAN, (filter, value) -> filter.setDistribution(value.getDistribution())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(NoiseFilter.class, EnumNoiseDistribution.class, "Grid Type", FXCollections.observableArrayList(EnumNoiseDistribution.values()), EnumNoiseDistribution.GAUSSIAN, (filter, value) -> filter.setDistribution(value.getDistribution())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(NoiseFilter.class, "Monochrome", false, NoiseFilter::setMonochrome));
 
         /// CONTOURS
@@ -616,7 +665,7 @@ public class Register implements IPlugin {
         ///SHAPEBURST
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.STYLIZE, ShapeFilter.class, "Shape Burst", ShapeFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(ShapeFilter.class, "Factor", 1.0F, 0F, 5.0F, ShapeFilter::setFactor));
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShapeFilter.class, EnumShapeFilter.class, "Shape Type", List.of(EnumShapeFilter.values()), EnumShapeFilter.LINEAR, (filter, value) -> filter.setType(value.getShapeType())));
+        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createOptionSetting(ShapeFilter.class, EnumShapeFilter.class, "Shape Type", FXCollections.observableArrayList(EnumShapeFilter.values()), EnumShapeFilter.LINEAR, (filter, value) -> filter.setType(value.getShapeType())));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(ShapeFilter.class, "Invert", false, ShapeFilter::setInvert));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(ShapeFilter.class, "Merge", false, ShapeFilter::setMerge));
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(ShapeFilter.class, "Use Alpha", false, ShapeFilter::setUseAlpha));
@@ -662,17 +711,18 @@ public class Register implements IPlugin {
         //MasterRegistry.INSTANCE.registerImageFilterKernelFactory(new AbstractKernelFactory());
     }
 
-    public static DrawingExportHandler EXPORT_SVG, EXPORT_INKSCAPE_SVG, EXPORT_IMAGE, EXPORT_HPGL, EXPORT_PDF, EXPORT_GCODE, EXPORT_GCODE_TEST;
+    public static DrawingExportHandler EXPORT_SVG, EXPORT_INKSCAPE_SVG, EXPORT_IMAGE, EXPORT_HPGL, EXPORT_PDF, EXPORT_GCODE, EXPORT_GCODE_TEST, EXPORT_REF_IMAGE;
 
     @Override
     public void registerDrawingExportHandlers(){
-        EXPORT_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "Export SVG (.svg)", true, SVGExporter::exportBasicSVG, FileUtils.FILTER_SVG));
-        EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "Export Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
-        EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "Export Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA));
-        EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
-        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
-        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportGCodeBegin(), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
-     }
+        EXPORT_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "svg_default", "SVG (.svg)", true, SVGExporter::exportBasicSVG, FileUtils.FILTER_SVG));
+        EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "svg_inkscape", "Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
+        EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_default", "Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
+        EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "pdf_default", "PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
+        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_default", "GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogExportDialog("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_test", "GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportDialog("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_REF_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_reference", "Reference Image File (.png, .jpg, etc.)", false, ImageExporter::exportReferenceImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
+    }
 
     public static ColourSeperationHandler DEFAULT_COLOUR_SPLITTER;
 
@@ -681,4 +731,8 @@ public class Register implements IPlugin {
         DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("Default"));
      }
 
+    @Override
+    public void registerPreferencePages() {
+        FXPreferences.registerDefaults();
+    }
 }

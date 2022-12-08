@@ -1,0 +1,30 @@
+.selection-bounding-box{
+    -fx-stroke : black;
+    -fx-stroke-width: 1;
+    -fx-fill: transparent;
+    -fx-stroke-dash-array: 4;
+    -fx-smooth: false;
+}
+
+.selection-resize-handle{
+    -fx-stroke : black;
+    -fx-stroke-width: 1;
+    -fx-fill: white;
+}
+
+.jfx-shape{
+    -fx-fill: rgba(125, 125, 125, 0.2);
+}
+
+.jfx-shape:reshape{
+    -fx-fill: rgba(125, 125, 255, 0.2);
+}
+
+.jfx-shape:masking-add{
+    -fx-fill: rgba(125, 125, 255, 0.5);
+
+}
+
+.jfx-shape:masking-remove{
+    -fx-fill: rgba(255, 125, 125, 0.75);
+}

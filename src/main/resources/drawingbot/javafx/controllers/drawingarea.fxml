@@ -4,9 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="327.0" prefWidth="423.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
-<children>
-    <VBox prefWidth="404.0" spacing="8.0">
+<VBox prefHeight="327.0" prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
+
         <children>
             <HBox spacing="4.0">
                 <children>
@@ -31,20 +30,20 @@
                     <Insets left="10.0" />
                 </padding>
             </HBox>
-            <Pane fx:id="paneDrawingAreaCustom" prefHeight="136.0" prefWidth="390.0">
+            <Pane fx:id="paneDrawingAreaCustom">
                 <children>
-                    <VBox layoutX="5.0" layoutY="-1.0" prefHeight="163.0" prefWidth="384.0" spacing="8.0">
+                    <VBox layoutX="5.0" layoutY="-1.0" prefWidth="384.0" spacing="8.0">
                         <children>
                             <HBox spacing="18.0">
                                 <children>
                                     <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Width:">
                                         <graphic>
-                                            <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="72.0" text="0" />
+                                            <TextField fx:id="textFieldDrawingWidth" prefHeight="25.0" prefWidth="72.0" />
                                         </graphic>
                                     </Label>
                                     <Label contentDisplay="RIGHT" text="Height:">
                                         <graphic>
-                                            <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="72.0" text="0" />
+                                            <TextField fx:id="textFieldDrawingHeight" prefHeight="25.0" prefWidth="72.0" />
                                         </graphic>
                                     </Label>
                               <ChoiceBox fx:id="choiceBoxOrientation" prefHeight="25.0" prefWidth="96.0" />
@@ -63,27 +62,22 @@
                                     </HBox>
                                 </graphic>
                             </Label>
-                            <Label contentDisplay="RIGHT" text="Scaling Mode:">
+                            <Label contentDisplay="RIGHT" text="Cropping Mode:">
                                 <graphic>
-                                    <ChoiceBox fx:id="choiceBoxScalingMode" prefHeight="25.0" prefWidth="283.0" />
+                                    <ChoiceBox fx:id="choiceBoxCroppingMode" prefHeight="25.0" prefWidth="273.0" />
                                 </graphic>
                             </Label>
                             <Separator prefWidth="200.0" />
-                            <HBox prefHeight="34.0" prefWidth="384.0">
+                            <HBox spacing="18.0">
                                 <children>
-                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="133.0" text="Rescale to Pen Width">
+                                    <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Rescale to Pen Width (mm):">
                                         <graphic>
-                                            <CheckBox fx:id="checkBoxOptimiseForPrint" mnemonicParsing="false" selected="true" />
+                                            <TextField fx:id="textFieldPenWidth" prefHeight="25.0" prefWidth="71.0" />
                                         </graphic>
                                     </Label>
-                                    <Label contentDisplay="RIGHT" graphicTextGap="8.0" prefHeight="25.0" prefWidth="220.0" text="Pen Width (mm):" translateX="12.0">
-                                        <graphic>
-                                            <TextField fx:id="textFieldPenWidth" prefHeight="25.0" prefWidth="123.0" text="0" />
-                                        </graphic>
-                                    </Label>
+                              <ChoiceBox fx:id="choiceBoxRescaleMode" prefHeight="25.0" prefWidth="119.0" />
                                 </children>
                             </HBox>
-                            <HBox prefHeight="8.0" prefWidth="384.0" />
                         </children>
                     </VBox>
                 </children>
@@ -91,15 +85,21 @@
                     <Insets left="4.0" top="10.0" />
                 </VBox.margin>
             </Pane>
-            <Pane fx:id="paneDrawingAreaCustom1" prefHeight="40.0" prefWidth="394.0">
+            <Pane fx:id="paneDrawingAreaCustom1">
                 <children>
-                    <VBox layoutX="5.0" layoutY="-1.0" prefHeight="163.0" prefWidth="384.0" spacing="8.0">
+                    <VBox layoutX="5.0" layoutY="-1.0" prefWidth="384.0" spacing="8.0">
                         <children>
                             <Separator prefWidth="200.0" translateX="2.0" />
                             <HBox prefHeight="31.0" prefWidth="384.0">
                                 <children>
-                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="82.0" text="Canvas Color:" translateX="3.0" />
-                                    <ColorPicker fx:id="colorPickerCanvas" prefHeight="25.0" prefWidth="136.0" />
+                                    <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="50.0" text="Canvas:" translateX="3.0" />
+                                    <ColorPicker fx:id="colorPickerCanvas" prefHeight="25.0" prefWidth="118.0" />
+                              <Label contentDisplay="RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="25.0" prefWidth="72.0" text="Background:">
+                                 <HBox.margin>
+                                    <Insets left="12.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <ColorPicker fx:id="colorPickerBackground" layoutX="92.0" layoutY="10.0" prefHeight="25.0" prefWidth="118.0" />
                                 </children>
                             </HBox>
                         <Separator layoutX="10.0" layoutY="10.0" prefWidth="200.0" />
@@ -114,8 +114,6 @@
             </Pane>
         </children>
         <padding>
-            <Insets left="10.0" top="10.0" />
+            <Insets bottom="10.0" left="8.0" right="8.0" top="10.0" />
         </padding>
     </VBox>
-</children>
-</AnchorPane>

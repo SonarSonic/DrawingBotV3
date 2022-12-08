@@ -30,4 +30,7 @@ public interface IPlugin {
     default void registerDrawingExportHandlers(){}
 
     default void registerColourSplitterHandlers() {}
+
+    default void registerPreferencePages() {}
+
 }

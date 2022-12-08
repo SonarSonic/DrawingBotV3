@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.javafx.GenericSetting;
 import javafx.util.StringConverter;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class StringConverterGenericSetting<V> extends StringConverter<V> {
@@ -20,17 +21,23 @@ public class StringConverterGenericSetting<V> extends StringConverter<V> {
 
     public String toString(V object) {
         GenericSetting<?, V> setting = supplier.get();
-        return setting.stringConverter.toString(object);
+        if(setting == null){
+            return "";
+        }
+        if(!setting.type.isInstance(object)){
+            return setting.getValueAsString();
+        }
+        return setting.getStringConverter().toString(object);
     }
 
     public V fromString(String string) {
         GenericSetting<?, V> setting = supplier.get();
         if(setting.hasEditableTextField()){
             try {
-                V value = setting.stringConverter.fromString(string);
-                return setting.validator.apply(value);
+                V value = setting.getStringConverter().fromString(string);
+                return setting.validate(value);
             } catch (Exception e) {
-                DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.key.getName());
+                DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.getKey());
             }
         }
         return setting.value.get();

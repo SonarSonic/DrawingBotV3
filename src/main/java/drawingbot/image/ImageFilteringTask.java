@@ -1,27 +1,29 @@
 package drawingbot.image;
 
-import drawingbot.DrawingBotV3;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.image.format.FilteredImageData;
+import drawingbot.utils.DBTask;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ImageFilteringTask extends Task<FilteredBufferedImage> {
+public class ImageFilteringTask extends DBTask<FilteredImageData> {
 
-    public FilteredBufferedImage image;
+    public FilteredImageData image;
     public AtomicBoolean updating = new AtomicBoolean(false);
 
-    public ImageFilteringTask(FilteredBufferedImage image){
+    public ImageFilteringTask(DBTaskContext context, FilteredImageData image){
+        super(context);
         this.image = image;
     }
 
     @Override
-    protected FilteredBufferedImage call() {
+    protected FilteredImageData call() {
         updateTitle("Image Filtering");
-        image.updateAll();
+        image.updateAll(context.project.imageSettings.get());
         updating.set(true);
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.onImageChanged();
+            context.project.onImageChanged();
             updating.set(false);
         });
         return image;

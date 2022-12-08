@@ -64,8 +64,4 @@ public class LuminanceTest extends PixelTest {
         }
     }
 
-    public boolean isPixelInvalid(IPixelData pixels, int x, int y){
-        return x < 0 || x >= pixels.getWidth() || y < 0 || y >= pixels.getHeight();
-    }
-
 }

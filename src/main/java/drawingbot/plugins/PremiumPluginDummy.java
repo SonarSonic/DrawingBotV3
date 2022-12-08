@@ -7,7 +7,6 @@ import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.javafx.FXController;
-import drawingbot.javafx.FXExportController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
@@ -30,8 +29,7 @@ public class PremiumPluginDummy implements IPlugin {
     public void preInit() {
         Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableBatchProcessingUI);
         Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableColourSplitterUI);
-        Hooks.addHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this::disableHPGLUI);
-        Hooks.addHook(Hooks.FX_EXPORT_CONTROLLER_POST_INIT, this::disableOpenGL);
+        Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableOpenGL);
         Hooks.addHook(Hooks.FILE_MENU, this::initMenuOption);
 
         MasterRegistry.INSTANCE.registerDisplayMode(new IDisplayMode() {
@@ -63,41 +61,41 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerPFMS() {
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Curves PFM", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Quad Beziers PFM", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Cubic Beziers PFM", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Catmull-Roms PFM", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Shapes PFM", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sobel Edges PFM", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Waves PFM", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Curves PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Quad Beziers PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Cubic Beziers PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Catmull-Roms PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Shapes PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sobel Edges PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Waves PFM", Register.CATEGORY_PFM_SKETCH, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Circular Scribbles", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.ALPHA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Shapes", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Triangulation", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Tree", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Stippling", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Diagram", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive TSP", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Circular Scribbles", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.ALPHA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Shapes", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Triangulation", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Tree", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Stippling", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Diagram", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive TSP", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Circles", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Triangulation", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Tree", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Stippling", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Dashes", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Circles", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Triangulation", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Tree", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Stippling", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Dashes", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", Register.CATEGORY_PFM_VORONOI, DummyPFM::new, false, false).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", DummyPFM::new, false, false).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new, false, false).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new, false, false).setPremium(true).setReleaseState(EnumReleaseState.BETA);
     }
 
     public Object[] disableBatchProcessingUI(Object...objects){
         FXController controller = (FXController)objects[0];
-        controller.batchProcessingController.anchorPaneBatchProcessing.setDisable(true);
+        controller.batchProcessingController.vboxBatchProcessing.setDisable(true);
         controller.titledPaneBatchProcessing.setText(controller.titledPaneBatchProcessing.getText() + " (Premium)");
-        controller.batchProcessingController.anchorPaneBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
+        controller.batchProcessingController.vboxBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         controller.titledPaneBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         return objects;
     }
@@ -117,23 +115,12 @@ public class PremiumPluginDummy implements IPlugin {
         return objects;
     }
 
-    public Object[] disableHPGLUI(Object...objects) {
-        FXExportController controller = (FXExportController) objects[0];
-        controller.anchorPaneHPGLSettings.setDisable(true);
-        controller.tabHPGLSettings.getTabPane().setOnMouseClicked(e -> {
-            if(controller.tabHPGLSettings.isSelected()){
-                FXController.showPremiumFeatureDialog();
-            }
-        });
-        return objects;
-    }
-
-
     public Object[] disableOpenGL(Object...values) {
-        DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
+        FXController controller = (FXController) values[0];
+        controller.choiceBoxDisplayMode.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null && newValue.getRenderer() != null && !newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled){
                 FXController.showPremiumFeatureDialog();
-                Platform.runLater(() -> DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));
+                Platform.runLater(() -> DrawingBotV3.project().displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));
             }
         });
         return values;
@@ -150,10 +137,10 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerDrawingExportHandlers() {
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION,"Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MP4)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION,"Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MOV)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264","Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MP4)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422","Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MOV)).setPremium();
     }
 
     @Override

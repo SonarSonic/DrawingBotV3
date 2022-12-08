@@ -3,6 +3,7 @@ package drawingbot.files.json.presets;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericPreset;
@@ -18,13 +19,13 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
         super(PresetPFMSettings.class, presetType, "user_pfm_presets.json");
         setDefaultManager(new PresetPFMSettingsManager(this) {
             @Override
-            public Property<PFMFactory<?>> pfmProperty() {
-                return DrawingBotV3.INSTANCE.pfmSettings.factory;
+            public Property<PFMFactory<?>> pfmProperty(DBTaskContext context) {
+                return context.project().getPFMSettings().factoryProperty();
             }
 
             @Override
-            public Property<ObservableList<GenericSetting<?, ?>>> settingProperty() {
-                return DrawingBotV3.INSTANCE.pfmSettings.settings;
+            public Property<ObservableList<GenericSetting<?, ?>>> settingProperty(DBTaskContext context) {
+                return context.project().getPFMSettings().settingsProperty();
             }
         });
     }
@@ -48,7 +49,7 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public GenericPreset<PresetPFMSettings> getDefaultPreset() {
-        return MasterRegistry.INSTANCE.getDefaultPreset(this, DrawingBotV3.INSTANCE.pfmSettings.factory.get().getName(), "Default");
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, MasterRegistry.INSTANCE.getDefaultPFM().getName(), "Default");
     }
 
     @Override

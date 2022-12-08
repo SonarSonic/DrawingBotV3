@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -7,9 +8,12 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<VBox prefHeight="848.0" prefWidth="1286.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
+<VBox fx:id="vBoxMain" prefHeight="848.0" prefWidth="1124.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXController">
+   <stylesheets>
+      <URL value="@default-styles.css" />
+   </stylesheets>
+   <children>
+    <MenuBar fx:id="menuBar" VBox.vgrow="NEVER">
       <menus>
         <Menu fx:id="menuFile" mnemonicParsing="false" text="File" />
         <Menu fx:id="menuView" mnemonicParsing="false" text="View" />
@@ -17,39 +21,40 @@
         <Menu fx:id="menuHelp" mnemonicParsing="false" text="Help" />
       </menus>
     </MenuBar>
-      <HBox VBox.vgrow="ALWAYS">
-         <children>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+      <TabPane fx:id="tabPaneProjects" maxHeight="0.0" minHeight="27.0" prefHeight="0.0" prefWidth="1287.0" tabClosingPolicy="ALL_TABS" />
+      <SplitPane fx:id="splitPane" dividerPositions="0.0, 1.0" VBox.vgrow="ALWAYS">
+         <items>
+            <VBox fx:id="vBoxLeftContainer" HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
                <children>
-                  <ScrollPane fx:id="scrollPaneSettings" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="419.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox fx:id="vBoxSettings" prefWidth="402.0">
+                        <VBox fx:id="vBoxSettingsLeft" prefWidth="430.0">
                            <children>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
+                              <TitledPane fx:id="titledPaneDrawingArea" expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
                                    <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />
                               </TitledPane>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
+                              <TitledPane fx:id="titledPaneImageProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
                                    <fx:include fx:id="imageFilters" source="javafx/controllers/imagefilters.fxml" />
                               </TitledPane>
-                              <TitledPane expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
+                              <TitledPane fx:id="titledPanePathFindingControls" expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
                                    <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml" />
                               </TitledPane>
-                              <TitledPane maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
-                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml"/>
+                              <TitledPane fx:id="titledPanePenSettings" maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
+                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml" />
                               </TitledPane>
-                              <TitledPane expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
-                                    <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
+                              <TitledPane fx:id="titledPaneVersionControl" expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
+                                 <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
                               </TitledPane>
                               <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Batch Processing">
-                                   <fx:include fx:id="batchProcessing" source="javafx/controllers/batchprocessing.fxml" />
+                                 <fx:include fx:id="batchProcessing" source="javafx/controllers/batchprocessing.fxml" />
                               </TitledPane>
                            </children>
                         </VBox>
                      </content>
                   </ScrollPane>
-                  <Pane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="43.0" prefWidth="419.0" VBox.vgrow="NEVER">
+                  <Pane fx:id="panePlottingTools" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="43.0" prefWidth="419.0" VBox.vgrow="NEVER">
                      <children>
-                        <Button fx:id="buttonStartPlotting" layoutX="9.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" style="-fx-base: -fx-default-button;" text="Start" />
+                        <Button fx:id="buttonStartPlotting" layoutX="9.0" layoutY="8.0" prefHeight="25.0" prefWidth="88.0" style="-fx-base: -fx-default-button;" text="Start" />
                         <Button fx:id="buttonStopPlotting" cancelButton="true" layoutX="104.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Stop" />
                         <Button fx:id="buttonResetPlotting" cancelButton="true" layoutX="198.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Reset" />
                         <Button fx:id="buttonSaveVersion" cancelButton="true" layoutX="317.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="88.0" text="Save Version" />
@@ -58,7 +63,7 @@
                   </Pane>
                </children>
             </VBox>
-            <VBox fx:id="vBoxViewportContainer" HBox.hgrow="ALWAYS">
+            <VBox fx:id="vBoxViewportContainer" prefWidth="945.0" HBox.hgrow="ALWAYS">
                <children>
                   <ToolBar prefHeight="40.0">
                      <items>
@@ -85,77 +90,68 @@
                            </graphic>
                         </Label>
                         <Separator layoutX="551.0" layoutY="10.0" prefHeight="30.0" prefWidth="13.0" />
+                        <ToggleButton fx:id="toggleDPIScaling" mnemonicParsing="false" text="Lock 1:1" />
                         <Button fx:id="buttonResetView" mnemonicParsing="false" text="Reset View" />
                         <Separator layoutX="649.0" layoutY="20.0" prefHeight="30.0" prefWidth="14.0" />
                      </items>
                   </ToolBar>
-                  <HBox minHeight="25.0" prefHeight="25.0">
+                  <FlowPane columnHalignment="CENTER" hgap="4.0" vgap="4.0">
                      <children>
-                        <Label contentDisplay="RIGHT" layoutX="322.0" layoutY="10.0" text="Image Size:">
+                        <Label contentDisplay="RIGHT" text="Image Size:">
                            <graphic>
-                              <Label fx:id="labelImageResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="98.0" text="10000 x 10000" />
+                              <Label fx:id="labelImageResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="79.0" text="10000 x 10000" />
                            </graphic>
-                           <padding>
-                              <Insets top="4.0" />
-                           </padding>
                         </Label>
-                        <Label contentDisplay="RIGHT" layoutX="488.0" layoutY="10.0" text="Plotting Size:">
+                        <Label contentDisplay="RIGHT" text="Plotting Size:">
                            <graphic>
-                              <Label fx:id="labelPlottingResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="96.0" text="10000 x 10000" />
+                              <Label fx:id="labelPlottingResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="79.0" text="10000 x 10000" />
                            </graphic>
-                           <padding>
-                              <Insets top="4.0" />
-                           </padding>
                         </Label>
-                        <Separator orientation="VERTICAL" prefHeight="200.0" />
+                        <Separator orientation="VERTICAL" />
                           <Label contentDisplay="RIGHT" text="Elapsed Time:">
                            <graphic>
-                              <Label fx:id="labelElapsedTime" prefHeight="17.0" prefWidth="69.0" text="Label" />
+                              <Label fx:id="labelElapsedTime" prefHeight="17.0" prefWidth="53.0" text=" 10000 hr" />
                            </graphic>
-                           <padding>
-                              <Insets left="8.0" top="4.0" />
-                           </padding>
                         </Label>
-                        <Label contentDisplay="RIGHT" text="Plotted Shapes:">
+                        <Separator layoutX="355.0" layoutY="14.0" orientation="VERTICAL" />
+                        <Label contentDisplay="RIGHT" text="Shapes:">
                            <graphic>
-                              <Label fx:id="labelPlottedShapes" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                              <Label fx:id="labelPlottedShapes" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="57.0" text="10000000" />
                            </graphic>
-                           <padding>
-                              <Insets top="4.0" />
-                           </padding>
                         </Label>
-                        <Label contentDisplay="RIGHT" layoutX="160.0" layoutY="10.0" text="Plotted Vertices:">
+                        <Label contentDisplay="RIGHT" text="Vertices:">
                            <graphic>
-                              <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                              <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="56.0" text="10000000" />
                            </graphic>
-                           <padding>
-                              <Insets top="4.0" />
-                           </padding>
                         </Label>
-                        <Label contentDisplay="RIGHT" layoutX="673.0" layoutY="10.0" prefHeight="21.0" prefWidth="153.0" text="Position:">
+                        <Separator layoutX="347.0" layoutY="14.0" orientation="VERTICAL" />
+                        <Label contentDisplay="RIGHT" text="Position:">
                            <graphic>
-                              <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="76.0" text="Label" />
+                              <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="80.0" text="10000 x 10000" />
                            </graphic>
-                           <padding>
-                              <Insets top="4.0" />
-                           </padding>
                         </Label>
-                        <Rectangle fx:id="colourPickerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="17.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="17.0">
-                           <HBox.margin>
-                              <Insets right="4.0" top="4.0" />
-                           </HBox.margin>
-                        </Rectangle>
+                        <Rectangle fx:id="colourPickerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="17.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="17.0" />
                      </children>
                      <padding>
-                        <Insets left="10.0" />
+                        <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                      </padding>
-                  </HBox>
+                  </FlowPane>
                </children>
             </VBox>
-         </children>
-      </HBox>
+            <VBox fx:id="vBoxRightContainer" HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
+               <children>
+                  <ScrollPane fx:id="scrollPaneSettingsRight" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="0.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                     <content>
+                        <VBox fx:id="vBoxSettingsRight" prefWidth="430.0" />
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </items>
+      </SplitPane>
      <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
         <children>
+            <NotificationPane fx:id="notificationPane" prefHeight="200.0" prefWidth="200.0" />
            <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="1.0" />
            <Label fx:id="labelOpenDestinationFolder" layoutX="995.0" layoutY="8.0" prefHeight="17.0" prefWidth="154.0" text="Open Destination Folder">
               <font>

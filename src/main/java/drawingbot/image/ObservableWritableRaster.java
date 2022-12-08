@@ -12,13 +12,6 @@ public class ObservableWritableRaster extends WritableRaster {
 
     public List<IPixelListener> listenerList = new ArrayList<>();
 
-    /**
-     * Implement this interface to observe changes to BufferedImages
-     */
-    public interface IPixelListener {
-        void onPixelChanged(int x, int y);
-    }
-
     public static ObservableWritableRaster createDefaultWritableRaster(int width, int height){
         ColorModel colormodel = ColorModel.getRGBdefault();
         WritableRaster tempRaster = colormodel.createCompatibleWritableRaster(width, height);
@@ -161,4 +154,5 @@ public class ObservableWritableRaster extends WritableRaster {
         super.setSamples(x, y, w, h, b, dArray);
         onPixelsChanged(x, y, w, h);
     }
+
 }

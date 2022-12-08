@@ -3,6 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageTools;
 import drawingbot.render.RenderUtils;
 
@@ -13,15 +14,14 @@ import java.awt.*;
  */
 public class Graphics2DExporter {
 
-    public static void drawBackground(ExportTask exportTask, Graphics2D graphics, int width, int height){
-        graphics.setColor(ImageTools.getAWTFromFXColor(DrawingBotV3.INSTANCE.drawingArea.canvasColor.getValue()));
+    public static void drawBackground(DBTaskContext context, Graphics2D graphics, int width, int height){
+        graphics.setColor(ImageTools.getAWTFromFXColor(context.project.getDrawingArea().canvasColor.getValue()));
         graphics.fillRect(0, 0, width, height);
     }
 
     public static void preDraw(ExportTask exportTask, Graphics2D graphics){
         graphics.translate(exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetX(), exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetY());
         graphics.scale(exportTask.exportDrawing.getCanvas().getCanvasScale(), exportTask.exportDrawing.getCanvas().getCanvasScale());
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 
     public static void drawGeometries(ExportTask exportTask, Graphics2D graphics, IGeometryFilter geometryFilter){

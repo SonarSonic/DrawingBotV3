@@ -7,7 +7,9 @@
       "presetName": "Original Sizing",
       "userCreated": false,
       "data": {
-        "settingList": {}
+        "settingList": {
+          "useOriginalSizing": "true"
+        }
       }
     },
     {
@@ -18,6 +20,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "1189.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "841.0"
@@ -32,6 +35,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "841.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "594.0"
@@ -46,6 +50,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "594.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "420.0"
@@ -60,6 +65,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "420.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "297.0"
@@ -74,6 +80,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "297.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "210.0"
@@ -88,6 +95,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "210.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "148.0"
@@ -102,6 +110,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "148.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "105.0"
@@ -116,6 +125,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "105.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "74.0"
@@ -130,6 +140,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "105.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "52.0"
@@ -144,6 +155,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "52.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "37.0"
@@ -158,6 +170,7 @@
       "userCreated": false,
       "data": {
         "settingList": {
+          "inputUnits": "mm",
           "drawingAreaHeight": "37.0",
           "useOriginalSizing": "false",
           "drawingAreaWidth": "26.0"
@@ -173,6 +186,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "279.0",
           "drawingAreaWidth": "216.0"
         }
@@ -187,6 +201,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "432.0",
           "drawingAreaWidth": "279.0"
         }
@@ -201,6 +216,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "559.0",
           "drawingAreaWidth": "432.0"
         }
@@ -215,6 +231,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "864.0",
           "drawingAreaWidth": "559.0"
         }
@@ -229,6 +246,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "1118.0",
           "drawingAreaWidth": "864.0"
         }
@@ -243,6 +261,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "305.0",
           "drawingAreaWidth": "229.0"
         }
@@ -257,6 +276,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "457.0",
           "drawingAreaWidth": "305.0"
         }
@@ -271,6 +291,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "610.0",
           "drawingAreaWidth": "457.0"
         }
@@ -285,6 +306,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "914.0",
           "drawingAreaWidth": "610.0"
         }
@@ -299,6 +321,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "1219.0",
           "drawingAreaWidth": "914.0"
         }
@@ -313,6 +336,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "1067.0",
           "drawingAreaWidth": "762.0"
         }
@@ -327,6 +351,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "279.0",
           "drawingAreaWidth": "216.0"
         }
@@ -341,6 +366,7 @@
       "data": {
         "settingList": {
           "inputUnits": "mm",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "356.0",
           "drawingAreaWidth": "216.0"
         }
@@ -355,6 +381,7 @@
       "data": {
         "settingList": {
           "inputUnits": "inches",
+          "useOriginalSizing": "false",
           "drawingAreaHeight": "10.5",
           "drawingAreaWidth": "7.2"
         }

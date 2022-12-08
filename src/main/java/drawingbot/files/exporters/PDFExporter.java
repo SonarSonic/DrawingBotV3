@@ -11,6 +11,7 @@ import com.itextpdf.text.pdf.PdfName;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.plotting.canvas.CanvasUtils;
 
 import java.awt.*;
@@ -35,7 +36,7 @@ public class PDFExporter {
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(saveLocation));
             
             PdfGState gstate = new PdfGState();
-            gstate.setBlendMode(getPDFBlendMode());
+            gstate.setBlendMode(getPDFBlendMode(exportTask.context));
             
             document.open();
             PdfContentByte content = writer.getDirectContent();
@@ -44,7 +45,7 @@ public class PDFExporter {
             Graphics2D graphics = new PdfGraphics2D(content, scaledPageWidth, scaledPageHeight);
             graphics.transform(AffineTransform.getScaleInstance(scale, scale));
             
-            Graphics2DExporter.drawBackground(exportTask, graphics, width, height);
+            Graphics2DExporter.drawBackground(exportTask.context, graphics, width, height);
             Graphics2DExporter.preDraw(exportTask, graphics);
             Graphics2DExporter.drawGeometries(exportTask, graphics, IGeometryFilter.BYPASS_FILTER);
             Graphics2DExporter.postDraw(exportTask, graphics);
@@ -56,8 +57,8 @@ public class PDFExporter {
         }
     }
 
-    public static PdfName getPDFBlendMode(){
-        switch (DrawingBotV3.INSTANCE.blendMode.get()) {
+    public static PdfName getPDFBlendMode(DBTaskContext context){
+        switch (context.project.blendMode.get()) {
             case MULTIPLY:
                 return PdfGState.BM_MULTIPLY;
             case SCREEN:

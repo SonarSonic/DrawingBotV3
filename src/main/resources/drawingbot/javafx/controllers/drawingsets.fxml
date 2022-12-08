@@ -6,9 +6,8 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.glyphfont.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="423.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingSets">
-<children>
-    <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" spacing="8.0">
+<VBox prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingSets">
+
         <children>
             <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
                 <children>
@@ -17,7 +16,7 @@
                     <MenuButton fx:id="menuButtonDrawingSetPresets" mnemonicParsing="false" text="Presets" />
                 </children>
             </HBox>
-            <TableView fx:id="penTableView" editable="true" prefHeight="250.0" prefWidth="403.0" tableMenuButtonVisible="true">
+            <TableView fx:id="penTableView" editable="true" prefHeight="280.0" prefWidth="404.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="28.0" />
                     <TableColumn fx:id="penTypeColumn" prefWidth="92.0" sortable="false" text="Type" />
@@ -63,6 +62,11 @@
                             <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
                         </graphic>
                     </Button>
+                  <Button fx:id="buttonClearDrawingSet" layoutX="320.0" layoutY="10.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                     <graphic>
+                        <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                     </graphic>
+                  </Button>
                 </children>
             </HBox>
             <Separator prefHeight="14.0" prefWidth="403.0" />
@@ -106,7 +110,7 @@
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="280.0" prefWidth="378.0">
                         <children>
-                            <VBox maxWidth="1.7976931348623157E308">
+                            <VBox fillWidth="false">
                                 <children>
                                 <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="41.0" prefWidth="378.0">
                                     <children>
@@ -120,7 +124,7 @@
                                         </Label>
                                     </children>
                                 </HBox>
-                                    <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" prefWidth="385.0" tableMenuButtonVisible="true">
+                                    <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" prefWidth="378.0" tableMenuButtonVisible="true">
                                         <columns>
                                             <TableColumn fx:id="drawingSetNameColumn" prefWidth="115.0" sortable="false" text="Name" />
                                             <TableColumn fx:id="drawingSetPensColumn" editable="false" prefWidth="103.0" text="Pens" />
@@ -130,9 +134,6 @@
                                             <TableColumn fx:id="drawingSetColourSeperatorColumn" prefWidth="115.0" sortable="false" text="Colour Separation" />
                                             <TableColumn fx:id="drawingSetPercentageColumn" minWidth="0.0" prefWidth="94.0" sortable="false" text="\%" visible="false" />
                                         </columns>
-                                        <padding>
-                                            <Insets right="4.0" />
-                                        </padding>
                                     </TableView>
                                     <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
                                         <children>
@@ -157,6 +158,11 @@
                                                 <graphic>
                                                     <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
                                                 </graphic></Button>
+                                    <Button fx:id="buttonClearDrawingSets" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
+                                       <graphic>
+                                          <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                                       </graphic>
+                                    </Button>
                                         </children>
                                         <padding>
                                             <Insets bottom="6.0" top="6.0" />
@@ -169,8 +175,6 @@
             </TitledPane>
         </children>
         <padding>
-            <Insets bottom="8.0" top="8.0" />
+            <Insets bottom="8.0" left="8.0" right="8.0" top="10.0" />
         </padding>
-    </VBox>
-</children>
-</AnchorPane>
+</VBox>

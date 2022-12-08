@@ -4,23 +4,26 @@ import drawingbot.api.IPixelData;
 
 public class LuminanceTestLine extends LuminanceTest {
 
-    public final int[] darkestDst;
-    public final int minPixelCount;
-    public final int maxPixelCount;
-    public final boolean stopPrematurely;
+    public int[] darkestDst;
+    public int sampleIndex;
+    public int minPixelCount;
+    public int maxPixelCount;
+    public boolean stopPrematurely;
 
     public LuminanceTestLine(){
-        this.darkestDst = new int[2];
-        this.minPixelCount = 0;
-        this.maxPixelCount = Integer.MAX_VALUE;
-        this.stopPrematurely = false;
+        setup(new int[2], 0, Integer.MAX_VALUE, false);
     }
 
     public LuminanceTestLine(int[] darkestDst, int minPixelCount, int maxPixelCount, boolean stopPrematurely){
+        setup(darkestDst, minPixelCount, maxPixelCount, stopPrematurely);
+    }
+
+    public void setup(int[] darkestDst, int minPixelCount, int maxPixelCount, boolean stopPrematurely){
         this.darkestDst = darkestDst;
         this.minPixelCount = minPixelCount;
         this.maxPixelCount = maxPixelCount;
         this.stopPrematurely = stopPrematurely;
+        this.sampleIndex = 0;
     }
 
     @Override
@@ -32,6 +35,7 @@ public class LuminanceTestLine extends LuminanceTest {
                 darkestDst[0] = lastTestX;
                 darkestDst[1] = lastTestY;
                 darkestSample = getCurrentSample();
+                sampleIndex = pixelCount;
             }
             return;
         }
@@ -42,7 +46,12 @@ public class LuminanceTestLine extends LuminanceTest {
             darkestDst[0] = x;
             darkestDst[1] = y;
             darkestSample = getCurrentSample();
+            sampleIndex = pixelCount;
         }
+    }
+
+    public float getSampleIndex(){
+        return (float)sampleIndex / pixelCount;
     }
 
 }

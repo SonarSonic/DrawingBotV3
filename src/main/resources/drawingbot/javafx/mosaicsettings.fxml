@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.FXStylesController">
+   <SplitPane dividerPositions="0.5059241706161137" prefHeight="377.0" prefWidth="846.0">
+     <items>
+         <AnchorPane minHeight="0.0" minWidth="0.0">
+             <children>
+                 <TableView fx:id="stylesTableView" editable="true" layoutX="7.0" layoutY="14.0" prefHeight="282.0" prefWidth="403.0" tableMenuButtonVisible="true">
+                     <columns>
+                         <TableColumn fx:id="styleEnableColumn" minWidth="7.0" prefWidth="28.0" />
+                         <TableColumn fx:id="styleNameColumn" prefWidth="184.0" sortable="false" text="Name" />
+                         <TableColumn fx:id="styleWeightColumn" minWidth="0.0" prefWidth="81.0" sortable="false" text="Weight" />
+                     <TableColumn fx:id="styleDrawingSetColumn" minWidth="0.0" prefWidth="89.0" sortable="false" text="Drawing Set" />
+                         <TableColumn fx:id="styleMaskColorColumn" minWidth="0.0" prefWidth="196.0" sortable="false" text="Mask Colour" />
+                         <!--
+                         <TableColumn fx:id="styleTypeColumn" prefWidth="109.0" sortable="false" text="Type" />
+                         <TableColumn fx:id="stylePercentageColumn" editable="false" minWidth="0.0" prefWidth="46.0" sortable="false" text="\%" />
+                         <TableColumn fx:id="styleLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Shape Count" /> -->
+                     </columns>
+                 </TableView>
+
+                 <HBox layoutX="11.0" layoutY="274.0" spacing="3.0" />
+                 <ChoiceBox fx:id="choiceBoxAddPFM" layoutX="10.0" layoutY="306.0" prefHeight="25.0" prefWidth="305.0" />
+                 <Button fx:id="buttonAddStyle" layoutX="323.0" layoutY="306.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Add" />
+                   <Button fx:id="buttonRemoveStyle" layoutX="10.0" layoutY="340.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Remove" />
+                   <Button fx:id="buttonDuplicateStyle" layoutX="112.0" layoutY="340.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Duplicate" />
+                   <Button fx:id="buttonMoveUpStyle" layoutX="216.0" layoutY="340.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Move Up" />
+                   <Button fx:id="buttonMoveDownStyle" layoutX="320.0" layoutY="340.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="86.0" text="Move Down" />
+             </children>
+         </AnchorPane>
+
+         <AnchorPane fx:id="anchorPanePFM" minHeight="0.0" minWidth="0.0" prefHeight="375.0" prefWidth="423.0">
+             <TableView fx:id="tableViewAdvancedPFMSettings" editable="true" layoutX="-1.0" layoutY="86.0" prefHeight="244.0" prefWidth="404.0" tableMenuButtonVisible="true">
+                 <columns>
+                     <TableColumn fx:id="tableColumnSetting" editable="false" prefWidth="132.0" text="Setting" />
+                     <TableColumn fx:id="tableColumnControl" prefWidth="137.0" text="Control" />
+                     <TableColumn fx:id="tableColumnValue" prefWidth="89.0" text="Value" />
+                     <TableColumn fx:id="tableColumnLock" prefWidth="45.0" text="Randomise Exclude" visible="false" />
+                 </columns>
+             </TableView>
+             <ComboBox fx:id="comboBoxPFMPreset" layoutX="11.0" layoutY="52.0" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
+             <Button fx:id="buttonPFMSettingReset" layoutX="272.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
+             <Button fx:id="buttonPFMSettingRandom" layoutX="137.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
+             <Button fx:id="buttonPFMSettingHelp" layoutX="12.0" layoutY="339.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help" />
+             <MenuButton fx:id="menuButtonPFMPresets" layoutX="320.0" layoutY="52.0" mnemonicParsing="false" text="Presets" />
+             <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="16.0" layoutY="7.0" text="Path Finding Module: ">
+                 <graphic>
+                     <ChoiceBox fx:id="choiceBoxPFM" prefHeight="25.0" prefWidth="246.0" />
+                 </graphic>
+             </Label>
+             <Separator layoutX="-6.0" layoutY="42.0" prefHeight="3.0" prefWidth="412.0" />
+         </AnchorPane>
+     </items>
+   </SplitPane>
+
+</AnchorPane>

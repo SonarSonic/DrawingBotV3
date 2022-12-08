@@ -1,3 +1,129 @@
+### [v1.5.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.0-beta-free)
+- Added **High Quality Mode** for image rescaling, produces more consistent results across different paper / pen sizes and results in better quality plots.
+- Added **Preferences Menu** - Much more finer control over settings in DBV3, with more settings on the way!
+  - General Panel: Here you can change some DrawingBotV3 default settings, like default pfms, canvas colour, pen width, pfm presets etc.
+  - User Interface: In this panel you can enable / disable rulers, drawing borders and notifications.
+  - Export Settings: This is the new home for all your usual Export Settings.
+  - NOTE: Search Function is currently limited, but will search settings individually too.
+- Added: **'Directionality', 'Distortion', 'Angularity', 'Edge Power', 'Sobel Power', 'Luminance Power' and 'Squiggle Min Length'** to All Sketch PFMs
+  - Directionality - forces the lines to follow the natural contours of the image
+  - Distortion - adds some noise to the generated lines, creating more stylised images.
+  - Angularity - higher angularity results in lines which don't change direction as frequently, resulting in more sweeping curves in curve pfms
+  - Edge Power - used to exaggerate key edges in the image
+  - Sobel Power - used to exaggerate a cartoonish quality for the plot
+  - Luminance Power - typically PFMs will follow dark areas in the image when creating lines, this slider can be used to decrease the influence of brightness which in turn will favour other style options like Directionarity or Edge Power etc.
+  - Squiggle Min Length - prevents incredibly short squiggles from being created, shortening plotting times - thanks to HanzPetrov
+- Added: "Connected Lines" - Option to Spiral PFM - creating one continuous polyline for the spiral, massively reducing the amount of pen lifts required.
+- Added: "Pen Force" to HPGL Presets for use with the HP 7550
+- Added: 'Curve Offset' options to Cubic Beziers and Quad Beziers - These options allow you to control the 'wiggle' of the curve
+- Added: Notifications (W.I.P) - Pop-Ups to show you additional information when images are imported / files are exported.
+- Added "Rating" and "Notes" columns to Version Control
+- Added: "Multipass" - Path Optimisation option to draw over each geometry in a drawing multiple times.
+- Added: Ability to have multiple projects open simultaneously in the same window
+- Added: **Quick Export** - Added the option to Export Drawings with a single click, or by pressing CTRL + E - you can customize the type of file exported in File/Preferences/General/Quick Export
+- Added: Option to disable/enable Transparent PNG export.
+- Improved: **Colour Match Support for all PFMs** - All PFMs now support the colour match seperation option!
+- Improved: **Huge Speed Improvements** for all Adaptive PFMs, up too **x4 quicker.**
+- Improved: **Massive Speed Improvements** for the Adaptive Tree PFM, up too **x20 quicker** for large images.
+- Improved: **Cubic Beziers Rewrite** - the cubic beziers PFM has been re-written and now can create much higher quality curves
+- Improved: Speed Improvements to Sketch PFMs especially up to **x3 quicker** for larger images
+- Improved: Sketch PFMs now use a more accurate erasing method, this results in a slower processing time, but better quality lines.
+- Improved: Exporting files of the same name, will now have automatically incremented names e.g. name_1, name_2 etc.
+- Improved: The pens in the drawing will now be re-distributed when the shapes range slider is adjusted.
+- Improved: PFM Controls now have category headings which can be collapsed, this helps to show the relationship between settings and makes it easier to find them again.
+- Improved: Settings panels can now be dragged and dropped, you can drag them to be on the right hand side of the viewport, or drag them over the viewport to undock them, you can also drag them over each other to swap them.
+- Improved: The user interface layout will now be saved on exit & restored with projects (this can be configured in preferences)
+- Improved: The main settings panel can now be resized horizontally.
+- Improved: When undocked individual settings tabs can be resized horizontally & vertically.
+- Improved: When changing Input Units in the Drawing Area panel, the values will automatically update
+- Improved: New icons and options in the File Menu.
+- Improved: Added Keyboard Shortcuts for common actions
+   - New Project = Ctrl + N
+   - Open Project = Ctrl + O
+   - Save Project = Ctrl + S
+   - Import Image = Ctrl + I
+   - Quick Export = Ctrl + E
+   - Switch Display Modes; Drawing = Image + 1, Drawing = Shift + 2... etc.
+- Fixed: Batch Processing Options not being saved with the project file  
+- Fixed: HPGL Presets not saving pen velocity
+- Fixed: Issue with Adaptive PFMs sometimes creating one-off spots in otherwise consistent areas.
+- Fixed: Open GL Renderer having glitched splits on curve pfms.
+- Fixed: Issue preventing versions being renamed
+- Fixed: Some in-built drawing area presets having the wrong Input Units.
+- Fixed: Default Drawing Sets not reloading
+  
+- Please consider supporting the development of DrawingBotV3 by donating [here](https://drawingbotv3.ollielansdell.co.uk/product/donation/). Thank you!
+
+### [v1.4.2-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.2-stable-free)
+- Added: New improved button controls for Image Processing, Pen Settings, Version Control and Mask Settings
+- Added: Support for different Plotting Resolution on individual drawing styles in Layers PFM and Mosaic PFMS  
+- Added: Option to specify the naming convention for Inkscape Layers, go to File / Export Settings / SVG.   
+- Added: Option to enable/disable background layer export for SVGs, it will now be disabled by default  
+- Added: Option to disable Grid Snapping when moving masks, found at the top of Mask Settings
+- Added: Controls to manually edit the size of the selection when editing masks, found at the bottom of Mask Settings
+- Improved: When performing actions on items in tables selections will now be more intuitive e.g. when moving items up and down, they will stay selected
+- Improved: Drawing Set render previews will now live update with pen changes    
+- Improved: Increased the size of the text boxes when editing GCode in File / Export Settings / GCode  
+- Improved: When opening projects they will always open in the Drawing display mode, rather than Image.
+- Improved: Standardised the sizing of tables in the UI
+- Fixed: SVG Exports having the wrong scaling when using Inches or Centimeters
+- Fixed: Plotting Resolution not working correctly when in CMYK Colour Separation
+- Fixed: Completely Black Pens not being shown in SVG Exports
+- Fixed: SVG Exports failing in rare cases where closed paths would be merged  
+- Fixed: Export per/n pens being too large on some screens and made the window resizable.
+- Fixed: Removed erroneous pen 222 from Staedtler 36 pen pack - led 
+
+### [v1.4.1-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.1-beta-free)
+- Added: **Colour Match - Premium Only** - A new Colour Seperation mode for Sketch PFMs only, it will compare the pens in your drawing set to the colours in the image and when drawing will try to use the best matched pen.
+  You also have a few options to configure colour match further, found to the right of the Colour Seperation drop-down.
+  
+  - "Colour Accuracy" - Decreasing the Colour Accuracy will lower the quality of the colour match and allows pens to draw over areas where they have a higher colour difference. Colour Accuracy relates to a Delta-E colour measurement in the following way
+    - 100: No colour difference
+    - 99: Slight colour difference     
+    - 98: Small colour difference     
+    - 97: Medium colour difference
+    - 96: Large colour difference
+    - 95: Very large colour difference
+  
+  - "Brightness Multiplier" - Decreases the overlap of the pens in the image
+  - "Pen Limit" - Limits the number of pens which can be used when matching, if this value is set to 18, only the 18 best matched pens will be used. If this value is set to 0, there is no limit.
+  - "Use Canvas Colour" - Adds an invisible pen which matches the colour of the Canvas, helps to avoid drawing unnecessary lines.    
+  - "Line Density - from Sketch PFMs" - the line density control found in the Sketch PFMs can also be used to control the Colour Match output.
+  - **For the best results**
+    - Use all the pens of a specific manufacturer, i.e. Use the presets for the set of 60 Staedtler Fineliners, then use the Pen Limit feature, to limit selection to approx 18+ pens allowing colour match to choose your best matched pens for each plot.
+    - Use a bright, saturated image, murky images or ones with a limited colour palette will perform poorly.    
+- Added: **SVG Import & SVG Converter PFM - Premium Only**
+  - You can now import SVGs generated in other softwares or in DrawingBotV3, this opens up many possibilities, such as SVG cropping, rotation, flipping, masking, pen/layer reassignment, layering multiple SVGs and recovering old DBV3 projects. Note: Any text in the SVGs will be blank, you should use "Object to Path" in Inkscape before importing SVGs with text.
+  - SVGs can be also be treated like any other image allowing them to be run through any PFM, they will be rasterised at the highest quality possible before plotting (the image tab will show a low quality preview of the SVG).
+  - You can control the conversion process in the new PFM SVG Converter, it has a few settings.
+      - SVG Path: The path to the SVG to be used, if this isn't set it will use the current imported SVG, if there isn't one the PFM will produce no output. You can however use this PFM as part of a Layers PFM, to layer SVGs together, when you run the PFM like this you can set the SVG Path to use an SVG which hasn't been imported.
+      - Derive Drawing Set: When enabled DrawingBotV3 will generate a new Drawing Pen for each colour in the SVG, allowing you to access them each as layers. This opens up possibilities for splitting SVGs by colour using a per/layer export, or even re-assigning colours to your SVG, once the SVG Converter PFM has been run you'll have access to change the colour of lines with all the tools available with a default drawing.
+  - You can also import an SVG to run through a standard PFM
+ 
+- Added: **Masking - Premium Only** - A new useful settings tab, to allow you to mask areas of the image, you can add shapes masks such as Rectangles and Circles, you can move, resize, rotate, skew with the controls in the viewport area. You can also import SVGs as masks, they will keep their original sizing so you can create detailed masks by importing an SVG with the same dimensions as in drawing area controls.
+- Added: **Image Cropping** - You can now crop images in the Image Processing tab, this allows you to enter values in pixels for cropping the image. You can also hit the "Edit" button and this will display a resizable box in the viewport area which you can then move to create the desired crop. You can also access this cropping feature via the new Display Mode "Image Cropping".
+- Added: **Rulers Overlays** - There are now rulers on the borders of the viewport area to show you an accurate scale of your drawing / image.
+- Added: Lock 1:1 button to the viewport toolbar, to allow viewing drawings at the correct scale relative to the screen, useful for evaluating the density of your plot.
+- Added: Reference Image exports - You can now export the edited reference image used in your plots, via Export / Export Reference Image File.
+- Added: Winsor & Newton ProMarkers, Pens/Drawing Sets - led
+- Added: Bic Cristal and Intensity, Pens/Drawing Sets - led
+- Added: Staedtler Fineliner 305 Sky Blue - Pen Definition - led  
+- Added: Support for Googles WebP Image Files (.webp)
+- Added: Fullscreen Mode, you can enable it be going to View/Fullscreen Mode
+- Added: Frame Hold Start and Frame Hold End to Animation Settings
+- Changed: Increased default render quality in the viewport to x4 the previous quality
+- Changed: You can now send any file type via the Serial Connection, allowing for sending GCode files to compatible plotters.
+- Changed: Image Rotation / Flipping is now Image Specific, when you load a new image these values will be reset.
+- Fixed: Drawings/Images flickering when switching Display Modes.
+- Fixed: Serial Connection commands will now be executed properly on non-HPGL devices.
+- Fixed: Staedtler Fineliner 63 Delft Blue - Pen Definition - led
+- Fixed: Export Directory being used instead of Import Directory when importing files - led
+- Fixed: Removed duplicate Copic Black Pens - led
+- Fixed: "Original Sizing" preset not activating properly  
+- Fixed: GCode Settings not saving properly
+- Fixed: HP-GL Padding/Offsets creating inaccurate drawings outside of the HP-GL bounds
+- Fixed: When exporting with N/Pens the render order will now be used rather than the export order, meaning the order will now match the generated HPGL files correctly.
+
 ### [v1.4.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.4.0-beta-free)
 
 Note: This update has kept growing and growing, and it’s time it was released, this is a Public Beta, although it has already been through an alpha testing phase.

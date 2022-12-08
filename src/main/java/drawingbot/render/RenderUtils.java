@@ -47,7 +47,7 @@ public class RenderUtils {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void preRenderGeometryFX(GraphicsContext graphics, IGeometry geometry, PlottedDrawing drawing, PlottedGroup group, ObservableDrawingPen pen){
-        graphics.setLineWidth(pen.getStrokeSize());
+        graphics.setLineWidth(drawing.getCanvas().getRenderedPenWidth(pen.getStrokeSize()));
         graphics.setStroke(pen.getFXColor(geometry.getSampledRGBA()));
         graphics.setFill(pen.getFXColor(geometry.getSampledRGBA()));
     }
@@ -60,7 +60,7 @@ public class RenderUtils {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void preRenderGeometryAWT(Graphics2D graphics, IGeometry geometry, PlottedDrawing drawing, PlottedGroup group, ObservableDrawingPen pen){
-        graphics.setStroke(pen.getAWTStroke());
+        graphics.setStroke(pen.getAWTStroke(drawing.getCanvas().getRenderedPenWidth(pen.getStrokeSize())));
         graphics.setColor(pen.getAWTColor(geometry.getSampledRGBA()));
     }
 

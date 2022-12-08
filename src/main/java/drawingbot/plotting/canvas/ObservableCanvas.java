@@ -2,11 +2,10 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
-import drawingbot.utils.EnumClippingMode;
-import drawingbot.utils.EnumOrientation;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.utils.*;
 import drawingbot.javafx.util.PropertyUtil;
-import drawingbot.utils.UnitsLength;
+import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -18,8 +17,8 @@ public class ObservableCanvas implements ICanvas, IProperties {
     private static final float defaultWidth = 210, defaultHeight = 297; //DEFAULT - A4 Paper
 
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
-    public final SimpleObjectProperty<EnumScalingMode> scalingMode = new SimpleObjectProperty<>(EnumScalingMode.CROP_TO_FIT);
-    public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(EnumClippingMode.DRAWING);
+    public final SimpleObjectProperty<EnumCroppingMode> croppingMode = new SimpleObjectProperty<>(EnumCroppingMode.CROP_TO_FIT);
+    public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultClippingMode.get());
     public final SimpleObjectProperty<UnitsLength> inputUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     public final SimpleFloatProperty width = new SimpleFloatProperty(0);
@@ -28,16 +27,23 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final SimpleFloatProperty drawingAreaPaddingRight = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
     public final SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty drawingAreaPaddingGangedValue = new SimpleFloatProperty(0);
     public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumOrientation> orientation = new SimpleObjectProperty<>(EnumOrientation.PORTRAIT);
 
-    public final SimpleBooleanProperty optimiseForPrint = new SimpleBooleanProperty(true);
-    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(0.3F);
+    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(DBPreferences.INSTANCE.defaultPenWidth.get());
+
+    public final SimpleObjectProperty<EnumRescaleMode> rescaleMode = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultRescalingMode.get());
+
+    //the default JFX viewport background colours
+    public static final Color backgroundColourDefault = new Color(244 / 255F, 244 / 255F, 244 / 255F, 1F);
+    public static final Color backgroundColourDark = new Color(65 / 255F, 65 / 255F, 65 / 255F, 1F);
 
     //not saved
-    public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
+    public final SimpleObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultCanvasColour.get());
+    public final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultBackgroundColour.get());
 
-    public final ObservableList<Property<?>> observables = PropertyUtil.createPropertiesList(useOriginalSizing, scalingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, optimiseForPrint, targetPenWidth, canvasColor);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(useOriginalSizing, croppingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, rescaleMode, targetPenWidth, canvasColor);
 
     public ObservableCanvas(){
 
@@ -81,7 +87,64 @@ public class ObservableCanvas implements ICanvas, IProperties {
             }
 
         }));
+
+        inputUnits.addListener((observable, oldValue, newValue) -> {
+            internalChange.set(true);
+            width.set(UnitsLength.convert(width.get(), oldValue, newValue));
+            height.set(UnitsLength.convert(height.get(), oldValue, newValue));
+            if(drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(UnitsLength.convert(drawingAreaPaddingGangedValue.get(), oldValue, newValue));
+            }else{
+                drawingAreaPaddingLeft.set(UnitsLength.convert(drawingAreaPaddingLeft.get(), oldValue, newValue));
+                drawingAreaPaddingRight.set(UnitsLength.convert(drawingAreaPaddingRight.get(), oldValue, newValue));
+                drawingAreaPaddingTop.set(UnitsLength.convert(drawingAreaPaddingTop.get(), oldValue, newValue));
+                drawingAreaPaddingBottom.set(UnitsLength.convert(drawingAreaPaddingBottom.get(), oldValue, newValue));
+            }
+            internalChange.set(false);
+        });
+
+        updateGangedPadding();
+        drawingAreaGangPadding.addListener((observable, oldValue, newValue) -> {
+            updateGangedPadding();
+        });
+
+        //keep the ganged value updated so it always matches the last entered value
+        drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
+        drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
+        drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
+        drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> {
+            if(!internalChange.get() && !drawingAreaGangPadding.get()){
+                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+            }
+        });
     }
+
+    public void updateGangedPadding(){
+        if(drawingAreaGangPadding.get()){
+            drawingAreaPaddingLeft.bindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingRight.bindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingTop.bindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingBottom.bindBidirectional(drawingAreaPaddingGangedValue);
+        }else{
+            drawingAreaPaddingLeft.unbindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingRight.unbindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingTop.unbindBidirectional(drawingAreaPaddingGangedValue);
+            drawingAreaPaddingBottom.unbindBidirectional(drawingAreaPaddingGangedValue);
+        }
+    }
+
 
     @Override
     public UnitsLength getUnits() {
@@ -89,8 +152,8 @@ public class ObservableCanvas implements ICanvas, IProperties {
     }
 
     @Override
-    public EnumScalingMode getScalingMode() {
-        return scalingMode.get();
+    public EnumCroppingMode getCroppingMode() {
+        return croppingMode.get();
     }
 
     @Override
@@ -99,8 +162,18 @@ public class ObservableCanvas implements ICanvas, IProperties {
     }
 
     @Override
+    public EnumRescaleMode getRescaleMode() {
+        return rescaleMode.get();
+    }
+
+    @Override
     public float getPlottingScale(){
-        return optimiseForPrint.get() ? 1F / targetPenWidth.get() : 1;
+        return getRescaleMode().shouldRescale() ? 1F / targetPenWidth.get() : 1F;
+    }
+
+    @Override
+    public float getTargetPenWidth() {
+        return targetPenWidth.get();
     }
 
     @Override
@@ -144,15 +217,10 @@ public class ObservableCanvas implements ICanvas, IProperties {
         return useOriginalSizing.get();
     }
 
-    @Override
-    public boolean optimiseForPrint(){
-        return optimiseForPrint.get();
-    }
-
     public ObservableCanvas copy(){
         ObservableCanvas copy = new ObservableCanvas();
         copy.useOriginalSizing.set(useOriginalSizing.get());
-        copy.scalingMode.set(scalingMode.get());
+        copy.croppingMode.set(croppingMode.get());
         copy.clippingMode.set(clippingMode.get());
         copy.inputUnits.set(inputUnits.get());
 
@@ -164,14 +232,14 @@ public class ObservableCanvas implements ICanvas, IProperties {
         copy.drawingAreaPaddingBottom.set(drawingAreaPaddingBottom.get());
         copy.drawingAreaGangPadding.set(drawingAreaGangPadding.get());
 
-        copy.optimiseForPrint.set(optimiseForPrint.get());
+        copy.rescaleMode.set(rescaleMode.get());
         copy.targetPenWidth.set(targetPenWidth.get());
         copy.canvasColor.set(canvasColor.get());
         return copy;
     }
 
     @Override
-    public ObservableList<Property<?>> getProperties() {
+    public ObservableList<Observable> getObservables() {
         return observables;
     }
 }

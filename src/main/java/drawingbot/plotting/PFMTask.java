@@ -2,14 +2,15 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.pfm.AbstractSketchPFM;
+import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
 import javafx.application.Platform;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import java.util.function.Consumer;
 
 public class PFMTask extends DBTask<PlottedDrawing> {
 
-    public final IDrawingManager drawingManager;
     public final ICanvas refCanvas;
     public final ObservableDrawingSet refPenSet;
 
@@ -47,10 +47,11 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     // SPECIAL \\
     public boolean useLowQuality = false;
     public int parallelPlots = 3;
+    public boolean enablePlottingResolution = true;
 
-    public PFMTask(IDrawingManager drawingManager, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
+    public PFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
+        super(context);
         updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
-        this.drawingManager = drawingManager;
         this.refCanvas = drawing.getCanvas();
         this.refPenSet = refPenSet;
         this.pfmSettings = pfmSettings;
@@ -58,6 +59,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
         this.drawing = drawing;
         this.tools = new PlottingTools(drawing, drawing.newPlottedGroup(refPenSet, pfmFactory));
         this.tools.pfmTask = this;
+        this.updateProgressInstantly = false;
     }
 
     public IPFM pfm(){
@@ -89,8 +91,13 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 preProcessImages();
 
                 //set the plotting transform
-                if(pfm.getPlottingResolution() != 1){
+                if(pfm.getPlottingResolution() != 1 && enablePlottingResolution){
                     tools.plottingTransform = AffineTransform.getScaleInstance(1D / pfm.getPlottingResolution(), 1D / pfm.getPlottingResolution());
+                }
+
+
+                if(!isSubTask && drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE) != null){
+                    tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE));
                 }
 
                 if(tools.getClippingShape() == null){
@@ -191,7 +198,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
 
     public void finishStage(){
         if(!isSubTask){
-            drawingManager.onPlottingTaskStageFinished(this, stage);
+            context.taskManager.onPlottingTaskStageFinished(this, stage);
         }
         stage = EnumTaskStage.values()[stage.ordinal()+1];
     }
@@ -217,21 +224,21 @@ public class PFMTask extends DBTask<PlottedDrawing> {
     public final PlottedDrawing call() {
         if(!isSubTask){
             Platform.runLater(() -> {
-                drawingManager.setActiveTask(this);
-                drawingManager.setRenderedTask(null);
-                drawingManager.setCurrentDrawing(null);
+                context.taskManager.setActiveTask(this);
+                context.taskManager.setRenderedTask(null);
+                context.taskManager.setCurrentDrawing(null);
 
                 //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
-                if(drawingManager instanceof DrawingBotV3){
+                //if(drawingManager instanceof DrawingBotV3){ //TODO FIXME?
                     if(refPenSet.colourSeperator.get().isDefault()){
-                        if(DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.get() != null){
-                            refPenSet.distributionType.set(DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.get());
-                            DrawingBotV3.INSTANCE.pfmSettings.nextDistributionType.set(null);
+                        if(context.project.getPFMSettings().getNextDistributionType() != null){
+                            refPenSet.distributionType.set(context.project.getPFMSettings().getNextDistributionType());
+                            context.project.getPFMSettings().setNextDistributionType(null);
                         }
                     }else{
                         refPenSet.distributionType.set(EnumDistributionType.getRecommendedType(refPenSet, pfmFactory));
                     }
-                }
+                //}
             });
         }
         while(!isTaskFinished() && !isCancelled()){
@@ -241,10 +248,9 @@ public class PFMTask extends DBTask<PlottedDrawing> {
         }
         if(!isSubTask){
             Platform.runLater(() -> {
-                drawingManager.setActiveTask(null);
-                drawingManager.setRenderedTask(null);
-                drawingManager.setCurrentDrawing(drawing);
-
+                context.taskManager.setActiveTask(null);
+                context.taskManager.setRenderedTask(null);
+                context.taskManager.setCurrentDrawing(drawing);
             });
         }
         return drawing;
@@ -401,5 +407,9 @@ public class PFMTask extends DBTask<PlottedDrawing> {
             getTaskGeometryIterator().reset();
             subDrawings.add(drawing);
         }
+    }
+
+    public boolean isColourMatchTask(){
+        return false;
     }
 }

@@ -3,6 +3,7 @@ package drawingbot.files.json.presets;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 
 public abstract class PresetDrawingPenManager extends AbstractPresetManager<PresetDrawingPen> {
@@ -14,7 +15,7 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Pres
     public abstract IDrawingPen getSelectedDrawingPen();
 
     @Override
-    public GenericPreset<PresetDrawingPen> updatePreset(GenericPreset<PresetDrawingPen> preset) {
+    public GenericPreset<PresetDrawingPen> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset) {
         IDrawingPen selectedPen = getSelectedDrawingPen();
         if (selectedPen == null) {
             return null; // can't save the preset
@@ -27,7 +28,7 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Pres
     }
 
     @Override
-    public void applyPreset(GenericPreset<PresetDrawingPen> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset) {
         //nothing to apply
     }
 }

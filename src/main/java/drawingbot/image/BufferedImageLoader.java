@@ -2,6 +2,9 @@ package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.image.format.FilteredImageData;
+import drawingbot.utils.DBTask;
 import drawingbot.utils.EnumRotation;
 import javafx.concurrent.Task;
 import org.jcodec.api.FrameGrab;
@@ -18,12 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 
-public class BufferedImageLoader extends Task<BufferedImage> {
+public class BufferedImageLoader extends DBTask<BufferedImage> {
 
     public final String url;
     public final boolean internal; //true if the image should be loaded from within the jar
 
-    public BufferedImageLoader(String url, boolean internal){
+    public BufferedImageLoader(DBTaskContext context, String url, boolean internal){
+        super(context);
         this.url = url;
         this.internal = internal;
     }
@@ -39,11 +43,11 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         DrawingBotV3.logger.log(Level.SEVERE, "Buffered Image Loader Failed", t);
     }
 
-    public static FilteredBufferedImage loadFilteredImage(String url, boolean internal) throws IOException {
+    public static FilteredImageData loadFilteredImage(DBTaskContext context, String url, boolean internal) throws IOException {
         BufferedImage source = loadImage(url, internal);
         if(source != null){
-            FilteredBufferedImage filtered = new FilteredBufferedImage(source, DrawingBotV3.INSTANCE.imgFilterSettings, DrawingBotV3.INSTANCE.drawingArea);
-            filtered.updateAll();
+            FilteredImageData filtered = new FilteredImageData(context, new File(url), context.project.drawingArea.get(), source);
+            filtered.updateAll(context.project.getImageSettings());
             return filtered;
         }
         return null;
@@ -101,8 +105,8 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         public boolean flipHorizontal;
         public boolean flipVertical;
 
-        public Transformed(String url, boolean internal, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical) {
-            super(url, internal);
+        public Transformed(DBTaskContext context, String url, boolean internal, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical) {
+            super(context, url, internal);
             this.imageRotation = imageRotation;
             this.flipHorizontal = flipHorizontal;
             this.flipVertical = flipVertical;
@@ -111,37 +115,8 @@ public class BufferedImageLoader extends Task<BufferedImage> {
         @Override
         protected BufferedImage call() throws Exception {
             BufferedImage image = super.call();
-            image = ImageTools.transformImage(image, imageRotation, flipHorizontal, flipVertical);
+            image = ImageTools.rotateImage(image, imageRotation, flipHorizontal, flipVertical);
             return image;
-        }
-    }
-
-    public static class Filtered extends Task<FilteredBufferedImage> {
-
-        public final String url;
-        public final boolean internal; //true if the image should be loaded from within the jar
-
-        public Filtered(String url, boolean internal){
-            this.url = url;
-            this.internal = internal;
-        }
-
-        @Override
-        protected FilteredBufferedImage call() throws Exception {
-
-            updateProgress(-1, 1);
-            updateTitle("Importing Image: " + url);
-
-            updateMessage("Loading");
-            BufferedImage source = loadImage(url, internal);
-
-            updateMessage("Filtering");
-            FilteredBufferedImage filtered = new FilteredBufferedImage(source, DrawingBotV3.INSTANCE.imgFilterSettings, DrawingBotV3.INSTANCE.drawingArea);
-            filtered.updateAll();
-
-            updateMessage("Finished");
-            updateProgress(1, 1);
-            return filtered;
         }
     }
 }

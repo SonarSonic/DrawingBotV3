@@ -5,6 +5,9 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
@@ -13,6 +16,9 @@ import javafx.util.converter.NumberStringConverter;
 
 import java.util.List;
 
+/**
+ * TODO Style scroll pane to fill dialog width
+ */
 public class DialogExportNPens extends Dialog<Integer> {
 
     public final List<ObservableDrawingPen> activePens;
@@ -36,8 +42,19 @@ public class DialogExportNPens extends Dialog<Integer> {
         nPens.addListener((observable, oldValue, newValue) -> updatePenGroups());
 
         VBox vBox = new VBox();
-        vBox.getChildren().addAll(label, flow);
-        setGraphic(vBox);
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(flow);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(scrollPane, Priority.ALWAYS);
+        vBox.getChildren().addAll(label, scrollPane);
+
+        getDialogPane().setPrefWidth(500);
+        getDialogPane().setPrefHeight(500);
+
+        getDialogPane().setContent(vBox);
+        setResizable(true);
 
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);

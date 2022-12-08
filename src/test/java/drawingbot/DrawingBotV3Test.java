@@ -33,8 +33,8 @@ public class DrawingBotV3Test {
         final CountDownLatch latch = new CountDownLatch(1);
 
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.openFile(new File("images/testimage.jpg"), true);
-            DrawingBotV3.INSTANCE.openImage.addListener((observable, oldValue, newValue) -> latch.countDown());
+            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), new File("images/testimage.jpg"), true, true);
+            DrawingBotV3.project().openImage.addListener((observable, oldValue, newValue) -> latch.countDown());
         });
         latch.await();
     }
@@ -60,8 +60,8 @@ public class DrawingBotV3Test {
             final CountDownLatch latch = new CountDownLatch(1);
 
             Platform.runLater(() -> {
-                DrawingBotV3.INSTANCE.pfmSettings.factory.setValue(factory);
-                DrawingBotV3.INSTANCE.startPlotting();
+                DrawingBotV3.project().getPFMSettings().setPFMFactory(factory);
+                DrawingBotV3.INSTANCE.startPlotting(DrawingBotV3.context());
                 DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                     if(newValue.intValue() == 0){
                         latch.countDown();
@@ -89,18 +89,18 @@ public class DrawingBotV3Test {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicBoolean triggered = new AtomicBoolean(false);
         Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.pfmSettings.factory.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-            DrawingBotV3.INSTANCE.startPlotting();
+            DrawingBotV3.project().getPFMSettings().setPFMFactory(MasterRegistry.INSTANCE.getDefaultPFM());
+            DrawingBotV3.INSTANCE.startPlotting(DrawingBotV3.context());
 
             DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
                 if(newValue.intValue() == 0){ //when the value changes we add export tasks for every type
                     if(triggered.get()){
                         latch.countDown();
                     }else{
-                        for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers){
-                            String extension = format.filters[0].getExtensions().get(0).substring(1);
-                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_DRAWING, DrawingBotV3.INSTANCE.getCurrentDrawing(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
-                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_PEN, DrawingBotV3.INSTANCE.getCurrentDrawing(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
+                        for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers.values()){
+                            String extension = format.getDefaultExtension();
+                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_DRAWING, DrawingBotV3.taskManager().getCurrentDrawing(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
+                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_PEN, DrawingBotV3.taskManager().getCurrentDrawing(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(FileUtils.getUserDataDirectory(), "testimage" + extension), false);
                         }
                         triggered.set(true);
                     }

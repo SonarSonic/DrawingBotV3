@@ -16,7 +16,7 @@ public class API {
          * @param isHidden true if the PFM should be only be shown in developer mode
          * @param registerDefaultPreset
          */
-        void registerPathFindingModule(Class<IPFM> pfmClass, String name, Supplier<IPFM> create, boolean isHidden, boolean registerDefaultPreset);
+        void registerPathFindingModule(Class<IPFM> pfmClass, String name, String category, Supplier<IPFM> create, boolean isHidden, boolean registerDefaultPreset);
 
         /**
          * Create a boolean setting for a specific {@link IPFM}

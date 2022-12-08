@@ -1,7 +1,8 @@
 package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumCroppingMode;
+import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 import junit.framework.TestCase;
 
@@ -13,7 +14,7 @@ public class CanvasUtilsTest extends TestCase {
         super.setUp();
         reference = new ObservableCanvas();
         reference.useOriginalSizing.set(false);
-        reference.scalingMode.set(EnumScalingMode.SCALE_TO_FIT);
+        reference.croppingMode.set(EnumCroppingMode.SCALE_TO_FIT);
         reference.inputUnits.set(UnitsLength.CENTIMETRES);
         reference.width.set(1000);
         reference.height.set(600);
@@ -22,7 +23,7 @@ public class CanvasUtilsTest extends TestCase {
         reference.drawingAreaPaddingRight.set(70);
         reference.drawingAreaPaddingTop.set(50);
         reference.drawingAreaPaddingBottom.set(100);
-        reference.optimiseForPrint.set(true);
+        reference.rescaleMode.set(EnumRescaleMode.HIGH_QUALITY);
         reference.targetPenWidth.set(0.7F);
     }
 
@@ -34,7 +35,7 @@ public class CanvasUtilsTest extends TestCase {
     public void testOriginalSizedCanvas(){
         SimpleCanvas canvas = new SimpleCanvas(reference);
         canvas.useOriginalSizing = true;
-        ImageCanvas imageCanvas = new ImageCanvas(canvas, 800, 400, false);
+        ImageCanvas imageCanvas = new ImageCanvas(canvas, new SimpleCanvas(800, 400), false);
         assertEquals(imageCanvas.getWidth(), 800F);
         assertEquals(imageCanvas.getHeight(), 400F);
         assertEquals(imageCanvas.getDrawingOffsetX(), 0F);

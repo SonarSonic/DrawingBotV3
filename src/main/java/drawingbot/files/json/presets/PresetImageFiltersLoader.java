@@ -3,6 +3,7 @@ package drawingbot.files.json.presets;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericPreset;
@@ -15,8 +16,8 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
         super(PresetImageFilters.class, presetType, "user_filter_presets.json");
         setDefaultManager(new PresetImageFiltersManager(this) {
             @Override
-            public Property<ObservableList<ObservableImageFilter>> imageFiltersProperty() {
-                return DrawingBotV3.INSTANCE.imgFilterSettings.currentFilters;
+            public Property<ObservableList<ObservableImageFilter>> imageFiltersProperty(DBTaskContext context) {
+                return context.project().imageSettings.get().currentFilters;
             }
         });
     }

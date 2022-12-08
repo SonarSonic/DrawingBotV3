@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractJsonLoader<O extends IJsonData> {
 
     public final PresetType type;
@@ -24,6 +23,16 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public AbstractJsonLoader(PresetType type, String configFile) {
         this.type = type;
         this.configFile = new File(FileUtils.getUserDataDirectory(), configFile);
+    }
+
+    public void init(){}
+
+    public boolean canLoadPreset(GenericPreset<?> preset){
+        return preset.presetType == type;
+    }
+
+    public String getVersion(){
+        return "1.1";
     }
 
     protected abstract O getPresetInstance(GenericPreset<O> preset);
@@ -89,7 +98,7 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public final GenericPreset<O> createNewPreset(String presetSubType, String presetName, boolean userCreated) {
-        GenericPreset<O> preset = new GenericPreset<>(type, presetSubType, presetName, userCreated);
+        GenericPreset<O> preset = new GenericPreset<>(getVersion(), type, presetSubType, presetName, userCreated);
         preset.data = getPresetInstance(preset);
         return preset;
     }
@@ -127,15 +136,17 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
         return false;
     }
 
-    public abstract JsonElement toJsonElement(Gson gson,  GenericPreset<?> preset);
+    public abstract JsonElement toJsonElement(Gson gson, GenericPreset<?> preset);
 
-    public abstract O fromJsonElement(Gson gson,  GenericPreset<?> preset, JsonElement element);
+    public abstract O fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element);
 
     public final void queueJsonUpdate() {
         //run later to prevent json update happen before services have been created
-        Platform.runLater(() -> {
-            DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
-        });
+        Platform.runLater(this::doJsonUpdate);
+    }
+
+    public final void doJsonUpdate() {
+        DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
     }
 
     public void loadFromJSON(){
@@ -160,4 +171,5 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public void loadDefaults(){
 
     }
+
 }

@@ -1,11 +1,12 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICustomPen;
+import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.ExportTask;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.utils.UnitsLength;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
@@ -53,41 +54,42 @@ public class SVGExporter {
             Element svgRoot = document.getDocumentElement();
 
             // Set the attributes on the root 'svg' element.
-            svgRoot.setAttributeNS(null, "width", exportTask.exportDrawing.getCanvas().getWidth(UnitsLength.MILLIMETRES) + "mm");
-            svgRoot.setAttributeNS(null, "height", exportTask.exportDrawing.getCanvas().getHeight(UnitsLength.MILLIMETRES) + "mm");
+            svgRoot.setAttributeNS(null, "width", exportTask.exportDrawing.getCanvas().getWidth() + exportTask.exportDrawing.getCanvas().getUnits().getSuffix());
+            svgRoot.setAttributeNS(null, "height", exportTask.exportDrawing.getCanvas().getHeight() + exportTask.exportDrawing.getCanvas().getUnits().getSuffix());
 
             if(inkscape){
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
             }
 
-            /////BACKGROUND
-            // Create a fresh document to draw background
-            Document backgroundGraphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
+            if(DBPreferences.INSTANCE.exportSVGBackground.get()){
+                // Create a fresh document to draw background
+                Document backgroundGraphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
 
-            // Create a new instance of the SVG Generator for the new background document
-            SVGGraphics2D backgroundGraphics = new SVGGraphics2D(backgroundGraphicsDocument);
-            Element background = backgroundGraphicsDocument.createElementNS(SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG);
+                // Create a new instance of the SVG Generator for the new background document
+                SVGGraphics2D backgroundGraphics = new SVGGraphics2D(backgroundGraphicsDocument);
+                Element background = backgroundGraphicsDocument.createElementNS(SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG);
 
-            background.setAttribute("id", "Background");
-            if(inkscape){
-                background.setAttribute("inkscape:groupmode", "layer");
-                background.setAttribute("inkscape:label", "Background");
-            }
+                background.setAttribute("id", "Background");
+                if(inkscape){
+                    background.setAttribute("inkscape:groupmode", "layer");
+                    background.setAttribute("inkscape:label", "Background");
+                }
 
-            // Draw the background
-            backgroundGraphics.setTopLevelGroup(background);
-            backgroundGraphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
-            backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
+                // Draw the background
+                backgroundGraphics.setTopLevelGroup(background);
+                backgroundGraphics.setSVGCanvasSize(new Dimension(scaledPageWidth, scaledPageHeight));
+                backgroundGraphics.transform(AffineTransform.getScaleInstance(scale, scale));
 
-            Graphics2DExporter.drawBackground(exportTask, backgroundGraphics, width, height);
-            Graphics2DExporter.preDraw(exportTask, backgroundGraphics);
-            Graphics2DExporter.postDraw(exportTask, backgroundGraphics);
+                Graphics2DExporter.drawBackground(exportTask.context, backgroundGraphics, width, height);
+                Graphics2DExporter.preDraw(exportTask, backgroundGraphics);
+                Graphics2DExporter.postDraw(exportTask, backgroundGraphics);
 
-            // Transfer the background graphics document into the host document
-            if(background.hasChildNodes()){
-                Node graphicsNode = document.importNode(background, true);
-                svgRoot.appendChild(graphicsNode);
-                backgroundGraphics.dispose();
+                // Transfer the background graphics document into the host document
+                if(background.hasChildNodes()){
+                    Node graphicsNode = document.importNode(background, true);
+                    svgRoot.appendChild(graphicsNode);
+                    backgroundGraphics.dispose();
+                }
             }
 
             /////PENS
@@ -95,8 +97,7 @@ public class SVGExporter {
             int index = 0;
             for(ObservableDrawingPen drawingPen : exportTask.exportRenderOrder){
 
-                // Find the pen to render
-                String safeName = drawingPen.getDisplayName().replace(' ', '_');
+                String layerName = formatLayerName(DBPreferences.INSTANCE.svgLayerNaming.get(), drawingPen.getDisplayName(), "" + (index+1));
 
                 // Create a fresh document to draw each pen into
                 Document graphicsDocument = domImpl.createDocument(SVG_NS, SVG, null);
@@ -105,10 +106,11 @@ public class SVGExporter {
                 SVGGraphics2D graphics = new SVGGraphics2D(graphicsDocument);
                 Element group = graphicsDocument.createElementNS(SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG);
 
-                group.setAttribute("id", safeName);
+                //Note: the ID must not contain any whitespace characters
+                group.setAttribute("id", layerName.replace(' ', '_'));
                 if(inkscape){
                     group.setAttribute("inkscape:groupmode", "layer");
-                    group.setAttribute("inkscape:label", ConfigFileHandler.getApplicationSettings().svgLayerRenaming ? "Pen" + (index+1) : safeName);
+                    group.setAttribute("inkscape:label", layerName);
                 }
 
                 // Draw the pen's paths
@@ -122,10 +124,18 @@ public class SVGExporter {
 
                 // Transfer the graphics document into the host document
                 if(group.hasChildNodes()){
+                    //the metadata for the stroke colour is lost when the stroke is black, this is a very ugly work around to prevent that, TODO find a better fix
+                    if(!(drawingPen.source instanceof ICustomPen) && drawingPen.getARGB() == ImageTools.getARGB(255, 0, 0, 0)){
+                        Node node = group.getFirstChild();
+                        if(node instanceof Element){
+                            Element element = (Element) node;
+                            element.setAttribute("stroke", "black");
+                        }
+                    }
                     Node graphicsNode = document.importNode(group, true);
                     svgRoot.appendChild(graphicsNode);
-                    graphics.dispose();
                 }
+                graphics.dispose();
                 index++;
             }
 
@@ -147,4 +157,15 @@ public class SVGExporter {
             e.printStackTrace();
         }
     }
+
+    public static String formatLayerName(String pattern, String name, String index){
+        String formatted = pattern;
+        formatted = formatted.replaceAll("%NAME%", name);
+        formatted = formatted.replaceAll("%INDEX%", index);
+        if(formatted.isEmpty()){
+            return index;
+        }
+        return formatted;
+    }
+
 }

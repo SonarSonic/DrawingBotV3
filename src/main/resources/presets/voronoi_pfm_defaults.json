@@ -11,10 +11,10 @@
           "Plotting Resolution": "1.0",
           "Density Power": "5",
           "Luminance Power": "5",
-          "Point Count": "2500",
+          "Point Count": "10000",
           "Random Seed": "0",
           "Voronoi Iterations": "5",
-          "TSP Algorithm": "2-Opt"
+          "TSP Algorithm": "Adaptive"
         }
       }
     }

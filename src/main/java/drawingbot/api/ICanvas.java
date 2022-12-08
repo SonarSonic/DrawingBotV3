@@ -1,7 +1,8 @@
 package drawingbot.api;
 
 import drawingbot.utils.EnumClippingMode;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumCroppingMode;
+import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 
 import java.util.Objects;
@@ -10,13 +11,13 @@ public interface ICanvas {
 
     UnitsLength getUnits();
 
-    EnumScalingMode getScalingMode();
+    EnumCroppingMode getCroppingMode();
 
     EnumClippingMode getClippingMode();
 
-    boolean useOriginalSizing();
+    EnumRescaleMode getRescaleMode();
 
-    boolean optimiseForPrint();
+    boolean useOriginalSizing();
 
     float getPlottingScale();
 
@@ -31,6 +32,14 @@ public interface ICanvas {
     float getDrawingOffsetX();
 
     float getDrawingOffsetY();
+
+    default float getTargetPenWidth(){
+        return 1F;
+    }
+
+    default float getRenderedPenWidth(float penWidth){
+        return getRescaleMode().isHighQuality() ? penWidth * getTargetPenWidth() : penWidth;
+    }
 
     default float getCanvasScale(){
         return 1F;
@@ -86,9 +95,9 @@ public interface ICanvas {
 
     static boolean matchingCanvas(ICanvas canvasA, ICanvas canvasB){
         return Objects.equals(canvasA.getUnits(), canvasB.getUnits())
-                && Objects.equals(canvasA.getScalingMode(), canvasB.getScalingMode())
+                && Objects.equals(canvasA.getCroppingMode(), canvasB.getCroppingMode())
                 && Objects.equals(canvasA.useOriginalSizing(), canvasB.useOriginalSizing())
-                && Objects.equals(canvasA.optimiseForPrint(), canvasB.optimiseForPrint())
+                && Objects.equals(canvasA.getRescaleMode(), canvasB.getRescaleMode())
                 && Objects.equals(canvasA.getPlottingScale(), canvasB.getPlottingScale())
                 && Objects.equals(canvasA.getWidth(), canvasB.getWidth())
                 && Objects.equals(canvasA.getHeight(), canvasB.getHeight())

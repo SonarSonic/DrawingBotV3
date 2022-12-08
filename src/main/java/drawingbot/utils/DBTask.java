@@ -2,18 +2,24 @@ package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IProgressCallback;
+import drawingbot.files.json.projects.DBTaskContext;
 import javafx.concurrent.Task;
 
 import java.util.logging.Level;
 
 public abstract class DBTask<V> extends Task<V> implements IProgressCallback {
 
-    public boolean updateProgressInstantly = false;
+    public final DBTaskContext context;
+    public boolean updateProgressInstantly = true;
     private String title = "";
     private String message = "";
     public String error = "";
     public double workDone = -1;
     public double max = 1;
+
+    public DBTask(DBTaskContext context){
+        this.context = context;
+    }
 
     public boolean isPlottingTask(){
         return false;

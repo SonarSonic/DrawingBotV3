@@ -21,8 +21,8 @@ public class ObservableImageFilter {
     public final ObservableList<GenericSetting<?, ?>> filterSettings;
     public final SimpleStringProperty settingsString; //settings as a string
 
-    public final SimpleBooleanProperty dirty;
-    public final SimpleObjectProperty<BufferedImage> cached;
+    public transient final SimpleBooleanProperty dirty;
+    public transient final SimpleObjectProperty<BufferedImage> cached;
 
     public ObservableImageFilter(GenericFactory<BufferedImageOp> filterFactory) {
         this(true, filterFactory);
@@ -44,7 +44,7 @@ public class ObservableImageFilter {
         this.filterSettings = filterSettings;
         this.settingsString = new SimpleStringProperty(filterSettings.toString());
 
-        this.filterSettings.forEach(s -> s.addListener((observable, oldValue, newValue) -> onSettingChanged()));
+        this.filterSettings.forEach(s -> s.valueProperty().addListener((observable, oldValue, newValue) -> onSettingChanged()));
         this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onImageFilterChanged(this));
         //changes to filter settings are called from the FXController
 
@@ -55,5 +55,9 @@ public class ObservableImageFilter {
     public void onSettingChanged() {
         ///actually updating the image filter rendering is done elsewhere, this shouldn't always change as values do
         this.settingsString.set(filterSettings.toString());
+    }
+
+    public ObservableImageFilter copy(){
+        return new ObservableImageFilter(this);
     }
 }

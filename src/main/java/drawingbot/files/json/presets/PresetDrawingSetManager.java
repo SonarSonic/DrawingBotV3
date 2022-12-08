@@ -1,8 +1,8 @@
 package drawingbot.files.json.presets;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 
@@ -12,11 +12,11 @@ public abstract class PresetDrawingSetManager extends AbstractPresetManager<Pres
         super(presetLoader);
     }
 
-    public abstract ObservableDrawingSet getSelectedDrawingSet();
+    public abstract ObservableDrawingSet getSelectedDrawingSet(DBTaskContext context);
 
     @Override
-    public GenericPreset<PresetDrawingSet> updatePreset(GenericPreset<PresetDrawingSet> preset) {
-        ObservableDrawingSet drawingSet = getSelectedDrawingSet();
+    public GenericPreset<PresetDrawingSet> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset) {
+        ObservableDrawingSet drawingSet = getSelectedDrawingSet(context);
         if(drawingSet != null){
             preset.data.pens.clear();
             drawingSet.getPens().forEach(p -> preset.data.pens.add(new DrawingPen(p)));
@@ -25,8 +25,8 @@ public abstract class PresetDrawingSetManager extends AbstractPresetManager<Pres
     }
 
     @Override
-    public void applyPreset(GenericPreset<PresetDrawingSet> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset) {
         //TODO REMOVE ME!
-        DrawingBotV3.INSTANCE.controller.drawingSetsController.changeDrawingSet(preset.data);
+        context.project().getDrawingSets().changeDrawingSet(preset.data);
     }
 }

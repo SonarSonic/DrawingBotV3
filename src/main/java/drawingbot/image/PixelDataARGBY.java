@@ -3,9 +3,10 @@ package drawingbot.image;
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to both ARGB + Luminance (Y) values, and also provides cached averages for each
  */
-public class PixelDataARGBY extends PixelDataARGB {
+public class PixelDataARGBY extends PixelDataARGB implements IPixelListenable {
 
     public RawData luminance;
+    public IPixelListener listener;
 
     public PixelDataARGBY(int width, int height) {
         super(width, height);
@@ -26,6 +27,9 @@ public class PixelDataARGBY extends PixelDataARGB {
 
     protected void onChangedRGB(int x, int y, int r, int g, int b){
         luminance.setData(x, y, ImageTools.getPerceivedLuminanceFromRGB(r, g, b));
+        if(listener != null){
+            listener.onPixelChanged(x, y);
+        }
     }
 
     @Override
@@ -42,5 +46,15 @@ public class PixelDataARGBY extends PixelDataARGB {
     @Override
     public double getAverageLuminance() {
         return luminance.getAverage();
+    }
+
+    @Override
+    public void addListener(IPixelListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void removeListener(IPixelListener listener) {
+        this.listener = null;
     }
 }

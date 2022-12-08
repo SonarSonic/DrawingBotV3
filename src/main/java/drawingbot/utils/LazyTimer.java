@@ -1,7 +1,7 @@
 package drawingbot.utils;
 
 /**
- * A lazy way to time things when debugging
+ * A lazy way to time things when debugging --todo use DATES?
  */
 public class LazyTimer {
 

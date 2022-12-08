@@ -1,6 +1,6 @@
 # Drawing Bot V3
 
-![Screenshot](https://github.com/SonarSonic/Drawbot_image_to_gcode_v3/blob/master/images/ScreenshotV101.PNG?raw=true)
+![Screenshot](https://github.com/SonarSonic/DrawingBotV3/blob/master/images/screenshotV5.JPG?raw=true)
 [![Platforms](https://img.shields.io/badge/platform-Windows%2C%20Mac%2C%20Linux-green?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3#installation)
 ![GitHub top language](https://img.shields.io/github/languages/top/SonarSonic/DrawingBotV3?style=flat-square)
 [![GitHub License](https://img.shields.io/github/license/SonarSonic/DrawingBotV3?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/blob/master/LICENSE)
@@ -39,10 +39,10 @@ Feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxr
 
 ### Features - *Premium Version*
 -  **All the features included in the Free Version**
--  [18 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html): *includes 15 more Path Finding Modules!*
+-  [29 Path Finding Algorithms](https://drawingbotv3.readthedocs.io/en/latest/pfms.html): *includes 26 more Path Finding Modules!*
 -  Automated [CMYK separation](https://drawingbotv3.readthedocs.io/en/latest/cmyk.html)
 -  [Batch Processing](https://drawingbotv3.readthedocs.io/en/latest/batchprocessing.html): *Convert entire folders of images automatically.*
--  [Export Animations](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings):** *You can export animations of your creations as Image Sequences or MP4/MOV files!*
+-  [Export Animations](https://drawingbotv3.readthedocs.io/en/latest/exportsettings.html#image-sequence-settings): *You can export animations of your creations as Image Sequences or MP4/MOV files!*
 -  Plotter / Serial Port Connection: *Connect to HPGL based plotters and control them over the serial port.*
 -  Video Processing: *Convert every frame from imported video files automatically*
 -  HPGL Export: *Export files for plotters, with configurable Hard-Clip limits, X-Axis Mirror, Y-Axis Mirror, X-Axis Alignment, Y-Axis Alignment, Rotation, Curve Flatness, Pen Velocity and the initial Pen Number.*
@@ -62,15 +62,26 @@ Feel free to join us on the [Discord Server](https://discord.com/invite/pwNdjYxr
 - Sketch Catmull-Roms PFM
 - Sketch Shapes PFM
 - Sketch Sobel Edges PFM
+- Sketch Waves PFM
+- Adaptive Circular Scribbles
+- Adaptive Shapes
+- Adaptive Triangulation
+- Adaptive Tree
+- Adaptive Stippling
+- Adaptive Dashes
+- Adaptive Diagram
+- Adaptive TSP
 - Voronoi Circles
 - Voronoi Triangulation
 - Voronoi Tree
 - Voronoi Stippling
+- Voronoi Dashes
 - Voronoi Diagram
 - Voronoi TSP
 - Mosaic Rectangles
 - Mosaic Voronoi
 - Mosaic Custom
+- Layers PFM
 
 More info [here](https://drawingbotv3.readthedocs.io/en/latest/pfms.html)
 
@@ -153,21 +164,5 @@ All the dependencies are automatically included and **do not need to be installe
 
 ---
 
-### Original Version
 
-DrawingBotV3 started as an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**.
-
-Thanks to Scott for allowing me to publish this version!
-
----
-
-
-### The Drawing Bot Collection
-
-I'm starting a collection of both Digital & Physical Artwork created with DrawingBotV3.
-
-When the collection reaches a decent size it will be available online (on Instagram & The Drawing Bot Documentation) and potentially in exhibitions in the UK.
-
-If you'd like to contribute to this collection please submit your artwork [here](https://forms.gle/oJFs2f1ApejPdRyb6)!
-
-If you work is phyisical, please email me [here](mailto:drawingbot@outlook.com?subject=[GitHub]%20Drawing%20Bot%20Collection%20Physical%20Artwork)!
+DrawingBotV3 started as an expansion of [Drawbot Image to GCode V2](https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2) originally written by **Scott Cooper**. Thanks to Scott for allowing me to publish this version!

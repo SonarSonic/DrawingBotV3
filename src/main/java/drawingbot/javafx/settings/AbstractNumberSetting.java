@@ -29,30 +29,25 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         this.safeMaxValue = toCopy.safeMaxValue;
         this.majorTick = toCopy.majorTick;
         this.snapToTicks = toCopy.snapToTicks;
-        this.setRandomiser(toCopy.randomiser);
     }
 
-    public AbstractNumberSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, StringConverter<V> stringConverter, BiConsumer<C, V> setter) {
-        super(clazz, type, category, settingName, defaultValue, stringConverter, value -> value, setter);
+    public AbstractNumberSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue) {
+        super(clazz, type, category, settingName, defaultValue);
         this.isRanged = false;
     }
 
-    public AbstractNumberSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, V minValue, V maxValue, StringConverter<V> stringConverter, Function<ThreadLocalRandom, V> randomiser, Function<V, V> validator, BiConsumer<C, V> setter) {
-        super(clazz, type, category, settingName, defaultValue, stringConverter, validator, setter);
+    public AbstractNumberSetting(Class<C> clazz, Class<V> type, String category, String settingName, V defaultValue, V minValue, V maxValue) {
+        super(clazz, type, category, settingName, defaultValue);
         this.isRanged = true;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.safeMinValue = minValue;
         this.safeMaxValue = maxValue;
-        this.setRandomiser(randomiser);
     }
-
-    public abstract void setRandomizerRange(V safeMinValue, V safeMaxValue);
 
     public AbstractNumberSetting<C, V> setSafeRange(V safeMinValue, V safeMaxValue){
         this.safeMinValue = safeMinValue;
         this.safeMaxValue = safeMaxValue;
-        this.setRandomizerRange(safeMinValue, safeMaxValue);
         return this;
     }
 

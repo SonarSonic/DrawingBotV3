@@ -2,6 +2,8 @@ package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.*;
+import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.geom.GeometryClipping;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -37,6 +39,8 @@ public class PlottingTools implements IPlottingTools {
     public int randomSeed = 0;
     public Random random;
     public AffineTransform plottingTransform;
+    public AffineTransform hostTaskTransform;
+    public boolean disablePlotting = false;
 
     // CLIPPING \\
     public Shape clippingShape = null;
@@ -81,6 +85,18 @@ public class PlottingTools implements IPlottingTools {
 
     public void setClippingShape(Shape clippingShape) {
         this.clippingShape = clippingShape;
+    }
+
+    public DBTaskContext context(){
+        return pfmTask.context;
+    }
+
+    public ObservableProject project(){
+        return context().project;
+    }
+
+    public ITaskManager taskManager(){
+        return context().taskManager;
     }
 
     ////////////////////////////////////////////////////////
@@ -225,7 +241,9 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public void addGeometry(IGeometry geometry) {
-
+        if(disablePlotting){
+            return;
+        }
 
         geometry = geometry.transformGeometry(transform);
 
@@ -247,8 +265,16 @@ public class PlottingTools implements IPlottingTools {
 
         if(clippingShape != null && GeometryClipping.shouldClip(clippingShape, geometry)){
             List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry);
-            geometries.forEach(g -> getPlottedDrawing().addGeometry(g));
+            geometries.forEach(g -> {
+                if(hostTaskTransform != null){
+                    g = g.transformGeometry(hostTaskTransform);
+                }
+                getPlottedDrawing().addGeometry(g);
+            });
         }else{
+            if(hostTaskTransform != null){
+                geometry = geometry.transformGeometry(hostTaskTransform);
+            }
             getPlottedDrawing().addGeometry(geometry);
         }
 
@@ -264,7 +290,7 @@ public class PlottingTools implements IPlottingTools {
     public void clearAllGeometries() {
         getPlottedDrawing().clearGeometries();
         if(pfmTask != null){
-            pfmTask.drawingManager.clearDrawingRender();
+            pfmTask.context.taskManager.clearDrawingRender();
         }
     }
 
@@ -301,8 +327,8 @@ public class PlottingTools implements IPlottingTools {
     }
 
     @Override
-    public void runDarkestTest(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer) {
-        AbstractDarkestPFM.runDarkestTest(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, safe, consumer);
+    public void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer) {
+        AbstractDarkestPFM.forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, safe, consumer);
     }
 
     ////////////////////////////////////////////////////////
@@ -439,6 +465,14 @@ public class PlottingTools implements IPlottingTools {
     @Override
     public void setCurrentPen(int penNumber){
         currentPen = penNumber;
+    }
+
+    @Override
+    public int getBestPen(int x, int y) {
+        if(!(pfmTask instanceof PFMTaskImage)){
+            return 0;
+        }
+        return ((PFMTaskImage) pfmTask).getBestPen(x, y);
     }
 
     ////////////////////////////////////////////////////////

@@ -1,8 +1,12 @@
 package drawingbot.javafx.util;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import org.fxmisc.easybind.Subscription;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 public class JFXUtils {
 
@@ -29,6 +33,12 @@ public class JFXUtils {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static <T> Subscription subscribeListener(ObservableValue<T> observable, ChangeListener<? super T> subscriber) {
+        subscriber.changed(observable, null, observable.getValue());
+        observable.addListener(subscriber);
+        return () -> observable.removeListener(subscriber);
     }
 
 }

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+    <AnchorPane>
+        <children>
+            <VBox spacing="10.0">
+                <padding>
+                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                </padding>
+                <children>
+               <SplitPane dividerPositions="0.3806366047745358, 0.8514588859416445" maxWidth="800.0" prefHeight="300.0" prefWidth="400.0">
+                  <items>
+                     <Pane prefHeight="598.0" prefWidth="309.0">
+                        <children>
+                           <HBox layoutX="30.0" layoutY="255.0" prefHeight="30.0" prefWidth="220.0" spacing="4.0">
+                              <children>
+                               <Button fx:id="buttonClosePort" cancelButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Close Port" />
+                                 <Button fx:id="buttonOpenPort" defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Open Port" />
+                              </children>
+                           </HBox>
+                           <VBox fx:id="vBoxPortSettings" prefHeight="225.0" prefWidth="289.0" spacing="8.0">
+                              <children>
+                                      <HBox>
+                                          <children>
+                                              <ComboBox fx:id="comboBoxSerialPortPreset" prefHeight="25.0" prefWidth="180.0" promptText="Default" />
+                                              <MenuButton fx:id="menuButtonSerialPortPresets" mnemonicParsing="false" text="Presets" />
+                                          </children>
+                                      </HBox>
+                                 <Label contentDisplay="RIGHT" graphicTextGap="43.0" text="Serial port:">
+                                    <graphic>
+                                       <ComboBox fx:id="comboBoxSerialPort" editable="true" prefWidth="150.0" />
+                                    </graphic>
+                                 </Label>
+                                 <Label contentDisplay="RIGHT" graphicTextGap="14.0" text="Serial baud rate:">
+                                    <graphic>
+                                       <ChoiceBox fx:id="choiceBoxBaudRate" prefWidth="150.0" />
+                                    </graphic>
+                                 </Label>
+                                 <Label contentDisplay="RIGHT" graphicTextGap="19.0" text="Serial data bits:">
+                                    <graphic>
+                                       <ChoiceBox fx:id="choiceBoxDataBits" prefWidth="150.0" />
+                                    </graphic>
+                                 </Label>
+                                 <Label contentDisplay="RIGHT" graphicTextGap="19.0" text="Serial stop bits:">
+                                    <graphic>
+                                       <ChoiceBox fx:id="choiceBoxStopBits" prefWidth="150.0" />
+                                    </graphic>
+                                 </Label>
+                                 <Label contentDisplay="RIGHT" graphicTextGap="35.0" text="Serial parity:">
+                                    <graphic>
+                                       <ChoiceBox fx:id="choiceBoxParity" prefWidth="150.0" />
+                                    </graphic>
+                                 </Label>
+                                 <Label contentDisplay="RIGHT" graphicTextGap="2.0" text="Serial flow control:">
+                                    <graphic>
+                                       <ChoiceBox fx:id="choiceBoxFlowControl" prefWidth="150.0" />
+                                    </graphic>
+                                 </Label>
+                                 <Separator prefWidth="200.0" />
+                              </children>
+                              <padding>
+                                 <Insets left="14.0" right="14.0" top="14.0" />
+                              </padding>
+                           </VBox>
+                        </children>
+                     </Pane>
+                     <Pane fx:id="paneSerialReadWrite" prefHeight="298.0" prefWidth="366.0">
+                        <children>
+                           <VBox prefHeight="292.0" prefWidth="350.0">
+                              <children>
+                                      <TextArea fx:id="textAreaSerialOutput" editable="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="113.0" prefWidth="322.0" promptText="Serial Port Output" wrapText="true" />
+                                 <HBox layoutX="34.0" layoutY="10.0" maxWidth="-Infinity" minWidth="200.0" prefHeight="25.0" prefWidth="370.0">
+                                    <children>
+                                       <TextField fx:id="textFieldCommand" prefWidth="298.0" promptText="Send Command" />
+                                       <Button fx:id="buttonSendCommand" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" text="Send" />
+                                    </children>
+                                    <padding>
+                                       <Insets top="5.0" />
+                                    </padding>
+                                 </HBox>
+                                 <Separator minHeight="20.0" prefWidth="200.0" />
+                                 <Label prefHeight="30.0" prefWidth="112.0" text="Send File">
+                                    <font>
+                                       <Font size="14.0" />
+                                    </font>
+                                 </Label>
+                                 <HBox maxWidth="-Infinity" minWidth="200.0" prefHeight="25.0" prefWidth="370.0">
+                                    <children>
+                                       <ComboBox fx:id="comboBoxHPGLFile" editable="true" prefWidth="298.0" promptText="Select File" />
+                                       <Button fx:id="buttonImportHPGLFile" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" text="Import" />
+                                    </children>
+                                    <VBox.margin>
+                                       <Insets />
+                                    </VBox.margin>
+                                 </HBox>
+                                 <HBox alignment="CENTER" prefHeight="49.0" prefWidth="297.0" spacing="4.0">
+                                    <children>
+                                       <Button fx:id="buttonCancelFile" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Cancel" />
+                                       <Button fx:id="buttonDetectPlotter" layoutX="43.0" layoutY="22.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Detect Plotter" />
+                                       <Button fx:id="buttonSendFile" defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Send File" />
+                                    </children>
+                                    <VBox.margin>
+                                       <Insets top="10.0" />
+                                    </VBox.margin>
+                                 </HBox>
+                              </children>
+                              <padding>
+                                 <Insets left="14.0" right="14.0" top="14.0" />
+                              </padding>
+                           </VBox>
+                                <HBox spacing="4.0" />
+                        </children>
+                     </Pane>
+                     <Pane prefHeight="298.0" prefWidth="120.0">
+                        <children>
+                           <VBox spacing="4.0">
+                              <children>
+                                 <Label prefHeight="10.0" prefWidth="61.0" text="Status">
+                                    <font>
+                                       <Font name="System Bold Italic" size="12.0" />
+                                    </font></Label>
+                                 <Label graphicTextGap="8.0" text="RXD (2)">
+                                    <graphic>
+                                       <Circle fx:id="circleRXD" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label graphicTextGap="8.0" layoutX="24.0" layoutY="41.0" text="TXD (3)">
+                                    <graphic>
+                                       <Circle fx:id="circleTXD" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label graphicTextGap="8.0" layoutX="24.0" layoutY="58.0" text="CTS (8)">
+                                    <graphic>
+                                       <Circle fx:id="circleCTS" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label graphicTextGap="8.0" layoutX="24.0" layoutY="75.0" text="DCD (1)">
+                                    <graphic>
+                                       <Circle fx:id="circleDCD" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label graphicTextGap="8.0" layoutX="24.0" layoutY="92.0" text="DSR (6)">
+                                    <graphic>
+                                       <Circle fx:id="circleDSR" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label graphicTextGap="8.0" layoutX="24.0" layoutY="109.0" text="Ring (9)">
+                                    <graphic>
+                                       <Circle fx:id="circleRing" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label graphicTextGap="8.0" layoutX="24.0" layoutY="143.0" text="ERROR">
+                                    <graphic>
+                                       <Circle fx:id="circleError" fill="#1fff44" radius="8.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                                    </graphic>
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Separator minHeight="20.0" />
+                                 <Label text="Elapsed Time">
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label fx:id="labelElapsedTime" layoutX="24.0" layoutY="213.0" text="10hr 10 mins">
+                                    <font>
+                                       <Font name="System Italic" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label layoutX="24.0" layoutY="220.0" text="Remaining Time">
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </Label>
+                                 <Label fx:id="labelRemainingTime" layoutX="24.0" layoutY="241.0" text="10hr 10 mins">
+                                    <font>
+                                       <Font name="System Italic" size="12.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                              <padding>
+                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                              </padding>
+                           </VBox>
+                           <Label contentDisplay="BOTTOM" layoutX="14.0" layoutY="219.0" prefHeight="49.0" prefWidth="103.0" text="Buffer" textAlignment="JUSTIFY" visible="false">
+                              <font>
+                                 <Font name="System Bold" size="12.0" />
+                              </font>
+                           </Label>
+                           <Label layoutX="14.0" layoutY="267.0" />
+                        </children>
+                     </Pane>
+                  </items>
+               </SplitPane>
+               <HBox spacing="6.0">
+                  <children>
+                     <Label fx:id="labelProgressBarLabel" contentDisplay="CENTER" text="Label">
+                        <graphic>
+                           <ProgressBar fx:id="progressBarSerialWrite" prefHeight="24.0" prefWidth="642.0" progress="0.0" />
+                        </graphic>
+                     </Label>
+                     <Label fx:id="progressBarBufferLabel" contentDisplay="CENTER" text="Label">
+                        <graphic>
+                           <ProgressBar fx:id="progressBarBuffer" prefHeight="23.0" prefWidth="110.0" progress="0.0" />
+                        </graphic>
+                     </Label>
+                  </children>
+               </HBox>
+                </children>
+            </VBox>
+        </children></AnchorPane>
+
+</AnchorPane>

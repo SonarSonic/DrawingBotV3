@@ -2,16 +2,18 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.utils.EnumClippingMode;
-import drawingbot.utils.EnumScalingMode;
+import drawingbot.utils.EnumCroppingMode;
+import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 
 public class SimpleCanvas implements ICanvas {
 
     public UnitsLength units;
-    public EnumScalingMode scalingMode;
+    public EnumCroppingMode scalingMode;
     public EnumClippingMode clippingMode;
-    public boolean usePlottingScale;
+    public EnumRescaleMode rescaleMode;
     public boolean useOriginalSizing;
+    public float penWidth;
     public float scale;
     public float pageWidth, pageHeight;
     public float drawingWidth, drawingHeight;
@@ -21,19 +23,24 @@ public class SimpleCanvas implements ICanvas {
     public SimpleCanvas(){}
 
     public SimpleCanvas(ICanvas canvas){
-        this(canvas.getUnits(), canvas.getScalingMode(), canvas.getClippingMode(), canvas.optimiseForPrint(), canvas.useOriginalSizing(), canvas.getPlottingScale(), canvas.getWidth(), canvas.getHeight(), canvas.getDrawingWidth(), canvas.getDrawingHeight(), canvas.getDrawingOffsetX(), canvas.getDrawingOffsetY(), canvas.getCanvasScale());
+        this(canvas.getUnits(), canvas.getCroppingMode(), canvas.getClippingMode(), canvas.getRescaleMode(), canvas.useOriginalSizing(), canvas.getTargetPenWidth(), canvas.getPlottingScale(), canvas.getWidth(), canvas.getHeight(), canvas.getDrawingWidth(), canvas.getDrawingHeight(), canvas.getDrawingOffsetX(), canvas.getDrawingOffsetY(), canvas.getCanvasScale());
     }
 
-    public SimpleCanvas(int width, int height){
-        this(UnitsLength.PIXELS, EnumScalingMode.CROP_TO_FIT, EnumClippingMode.DRAWING, false, false, 1F, width, height, width, height, 0, 0, 1);
+    public SimpleCanvas(float width, float height){
+        this(width, height, UnitsLength.PIXELS);
     }
 
-    public SimpleCanvas(UnitsLength units, EnumScalingMode scalingMode, EnumClippingMode clippingMode, boolean usePlottingScale, boolean useOriginalSizing, float scale, float pageWidth, float pageHeight, float drawingWidth, float drawingHeight, float drawingOffsetX, float drawingOffsetY, float canvasScale){
+    public SimpleCanvas(float width, float height, UnitsLength units){
+        this(units, EnumCroppingMode.CROP_TO_FIT, EnumClippingMode.DRAWING, EnumRescaleMode.HIGH_QUALITY, false, 1F, 1F, width, height, width, height, 0, 0, 1);
+    }
+
+    public SimpleCanvas(UnitsLength units, EnumCroppingMode scalingMode, EnumClippingMode clippingMode, EnumRescaleMode rescaleMode, boolean useOriginalSizing, float penWidth, float scale, float pageWidth, float pageHeight, float drawingWidth, float drawingHeight, float drawingOffsetX, float drawingOffsetY, float canvasScale){
         this.units = units;
         this.scalingMode = scalingMode;
         this.clippingMode = clippingMode;
-        this.usePlottingScale = usePlottingScale;
+        this.rescaleMode = rescaleMode;
         this.useOriginalSizing = useOriginalSizing;
+        this.penWidth = penWidth;
         this.scale = scale;
         this.pageWidth = pageWidth;
         this.pageHeight = pageHeight;
@@ -50,7 +57,7 @@ public class SimpleCanvas implements ICanvas {
     }
 
     @Override
-    public EnumScalingMode getScalingMode() {
+    public EnumCroppingMode getCroppingMode() {
         return scalingMode;
     }
 
@@ -60,13 +67,18 @@ public class SimpleCanvas implements ICanvas {
     }
 
     @Override
+    public EnumRescaleMode getRescaleMode() {
+        return rescaleMode;
+    }
+
+    @Override
     public boolean useOriginalSizing() {
         return useOriginalSizing;
     }
 
     @Override
-    public boolean optimiseForPrint() {
-        return usePlottingScale;
+    public float getTargetPenWidth() {
+        return penWidth;
     }
 
     @Override

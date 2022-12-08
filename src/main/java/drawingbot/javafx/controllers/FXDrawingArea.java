@@ -1,8 +1,11 @@
 package drawingbot.javafx.controllers;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingArea;
 import drawingbot.files.json.presets.PresetDrawingAreaManager;
+import drawingbot.files.json.presets.PresetImageFilters;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.plotting.canvas.ObservableCanvas;
@@ -10,7 +13,6 @@ import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -20,10 +22,10 @@ import javafx.scene.paint.Color;
 import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-public class FXDrawingArea {
+public class FXDrawingArea extends AbstractFXController {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
-    public final SimpleStringProperty drawingAreaPaddingGangValue = new SimpleStringProperty("0");
+    public final SimpleObjectProperty<GenericPreset<PresetDrawingArea>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
@@ -36,7 +38,6 @@ public class FXDrawingArea {
     public Pane paneDrawingAreaCustom = null;
     public TextField textFieldDrawingWidth = null;
     public TextField textFieldDrawingHeight = null;
-    //public ToggleButton buttonRotate = null;
     public ChoiceBox<EnumOrientation> choiceBoxOrientation = null;
     public TextField textFieldPaddingLeft = null;
     public TextField textFieldPaddingRight = null;
@@ -44,12 +45,13 @@ public class FXDrawingArea {
     public TextField textFieldPaddingBottom = null;
     public CheckBox checkBoxGangPadding = null;
 
-    public ChoiceBox<EnumScalingMode> choiceBoxScalingMode = null;
+    public ChoiceBox<EnumCroppingMode> choiceBoxCroppingMode = null;
 
-    public CheckBox checkBoxOptimiseForPrint = null;
+    public ChoiceBox<EnumRescaleMode> choiceBoxRescaleMode = null;
     public TextField textFieldPenWidth = null;
 
     public ColorPicker colorPickerCanvas = null;
+    public ColorPicker colorPickerBackground = null;
 
     public ChoiceBox<EnumClippingMode> choiceBoxClippingMode = null;
 
@@ -63,19 +65,19 @@ public class FXDrawingArea {
                 textFieldDrawingWidth.textProperty().unbindBidirectional(oldValue.width);
                 textFieldDrawingHeight.textProperty().unbindBidirectional(oldValue.height);
 
-                updatePaddingBindings(false);
                 textFieldPaddingLeft.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingLeft);
                 textFieldPaddingRight.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingRight);
                 textFieldPaddingTop.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingTop);
                 textFieldPaddingBottom.textProperty().unbindBidirectional(oldValue.drawingAreaPaddingBottom);
                 checkBoxGangPadding.selectedProperty().unbindBidirectional(oldValue.drawingAreaGangPadding);
 
-                choiceBoxScalingMode.valueProperty().unbindBidirectional(oldValue.scalingMode);
+                choiceBoxCroppingMode.valueProperty().unbindBidirectional(oldValue.croppingMode);
 
-                checkBoxOptimiseForPrint.selectedProperty().unbindBidirectional(oldValue.optimiseForPrint);
+                choiceBoxRescaleMode.valueProperty().unbindBidirectional(oldValue.rescaleMode);
                 textFieldPenWidth.textProperty().unbindBidirectional(oldValue.targetPenWidth);
 
                 colorPickerCanvas.valueProperty().unbindBidirectional(oldValue.canvasColor);
+                colorPickerBackground.valueProperty().unbindBidirectional(oldValue.backgroundColor);
                 choiceBoxClippingMode.valueProperty().unbindBidirectional(oldValue.clippingMode);
 
                 choiceBoxOrientation.valueProperty().unbindBidirectional(oldValue.orientation);
@@ -89,23 +91,23 @@ public class FXDrawingArea {
                 textFieldDrawingWidth.textProperty().bindBidirectional(newValue.width, new NumberStringConverter(Utils.defaultDF));
                 textFieldDrawingHeight.textProperty().bindBidirectional(newValue.height, new NumberStringConverter(Utils.defaultDF));
 
-                textFieldPaddingLeft.textProperty().bindBidirectional(newValue.drawingAreaPaddingLeft, new NumberStringConverter());
-                textFieldPaddingRight.textProperty().bindBidirectional(newValue.drawingAreaPaddingRight, new NumberStringConverter());
-                textFieldPaddingTop.textProperty().bindBidirectional(newValue.drawingAreaPaddingTop, new NumberStringConverter());
-                textFieldPaddingBottom.textProperty().bindBidirectional(newValue.drawingAreaPaddingBottom, new NumberStringConverter());
+                textFieldPaddingLeft.textProperty().bindBidirectional(newValue.drawingAreaPaddingLeft, new NumberStringConverter(Utils.defaultDF));
+                textFieldPaddingRight.textProperty().bindBidirectional(newValue.drawingAreaPaddingRight, new NumberStringConverter(Utils.defaultDF));
+                textFieldPaddingTop.textProperty().bindBidirectional(newValue.drawingAreaPaddingTop, new NumberStringConverter(Utils.defaultDF));
+                textFieldPaddingBottom.textProperty().bindBidirectional(newValue.drawingAreaPaddingBottom, new NumberStringConverter(Utils.defaultDF));
                 checkBoxGangPadding.selectedProperty().bindBidirectional(newValue.drawingAreaGangPadding);
 
-                choiceBoxScalingMode.valueProperty().bindBidirectional(newValue.scalingMode);
+                choiceBoxCroppingMode.valueProperty().bindBidirectional(newValue.croppingMode);
 
-                checkBoxOptimiseForPrint.selectedProperty().bindBidirectional(newValue.optimiseForPrint);
-                textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter());
+                choiceBoxRescaleMode.valueProperty().bindBidirectional(newValue.rescaleMode);
+                textFieldPenWidth.textProperty().bindBidirectional(newValue.targetPenWidth, new NumberStringConverter(Utils.defaultDF));
 
                 colorPickerCanvas.valueProperty().bindBidirectional(newValue.canvasColor);
+                colorPickerBackground.valueProperty().bindBidirectional(newValue.backgroundColor);
                 choiceBoxClippingMode.valueProperty().bindBidirectional(newValue.clippingMode);
 
                 choiceBoxOrientation.valueProperty().bindBidirectional(newValue.orientation);
                 choiceBoxOrientation.disableProperty().bind(Bindings.createBooleanBinding(() -> newValue.width.get() == newValue.height.get(), newValue.width, newValue.height));
-                updatePaddingBindings(newValue.drawingAreaGangPadding.get());
             }
         });
 
@@ -113,22 +115,17 @@ public class FXDrawingArea {
 
         colorPickerCanvas.setValue(Color.WHITE);
 
-        comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
-        comboBoxDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
-        comboBoxDrawingAreaPreset.valueProperty().addListener((observable, oldValue, newValue) -> {
+        selectedDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
+        selectedDrawingAreaPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getDrawingAreaPresetManager().applyPreset(newValue);
+                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue);
             }
         });
 
-        FXHelper.setupPresetMenuButton(Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, menuButtonDrawingAreaPresets, false, comboBoxDrawingAreaPreset::getValue, (preset) -> {
-            comboBoxDrawingAreaPreset.setValue(preset);
+        comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
+        comboBoxDrawingAreaPreset.valueProperty().bindBidirectional(selectedDrawingAreaPreset);
 
-            ///force update rendering
-            comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
-            comboBoxDrawingAreaPreset.setButtonCell(new ComboBoxListCell<>());
-        });
-
+        FXHelper.setupPresetMenuButton(menuButtonDrawingAreaPresets, Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, false, selectedDrawingAreaPreset);
 
         /////SIZING OPTIONS
 
@@ -148,14 +145,14 @@ public class FXDrawingArea {
         textFieldPaddingTop.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldPaddingBottom.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
-        checkBoxGangPadding.selectedProperty().addListener((observable, oldValue, newValue) -> updatePaddingBindings(newValue));
-        updatePaddingBindings(checkBoxGangPadding.isSelected());
+        choiceBoxCroppingMode.getItems().addAll(EnumCroppingMode.values());
+        choiceBoxCroppingMode.setValue(EnumCroppingMode.CROP_TO_FIT);
 
-        choiceBoxScalingMode.getItems().addAll(EnumScalingMode.values());
-        choiceBoxScalingMode.setValue(EnumScalingMode.CROP_TO_FIT);
+        choiceBoxRescaleMode.getItems().addAll(EnumRescaleMode.values());
+        choiceBoxRescaleMode.setValue(EnumRescaleMode.HIGH_QUALITY);
 
         textFieldPenWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0.3F));
-        textFieldPenWidth.disableProperty().bind(checkBoxOptimiseForPrint.selectedProperty().not());
+        textFieldPenWidth.disableProperty().bind(choiceBoxRescaleMode.valueProperty().isEqualTo(EnumRescaleMode.OFF));
 
         choiceBoxClippingMode.getItems().addAll(EnumClippingMode.values());
         choiceBoxClippingMode.setValue(EnumClippingMode.DRAWING);
@@ -171,35 +168,12 @@ public class FXDrawingArea {
         if(presetManager == null){
             return presetManager = new PresetDrawingAreaManager(Register.PRESET_LOADER_DRAWING_AREA) {
                 @Override
-                public ObservableCanvas getInstance() {
+                public ObservableCanvas getInstance(DBTaskContext context) {
                     return drawingArea.get();
                 }
             };
         }
         return presetManager;
-    }
-
-    public boolean isGanged = false;
-
-    public void updatePaddingBindings(boolean ganged){
-        if(isGanged == ganged){
-            return;
-        }
-
-        if(ganged){
-            drawingAreaPaddingGangValue.set("0");
-            textFieldPaddingLeft.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingRight.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingTop.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingBottom.textProperty().bindBidirectional(drawingAreaPaddingGangValue);
-            isGanged = true;
-        }else{
-            textFieldPaddingLeft.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingRight.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingTop.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            textFieldPaddingBottom.textProperty().unbindBidirectional(drawingAreaPaddingGangValue);
-            isGanged = false;
-        }
     }
 
 }

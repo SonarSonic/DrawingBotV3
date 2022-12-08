@@ -4,6 +4,8 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.settings.IntegerSetting;
+import javafx.beans.binding.Bindings;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -16,14 +18,13 @@ public class JsonAdapterObservableDrawingPen extends JsonAdapterAbstract<Observa
     static{
         settings = new ArrayList<>();
         settings.add(GenericSetting.createObjectSetting(ObservableDrawingPen.class, IDrawingPen.class, "source", null, (I, V) -> I.source = V).setGetter(I -> new DrawingPen(I.source)));
-        settings.add(GenericSetting.createIntSetting(ObservableDrawingPen.class, "penNumber", 0, (I, V) -> I.penNumber.set(V)).setGetter(I -> I.penNumber.get()));
-
-        settings.add(GenericSetting.createBooleanSetting(ObservableDrawingPen.class, "isEnabled", true, (I, V) -> I.enable.set(V)).setGetter(I -> I.enable.get()));
-        settings.add(GenericSetting.createStringSetting(ObservableDrawingPen.class, "type", "", (I, V) -> I.type.set(V)).setGetter(I -> I.type.get()));
-        settings.add(GenericSetting.createStringSetting(ObservableDrawingPen.class, "name", "", (I, V) -> I.name.set(V)).setGetter(I -> I.name.get()));
-        settings.add(GenericSetting.createColourSetting(ObservableDrawingPen.class, "argb", Color.BLACK, (I, V) -> I.javaFXColour.set(V)).setGetter(I -> I.javaFXColour.get()));
-        settings.add(GenericSetting.createIntSetting(ObservableDrawingPen.class, "distributionWeight", 100, (I, V) -> I.distributionWeight.set(V)).setGetter(I -> I.distributionWeight.get()));
-        settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "strokeSize", 1F, (I, V) -> I.strokeSize.set(V)).setGetter(I -> I.strokeSize.get()));
+        settings.add(GenericSetting.createIntSetting(ObservableDrawingPen.class, "penNumber", 0, i -> i.penNumber));
+        settings.add(GenericSetting.createBooleanSetting(ObservableDrawingPen.class, "isEnabled", true, i -> i.enable));
+        settings.add(GenericSetting.createStringSetting(ObservableDrawingPen.class, "type", "", i -> i.type));
+        settings.add(GenericSetting.createStringSetting(ObservableDrawingPen.class, "name", "", i -> i.name));
+        settings.add(GenericSetting.createColourSetting(ObservableDrawingPen.class, "argb", Color.BLACK, i -> i.javaFXColour));
+        settings.add(GenericSetting.createIntSetting(ObservableDrawingPen.class, "distributionWeight", 100, i -> i.distributionWeight));
+        settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "strokeSize", 1F, i -> i.strokeSize));
      }
 
 

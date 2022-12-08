@@ -57,9 +57,11 @@ public class ColourSampleTest extends PixelTest {
         sum_red += pixels.getRed(x, y);
         sum_green += pixels.getGreen(x, y);
         sum_blue += pixels.getBlue(x, y);
-        pixels.adjustRed(x, y, adjustLum);
-        pixels.adjustGreen(x, y, adjustLum);
-        pixels.adjustBlue(x, y, adjustLum);
+        if(adjustLum != 0){
+            pixels.adjustRed(x, y, adjustLum);
+            pixels.adjustGreen(x, y, adjustLum);
+            pixels.adjustBlue(x, y, adjustLum);
+        }
         total_pixels++;
     }
 }
