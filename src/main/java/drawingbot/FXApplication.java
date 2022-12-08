@@ -14,6 +14,7 @@ import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
+import drawingbot.utils.Utils;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -75,8 +76,6 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Loading Registry");
         MasterRegistry.init();
 
-        System.setProperty("prism.lcdtext", "false");
-
         DrawingBotV3.logger.info("Init DrawingBotV3");
         DrawingBotV3.INSTANCE = new DrawingBotV3();
 
@@ -92,6 +91,12 @@ public class FXApplication extends Application {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //// INIT GUI
+
+        if(Utils.getOS().isMac()){
+            //JavaFX LCD Font Smoothing looks good on windows, but bad on MacOS, so disable it.
+            System.setProperty("prism.lcdtext", "false");
+        }
+
         DrawingBotV3.INSTANCE.controller = new FXController();
 
         FXMLLoader uiLoader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml")); // abs path to fxml file
