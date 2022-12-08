@@ -17,6 +17,7 @@ import drawingbot.render.overlays.*;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
+import drawingbot.utils.Utils;
 import drawingbot.utils.flags.Flags;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -117,6 +118,11 @@ public class FXApplication extends Application {
 
         DrawingBotV3.logger.info("Json Loader: Load JSON Files");
         JsonLoaderManager.loadJSONFiles();
+
+        if(Utils.getOS().isMac()){
+            //JavaFX LCD Font Smoothing looks good on windows, but bad on MacOS, so disable it.
+            System.setProperty("prism.lcdtext", "false");
+        }
 
         DrawingBotV3.logger.info("DrawingBotV3: Loading User Interface");
         FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml"));
