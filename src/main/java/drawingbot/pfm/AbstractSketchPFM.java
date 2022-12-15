@@ -4,6 +4,7 @@ import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.PixelTargetCache;
+import drawingbot.image.PixelTargetDarkestArea;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
 
@@ -50,13 +51,14 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             minLineLength = maxLineLength;
             maxLineLength = value;
         }
+
         if(squiggleMaxLength < squiggleMinLength){
             int value = squiggleMinLength;
             squiggleMinLength = squiggleMaxLength;
             squiggleMaxLength = value;
         }
         initialLuminance = this.tools.getPixelData().getAverageLuminance();
-        targetCache = new PixelTargetCache(tools.getPixelData());
+        targetCache = new PixelTargetDarkestArea(tools.getPixelData());
         findDarkestMethod = (pixelData, dst) -> targetCache.updateNextDarkestPixel(dst);
     }
 

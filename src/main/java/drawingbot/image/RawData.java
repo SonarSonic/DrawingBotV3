@@ -8,16 +8,18 @@ public class RawData {
 
     public int width;
     public int height;
-    public int[][] data;
+    public byte[][] data;
     public double averageData;
 
     public int min = 0;
     public int max = 255;
 
+    public IDataListener listener;
+
     public RawData(int width, int height){
         this.width = width;
         this.height = height;
-        this.data = new int[width][height];
+        this.data = new byte[width][height];
     }
 
     public void setBounds(int min, int max){
@@ -38,13 +40,20 @@ public class RawData {
     }
 
     public int getData(int x, int y){
-        return data[x][y];
+        return Byte.toUnsignedInt(data[x][y]);
     }
 
     public void setData(int x, int y, int value){
-        averageData -= data[x][y]; //remove old value from average
-        data[x][y] = value;
+        int oldValue = getData(x, y);
+
+        value = Utils.clamp(value, 0, max);
+        averageData -= oldValue; //remove old value from average
+        data[x][y] = (byte)value;
         averageData += value; //add new value to average
+
+        if(listener != null){
+            listener.onChange(x, y, oldValue, value);
+        }
     }
 
     public void adjustData(int x, int y, int adjust) {
@@ -58,5 +67,19 @@ public class RawData {
                 setData(x, y, data[x][y]);
             }
         }
+    }
+
+    public void setData(byte[][] data){
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                setData(x, y, Byte.toUnsignedInt(data[x][y]));
+            }
+        }
+    }
+
+    public interface IDataListener{
+
+        void onChange(int x, int y, int oldValue, int newValue);
+
     }
 }

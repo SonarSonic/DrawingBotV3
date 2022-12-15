@@ -3,6 +3,7 @@ package drawingbot.pfm;
 import drawingbot.api.*;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
+import drawingbot.image.PixelDataARGBY;
 import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.pfm.helpers.*;
 import drawingbot.utils.Utils;
@@ -19,6 +20,9 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
 
     @Override
     public IPixelData createPixelData(int width, int height) {
+        if(!tools.getCanvas().getRescaleMode().isHighQuality() || tools.getCanvas().getTargetPenWidth() == 1F){
+            return new PixelDataARGBY(width, height);
+        }
         return PixelDataGraphicsComposite.create(width, height);
     }
 
@@ -41,6 +45,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
      * @param dest must have length >= 2 will set the following values 0 = Darkest Pixel X, 1 = Darkest Pixel Y, 2 = Darkest Pixel Luminance, 3 = Darkest Sample Luminance
      */
     public static void findDarkestArea(IPixelData pixels, int[] dest) {
+
         int totalSamplesX = pixels.getWidth()/sampleWidth;
         int totalSamplesY = pixels.getHeight()/sampleHeight;
 

@@ -44,6 +44,7 @@ public class PFMRenderPipe {
 
     public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust, float lineWidth, PixelDataComposite.ICompositeFunction function){
         if(pixelData instanceof PixelDataGraphicsComposite){
+            //HQ method: using Graphics2D implementation, slower but supports anti aliased lines and lineWidth.
             PixelDataGraphicsComposite data = (PixelDataGraphicsComposite) pixelData;
             Graphics2D graphics2D = data.getGraphics2D();
             data.enableBlending(function);
@@ -51,6 +52,16 @@ public class PFMRenderPipe {
             graphics2D.setColor(getDefaultEraseColor(adjust));
             graphics2D.draw(geometry.getAWTShape());
             data.disableBlending();
+        }else{
+            //original method: using bresenham, fast but with non-anti aliased lines and no support for lineWidth.
+            bresenhamHelper.plotShape(geometry.getAWTShape(), (x, y) -> {
+                if(x < 0 || x >= pixelData.getWidth() || y < 0 || y >= pixelData.getHeight()){
+                    return;
+                }
+                pixelData.adjustRed(x, y, adjust);
+                pixelData.adjustGreen(x, y, adjust);
+                pixelData.adjustBlue(x, y, adjust);
+            });
         }
         return -1; //TODO FIX COLOUR SAMPLES
     }

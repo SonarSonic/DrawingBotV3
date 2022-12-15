@@ -1,6 +1,7 @@
 package drawingbot.api;
 
 import drawingbot.image.ImageTools;
+import drawingbot.image.RawData;
 
 import java.awt.image.BufferedImage;
 
@@ -422,6 +423,19 @@ public interface IPixelData {
 
     default void loadData(BufferedImage source){
         ImageTools.copyToPixelData(source, this);
+    }
+
+    /**
+     * Should be implemented on all PixelData which should be compatible with the PixelTargetCache
+     */
+    default RawData getRawLuminanceData(){
+        return null;
+    }
+
+    default void attachLuminanceDataListener(RawData.IDataListener listener){
+        RawData data = getRawLuminanceData();
+        assert data != null;
+        data.listener = listener;
     }
 
 }

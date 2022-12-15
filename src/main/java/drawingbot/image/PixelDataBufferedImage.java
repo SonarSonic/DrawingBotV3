@@ -153,4 +153,9 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelL
     public void removeListener(IPixelListener listener) {
         this.listener = null;
     }
+
+    @Override
+    public RawData getRawLuminanceData() {
+        return data;
+    }
 }

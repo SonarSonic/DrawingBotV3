@@ -87,4 +87,9 @@ public class PixelDataHybrid extends PixelDataARGB {
     public double getAverageLuminance() {
         return luminance.getAverage();
     }
+
+    @Override
+    public RawData getRawLuminanceData() {
+        return luminance;
+    }
 }
