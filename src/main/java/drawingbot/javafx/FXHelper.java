@@ -784,6 +784,20 @@ public class FXHelper {
         return null;
     }
 
+    public static List<UINodeState> defaultStates = null;
+
+    public static void saveDefaultUIStates(){
+        if(defaultStates == null){
+            saveUIStates(defaultStates = new ArrayList<>());
+        }
+    }
+
+    public static void loadDefaultUIStates(){
+        if(defaultStates != null){
+            loadUIStates(defaultStates);
+        }
+    }
+
     public static void loadUIStates(List<UINodeState> states){
         for(UINodeState state : states){
             Styleable styleable = FXHelper.findPersistentStyleable(state.getID());

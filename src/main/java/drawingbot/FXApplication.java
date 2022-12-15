@@ -7,6 +7,7 @@ import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.ConfigFileHandler;
 import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -172,6 +173,9 @@ public class FXApplication extends Application {
         // set up main drawing loop
         drawTimer = new DrawTimer(this);
         drawTimer.start();
+
+        //save the default UI State before applying the users own defaults
+        FXHelper.saveDefaultUIStates();
 
         DrawingBotV3.logger.info("Json Loader: Load Defaults");
         JsonLoaderManager.loadDefaults();

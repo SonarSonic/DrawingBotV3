@@ -408,6 +408,15 @@ public class FXController extends AbstractFXController {
         closeAll.setOnAction(e -> allPanes.forEach(pane -> pane.setExpanded(false)));
         menuView.getItems().add(closeAll);
 
+        menuView.getItems().add(new SeparatorMenuItem());
+
+        MenuItem resetUI = new MenuItem("Reset UI");
+        resetUI.setOnAction(e -> {
+            FXHelper.loadDefaultUIStates();
+            allPanes.forEach(this::redockSettingsPane);
+        });
+        menuView.getItems().add(resetUI);
+
         //filters
         for(Map.Entry<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> entry : MasterRegistry.INSTANCE.imgFilterFactories.entrySet()){
             Menu type = new Menu(entry.getKey().toString());
@@ -1046,11 +1055,15 @@ public class FXController extends AbstractFXController {
     }
 
     public void redockSettingsPane(TitledPane pane){
-        Node content = settingsContent.get(pane);
-        pane.setContent(content);
+        Stage currentStage = settingsStages.get(pane);
+        if(currentStage != null){
+            Node content = settingsContent.get(pane);
+            pane.setContent(content);
 
-        settingsStages.put(pane, null);
-        settingsContent.put(pane, null);
+            settingsStages.put(pane, null);
+            settingsContent.put(pane, null);
+            currentStage.close();
+        }
     }
 
 
