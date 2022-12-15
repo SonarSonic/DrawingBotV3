@@ -5,11 +5,13 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
 import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.render.shapes.JFXShape;
 import drawingbot.utils.EnumRotation;
+import drawingbot.utils.UnitsLength;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -148,11 +150,11 @@ public class FilteredImageData {
     }
 
     public Rectangle2D getCrop(){
-        float scale = getSourceCanvas().getPlottingScale();
-        float startX = Math.min(cropStartX.get(), cropEndX.get()) * scale;
-        float startY = Math.min(cropStartY.get(), cropEndY.get()) * scale;
-        float width = Math.abs(cropEndX.get() - cropStartX.get()) * scale;
-        float height = Math.abs(cropEndY.get() - cropStartY.get()) * scale;
+        double scale = getSourceCanvas().getPlottingScale();
+        double startX = Math.min(cropStartX.get(), cropEndX.get()) * scale;
+        double startY = Math.min(cropStartY.get(), cropEndY.get()) * scale;
+        double width = Math.abs(cropEndX.get() - cropStartX.get()) * scale;
+        double height = Math.abs(cropEndY.get() - cropStartY.get()) * scale;
         if(width == 0 || height == 0){
             return new Rectangle2D.Double(0, 0, sourceCanvas.getWidth(), sourceCanvas.getHeight());
         }
@@ -175,6 +177,15 @@ public class FilteredImageData {
             preCrop = applyPreCropping(sourceImage, getCrop());
             newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
             cropped = applyCropping(preCrop, newCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
+
+            if(sourceCanvas.getUnits() != UnitsLength.PIXELS){
+                Rectangle2D crop = getCrop();
+                double width = crop.getWidth() / sourceCanvas.getPlottingScale();
+                double height = crop.getHeight() / sourceCanvas.getPlottingScale();
+                SimpleCanvas copy = new SimpleCanvas((float)width, (float)height, sourceCanvas.getUnits());
+                copy.scale = sourceCanvas.getPlottingScale();
+                newCanvas = new ImageCanvas(new SimpleCanvas(getTargetCanvas()), copy, imageRotation.get().flipAxis);
+            }
         }
         filteredImage = applyFilters(cropped, updateCropping || updateAllFilters, settings);
         destCanvas = newCanvas;
