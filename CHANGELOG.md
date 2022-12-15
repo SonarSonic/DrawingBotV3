@@ -1,3 +1,26 @@
+### [v1.5.1-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.1-beta-free)
+- Added: 'Voronoi Style' option to Adaptive Voronoi, Voronoi Diagram & Mosaic Voronoi.
+  - "Classic" - The default and original Voronoi Diagram
+  - "Smooth" - A smoother version of the original
+  - "Sharp" - A more jagged / stylised version
+  - "Offset A, B, C" - Less detailed / stylised version using the different offsets of adjacent triangles
+- Added: "Smooth Distribution" option to Colour Match, this option will result in a more even usage of different pen colours which will rely less on Black & the canvas colour.
+- Added: Reset UI button to the "View" menu
+- Improved: Low Quality mode will now run faster and produce similar results to version of DB before v1.5.0  
+- Improved: Speed improvements for Sketch PFMs
+- Improved: Speed improvements  for Colour Match  
+- Improved: Sketch Shapes paths will now link properly when in Rectangle mode, significantly reducing plotting time.
+- Improved: Path optimisation for all PFMS, significant reduction in plotting times.  
+- Improved: Mosaic PFMs now have better Multi-Threading so will process much faster.
+- Fixed: Sketch Sobel crashing in some situtations.
+- Fixed: Sketch PFMs having an uneven distribution when compared to previous versions of DB before v1.5.0
+- Fixed: SVG Converter PFM will now retain the original units / scale of the imported SVG.
+- Fixed: Voronoi Diagram not updating on each iteration
+- Fixed: Mosaic PFMs using the wrong scale when High Quality mode is being used.   
+- Fixed: Mosaic Voronoi having excessively long processing times.
+- Fixed: Colour Match crashing in some situations due to excessive memory usage.
+- Fixed: Minor Issue where the final shape might be not drawn or drawn with the wrong pen.
+
 ### [v1.5.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.0-beta-free)
 - Added **High Quality Mode** for image rescaling, produces more consistent results across different paper / pen sizes and results in better quality plots.
 - Added **Preferences Menu** - Much more finer control over settings in DBV3, with more settings on the way!
