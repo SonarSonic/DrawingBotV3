@@ -59,6 +59,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
         this.drawing = drawing;
         this.tools = new PlottingTools(drawing, drawing.newPlottedGroup(refPenSet, pfmFactory));
         this.tools.pfmTask = this;
+        this.tools.progressCallback = this;
         this.updateProgressInstantly = false;
     }
 

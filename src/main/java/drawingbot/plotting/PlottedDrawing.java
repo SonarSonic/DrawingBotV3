@@ -125,6 +125,9 @@ public class PlottedDrawing {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void addGeometry(IGeometry geometry) {
+        if(geometry == null){
+            return;
+        }
         geometry.setGeometryIndex(geometries.size());
         geometries.add(geometry);
         vertexCount += geometry.getVertexCount();
@@ -133,6 +136,9 @@ public class PlottedDrawing {
     }
 
     public void addGeometry(IGeometry geometry, PlottedGroup group) {
+        if(geometry == null){
+            return;
+        }
         assert groups.containsValue(group);
 
         geometry.setGroupID(group.getGroupID());
@@ -459,7 +465,7 @@ public class PlottedDrawing {
                     int currentCount = 0;
 
                     //set pen references
-                    for (; currentIndex < set.getGeometryList().size()-1; currentIndex++) {
+                    for (; currentIndex < set.getGeometryList().size(); currentIndex++) {
                         IGeometry geometry = set.getGeometryList().get(currentIndex);
                         if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()) { //TODO MAKE THIS A FILTER THING!!
                             geometry.setPenIndex(penNumber);

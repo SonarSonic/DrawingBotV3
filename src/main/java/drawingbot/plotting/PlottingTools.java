@@ -27,6 +27,7 @@ import java.util.function.BiConsumer;
 public class PlottingTools implements IPlottingTools {
 
     public PFMTask pfmTask; //only to used by PFMs, unavailable to ad-hoc PlottingTools
+    public IProgressCallback progressCallback;
     public PlottedDrawing drawing;
     public PlottedGroup currentGroup;
     public PathBuilder pathBuilder;
@@ -111,26 +112,26 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public void updateProgress(double progress, double max) {
-        if(pfmTask == null){
+        if(progressCallback == null){
             return;
         }
-        pfmTask.updatePlottingProgress(progress, max);
+        progressCallback.updateProgress(progress, max);
     }
 
     @Override
     public void updateMessage(String message) {
-        if(pfmTask == null){
+        if(progressCallback == null){
             return;
         }
-        pfmTask.updateMessage(message);
+        progressCallback.updateMessage(message);
     }
 
     @Override
     public void updateTitle(String title) {
-        if(pfmTask == null){
+        if(progressCallback == null){
             return;
         }
-        pfmTask.updateTitle(title);
+        progressCallback.updateTitle(title);
     }
 
     @Override

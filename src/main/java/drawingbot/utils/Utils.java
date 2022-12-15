@@ -218,6 +218,29 @@ public class Utils {
         return Math.sqrt(((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1)));
     }
 
+    public static byte[][] convertArray1Dto2D(int width, int height, byte[] src, byte[][] dst){
+        int index = 0;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                dst[x][y] = src[index];
+                index ++;
+            }
+        }
+        return dst;
+
+    }
+
+    public static byte[] convertArray2Dto1D(int width, int height, byte[][] src, byte[] dst){
+        int index = 0;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                dst[index] = src[x][y];
+                index++;
+            }
+        }
+        return dst;
+    }
+
     public static int[][] convertArray1Dto2D(int width, int height, int[] src, int[][] dst){
         int index = 0;
         for(int x = 0; x < width; x++){
