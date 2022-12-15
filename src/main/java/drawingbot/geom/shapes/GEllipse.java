@@ -128,6 +128,11 @@ public class GEllipse extends Ellipse2D.Float implements IGeometry {
     }
 
     @Override
+    public Coordinate getEndCoordinate() {
+        return new CoordinateXY(x, y);
+    }
+
+    @Override
     public IGeometry copyGeometry() {
         return GeometryUtils.copyGeometryData(new GEllipse(x, y, width, height), this);
     }

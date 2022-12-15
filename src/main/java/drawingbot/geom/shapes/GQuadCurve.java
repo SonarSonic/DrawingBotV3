@@ -143,6 +143,11 @@ public class GQuadCurve extends QuadCurve2D.Float implements IGeometry, IPathEle
     }
 
     @Override
+    public Coordinate getEndCoordinate() {
+        return new CoordinateXY(x2, y2);
+    }
+
+    @Override
     public IGeometry copyGeometry() {
         return GeometryUtils.copyGeometryData(new GQuadCurve(x1, y1, ctrlx, ctrly, x2, y2), this);
     }

@@ -72,6 +72,7 @@ public class GeometryUtils {
 
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
+
         if(task.exportHandler.isVector && !forceBypassOptimisation && DBPreferences.INSTANCE.pathOptimisationEnabled.getValue()){
 
             geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
@@ -100,19 +101,7 @@ public class GeometryUtils {
         if(lastGeometry == null || lastGeometry.getGroupID() != nextGeometry.getGroupID()){
             return false;
         }
-        if(nextGeometry instanceof IPathElement){
-            IPathElement element = (IPathElement) nextGeometry;
-
-            if(lastGeometry instanceof GPath){
-                GPath path = (GPath) lastGeometry;
-                return path.getCurrentPoint().equals(element.getP1());
-            }
-
-            if(lastGeometry instanceof IPathElement){
-                return ((IPathElement) lastGeometry).getP2().equals(element.getP1());
-            }
-        }
-        return false;
+        return lastGeometry.getEndCoordinate().equals(nextGeometry.getOriginCoordinate());
     }
 
     public static boolean comparePathContinuityFlipped(IGeometry lastGeometry, IGeometry nextGeometry){
@@ -131,7 +120,6 @@ public class GeometryUtils {
         }
         return false;
     }
-
 
     public static List<LineString> extractLines(Geometry geometry){
         return (List<LineString>)LinearComponentExtracter.getLines(geometry, true);
@@ -154,52 +142,6 @@ public class GeometryUtils {
             coordinates.addAll(Arrays.asList(geometry.getCoordinates()));
         }
         return coordinates;
-    }
-
-
-    public static void printEstimatedTravelDistance(Map<Integer, List<IGeometry>> geometries, AffineTransform printTransform){
-        double distanceUp = 0;
-        double distanceDown = 0;
-        int geometryCount = 0;
-        long coordCount = 0;
-
-        double maxX = 0;
-        double maxY = 0;
-
-        float lastX = 0;
-        float lastY = 0;
-
-        for(List<IGeometry> geometryList : geometries.values()){
-            for(IGeometry geometry : geometryList){
-                PathIterator it = geometry.getAWTShape().getPathIterator(printTransform);
-                float[] coords = new float[6];
-                while(!it.isDone()){
-                    int type = it.currentSegment(coords);
-                    switch (type){
-                        case PathIterator.SEG_MOVETO:
-                            distanceUp += Point2D.distance(lastX, lastY, coords[0], coords[1]);
-                            break;
-                        case PathIterator.SEG_LINETO:
-                            distanceDown += Point2D.distance(lastX, lastY, coords[0], coords[1]);
-                            break;
-                    }
-                    lastX = coords[0];
-                    lastY = coords[1];
-                    maxX = Math.max(maxX, lastX);
-                    maxY = Math.max(maxY, lastY);
-                    it.next();
-                    coordCount++;
-                }
-                geometryCount++;
-            }
-        }
-
-        DrawingBotV3.logger.fine("Geometry: Total travel distance: " + (distanceDown + distanceUp)/100 + " m");
-        DrawingBotV3.logger.fine("Geometry: Total active distance: " + distanceDown/100 + " m");
-        DrawingBotV3.logger.fine("Geometry: Total airtime distance: " + distanceUp/100 + " m");
-        DrawingBotV3.logger.fine("Geometry: Line Count / Tool lifts: " + geometryCount);
-        DrawingBotV3.logger.fine("Geometry: Vertex Count: " + coordCount);
-        DrawingBotV3.logger.fine("Geometry: Max X: " + Utils.roundToPrecision(maxX, 3) + " mm" + " Max Y: " + Utils.roundToPrecision(maxY, 3) + " mm");
     }
 
     public static void printEstimatedTravelDistance(List<LineString> lineStrings){

@@ -25,6 +25,10 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
         super(p1, p2);
     }
 
+    public GLine(Coordinate p1, Coordinate p2) {
+        super((float)p1.x, (float)p1.y, (float)p2.x, (float)p2.y);
+    }
+
     @Override
     public void addToPath(boolean addMove, GPath path) {
         if(addMove){
@@ -144,6 +148,11 @@ public class GLine extends Line2D.Float implements IGeometry, IPathElement {
     @Override
     public Coordinate getOriginCoordinate() {
         return new CoordinateXY(x1, y1);
+    }
+
+    @Override
+    public Coordinate getEndCoordinate() {
+        return new CoordinateXY(x2, y2);
     }
 
     @Override

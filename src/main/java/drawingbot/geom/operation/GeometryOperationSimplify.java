@@ -61,6 +61,7 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
                         if(currentPath != null){
                             //add the completed path to the drawing
                             newDrawing.addGeometry(currentPath, newGroup);
+                            currentPath = null;
                         }
                         newDrawing.addGeometry(geometry.copyGeometry(), newGroup);
                     }

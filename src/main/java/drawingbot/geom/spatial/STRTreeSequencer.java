@@ -81,6 +81,8 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
 
         while (sortedCount < cities.size()) {
             STRNode<T> next = findNext(last.reverse());
+            tree.remove(next.startEnvelope, next);
+            tree.remove(next.endEnvelope, next);
             consumer.accept(last, next);
             last = next;
             sorted[last.index] = true;
@@ -173,7 +175,7 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
 
         @Override
         protected Coordinate getEndCoordinateFromCity(IGeometry geometry) {
-            return geometry.getOriginCoordinate();
+            return geometry.getEndCoordinate();
         }
     }
 

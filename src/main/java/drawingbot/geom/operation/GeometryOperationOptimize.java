@@ -1,6 +1,5 @@
 package drawingbot.geom.operation;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IProgressCallback;
 import drawingbot.geom.GeometryUtils;
@@ -209,7 +208,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             STRTreeSequencerLineString sequencer = new STRTreeSequencerLineString(lineStrings, tolerance);
             sequencer.setProgressCallback(progressCallback);
             lineStrings = sequencer.merge();
-            if(prevLength == lineStrings.size()){
+            if(prevLength <= lineStrings.size()){
                 break;
             }
         }

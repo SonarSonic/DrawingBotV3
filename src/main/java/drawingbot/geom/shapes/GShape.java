@@ -137,6 +137,11 @@ public class GShape implements IGeometry {
     }
 
     @Override
+    public Coordinate getEndCoordinate() {
+        return getOriginCoordinate(); //TODO ?
+    }
+
+    @Override
     public IGeometry copyGeometry() {
         return GeometryUtils.copyGeometryData(new GPath(shape), this);
     }

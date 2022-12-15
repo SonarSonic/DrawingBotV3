@@ -103,6 +103,11 @@ public interface IGeometry {
      */
     Coordinate getOriginCoordinate();
 
+    /**
+     * Used for geometry sorting only
+     */
+    Coordinate getEndCoordinate();
+
     IGeometry copyGeometry();
 
 }

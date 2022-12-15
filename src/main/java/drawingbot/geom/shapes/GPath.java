@@ -182,23 +182,19 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
     private Coordinate origin = null;
     private Coordinate endCoord = null;
 
+    @Override
     public Coordinate getEndCoordinate() {
-        if(origin == null){
-            Point2D point2D = getCurrentPoint();
-            origin = new CoordinateXY(point2D.getX(), point2D.getY());
-        }
-        return origin;
+        //better to not cache this, cause it can change
+        Point2D point2D = getCurrentPoint();
+        return endCoord = new CoordinateXY(point2D.getX(), point2D.getY());
     }
 
     @Override
     public Coordinate getOriginCoordinate() {
-        if(origin == null){
-            PathIterator iterator = this.getPathIterator(null);
-            float[] coords = new float[6];
-            int type = iterator.currentSegment(coords);
-            origin = new CoordinateXY(coords[0], coords[1]);
-        }
-        return origin;
+        PathIterator iterator = this.getPathIterator(null);
+        float[] coords = new float[6];
+        int type = iterator.currentSegment(coords);
+        return origin = new CoordinateXY(coords[0], coords[1]);
     }
 
     @Override

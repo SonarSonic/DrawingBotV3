@@ -170,6 +170,11 @@ public class GCubicCurve extends CubicCurve2D.Float implements IGeometry, IPathE
     }
 
     @Override
+    public Coordinate getEndCoordinate() {
+        return new CoordinateXY(x2, y2);
+    }
+
+    @Override
     public IGeometry copyGeometry() {
         return GeometryUtils.copyGeometryData(new GCubicCurve(x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2), this);
     }

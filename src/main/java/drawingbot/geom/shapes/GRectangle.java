@@ -128,6 +128,11 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
     }
 
     @Override
+    public Coordinate getEndCoordinate() {
+        return new CoordinateXY(x, y);
+    }
+
+    @Override
     public IGeometry copyGeometry() {
         return GeometryUtils.copyGeometryData(new GRectangle(x, y, width, height), this);
     }
