@@ -271,7 +271,7 @@ public class FXStylesController {
         tableColumnControl.setCellFactory(param -> new TableCellSettingControl());
         tableColumnControl.setCellValueFactory(param -> (ObservableValue<Object>)param.getValue().value);
 
-        buttonPFMSettingReset.setOnAction(e -> Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(DrawingBotV3.context(), comboBoxPFMPreset.getValue()));
+        buttonPFMSettingReset.setOnAction(e -> GenericSetting.applySettings(comboBoxPFMPreset.getValue().data.settingList, tableViewAdvancedPFMSettings.getItems()));
 
         buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(tableViewAdvancedPFMSettings.getItems()));
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));

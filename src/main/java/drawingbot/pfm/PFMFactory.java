@@ -22,6 +22,7 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
     public boolean isLayered = false;
     public boolean isComposite = false;
     public boolean hasSampledARGB = false;
+    public boolean supportsSoftClip = false;
 
     public boolean requiresPremium = false;
     public String category = "";
@@ -78,6 +79,15 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
 
     public PFMFactory<C> setIsGenerative(boolean isGenerative) {
         this.isGenerative = isGenerative;
+        return this;
+    }
+
+    public boolean supportsSoftClip() {
+        return supportsSoftClip;
+    }
+
+    public PFMFactory<C> setSupportsSoftClip(boolean supportsSoftClip) {
+        this.supportsSoftClip = supportsSoftClip;
         return this;
     }
 

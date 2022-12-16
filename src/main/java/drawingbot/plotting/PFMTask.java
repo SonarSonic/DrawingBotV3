@@ -101,7 +101,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                     tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE));
                 }
 
-                if(tools.getClippingShape() == null){
+                if(tools.getClippingShape() == null && tools.getSoftClip() == null){
                     switch (drawing.canvas.getClippingMode()){
                         case NONE:
                             break;

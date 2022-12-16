@@ -9,11 +9,13 @@ import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.AbstractDarkestPFM;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.UnitsLength;
+import drawingbot.utils.Utils;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -45,6 +47,7 @@ public class PlottingTools implements IPlottingTools {
 
     // CLIPPING \\
     public Shape clippingShape = null;
+    public Shape softClip = null;
 
     public PlottingTools(PlottedDrawing drawing) {
         this(drawing, drawing.getPlottedGroup(0));
@@ -86,6 +89,35 @@ public class PlottingTools implements IPlottingTools {
 
     public void setClippingShape(Shape clippingShape) {
         this.clippingShape = clippingShape;
+    }
+
+    public Shape getSoftClip() {
+        return softClip;
+    }
+
+    public void setSoftClip(Shape softClip) {
+        this.softClip = softClip;
+    }
+
+    public void setSoftClip(Shape softClip, PFMFactory<?> pfm) {
+        if(pfm.supportsSoftClip()){
+            setSoftClip(softClip);
+        }else{
+            setClippingShape(softClip);
+        }
+    }
+
+    public boolean withinPlottableArea(double x, double y){
+        if(Utils.within(x, 0F, getPlottingWidth()) && Utils.within(y, 0F, getPlottingHeight())){
+            return softClip == null || softClip.contains(x, y);
+        }
+        return false;
+    }
+    public boolean withinPlottableArea(float x, float y){
+        if(Utils.within(x, 0F, getPlottingWidth()) && Utils.within(y, 0F, getPlottingHeight())){
+            return softClip == null || softClip.contains(x, y);
+        }
+        return false;
     }
 
     public DBTaskContext context(){
@@ -136,12 +168,12 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public int getPlottingWidth() {
-        return (int)drawing.getCanvas().getDrawingWidth(UnitsLength.PIXELS);
+        return (int)drawing.getCanvas().getScaledDrawingWidth();
     }
 
     @Override
     public int getPlottingHeight() {
-        return (int)drawing.getCanvas().getDrawingHeight(UnitsLength.PIXELS);
+        return (int)drawing.getCanvas().getScaledDrawingHeight();
     }
 
     @Override
