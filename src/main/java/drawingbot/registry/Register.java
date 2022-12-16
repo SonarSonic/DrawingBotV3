@@ -231,13 +231,15 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(PFMSketchSquaresBasic.class, CATEGORY_UNIQUE, "Start Angle", 45, -360, 360, (pfm, value) -> pfm.startAngle = value));
 
         //// SPIRAL \\\\
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Spiral Size", 100F, 0F, 100F, (pfm, value) -> pfm.fillPercentage = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSpiralBasic.class, PFMSpiralBasic.EnumSpiralType.class, CATEGORY_UNIQUE, "Spiral Type", FXCollections.observableArrayList(PFMSpiralBasic.EnumSpiralType.values()), PFMSpiralBasic.EnumSpiralType.ARCHIMEDEAN, (pfm, value) -> pfm.spiralType = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Spiral Size", 100F, 0F, 100F, (pfm, value) -> pfm.spiralSize = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Centre X", 50F, 0F, 100F, (pfm, value) -> pfm.centreXScale = value/100));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Centre Y", 50F, 0F, 100F, (pfm, value) -> pfm.centreYScale = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Ring Spacing", 7F, 0F, 100F, (pfm, value) -> pfm.distBetweenRings = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Amplitude", 4.5F, 0F, 50F, (pfm, value) -> pfm.ampScale = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Ring Spacing", 7F, 0F, 100F, (pfm, value) -> pfm.ringSpacing = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Amplitude", 4.5F, 0F, 50F, (pfm, value) -> pfm.amplitude = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Density", 75F, 0F, 1000F, (pfm, value) -> pfm.density = value));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Connected Lines", true, (pfm, value) -> pfm.connected = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Connected Lines", true, (pfm, value) -> pfm.connectedLines = value));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSpiralBasic.class, CATEGORY_UNIQUE, "Ignore White", false, (pfm, value) -> pfm.ignoreWhite = value));
 
         //// ABSTRACT SKETCH PFM \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Segments", "Line Density", 75F, 0F, 100F, (pfm, value) -> pfm.lineDensity = value/100).setRandomiseExclude(true));
