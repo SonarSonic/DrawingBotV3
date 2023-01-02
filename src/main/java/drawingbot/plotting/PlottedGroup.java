@@ -117,12 +117,13 @@ public class PlottedGroup {
      */
     public Map<ObservableDrawingPen, List<IGeometry>> getGeometriesPerPen(){
         if(geometriesPerPen == null){
-            geometriesPerPen = new HashMap<>();
+            Map<ObservableDrawingPen, List<IGeometry>> newMap = new HashMap<>();
             for(IGeometry geometry : geometries){
                 ObservableDrawingPen drawingPen = drawingSet.getPen(geometry.getPenIndex());
-                geometriesPerPen.putIfAbsent(drawingPen, new ArrayList<>());
-                geometriesPerPen.get(drawingPen).add(geometry);
+                newMap.putIfAbsent(drawingPen, new ArrayList<>());
+                newMap.get(drawingPen).add(geometry);
             }
+            geometriesPerPen = newMap;
         }
         return geometriesPerPen;
     }
