@@ -119,10 +119,12 @@ The process will stop when either the specified **line density** or **max line l
 Settings: *All*
 ^^^^^^^^^^^^^^^^
 **Default**
+
 - **Plotting Resolution**: the factor the original image is scaled by before plotting. Useful in reducing the number/density of lines, also decreased computation time.
 - **Random Seed**: used to generate all the random numbers used by the PFM. This means plots will always produce the same results.
 
 **Style**
+
 - **Should lift pen**: if the pen should be raised when moving to the next darkest area, disabling this can create some unique styles
 - **Directionality**: forces the lines to follow the natural contours of the image
 - **Distortion**: adds some noise to the generated lines, creating more stylised images.
@@ -132,6 +134,7 @@ Settings: *All*
 - **Luminance Power**: typically PFMs will follow dark areas in the image when creating lines, this slider can be used to decrease the influence of brightness which in turn will favour other style options like Directionarity or Edge Power etc.
 
 **Segments**
+
 - **Line Density**: affects the total number of lines and therefore the computation time
 - **Line Min Length**: the minimum length of each line
 - **Line Max Length**: the maximum length of each line
@@ -140,11 +143,13 @@ Settings: *All*
 - **Unlimited Tests**: will run as many angle tests as required to find the “best” line possible, resulting in more accurate drawings with longer processing times.
 
 **Squiggles**
+
 - **Squiggle Min Length**: prevents incredibly short squiggles from being created, shortening plotting times
 - **Squiggle Max Length**: defines the total number of connected lines which should be drawn before looking for the next darkest area of the image
 - **Squiggle Max Deviation**: allows you to control how far a squiggle is allowed to deviate in brightness before it is ended prematurely, this has the result of making shorter squiggles which are more accurate and less likely to cross over brighter areas of the image. Increasing the allowed deviation will result in a less accurate drawing with fewer pen lifts.
 
 **Generic**
+
 - **Adjust Brightness**: the amount to change the pixel's brightness by in the source image when a line is drawn, affects how often the PFM will draw over the same area.
 
 Settings: *Lines & Curves Only*
@@ -162,7 +167,7 @@ Settings: *Curves & Catmull-Roms Only*
 - **Curve Tension**: affects the tension of the catmull-rom splines,
 
     - *0.0* = No Tension, unpredictable curves
-    - *0.5* = Medium Tension, Smooth Curves
+    - *0.5* = Medium Tension, smooth curves
     - *1.0* = Maximum tension, straight lines.
 
 Settings: *Quad & Cubic Beziers Only*
