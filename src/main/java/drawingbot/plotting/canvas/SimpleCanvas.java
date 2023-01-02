@@ -8,17 +8,17 @@ import drawingbot.utils.UnitsLength;
 
 public class SimpleCanvas implements ICanvas {
 
-    public UnitsLength units;
-    public EnumCroppingMode scalingMode;
-    public EnumClippingMode clippingMode;
-    public EnumRescaleMode rescaleMode;
-    public boolean useOriginalSizing;
-    public float penWidth;
-    public float scale;
+    public UnitsLength units = UnitsLength.MILLIMETRES;
+    public EnumCroppingMode scalingMode = EnumCroppingMode.SCALE_TO_FIT;
+    public EnumClippingMode clippingMode = EnumClippingMode.DRAWING;
+    public EnumRescaleMode rescaleMode = EnumRescaleMode.HIGH_QUALITY;
+    public boolean useOriginalSizing = false;
+    public float penWidth = 1F;
+    public float scale = 1F;
     public float pageWidth, pageHeight;
     public float drawingWidth, drawingHeight;
     public float drawingOffsetX, drawingOffsetY;
-    public float canvasScale;
+    public float canvasScale = 1F;
 
     public SimpleCanvas(){}
 
