@@ -14,6 +14,7 @@ Index
    preprocessing
    pfms
    cmyk
+   colourmatch
    pensettings
    batchprocessing
    exportsettings

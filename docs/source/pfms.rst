@@ -118,21 +118,39 @@ The process will stop when either the specified **line density** or **max line l
 
 Settings: *All*
 ^^^^^^^^^^^^^^^^
+**Default**
 - **Plotting Resolution**: the factor the original image is scaled by before plotting. Useful in reducing the number/density of lines, also decreased computation time.
 - **Random Seed**: used to generate all the random numbers used by the PFM. This means plots will always produce the same results.
-- **Line Density**: affects the total number of lines and therefore the computation time
-- **Min Line Length**: the minimum length of each line
-- **Max Line Length**: the maximum length of each line
-- **Max Line Limit**: limits the total number of lines, will only have an effect if this limit is reached before the chosen **line density**
-- **Squiggle Length**: defines the total number of connected lines which should be drawn before looking for the next darkest area of the image
-- **Adjust Brightness**: the amount to change the pixel's brightness by in the source image when a line is drawn, affects how often the PFM will draw over the same area.
-- **Neighbour Tests**: how many drawing angles to test before choosing the darkest line, increase this value to improve the accuracy of the plot, this will increase computation time.
+
+**Style**
 - **Should lift pen**: if the pen should be raised when moving to the next darkest area, disabling this can create some unique styles
+- **Directionality**: forces the lines to follow the natural contours of the image
+- **Distortion**: adds some noise to the generated lines, creating more stylised images.
+- **Angularity**: higher angularity results in lines which don’t change direction as frequently, resulting in more sweeping curves in curve pfms
+- **Edge Power**: used to exaggerate key edges in the image
+- **Sobel Power**: used to exaggerate a cartoonish quality for the plot
+- **Luminance Power**: typically PFMs will follow dark areas in the image when creating lines, this slider can be used to decrease the influence of brightness which in turn will favour other style options like Directionarity or Edge Power etc.
+
+**Segments**
+- **Line Density**: affects the total number of lines and therefore the computation time
+- **Line Min Length**: the minimum length of each line
+- **Line Max Length**: the maximum length of each line
+- **Line Max Limit**: limits the total number of lines, will only have an effect if this limit is reached before the chosen **line density**
+- **Angle Tests**: how many drawing angles to test before choosing the darkest line, increase this value to improve the accuracy of the plot, this will increase computation time.
+- **Unlimited Tests**: will run as many angle tests as required to find the “best” line possible, resulting in more accurate drawings with longer processing times.
+
+**Squiggles**
+- **Squiggle Min Length**: prevents incredibly short squiggles from being created, shortening plotting times
+- **Squiggle Max Length**: defines the total number of connected lines which should be drawn before looking for the next darkest area of the image
+- **Squiggle Max Deviation**: allows you to control how far a squiggle is allowed to deviate in brightness before it is ended prematurely, this has the result of making shorter squiggles which are more accurate and less likely to cross over brighter areas of the image. Increasing the allowed deviation will result in a less accurate drawing with fewer pen lifts.
+
+**Generic**
+- **Adjust Brightness**: the amount to change the pixel's brightness by in the source image when a line is drawn, affects how often the PFM will draw over the same area.
 
 Settings: *Lines & Curves Only*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **Start Angle *(Min & Max)***: the start angle affects the trajectory of lines, this has less effect when **shading** is disabled.
+- **Start Angle (Min & Max)**: the start angle affects the trajectory of lines, this has less effect when **shading** is disabled.
 - **Shading**: when shading is enabled the PFM will draw lines which are limited by the **start angle min/max** creating a diagonal shading effect
 - **Shading Threshold**: the point in the processing when shading will kick in, note this ignores **max line limit**
 - **Drawing Delta Angle**: the degrees of rotation that the PFM will use when finding the next line while drawing
@@ -141,19 +159,35 @@ Settings: *Lines & Curves Only*
 Settings: *Curves & Catmull-Roms Only*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **Curve Tension**: affects the tension of the catmull-rom splines
+- **Curve Tension**: affects the tension of the catmull-rom splines,
+
+    - *0.0* = No Tension, unpredictable curves
+    - *0.5* = Medium Tension, Smooth Curves
+    - *1.0* = Maximum tension, straight lines.
 
 Settings: *Quad & Cubic Beziers Only*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **Curve Tests**: the number of positions to test for each control point to find the darkest curve, increasing this will result in a more accurate plot.
 - **Curve Variation**: the maximum magnitude of the curve, increasing this will decrease the test accuracy and increase the control points offsets.
+- **Curve Offset**: allow you to control the ‘wiggle’ of the curve.
+
+Settings: *Shapes Only*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- **Shape Type**: Allows you to choose the type of shapes to draw the image with, current options = Rectangles, Ellipses
 
 Settings: *Sobel Edges Only*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **Sobel Intensity**: the priority of edge detection vs brightness
 - **Sobel Adjust**: similar to **adjust brightness**, the amount to decrease a pixel's sobel value by when a line is drawn over it, affects how strongly the PFM is affected by the sobel values.
+
+Settings: *Waves Only*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- **Start Angle**: Affects the rotation of the waves, useful to alter the results without dramatically changing the form of the waves.
+- **Wave Offset X/Y**: Shifts the X/Y wave across the image.
+- **Wave Divisor X/Y**: Affects the intensity of the X/Y wave, increasing the divisor will result in flatter waves, decreasing it will result in more exaggerated waves
+- **Wave Type X/Y**: Changes the mathematical wave used to create the wave, options: SIN, COS, TAN
 
 ------
 
@@ -185,6 +219,7 @@ Settings
 - **Ring Spacing**: the distance between each generated ring
 - **Amplitude**: the scale of the oscillations
 - **Density**: *may change* a large density will result in less lines / brightness samples
+- **Ignore White**: When enabled the spiral won't be drawn over areas which are white in the reference image.
 
 ------
 
@@ -401,4 +436,7 @@ Mosaic Custom
 ^^^^^^^^^^^^^^^^
 
 Layers PFM
+------------------------------------------------------------
+
+SVG Converter
 ------------------------------------------------------------

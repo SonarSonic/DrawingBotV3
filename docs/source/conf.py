@@ -19,11 +19,11 @@ from m2r import MdInclude
 # -- Project information -----------------------------------------------------
 
 project = 'Drawing Bot V3'
-copyright = '2021, Ollie Lansdell'
+copyright = '2022, Ollie Lansdell'
 author = 'Ollie Lansdell'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '1.5.1'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
