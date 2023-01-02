@@ -110,7 +110,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
                     endSquiggle();
 
                     //there are no valid lines from this point, brighten it slightly so we don't test it again immediately.
-                    tools.getPixelData().adjustLuminance(current[0], current[1], 1);
+                    tools.getPixelData().adjustLuminance(current[0], current[1], 5);
                     break;
                 }
 
@@ -123,6 +123,8 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
                     current[0] = darkest[0];
                     current[1] = darkest[1];
                 }else{
+                    //there are no valid lines from this point, brighten it slightly so we don't test it again immediately.
+                    tools.getPixelData().adjustLuminance(current[0], current[1], 5);
                     break;
                 }
 
