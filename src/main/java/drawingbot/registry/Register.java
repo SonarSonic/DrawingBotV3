@@ -125,11 +125,12 @@ public class Register implements IPlugin {
     public void registerPlugins(List<IPlugin> newPlugins) {
         newPlugins.add(new BicPensPlugin());
         newPlugins.add(new CopicPenPlugin());
-        newPlugins.add(new SakuraPenPlugin());
         newPlugins.add(new DiamineInkPlugin());
+        newPlugins.add(new SakuraPenPlugin());
+        newPlugins.add(new SpecialPenPlugin());
+        newPlugins.add(new StabiloPensPlugin());
         newPlugins.add(new StaedtlerPenPlugin());
         newPlugins.add(new WinsorNewtonPenPlugin());
-        newPlugins.add(new SpecialPenPlugin());
     }
 
     @Override
