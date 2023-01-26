@@ -152,6 +152,9 @@ public class ImageTools {
     }
 
     public static BufferedImage applyPreCrop(BufferedImage image, Rectangle2D crop){
+        if(crop.getX() == 0 && crop.getY() == 0 && crop.getWidth() == image.getWidth() && crop.getHeight() == image.getHeight()){
+            return image;
+        }
         BufferedImage bufferedImage = new BufferedImage((int)crop.getWidth(), (int)crop.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = bufferedImage.createGraphics();
         //graphics.transform(transform);
@@ -574,18 +577,17 @@ public class ImageTools {
         if (cmyk == null) {
             cmyk = new float[4];
         }
-        float max = max(rgb[0], rgb[1], rgb[2]);
-        if (max > 0.0f) {
-            cmyk[0] = 1.0f - rgb[0] / max;
-            cmyk[1] = 1.0f - rgb[1] / max;
-            cmyk[2] = 1.0f - rgb[2] / max;
-        }
-        else {
-            cmyk[0] = 0.0f;
-            cmyk[1] = 0.0f;
-            cmyk[2] = 0.0f;
-        }
-        cmyk[3] = 1.0f - max;
+        cmyk[0] = 1F - rgb[0];
+        cmyk[1] = 1F - rgb[1];
+        cmyk[2] = 1F - rgb[2];
+
+        float k = Math.min(cmyk[0], Math.min(cmyk[1], cmyk[2]));
+
+        cmyk[0] = (cmyk[0] - k) / (1 - k);
+        cmyk[1] = (cmyk[1] - k) / (1 - k);
+        cmyk[2] = (cmyk[2] - k) / (1 - k);
+        cmyk[3] = k;
+
         return cmyk;
     }
 
