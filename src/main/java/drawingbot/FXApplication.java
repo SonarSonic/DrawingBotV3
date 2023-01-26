@@ -55,6 +55,7 @@ public class FXApplication extends Application {
 
     public static void main(String[] args) {
         launchArgs = args;
+        SplashScreen.initPreloader();
         launch(args);
     }
 
@@ -64,7 +65,7 @@ public class FXApplication extends Application {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         ///// SETUP OUTPUTS \\\\\
-
+        SplashScreen.startPreloader(this);
         DrawingBotV3.logger.setLevel(Level.FINE);
         ConfigFileHandler.setupConsoleOutputFile();
         ConfigFileHandler.logApplicationStatus();
@@ -224,6 +225,7 @@ public class FXApplication extends Application {
         JsonLoaderManager.loadConfigFiles();
 
         DrawingBotV3.logger.info("DrawingBotV3: Loaded");
+        SplashScreen.stopPreloader(this);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -232,6 +234,11 @@ public class FXApplication extends Application {
 
     public static Image getDBV3LogoImage(){
         InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
+        return stream == null ? null : new Image(stream);
+    }
+
+    public static Image getDBV3SplashImage(){
+        InputStream stream = FXApplication.class.getResourceAsStream("/images/splash.png");
         return stream == null ? null : new Image(stream);
     }
 
