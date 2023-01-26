@@ -5,11 +5,8 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
 import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
-import drawingbot.render.modes.ImageJFXDisplayMode;
-import drawingbot.render.shapes.JFXShape;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -49,7 +46,6 @@ public class FilteredImageData {
         this.sourceCanvas = sourceCanvas;
         this.sourceImage = sourceImage;
         this.resetCrop();
-        this.cropShape = new ImageJFXDisplayMode.Cropping.CropShape(this);
     }
 
     public File getSourceFile(){
@@ -133,7 +129,6 @@ public class FilteredImageData {
     public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropEndX = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropEndY = new SimpleFloatProperty(0);
-    public JFXShape cropShape;
 
     public BufferedImage preCrop;
     public BufferedImage cropped;

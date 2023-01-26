@@ -118,81 +118,90 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
 
     public static class Cropping extends GenericImage{
 
-        public JFXShapeList croppingList = new JFXShapeList();
-        public boolean init = false;
+        public static JFXShapeList croppingList = new JFXShapeList();
+        public static CropShape cropShape = new CropShape();
+        public static boolean init = false;
+        public static boolean transforming = false;
 
-        public static class CropShape extends JFXShape{
-
-            public FilteredImageData imageData;
-            public boolean transforming = false;
-
-            public CropShape(FilteredImageData imageData) {
-                super(new GRectangle(0, 0, imageData.getSourceCanvas().getScaledWidth(), imageData.getSourceCanvas().getScaledHeight()));
-                this.imageData = imageData;
-                this.setType(JFXShape.Type.RESHAPE);
-                setupListeners();
+        public static ChangeListener<Number> valueChangeListener = (observable, oldValue, newValue) -> {
+            if(!transforming){
+                updateCropFromImageData();
             }
+        };
 
-            public void refreshGeometry(){
-                Rectangle2D rectangle2D = imageData.getCrop();
-                geometry = new GRectangle((float) rectangle2D.getX(), (float) rectangle2D.getY(), (float) rectangle2D.getWidth(), (float) rectangle2D.getHeight());
-                transformed = geometry;
-                awtTransform = new AffineTransform();
-                updateFromTransform(awtTransform);
-                DrawingBotV3.INSTANCE.onCanvasChanged();
+        private static class CropShape extends JFXShape{
+
+            public CropShape() {
+                super(new GRectangle(0, 0, 0, 0));
+                this.setType(JFXShape.Type.RESHAPE);
+                this.setEditable(false);
             }
 
             @Override
             public void setAwtTransform(AffineTransform newTransform) {
                 super.setAwtTransform(newTransform);
-                float scale = imageData.getSourceCanvas().getPlottingScale();
-                Rectangle2D rectangle2D = transformed.getAWTShape().getBounds2D();
-                transforming = true;
-                imageData.cropStartX.set((float) rectangle2D.getX() / scale);
-                imageData.cropStartY.set((float) rectangle2D.getY() / scale);
-                imageData.cropEndX.set((float) rectangle2D.getMaxX() / scale);
-                imageData.cropEndY.set((float) rectangle2D.getMaxY() / scale);
-                transforming = false;
-                DrawingBotV3.INSTANCE.onCanvasChanged();
+                updateImageDataFromCrop();
             }
+        }
 
-            public void setupListeners(){
-                imageData.cropStartX.addListener((observable, oldValue, newValue) -> {
-                    if(!transforming){
-                        refreshGeometry();
-                    }
-                });
-                imageData.cropStartY.addListener((observable, oldValue, newValue) -> {
-                    if(!transforming){
-                        refreshGeometry();
-                    }
-                });
-                imageData.cropEndX.addListener((observable, oldValue, newValue) -> {
-                    if(!transforming){
-                        refreshGeometry();
-                    }
-                });
-                imageData.cropEndY.addListener((observable, oldValue, newValue) -> {
-                    if(!transforming){
-                        refreshGeometry();
-                    }
-                });
+        public static void addListeners(FilteredImageData imageData){
+            imageData.cropStartX.addListener(valueChangeListener);
+            imageData.cropStartY.addListener(valueChangeListener);
+            imageData.cropEndX.addListener(valueChangeListener);
+            imageData.cropEndY.addListener(valueChangeListener);
+        }
+
+        public static void removeListeners(FilteredImageData imageData){
+            imageData.cropStartX.removeListener(valueChangeListener);
+            imageData.cropStartY.removeListener(valueChangeListener);
+            imageData.cropEndX.removeListener(valueChangeListener);
+            imageData.cropEndY.removeListener(valueChangeListener);
+        }
+
+        public static void updateImageDataFromCrop(){
+            FilteredImageData imageData = DrawingBotV3.project().openImage.get();
+
+            float scale = imageData.getSourceCanvas().getPlottingScale();
+            Rectangle2D rectangle2D = cropShape.transformed.getAWTShape().getBounds2D();
+            transforming = true;
+            imageData.cropStartX.set((float) rectangle2D.getX() / scale);
+            imageData.cropStartY.set((float) rectangle2D.getY() / scale);
+            imageData.cropEndX.set((float) rectangle2D.getMaxX() / scale);
+            imageData.cropEndY.set((float) rectangle2D.getMaxY() / scale);
+            transforming = false;
+            DrawingBotV3.INSTANCE.onCanvasChanged();
+        }
+
+        public static void updateCropFromImageData(){
+            FilteredImageData imageData = DrawingBotV3.project().openImage.get();
+            if(imageData != null){
+                Rectangle2D rectangle2D = DrawingBotV3.project().openImage.get().getCrop();
+                cropShape.geometry = new GRectangle((float) rectangle2D.getX(), (float) rectangle2D.getY(), (float) rectangle2D.getWidth(), (float) rectangle2D.getHeight());
+                cropShape.setDisplayed(true);
+            }else{
+                cropShape.geometry = new GRectangle(0, 0, 0, 0);
+                cropShape.setDisplayed(false);
             }
+            cropShape.transformed = cropShape.geometry;
+            cropShape.awtTransform = new AffineTransform();
+            cropShape.updateFromTransform(cropShape.awtTransform);
+            DrawingBotV3.INSTANCE.onCanvasChanged();
         }
 
         public void init(){
             if(!init){
-                updateCropShape();
-                DrawingBotV3.project().openImage.addListener((observable, oldValue, newValue) -> updateCropShape());
+                croppingList.getShapeList().add(cropShape);
+                cropShape.setSelected(true);
+                DrawingBotV3.project().openImage.addListener((observable, oldValue, newValue) -> {
+                    if(oldValue != null){
+                        removeListeners(oldValue);
+                    }
+                    if(newValue != null){
+                        addListeners(newValue);
+                        updateCropFromImageData();
+                    }
+                });
                 init = true;
-            }
-        }
-
-        public void updateCropShape(){
-            croppingList.getShapeList().clear();
-            if(DrawingBotV3.project().openImage.get() != null){
-                DrawingBotV3.project().openImage.get().cropShape.setSelected(true);
-                croppingList.getShapeList().add(DrawingBotV3.project().openImage.get().cropShape);
             }
         }
 
