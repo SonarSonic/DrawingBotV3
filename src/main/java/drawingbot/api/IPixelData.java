@@ -3,6 +3,7 @@ package drawingbot.api;
 import drawingbot.image.ImageTools;
 import drawingbot.image.RawData;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -416,6 +417,14 @@ public interface IPixelData {
      * instead use {@link IPFMImage#getTransparentARGB()}
      */
     void setTransparentARGB(int argb);
+
+    default void setSoftClip(Shape softClip){
+
+    }
+
+    default Shape getSoftClip(){
+        return null;
+    }
 
     default void loadData(IPixelData source){
         ImageTools.copy(source, this);

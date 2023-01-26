@@ -2,6 +2,7 @@ package drawingbot.image;
 
 import drawingbot.api.IPixelData;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -77,6 +78,13 @@ public class PixelDataComposite<B extends IPixelData & IPixelListenable, F exten
 
         void composite(int[] foreground, int[] background, int[] result);
 
+    }
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        super.setSoftClip(softClip);
+        background.setSoftClip(softClip);
+        foreground.setSoftClip(softClip);
     }
 
 }

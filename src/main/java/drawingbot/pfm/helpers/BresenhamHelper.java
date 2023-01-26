@@ -63,6 +63,20 @@ public class BresenhamHelper {
         return point;
     }
 
+    public int[] findEdge(int x0, int y0, int x1, int y1, int width, int height, Shape softClip){
+        int[] point = new int[]{x0, y0};
+        boolean[] outside = new boolean[]{false};
+        plotLine(x0, y0, x1, y1, (x, y) -> {
+            if(!outside[0] && x >= 0 && x < width && y >= 0 && y < height && (softClip == null || softClip.contains(x, y))){
+                point[0] = x;
+                point[1] = y;
+            }else{
+                outside[0] = true;
+            }
+        });
+        return point;
+    }
+
     public void plotShape(Shape path, IPixelSetter setter){
         float[] coords = new float[6];
         PathIterator pathIterator = path.getPathIterator(null);

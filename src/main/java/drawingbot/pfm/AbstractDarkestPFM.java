@@ -8,6 +8,7 @@ import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.pfm.helpers.*;
 import drawingbot.utils.Utils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -159,8 +160,8 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     /**
      * Finds the darkest line from the given start point, choosing between a naive approach or bresenham circle tests for faster results
      */
-    public static float findDarkestLine(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
-        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true);
+    public static float findDarkestLine(BresenhamHelper bresenham, IPixelData pixels, Shape softClip, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
+        LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true, softClip);
         forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
             luminanceTest.resetSamples();
             bresenham.plotLine(startX, startY, x, y, (xT, yT) -> luminanceTest.addSample(pixels, xT, yT));

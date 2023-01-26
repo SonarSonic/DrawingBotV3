@@ -96,6 +96,9 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                     tools.plottingTransform = AffineTransform.getScaleInstance(1D / pfm.getPlottingResolution(), 1D / pfm.getPlottingResolution());
                 }
 
+                if(!isSubTask && drawing.getMetadata(Register.INSTANCE.SOFT_CLIP_SHAPE) != null){
+                    tools.setSoftClip(drawing.getMetadata(Register.INSTANCE.SOFT_CLIP_SHAPE), pfmFactory);
+                }
 
                 if(!isSubTask && drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE) != null){
                     tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE));
@@ -113,6 +116,12 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                             break;
                     }
                 }
+
+                // Add the fast pixel clip mask, if there is a soft clip
+                if(tools.getSoftClip() != null && tools.getPixelData() != null){
+                    tools.getPixelData().setSoftClip(tools.getSoftClipPixelMask());
+                }
+
                 tools.currentGroup.setPFMFactory(pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");

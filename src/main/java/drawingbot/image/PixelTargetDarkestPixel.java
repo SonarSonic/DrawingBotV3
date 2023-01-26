@@ -1,6 +1,7 @@
 package drawingbot.image;
 
 import drawingbot.api.IPixelData;
+import drawingbot.api.IPlottingTools;
 import drawingbot.pfm.AbstractDarkestPFM;
 
 import java.util.*;
@@ -12,15 +13,13 @@ import java.util.*;
  */
 public class PixelTargetDarkestPixel extends PixelTargetCache {
 
+    public IPlottingTools tools;
     public IPixelData data;
     public Deque<int[]> pointQueue;
     public int limit = 50000;
 
-    public PixelTargetDarkestPixel(IPixelData data){
-        this.data = data;
-    }
-
-    public PixelTargetDarkestPixel(IPixelData data, int limit){
+    public PixelTargetDarkestPixel(IPlottingTools tools, IPixelData data, int limit){
+        this.tools = tools;
         this.data = data;
         this.limit = limit;
     }

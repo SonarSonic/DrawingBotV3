@@ -2,6 +2,7 @@ package drawingbot.image;
 
 import drawingbot.utils.Utils;
 
+import java.awt.*;
 import java.awt.image.*;
 
 public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelListener, IPixelListenable {
@@ -157,5 +158,11 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelL
     @Override
     public RawData getRawLuminanceData() {
         return data;
+    }
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        super.setSoftClip(softClip);
+        data.setSoftClip(softClip);
     }
 }

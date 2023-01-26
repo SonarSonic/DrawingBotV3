@@ -15,8 +15,16 @@ public class GeometryClipping {
     public static float accuracy = 0.5F;
 
     public static boolean shouldClip(Shape shape, IGeometry geometry) {
-        //inaccurate contains check using bounds instead of accurate shapes for speed
-        return !shape.contains(geometry.getAWTShape().getBounds2D());
+        // Fast rectangle checks to avoid unnecessary clipping operations
+        if(shape instanceof Rectangle2D){
+            Rectangle2D rectangle2D = (Rectangle2D) shape;
+            if(geometry instanceof GLine){
+                GLine line = (GLine) geometry;
+                return !rectangle2D.contains(line.x1, line.y1) || !rectangle2D.contains(line.x2, line.y2);
+            }
+        }
+        Rectangle2D bounds = geometry.getAWTShape().getBounds2D();
+        return !shape.contains(bounds.getX(), bounds.getY(), Math.max(0.1, bounds.getWidth()), Math.max(0.1, bounds.getHeight()));
     }
 
     public static List<IGeometry> clip(Shape shape, IGeometry geometry) {
@@ -24,17 +32,29 @@ public class GeometryClipping {
         GeometryUtils.splitGPath(geometry instanceof GPath ? (GPath) geometry : new GPath(geometry.getAWTShape()), pathElements::add);
 
         List<IGeometry> geometries = new ArrayList<>();
+        PathBuilder pathBuilder = new PathBuilder(geometries::add);
+        pathBuilder.startPath();
         for (IGeometry element : pathElements) {
             if (element instanceof GLine) {
-                recursiveSplitLine(shape, (GLine) element, geometries::add);
+                recursiveSplitLine(shape, (GLine) element, (g) -> {
+                    GLine line = (GLine) g;
+                    pathBuilder.lineTo(line.x1, line.y1, line.x2, line.y2);
+                });
             } else if (element instanceof GQuadCurve) {
-                recursiveSplitGQuadCurve(shape, (GQuadCurve) element, geometries::add);
+                recursiveSplitGQuadCurve(shape, (GQuadCurve) element, (g) -> {
+                    GCubicCurve cubic = (GCubicCurve) g;
+                    pathBuilder.curveTo(cubic.x1, cubic.y1, cubic.ctrlx1, cubic.ctrly1, cubic.ctrlx2, cubic.ctrly2, cubic.x2, cubic.y2);
+                });
             } else if (element instanceof GCubicCurve) {
-                recursiveSplitCubicCurve(shape, (GCubicCurve) element, geometries::add);
+                recursiveSplitCubicCurve(shape, (GCubicCurve) element, (g) -> {
+                    GCubicCurve cubic = (GCubicCurve) g;
+                    pathBuilder.curveTo(cubic.x1, cubic.y1, cubic.ctrlx1, cubic.ctrly1, cubic.ctrlx2, cubic.ctrly2, cubic.x2, cubic.y2);
+                });
             } else {
                 throw new UnsupportedOperationException("Invalid element type: " + element.getClass().getSimpleName());
             }
         }
+        pathBuilder.endPath();
         geometries.forEach(g -> GeometryUtils.copyGeometryData(g, geometry));
 
         //assert geometries.size() != 1 || geometries.get(0).getAWTShape().equals(geometry.getAWTShape());
@@ -43,6 +63,13 @@ public class GeometryClipping {
     }
 
     public static void recursiveSplitLine(Shape shape, GLine line, Consumer<IGeometry> consumer) {
+        if(shape instanceof Rectangle2D){
+            Rectangle2D bounds = (Rectangle2D) shape;
+            if(bounds.contains(line.x1, line.y1) && bounds.contains(line.x2, line.y2)){
+                consumer.accept(line);
+                return;
+            }
+        }
         float[] start = new float[]{line.x1, line.y1};
         float[] end = new float[]{line.x2, line.y2};
         double length = Utils.distance(line.x1, line.y1, line.x2, line.y2);

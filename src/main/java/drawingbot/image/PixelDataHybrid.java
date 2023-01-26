@@ -1,5 +1,7 @@
 package drawingbot.image;
 
+import java.awt.*;
+
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access of both ARGB + HSB values, and also provides cached averages for each
  */
@@ -91,5 +93,14 @@ public class PixelDataHybrid extends PixelDataARGB {
     @Override
     public RawData getRawLuminanceData() {
         return luminance;
+    }
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        super.setSoftClip(softClip);
+        hue.setSoftClip(softClip);
+        saturation.setSoftClip(softClip);
+        brightness.setSoftClip(softClip);
+        luminance.setSoftClip(softClip);
     }
 }

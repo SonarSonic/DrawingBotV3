@@ -2,6 +2,8 @@ package drawingbot.pfm.helpers;
 
 import drawingbot.api.IPixelData;
 
+import java.awt.*;
+
 public class LuminanceTestLine extends LuminanceTest {
 
     public int[] darkestDst;
@@ -11,19 +13,24 @@ public class LuminanceTestLine extends LuminanceTest {
     public boolean stopPrematurely;
 
     public LuminanceTestLine(){
-        setup(new int[2], 0, Integer.MAX_VALUE, false);
+        setup(new int[2], 0, Integer.MAX_VALUE, false, null);
     }
 
     public LuminanceTestLine(int[] darkestDst, int minPixelCount, int maxPixelCount, boolean stopPrematurely){
-        setup(darkestDst, minPixelCount, maxPixelCount, stopPrematurely);
+        setup(darkestDst, minPixelCount, maxPixelCount, stopPrematurely, null);
     }
 
-    public void setup(int[] darkestDst, int minPixelCount, int maxPixelCount, boolean stopPrematurely){
+    public LuminanceTestLine(int[] darkestDst, int minPixelCount, int maxPixelCount, boolean stopPrematurely, Shape softClip){
+        setup(darkestDst, minPixelCount, maxPixelCount, stopPrematurely, softClip);
+    }
+
+    public void setup(int[] darkestDst, int minPixelCount, int maxPixelCount, boolean stopPrematurely, Shape softClip){
         this.darkestDst = darkestDst;
         this.minPixelCount = minPixelCount;
         this.maxPixelCount = maxPixelCount;
         this.stopPrematurely = stopPrematurely;
         this.sampleIndex = 0;
+        this.softClip = softClip;
     }
 
     @Override

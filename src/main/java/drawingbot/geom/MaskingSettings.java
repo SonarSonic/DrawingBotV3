@@ -47,7 +47,23 @@ public class MaskingSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final SimpleObjectProperty<JFXShapeList> shapeList = new SimpleObjectProperty<>(new JFXShapeList());
+    public final SimpleBooleanProperty softClipping = new SimpleBooleanProperty(true);
+
+    public boolean isSoftClipping() {
+        return softClipping.get();
+    }
+
+    public SimpleBooleanProperty softClippingProperty() {
+        return softClipping;
+    }
+
+    public void setSoftClipping(boolean softClipping) {
+        this.softClipping.set(softClipping);
+    }
+
+    ///////////////////////////////////////////////
+
+    public final SimpleObjectProperty<JFXShapeList> shapeList = new SimpleObjectProperty<>();
 
     public JFXShapeList getShapeList() {
         return shapeList.get();
@@ -74,8 +90,7 @@ public class MaskingSettings implements IProperties {
                 }
             });
         });
-
-
+        shapeList.set(new JFXShapeList());
     }
 
     public ObservableList<JFXShape> getMasks(){
@@ -98,7 +113,7 @@ public class MaskingSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(bypassMasking, showMasks);
+    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(bypassMasking, showMasks, softClipping);
 
     @Override
     public ObservableList<Observable> getObservables() {

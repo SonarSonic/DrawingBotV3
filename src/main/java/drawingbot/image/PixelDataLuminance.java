@@ -1,5 +1,7 @@
 package drawingbot.image;
 
+import java.awt.*;
+
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to perceived luminance values and the cached average
  */
@@ -25,7 +27,7 @@ public class PixelDataLuminance extends PixelDataAbstract {
     @Override
     public void setARGB(int x, int y, int argb) {
         ImageTools.getColourIntsFromARGB(argb, argbCache);
-        luminance.setData(x, y, ImageTools.getPerceivedLuminanceFromRGB(argbCache[1], argbCache[2], argbCache[3]));
+        setARGB(x, y, argbCache[0], argbCache[1], argbCache[2], argbCache[3]);
     }
 
     @Override
@@ -92,5 +94,11 @@ public class PixelDataLuminance extends PixelDataAbstract {
     @Override
     public RawData getRawLuminanceData() {
         return luminance;
+    }
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        super.setSoftClip(softClip);
+        luminance.setSoftClip(softClip);
     }
 }

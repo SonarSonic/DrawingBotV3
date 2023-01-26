@@ -6,6 +6,7 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.geom.GeometryClipping;
 import drawingbot.geom.shapes.*;
+import drawingbot.image.PixelDataMask;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.AbstractDarkestPFM;
@@ -48,6 +49,7 @@ public class PlottingTools implements IPlottingTools {
     // CLIPPING \\
     public Shape clippingShape = null;
     public Shape softClip = null;
+    public Shape softClipFastMask = null;
 
     public PlottingTools(PlottedDrawing drawing) {
         this(drawing, drawing.getPlottedGroup(0));
@@ -97,6 +99,16 @@ public class PlottingTools implements IPlottingTools {
 
     public void setSoftClip(Shape softClip) {
         this.softClip = softClip;
+        if(softClipFastMask instanceof PixelDataMask){
+            ((PixelDataMask) softClipFastMask).updateDataFromShapeMask(softClip);
+        }
+    }
+
+    public Shape getSoftClipPixelMask() {
+        if(softClip != null && softClipFastMask == null){
+            softClipFastMask = new PixelDataMask(getPixelData().getWidth(), getPixelData().getHeight(), softClip);
+        }
+        return softClipFastMask;
     }
 
     public void setSoftClip(Shape softClip, PFMFactory<?> pfm) {
@@ -107,14 +119,17 @@ public class PlottingTools implements IPlottingTools {
         }
     }
 
-    public boolean withinPlottableArea(double x, double y){
+    @Override
+    public boolean withinPlottableArea(int x, int y){
         if(Utils.within(x, 0F, getPlottingWidth()) && Utils.within(y, 0F, getPlottingHeight())){
-            return softClip == null || softClip.contains(x, y);
+            return getSoftClipPixelMask() == null || getSoftClipPixelMask().contains(x, y);
         }
         return false;
     }
-    public boolean withinPlottableArea(float x, float y){
-        if(Utils.within(x, 0F, getPlottingWidth()) && Utils.within(y, 0F, getPlottingHeight())){
+
+    @Override
+    public boolean withinPlottableAreaPrecise(double x, double y){
+        if(Utils.within(x, 0D, getPlottingWidth()) && Utils.within(y, 0D, getPlottingHeight())){
             return softClip == null || softClip.contains(x, y);
         }
         return false;
@@ -355,8 +370,8 @@ public class PlottingTools implements IPlottingTools {
     }
 
     @Override
-    public float findDarkestLine(IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst) {
-        return AbstractDarkestPFM.findDarkestLine(bresenham, pixels, startX, startY, minLength, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, darkestDst);
+    public float findDarkestLine(IPixelData pixels, Shape softClip, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst) {
+        return AbstractDarkestPFM.findDarkestLine(bresenham, pixels, softClip, startX, startY, minLength, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, darkestDst);
     }
 
     @Override

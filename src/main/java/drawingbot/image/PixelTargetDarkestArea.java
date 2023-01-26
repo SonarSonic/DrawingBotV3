@@ -1,6 +1,9 @@
 package drawingbot.image;
 
 import drawingbot.api.IPixelData;
+import drawingbot.api.IPlottingTools;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Essentially a fast implementation of {@link drawingbot.pfm.AbstractDarkestPFM#findDarkestArea(IPixelData, int[])}
@@ -8,6 +11,7 @@ import drawingbot.api.IPixelData;
  */
 public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.IDataListener {
 
+    public IPlottingTools tools;
     public IPixelData data;
 
     private final int sampleWidth = 10;
@@ -20,13 +24,14 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
     private int[][] pixelCounts;
     private int[] darkestPixelCache;
 
-    public PixelTargetDarkestArea(IPixelData data){
+    public PixelTargetDarkestArea(IPlottingTools tools, IPixelData data){
+        this.tools = tools;
         this.data = data;
     }
 
     private void createTiles(){
-        totalSamplesX = getWidth()/getSampleWidth();
-        totalSamplesY = getHeight()/getSampleHeight();
+        totalSamplesX = Math.max(1, getWidth()/getSampleWidth());
+        totalSamplesY = Math.max(1, getHeight()/getSampleHeight());
 
         tileSamples = new double[totalSamplesX][totalSamplesY];
         pixelCounts = new int[totalSamplesX][totalSamplesY];
@@ -53,9 +58,11 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
 
                 for(int x = startX; x < endX; x ++){
                     for(int y = startY; y < endY; y ++){
-                        int c = data.getLuminance(x, y);
-                        tileSample += c;
-                        pixelCount++;
+                        if(tools.withinPlottableArea(x, y)){
+                            int c = data.getLuminance(x, y);
+                            tileSample += c;
+                            pixelCount++;
+                        }
                     }
                 }
                 tileSamples[sampleX][sampleY] = tileSample;
@@ -71,15 +78,18 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
         if(tileSamples == null){
             return;
         }
-        int tileX = Math.min(totalSamplesX-1, getTileX(x, y));
-        int tileY = Math.min(totalSamplesY-1, getTileY(x, y));
-        tileSamples[tileX][tileY]+=newValue-oldValue;
-        if(darkestPixelCache != null && x == darkestPixelCache[0] && y == darkestPixelCache[1]){
-            darkestPixelCache = null;
+        if(tools.withinPlottableArea(x, y)) {
+            int tileX = Math.min(totalSamplesX - 1, getTileX(x, y));
+            int tileY = Math.min(totalSamplesY - 1, getTileY(x, y));
+            tileSamples[tileX][tileY] += newValue - oldValue;
+            if (darkestPixelCache != null && x == darkestPixelCache[0] && y == darkestPixelCache[1]) {
+                darkestPixelCache = null;
+            }
         }
     }
 
     public int[] getNextDarkestPixel(boolean remove) {
+
         // recover the cached darkest pixel, primarily for use with ColourMatch, as the getNextDarkestPixel() method is frequently called without changing the underlying data
         if(darkestPixelCache != null){
             return darkestPixelCache;
@@ -99,8 +109,14 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
             for (int sampleY = 0; sampleY < totalSamplesY; sampleY++) {
                 double sample = tileSamples[sampleX][sampleY];
                 int pixelCount = pixelCounts[sampleX][sampleY];
+
+                // When using Soft Clip, it's possible that no pixels are being observed in a given area.
+                if(pixelCount == 0){
+                    continue;
+                }
+
                 double average = (int) (sample/pixelCount);
-                if(darkestSampleX == -1 || average < darkestSample){
+                if((darkestSampleX == -1 || average < darkestSample)){
                     darkestSample = average;
                     darkestSampleX = sampleX;
                     darkestSampleY = sampleY;
@@ -130,11 +146,13 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
 
         for(int x = startX; x < endX; x ++){
             for(int y = startY; y < endY; y ++){
-                int luminance = data.getLuminance(x, y);
-                if(darkestPixelX == -1 || luminance < darkestPixel){
-                    darkestPixel = luminance;
-                    darkestPixelX = x;
-                    darkestPixelY = y;
+                if(tools.withinPlottableArea(x, y)) {
+                    int luminance = data.getLuminance(x, y);
+                    if (darkestPixelX == -1 || luminance < darkestPixel) {
+                        darkestPixel = luminance;
+                        darkestPixelX = x;
+                        darkestPixelY = y;
+                    }
                 }
             }
         }
@@ -150,15 +168,15 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
     }
 
     public int getSampleWidth(){
-        return sampleWidth;
+        return Math.min(getWidth(), sampleWidth);
     }
 
     public int getSampleHeight(){
-        return sampleHeight;
+        return Math.min(getHeight(), sampleHeight);
     }
 
     public int getTileWidth(){
-        return (getWidth()/sampleWidth);
+        return (getWidth()/getSampleWidth());
     }
 
     public int getTileHeight(){

@@ -1,5 +1,7 @@
 package drawingbot.image;
 
+import java.awt.*;
+
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to RGB values and their cached averages
  */
@@ -109,5 +111,14 @@ public class PixelDataARGB extends PixelDataAbstract {
         red.setData(x, y, r);
         green.setData(x, y, g);
         blue.setData(x, y, b);
+    }
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        super.setSoftClip(softClip);
+        alpha.setSoftClip(softClip);
+        red.setSoftClip(softClip);
+        green.setSoftClip(softClip);
+        blue.setSoftClip(softClip);
     }
 }

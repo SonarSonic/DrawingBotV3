@@ -9,6 +9,7 @@ public abstract class PixelDataAbstract implements IPixelData {
 
     public int width, height;
     public int transparentARGB = -1;
+    public Shape softClip = null;
 
     public PixelDataAbstract(int width, int height) {
         this.width = width;
@@ -38,6 +39,19 @@ public abstract class PixelDataAbstract implements IPixelData {
     @Override
     public void setTransparentARGB(int argb) {
         transparentARGB = argb;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        this.softClip = softClip;
+    }
+
+    @Override
+    public Shape getSoftClip() {
+        return softClip;
     }
 
 

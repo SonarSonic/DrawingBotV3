@@ -122,6 +122,16 @@ public interface IPlottingTools {
 
     //// PIXEL DATA TOOLS \\\\
 
+    /**
+     * Fast implementation: Accurate too a pixel only.
+     */
+    boolean withinPlottableArea(int x, int y);
+
+    /**
+     * Slow implementation: Accurate to sub pixel positions.
+     */
+    boolean withinPlottableAreaPrecise(double x, double y);
+
     void addGeometryWithColourSamples(IPixelData pixelData, IGeometry geometry, int adjust);
 
     int adjustGeometryLuminance(IPixelData pixelData, IGeometry geometry, int adjust);
@@ -130,7 +140,7 @@ public interface IPlottingTools {
 
     List<int[]> findDarkestPixels(IPixelData pixels);
 
-    float findDarkestLine(IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst);
+    float findDarkestLine(IPixelData pixels, Shape softClip, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst);
 
     void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer);
 

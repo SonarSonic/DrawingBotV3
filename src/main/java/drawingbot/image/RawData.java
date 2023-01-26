@@ -2,6 +2,8 @@ package drawingbot.image;
 
 import drawingbot.utils.Utils;
 
+import java.awt.*;
+
 /**represents raw pixel data, removing bloat to provide fastest possible speeds
  * it also keeps track of the average of all the data stored which allows for progress updates to be more frequent*/
 public class RawData {
@@ -10,9 +12,12 @@ public class RawData {
     public int height;
     public byte[][] data;
     public double averageData;
+    public int pixelCount;
 
     public int min = 0;
     public int max = 255;
+
+    private Shape softClip = null;
 
     public IDataListener listener;
 
@@ -20,6 +25,7 @@ public class RawData {
         this.width = width;
         this.height = height;
         this.data = new byte[width][height];
+        this.pixelCount = width*height;
     }
 
     public void setBounds(int min, int max){
@@ -36,7 +42,7 @@ public class RawData {
     }
 
     public double getAverage(){
-        return averageData / (width*height);
+        return averageData / pixelCount;
     }
 
     public int getData(int x, int y){
@@ -47,9 +53,14 @@ public class RawData {
         int oldValue = getData(x, y);
 
         value = Utils.clamp(value, 0, max);
-        averageData -= oldValue; //remove old value from average
+
+
         data[x][y] = (byte)value;
-        averageData += value; //add new value to average
+
+        if(isWithinObservableRange(x, y)){
+            averageData -= oldValue; //remove old value from average
+            averageData += value; //add new value to average
+        }
 
         if(listener != null){
             listener.onChange(x, y, oldValue, value);
@@ -75,6 +86,32 @@ public class RawData {
                 setData(x, y, Byte.toUnsignedInt(data[x][y]));
             }
         }
+    }
+
+    public void recalculateAverageData(){
+        averageData = 0;
+        pixelCount = 0;
+        for(int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if(isWithinObservableRange(x, y)){
+                    averageData += getData(x, y);
+                    pixelCount++;
+                }
+            }
+        }
+    }
+
+    public boolean isWithinObservableRange(int x, int y){
+        return softClip == null || softClip.contains(x, y);
+    }
+
+    public void setSoftClip(Shape softClip){
+        this.softClip = softClip;
+        this.recalculateAverageData();
+    }
+
+    public Shape getSoftClip(){
+        return softClip;
     }
 
     public interface IDataListener{

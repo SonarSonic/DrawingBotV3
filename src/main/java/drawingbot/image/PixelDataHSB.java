@@ -117,4 +117,12 @@ public class PixelDataHSB extends PixelDataAbstract {
     public double getAverageHSB(int type) {
         return getRawData(type).getAverage();
     }
+
+    @Override
+    public void setSoftClip(Shape softClip) {
+        super.setSoftClip(softClip);
+        hue.setSoftClip(softClip);
+        saturation.setSoftClip(softClip);
+        brightness.setSoftClip(softClip);
+    }
 }
