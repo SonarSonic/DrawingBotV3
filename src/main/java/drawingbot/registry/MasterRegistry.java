@@ -15,6 +15,7 @@ import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
+import drawingbot.geom.fills.AbstractFillGenerator;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.shapes.JFXGeometryConverter;
 import drawingbot.image.kernels.IKernelFactory;
@@ -721,6 +722,24 @@ public class MasterRegistry {
             root.getChildren().add(treeNode);
         }
 
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //// FILL GENERATORS \\\\
+    public ObservableList<GenericFactory<? extends AbstractFillGenerator>> fillGeneratorFactories = FXCollections.observableArrayList();
+    public HashMap<Class<? extends AbstractFillGenerator>, List<GenericSetting<?, ?>>> fillGeneratorSettings = new LinkedHashMap<>();
+
+    public <I extends AbstractFillGenerator> void registerFillGenerator(Class<I> generatorClass, String name, Supplier<I> create, boolean isHidden) {
+        DrawingBotV3.logger.fine("Registering Fill Generator: " + name);
+        fillGeneratorFactories.add(new GenericFactory<>(generatorClass, name, create, isHidden));
+    }
+
+    public <I extends AbstractFillGenerator> void registerFillGeneratorSetting(GenericSetting<? extends AbstractFillGenerator, ?> setting) {
+        DrawingBotV3.logger.finest("Registering Fill Generator Setting: " + setting.getKey());
+        fillGeneratorSettings.putIfAbsent(setting.clazz, new ArrayList<>());
+        fillGeneratorSettings.get(setting.clazz).add(setting);
     }
 
 }
