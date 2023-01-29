@@ -10,17 +10,13 @@ import drawingbot.files.loaders.ProjectFileLoaderFactory;
 import drawingbot.geom.converters.*;
 import drawingbot.javafx.controls.DialogExportDialog;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.preferences.FXPreferences;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plugins.*;
-import drawingbot.render.overlays.DrawingBorderOverlays;
-import drawingbot.render.overlays.NotificationOverlays;
-import drawingbot.render.overlays.ShapeOverlays;
-import drawingbot.render.overlays.RulerOverlays;
-import drawingbot.utils.DBConstants;
-import drawingbot.utils.Metadata;
+import drawingbot.render.overlays.*;
+import drawingbot.utils.*;
 import drawingbot.files.json.presets.*;
-import drawingbot.utils.EnumDistributionType;
-import drawingbot.utils.EnumFilterTypes;
 import drawingbot.drawing.*;
 import drawingbot.geom.shapes.*;
 import drawingbot.files.DrawingExportHandler;
@@ -113,6 +109,7 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> TONE_MAP;
     public Metadata<Object> TONE_MAPPING;
     public Metadata<Shape> CLIPPING_SHAPE;
+    public Metadata<Shape> SOFT_CLIP_SHAPE;
     public Metadata<DrawingStats> DRAWING_STATS;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
@@ -207,7 +204,9 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerMetadataType(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(SOFT_CLIP_SHAPE = new Metadata<>("soft_clip_shape", Shape.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(DRAWING_STATS = new Metadata<>("drawing_stats", DrawingStats.class, false));
+
 
         MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
         MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());
