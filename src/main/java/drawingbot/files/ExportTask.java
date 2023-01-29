@@ -2,17 +2,21 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
+import drawingbot.drawing.DrawingStats;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.geom.GeometryUtils;
+import drawingbot.geom.operation.GeometryOperationAddExportPaths;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.DialogExportNPens;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.DrawingGeometryIterator;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.registry.Register;
+import drawingbot.render.overlays.ExportStatsOverlays;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
 import javafx.application.Platform;
@@ -99,6 +103,7 @@ public class ExportTask extends DBTask<Boolean> {
             updateMessage("Exporting Paths");
             renderedGeometries = 0;
             exportHandler.exportMethod.export(this, saveLocation);
+            onDrawingExported(exportDrawing, geometryFilter, saveLocation);
         }
     }
 
@@ -138,6 +143,7 @@ public class ExportTask extends DBTask<Boolean> {
                     return false;
                 }
             }
+            clearExportedDrawings();
         }
 
         originalPenStats = PlottedDrawing.getPerPenGeometryStats(plottedDrawing);
@@ -223,6 +229,38 @@ public class ExportTask extends DBTask<Boolean> {
         }
         DrawingBotV3.logger.info("Export Task: Finished " + saveLocation.getPath());
         return true;
+    }
+
+    // We only want to make the user look at the page once
+    private boolean shownExportPage = false;
+
+    public void clearExportedDrawings(){
+        if(isSubTask){
+            return;
+        }
+        context.project().getExportedDrawings().clear();
+    }
+
+    public void onDrawingExported(PlottedDrawing drawing, IGeometryFilter geometryFilter, File saveLocation){
+        if(isSubTask){
+            return;
+        }
+
+        DrawingStats preStats = new DrawingStats(plottedDrawing, geometryFilter);
+        PlottedDrawing exportPathsDrawing = new GeometryOperationAddExportPaths().run(drawing);
+        DrawingStats postStats = new DrawingStats(exportPathsDrawing);
+
+        ExportedDrawingEntry entry = new ExportedDrawingEntry(exportPathsDrawing, saveLocation, preStats, postStats);
+
+        context.project().getExportedDrawings().add(entry);
+        Platform.runLater(() -> ExportStatsOverlays.INSTANCE.selectedEntry.set(entry));
+
+        if(DBPreferences.INSTANCE.showExportedDrawing.get() && exportHandler.isVector && !shownExportPage){
+            Platform.runLater(() -> {
+                DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING);
+            });
+            shownExportPage = true;
+        }
     }
 
     public void onGeometryExported(){

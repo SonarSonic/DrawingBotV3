@@ -107,6 +107,7 @@ public class DBPreferences implements ISettings {
     ///////////////////////////////////////////////
 
     //// USER INTERFACE \\\\
+    public final BooleanSetting<?> showExportedDrawing = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "showExportedDrawing", true));
     public final OptionSetting<?, EnumWindowSize> uiWindowSize = register(createOptionSetting(DBPreferences.class, EnumWindowSize.class, CATEGORY_USER_INTERFACE, "uiWindowSize", FXCollections.observableArrayList(EnumWindowSize.values()), EnumWindowSize.DEFAULT));
     public final BooleanSetting<?> restoreLayout = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "restoreLayout", true));
     public final BooleanSetting<?> restoreProjectLayout = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "restoreProjectLayout", true));

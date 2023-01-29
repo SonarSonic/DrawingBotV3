@@ -80,6 +80,7 @@ public class DrawingBotV3 {
     public final MonadicBinding<PlottedDrawing> drawingBinding = EasyBind.select(activeProject).selectObject(project -> project.currentDrawing);
     public final MonadicBinding<PFMTask> activeTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.activeTask);
     public final MonadicBinding<PFMTask> renderedTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.renderedTask);
+    public final MonadicBinding<ObservableList<ExportedDrawingEntry>> exportedDrawingsBinding = EasyBind.select(activeProject).selectObject(project -> project.exportedDrawings);
 
     // VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;

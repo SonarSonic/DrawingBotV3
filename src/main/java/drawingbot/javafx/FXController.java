@@ -556,7 +556,7 @@ public class FXController extends AbstractFXController {
 
         ////VIEWPORT SETTINGS
         rangeSliderDisplayedLines.highValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getDisplayedDrawing();
             if(drawing != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMax = lines;
@@ -566,7 +566,7 @@ public class FXController extends AbstractFXController {
         });
 
         rangeSliderDisplayedLines.lowValueProperty().addListener((observable, oldValue, newValue) -> {
-            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getDisplayedDrawing();
             if(drawing != null){
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMin = lines;
@@ -576,7 +576,7 @@ public class FXController extends AbstractFXController {
         });
 
         textFieldDisplayedShapesMax.setOnAction(e -> {
-            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getDisplayedDrawing();
             if(drawing != null){
                 int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMax.getText())));
                 drawing.displayedShapeMax = lines;
@@ -587,7 +587,7 @@ public class FXController extends AbstractFXController {
         });
 
         textFieldDisplayedShapesMin.setOnAction(e -> {
-            PlottedDrawing drawing = DrawingBotV3.project().getCurrentDrawing();
+            PlottedDrawing drawing = DrawingBotV3.project().getDisplayedDrawing();
             if(drawing != null){
                 int lines = (int)Math.max(0, Math.min(drawing.getGeometryCount(), Double.parseDouble(textFieldDisplayedShapesMin.getText())));
                 drawing.displayedShapeMin = lines;
@@ -596,7 +596,7 @@ public class FXController extends AbstractFXController {
                 DrawingBotV3.INSTANCE.updatePenDistribution();
             }
         });
-        EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing).addListener((observable, oldValue, newValue) -> {
+        EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.displayedDrawing).addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 Platform.runLater(() -> {
                     rangeSliderDisplayedLines.setLowValue(0.0F);

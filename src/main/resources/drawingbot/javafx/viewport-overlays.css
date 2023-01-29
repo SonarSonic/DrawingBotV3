@@ -27,4 +27,11 @@
 
 .jfx-shape:masking-remove{
     -fx-fill: rgba(255, 125, 125, 0.75);
+
+.export-stats-scrollpane {
+    -fx-background-color: transparent;
+}
+
+.export-stats-scrollpane  > .viewport {
+    -fx-background-color: transparent;
 }

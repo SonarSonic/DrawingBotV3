@@ -102,6 +102,7 @@ public class Register implements IPlugin {
     public IDisplayMode DISPLAY_MODE_TONE_MAP;
     public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
     public IDisplayMode DISPLAY_MODE_IMAGE_CROPPING;
+    public IDisplayMode DISPLAY_MODE_EXPORT_DRAWING;
 
     //// DRAWING METADATA \\\\
     public Metadata<File> ORIGINAL_FILE;
@@ -111,6 +112,7 @@ public class Register implements IPlugin {
     public Metadata<BufferedImage> TONE_MAP;
     public Metadata<Object> TONE_MAPPING;
     public Metadata<Shape> CLIPPING_SHAPE;
+    public Metadata<DrawingStats> DRAWING_STATS;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
@@ -185,11 +187,13 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new ImageJFXDisplayMode.ToneMap());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
         MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new ImageJFXDisplayMode.Cropping());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_EXPORT_DRAWING = new DrawingJFXDisplayMode.ExportedDrawing());
 
         MasterRegistry.INSTANCE.registerOverlay(RulerOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(NotificationOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(ShapeOverlays.INSTANCE);
+        MasterRegistry.INSTANCE.registerOverlay(ExportStatsOverlays.INSTANCE);
 
         MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));
@@ -198,6 +202,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerMetadataType(TONE_MAP = new Metadata<>("tone_map", BufferedImage.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(TONE_MAPPING = new Metadata<>("tone_mapping", Object.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
+        MasterRegistry.INSTANCE.registerMetadataType(DRAWING_STATS = new Metadata<>("drawing_stats", DrawingStats.class, false));
 
         MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
         MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());

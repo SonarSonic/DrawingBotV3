@@ -13,14 +13,16 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
     private DrawingGeometryIterator drawingIterator;
 
+    public abstract PlottedDrawing getCurrentDrawing();
+
     @Override
     public void preRender(JavaFXRenderer jfr) {
         super.preRender(jfr);
         //setup the canvas
-        if(DrawingBotV3.taskManager().getRenderedTask() != null && DrawingBotV3.taskManager().getRenderedTask().stage != EnumTaskStage.FINISHED){
+        if(!(this instanceof ExportedDrawing) && DrawingBotV3.taskManager().getRenderedTask() != null && DrawingBotV3.taskManager().getRenderedTask().stage != EnumTaskStage.FINISHED){
             jfr.setupCanvasSize(DrawingBotV3.taskManager().getRenderedTask().drawing.getCanvas());
-        }else if(DrawingBotV3.taskManager().getCurrentDrawing() != null){
-            jfr.setupCanvasSize(DrawingBotV3.taskManager().getCurrentDrawing().getCanvas());
+        }else if(getCurrentDrawing() != null){
+            jfr.setupCanvasSize(getCurrentDrawing().getCanvas());
         }else if(DrawingBotV3.project().openImage.get() != null) {
             jfr.setupCanvasSize(DrawingBotV3.project().openImage.get().getTargetCanvas());
         }else{
@@ -32,7 +34,8 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
     public void doRender(JavaFXRenderer jfr) {
         super.doRender(jfr);
 
-        if(DrawingBotV3.taskManager().getRenderedTask() != null){
+        // Render the current active task using the Async - Iterator
+        if(!(this instanceof ExportedDrawing) && DrawingBotV3.taskManager().getRenderedTask() != null){
             PFMTask renderedTask = DrawingBotV3.taskManager().getRenderedTask();
             if (renderedTask.stage == EnumTaskStage.DO_PROCESS) {
                 WrappedGeometryIterator iterator = renderedTask.getTaskGeometryIterator();
@@ -53,7 +56,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
             }
             return;
         }
-        PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
+        PlottedDrawing drawing = getCurrentDrawing();
         if(drawing != null){
             if(drawingIterator == null || drawingIterator.currentDrawing != drawing){
                 drawingIterator = new DrawingGeometryIterator(drawing);
@@ -86,6 +89,11 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
     public static class Drawing extends DrawingJFXDisplayMode{
 
         @Override
+        public PlottedDrawing getCurrentDrawing() {
+            return DrawingBotV3.taskManager().getCurrentDrawing();
+        }
+
+        @Override
         public IGeometryFilter getGeometryFilter() {
             return IGeometryFilter.DEFAULT_VIEW_FILTER;
         }
@@ -96,7 +104,33 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
         }
     }
 
+    public static class ExportedDrawing extends DrawingJFXDisplayMode{
+
+        @Override
+        public PlottedDrawing getCurrentDrawing() {
+            if(DrawingBotV3.project().getExportDrawing() != null){
+                return DrawingBotV3.project().getExportDrawing();
+            }
+            return null;
+        }
+
+        @Override
+        public IGeometryFilter getGeometryFilter() {
+            return IGeometryFilter.DEFAULT_VIEW_FILTER;
+        }
+
+        @Override
+        public String getName() {
+            return "Exported Drawing";
+        }
+    }
+
     public static class SelectedPen extends DrawingJFXDisplayMode{
+
+        @Override
+        public PlottedDrawing getCurrentDrawing() {
+            return DrawingBotV3.taskManager().getCurrentDrawing();
+        }
 
         @Override
         public IGeometryFilter getGeometryFilter() {

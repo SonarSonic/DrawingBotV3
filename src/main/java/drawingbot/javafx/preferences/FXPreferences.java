@@ -244,6 +244,9 @@ public class FXPreferences {
         ));
         MasterRegistry.INSTANCE.registerPreferencesPage(node("Export Settings",
                 page("Path Optimisation",
+                        new SettingNode("Show Exported Drawing", settings.showExportedDrawing).setTitleStyling().setHideFromTree(true)
+                ),
+                page("Path Optimisation",
                         new SettingNode("Enabled", settings.pathOptimisationEnabled).setTitleStyling().setHideFromTree(true),
                         new LabelNode("Vector outputs (e.g. svg, pdf, gcode, hpgl) will be optimised before being exported, reducing plotting time.").setSubtitleStyling(),
 

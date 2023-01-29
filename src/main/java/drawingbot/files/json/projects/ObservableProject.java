@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
 import drawingbot.drawing.DrawingSets;
+import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.geom.MaskingSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.blend.EnumBlendMode;
@@ -33,6 +34,7 @@ import drawingbot.utils.MetadataMap;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -216,6 +218,9 @@ public class ObservableProject implements ITaskManager {
     public final ObjectProperty<PFMTask> activeTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PFMTask> renderedTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PlottedDrawing> currentDrawing = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<PlottedDrawing> exportDrawing = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<ObservableList<ExportedDrawingEntry>> exportedDrawings = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public final ObjectProperty<PlottedDrawing> displayedDrawing = new SimpleObjectProperty<>(null);
 
     // ADDITIONAL DATA \\
     public MetadataMap metadata = new MetadataMap(new LinkedHashMap<>());
@@ -264,6 +269,9 @@ public class ObservableProject implements ITaskManager {
         }
         if(currentDrawing.get() != null) {
             currentDrawing.set(project.currentDrawing.get().copy());
+        }
+        if(exportDrawing.get() != null) {
+            exportDrawing.set(project.exportDrawing.get().copy());
         }
         Hooks.runHook(Hooks.COPY_OBSERVABLE_PROJECT, this, project);
     }
@@ -318,12 +326,15 @@ public class ObservableProject implements ITaskManager {
         activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
+        exportDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
         openImage.addListener((observable, oldValue, newValue) -> {
             onImageChanged();
             if(newValue != null && (this.name.get().equals(DEFAULT_NAME) || oldValue != null && oldValue.getSourceFile().getName().equals(this.name.get()))){
                 this.name.set(newValue.getSourceFile().getName());
             }
         });
+
+        displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get()==Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
 
         drawingSets.get().drawingSetSlots.get().add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
         drawingSets.get().activeDrawingSet.set(drawingSets.get().drawingSetSlots.get().get(0));
@@ -477,6 +488,22 @@ public class ObservableProject implements ITaskManager {
     @Override
     public PlottedDrawing getCurrentDrawing() {
         return currentDrawing.get();
+    }
+
+    public PlottedDrawing getExportDrawing() {
+        return exportDrawing.get();
+    }
+
+    public void setExportDrawing(PlottedDrawing drawing) {
+        exportDrawing.set(drawing);
+    }
+
+    public ObservableList<ExportedDrawingEntry> getExportedDrawings() {
+        return exportedDrawings.get();
+    }
+
+    public PlottedDrawing getDisplayedDrawing() {
+        return displayedDrawing.get();
     }
 
     @Override
