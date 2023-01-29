@@ -129,9 +129,11 @@ public class ExportTask extends DBTask<Boolean> {
                 AtomicReference<Boolean> result = new AtomicReference<>(false);
                 Platform.runLater(() -> {
                     Dialog<Boolean> confirmDialog = exportHandler.confirmDialog.apply(this);
-                    confirmDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
-                    confirmDialog.setOnHidden(e -> latch.countDown());
-                    confirmDialog.showAndWait();
+                    confirmDialog.resultProperty().addListener((observable, oldValue, newValue) -> {
+                        result.set(newValue);
+                        latch.countDown();
+                    });
+                    confirmDialog.show();
                 });
 
                 latch.await();
@@ -189,9 +191,11 @@ public class ExportTask extends DBTask<Boolean> {
                 AtomicReference<Integer> result = new AtomicReference<>(-1);
                 Platform.runLater(() -> {
                     Dialog<Integer> nPenDialog = new DialogExportNPens(activePens);
-                    nPenDialog.resultProperty().addListener((observable, oldValue, newValue) -> result.set(newValue));
-                    nPenDialog.setOnHidden(e -> latch.countDown());
-                    nPenDialog.showAndWait();
+                    nPenDialog.resultProperty().addListener((observable, oldValue, newValue) -> {
+                        result.set(newValue);
+                        latch.countDown();
+                    });
+                    nPenDialog.show();
                 });
 
                 latch.await();
@@ -214,10 +218,11 @@ public class ExportTask extends DBTask<Boolean> {
                         }
                     }
                 }else{
-                    updateProgress(1,1);
+                    updateMessage("Cancelled");
+                    DrawingBotV3.logger.info("Export Task: Cancelled " + saveLocation.getPath());
+                    updateProgress(0,1);
+                    return false;
                 }
-
-
                 break;
         }
         if(!error.isEmpty()){
