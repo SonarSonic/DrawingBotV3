@@ -1,6 +1,7 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
+import drawingbot.geom.easing.EasingUtils;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.image.PixelDataLuminance;
 import drawingbot.utils.Utils;
@@ -20,13 +21,15 @@ public class PFMSpiralBasic extends AbstractPFMImage {
         }
     }
 
-    public EnumSpiralType spiralType = EnumSpiralType.PARABOLIC;
+    public EnumSpiralType spiralType = EnumSpiralType.ARCHIMEDEAN;
     public double spiralSize = 1.0;
     public double centreXScale = 0.5;
     public double centreYScale = 0.5;
     public double ringSpacing = 7;
-    public double amplitude = 4.5F;
-    public double density = 75;
+    public double amplitude = 1F;
+    public boolean variableVelocity = true;
+    public double minVelocity = 50;
+    public double maxVelocity = 180;
     public boolean connectedLines = true;
     public boolean ignoreWhite = false;
     private int pass = 0;
@@ -38,15 +41,24 @@ public class PFMSpiralBasic extends AbstractPFMImage {
         return new PixelDataLuminance(width, height);
     }
 
+    @Override
+    public void setup() {
+        super.setup();
+        if (maxVelocity < minVelocity) {
+            double value = minVelocity;
+            minVelocity = maxVelocity;
+            maxVelocity = value;
+        }
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void run() {
         //adjust for HQ mode
         if(tools.getCanvas().getRescaleMode().isHighQuality()){
             ringSpacing = ringSpacing * (tools.getCanvas().getTargetPenWidth());
-            density = density * (tools.getCanvas().getTargetPenWidth());
-            amplitude = amplitude * (tools.getCanvas().getTargetPenWidth());
-            mask = (int) (mask * (tools.getCanvas().getTargetPenWidth()));
+            minVelocity = minVelocity * (tools.getCanvas().getTargetPenWidth());
+            maxVelocity = maxVelocity * (tools.getCanvas().getTargetPenWidth());
         }
 
         boolean parabolic = spiralType == EnumSpiralType.PARABOLIC;
@@ -63,69 +75,79 @@ public class PFMSpiralBasic extends AbstractPFMImage {
         double endRadius = Math.max(Math.max(topLeft, topRight), Math.max(bottomLeft, bottomRight))* spiralSize;
 
         int totalPasses = parabolic ? 2 : 1;
-        ringSpacing = parabolic ? ringSpacing/8 : ringSpacing;
-        amplitude = parabolic ? amplitude/10 : amplitude;
-        density = parabolic ? density/10 : density;
+        ringSpacing = parabolic ? ringSpacing/10 : ringSpacing;
+        amplitude = parabolic ? amplitude/1.5D : amplitude;
+        minVelocity = parabolic ? minVelocity/10 : minVelocity;
+        maxVelocity = parabolic ? maxVelocity/10 : maxVelocity;
 
+        if(!variableVelocity){
+            maxVelocity = minVelocity;
+        }
+
+        double lastLuminance = 255;
 
         for(pass = 1; pass <= totalPasses; pass++){
 
-            double k = (density) / (ringSpacing / 2);
-            double alpha = k;
+            double k = (minVelocity/2D) / (ringSpacing / 2);
+            double alpha = 0;
             double radius = (ringSpacing / (360 / k));
 
             double x, y, xa = 0, xb = 0, ya = 0, yb = 0;
             double lastX = -1; double lastY = -1;
-            int luminance;
+            double luminance;
             double lumOffset;
 
             double aRadius, bRadius;
 
             // Have we reached the far corner of the image?
             boolean draw;
-            while (radius < endRadius) {
-                x = getSpiralX(radius, alpha, centreX);
-                y = getSpiralY(radius, alpha, centreY);
 
-                k = (density / 2) / radius;
+            while (parabolic ? radius * Math.sqrt(Math.toRadians(alpha)) < endRadius : radius < endRadius) {
+                x = getSpiralX(spiralType, pass, radius, alpha, centreX);
+                y = getSpiralY(spiralType, pass, radius, alpha, centreY);
+
+                k = (minVelocity/2D) / radius;
                 alpha += k;
                 radius += ringSpacing / (360 / k);
 
+                //Find a luminance reference which is within the image
+                int lumRefX = Utils.clamp((int)x, 0, tools.getPixelData().getWidth()-1);
+                int lumRefY = Utils.clamp((int)y, 0, tools.getPixelData().getHeight()-1);
+                double nextLuminance = tools.getPixelData().getLuminance(lumRefX, lumRefY);
+                luminance = (nextLuminance + lastLuminance)/2D;
+                lastLuminance = nextLuminance;
 
-                if (tools.withinPlottableArea(x, y)){
+                // Get the color and brightness of the sampled pixel
+                lumOffset = Utils.mapDouble(luminance, 0D, 255D, ringSpacing/2 * amplitude, 0D);
+                double velocity = minVelocity + EasingUtils.easeInSine(luminance/255D) * (maxVelocity-minVelocity);
 
-                    // Get the color and brightness of the sampled pixel
-                    luminance = tools.getPixelData().getLuminance((int)x, (int)y);
-                    lumOffset = Utils.mapDouble(luminance, 0D, 255D, ringSpacing * amplitude, 0D);
+                // Move along the spiral
+                k = (velocity/2D) / radius;
+                alpha += k;
+                radius += ringSpacing / (360 / k);
 
-                    // Move up according to sampled brightness
-                    aRadius = radius + (lumOffset / ringSpacing);
-                    xa = getSpiralX(aRadius, alpha, centreX);
-                    ya = getSpiralY(aRadius, alpha, centreY);
+                // Move up according to sampled brightness
+                aRadius = radius + lumOffset;
+                xa = getSpiralX(spiralType, pass, aRadius, alpha, centreX);
+                ya = getSpiralY(spiralType, pass, aRadius, alpha, centreY);
 
-                    // Move along the spiral
-                    k = ((density / 2D) / radius);
-                    alpha += k;
-                    radius += ringSpacing / (360D / k);
+                // Move along the spiral
+                k = (velocity/2D) / radius;
+                alpha += k;
+                radius += ringSpacing / (360D / k);
 
-                    // Move down according to sampled brightness
-                    bRadius = radius - (lumOffset / ringSpacing);
-                    xb = getSpiralX(bRadius, alpha, centreX);
-                    yb = getSpiralY(bRadius, alpha, centreY);
+                // Move down according to sampled brightness
+                bRadius = radius - lumOffset;
+                xb = getSpiralX(spiralType, pass, bRadius, alpha, centreX);
+                yb = getSpiralY(spiralType, pass, bRadius, alpha, centreY);
 
-                    // If the sampled color is the mask color do not write to the shape
-                    if (ignoreWhite && mask <= luminance) {
-                        draw = false;
-                        lastX = -1;
-                        lastY = -1;
-                    } else {
-                        draw = true;
-                    }
-                } else {
-                    // We are outside of the image
+                boolean overlapsImage = tools.withinPlottableAreaPrecise(xa, ya) || tools.withinPlottableAreaPrecise(xb, yb);
+                if (!overlapsImage  || (ignoreWhite && mask <= luminance)) {
                     draw = false;
                     lastX = -1;
                     lastY = -1;
+                } else {
+                    draw = true;
                 }
 
                 if(draw){
@@ -149,7 +171,7 @@ public class PFMSpiralBasic extends AbstractPFMImage {
         }
     }
 
-    public double getSpiralX(double radius, double alpha, double centreX){
+    public static double getSpiralX(EnumSpiralType spiralType, int pass, double radius, double alpha, double centreX){
         if (spiralType == EnumSpiralType.PARABOLIC) {
             double offset = radius * Math.sqrt(Math.toRadians(alpha));
             if(pass == 2){
@@ -158,10 +180,10 @@ public class PFMSpiralBasic extends AbstractPFMImage {
             }
             return offset * Math.cos(Math.toRadians(alpha)) + centreX;
         }
-        return -radius * Math.cos(Math.toRadians(alpha)) + centreX;
+        return radius * Math.cos(Math.toRadians(alpha)) + centreX;
 
     }
-    public double getSpiralY(double radius, double alpha, double centreY){
+    public static double getSpiralY(EnumSpiralType spiralType, int pass, double radius, double alpha, double centreY){
         if (spiralType == EnumSpiralType.PARABOLIC) {
             double offset = radius * Math.sqrt(Math.toRadians(alpha));
             if(pass == 2) {
@@ -170,11 +192,11 @@ public class PFMSpiralBasic extends AbstractPFMImage {
             }
             return offset * Math.sin(Math.toRadians(alpha)) + centreY;
         }
-        return -radius * Math.sin(Math.toRadians(alpha)) + centreY;
+        return radius * Math.sin(Math.toRadians(alpha)) + centreY;
     }
 
     public int getPenIndex(float x, float y){
-        return pass;
+        return pass-1;
     }
 
 }
