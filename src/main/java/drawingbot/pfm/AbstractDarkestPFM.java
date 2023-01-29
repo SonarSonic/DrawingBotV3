@@ -1,10 +1,7 @@
 package drawingbot.pfm;
 
 import drawingbot.api.*;
-import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
-import drawingbot.image.PixelDataARGBY;
-import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.pfm.helpers.*;
 import drawingbot.utils.Utils;
 
@@ -20,22 +17,8 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     protected static int sampleHeight = 10;
 
     @Override
-    public IPixelData createPixelData(int width, int height) {
-        if(!tools.getCanvas().getRescaleMode().isHighQuality() || tools.getCanvas().getTargetPenWidth() == 1F){
-            return new PixelDataARGBY(width, height);
-        }
-        return PixelDataGraphicsComposite.create(width, height);
-    }
-
-    @Override
     public int getTransparentARGB() {
         return ImageTools.getARGB(0, 255, 255, 255);
-    }
-
-    @Override
-    public void setup() {
-        super.setup();
-        renderPipe.setRescaleMode(tools.getCanvas().getRescaleMode());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,6 +192,15 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         return angle;
     }
 
+    public static double getAngle(double startX, double startY, double targetX, double targetY) {
+        double angle = Math.toDegrees(Math.atan2(targetY - startY, targetX - startX));
+        angle %= 360;
+        if(angle < 0){
+            angle += 360;
+        }
+        return angle;
+    }
+
     public static float getAngleDifference(float a1, float a2) {
         double val = a1 - a2;
         if (val > Math.PI) {
@@ -282,20 +274,6 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
 
     public int maxLineLength(){
         return Integer.MAX_VALUE;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public ColourSampleTest defaultColourTest = new ColourSampleTest();
-    public PFMRenderPipe renderPipe = new PFMRenderPipe();
-
-    public void addGeometryWithColourSamples(IPixelData pixelData, IGeometry geometry, int adjust){
-        int colourSamples = eraseGeometry(pixelData, geometry, adjust);
-        tools.addGeometry(geometry, -1, colourSamples);
-    }
-
-    public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust){
-        return renderPipe.eraseGeometry(pixelData, geometry, adjust, tools.getCanvas().getTargetPenWidth());
     }
 
 }

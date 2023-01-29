@@ -1,15 +1,19 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IPixelData;
+import drawingbot.geom.easing.EasingUtils;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.image.PixelDataARGBY;
+import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.image.PixelTargetCache;
 import drawingbot.image.PixelTargetDarkestArea;
+import drawingbot.pfm.helpers.ColourSampleTest;
+import drawingbot.pfm.helpers.PFMRenderPipe;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
@@ -18,7 +22,6 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public int squiggleMaxLength;
     public float squiggleMaxDeviation;
 
-    public int adjustbrightness;
     public float lineDensity;
 
     public int lineTests;
@@ -27,7 +30,6 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public int maxLines;
 
     public boolean shouldLiftPen;
-    public boolean shouldDrawMoves;
 
     //process specific
     public double initialLuminance;
@@ -39,6 +41,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public double lumProgress = 0;
     public double actualProgress = 0;
 
+    // ERASING \\
+    public float radiusMin = 1F, radiusMax = 4F;
+    public float eraseMin = 1F, eraseMax = 255F;
+    public float tone = 0.5F;
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public PixelTargetCache targetCache;
@@ -46,6 +53,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     @Override
     public void setup() {
         super.setup();
+
         if(maxLineLength < minLineLength){
             int value = minLineLength;
             minLineLength = maxLineLength;
@@ -57,77 +65,91 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             squiggleMinLength = squiggleMaxLength;
             squiggleMaxLength = value;
         }
+
+        if(radiusMax < radiusMin){
+            float value = radiusMin;
+            radiusMin = radiusMax;
+            radiusMax = value;
+        }
+
+        if(eraseMin < eraseMin){
+            float value = eraseMin;
+            eraseMin = eraseMax;
+            eraseMax = value;
+        }
+
         initialLuminance = this.tools.getPixelData().getAverageLuminance();
-        targetCache = new PixelTargetDarkestArea(tools.getPixelData());
-        findDarkestMethod = (pixelData, dst) -> targetCache.updateNextDarkestPixel(dst);
+        targetCache = new PixelTargetDarkestArea(tools, tools.getPixelData());
+        findDarkestPixelMethod = (pixelData, dst) -> targetCache.updateNextDarkestPixel(dst);
+        renderPipe.setRescaleMode(tools.getCanvas().getRescaleMode());
+    }
+
+    @Override
+    public IPixelData createPixelData(int width, int height) {
+        if(radiusMin != radiusMax || tools.getCanvas().getTargetPenWidth() != 1F){
+            return PixelDataGraphicsComposite.create(width, height);
+        }
+        return new PixelDataARGBY(width, height);
     }
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public BiConsumer<IPixelData, int[]> findDarkestMethod = AbstractDarkestPFM::findDarkestArea;
-    public int[] last = new int[]{-1, -1};
-    public int[] current = new int[]{-1, -1};
-    public int[] darkest = new int[]{-1, -1};
+    public BiConsumer<IPixelData, int[]> findDarkestPixelMethod = AbstractDarkestPFM::findDarkestArea;
+    public final PathFindingContext context = new PathFindingContext();
 
     @Override
     public void run() {
         while(!tools.isFinished()){
-            if(shouldLiftPen || current[0] == -1){
-                findDarkestMethod.accept(tools.getPixelData(), darkest);
-                if(shouldDrawMoves){
-                    addSegments(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness, null);
-                }
-            }else{
-                findDarkestNeighbour(tools.getPixelData(), last, current, darkest);
-                addSegments(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness, null);
-                tools.getPixelData().adjustLuminance(current[0], current[1], 1);
 
-                last[0] = current[0];
-                last[1] = current[1];
+            // Find the darkest pixel in the image, using the current method, use this as the current position
+            context.last = context.current;
+            context.current = new int[2];
+            findDarkestPixelMethod.accept(tools.getPixelData(), context.current);
 
-                current[0] = darkest[0];
-                current[1] = darkest[1];
+            // Create a linking geometry, to draw this forced pen move
+            if(!shouldLiftPen && context.hasResult()){
+                addLinkingGeometry(tools.getPixelData(), context.last, context.current);
             }
-
-            float initialDarkness = tools.getPixelData().getLuminance(darkest[0], darkest[1]);
-            float allowableDarkness = initialDarkness + Math.max(1, 255 * squiggleMaxDeviation);
-
-            last[0] = current[0];
-            last[1] = current[1];
-
-            current[0] = darkest[0];
-            current[1] = darkest[1];
 
             beginSquiggle();
 
-            for (int s = 0; s < squiggleMaxLength; s++) {
+            // Keep track of the squiggle's deviation
+            float initialDarkness = tools.getPixelData().getLuminance(context.getX(), context.getY());
+            float allowableDarkness = !shouldLiftPen ? Float.MAX_VALUE : initialDarkness + Math.max(1, 255 * squiggleMaxDeviation);
+            boolean failed = false;
 
-                float next = findDarkestNeighbour(tools.getPixelData(), last, current, darkest);
+            // Run the loop until it is stopped in the case of should lift pen, or run it until the maximum squiggle length if we should lift the pen
+            for (int s = 0; !shouldLiftPen || s < squiggleMaxLength; s++) {
 
-                //if the first line has been drawn and the next neighbour isn't dark enough to add to the squiggle, end it prematurely
-                if(s > 3 && (s >= squiggleMinLength - 1) && (next == -1 || next > allowableDarkness || next > tools.getPixelData().getAverageLuminance())){
-                    endSquiggle();
+                // Remove the previous result
+                context.clearResult();
 
-                    //there are no valid lines from this point, brighten it slightly so we don't test it again immediately.
-                    tools.getPixelData().adjustLuminance(current[0], current[1], 5);
+                // Find the next geometry / result
+                nextPathFindingResult(context, tools.getPixelData());
+
+                // If no result has been found we end this squiggle early
+                if(!context.hasResult()){
+                    failed = true;
                     break;
                 }
 
-                if(next != -1){
-                    addSegments(tools.getPixelData(), current[0], current[1], darkest[0], darkest[1], adjustbrightness, null); //TODO
+                // If the squiggle has passed the minimum length now we check the squiggles darkness
+                if(shouldLiftPen && s >= squiggleMinLength){
 
-                    last[0] = current[0];
-                    last[1] = current[1];
+                    // Check the last generated geometry doesn't exceed the allowable darkness, if it does end the squiggle early
+                    if(context.getAvgLuminance() > allowableDarkness || context.getAvgLuminance()  > tools.getPixelData().getAverageLuminance()){
+                        break;
+                    }
 
-                    current[0] = darkest[0];
-                    current[1] = darkest[1];
-                }else{
-                    //there are no valid lines from this point, brighten it slightly so we don't test it again immediately.
-                    tools.getPixelData().adjustLuminance(current[0], current[1], 5);
-                    break;
                 }
 
+                // The generated geometry has passed all our tests, add it too the drawing & update the context
+                addPathFindingResult(context, tools.getPixelData());
+                context.last = context.getPosition();
+                context.current = context.getDstPosition();
+
+                // Check the squiggle shouldn't be ended early
                 if(updateProgress(tools) || tools.isFinished()){
                     endSquiggle();
                     return;
@@ -135,6 +157,13 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             }
 
             endSquiggle();
+
+            if(failed){
+                // If there were no path finding results from the current point, it must be isolated, so erase it.
+                tools.getPixelData().setLuminance(context.getX(), context.getY(), 255);
+            }
+
+            // Colour Match will may change pen after each squiggle, so prevent the default while loop.
             if (tools.pfmTask.isColourMatchTask()){
                 return;
             }
@@ -142,15 +171,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     }
 
     public void beginSquiggle(){
-        //used by Curve PFMs
+
     }
 
     public void endSquiggle(){
-        //used by Curve PFMs
-    }
 
-    public void addSegments(IPixelData pixelData, int x1, int y1, int x2, int y2, int adjust, Consumer<IGeometry> segments){
-        addGeometryWithColourSamples(pixelData, new GLine(x1, y1, x2, y2), adjust);
     }
 
     protected boolean updateProgress(PlottingTools tools){
@@ -165,10 +190,15 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         return actualProgress >= 1;
     }
 
-    /**
-     * @return returns the darkness of this new neighbour
-     */
-    protected abstract float findDarkestNeighbour(IPixelData pixels, int[] lastPoint, int[] currentPoint, int[] darkestDst);
+    public abstract void nextPathFindingResult(PathFindingContext context, IPixelData pixels);
+
+    public void addPathFindingResult(PathFindingContext context, IPixelData pixels){
+        eraseAddGeometry(pixels, new GLine(context.getX(), context.getY(), context.getDstX(), context.getDstY()));
+    }
+
+    public void addLinkingGeometry(IPixelData pixels, int[] src, int[] dst){
+        eraseAddGeometry(pixels, new GLine(src[0], src[1], dst[0], dst[1]));
+    }
 
     @Override
     public int minLineLength() {
@@ -178,5 +208,124 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     @Override
     public int maxLineLength() {
         return maxLineLength;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public ColourSampleTest defaultColourTest = new ColourSampleTest();
+    public PFMRenderPipe renderPipe = new PFMRenderPipe();
+
+    /**
+     * Convenience Method: Erases the geometry on the current Pixel Data and adds it too the current drawing.
+     */
+    public void eraseAddGeometry(IPixelData pixelData, IGeometry geometry){
+        int colourSamples = eraseGeometry(pixelData, geometry);
+        tools.addGeometry(geometry, -1, colourSamples);
+    }
+
+    /**
+     * Erases the Geometry on the provided pixel data.
+     */
+    public int eraseGeometry(IPixelData pixelData, IGeometry geometry){
+        return eraseGeometry(pixelData, geometry, radiusMin, radiusMax, eraseMin, eraseMax);
+    }
+
+    /**
+     * Erases the Geometry on the provided pixel data, allows you to provide custom erasing values
+     */
+    public int eraseGeometry(IPixelData pixelData, IGeometry geometry, float radiusMin, float radiusMax, float eraseMin, float eraseMax){
+        int luminance = tools.getPixelData().getLuminance(context.getX(), context.getY());
+        double xProgress = luminance/255D;
+        double yProgress = (EasingUtils.easeInCubic(xProgress)*(tone)) + (xProgress*(1-tone));
+
+        float strokeWidth = (float) (radiusMin + yProgress * (radiusMax - radiusMin));
+        int erase = (int) (eraseMin + yProgress * (eraseMax-eraseMin));
+
+        return renderPipe.eraseGeometry(pixelData, geometry, erase, tools.getCanvas().getTargetPenWidth() * strokeWidth);
+    }
+
+    public static class PathFindingContext {
+
+        //// Path Finding Current Positions \\\\
+        public int[] current = new int[2];
+        public int[] last = new int[2];
+
+        //// Path Finding Result \\\\
+        public float[] data = null;
+        private float avgLuminance = 0F;
+        private int[] dst = new int[2];
+        private boolean hasResult;
+
+        public PathFindingContext(){};
+
+        public PathFindingContext(int[] dst, float luminance, float[] data) {
+            setResult(dst, avgLuminance, data);
+        }
+
+        public void clearResult(){
+            this.data = null;
+            this.avgLuminance = 0F;
+            this.dst = new int[2];
+            this.hasResult = false;
+        }
+
+        public void setResult(int[] dst, float luminance) {
+            setResult(dst, luminance, null);
+        }
+
+        public void setResult(int[] dst, float luminance, float[] testData) {
+            this.data = testData;
+            this.avgLuminance = luminance;
+            this.dst = dst;
+
+            // Check the result is actually valid
+            this.hasResult = luminance != -1;
+        }
+
+        public boolean hasResult(){
+            return hasResult;
+        }
+
+        public float getAvgLuminance() {
+            return avgLuminance;
+        }
+
+        public int[] getDstPosition() {
+            return dst;
+        }
+
+        public int getDstX(){
+            return dst[0];
+        }
+
+        public int getDstY(){
+            return dst[1];
+        }
+
+        public int getX(){
+            return current[0];
+        }
+
+        public int getY(){
+            return current[1];
+        }
+
+        public int[] getPosition(){
+            return current;
+        }
+
+        public int getLastX(){
+            return last[0];
+        }
+
+        public int getLastY(){
+            return last[1];
+        }
+
+        public int[] getLastPosition(){
+            return last;
+        }
+
     }
 }

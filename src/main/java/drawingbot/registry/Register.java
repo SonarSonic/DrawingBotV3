@@ -260,8 +260,16 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Deviation", 25, 0, 100, (pfm, value) -> pfm.squiggleMaxDeviation = value/100F));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(AbstractSketchPFM.class, "Style", "Should Lift Pen", true, (pfm, value) -> pfm.shouldLiftPen = value).setRandomiseExclude(true));
 
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Erasing", "Erase Min", 50, 1, 255, (pfm, value) -> pfm.eraseMin = value).setRandomiseExclude(true).addAltKey("Adjust Brightness"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Erasing", "Erase Max", 125, 1, 255, (pfm, value) -> pfm.eraseMax = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Erasing", "Erase Radius Min", 1F, 1, 50F, (pfm, value) -> pfm.radiusMin = value).setSafeRange(1F, 10F).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Erasing", "Erase Radius Max", 1F, 1, 50F, (pfm, value) -> pfm.radiusMax = value).setSafeRange(1F, 50F).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Erasing", "Tone", 50F, 0, 100F, (pfm, value) -> pfm.tone = value/100).setRandomiseExclude(false));
 
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, CATEGORY_GENERIC, "Adjust Brightness", 50, 1, 255, (pfm, value) -> pfm.adjustbrightness = value));
+        //MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(AbstractSketchPFM.class, EnumEaseCurve.class, "Erasing", "Easing", FXCollections.observableArrayList(EnumEaseCurve.values()), EnumEaseCurve.SINE, (pfm, value) -> pfm.easingCurve = value));
+
+        MasterRegistry.INSTANCE.registerSettingCategory("Erasing", 1);
+
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSketchLinesBasic.class, "Segments", "Unlimited Tests", false, (pfm, value) -> pfm.unlimitedTests = value).setRandomiseExclude(true));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Angle Tests", 20, 1, 3200, (pfm, value) -> pfm.lineTests = value).setSafeRange(0, 360).addAltKey("Neighbour Tests").createDisableBinding("Unlimited Tests", true));
 
