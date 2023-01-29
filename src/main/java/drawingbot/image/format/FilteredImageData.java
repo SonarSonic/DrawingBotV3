@@ -30,6 +30,8 @@ public class FilteredImageData {
     public ICanvas destCanvas;
     public BufferedImage filteredImage;
 
+    public transient ImageFilterSettings lastFilterSettings;
+
     public FilteredImageData(DBTaskContext context, File sourceFile, BufferedImage sourceImage){
         this(context, sourceFile, context.project.getDrawingArea(), sourceImage);
     }
@@ -136,6 +138,21 @@ public class FilteredImageData {
     public boolean updateCropping = true;
     public boolean updateAllFilters = true;
 
+    // Validation: to keep track of if the filtered results of this image data are updated, to save re-filtering the image on every PFM run
+
+    public boolean valid = false;
+
+    public boolean isValidated(){
+        return valid;
+    }
+
+    public void invalidate(){
+        valid = false;
+    }
+
+    public void validate(){
+        valid = true;
+    }
 
     public void resetCrop() {
         this.cropStartX.set(0);
@@ -161,11 +178,14 @@ public class FilteredImageData {
     }
 
     public BufferedImage createCroppedImage(ICanvas canvas, ImageFilterSettings settings){
+        lastFilterSettings = settings;
         BufferedImage image = createPreCroppedImage();
         return applyCropping(image, canvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
     }
 
     public void updateAll(ImageFilterSettings settings){
+        lastFilterSettings = settings;
+        invalidate();
         ImageCanvas newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), sourceCanvas, false);
 
         if(cropped == null || updateCropping){
@@ -181,12 +201,15 @@ public class FilteredImageData {
                 copy.scale = sourceCanvas.getPlottingScale();
                 newCanvas = new ImageCanvas(new SimpleCanvas(getTargetCanvas()), copy, imageRotation.get().flipAxis);
             }
+
         }
         filteredImage = applyFilters(cropped, updateCropping || updateAllFilters, settings);
         destCanvas = newCanvas;
+        validate();
     }
 
     public AffineTransform getCanvasTransform(ImageFilterSettings settings){
+        lastFilterSettings = settings;
         AffineTransform transform = new AffineTransform();
 
         ICanvas canvas = getSourceCanvas();

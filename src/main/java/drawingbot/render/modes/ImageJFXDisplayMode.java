@@ -12,6 +12,7 @@ import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeList;
 import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.flags.Flags;
+import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import org.fxmisc.easybind.EasyBind;
 
@@ -44,6 +45,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             if(openImage != null){
                 if(renderFlags.anyMatch(Flags.IMAGE_FILTERS_FULL_UPDATE, Flags.IMAGE_FILTERS_PARTIAL_UPDATE, Flags.CANVAS_CHANGED)){
                     if(jfr.filteringTask == null || !jfr.filteringTask.updating.get()){
+                        openImage.invalidate();
                         openImage.updateCropping = renderFlags.anyMatch(Flags.CANVAS_CHANGED);//jfr.croppingDirty;
                         openImage.updateAllFilters = renderFlags.anyMatch(Flags.IMAGE_FILTERS_FULL_UPDATE);//jfr.imageFiltersChanged;
                         DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.imageFilteringService, jfr.filteringTask = new ImageFilteringTask(DrawingBotV3.context(), openImage));
@@ -201,6 +203,11 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
                         updateCropFromImageData();
                     }
                 });
+
+                // Run the listener manually the first time, ensure the shape has been generated for the image.
+                addListeners(DrawingBotV3.project().openImage.get());
+                updateCropFromImageData();
+
                 init = true;
             }
         }

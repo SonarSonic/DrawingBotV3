@@ -172,10 +172,12 @@ public class DrawingBotV3 {
 
     public void onImageChanged(){
         setRenderFlag(Flags.OPEN_IMAGE_UPDATED, true);
+        invalidateImageFiltering();
     }
 
     public void onCanvasChanged(){
         setRenderFlag(Flags.CANVAS_CHANGED, true);
+        invalidateImageFiltering();
     }
 
     public void onDrawingCleared(){
@@ -184,10 +186,19 @@ public class DrawingBotV3 {
 
     public void onImageFiltersChanged(){
         setRenderFlag(Flags.IMAGE_FILTERS_FULL_UPDATE, true);
+        invalidateImageFiltering();
     }
 
     public void onImageFilterDirty(){
         setRenderFlag(Flags.IMAGE_FILTERS_PARTIAL_UPDATE, true);
+        invalidateImageFiltering();
+    }
+
+    public void invalidateImageFiltering(){
+        if(project().openImage.get() != null){
+            project().openImage.get().invalidate();
+        }
+    }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

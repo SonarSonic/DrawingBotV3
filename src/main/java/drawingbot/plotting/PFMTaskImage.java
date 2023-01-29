@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.api.IPFMImage;
 import drawingbot.api.IPixelData;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -51,26 +52,31 @@ public class PFMTaskImage extends PFMTask {
         BufferedImage imgPlotting = null;
 
         if(enableImageFiltering){
-            DrawingBotV3.logger.fine("Applying Cropping");
-            updateMessage("Pre-Processing - Cropping");
-
             if(imgFilterSettings != null){
-                if(imageData.isVectorImage()){
-                    updateMessage("Pre-Processing - Rasterizing from Vector");
-                }
+                // Try to get the fetch the cached filtered image result
+                if(!imageData.isVectorImage() && imageData.isValidated() && ICanvas.matchingCanvas(drawing.getCanvas(), imageData.getDestCanvas()) && imageData.lastFilterSettings == imgFilterSettings){
+                    imgPlotting = imageData.getFilteredImage();
+                }else{
+                    DrawingBotV3.logger.fine("Applying Cropping");
+                    updateMessage("Pre-Processing - " + (imageData.isVectorImage() ? "Rasterizing from Vector" : "Cropping"));
 
-                imgPlotting = imageData.createCroppedImage(drawing.getCanvas(), imgFilterSettings);
+                    imgPlotting = imageData.createCroppedImage(drawing.getCanvas(), imgFilterSettings);
 
-                DrawingBotV3.logger.fine("Applying Filters");
-                for(ObservableImageFilter filter : imgFilterSettings.currentFilters.get()){
-                    if(filter.enable.get()){
-                        BufferedImageOp instance = filter.filterFactory.instance();
-                        filter.filterSettings.forEach(setting -> setting.applySetting(instance));
+                    DrawingBotV3.logger.fine("Applying Filters");
+                    for(ObservableImageFilter filter : imgFilterSettings.currentFilters.get()){
+                        if(filter.enable.get()){
+                            BufferedImageOp instance = filter.filterFactory.instance();
+                            filter.filterSettings.forEach(setting -> setting.applySetting(instance));
 
-                        updateMessage("Pre-Processing - " + filter.name.getValue());
-                        imgPlotting = instance.filter(imgPlotting, null);
+                            updateMessage("Pre-Processing - " + filter.name.getValue());
+                            imgPlotting = instance.filter(imgPlotting, null);
+                        }
                     }
                 }
+            }
+        }else{
+            if(!imageData.isVectorImage() && imageData.isValidated() && ICanvas.matchingCanvas(drawing.getCanvas(), imageData.getDestCanvas())){
+                imgPlotting = imageData.preCrop;
             }
         }
 
