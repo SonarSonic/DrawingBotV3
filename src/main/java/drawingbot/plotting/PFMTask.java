@@ -51,7 +51,7 @@ public class PFMTask extends DBTask<PlottedDrawing> {
 
     public PFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
         super(context);
-        updateTitle("Plotting Image (" + pfmFactory.getName() + ")");
+        updateTitle("Plotting Image (" + pfmFactory.getRegistryName() + ")");
         this.refCanvas = drawing.getCanvas();
         this.refPenSet = refPenSet;
         this.pfmSettings = pfmSettings;

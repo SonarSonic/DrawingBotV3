@@ -49,7 +49,7 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public GenericPreset<PresetPFMSettings> getDefaultPreset() {
-        return MasterRegistry.INSTANCE.getDefaultPreset(this, MasterRegistry.INSTANCE.getDefaultPFM().getName(), "Default");
+        return MasterRegistry.INSTANCE.getDefaultPreset(this, MasterRegistry.INSTANCE.getDefaultPFM().getRegistryName(), "Default");
     }
 
     @Override

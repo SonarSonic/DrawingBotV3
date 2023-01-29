@@ -25,11 +25,11 @@ public class PresetImageFilters implements IJsonData {
     }
 
     public void addFilter(GenericFactory<BufferedImageOp> factory, HashMap<String, JsonElement> settings) {
-        filters.add(new Filter(true, factory.getName(), settings));
+        filters.add(new Filter(true, factory.getRegistryName(), settings));
     }
 
     public void copyFilter(ObservableImageFilter filter) {
-        filters.add(new Filter(filter.enable.get(), filter.filterFactory.getName(), GenericSetting.toJsonMap(filter.filterSettings, new HashMap<>(), false)));
+        filters.add(new Filter(filter.enable.get(), filter.filterFactory.getRegistryName(), GenericSetting.toJsonMap(filter.filterSettings, new HashMap<>(), false)));
     }
 
     @Override

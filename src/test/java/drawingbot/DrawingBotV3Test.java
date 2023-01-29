@@ -45,9 +45,9 @@ public class DrawingBotV3Test {
         assert image != null;
         for(List<GenericFactory<BufferedImageOp>> factories : MasterRegistry.INSTANCE.imgFilterFactories.values()){
             for(GenericFactory<BufferedImageOp> factory : factories){
-                System.out.println("Started Image Filter Test: " + factory.getName());
+                System.out.println("Started Image Filter Test: " + factory.getRegistryName());
                 image = factory.instance().filter(image, null);
-                System.out.println("Finished Image Filter Test: " + factory.getName());
+                System.out.println("Finished Image Filter Test: " + factory.getRegistryName());
             }
         }
     }
@@ -56,7 +56,7 @@ public class DrawingBotV3Test {
     public void testPathFindingModules() throws InterruptedException {
 
         for(final PFMFactory factory : MasterRegistry.INSTANCE.pfmFactories){
-            System.out.println("Started PFM Test: " + factory.getName());
+            System.out.println("Started PFM Test: " + factory.getRegistryName());
             final CountDownLatch latch = new CountDownLatch(1);
 
             Platform.runLater(() -> {
@@ -69,7 +69,7 @@ public class DrawingBotV3Test {
                 });
             });
             latch.await();
-            System.out.println("Finished PFM Test: " + factory.getName());
+            System.out.println("Finished PFM Test: " + factory.getRegistryName());
         }
     }
 

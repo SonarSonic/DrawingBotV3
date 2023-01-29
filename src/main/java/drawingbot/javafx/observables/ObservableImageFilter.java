@@ -29,7 +29,7 @@ public class ObservableImageFilter {
     }
 
     public ObservableImageFilter(boolean enable, GenericFactory<BufferedImageOp> filterFactory) {
-        this(enable, filterFactory.getName(), filterFactory, MasterRegistry.INSTANCE.createObservableImageFilterSettings(filterFactory));
+        this(enable, filterFactory.getRegistryName(), filterFactory, MasterRegistry.INSTANCE.createObservableImageFilterSettings(filterFactory));
     }
 
     public ObservableImageFilter(ObservableImageFilter duplicate) {

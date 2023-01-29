@@ -25,7 +25,7 @@ public class GenericFactory<C> {
         return create.get();
     }
 
-    public String getName(){
+    public String getRegistryName(){
         return name;
     }
 
@@ -35,7 +35,7 @@ public class GenericFactory<C> {
 
     @Override
     public String toString() {
-        return getName();
+        return getRegistryName();
     }
 
 }

@@ -2,7 +2,6 @@ package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.json.presets.PresetPFMSettingsManager;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -25,6 +24,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
+import javafx.util.Callback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //TODO PRESETS MAY STILL APPLY TO THE MASTER REGISTRY LISTS
 public class FXPFMControls extends AbstractFXController {
@@ -35,6 +38,7 @@ public class FXPFMControls extends AbstractFXController {
     ////////////////////////////////////////////////////////
 
     public ComboBox<PFMFactory<?>> comboBoxPFM = null;
+    public MenuButton menuButtonPFM = null;
 
     public ComboBox<GenericPreset<PresetPFMSettings>> comboBoxPFMPreset = null;
     public MenuButton menuButtonPFMPresets = null;
@@ -60,7 +64,7 @@ public class FXPFMControls extends AbstractFXController {
 
         final ChangeListener<PFMFactory<?>> FACTORY_CHANGE_LISTENER = (observable, oldValue, newValue) -> {
             comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
-            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getName()));
+            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getRegistryName()));
         };
 
         pfmSettings.addListener((observable, oldValue, newValue) -> {
@@ -85,6 +89,29 @@ public class FXPFMControls extends AbstractFXController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         ////PATH FINDING CONTROLS
+        if(menuButtonPFM != null){
+            menuButtonPFM.getItems().clear();
+            ObservableList<PFMFactory<?>> pfmFactories = MasterRegistry.INSTANCE.getObservablePFMLoaderList();
+            List<String> categories = new ArrayList<>();
+            for(PFMFactory<?> factory : pfmFactories){
+                if(!categories.contains(factory.category)){
+                    categories.add(factory.category);
+                }
+            }
+            for(String category : categories){
+                Menu pfmCategory = new Menu(category);
+                for(PFMFactory<?> factory : pfmFactories){
+                    if(factory.category.equals(category)){
+                        MenuItem pfmItem = new MenuItem();
+                        pfmItem.setText(factory.getDisplayName());
+                        pfmItem.setOnAction(e -> changePathFinderModule(factory));
+                        pfmCategory.getItems().add(pfmItem);
+                    }
+                }
+                menuButtonPFM.getItems().add(pfmCategory);
+            }
+        }
+
         comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
         comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
         comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
@@ -104,7 +131,7 @@ public class FXPFMControls extends AbstractFXController {
 
         treeTableViewPFMSettings.setRowFactory(param -> {
             TreeTableRow<GenericSetting<?, ?>> row = new TreeTableRow<>();
-            row.setContextMenu(new ContextMenuPFMSetting(row));
+            row.setContextMenu(new ContextMenuGenericSetting(row, pfmSettings.get().settings));
             row.treeItemProperty().addListener((observable, oldValue, newValue) -> {
                 row.disableProperty().unbind();
                 if(newValue != null){

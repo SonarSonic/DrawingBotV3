@@ -111,6 +111,7 @@ public class JsonLoaderManager {
     }
 
     public static void loadDefaults(){
+        MasterRegistry.INSTANCE.registerMissingDefaultPFMPresets();
         for(AbstractJsonLoader<?> loaders : MasterRegistry.INSTANCE.presetLoaders){
             if(loaders != Register.PRESET_LOADER_CONFIGS){
                 loaders.loadDefaults();

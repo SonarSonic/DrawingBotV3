@@ -81,7 +81,7 @@ public class FXPreferences {
                                     comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
                                     comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
                                     comboBoxPFM.setOnAction(e -> {
-                                        settings.defaultPFM.setValue(comboBoxPFM.getValue().getName());
+                                        settings.defaultPFM.setValue(comboBoxPFM.getValue().getRegistryName());
                                     });
                                     return comboBoxPFM;
                                 }
@@ -218,9 +218,9 @@ public class FXPreferences {
                                 ObservableList<GenericPreset<PresetPFMSettings>> presets = MasterRegistry.INSTANCE.getObservablePFMPresetList(factory);
                                 ComboBox<GenericPreset<PresetPFMSettings>> comboBox = new ComboBox<>();
                                 comboBox.setItems(presets);
-                                comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getName(), "Default"));
+                                comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default"));
                                 DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
-                                    comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getName(), "Default"));
+                                    comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default"));
                                 });
                                 comboBox.setOnAction(e -> {
                                     DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
@@ -234,7 +234,7 @@ public class FXPreferences {
                         javafx.scene.control.Button button = new Button("Reset All");
                         button.setOnAction(e -> {
                             for (PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
-                                settings.clearDefaultPreset(Register.PRESET_TYPE_PFM, factory.getName());
+                                settings.clearDefaultPreset(Register.PRESET_TYPE_PFM, factory.getRegistryName());
                             }
                         });
                         return button;

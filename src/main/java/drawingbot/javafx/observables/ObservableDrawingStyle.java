@@ -33,7 +33,7 @@ public class ObservableDrawingStyle implements IDrawingStyle {
     public ObservableDrawingStyle(DrawingSets drawingSets, PFMFactory<?> factory){
         this.drawingSets = drawingSets;
         init();
-        update(true, factory.getName(), factory, 100, 0, null, Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName()).data.settingList);
+        update(true, factory.getRegistryName(), factory, 100, 0, null, Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getRegistryName()).data.settingList);
     }
 
     public ObservableDrawingStyle(DrawingSets drawingSets, IDrawingStyle style){
@@ -68,7 +68,7 @@ public class ObservableDrawingStyle implements IDrawingStyle {
     public void update(@Nullable IDrawingStyle style){
         if(style == null){
             PFMFactory<?> factory = MasterRegistry.INSTANCE.getDefaultPFM();
-            update(true, factory.getName(), factory, 100, 0, null, new HashMap<>());
+            update(true, factory.getRegistryName(), factory, 100, 0, null, new HashMap<>());
             return;
         }
         update(style.isEnabled(), style.getName(), MasterRegistry.INSTANCE.getPFMFactory(style.getPFMName()), style.getDistributionWeight(), style.getDrawingSetSlot(), style.getMaskColor(), style.getSaveableSettings());
@@ -86,7 +86,7 @@ public class ObservableDrawingStyle implements IDrawingStyle {
 
     @Override
     public String getPFMName() {
-        return pfmFactory.get().getName();
+        return pfmFactory.get().getRegistryName();
     }
 
     @Override

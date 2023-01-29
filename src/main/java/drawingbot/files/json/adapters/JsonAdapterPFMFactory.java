@@ -15,6 +15,6 @@ public class JsonAdapterPFMFactory implements JsonSerializer<PFMFactory<?>>, Jso
 
     @Override
     public JsonElement serialize(PFMFactory<?> src, Type typeOfSrc, JsonSerializationContext context) {
-        return new JsonPrimitive(src.getName());
+        return new JsonPrimitive(src.getRegistryName());
     }
 }

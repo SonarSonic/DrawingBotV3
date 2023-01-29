@@ -26,11 +26,28 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
 
     public boolean requiresPremium = false;
     public String category = "";
+    public String displayName;
 
-    public PFMFactory(Class<C> clazz, String name, String category, Supplier<C> create, boolean isHidden) {
-        super(clazz, name, create, isHidden);
+    public PFMFactory(Class<C> clazz, String name, String category, Supplier<C> create) {
+        super(clazz, name, create, false);
         this.distributionType = EnumDistributionType.getRecommendedType(null, null);
         this.category = category;
+        this.displayName = name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public PFMFactory<C> setDisplayName(String displayName) {
+        this.displayName = displayName;
+        return this;
+    }
+
+    @Override
+    public boolean isHidden() {
+        return releaseState.isExperimental();
     }
 
     /**
@@ -130,5 +147,10 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
     public PFMFactory<C> setPremium(boolean isPremium) {
         this.requiresPremium = isPremium;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return getDisplayName();
     }
 }

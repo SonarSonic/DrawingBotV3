@@ -422,7 +422,7 @@ public class FXController extends AbstractFXController {
             Menu type = new Menu(entry.getKey().toString());
 
             for(GenericFactory<BufferedImageOp> factory : entry.getValue()){
-                MenuItem item = new MenuItem(factory.getName());
+                MenuItem item = new MenuItem(factory.getRegistryName());
                 item.setOnAction(e -> FXHelper.addImageFilter(factory, DrawingBotV3.project().imageSettings.get()));
                 type.getItems().add(item);
             }

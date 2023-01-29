@@ -221,12 +221,12 @@ public class FXStylesController {
                 return;
             }
             comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
-            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getName()));
+            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getRegistryName()));
             if(editingDrawingStyle.get() != null && editingDrawingStyle.get().pfmFactory.get() != newValue){
                 editingDrawingStyle.get().pfmFactory.set(newValue);
                 editingDrawingStyle.get().pfmSettings = MasterRegistry.INSTANCE.getNewObservableSettingsList(newValue);
                 tableViewAdvancedPFMSettings.setItems(editingDrawingStyle.get().pfmSettings);
-                editingDrawingStyle.get().name.set(newValue.getName());
+                editingDrawingStyle.get().name.set(newValue.getDisplayName());
             }
         });
 
@@ -252,7 +252,7 @@ public class FXStylesController {
         tableViewAdvancedPFMSettings.setItems(FXCollections.emptyObservableList());
         tableViewAdvancedPFMSettings.setRowFactory(param -> {
             TableRow<GenericSetting<?, ?>> row = new TableRow<>();
-            row.setContextMenu(new ContextMenuPFMSetting(row));
+            row.setContextMenu(new ContextMenuGenericSetting(row, tableViewAdvancedPFMSettings.itemsProperty()));
             return row;
         });
 

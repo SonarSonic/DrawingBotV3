@@ -12,7 +12,7 @@ public class DrawingBotV3API implements API.IDrawingBotAPI {
 
     @Override
     public void registerPathFindingModule(Class<IPFM> pfmClass, String name, String category, Supplier<IPFM> create, boolean isHidden, boolean registerDefaultPreset) {
-        MasterRegistry.INSTANCE.registerPFM(pfmClass, name, category, create, isHidden, registerDefaultPreset);
+        MasterRegistry.INSTANCE.registerPFM(pfmClass, name, category, create);
     }
 
     @Override

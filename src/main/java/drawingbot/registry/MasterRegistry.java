@@ -27,7 +27,6 @@ import drawingbot.javafx.controls.DialogImageFilter;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.pfm.PFMSketchLinesBasic;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.overlays.AbstractOverlay;
 import drawingbot.utils.EnumFilterTypes;
@@ -171,7 +170,7 @@ public class MasterRegistry {
     public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
 
     public PFMFactory<?> getDefaultPFM(){
-        return pfmFactories.stream().filter(factory -> factory.getName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getName().equals("Sketch Lines PFM")).findFirst().orElse(null));
+        return pfmFactories.stream().filter(factory -> factory.getRegistryName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getRegistryName().equals("Sketch Lines PFM")).findFirst().orElse(null));
     }
 
     public ObservableList<GenericSetting<?, ?>> getNewObservableSettingsList(PFMFactory<?> factory){
@@ -189,7 +188,7 @@ public class MasterRegistry {
     public void createSettingsList(PFMFactory<?> factory, List<GenericSetting<?, ?>> dst){
         List<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), dst);
         GenericSetting.resetSettings(list);
-        GenericPreset<PresetPFMSettings> preset = Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getName());
+        GenericPreset<PresetPFMSettings> preset = Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getRegistryName());
         if(preset != null){
             GenericSetting.applySettings(preset.data.settingList, list);
         }
@@ -201,13 +200,22 @@ public class MasterRegistry {
         }
     }
 
-    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, String category, Supplier<C> create, boolean isHidden, boolean registerDefaultPreset){
-        DrawingBotV3.logger.fine("Registering PFM: " + name);
-        PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, category, create, isHidden);
-        pfmFactories.add(factory);
-        if(registerDefaultPreset){
-            Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(name, "Default", false));
+    public void registerMissingDefaultPFMPresets(){
+        for(PFMFactory<?> pfm : pfmFactories){
+            if(getObservablePFMPresetList(pfm) == null || getObservablePFMPresetList(pfm).stream().noneMatch(preset -> preset.presetName.equals("Default"))){
+                Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(pfm.getRegistryName(), "Default", false));
+
+                // Move the default preset to the front of the displayed list
+                ObservableList<GenericPreset<PresetPFMSettings>> presets = Register.PRESET_LOADER_PFM.presetsByType.get(pfm.getRegistryName());
+                presets.add(0, presets.remove(presets.size()-1));
+            }
         }
+    }
+
+    public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, String category, Supplier<C> create){
+        DrawingBotV3.logger.fine("Registering PFM: " + name);
+        PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, category, create);
+        pfmFactories.add(factory);
         return factory;
     }
 
@@ -224,7 +232,7 @@ public class MasterRegistry {
 
     public PFMFactory<?> getPFMFactory(String name){
         for(PFMFactory<?> factory : pfmFactories){
-            if(factory.getName().equals(name)){
+            if(factory.getRegistryName().equals(name)){
                 return factory;
             }
         }
@@ -256,12 +264,16 @@ public class MasterRegistry {
     public void removePFMSettingByName(Class<?> pfmClass, String name){
         PFMFactory<?> factory = getPFMFactory(pfmClass);
         if(factory != null){
-            ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
-            for(GenericSetting<?, ?> setting : settings){
-                if(setting.getKey().equals(name)){
-                    settings.remove(setting);
-                    return;
-                }
+            removePFMSettingByName(factory, name);
+        }
+    }
+
+    public void removePFMSettingByName(PFMFactory<?> factory, String name){
+        ObservableList<GenericSetting<?, ?>> settings = pfmSettings.get(factory);
+        for(GenericSetting<?, ?> setting : settings){
+            if(setting.getKey().equals(name)){
+                settings.remove(setting);
+                return;
             }
         }
     }
@@ -289,7 +301,7 @@ public class MasterRegistry {
     }
 
     public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(PFMFactory<?> loader){
-        return Register.PRESET_LOADER_PFM.presetsByType.get(loader.getName());
+        return Register.PRESET_LOADER_PFM.presetsByType.get(loader.getRegistryName());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -439,7 +451,7 @@ public class MasterRegistry {
     }
 
     public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
-        return imgFilterFactories.get(type).stream().filter(i -> i.getName().equals("Contrast")).findFirst().orElse(null);
+        return imgFilterFactories.get(type).stream().filter(i -> i.getRegistryName().equals("Contrast")).findFirst().orElse(null);
     }
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
@@ -454,7 +466,7 @@ public class MasterRegistry {
     }
 
     public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
-        DrawingBotV3.logger.finest("Registering Image Filter: " + setting.getKey());
+        DrawingBotV3.logger.finest("Registering Image Filter Setting: " + setting.getKey());
         imgFilterSettings.putIfAbsent(setting.clazz, new ArrayList<>());
         imgFilterSettings.get(setting.clazz).add(setting);
     }
@@ -472,7 +484,7 @@ public class MasterRegistry {
     public GenericFactory<BufferedImageOp> getImageFilterFactory(String name){
         for(ObservableList<GenericFactory<BufferedImageOp>> factories : imgFilterFactories.values()){
             for(GenericFactory<BufferedImageOp> factory : factories){
-                if(factory.getName().equals(name)){
+                if(factory.getRegistryName().equals(name)){
                     return factory;
                 }
             }

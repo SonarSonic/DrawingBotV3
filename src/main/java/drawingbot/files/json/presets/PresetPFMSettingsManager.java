@@ -26,7 +26,7 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
         PFMFactory<?> pfm = pfmProperty(context).getValue();
         ObservableList<GenericSetting<?, ?>> settings = settingProperty(context).getValue();
         if(pfm != null && settings != null) {
-            preset.presetSubType = pfm.getName();
+            preset.presetSubType = pfm.getRegistryName();
             preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
         }
         return preset;
