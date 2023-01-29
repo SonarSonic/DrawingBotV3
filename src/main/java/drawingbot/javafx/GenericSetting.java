@@ -170,7 +170,7 @@ public abstract class GenericSetting<C, V> implements Observable {
 
     ////////////////////////////////
 
-    public final SimpleObjectProperty<V> value = new SimpleObjectProperty<>(){
+    public final SimpleObjectProperty<V> value = new SimpleObjectProperty<>(this, null){
 
         @Override
         public V get() {
@@ -237,6 +237,22 @@ public abstract class GenericSetting<C, V> implements Observable {
 
     public ObservableList<V> getRecommendedValues() {
         return recommendedValues;
+    }
+
+    ////////////////////////////////
+
+    public final SimpleBooleanProperty valueChanging = new SimpleBooleanProperty(false);
+
+    public boolean isValueChanging() {
+        return valueChanging.get();
+    }
+
+    public SimpleBooleanProperty valueChangingProperty() {
+        return valueChanging;
+    }
+
+    public void setValueChanging(boolean valueChanging) {
+        this.valueChanging.set(valueChanging);
     }
 
     ////////////////////////////////

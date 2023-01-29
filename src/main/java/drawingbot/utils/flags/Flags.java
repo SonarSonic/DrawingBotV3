@@ -22,6 +22,7 @@ public class Flags {
     public final static Flags.BooleanFlag CANVAS_MOVED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CANVAS_SCROLLED", false, false));
     public final static Flags.BooleanFlag CHANGED_RENDERER = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CHANGED_RENDERER", false, false));
     public final static Flags.BooleanFlag UPDATE_PEN_DISTRIBUTION = Flags.addBooleanFlag(GLOBAL_CATEGORY, new Flags.BooleanFlag("DISPLAYED_SHAPES_CHANGED", false, false));
+    public final static Flags.BooleanFlag PFM_SETTINGS_UPDATE = Flags.addBooleanFlag(GLOBAL_CATEGORY, new Flags.BooleanFlag("PFM_SETTINGS_UPDATE", false, false));
 
     public static <T> Flag<T> addFlag(FlagCategory category, Flag<T> flag){
         ALL_FLAGS.putIfAbsent(category, new ArrayList<>());

@@ -78,6 +78,7 @@ public class DBPreferences implements ISettings {
     public final OptionSetting<?, EnumBlendMode> defaultBlendMode = register(createOptionSetting(DBPreferences.class, EnumBlendMode.class, CATEGORY_GENERAL, "defaultBlendMode", FXCollections.observableArrayList(EnumBlendMode.values()), EnumBlendMode.NORMAL));
     public final OptionSetting<?, ExportTask.Mode> quickExportMode = register(createOptionSetting(DBPreferences.class, ExportTask.Mode.class, CATEGORY_GENERAL, "defaultExportMode", FXCollections.observableArrayList(ExportTask.Mode.values()), ExportTask.Mode.PER_DRAWING));
     public final StringSetting<?> quickExportHandler = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportHandler", "svg_default"));
+    public final BooleanSetting<?> autoRunPFM = register(createBooleanSetting(DBPreferences.class, CATEGORY_GENERAL, "autoRunPFM", true));
 
     ///////////////////////////////////////////////
 

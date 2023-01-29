@@ -73,11 +73,28 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         slider.setMax(safeMaxValue.doubleValue());
         slider.setValue(value.getValue().doubleValue());
 
-        //bindings
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> setValue(fromNumber(newValue)));
+        double[] initialValue = new double[1];
 
+        //bindings
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            setValue(fromNumber(newValue));
+        });
+        slider.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
+            setValueChanging(newValue);
+            if(!oldValue && newValue){
+                initialValue[0] = slider.getValue();
+            }
+            if(!newValue && oldValue){
+                // TODO FIXME, this is a hack to make sure the change is sent, but we shouldn't have to do this?
+                double finalValue = slider.getValue();
+                setValue(fromNumber(initialValue[0]));
+                setValue(fromNumber(finalValue));
+            }
+        });
         value.addListener((observable, oldValue, newValue) -> {
-            slider.setValue(newValue.doubleValue());
+            //if(!slider.isValueChanging()){
+                slider.setValue(newValue.doubleValue());
+            //}
         });
 
         if(label){

@@ -1,13 +1,17 @@
 package drawingbot.pfm;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IProperties;
+import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumDistributionType;
+import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
@@ -89,35 +93,54 @@ public class PFMSettings implements IProperties {
 
     public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(factory, settings, nextDistributionType);
 
+    public InvalidationListener settingListener = observable -> {
+        if(DrawingBotV3.INSTANCE != null && DrawingBotV3.context().project().pfmSettings.get() == this){
+            // If a slider is being dragged don't send the update yet
+            if(observable instanceof ReadOnlyProperty){
+                ReadOnlyProperty<?> prop = (ReadOnlyProperty<?>) observable;
+                if(prop.getBean() instanceof GenericSetting && ((GenericSetting<?, ?>)prop.getBean()).isValueChanging()){
+                    return;
+                }
+            }
+            DrawingBotV3.INSTANCE.onPFMSettingsChanged();
+        }
+    };
+
     {
-        treeRoot.set(generatePFMSettingTree(settings.get()));
+        treeRoot.set(generateGenericSettingsTree(settings.get()));
         settings.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
                 treeRoot.set(null);
                 removeBindings(newValue);
             }
             if(newValue != null){
-                treeRoot.set(generatePFMSettingTree(newValue));
+                treeRoot.set(generateGenericSettingsTree(newValue));
                 addBindings(newValue);
             }
         });
+        factory.addListener((observable, oldValue, newValue) -> {
+            settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
+        });
     }
 
-    public static void addBindings(ObservableList<GenericSetting<?, ?>> settings){
+
+    public void addBindings(ObservableList<GenericSetting<?, ?>> settings){
         for(GenericSetting<?, ?> setting : settings){
             if(setting.getBindingFactory() != null){
                 setting.getBindingFactory().accept(setting, settings);
             }
+            setting.addListener(settingListener);
         }
     }
 
-    public static void removeBindings(ObservableList<GenericSetting<?, ?>> settings){
+    public void removeBindings(ObservableList<GenericSetting<?, ?>> settings){
         for(GenericSetting<?, ?> setting : settings){
             setting.removeBindings();
+            setting.removeListener(settingListener);
         }
     }
 
-    public TreeItem<GenericSetting<?, ?>> generatePFMSettingTree(ObservableList<GenericSetting<?, ?>> settings){
+    public static TreeItem<GenericSetting<?, ?>> generateGenericSettingsTree(ObservableList<GenericSetting<?, ?>> settings){
         TreeItem<GenericSetting<?, ?>> root = new TreeItem<>(new CategorySetting<>(Object.class, "Root", "Root", true));
         if(settings != null){
             Map<String, List<GenericSetting<?, ?>>> result = settings.stream().collect(Collectors.groupingBy(GenericSetting::getCategory));

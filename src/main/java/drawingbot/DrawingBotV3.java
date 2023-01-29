@@ -199,6 +199,9 @@ public class DrawingBotV3 {
             project().openImage.get().invalidate();
         }
     }
+
+    public void onPFMSettingsChanged(){
+        globalFlags.setFlag(Flags.PFM_SETTINGS_UPDATE, true);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,6 +257,11 @@ public class DrawingBotV3 {
             });
         }
 
+        if(DBPreferences.INSTANCE.autoRunPFM.get() && globalFlags.anyMatch(Flags.PFM_SETTINGS_UPDATE)){
+            globalFlags.setFlag(Flags.PFM_SETTINGS_UPDATE, false);
+            resetTaskService();
+            startPlotting(context());
+        }
     }
 
 

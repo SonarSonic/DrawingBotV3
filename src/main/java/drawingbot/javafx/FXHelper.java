@@ -676,12 +676,20 @@ public class FXHelper {
                 gridPane.addRow(i, label, node);
             }else{
                 TextField field = setting.getEditableTextField();
-                field.setOnAction(e -> {
+                Runnable update = () -> {
                     setting.setValueFromString(field.getText());
                     if(onChanged != null) {
                         onChanged.accept(setting);
                     }
+                };
+                field.setOnAction(e -> update.run());
+                field.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                    //set the value when the text field is de-focused
+                    if(oldValue && !newValue) {
+                        update.run();
+                    }
                 });
+
                 if(node != field){
                     gridPane.addRow(i, label, node, field);
                 }else{
@@ -816,5 +824,4 @@ public class FXHelper {
             }
         }
     }
-
 }

@@ -318,10 +318,6 @@ public class ObservableProject implements ITaskManager {
             }
         };
 
-        pfmSettings.get().factory.addListener((observable, oldValue, newValue) -> {
-            pfmSettings.get().settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
-        });
-
 
         activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));

@@ -86,6 +86,7 @@ public class FXPreferences {
                                     return comboBoxPFM;
                                 }
                             },
+                            new FXPreferences.SettingNode("Auto Run PFM", settings.autoRunPFM),
                             new FXPreferences.SettingNode("Pen Width (mm)", settings.defaultPenWidth),
                             new FXPreferences.SettingNode("Rescaling Mode", settings.defaultRescalingMode),
                             new FXPreferences.SettingNode("Canvas Colour", settings.defaultCanvasColour),
