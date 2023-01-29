@@ -14,7 +14,6 @@
     -fx-fill: linear-gradient(to right, transparent, rgba(0,147,255,0.3));
 }
 
-
 .drag-receiver-left {
      -fx-fill: transparent;
 }

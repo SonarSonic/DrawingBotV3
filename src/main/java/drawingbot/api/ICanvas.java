@@ -96,8 +96,9 @@ public interface ICanvas {
     static boolean matchingCanvas(ICanvas canvasA, ICanvas canvasB){
         return Objects.equals(canvasA.getUnits(), canvasB.getUnits())
                 && Objects.equals(canvasA.getCroppingMode(), canvasB.getCroppingMode())
-                && Objects.equals(canvasA.useOriginalSizing(), canvasB.useOriginalSizing())
+                && Objects.equals(canvasA.getClippingMode(), canvasB.getClippingMode())
                 && Objects.equals(canvasA.getRescaleMode(), canvasB.getRescaleMode())
+                && Objects.equals(canvasA.useOriginalSizing(), canvasB.useOriginalSizing())
                 && Objects.equals(canvasA.getPlottingScale(), canvasB.getPlottingScale())
                 && Objects.equals(canvasA.getWidth(), canvasB.getWidth())
                 && Objects.equals(canvasA.getHeight(), canvasB.getHeight())
@@ -105,6 +106,7 @@ public interface ICanvas {
                 && Objects.equals(canvasA.getDrawingHeight(), canvasB.getDrawingHeight())
                 && Objects.equals(canvasA.getDrawingOffsetX(), canvasB.getDrawingOffsetX())
                 && Objects.equals(canvasA.getDrawingOffsetY(), canvasB.getDrawingOffsetY())
+                && Objects.equals(canvasA.getTargetPenWidth(), canvasB.getTargetPenWidth())
                 && Objects.equals(canvasA.getCanvasScale(), canvasB.getCanvasScale());
     }
 

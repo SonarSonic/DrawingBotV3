@@ -32,7 +32,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
                 SimpleBooleanProperty prop = new SimpleBooleanProperty(drawingSets.getValue().activeDrawingSet.get().containsPen(param));
                 prop.addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
-                        drawingSets.getValue().activeDrawingSet.get().addNewPen(getItem());
+                        drawingSets.getValue().activeDrawingSet.get().addNewPen(getItem(), true);
                     } else {
                         drawingSets.getValue().activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
                     }

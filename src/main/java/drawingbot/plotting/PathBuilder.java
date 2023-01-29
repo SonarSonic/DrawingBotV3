@@ -11,11 +11,7 @@ import java.util.function.Consumer;
  */
 public class PathBuilder {
 
-    public GPath path = null;
-    public boolean hasMoveTo = false;
-    public int pathCount = 0;
-
-    public Consumer<IGeometry> consumer = path -> {};
+    public Consumer<IGeometry> consumer = geometry -> {};
 
     public PathBuilder(){}
 
@@ -25,6 +21,21 @@ public class PathBuilder {
 
     public PathBuilder(PlottingTools plottingTools){
         this.consumer = plottingTools::addGeometry;
+    }
+
+    //// PATH BUILDING \\\\
+
+    public GPath path = null;
+    public int pathCount = 0;
+
+    public boolean hasMoveTo = false;
+    private float lastMoveX = -1;
+    private float lastMoveY = -1;
+    private float lastX = -1;
+    private float lastY = -1;
+
+    public boolean hasMoveTo(){
+        return hasMoveTo;
     }
 
     public void startPath(){
@@ -44,18 +55,36 @@ public class PathBuilder {
 
     public GPath endPath(){
         GPath result = path;
-        if(path != null){
+        if(path != null && pathCount != 0){
             consumer.accept(path);
         }
         path = null;
         hasMoveTo = false;
+        pathCount = 0;
         return result;
+    }
+
+    public boolean isContinuation(float x, float y){
+        return lastX == x && lastY == y;
+    }
+
+    private void setLast(float x, float y){
+        lastX = x;
+        lastY = y;
+    }
+
+    private void setLastMoveTo(float x, float y){
+        lastX = x;
+        lastY = y;
     }
 
     public void moveTo(float x, float y) {
         checkPath();
         path.moveTo(x, y);
         hasMoveTo = true;
+        setLastMoveTo(x, y);
+        setLast(x, y);
+        pathCount++;
     }
 
     public void lineTo(float x, float y) {
@@ -65,24 +94,54 @@ public class PathBuilder {
         }
         checkPath();
         path.lineTo(x, y);
+        setLast(x, y);
+        pathCount++;
     }
 
-    public void quadTo(float x1, float y1, float x2, float y2){
+    public void lineTo(float startX, float startY, float endX, float endY) {
+        if(!isContinuation(startX, startY)){
+            endPath();
+            moveTo(startX, startY);
+        }
+        lineTo(endX, endY);
+    }
+
+    public void quadTo(float startX, float startY, float endX, float endY){
         if(!hasMoveTo){
-            moveTo(x1, y1);
+            moveTo(endX, endY);
             return;
         }
         checkPath();
-        path.quadTo(x1, y1, x2, y2);
+        path.quadTo(startX, startY, endX, endY);
+        setLast(endX, endY);
+        pathCount++;
     }
 
-    public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3){
+    public void quadTo(float startX, float startY, float ctrl1X, float ctrl1Y, float endX, float endY) {
+        if(!isContinuation(startX, startY)){
+            endPath();
+            moveTo(startX, startY);
+        }
+        quadTo(ctrl1X, ctrl1Y, endX, endY);
+    }
+
+    public void curveTo(float ctrl1X, float ctrl1Y, float ctrl2X, float ctrl2Y, float endX, float endY){
         if(!hasMoveTo){
-            moveTo(x1, y1);
+            moveTo(endX, endY);
             return;
         }
         checkPath();
-        path.curveTo(x1, y1, x2, y2, x3, y3);
+        path.curveTo(ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, endX, endY);
+        setLast(endX, endY);
+        pathCount++;
+    }
+
+    public void curveTo(float startX, float startY, float ctrl1X, float ctrl1Y, float ctrl2X, float ctrl2Y, float endX, float endY) {
+        if(!isContinuation(startX, startY)){
+            endPath();
+            moveTo(startX, startY);
+        }
+        curveTo(ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, endX, endY);
     }
 
     public void closePath(){
@@ -91,6 +150,10 @@ public class PathBuilder {
         }
         checkPath();
         path.closePath();
+
+        hasMoveTo = false;
+        setLastMoveTo(-1, -1);
+        pathCount++;
     }
 
     //// CATMULL ROM CURVES \\\\\
@@ -203,6 +266,9 @@ public class PathBuilder {
 
     public void endSegments(){
         buildingCurveSegments = false;
+        P0 = null;
+        P1 = null;
+        P2 = null;
     }
 
     public int getCatmullCurvePointCount(){

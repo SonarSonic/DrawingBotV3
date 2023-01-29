@@ -28,7 +28,7 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public void init(){}
 
     public boolean canLoadPreset(GenericPreset<?> preset){
-        return preset.presetType == type;
+        return preset != null && preset.presetType == type;
     }
 
     public String getVersion(){

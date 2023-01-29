@@ -149,26 +149,31 @@
             </VBox>
          </items>
       </SplitPane>
-     <Pane fx:id="paneProgressBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1264.0" VBox.vgrow="ALWAYS">
-        <children>
+      <AnchorPane fx:id="paneProgressBar" maxHeight="30.0" maxWidth="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0">
+         <children>
             <NotificationPane fx:id="notificationPane" prefHeight="200.0" prefWidth="200.0" />
-           <ProgressBar fx:id="progressBarGeneral" layoutY="4.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="1286.0" progress="1.0" />
-           <Label fx:id="labelOpenDestinationFolder" layoutX="995.0" layoutY="8.0" prefHeight="17.0" prefWidth="154.0" text="Open Destination Folder">
-              <font>
-                 <Font name="System Bold" size="12.0" />
-              </font>
-           </Label>
-           <Label fx:id="labelCancelExport" layoutX="1184.0" layoutY="8.0" prefHeight="17.0" prefWidth="88.0" text="Cancel Export">
-              <font>
-                 <Font name="System Bold" size="12.0" />
-              </font>
-           </Label>
-           <Label fx:id="progressBarLabel" layoutX="14.0" layoutY="7.0" text="Label">
+           <ProgressBar fx:id="progressBarGeneral" progress="1.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0" />
+           <Label fx:id="progressBarLabel" text="Label" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="5.0">
               <font>
                  <Font name="System Bold" size="13.0" />
               </font>
            </Label>
-        </children>
-     </Pane>
+            <HBox alignment="CENTER_LEFT" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="5.0">
+               <children>
+                  <ButtonBar />
+                 <Label fx:id="labelOpenDestinationFolder" prefHeight="17.0" prefWidth="154.0" text="Open Destination Folder" HBox.hgrow="ALWAYS">
+                    <font>
+                       <Font name="System Bold" size="12.0" />
+                    </font>
+                 </Label>
+                 <Label fx:id="labelCancelExport" prefHeight="17.0" prefWidth="88.0" text="Cancel Export" HBox.hgrow="ALWAYS">
+                    <font>
+                       <Font name="System Bold" size="12.0" />
+                    </font>
+                 </Label>
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
   </children>
 </VBox>

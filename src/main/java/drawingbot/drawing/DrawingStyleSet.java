@@ -11,4 +11,9 @@ public class DrawingStyleSet {
     public DrawingStyleSet(List<DrawingStyle> styles) {
         this.styles = styles;
     }
+
+    @Override
+    public String toString() {
+        return styles.toString();
+    }
 }

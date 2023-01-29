@@ -4,9 +4,10 @@ import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
 import drawingbot.files.json.PresetType;
+import drawingbot.utils.INamedSetting;
 
 @JsonAdapter(JsonAdapterGenericPreset.class)
-public class GenericPreset<O extends IJsonData> {
+public class GenericPreset<O extends IJsonData> implements INamedSetting {
 
     public PresetType presetType; //preset type, which defines the PresetManager and IPresetData types
     public String version; //the major version of this preset

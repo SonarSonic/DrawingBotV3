@@ -119,6 +119,10 @@ public class PFMTaskImage extends PFMTask {
         return 0;
     }
 
+    public int getBestMatchedPen(int argb){
+        return 0;
+    }
+
     public File getImageFile(){
         return imageData.getSourceFile();
     }

@@ -409,7 +409,7 @@ public class FXPreferences {
         textFieldSearchBar.textProperty().addListener((observable, oldValue, newValue) -> {
             //rebuild the tree when the search changes
             treeViewCategories.setRoot(build(root));
-            treeViewCategories.getSelectionModel().select(1);
+            treeViewCategories.getSelectionModel().select(0);
         });
 
         treeViewCategories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -429,12 +429,12 @@ public class FXPreferences {
                         }
                         content = builder.gridPane;
                     }
-
                 }
                 scrollPaneContent.setContent(content);
                 labelHeading.setText(newValue.getValue().getName());
             }
         });
+        treeViewCategories.getSelectionModel().select(0);
     }
 
     public TreeItem<TreeNode> build(TreeNode rootNode){

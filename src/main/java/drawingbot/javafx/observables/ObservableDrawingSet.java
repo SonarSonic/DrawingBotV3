@@ -72,7 +72,11 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         }
     }
 
-    public ObservableDrawingPen addNewPen(IDrawingPen pen){
+    public ObservableDrawingPen addNewPen(IDrawingPen pen, boolean copy){
+        if(!copy && pen instanceof ObservableDrawingPen){
+            pens.add((ObservableDrawingPen) pen);
+            return (ObservableDrawingPen) pen;
+        }
         ObservableDrawingPen newPen = new ObservableDrawingPen(pens.size(), pen);
         pens.add(newPen);
         return newPen;

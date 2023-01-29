@@ -431,6 +431,36 @@ public abstract class GenericSetting<C, V> implements Observable {
         return this;
     }
 
+    public GenericSetting<C, V> createDisableObjectBinding(String targetKey, Object value){
+        setBindingFactory((setting, settings) -> {
+            GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
+            if(disablingSetting != null){
+                setting.disabledProperty().bind(Bindings.createBooleanBinding(() -> Objects.equals(disablingSetting.getValue(), value), disablingSetting.valueProperty()));
+            }
+        });
+        return this;
+    }
+
+    public GenericSetting<C, V> createDisableObjectBindingNot(String targetKey, Object value){
+        setBindingFactory((setting, settings) -> {
+            GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
+            if(disablingSetting != null){
+                setting.disabledProperty().bind(Bindings.createBooleanBinding(() -> !Objects.equals(disablingSetting.getValue(), value), disablingSetting.valueProperty()));
+            }
+        });
+        return this;
+    }
+
+    public GenericSetting<C, V> createBindingFactory(String targetKey, Object value, BiConsumer<GenericSetting<C, V>, GenericSetting<?, ?>> bindingFactory){
+        setBindingFactory((setting, settings) -> {
+            GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
+            if(disablingSetting != null){
+                bindingFactory.accept(this, disablingSetting);
+            }
+        });
+        return this;
+    }
+
     public void removeBindings(){
         disabledProperty().unbind();
         valueProperty().unbind();
@@ -942,7 +972,6 @@ public abstract class GenericSetting<C, V> implements Observable {
     public static <C> ColourSetting<C> createColourSetting(Class<C> clazz, String category, String settingName, Color defaultValue){
         return new ColourSetting<>(clazz, category, settingName, defaultValue);
     }
-
 
     public static <C, V> ListSetting<C, V> createListSetting(Class<C> clazz, Class<V> objectType, String settingName, ArrayList<V> defaultValue, Function<C, ObservableList<V>> supplier){
         return createListSetting(clazz, objectType, Register.CATEGORY_UNIQUE, settingName, defaultValue, supplier);

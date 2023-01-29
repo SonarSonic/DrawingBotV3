@@ -852,7 +852,6 @@ public class FXController extends AbstractFXController {
     public Label labelOpenDestinationFolder = null;
 
     public void initProgressBar(){
-        progressBarGeneral.prefWidthProperty().bind(paneProgressBar.widthProperty());
         progressBarLabel.setText("");
 
         progressBarGeneral.progressProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.progressProperty);

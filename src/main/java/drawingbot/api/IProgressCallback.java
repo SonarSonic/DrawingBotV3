@@ -2,10 +2,12 @@ package drawingbot.api;
 
 public interface IProgressCallback {
 
-    void updateTitle(String title);
+    IProgressCallback NULL = new IProgressCallback() {};
 
-    void updateMessage(String message);
+    default void updateTitle(String title){}
 
-    void updateProgress(double progress, double max);
+    default void updateMessage(String message){}
+
+    default void updateProgress(double progress, double max){}
 
 }

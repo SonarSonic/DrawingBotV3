@@ -15,7 +15,7 @@ public enum EnumDistributionOrder {
     public final Comparator<ObservableDrawingPen> comparator;
 
     EnumDistributionOrder(Comparator<ObservableDrawingPen> comparator){
-        this.comparator = comparator;
+        this.comparator = (o1, o2) -> o1.shouldForceOverlap() == o2.shouldForceOverlap() ? comparator.compare(o1, o2) :  o1.shouldForceOverlap() ? -1 : 1;
     }
 
     @Override

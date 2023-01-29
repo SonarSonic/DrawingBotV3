@@ -18,9 +18,15 @@ public class ConfigFileHandler {
         }
 
         //create the thumbnail directory
-        File userThumbs = new File(FileUtils.getUserThumbnailDirectory());
-        if(!userThumbs.exists() && !userThumbs.mkdirs()){
+        File userThumbsDir = new File(FileUtils.getUserThumbnailDirectory());
+        if(!userThumbsDir.exists() && !userThumbsDir.mkdirs()){
             DrawingBotV3.logger.severe("Failed to create User Thumbnail Directory");
+        }
+
+        //create the fonts directory
+        File userFontDir = new File(FileUtils.getUserFontsDirectory());
+        if(!userFontDir.exists() && !userFontDir.mkdirs()){
+            DrawingBotV3.logger.severe("Failed to create User Fonts Directory");
         }
 
         //load the JSON config files

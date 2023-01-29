@@ -100,6 +100,10 @@ public class FileUtils {
         return getUserDataDirectory() + "thumbs" + File.separator;
     }
 
+    public static String getUserFontsDirectory() {
+        return getUserDataDirectory() + "fonts" + File.separator;
+    }
+
     public static PrintWriter createWriter(File file) {
         if (file == null) {
             throw new RuntimeException("File passed to createWriter() was null");

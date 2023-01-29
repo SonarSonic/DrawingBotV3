@@ -198,6 +198,8 @@ public interface IPlottingTools {
 
     int getBestPen(int x, int y);
 
+    int getBestMatchedPen(int argb);
+
     ////////////////////////////////////////////////////////
 
     //// GROUP TOOLS \\\\

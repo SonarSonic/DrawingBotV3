@@ -1,9 +1,11 @@
 package drawingbot.geom;
 
 import drawingbot.geom.shapes.*;
+import drawingbot.plotting.PathBuilder;
 import drawingbot.utils.Utils;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;

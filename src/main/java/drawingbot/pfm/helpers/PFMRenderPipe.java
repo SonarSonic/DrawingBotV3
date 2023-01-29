@@ -24,6 +24,7 @@ public class PFMRenderPipe {
     }
 
     public BasicStroke getDefaultStroke(float lineWidth){
+        lineWidth = Math.abs(lineWidth);
         if(defaultStroke == null || defaultStroke.getLineWidth() != lineWidth){
             defaultStroke = new BasicStroke(lineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
         }

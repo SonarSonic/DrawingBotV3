@@ -116,7 +116,11 @@ public class Register implements IPlugin {
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
+    public DrawingPen RED_DRAWING_PEN;
+    public DrawingPen GREEN_DRAWING_PEN;
+    public DrawingPen BLUE_DRAWING_PEN;
     public DrawingSet BLACK_DRAWING_SET;
+    public ObservableDrawingSet EXPORT_PATH_DRAWING_SET;
 
     @Override
     public String getPluginName() {
@@ -266,8 +270,13 @@ public class Register implements IPlugin {
     @Override
     public void registerDrawingTools(){
         INVISIBLE_DRAWING_PEN = new ObservableDrawingPen(-1, new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Invisible Pen", ImageTools.getARGB(0, 0, 0, 0)));
-        BLACK_DRAWING_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Black Pen", ImageTools.getARGB(255, 0, 0, 0));
+        BLACK_DRAWING_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Black", ImageTools.getARGB(255, 0, 0, 0));
+        RED_DRAWING_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Red", ImageTools.getARGB(255, 255, 0, 0));
+        GREEN_DRAWING_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Green", ImageTools.getARGB(255, 0, 255, 0));
+        BLUE_DRAWING_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Blue", ImageTools.getARGB(255, 0, 0, 255));
         BLACK_DRAWING_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL, "Black Set", List.of(BLACK_DRAWING_PEN));
+        EXPORT_PATH_DRAWING_SET = new ObservableDrawingSet(new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL, "Export Path Set", List.of(RED_DRAWING_PEN, GREEN_DRAWING_PEN, BLUE_DRAWING_PEN)));
+        EXPORT_PATH_DRAWING_SET.pens.forEach(pen -> pen.forceOverlap.set(true));
     }
 
     @Override

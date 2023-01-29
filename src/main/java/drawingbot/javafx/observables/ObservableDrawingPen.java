@@ -24,6 +24,7 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     public final SimpleFloatProperty strokeSize = new SimpleFloatProperty(); //stroke size
     public final transient SimpleStringProperty currentPercentage = new SimpleStringProperty(); //percentage
     public final transient SimpleIntegerProperty currentGeometries = new SimpleIntegerProperty(); //geometries
+    public final SimpleBooleanProperty forceOverlap = new SimpleBooleanProperty(false);
 
     public ObservableDrawingPen(){}
 
@@ -48,6 +49,11 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
         this.javaFXColour.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtColor = null;});
         this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
         this.strokeSize.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtStroke = null;});
+        this.forceOverlap.addListener((observable, oldValue, newValue) -> {
+            if(DrawingBotV3.INSTANCE != null) {
+                DrawingBotV3.INSTANCE.onDrawingPenChanged();
+            }
+        });
     }
 
     @Override
@@ -88,6 +94,13 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     @Override
     public String toString(){
         return getName();
+    }
+
+    /**
+     * If when rendering in a GlobalRender order the pen should overlap all others, used for Export Drawing Pens.
+     */
+    public boolean shouldForceOverlap(){
+        return forceOverlap.get();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

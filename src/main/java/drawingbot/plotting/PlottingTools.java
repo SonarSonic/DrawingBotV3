@@ -523,6 +523,14 @@ public class PlottingTools implements IPlottingTools {
         return ((PFMTaskImage) pfmTask).getBestPen(x, y);
     }
 
+    @Override
+    public int getBestMatchedPen(int argb) {
+        if(!(pfmTask instanceof PFMTaskImage)){
+            return 0;
+        }
+        return ((PFMTaskImage) pfmTask).getBestMatchedPen(argb);
+    }
+
     ////////////////////////////////////////////////////////
 
     //// GROUP TOOLS \\\\
