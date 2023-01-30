@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.*;
-import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.json.projects.PresetProjectSettings;

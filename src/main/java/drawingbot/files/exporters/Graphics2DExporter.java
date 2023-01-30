@@ -1,6 +1,5 @@
 package drawingbot.files.exporters;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.json.projects.DBTaskContext;

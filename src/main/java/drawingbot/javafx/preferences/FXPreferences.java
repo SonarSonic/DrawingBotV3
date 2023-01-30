@@ -244,7 +244,7 @@ public class FXPreferences {
                 }
         ));
         MasterRegistry.INSTANCE.registerPreferencesPage(node("Export Settings",
-                page("Path Optimisation",
+                page("General",
                         new SettingNode("Show Exported Drawing", settings.showExportedDrawing).setTitleStyling().setHideFromTree(true)
                 ),
                 page("Path Optimisation",

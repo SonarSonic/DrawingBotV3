@@ -121,6 +121,8 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Json Loader: Load JSON Files");
         JsonLoaderManager.loadJSONFiles();
 
+        MasterRegistry.INSTANCE.registerMissingDefaultPFMPresets();
+
         if(Utils.getOS().isMac()){
             //JavaFX LCD Font Smoothing looks good on windows, but bad on MacOS, so disable it.
             System.setProperty("prism.lcdtext", "false");

@@ -9,7 +9,7 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Angular Velocity": "1.5",
+          "Angular Velocity": "20",
           "Max Radius": "20.0",
           "Min Velocity": "3.0",
           "Ignore White": "false",
@@ -23,7 +23,7 @@
           "Edge Retention": "true",
           "Stipple Max Radius": "25.0",
           "Azimuth Angle Max": "0.0",
-          "Curve Tension": "0.5",
+          "Curve Tension": "1.0",
           "Max Velocity": "6.0",
           "Random Seed": "0"
         }
@@ -40,7 +40,7 @@
           "Plotting Resolution": "1.0",
           "Stipple Max Radius": "10.0",
           "Ignore White": "false",
-          "Stipple Min Radius": "0.5",
+          "Stipple Min Radius": "0.75",
           "Random Seed": "0"
         }
       }
@@ -54,9 +54,9 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Stipple Max Radius": "15.0",
+          "Stipple Max Radius": "20.0",
           "Ignore White": "false",
-          "Stipple Min Radius": "1",
+          "Stipple Min Radius": "0.75",
           "Triangulate Corners": "false",
           "Random Seed": "0"
         }
@@ -110,7 +110,7 @@
           "Shape Type": "Circle",
           "Fill Size": "100.0",
           "Min Rotation": "0.0",
-          "Stipple Min Radius": "1.0",
+          "Stipple Min Radius": "0.5",
           "Random Seed": "0",
           "Max Rotation": "360.0"
         }
@@ -155,7 +155,7 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Angular Velocity": "1.0",
+          "Angular Velocity": "20.0",
           "Max Radius": "150.0",
           "Min Velocity": "0.15",
           "Ignore White": "false",
@@ -184,7 +184,7 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Angular Velocity": "1.0",
+          "Angular Velocity": "20.0",
           "Max Radius": "98.0",
           "Min Velocity": "0.11",
           "Ignore White": "false",
@@ -213,7 +213,7 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Angular Velocity": "1.0",
+          "Angular Velocity": "20.0",
           "Max Radius": "64.0",
           "Min Velocity": "0.1",
           "Ignore White": "false",
@@ -242,7 +242,7 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Angular Velocity": "1.0",
+          "Angular Velocity": "20.0",
           "Max Radius": "32.0",
           "Min Velocity": "0.1",
           "Ignore White": "false",
@@ -273,7 +273,7 @@
           "Plotting Resolution": "1.0",
           "Stipple Max Radius": "18.0",
           "Ignore White": "false",
-          "Stipple Min Radius": "0.75",
+          "Stipple Min Radius": "0.5",
           "Random Seed": "0"
         }
       }
@@ -291,6 +291,197 @@
           "Ignore White": "false",
           "Merge TSP Paths": "true",
           "Stipple Min Radius": "0.5",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Shapes",
+      "presetName": "Overlapping Squares",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "20.0",
+          "Ignore White": "false",
+          "Shape Type": "Square",
+          "Tone": "0.0",
+          "Fill Size": "150.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "0.5",
+          "Random Seed": "0",
+          "Max Rotation": "0.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Shapes",
+      "presetName": "Overlapping Circles",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "20.0",
+          "Ignore White": "false",
+          "Shape Type": "Circle",
+          "Tone": "0.0",
+          "Fill Size": "150.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "0.5",
+          "Random Seed": "0",
+          "Max Rotation": "0.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Letters",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Rotation Style": "Aligned",
+          "Ignore White": "false",
+          "Brightness": "1.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "0.5",
+          "Contrast": "1.25",
+          "SVG Font": "EMSCasualHand",
+          "Font": "Arial",
+          "Stipple Max Radius": "20.0",
+          "RegEx Filter": "",
+          "Style": "Plain",
+          "Display Style": "Random",
+          "Random Seed": "0",
+          "Text Filter": "",
+          "Max Rotation": "360.0",
+          "Use SVG Fonts": "true"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Dashes",
+      "presetName": "Vertical Lines",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "12.0",
+          "Ignore White": "false",
+          "Brightness": "1.0",
+          "Fill Size": "500.0",
+          "Min Rotation": "90.0",
+          "Stipple Min Radius": "0.5",
+          "Contrast": "1.25",
+          "Random Seed": "0",
+          "Align Rotation": "false",
+          "Max Rotation": "90.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Dashes",
+      "presetName": "Horizontal Lines",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "12.0",
+          "Ignore White": "false",
+          "Brightness": "1.0",
+          "Fill Size": "500.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "0.5",
+          "Contrast": "1.25",
+          "Random Seed": "0",
+          "Align Rotation": "false",
+          "Max Rotation": "0.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Letters",
+      "presetName": "Messy Alphabet",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Ignore White": "false",
+          "Brightness": "1.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "0.5",
+          "Contrast": "1.25",
+          "SVG Font": "EMSTech",
+          "Font": "Arial",
+          "Stipple Max Radius": "20.0",
+          "RegEx Filter": "[A-Z]",
+          "Fill Size": "200.0",
+          "Style": "Plain",
+          "Display Style": "Random",
+          "Random Seed": "0",
+          "Text Filter": "",
+          "Align Rotation": "true",
+          "Max Rotation": "360.0",
+          "Use SVG Fonts": "true"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Adaptive Dashes",
+      "presetName": "Needles",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Stipple Max Radius": "6.0",
+          "Ignore White": "false",
+          "Brightness": "1.0",
+          "Fill Size": "300.0",
+          "Min Rotation": "0.0",
+          "Stipple Min Radius": "1.0",
+          "Contrast": "1.25",
+          "Random Seed": "0",
+          "Align Rotation": "true",
+          "Max Rotation": "360.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Hatch Circular Scribbles",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Angular Velocity": "20.0",
+          "Min Velocity": "0.1",
+          "Edge Threshold": "250.0",
+          "Crosshatch": "false",
+          "Azimuth Angle Min": "0.0",
+          "Polar Angle Min": "0.0",
+          "Line Spacing": "7.0",
+          "Polar Angle Max": "0.0",
+          "Edge Retention": "false",
+          "Angle": "125.0",
+          "Azimuth Angle Max": "0.0",
+          "Curve Tension": "0.5",
+          "Max Velocity": "1.0",
           "Random Seed": "0"
         }
       }
