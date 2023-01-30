@@ -48,7 +48,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
                     jfr.graphicsFX.translate(renderedTask.drawing.getCanvas().getScaledDrawingOffsetX(), renderedTask.drawing.getCanvas().getScaledDrawingOffsetY());
 
-                    RenderUtils.renderDrawingFX(jfr.graphicsFX, iterator, getGeometryFilter(), jfr.getVertexRenderLimit());
+                    RenderUtils.renderDrawingFX(jfr.graphicsFX, iterator, getGeometryFilter(), jfr.getVertexRenderLimit(), jfr.getRenderTimeout());
                 }
             }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED)){
                 jfr.clearCanvas();
@@ -74,7 +74,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                 jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
                 jfr.graphicsFX.setGlobalBlendMode(blendMode.javaFXVersion);
 
-                RenderUtils.renderDrawingFX(jfr.graphicsFX, drawingIterator, getGeometryFilter(), jfr.getVertexRenderLimit());
+                RenderUtils.renderDrawingFX(jfr.graphicsFX, drawingIterator, getGeometryFilter(), jfr.getVertexRenderLimit(), jfr.getRenderTimeout());
 
                 DrawingBotV3.INSTANCE.updateLocalProgress(drawingIterator.getCurrentGeometryProgress());
             }

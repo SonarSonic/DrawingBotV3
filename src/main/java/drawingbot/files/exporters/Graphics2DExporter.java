@@ -26,7 +26,7 @@ public class Graphics2DExporter {
 
     public static void drawGeometries(ExportTask exportTask, Graphics2D graphics, IGeometryFilter geometryFilter){
         exportTask.exportIterator.reset();
-        RenderUtils.renderDrawing(graphics, exportTask.exportIterator, geometryFilter, 0, (renderer, geometry, drawing, group, pen) -> {
+        RenderUtils.renderDrawing(graphics, exportTask.exportIterator, geometryFilter, 0, 0, (renderer, geometry, drawing, group, pen) -> {
             RenderUtils.renderGeometryAWT(graphics, geometry, drawing, group, pen);
             exportTask.onGeometryExported();
         });

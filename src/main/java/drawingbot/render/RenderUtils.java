@@ -17,12 +17,12 @@ public class RenderUtils {
         void renderGeometry(R renderer, IGeometry geometry, PlottedDrawing drawing, PlottedGroup group, ObservableDrawingPen pen);
     }
 
-    public static void renderDrawingFX(GraphicsContext graphics, AbstractGeometryIterator geometryIterator, IGeometryFilter geometryFilter, int vertexLimit) {
-        renderDrawing(graphics, geometryIterator, geometryFilter, vertexLimit, RenderUtils::renderGeometryFX);
+    public static void renderDrawingFX(GraphicsContext graphics, AbstractGeometryIterator geometryIterator, IGeometryFilter geometryFilter, int vertexLimit, int timeout) {
+        renderDrawing(graphics, geometryIterator, geometryFilter, vertexLimit, timeout, RenderUtils::renderGeometryFX);
     }
 
-    public static void renderDrawingAWT(Graphics2D graphics, AbstractGeometryIterator geometryIterator, IGeometryFilter geometryFilter, int vertexLimit) {
-        renderDrawing(graphics, geometryIterator, geometryFilter, vertexLimit, RenderUtils::renderGeometryAWT);
+    public static void renderDrawingAWT(Graphics2D graphics, AbstractGeometryIterator geometryIterator, IGeometryFilter geometryFilter, int vertexLimit, int timeout) {
+        renderDrawing(graphics, geometryIterator, geometryFilter, vertexLimit, timeout, RenderUtils::renderGeometryAWT);
     }
 
     /**
@@ -32,13 +32,19 @@ public class RenderUtils {
      * @param vertexLimit a vertex limit of 0 will render every vertex
      * @param renderFunction the render function, to pass the geometry for JavaFX, AWT, OpenGL for rendering
      */
-    public static <R> void renderDrawing(R renderer, AbstractGeometryIterator geometryIterator, IGeometryFilter geometryFilter, int vertexLimit, IRenderFunction<R> renderFunction) {
+    public static <R> void renderDrawing(R renderer, AbstractGeometryIterator geometryIterator, IGeometryFilter geometryFilter, int vertexLimit, int timeout, IRenderFunction<R> renderFunction) {
         geometryIterator.setGeometryFilter(geometryFilter);
         geometryIterator.setVertexLimit(vertexLimit);
+
+        long startTime = System.currentTimeMillis();
+
         while(geometryIterator.hasNext()){
             IGeometry next = geometryIterator.next();
             if(geometryIterator.currentFilterResult){
                 renderFunction.renderGeometry(renderer, next, geometryIterator.currentDrawing, geometryIterator.currentGroup, geometryIterator.currentPen);
+            }
+            if(timeout > 0 && System.currentTimeMillis() - startTime > timeout){
+                break;
             }
         }
     }

@@ -26,8 +26,12 @@ public class JavaFXRenderer implements IRenderer {
 
     ///
 
-    public static int vertexRenderLimitNormal = 20000;
+    public static int vertexRenderLimitNormal = 0; //20000;
     public static int vertexRenderLimitBlendMode = 5000;
+
+    public static int vertexRenderTimeOutNormal = (int)((1000F/60F)/4F);
+    public static int vertexRenderTimeOutBlendMode = 0;
+
     public static int defaultMinTextureSize = 2048;
     public static int defaultMaxTextureSize = 4096;
 
@@ -211,6 +215,10 @@ public class JavaFXRenderer implements IRenderer {
             return DBPreferences.INSTANCE.maxTextureSize.get();
         }
         return defaultMaxTextureSize;
+    }
+
+    public int getRenderTimeout(){
+        return graphicsFX.getGlobalBlendMode() == BlendMode.SRC_OVER ? vertexRenderTimeOutNormal : vertexRenderTimeOutBlendMode;
     }
 
     public int getVertexRenderLimit(){
