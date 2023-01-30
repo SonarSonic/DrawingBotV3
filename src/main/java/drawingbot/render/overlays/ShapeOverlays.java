@@ -2,17 +2,19 @@ package drawingbot.render.overlays;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
+import drawingbot.geom.shapes.GPath;
 import drawingbot.geom.snapping.ISnappingGuide;
 import drawingbot.geom.snapping.RectangleSnappingGuide;
+import drawingbot.javafx.JFXAWTUtils;
 import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.render.shapes.TransformModes;
 import drawingbot.utils.Utils;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -21,17 +23,13 @@ import javafx.scene.Node;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.SVGPath;
-import javafx.scene.shape.Shape;
+import javafx.scene.shape.*;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.TransformChangedEvent;
+import org.fxmisc.easybind.EasyBind;
 
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 public class ShapeOverlays extends AbstractOverlay{
@@ -40,6 +38,7 @@ public class ShapeOverlays extends AbstractOverlay{
 
     public static final String SELECTION_BOUNDING_BOX_STYLE_CLASS = "selection-bounding-box";
     public static final String SELECTION_TRANSFORM_HANDLE_STYLE_CLASS = "selection-resize-handle";
+    public static final String SELECTION_CLOSE_HANDLE_STYLE_CLASS = "selection-close-handle";
 
     /**
      * The global transform should be applied to any node which should be relative to the canvas and is within the overlay anchor pane
@@ -49,8 +48,10 @@ public class ShapeOverlays extends AbstractOverlay{
     {
         globalTransform.setOnTransformChanged(this::onGlobalTransformChanged);
     }
+    public final SimpleDoubleProperty relativeStrokeSize = new SimpleDoubleProperty(1D);
 
     public AnchorPane editOverlaysPane;
+    public AnchorPane vertexHandlesPane;
     public Rectangle boundingBox;
 
     public final SimpleBooleanProperty updatingBounds = new SimpleBooleanProperty();
@@ -74,6 +75,14 @@ public class ShapeOverlays extends AbstractOverlay{
     public final RectangleSnappingGuide drawingSnappingGuide = new RectangleSnappingGuide(0,0,0,0);
     public final RectangleSnappingGuide pageSnappingGuide = new RectangleSnappingGuide(0,0,0,0);
 
+    public final SimpleObjectProperty<ToolMode> toolMode = new SimpleObjectProperty<>(ToolMode.SELECT);
+
+    public enum ToolMode {
+        SELECT,
+        EDIT,
+        DRAW_BEZIERS;
+    }
+
     @Override
     public void init() {
         setActive(true);
@@ -86,27 +95,33 @@ public class ShapeOverlays extends AbstractOverlay{
         editOverlaysPane.setPickOnBounds(false);
         editOverlaysPane.setManaged(false);
 
+        vertexHandlesPane = new AnchorPane();
+        vertexHandlesPane.setPickOnBounds(false);
+        vertexHandlesPane.setManaged(false);
+        vertexHandlesPane.visibleProperty().bind(toolMode.isNotEqualTo(ToolMode.SELECT));
+
         boundingBox = new Rectangle(0, 0, 400, 400);
         boundingBox.getStyleClass().add(SELECTION_BOUNDING_BOX_STYLE_CLASS);
         boundingBox.setManaged(false);
         boundingBox.setPickOnBounds(false);
         boundingBox.setOnMousePressed(e -> {
             if(e.isPrimaryButtonDown()) {
-                onHandlePressed(TransformModes.MOVE, e);
+                onResizeHandlePressed(TransformModes.MOVE, e);
             }
         });
         boundingBox.setOnMouseDragged(e -> {
             if(e.isPrimaryButtonDown()) {
-                onHandleDragged(TransformModes.MOVE, e);
+                onResizeHandleDragged(TransformModes.MOVE, e);
             }
         });
+        boundingBox.visibleProperty().bind(toolMode.isNotEqualTo(ToolMode.DRAW_BEZIERS));
 
         drawingBoundingBoxX.addListener((observable, oldValue, newValue) -> {
             if(!updatingBounds.get()){
                 double moveX = newValue.doubleValue() - oldValue.doubleValue();
                 JFXShapeManager.INSTANCE.transformSelected(AffineTransform.getTranslateInstance(moveX, 0));
                 JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
-                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+                JFXShapeManager.INSTANCE.activeShapeList.get().getSelectionList().forEach(JFXShape::finishTransform);
             }
         });
 
@@ -115,7 +130,7 @@ public class ShapeOverlays extends AbstractOverlay{
                 double moveY = newValue.doubleValue() - oldValue.doubleValue();
                 JFXShapeManager.INSTANCE.transformSelected(AffineTransform.getTranslateInstance(0, moveY));
                 JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
-                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+                JFXShapeManager.INSTANCE.activeShapeList.get().getSelectionList().forEach(JFXShape::finishTransform);
             }
         });
 
@@ -130,7 +145,7 @@ public class ShapeOverlays extends AbstractOverlay{
 
                 JFXShapeManager.INSTANCE.transformSelected(transform);
                 JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
-                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+                JFXShapeManager.INSTANCE.getSelectedShapes().forEach(JFXShape::finishTransform);
             }
         });
 
@@ -145,12 +160,12 @@ public class ShapeOverlays extends AbstractOverlay{
 
                 JFXShapeManager.INSTANCE.transformSelected(transform);
                 JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
-                JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+                JFXShapeManager.INSTANCE.getSelectedShapes().forEach(JFXShape::finishTransform);
             }
         });
 
 
-        boundingBox.setOnMouseReleased(e -> onHandleReleased(TransformModes.MOVE, e));
+        boundingBox.setOnMouseReleased(e -> onResizeHandleReleased(TransformModes.MOVE, e));
         boundingBox.setCursor(Cursor.MOVE);
         editOverlaysPane.getChildren().add(boundingBox);
 
@@ -180,34 +195,39 @@ public class ShapeOverlays extends AbstractOverlay{
         anchorPointMarker = createCrosshair();
         anchorPointMarker.setManaged(false);
         anchorPointMarker.setStroke(Color.RED);
-        anchorPointMarker.visibleProperty().bind(showDraggingControls);
+        anchorPointMarker.visibleProperty().bind(showDraggingControls.and(toolMode.isEqualTo(ToolMode.SELECT)));
         anchorPointMarker.setMouseTransparent(true);
         bindSceneToDrawing(anchorPointMarker, anchorPointX, anchorPointY);
 
         Shape centreMarker = createCrosshair();
         centreMarker.setManaged(false);
         centreMarker.setStroke(Color.BLACK);
-        centreMarker.visibleProperty().bind(showDraggingControls.not());
+        centreMarker.visibleProperty().bind(showDraggingControls.and(toolMode.isEqualTo(ToolMode.SELECT)));
         TransformModes.MOVE.bindings(centreMarker, 0, 0, boundingBox);
         centreMarker.setMouseTransparent(true);
 
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-            if(e.isPrimaryButtonDown()){
-                JFXShapeManager.INSTANCE.deselectAll();
-            }
-        });
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMousePressed);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::onMouseDragged);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onMouseReleased);
+        
         editOverlaysPane.getChildren().addAll(cornerNWResize, cornerNEResize, cornerSWResize, cornerSEResize, edgeNResize, edgeWResize, edgeEResize, edgeSResize);
         editOverlaysPane.getChildren().addAll(cornerNWRotate, cornerNERotate, cornerSWRotate, cornerSERotate, edgeNSkew, edgeWSkew, edgeESkew, edgeSSkew);
         editOverlaysPane.getChildren().addAll(anchorPointMarker, centreMarker);
         editOverlaysPane.visibleProperty().bind(JFXShapeManager.INSTANCE.hasSelection);
-
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, this::onKeyPressed);
+        DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_RELEASED, this::onKeyReleased);
+
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(geometriesPane);
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(editOverlaysPane);
+        DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(vertexHandlesPane);
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.setOnScroll(e -> {
             //prevent the overlay pane consuming the scroll event, and preventing it reaching the viewport
             DrawingBotV3.INSTANCE.controller.viewportScrollPane.getContent().getOnScroll().handle(e);
             e.consume();
+        });
+
+        toolMode.addListener((observable, oldValue, newValue) -> {
+            DrawingBotV3.INSTANCE.controller.viewportScrollPane.setCursor(newValue == ToolMode.DRAW_BEZIERS ? Cursor.CROSSHAIR : Cursor.DEFAULT);
         });
     }
 
@@ -228,22 +248,57 @@ public class ShapeOverlays extends AbstractOverlay{
 
         shape.setOnMousePressed(e -> {
             if(e.isPrimaryButtonDown()){
-                onHandlePressed(resizeMode, e);
+                onResizeHandlePressed(resizeMode, e);
             }
         });
         shape.setOnMouseDragged(e -> {
             if(e.isPrimaryButtonDown()){
-                onHandleDragged(resizeMode, e);
+                onResizeHandleDragged(resizeMode, e);
             }
         });
         shape.setOnMouseReleased(e -> {
-            onHandleReleased(resizeMode, e);
+            onResizeHandleReleased(resizeMode, e);
         });
 
         resizeMode.bindings(shape, width, height, boundingBox);
-        shape.visibleProperty().bind(Bindings.createBooleanBinding(() -> !showDraggingControls.get() && (resizeMode.isTranslation() || showRotateControls.get() == (resizeMode.isRotation() || resizeMode.isSkew())), showDraggingControls, showRotateControls));
+        shape.visibleProperty().bind(Bindings.createBooleanBinding(() -> toolMode.get() == ToolMode.SELECT && !showDraggingControls.get() && (resizeMode.isTranslation() || showRotateControls.get() == (resizeMode.isRotation() || resizeMode.isSkew())), showDraggingControls, showRotateControls, toolMode));
 
         return shape;
+    }
+
+    public Shape setupVertexHandle(PathElement pathElement, Shape displayShape, double width, double height, DoubleProperty xAnchor, DoubleProperty yAnchor){
+        return setupVertexHandle(VertexHandleType.POINT, pathElement, displayShape, width, height, xAnchor, yAnchor, xAnchor, yAnchor);
+    }
+
+    public Shape setupVertexHandle(VertexHandleType handleType, PathElement pathElement, Shape displayShape, double width, double height, DoubleProperty xAnchor, DoubleProperty yAnchor){
+        return setupVertexHandle(handleType, pathElement, displayShape, width, height, xAnchor, yAnchor, xAnchor, yAnchor);
+    }
+
+    public Shape setupVertexHandle(VertexHandleType handleType, PathElement pathElement, Shape displayShape, double width, double height, DoubleProperty xAnchor, DoubleProperty yAnchor, DoubleProperty xProp, DoubleProperty yProp){
+        displayShape.setManaged(false);
+        displayShape.getStyleClass().add(SELECTION_TRANSFORM_HANDLE_STYLE_CLASS);
+        displayShape.setFill(Color.WHITE);
+        displayShape.setSmooth(displayShape instanceof Circle);
+        displayShape.setCursor(Cursor.DEFAULT);
+
+        displayShape.setOnMousePressed(e -> {
+            if(e.isPrimaryButtonDown()){
+                onVertexHandlePressed(handleType, pathElement, e, xProp, yProp);
+            }
+        });
+        displayShape.setOnMouseDragged(e -> {
+            if(e.isPrimaryButtonDown()){
+                onVertexHandleDragged(handleType, pathElement,e, xProp, yProp);
+            }
+        });
+        displayShape.setOnMouseReleased(e -> {
+            onVertexHandleReleased(handleType, pathElement,e, xProp, yProp);
+        });
+
+        bindSceneToDrawing(displayShape, xAnchor, yAnchor, -width/2, -height/2);
+
+        displayShape.visibleProperty().bind(toolMode.isNotEqualTo(ToolMode.SELECT));
+        return displayShape;
     }
 
     private final SimpleBooleanProperty globalTransformDirtyMarker = new SimpleBooleanProperty();
@@ -253,6 +308,7 @@ public class ShapeOverlays extends AbstractOverlay{
      */
     public void onGlobalTransformChanged(TransformChangedEvent event){
         globalTransformDirtyMarker.set(!globalTransformDirtyMarker.get());
+        relativeStrokeSize.set(Math.abs(1 / globalTransform.getMxx()));
     }
 
     /**
@@ -262,6 +318,15 @@ public class ShapeOverlays extends AbstractOverlay{
         DoubleBinding[] bindings = createSceneToDrawingBinding(drawingX, drawingY);
         node.layoutXProperty().bind(bindings[0]);
         node.layoutYProperty().bind(bindings[1]);
+    }
+
+    /**
+     * Allows binding nodes in the scene to positions in the drawing without unwanted scaling, primarily for anchor points and guides, which should not scale with the drawing but still be positioned relative to it
+     */
+    public void bindSceneToDrawing(Node node, DoubleProperty drawingX, DoubleProperty drawingY, double offsetX, double offsetY){
+        DoubleBinding[] bindings = createSceneToDrawingBinding(drawingX, drawingY);
+        node.layoutXProperty().bind(bindings[0].add(offsetX));
+        node.layoutYProperty().bind(bindings[1].add(offsetY));
     }
 
     /**
@@ -299,8 +364,8 @@ public class ShapeOverlays extends AbstractOverlay{
         double scale = DrawingBotV3.project().displayMode.get().getRenderer().rendererToSceneScale() * refCanvas.getPlottingScale();
         globalTransform.setToTransform(scale, 0, origin.getX(), 0, scale, origin.getY());
 
-        if(!JFXShapeManager.INSTANCE.selectedShapes.isEmpty()){
-            Bounds drawingBox = createDrawingBoundingBox(JFXShapeManager.INSTANCE.selectedShapes);
+        if(!JFXShapeManager.INSTANCE.getSelectedShapes().isEmpty()){
+            Bounds drawingBox = createDrawingBoundingBox(JFXShapeManager.INSTANCE.getSelectedShapes());
 
             this.updatingBounds.set(true);
             this.drawingBoundingBoxX.set(Utils.roundToPrecision(drawingBox.getMinX(), 3));
@@ -309,7 +374,7 @@ public class ShapeOverlays extends AbstractOverlay{
             this.drawingBoundingBoxHeight.set(Utils.roundToPrecision(drawingBox.getHeight(), 3));
             this.updatingBounds.set(false);
 
-            Bounds boundingBox = getViewportBoundingBox(JFXShapeManager.INSTANCE.selectedShapes);
+            Bounds boundingBox = getViewportBoundingBox(JFXShapeManager.INSTANCE.getSelectedShapes());
             this.boundingBox.relocate(boundingBox.getMinX(), boundingBox.getMinY());
             this.boundingBox.setWidth(boundingBox.getWidth());
             this.boundingBox.setHeight(boundingBox.getHeight());
@@ -460,6 +525,9 @@ public class ShapeOverlays extends AbstractOverlay{
 
     private boolean isDragging = false;
     private boolean wasDragging = false;
+    private boolean hasArrowKeyMove = false;
+    private double arrowTranslateX = 0;
+    private double arrowTranslateY = 0;
 
     public TransformModes resizeMode = null;
     public Bounds originalSize = null;
@@ -467,6 +535,11 @@ public class ShapeOverlays extends AbstractOverlay{
     public KeyCodeCombination delete = new KeyCodeCombination(KeyCode.DELETE);
     public KeyCodeCombination undo = new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN);
     public KeyCodeCombination redo = new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+    public KeyCodeCombination up = new KeyCodeCombination(KeyCode.UP, KeyCombination.SHIFT_ANY);
+    public KeyCodeCombination down = new KeyCodeCombination(KeyCode.DOWN, KeyCombination.SHIFT_ANY);
+    public KeyCodeCombination left = new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_ANY);
+    public KeyCodeCombination right = new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_ANY);
+
 
     public void onKeyPressed(KeyEvent event){
         //TODO KEY EVENTS ARE SLIGHTLY UNPREDICATABLE, ONLY REACT ON FOCUS, NOT ON HOVER
@@ -481,31 +554,77 @@ public class ShapeOverlays extends AbstractOverlay{
         }
 
         if(redo.match(event)){
-            JFXShapeManager.INSTANCE.activeShapeList.get().actionManager.redo();;
+            JFXShapeManager.INSTANCE.activeShapeList.get().actionManager.redo();
             event.consume();
             return;
         }
-        if(isDragging && event.getCode() == KeyCode.ESCAPE){
-            JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::cancelTransform);
+        if(!JFXShapeManager.INSTANCE.getSelectedShapes().isEmpty()){
+            boolean match = false;
+            double inc = event.isShiftDown() ? 0.5 : 1D;
+
+            if(up.match(event)){
+                arrowTranslateY-=inc;
+                match = true;
+            }
+            if(down.match(event)){
+                arrowTranslateY+=inc;
+                match = true;
+            }
+            if(left.match(event)){
+                arrowTranslateX-=inc;
+                match = true;
+            }
+            if(right.match(event)){
+                arrowTranslateX+=inc;
+                match = true;
+            }
+            if(match){
+                JFXShapeManager.INSTANCE.transformSelected(AffineTransform.getTranslateInstance(arrowTranslateX, arrowTranslateY));
+                event.consume();
+            }
+        }
+        if((isDragging || hasArrowKeyMove || isVertexHandleDragging) && event.getCode() == KeyCode.ESCAPE){
+            JFXShapeManager.INSTANCE.getSelectedShapes().forEach(JFXShape::cancelTransform);
 
             isDragging = false;
+            hasArrowKeyMove = false;
+            cancelVertexHandleDrag();
+            arrowTranslateX = 0;
+            arrowTranslateY = 0;
             event.consume();
+
         }
     }
 
-    public void onHandlePressed(TransformModes resizeMode, MouseEvent event){
+    public void onKeyReleased(KeyEvent event){
+        if(hasArrowKeyMove && up.match(event) || down.match(event) ||  left.match(event) || right.match(event)){
+            JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
+            hasArrowKeyMove = false;
+            arrowTranslateX = 0;
+            arrowTranslateY = 0;
+        }
+    }
+
+    ////////////////////////////
+
+    public Point2D transformSceneToDrawing(Point2D point2D){
+        point2D = DrawingBotV3.project().displayMode.get().getRenderer().sceneToRenderer(point2D);
+        point2D = point2D.multiply(1/DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
+        return point2D;
+    }
+
+    public void onResizeHandlePressed(TransformModes resizeMode, MouseEvent event){
         this.resizeMode = resizeMode;
-        if(!JFXShapeManager.INSTANCE.selectedShapes.isEmpty()){
-            JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::startTransform);
-            originalSize = createDrawingBoundingBox(JFXShapeManager.INSTANCE.selectedShapes);
-            mouseOrigin = DrawingBotV3.project().displayMode.get().getRenderer().sceneToRenderer(new Point2D(event.getSceneX(), event.getSceneY()));
-            mouseOrigin = mouseOrigin.multiply(1/DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
+        if(!JFXShapeManager.INSTANCE.getSelectedShapes().isEmpty()){
+            JFXShapeManager.INSTANCE.getSelectedShapes().forEach(JFXShape::startTransform);
+            originalSize = createDrawingBoundingBox(JFXShapeManager.INSTANCE.getSelectedShapes());
+            mouseOrigin = transformSceneToDrawing(new Point2D(event.getSceneX(), event.getSceneY()));
             isDragging = true;
             wasDragging = false;
         }
     }
 
-    public void onHandleDragged(TransformModes resizeMode, MouseEvent event){
+    public void onResizeHandleDragged(TransformModes resizeMode, MouseEvent event){
         if(!isDragging){
             return;
         }
@@ -513,9 +632,7 @@ public class ShapeOverlays extends AbstractOverlay{
         wasDragging = true;
 
         AffineTransform transform = new AffineTransform();
-
-        Point2D mousePoint = DrawingBotV3.project().displayMode.get().getRenderer().sceneToRenderer(new Point2D(event.getSceneX(), event.getSceneY()));
-        mousePoint = mousePoint.multiply(1/DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas().getPlottingScale());
+        Point2D mousePoint = transformSceneToDrawing(new Point2D(event.getSceneX(), event.getSceneY()));
 
         Point2D anchorPoint = resizeMode.anchorPoint(originalSize);
 
@@ -624,11 +741,11 @@ public class ShapeOverlays extends AbstractOverlay{
         updateAnchorPoint(anchorPoint);
     }
 
-    public void onHandleReleased(TransformModes handle, MouseEvent event){
+    public void onResizeHandleReleased(TransformModes handle, MouseEvent event){
         if(isDragging){
             isDragging = false;
             JFXShapeManager.INSTANCE.runAction(JFXShapeManager.INSTANCE.confirmTransformAction());
-            JFXShapeManager.INSTANCE.selectedShapes.forEach(JFXShape::finishTransform);
+            JFXShapeManager.INSTANCE.getSelectedShapes().forEach(JFXShape::finishTransform);
 
             if(enableRotation.get() && !wasDragging && handle == TransformModes.MOVE){
                 showRotateControls.set(!showRotateControls.get());
@@ -636,6 +753,322 @@ public class ShapeOverlays extends AbstractOverlay{
         }
         showDraggingControls.set(false);
     }
+
+    ////////////////////////////
+
+    //// EDIT TOOLS DRAWING \\\\
+
+    public SimpleObjectProperty<JFXShape> drawingShape = new SimpleObjectProperty<>();
+    public SimpleObjectProperty<PathElement> currentPathElement = new SimpleObjectProperty<>();
+    private final Map<PathElement, List<Node>> drawingPathElementNodes = new HashMap<>();
+
+
+    public static int vertexRect = 8;
+
+    {
+
+        // A listener to monitor changes to the drawing shapes elements to make sure they're vertex handle / tools are being rendered
+        ListChangeListener<? super PathElement> listChangeListener = c -> {
+            while(c.next()){
+                for(PathElement removed : c.getRemoved()){
+                    onPathElementRemoved(removed);
+                }
+
+                for(PathElement added : c.getAddedSubList()){
+                    onPathElementAdded(drawingShape.get().jfxShape, added);
+                }
+
+
+                if(drawingShape.get() != null && drawingShape.get().jfxShape.getElements() != null && !drawingShape.get().jfxShape.getElements().isEmpty()){
+                    currentPathElement.set(drawingShape.get().jfxShape.getElements().get(drawingShape.get().jfxShape.getElements().size()-1));
+                }
+            }
+        };
+
+        // The generic listener to attach the other listeners to the Drawing Shape and too make sure the Path Elements are fully loaded / unloaded.
+        drawingShape.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                Path path = oldValue.jfxShape;
+                path.getElements().forEach(this::onPathElementRemoved);
+                path.getElements().removeListener(listChangeListener);
+            }
+            if(newValue != null){
+                Path path = newValue.jfxShape;
+                path.getElements().forEach(element -> onPathElementAdded(path, element));
+                path.getElements().addListener(listChangeListener);
+            }
+        });
+    }
+
+    public void onPathElementAdded(Path path, PathElement element){
+        List<Node> nodes = new ArrayList<>();
+        if(element instanceof MoveTo){
+            MoveTo moveTo = (MoveTo) element;
+            Shape handle = setupVertexHandle(moveTo, new Rectangle(vertexRect, vertexRect), vertexRect, vertexRect, moveTo.xProperty(), moveTo.yProperty());
+
+            handle.getStyleClass().add(SELECTION_CLOSE_HANDLE_STYLE_CLASS);
+            handle.setOnMousePressed(e -> {
+                if(e.isPrimaryButtonDown()){
+                    // If the path contains more elements than the first move to, we can close it
+                    if(drawingShape.get().jfxShape.getElements().size() > 1){
+                        // For the initial moveTo we need to handle closing the shape.
+                        closeDrawingShape();
+                        handle.getStyleClass().remove(SELECTION_CLOSE_HANDLE_STYLE_CLASS);
+                        return;
+                    }
+                    // If not allow the user to reposition their first point.
+                    onVertexHandlePressed(VertexHandleType.POINT, moveTo, e, moveTo.xProperty(), moveTo.yProperty());
+                }
+            });
+
+            nodes.add(handle);
+        }else if(element instanceof LineTo){
+            LineTo lineTo = (LineTo) element;
+            nodes.add(setupVertexHandle(lineTo, new Rectangle(vertexRect, vertexRect), vertexRect, vertexRect, lineTo.xProperty(), lineTo.yProperty()));
+        }else if(element instanceof CubicCurveTo){
+            CubicCurveTo curveTo = (CubicCurveTo) element;
+            DoubleBinding[] endPointBinding = createSceneToDrawingBinding(curveTo.xProperty(), curveTo.yProperty());
+            DoubleBinding[] ctrl2Binding = createSceneToDrawingBinding(curveTo.controlX2Property(), curveTo.controlY2Property());
+
+            int index = path.getElements().indexOf(curveTo);
+            PathElement prevElement = path.getElements().get(index-1);
+
+            if(prevElement instanceof CubicCurveTo){
+                CubicCurveTo otherCurve = (CubicCurveTo) prevElement;
+                curveTo.controlX1Property().bind(otherCurve.xProperty().add(otherCurve.xProperty().subtract(otherCurve.controlX2Property())));
+                curveTo.controlY1Property().bind(otherCurve.yProperty().add(otherCurve.yProperty().subtract(otherCurve.controlY2Property())));
+            }
+
+            BooleanBinding isSelected = currentPathElement.isEqualTo(curveTo);
+
+            SimpleDoubleProperty offsetCtrlPointX = new SimpleDoubleProperty();
+            SimpleDoubleProperty offsetCtrlPointY = new SimpleDoubleProperty();
+            offsetCtrlPointX.bind(curveTo.xProperty().add(curveTo.xProperty().subtract(curveTo.controlX2Property())));
+            offsetCtrlPointY.bind(curveTo.yProperty().add(curveTo.yProperty().subtract(curveTo.controlY2Property())));
+
+            Line ctrl1Line = new Line();
+            ctrl1Line.startXProperty().bind(endPointBinding[0]);
+            ctrl1Line.startYProperty().bind(endPointBinding[1]);
+            ctrl1Line.endXProperty().bind(endPointBinding[0].add(endPointBinding[0].subtract(ctrl2Binding[0])));
+            ctrl1Line.endYProperty().bind(endPointBinding[1].add(endPointBinding[1].subtract(ctrl2Binding[1])));
+            nodes.add(ctrl1Line);
+            ctrl1Line.visibleProperty().bind(isSelected);
+
+            Shape bezierCtrlVertexHandleSlave = setupVertexHandle(VertexHandleType.BEZIER_CTRL_SLAVE, curveTo, new Circle(vertexRect/2D), -1 + vertexRect/4D, -1 + vertexRect/4D, offsetCtrlPointX, offsetCtrlPointY, curveTo.controlX2Property(), curveTo.controlY2Property());
+            bezierCtrlVertexHandleSlave.visibleProperty().bind(isSelected);
+            nodes.add(bezierCtrlVertexHandleSlave);
+
+            Line ctrl2Line = new Line();
+            ctrl2Line.startXProperty().bind(endPointBinding[0]);
+            ctrl2Line.startYProperty().bind(endPointBinding[1]);
+            ctrl2Line.endXProperty().bind(ctrl2Binding[0]);
+            ctrl2Line.endYProperty().bind(ctrl2Binding[1]);
+            nodes.add(ctrl2Line);
+            ctrl2Line.visibleProperty().bind(isSelected);
+
+            Shape bezierCtrlVertexHandleMaster = setupVertexHandle(VertexHandleType.BEZIER_CTRL_MASTER, curveTo, new Circle(vertexRect/2D), -1 + vertexRect/4D, -1 + vertexRect/4D, curveTo.controlX2Property(), curveTo.controlY2Property());
+            nodes.add(bezierCtrlVertexHandleMaster);
+            bezierCtrlVertexHandleMaster.visibleProperty().bind(isSelected);
+            nodes.add(setupVertexHandle(VertexHandleType.POINT, curveTo, new Rectangle(vertexRect, vertexRect), vertexRect, vertexRect, curveTo.xProperty(), curveTo.yProperty()));
+        }
+        vertexHandlesPane.getChildren().addAll(nodes);
+        drawingPathElementNodes.put(element, nodes);
+    }
+
+    public void onPathElementRemoved(PathElement element){
+        List<Node> nodes = drawingPathElementNodes.get(element);
+        if(nodes != null && !nodes.isEmpty()){
+            vertexHandlesPane.getChildren().removeAll(nodes);
+        }
+    }
+
+    //////////////////////////////////////////////////////
+
+    //// VERTEX HANDLE DRAGGING \\\\
+
+    private boolean isVertexHandleDragging = false;
+    private Point2D vertexMouseOrigin = null;
+    private Point2D originalPosition = null;
+    private Point2D originalCtrlPos = null;
+    private DoubleProperty vertexX = null;
+    private DoubleProperty vertexY = null;
+
+    public enum VertexHandleType{
+        POINT,
+        BEZIER_CTRL_MASTER,
+        BEZIER_CTRL_SLAVE;
+
+        public boolean shouldMirror(){
+            return this == BEZIER_CTRL_SLAVE;
+        }
+    }
+
+    public void onVertexHandlePressed(VertexHandleType handleType, PathElement pathElement, MouseEvent event, DoubleProperty xAnchor, DoubleProperty yAnchor){
+        if(!event.isPrimaryButtonDown()){
+            return;
+        }
+        currentPathElement.set(pathElement);
+
+        vertexMouseOrigin = transformSceneToDrawing(new Point2D(event.getSceneX(), event.getSceneY()));
+        originalPosition = new Point2D(xAnchor.get(), yAnchor.get());
+        vertexX = xAnchor;
+        vertexY = yAnchor;
+        isVertexHandleDragging = true;
+
+        // Handle moving the control point along with the main point
+        if(handleType == VertexHandleType.POINT && pathElement instanceof CubicCurveTo){
+            CubicCurveTo cubicCurveTo = (CubicCurveTo) pathElement;
+            originalCtrlPos = new Point2D(cubicCurveTo.getControlX2(), cubicCurveTo.getControlY2());
+        }
+    }
+
+    public void onVertexHandleDragged(VertexHandleType handleType, PathElement pathElement, MouseEvent event, DoubleProperty xAnchor, DoubleProperty yAnchor){
+        if(!isVertexHandleDragging){
+            return;
+        }
+        Point2D mousePoint = transformSceneToDrawing(new Point2D(event.getSceneX(), event.getSceneY()));
+        Point2D offset = mousePoint.subtract(vertexMouseOrigin);
+        Point2D newPosition = !handleType.shouldMirror() ? originalPosition.add(offset.getX(), offset.getY()) : originalPosition.subtract(offset.getX(), offset.getY());
+
+        xAnchor.set(newPosition.getX());
+        yAnchor.set(newPosition.getY());
+
+        // Handle moving the control point along with the main point
+        if(handleType == VertexHandleType.POINT && pathElement instanceof CubicCurveTo){
+            CubicCurveTo cubicCurveTo = (CubicCurveTo) pathElement;
+            Point2D newCtrlPosition = originalCtrlPos.add(offset.getX(), offset.getY());
+
+            cubicCurveTo.setControlX2(newCtrlPosition.getX());
+            cubicCurveTo.setControlY2(newCtrlPosition.getY());
+        }
+
+    }
+
+    public void onVertexHandleReleased(VertexHandleType handleType, PathElement pathElement, MouseEvent event, DoubleProperty xAnchor, DoubleProperty yAnchor){
+        if(isVertexHandleDragging){
+            //TODO UNDO / REDO HANDLING?
+            if(drawingShape.get() != null){
+                drawingShape.get().updateGeometryFromJFXShape();
+            }
+            resetVertexHandleDragData();
+        }
+    }
+
+    public void cancelVertexHandleDrag(){
+        if(isVertexHandleDragging){
+            vertexX.set(originalPosition.getX());
+            vertexY.set(originalPosition.getY());
+            resetVertexHandleDragData();
+        }
+    }
+
+    public void resetVertexHandleDragData(){
+        isVertexHandleDragging = false;
+        vertexMouseOrigin = null;
+        originalPosition = null;
+        originalCtrlPos = null;
+        vertexX = null;
+        vertexY = null;
+    }
+
+    public void closeDrawingShape(){
+        drawingShape.get().addElement(new ClosePath());
+        toolMode.set(ToolMode.EDIT);
+        drawingShape.get().setDrawing(false);
+        currentPathElement.set(null);
+    }
+
+    //////////////////////////////////////////////////////
+
+    //// PATH ELEMENT DRAWING \\\\
+
+    public boolean isDrawingPathElement = false;
+
+    public void onMousePressed(MouseEvent event){
+        if(toolMode.get() == ToolMode.DRAW_BEZIERS){
+            if(event.isPrimaryButtonDown()){
+                // Find the point relative to the drawing
+                Point2D mousePoint = transformSceneToDrawing(new Point2D(event.getSceneX(), event.getSceneY()));
+
+                ////////////////////////////////
+                // Intersecting an existing shape with a new point TODO
+
+                ////////////////////////////////
+                // Placing point at the end of the shape
+
+                // Should we start a new shape
+                boolean newShape = false;
+                if(drawingShape.get() == null){
+                    newShape = true;
+                }else if(drawingShape.get() != null){
+                    Path path = drawingShape.get().jfxShape;
+                    if(path.getElements().get(path.getElements().size()-1) instanceof ClosePath){
+                        newShape = true;
+                    }
+                }
+
+                // Create the new shape
+                if(newShape){
+                    JFXShape shape = new JFXShape(new GPath());
+                    shape.setType(JFXShape.Type.ADD);
+                    JFXShapeManager.INSTANCE.activeShapeList.get().addShapeLogged(shape);
+                    JFXShapeManager.INSTANCE.deselectAll();
+                    shape.setDrawing(true);
+                    shape.setSelected(true); //this should set the drawing to be the active drawing shape
+                    shape.updatePseudoClassState();
+                }
+
+                // Extend the shape with a new element, the drawing shape should be set now, but check it just in case.
+                if(drawingShape.get() != null){
+                    Path path = drawingShape.get().jfxShape;
+                    if(path.getElements().isEmpty()){
+                        drawingShape.get().addElement(new MoveTo(mousePoint.getX(), mousePoint.getY()));
+                    }else{
+                        LineTo lineTo = new LineTo(mousePoint.getX(), mousePoint.getY());
+                        drawingShape.get().addTempNextElement(lineTo);
+                        currentPathElement.set(lineTo);
+                    }
+                }
+                event.consume();
+                isDrawingPathElement = true;
+            }
+        }else{
+            if(event.isPrimaryButtonDown()){
+                JFXShapeManager.INSTANCE.deselectAll();
+            }
+        }
+    }
+
+    public void onMouseDragged(MouseEvent event) {
+        if (isDrawingPathElement) {
+            if(currentPathElement.get() instanceof LineTo){
+                LineTo lineTo = (LineTo) currentPathElement.get();
+                drawingShape.get().removeTempNextElement();
+                CubicCurveTo cubicCurveTo = new CubicCurveTo(lineTo.getX(), lineTo.getY(), lineTo.getX(), lineTo.getY(), lineTo.getX(), lineTo.getY());
+                drawingShape.get().addTempNextElement(cubicCurveTo);
+                currentPathElement.set(cubicCurveTo);
+                onVertexHandlePressed(VertexHandleType.BEZIER_CTRL_MASTER, cubicCurveTo, event, cubicCurveTo.controlX2Property(), cubicCurveTo.controlY2Property());
+            }else if(currentPathElement.get() instanceof CubicCurveTo){
+                CubicCurveTo cubicCurveTo = (CubicCurveTo) currentPathElement.get();
+                onVertexHandleDragged(VertexHandleType.BEZIER_CTRL_MASTER, cubicCurveTo, event, cubicCurveTo.controlX2Property(), cubicCurveTo.controlY2Property());
+            }
+            event.consume();
+        }
+    }
+
+    public void onMouseReleased(MouseEvent event) {
+        if (isDrawingPathElement) {
+            if(currentPathElement.get() instanceof CubicCurveTo){
+                CubicCurveTo cubicCurveTo = (CubicCurveTo) currentPathElement.get();
+                onVertexHandleReleased(VertexHandleType.BEZIER_CTRL_MASTER, cubicCurveTo, event, cubicCurveTo.controlX2Property(), cubicCurveTo.controlY2Property());
+            }
+            drawingShape.get().confirmTempNextElement();
+            isDrawingPathElement = false;
+            event.consume();
+        }
+    }
+
+    ////////////////////////////
 
     public static Bounds createDrawingBoundingBox(Collection<JFXShape> selected){
         return createBoundingBox(selected, JFXShape::getDrawingBounds);

@@ -12,6 +12,10 @@
     -fx-fill: white;
 }
 
+.selection-close-handle{
+    -fx-fill: red;
+}
+
 .jfx-shape{
     -fx-fill: rgba(125, 125, 125, 0.2);
 }
@@ -27,6 +31,11 @@
 
 .jfx-shape:masking-remove{
     -fx-fill: rgba(255, 125, 125, 0.75);
+}
+
+.jfx-shape:masking-draw{
+    -fx-fill: transparent;
+}
 
 .export-stats-scrollpane {
     -fx-background-color: transparent;

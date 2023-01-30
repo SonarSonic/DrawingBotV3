@@ -224,6 +224,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             JFXShapeManager.INSTANCE.activeShapeList.unbind();
             JFXShapeManager.INSTANCE.activeShapeList.set(croppingList);
             ShapeOverlays.INSTANCE.enableRotation.set(false);
+            ShapeOverlays.INSTANCE.toolMode.set(ShapeOverlays.ToolMode.SELECT);
         }
 
         @Override

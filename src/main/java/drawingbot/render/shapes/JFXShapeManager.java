@@ -28,34 +28,56 @@ public class JFXShapeManager{
 
     public final SimpleBooleanProperty hasSelection = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<JFXShapeList> activeShapeList = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ObservableList<JFXShape>> selectedShapes = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public final SimpleObjectProperty<ObservableList<JFXShape>> displayedShapes = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
-    public final ObservableList<JFXShape> displayedShapes = FXCollections.observableArrayList();
-    public final ObservableList<JFXShape> selectedShapes = FXCollections.observableArrayList();
     public InvalidationListener boundsChangeListener = o -> dirtyBounds = true;
     public boolean dirtyBounds = true;
 
     {
         ListChangeListener<JFXShape> geometryListListener = this::onGeometryListChanged;
+        ListChangeListener<JFXShape> displayListListener = this::onDisplayedListChanged;
+        ListChangeListener<JFXShape> selectionListListener = this::onSelectionListChanged;
+
         activeShapeList.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
                 oldValue.getShapeList().forEach(this::onGeometryRemoved);
                 oldValue.getShapeList().removeListener(geometryListListener);
-                selectedShapes.clear();
-                displayedShapes.clear();
-                //oldValue.actionManager.wipeHistory();
+
+                oldValue.getSelectionList().forEach(this::onSelectionRemoved);
+                oldValue.getSelectionList().removeListener(selectionListListener);
+
+                oldValue.getDisplayedShapes().forEach(this::onGeometryHidden);
+                oldValue.getDisplayedShapes().removeListener(displayListListener);
+
+                displayedShapes.set(FXCollections.observableArrayList());
+                selectedShapes.set(FXCollections.observableArrayList());
             }
             if(newValue != null){
-                //newValue = newValue == null ? globalShapeList : newValue;
-                newValue.getShapeList().addListener(geometryListListener);
                 newValue.getShapeList().forEach(this::onGeometryAdded);
+                newValue.getShapeList().addListener(geometryListListener);
+
+                newValue.getSelectionList().forEach(this::onSelectionAdded);
+                newValue.getSelectionList().addListener(selectionListListener);
+
+                newValue.getDisplayedShapes().forEach(this::onGeometryDisplayed);
+                newValue.getDisplayedShapes().addListener(displayListListener);
+
+                displayedShapes.set(newValue.getDisplayedShapes());
+                selectedShapes.set(newValue.getSelectionList());
             }
         });
-
-        displayedShapes.addListener(this::onDisplayedListChanged);
-        selectedShapes.addListener(this::onSelectionListChanged);
     }
 
     ////////////////////////////
+
+    public ObservableList<JFXShape> getSelectedShapes(){
+        return selectedShapes.get();
+    }
+
+    public ObservableList<JFXShape> getDisplayedShapes(){
+        return displayedShapes.get();
+    }
 
     public static JFXShapeList getShapeList(UUID uuid){
         return globalShapeListMap.get(uuid);
@@ -78,6 +100,7 @@ public class JFXShapeManager{
      * and activates the {@link JFXShape#selectedProperty()} & {@link JFXShape#displayedProperty()} ()}
      */
     public void initJFXGeometry(JFXShape geometry){
+        /*
         geometry.selected.addListener((observable, oldValue, newValue) -> {
             if(activeShapeList.get().getShapeList().contains(geometry)){
                 if(newValue){
@@ -98,17 +121,19 @@ public class JFXShapeManager{
                 }
             }
         });
-
+         */
         geometry.jfxShape.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> onSelectableClicked(geometry, e));
     }
 
     public void onSelectableClicked(JFXShape shape, MouseEvent event){
-        if(shape.isSelectable() && shape.isDisplayed() && !shape.isSelected()){
+        if(event.isPrimaryButtonDown() && shape.isSelectable() && shape.isDisplayed() && !shape.isSelected()){
             if(!event.isControlDown() && !event.isShiftDown()){
                 deselectAll();
                 ShapeOverlays.INSTANCE.showRotateControls.set(false);
             }
             shape.setSelected(true);
+            //TODO Better fix? If we have shapes ovelayed anywhere other than the viewport, this will cause issues.
+            DrawingBotV3.INSTANCE.controller.viewportScrollPane.requestFocus();
         }
     }
 
@@ -127,33 +152,50 @@ public class JFXShapeManager{
     }
 
     public void onGeometryAdded(JFXShape added){
+        /*
         if(added.isSelected()){
             selectedShapes.add(added);
         }
         if(added.isDisplayed()){
             displayedShapes.add(added);
         }
+         */
     }
 
     public void onGeometryRemoved(JFXShape removed){
+        /*
         if(removed.isSelected()) {
             selectedShapes.remove(removed);
         }
         if(removed.isDisplayed()){
             displayedShapes.remove(removed);
         }
+         */
+        if(ShapeOverlays.INSTANCE.drawingShape.get() == removed){
+            ShapeOverlays.INSTANCE.drawingShape.set(null);
+        }
     }
 
     ////////////////////////////
 
     public void onDisplayedListChanged(ListChangeListener.Change<? extends JFXShape> c){
-        ShapeOverlays.INSTANCE.geometriesPane.getChildren().clear();
+        while(c.next()){
+            for(JFXShape removed : c.getRemoved()){
+                onGeometryHidden(removed);
+            }
 
-        for(JFXShape shape : activeShapeList.get().getShapeList()){
-            if(shape.isDisplayed()){
-                ShapeOverlays.INSTANCE.geometriesPane.getChildren().add(shape.jfxShape);
+            for(JFXShape added : c.getAddedSubList()){
+                onGeometryDisplayed(added);
             }
         }
+    }
+
+    public void onGeometryDisplayed(JFXShape added){
+        ShapeOverlays.INSTANCE.geometriesPane.getChildren().add(added.jfxShape);
+    }
+
+    public void onGeometryHidden(JFXShape removed){
+        ShapeOverlays.INSTANCE.geometriesPane.getChildren().remove(removed.jfxShape);
     }
 
     ////////////////////////////
@@ -168,11 +210,15 @@ public class JFXShapeManager{
                 onSelectionAdded(added);
             }
         }
-        hasSelection.set(!selectedShapes.isEmpty());
+        hasSelection.set(!activeShapeList.get().getSelectionList().isEmpty());
     }
 
     public void onSelectionAdded(JFXShape added){
         added.jfxShape.boundsInParentProperty().addListener(boundsChangeListener);
+
+        // Set the drawing shape to the last selected shape
+        ShapeOverlays.INSTANCE.drawingShape.set(added);
+
     }
 
     public void onSelectionRemoved(JFXShape removed){
@@ -198,7 +244,7 @@ public class JFXShapeManager{
     }
 
     public void deselectAll(){
-        List.copyOf(selectedShapes).forEach(g -> g.setSelected(false));
+        List.copyOf(activeShapeList.get().getSelectionList()).forEach(g -> g.setSelected(false));
     }
 
     public void deleteSelected(){
@@ -207,14 +253,14 @@ public class JFXShapeManager{
 
     public IAction deleteSelectedAction(){
         List<IAction> actions = new ArrayList<>();
-        for(JFXShape shape : selectedShapes){
+        for(JFXShape shape : activeShapeList.get().getSelectionList()){
             actions.add(removeGeometryAction(activeShapeList.get(), shape));
         }
         return new ActionGrouped(actions);
     }
 
     public void transformSelected(AffineTransform transform){
-        selectedShapes.forEach(s -> s.transform(transform));
+        activeShapeList.get().getSelectionList().forEach(s -> s.transform(transform));
     }
 
     public IAction addGeometryAction(JFXShapeList list, JFXShape shape){
@@ -227,7 +273,7 @@ public class JFXShapeManager{
 
     public IAction confirmTransformAction(){
         List<IAction> actions = new ArrayList<>();
-        for(JFXShape shape : selectedShapes){
+        for(JFXShape shape : activeShapeList.get().getSelectionList()){
             if(shape.getLiveTransform() != null){
                 actions.add(new ActionTransformShape(new JFXShapeActionTarget(activeShapeList.get(), shape), shape.getLiveTransform()));
             }
@@ -237,7 +283,7 @@ public class JFXShapeManager{
 
     public IAction setTransformAction(AffineTransform transform){
         List<IAction> actions = new ArrayList<>();
-        for(JFXShape shape : selectedShapes){
+        for(JFXShape shape : activeShapeList.get().getSelectionList()){
             actions.add(new ActionTransformShape(new JFXShapeActionTarget(activeShapeList.get(), shape), transform));
         }
         return new ActionGrouped(actions);

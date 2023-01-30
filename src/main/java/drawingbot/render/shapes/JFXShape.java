@@ -4,6 +4,7 @@ import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.shapes.GPath;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.JFXAWTUtils;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.render.overlays.ShapeOverlays;
 import drawingbot.utils.Utils;
 import javafx.beans.property.ObjectProperty;
@@ -12,7 +13,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
-import javafx.scene.shape.Shape;
+import javafx.scene.shape.*;
 import javafx.scene.transform.Affine;
 
 import java.awt.geom.AffineTransform;
@@ -25,7 +26,7 @@ public class JFXShape {
     public UUID uuid;
     public IGeometry geometry;
     public IGeometry transformed;
-    public Shape jfxShape;
+    public Path jfxShape;
 
     public AffineTransform awtTransform = new AffineTransform();
     private Affine jfxTransform;
@@ -51,18 +52,23 @@ public class JFXShape {
         this.geometry = new GPath(geometry.getAWTShape());
         this.transformed = this.geometry;
         this.jfxTransform = new Affine();
-
         GeometryUtils.copyGeometryData(this.transformed, geometry);
 
-        this.jfxShape = GeometryUtils.convertGeometryToJFXShape(transformed);
+        this.jfxShape = (Path) MasterRegistry.INSTANCE.getFallbackJFXGeometryConverter().convert(geometry);//GeometryUtils.convertGeometryToJFXShape(transformed);
         this.jfxShape.getTransforms().add(ShapeOverlays.INSTANCE.globalTransform);
+        this.jfxShape.strokeWidthProperty().bind(ShapeOverlays.INSTANCE.relativeStrokeSize);
+
         if(useFastScaling){
             this.jfxShape.getTransforms().add(jfxTransform);
         }
+
         this.jfxShape.setManaged(false);
         this.jfxShape.setPickOnBounds(false);
 
         this.jfxShape.getStyleClass().setAll(SHAPE_STYLE_CLASS);
+
+        this.drawingProperty().addListener(observable -> updatePseudoClassState());
+        this.jfxShape.mouseTransparentProperty().bind(drawingProperty());
 
         JFXShapeManager.INSTANCE.initJFXGeometry(this);
         updatePseudoClassState();
@@ -98,8 +104,10 @@ public class JFXShape {
     }
 
     public void setAwtTransform(AffineTransform newTransform){
-        awtTransform = newTransform;
-        updateFromTransform(newTransform);
+        if(!newTransform.equals(awtTransform)){
+            awtTransform = newTransform;
+            updateFromTransform(newTransform);
+        }
     }
 
     public void updateFromTransform(AffineTransform newTransform){
@@ -111,6 +119,53 @@ public class JFXShape {
             GeometryUtils.updateJFXShapeFromGeometry(jfxShape, transformed);
         }
     }
+
+    public boolean canDraw(){
+        return editable.get() && geometry instanceof GPath && jfxShape instanceof Path;
+    }
+
+    //TODO UPDATE AWT PATH AT THE END IF IT'S BEING EDITED
+    public void addElement(PathElement element){
+        if(geometry instanceof GPath && jfxShape != null){
+            GPath awtPath = (GPath) geometry;
+            Path jfxPath = jfxShape;
+
+            jfxPath.getElements().add(element);
+            JFXAWTUtils.addJFXElementToAWTPath(awtPath, element);
+        }
+    }
+
+    /**
+     * To draw onto the end of the path, we create an editable PathElement, but we don't add it too the AWT path, so we can easily remove it if the user cancels.
+     */
+    private transient PathElement tempElement;
+
+    public void addTempNextElement(PathElement element){
+        jfxShape.getElements().add(tempElement = element);
+    }
+
+    public void removeTempNextElement(){
+        jfxShape.getElements().remove(tempElement);
+        tempElement = null;
+    }
+
+    public void confirmTempNextElement(){
+        JFXAWTUtils.addJFXElementToAWTPath((GPath) geometry, tempElement);
+    }
+
+
+    /**
+     * Called when the Geometry shape itself has been edited, so erase the transform.
+     */
+    public void updateGeometryFromJFXShape(){
+        GPath path = JFXAWTUtils.convertJFXPathToGPath(jfxShape);
+        GeometryUtils.copyGeometryData(path, geometry);
+
+        geometry = path;
+        transformed = geometry;
+        setAwtTransform(new AffineTransform());
+    }
+
 
     public Bounds getDrawingBounds() {
         return JFXAWTUtils.getJFXBounds(transformed.getAWTShape().getBounds2D());
@@ -219,10 +274,46 @@ public class JFXShape {
 
     ////////////////////////////
 
+    /**
+     * Currently only used to prevent the interior being filled which the shape is being drawin
+     */
+    public SimpleBooleanProperty drawing = new SimpleBooleanProperty(false);
+
+    public boolean isDrawing() {
+        return drawing.get();
+    }
+
+    public SimpleBooleanProperty drawingProperty() {
+        return drawing;
+    }
+
+    public void setDrawing(boolean drawing) {
+        this.drawing.set(drawing);
+    }
+
+    ////////////////////////////
+
+    public SimpleBooleanProperty editable = new SimpleBooleanProperty(true);
+
+    public boolean isEditable() {
+        return editable.get();
+    }
+
+    public SimpleBooleanProperty editableProperty() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable.set(editable);
+    }
+
+    ////////////////////////////
+
     public enum Type{
         RESHAPE,
         SUBTRACT,
         ADD,
+        DRAW,
         NONE;
 
         @Override
@@ -235,14 +326,16 @@ public class JFXShape {
     public static final PseudoClass RESHAPE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("reshape");
     public static final PseudoClass ADD_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("masking-add");
     public static final PseudoClass SUBTRACT_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("masking-remove");
+    public static final PseudoClass DRAWING_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass("masking-draw");
 
     public void updatePseudoClassState(){
         if(jfxShape == null){
             return;
         }
-        jfxShape.pseudoClassStateChanged(RESHAPE_PSEUDOCLASS_STATE, type.get()== Type.RESHAPE);
-        jfxShape.pseudoClassStateChanged(SUBTRACT_PSEUDOCLASS_STATE, type.get()== Type.SUBTRACT);
-        jfxShape.pseudoClassStateChanged(ADD_PSEUDOCLASS_STATE, type.get()== Type.ADD);
+        jfxShape.pseudoClassStateChanged(RESHAPE_PSEUDOCLASS_STATE, !isDrawing() && type.get() == Type.RESHAPE);
+        jfxShape.pseudoClassStateChanged(SUBTRACT_PSEUDOCLASS_STATE, !isDrawing() && type.get() == Type.SUBTRACT);
+        jfxShape.pseudoClassStateChanged(ADD_PSEUDOCLASS_STATE, !isDrawing() && type.get() == Type.ADD);
+        jfxShape.pseudoClassStateChanged(DRAWING_PSEUDOCLASS_STATE, isDrawing());
     }
 
     public ObjectProperty<Type> type = new ObjectPropertyBase<>() {
@@ -271,6 +364,14 @@ public class JFXShape {
 
     public void setType(Type type) {
         this.type.set(type);
+    }
+
+    public void onAdded(){
+
+    }
+
+    public void onRemove(){
+
     }
 
     ////////////////////////////
