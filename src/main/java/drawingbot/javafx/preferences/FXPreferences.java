@@ -379,6 +379,7 @@ public class FXPreferences {
         ));
                 MasterRegistry.INSTANCE.registerPreferencesPage(page("User Interface",
                         new LabelNode("General").setTitleStyling(),
+                        new SettingNode("Dark Theme", settings.darkTheme),
                         new SettingNode("Default Window Size", settings.uiWindowSize),
                         new SettingNode("Restore Last Layout", settings.restoreLayout),
                         new SettingNode("Restore Project Layout", settings.restoreProjectLayout),

@@ -635,16 +635,6 @@ public class FXController extends AbstractFXController {
         comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
-        /*
-        checkBoxDarkTheme.setSelected(ConfigFileHandler.getApplicationSettings().darkTheme);
-        checkBoxDarkTheme.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-            ConfigFileHandler.getApplicationSettings().darkTheme = isSelected;
-            ConfigFileHandler.getApplicationSettings().markDirty();
-            FXApplication.applyCurrentTheme();
-        });
-
-         */
-
         viewportScrollPane = new ZoomableScrollPane();
 
         viewportScrollPane.setFitToWidth(true);
