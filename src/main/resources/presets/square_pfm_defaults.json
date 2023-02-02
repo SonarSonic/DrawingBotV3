@@ -40,6 +40,40 @@
           "Max Line length": "30"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Squares PFM",
+      "presetName": "Single Pen Style V1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Start Angle": "45",
+          "Erase Radius Min": "1.0",
+          "Erase Min": "50",
+          "Distortion": "0.0",
+          "Edge Power": "0.0",
+          "Squiggle Max Length": "500",
+          "Erase Radius Max": "8.0",
+          "Sobel Power": "0.0",
+          "Should Lift Pen": "true",
+          "Line Max Length": "30",
+          "Directionality": "50.0",
+          "Line Max Limit": "-1",
+          "Angle Tests": "4",
+          "Luminance Power": "100.0",
+          "Tone": "100.0",
+          "Line Min Length": "2",
+          "Erase Max": "125",
+          "Angularity": "0.0",
+          "Squiggle Min Length": "25",
+          "Random Seed": "0",
+          "Line Density": "91.807",
+          "Squiggle Max Deviation": "25.0"
+        }
+      }
     }
   ]
 }

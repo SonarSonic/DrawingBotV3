@@ -44,6 +44,161 @@
           "Start Angle Max": "360"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "Light Wiggle",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Curve Offset B": "20",
+          "Curve Offset A": "-20"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "Wiggle",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Curve Offset B": "50",
+          "Curve Offset A": "-50"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "Single Pen Style V1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Curve Offset B": "0",
+          "Curve Offset A": "0",
+          "Shading Delta Angle": "180.0",
+          "Shading Threshold": "50.0",
+          "Start Angle Min": "-360",
+          "Erase Min": "50",
+          "Distortion": "0.0",
+          "Edge Power": "0.0",
+          "Erase Radius Max": "24.0",
+          "Sobel Power": "0.0",
+          "Should Lift Pen": "true",
+          "Line Max Length": "40",
+          "Line Max Limit": "-1",
+          "Drawing Delta Angle": "360.0",
+          "Luminance Power": "100.0",
+          "Start Angle Max": "360",
+          "Curve Tension": "0.5",
+          "Angularity": "0.0",
+          "Random Seed": "0",
+          "Unlimited Tests": "false",
+          "Squiggle Max Deviation": "25.0",
+          "Curve Tests": "10",
+          "Curve Variation": "50",
+          "Plotting Resolution": "1.0",
+          "Erase Radius Min": "1.0",
+          "Shading": "false",
+          "Squiggle Max Length": "500",
+          "Directionality": "50.0",
+          "Angle Tests": "50",
+          "Tone": "100.0",
+          "Line Min Length": "15",
+          "Erase Max": "50",
+          "Squiggle Min Length": "50",
+          "Line Density": "90.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Curves PFM",
+      "presetName": "Single Pen Style V1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Shading Delta Angle": "180.0",
+          "Shading Threshold": "50.0",
+          "Start Angle Min": "-360",
+          "Erase Min": "50",
+          "Distortion": "0.0",
+          "Edge Power": "0.0",
+          "Erase Radius Max": "24.0",
+          "Sobel Power": "0.0",
+          "Should Lift Pen": "true",
+          "Line Max Length": "40",
+          "Line Max Limit": "-1",
+          "Drawing Delta Angle": "360.0",
+          "Luminance Power": "100.0",
+          "Start Angle Max": "360",
+          "Curve Tension": "0.5",
+          "Angularity": "0.0",
+          "Random Seed": "0",
+          "Unlimited Tests": "false",
+          "Squiggle Max Deviation": "25.0",
+          "Plotting Resolution": "1.0",
+          "Erase Radius Min": "1.0",
+          "Shading": "false",
+          "Squiggle Max Length": "500",
+          "Directionality": "50.0",
+          "Angle Tests": "50",
+          "Tone": "100.0",
+          "Line Min Length": "15",
+          "Erase Max": "50",
+          "Squiggle Min Length": "25",
+          "Line Density": "90.0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Quad Beziers PFM",
+      "presetName": "Single Pen Style V1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Shading Delta Angle": "180.0",
+          "Shading Threshold": "50.0",
+          "Start Angle Min": "-360",
+          "Erase Min": "50",
+          "Distortion": "0.0",
+          "Edge Power": "0.0",
+          "Erase Radius Max": "24.0",
+          "Sobel Power": "0.0",
+          "Should Lift Pen": "true",
+          "Line Max Length": "40",
+          "Line Max Limit": "-1",
+          "Drawing Delta Angle": "360.0",
+          "Luminance Power": "100.0",
+          "Curve Offset": "0",
+          "Start Angle Max": "360",
+          "Angularity": "0.0",
+          "Random Seed": "0",
+          "Unlimited Tests": "false",
+          "Squiggle Max Deviation": "25.0",
+          "Curve Tests": "10",
+          "Curve Variation": "50",
+          "Plotting Resolution": "1.0",
+          "Erase Radius Min": "1.0",
+          "Shading": "false",
+          "Squiggle Max Length": "500",
+          "Directionality": "50.0",
+          "Angle Tests": "50",
+          "Tone": "100.0",
+          "Line Min Length": "15",
+          "Erase Max": "50",
+          "Squiggle Min Length": "25",
+          "Line Density": "90.0"
+        }
+      }
     }
   ]
 }
