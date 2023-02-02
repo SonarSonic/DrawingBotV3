@@ -242,6 +242,188 @@
           "Row Padding %": "0"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Mosaic Segments",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": false,
+                "name": "Hatch Sawtooth",
+                "pfm": "Hatch Sawtooth",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Line Spacing": "7.0",
+                  "Amplitude": "1.0",
+                  "Min Velocity": "0.2",
+                  "Angle": "125.0",
+                  "Crosshatch": "false",
+                  "Curve Tension": "0.5",
+                  "Max Velocity": "4.0",
+                  "Random Seed": "0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Spiral PFM",
+                "pfm": "Spiral PFM",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Amplitude": "1.0",
+                  "Spiral Size": "100.0",
+                  "Centre X": "50.0",
+                  "Min Velocity": "50.0",
+                  "Ignore White": "false",
+                  "Centre Y": "50.0",
+                  "Ring Spacing": "7.0",
+                  "Connected Lines": "true",
+                  "Spiral Type": "Archimedean",
+                  "Max Velocity": "150.0",
+                  "Variable Velocity": "true",
+                  "Random Seed": "0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Spiral Circular Scribbles",
+                "pfm": "Spiral Circular Scribbles",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Amplitude": "1.0",
+                  "Angular Velocity": "20.0",
+                  "Spiral Size": "100.0",
+                  "Centre X": "50.0",
+                  "Min Velocity": "10.0",
+                  "Ignore White": "false",
+                  "Centre Y": "50.0",
+                  "Azimuth Angle Min": "-45.0",
+                  "Polar Angle Min": "0.0",
+                  "Ring Spacing": "7.0",
+                  "Polar Angle Max": "45.0",
+                  "Azimuth Angle Max": "0.0",
+                  "Spiral Type": "Archimedean",
+                  "Curve Tension": "0.5",
+                  "Max Velocity": "100.0",
+                  "Variable Velocity": "true",
+                  "Random Seed": "0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Offset Cells": "0.0",
+          "Compactness": "40",
+          "Segments": "200",
+          "Iterations": "10",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Mosaic Rectangles",
+      "presetName": "Glitchy Collage",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Column Padding %": "0",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "10.0",
+                  "Start Angle Min": "-10",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "50",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "10",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Shading": "true",
+                  "Squiggle Max Length": "100",
+                  "Directionality": "0.0",
+                  "Angle Tests": "30",
+                  "Line Min Length": "2",
+                  "Adjust Brightness": "70",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "10.0",
+                  "Start Angle Min": "80",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "50",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "100",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Shading": "true",
+                  "Squiggle Max Length": "100",
+                  "Directionality": "0.0",
+                  "Angle Tests": "30",
+                  "Line Min Length": "2",
+                  "Adjust Brightness": "70",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Columns": "8",
+          "Random Seed": "-397013783",
+          "Rows": "8",
+          "Row Padding %": "0"
+        }
+      }
     }
   ]
 }

@@ -41,7 +41,7 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
-          "Max Sample Radius": "16.197",
+          "Max Sample Radius": "16.0",
           "Angular Velocity": "20.0",
           "Target Spacing": "6.0",
           "Max Radius": "35.0",
@@ -49,7 +49,6 @@
           "Ignore White": "false",
           "Merge TSP Paths": "true",
           "Min Radius": "2.0",
-          "Edge Threshold": "130.47",
           "Brightness": "1.0",
           "Azimuth Angle Min": "-360.0",
           "Polar Angle Min": "-360.0",
