@@ -5,7 +5,6 @@ import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeList;
 import javafx.beans.Observable;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
@@ -15,18 +14,18 @@ public class MaskingSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final SimpleBooleanProperty bypassMasking = new SimpleBooleanProperty(false);
+    public final SimpleBooleanProperty enableMasking = new SimpleBooleanProperty(true);
 
-    public boolean isBypassMasking() {
-        return bypassMasking.get();
+    public boolean getEnableMasking() {
+        return enableMasking.get();
     }
 
-    public SimpleBooleanProperty bypassMaskingProperty() {
-        return bypassMasking;
+    public SimpleBooleanProperty enableMaskingProperty() {
+        return enableMasking;
     }
 
-    public void setBypassMasking(boolean bypassMasking) {
-        this.bypassMasking.set(bypassMasking);
+    public void setEnableMasking(boolean enableMasking) {
+        this.enableMasking.set(enableMasking);
     }
 
     ///////////////////////////////////////////////
@@ -85,7 +84,7 @@ public class MaskingSettings implements IProperties {
                         g.displayedProperty().unbind();
                     }
                     for (JFXShape g : c.getAddedSubList()) {
-                        g.displayedProperty().bind(showMasks.and(g.enabledProperty()));
+                        g.displayedProperty().bind(enableMasking.and(showMasks.and(g.enabledProperty())));
                     }
                 }
             });
@@ -113,10 +112,13 @@ public class MaskingSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(bypassMasking, showMasks, softClipping);
+    private ObservableList<Observable> propertyList = null;
 
     @Override
-    public ObservableList<Observable> getObservables() {
-        return observables;
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(enableMasking, showMasks, softClipping);
+        }
+        return propertyList;
     }
 }

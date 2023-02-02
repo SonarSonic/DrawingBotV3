@@ -809,15 +809,13 @@ public class ShapeOverlays extends AbstractOverlay{
             handle.getStyleClass().add(SELECTION_CLOSE_HANDLE_STYLE_CLASS);
             handle.setOnMousePressed(e -> {
                 if(e.isPrimaryButtonDown()){
-                    // If the path contains more elements than the first move to, we can close it
-                    if(drawingShape.get().jfxShape.getElements().size() > 1){
-                        // For the initial moveTo we need to handle closing the shape.
+                    PathElement lastElement = drawingShape.get().jfxShape.getElements().get(drawingShape.get().jfxShape.getElements().size()-1);
+                    if(lastElement == moveTo || lastElement instanceof ClosePath){
+                        onVertexHandlePressed(VertexHandleType.POINT, moveTo, e, moveTo.xProperty(), moveTo.yProperty());
+                    }else {
                         closeDrawingShape();
                         handle.getStyleClass().remove(SELECTION_CLOSE_HANDLE_STYLE_CLASS);
-                        return;
                     }
-                    // If not allow the user to reposition their first point.
-                    onVertexHandlePressed(VertexHandleType.POINT, moveTo, e, moveTo.xProperty(), moveTo.yProperty());
                 }
             });
 
@@ -837,6 +835,9 @@ public class ShapeOverlays extends AbstractOverlay{
                 CubicCurveTo otherCurve = (CubicCurveTo) prevElement;
                 curveTo.controlX1Property().bind(otherCurve.xProperty().add(otherCurve.xProperty().subtract(otherCurve.controlX2Property())));
                 curveTo.controlY1Property().bind(otherCurve.yProperty().add(otherCurve.yProperty().subtract(otherCurve.controlY2Property())));
+            }else{
+                //curveTo.controlX1Property().bind(JFXAWTUtils.getXFromPathElement(prevElement));
+                //curveTo.controlY1Property().bind(JFXAWTUtils.getYFromPathElement(prevElement));
             }
 
             BooleanBinding isSelected = currentPathElement.isEqualTo(curveTo);
@@ -973,7 +974,6 @@ public class ShapeOverlays extends AbstractOverlay{
 
     public void closeDrawingShape(){
         drawingShape.get().addElement(new ClosePath());
-        toolMode.set(ToolMode.EDIT);
         drawingShape.get().setDrawing(false);
         currentPathElement.set(null);
     }

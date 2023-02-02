@@ -310,10 +310,10 @@ public class JFXShape {
     ////////////////////////////
 
     public enum Type{
-        RESHAPE,
         SUBTRACT,
         ADD,
-        DRAW,
+        SPECIAL,
+        RESHAPE,
         NONE;
 
         @Override
