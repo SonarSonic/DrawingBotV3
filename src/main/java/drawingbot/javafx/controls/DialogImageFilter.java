@@ -21,7 +21,7 @@ public class DialogImageFilter extends Dialog<ObservableImageFilter> {
 
 
         VBox hBox = new VBox();
-        GridPane gridPane = FXHelper.createSettingsGridPane(filter.filterSettings, s -> DrawingBotV3.INSTANCE.onImageFilterChanged(filter));
+        GridPane gridPane = FXHelper.createSettingsGridPane(filter.filterSettings, s -> DrawingBotV3.project().onImageFilterChanged(filter));
         CheckBox checkBox = new CheckBox("Enabled");
         checkBox.selectedProperty().bindBidirectional(filter.enable);
         checkBox.setPadding(new Insets(8, 0, 16, 0));

@@ -1,15 +1,18 @@
 package drawingbot.javafx.observables;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
+import drawingbot.api.IProperties;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.json.adapters.JsonAdapterObservableDrawingSet;
+import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.EnumDistributionType;
-import javafx.application.Platform;
+import drawingbot.utils.SpecialListenable;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonAdapter(JsonAdapterObservableDrawingSet.class)
-public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
+public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet.Listener> implements IDrawingSet<ObservableDrawingPen>, IProperties {
 
     public final SimpleStringProperty type = new SimpleStringProperty();
     public final SimpleStringProperty name = new SimpleStringProperty();
@@ -32,14 +35,26 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
 
     public transient boolean loadingDrawingSet = false;
 
-    public ObservableDrawingSet(){}
+    public ObservableDrawingSet(){
+        init();
+    }
 
     public ObservableDrawingSet(IDrawingSet<?> source){
+        super();
         this.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
         this.distributionType.set(EnumDistributionType.EVEN_WEIGHTED);
         this.colourSeperator.set(Register.DEFAULT_COLOUR_SPLITTER);
 
         loadDrawingSet(source);
+        init();
+    }
+
+    private void init(){
+        InvalidationListener genericListener = observable -> sendListenerEvent(listener -> listener.onDrawingSetPropertyChanged(this, observable));
+        getPropertyList().forEach(prop -> prop.addListener(genericListener));
+
+        colourSeperator.addListener((observable, oldValue, newValue) -> sendListenerEvent(listener -> listener.onColourSeparatorChanged(this, oldValue, newValue)));
+        PropertyUtil.addSpecialListenerWithSubList(this, pens, Listener::onDrawingPenAdded, Listener::onDrawingPenRemoved);
     }
 
     public void loadDrawingSet(IDrawingSet<?> source){
@@ -59,9 +74,7 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
             pens.add(new ObservableDrawingPen(pens.size(), pen));
         }
         this.currentRenderOrder = calculateRenderOrder();
-
         loadingDrawingSet = false;
-        Platform.runLater(() -> DrawingBotV3.INSTANCE.onDrawingSetChanged()); //TODO REMOVE ME!
     }
 
     public void mergePens(List<ObservableDrawingPen> pens){
@@ -139,4 +152,29 @@ public class ObservableDrawingSet implements IDrawingSet<ObservableDrawingPen> {
         return getName();
     }
 
+    ///////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
+    @Override
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(type, name, pens, distributionOrder, distributionType, colourSeperator);
+        }
+        return propertyList;
+    }
+
+    ///////////////////////////
+
+    public interface Listener extends ObservableDrawingPen.Listener {
+
+        default void onDrawingSetPropertyChanged(ObservableDrawingSet set, Observable property) {}
+
+        default void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeperationHandler oldValue, ColourSeperationHandler newValue) {}
+
+        default void onDrawingPenAdded(ObservableDrawingPen pen) {}
+
+        default void onDrawingPenRemoved(ObservableDrawingPen pen) {}
+
+    }
 }

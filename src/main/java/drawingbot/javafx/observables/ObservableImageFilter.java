@@ -1,9 +1,14 @@
 package drawingbot.javafx.observables;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IProperties;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.SpecialListenable;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -12,8 +17,9 @@ import javafx.collections.ObservableList;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.util.List;
 
-public class ObservableImageFilter {
+public class ObservableImageFilter extends SpecialListenable<ObservableImageFilter.Listener> implements IProperties {
 
     public final SimpleBooleanProperty enable;
     public final SimpleStringProperty name;
@@ -44,20 +50,43 @@ public class ObservableImageFilter {
         this.filterSettings = filterSettings;
         this.settingsString = new SimpleStringProperty(filterSettings.toString());
 
-        this.filterSettings.forEach(s -> s.valueProperty().addListener((observable, oldValue, newValue) -> onSettingChanged()));
-        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onImageFilterChanged(this));
         //changes to filter settings are called from the FXController
-
         this.dirty = new SimpleBooleanProperty(true);
         this.cached = new SimpleObjectProperty<>(null);
-    }
 
-    public void onSettingChanged() {
-        ///actually updating the image filter rendering is done elsewhere, this shouldn't always change as values do
-        this.settingsString.set(filterSettings.toString());
+        InvalidationListener genericListener = observable -> sendListenerEvent(listener -> listener.onImageFilterPropertyChanged(this, observable));
+        this.enable.addListener(genericListener);
+        this.name.addListener(genericListener);
+        this.filterSettings.forEach(s -> s.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(!s.isValueChanging()){
+                genericListener.invalidated(s);
+                // Update the displayed settings string
+                this.settingsString.set(filterSettings.toString());
+            }
+        }));
     }
 
     public ObservableImageFilter copy(){
         return new ObservableImageFilter(this);
+    }
+
+    ///////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
+    @Override
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(enable, name, filterSettings, settingsString);
+        }
+        return propertyList;
+    }
+
+    ///////////////////////////
+
+    public interface Listener {
+
+        default void onImageFilterPropertyChanged(ObservableImageFilter filter, Observable property) {}
+
     }
 }

@@ -4,23 +4,26 @@ import drawingbot.api.Hooks;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IProperties;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.utils.SpecialListenable;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.Property;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DrawingSets implements IProperties {
+public class DrawingSets extends SpecialListenable<DrawingSets.Listener> implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>();
+    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>(null);
 
     public ObservableDrawingSet getActiveDrawingSet() {
         return activeDrawingSet.get();
@@ -36,38 +39,32 @@ public class DrawingSets implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlots = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public final ObservableList<ObservableDrawingSet> drawingSetSlots = FXCollections.observableArrayList();
     {
-        drawingSetSlots.get().addListener((InvalidationListener) observable -> {
-            if(!drawingSetSlots.get().contains(activeDrawingSet.get())){
-                if(!drawingSetSlots.get().isEmpty()){
-                    activeDrawingSet.set(drawingSetSlots.get().get(0));
+        drawingSetSlots.addListener((InvalidationListener) observable -> {
+            if(!drawingSetSlots.contains(activeDrawingSet.get())){
+                if(!drawingSetSlots.isEmpty()){
+                    activeDrawingSet.set(drawingSetSlots.get(0));
                 }
             }
         });
     }
 
     public ObservableList<ObservableDrawingSet> getDrawingSetSlots() {
-        return drawingSetSlots.get();
-    }
-
-    public SimpleObjectProperty<ObservableList<ObservableDrawingSet>> drawingSetSlotsProperty() {
         return drawingSetSlots;
-    }
-
-    public void setDrawingSetSlots(ObservableList<ObservableDrawingSet> drawingSetSlots) {
-        this.drawingSetSlots.set(drawingSetSlots);
     }
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
-
-    public DrawingSets(){}
+    public DrawingSets(){
+        PropertyUtil.addSpecialListenerWithSubList(this, drawingSetSlots, Listener::onDrawingSetAdded, Listener::onDrawingSetRemoved);
+        activeDrawingSet.addListener((observable, oldValue, newValue) -> sendListenerEvent(l -> l.onActiveSlotChanged(newValue)));
+    }
 
     public DrawingSets(List<ObservableDrawingSet> sets){
+        super();
         if(sets.size() > 0){
-            drawingSetSlots.get().addAll(sets);
+            drawingSetSlots.addAll(sets);
             activeDrawingSet.set(sets.get(0));
         }
     }
@@ -77,19 +74,19 @@ public class DrawingSets implements IProperties {
     }
 
     public int getDrawingSetSlot(ObservableDrawingSet drawingSet){
-        return drawingSetSlots.get().indexOf(drawingSet);
+        return drawingSetSlots.indexOf(drawingSet);
     }
 
     public ObservableDrawingSet getDrawingSetForSlot(int slot){
-        if(drawingSetSlots.get().size() > slot){
-            return drawingSetSlots.get().get(slot);
+        if(drawingSetSlots.size() > slot){
+            return drawingSetSlots.get(slot);
         }
         return activeDrawingSet.get();
     }
 
     @Nullable
     public ObservableDrawingSet getDrawingSetForName(String name){
-        for(ObservableDrawingSet set : drawingSetSlots.get()){
+        for(ObservableDrawingSet set : drawingSetSlots){
             if(set.getName().equals(name)){
                 return set;
             }
@@ -106,9 +103,9 @@ public class DrawingSets implements IProperties {
 
     public DrawingSets copy(){
         DrawingSets copy = new DrawingSets();
-        drawingSetSlots.get().forEach(set -> {
+        drawingSetSlots.forEach(set -> {
             ObservableDrawingSet setCopy = new ObservableDrawingSet(set);
-            copy.drawingSetSlots.get().add(setCopy);
+            copy.drawingSetSlots.add(setCopy);
             if(set.equals(activeDrawingSet.get())){
                 copy.activeDrawingSet.set(setCopy);
             }
@@ -116,8 +113,29 @@ public class DrawingSets implements IProperties {
         return copy;
     }
 
+
+    ///////////////////////////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
     @Override
-    public ObservableList<Observable> getObservables() {
-        return observables;
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(activeDrawingSet, drawingSetSlots);
+        }
+        return propertyList;
     }
+
+    ///////////////////////////////////////////////
+
+    public interface Listener extends ObservableDrawingSet.Listener {
+
+        default void onActiveSlotChanged(ObservableDrawingSet activeSet){}
+
+        default void onDrawingSetAdded(ObservableDrawingSet set){}
+
+        default void onDrawingSetRemoved(ObservableDrawingSet set){}
+
+    }
+
 }

@@ -1,18 +1,23 @@
 package drawingbot.javafx.observables;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IDrawingPen;
+import drawingbot.api.IProperties;
 import drawingbot.files.json.adapters.JsonAdapterObservableDrawingPen;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.utils.SpecialListenable;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.*;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
 
 @JsonAdapter(JsonAdapterObservableDrawingPen.class)
-public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
+public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen.Listener> implements IDrawingPen, ICustomPen, IProperties {
 
     public IDrawingPen source;
     public final SimpleIntegerProperty penNumber = new SimpleIntegerProperty(); //the pens index in the set
@@ -26,7 +31,9 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
     public final transient SimpleIntegerProperty currentGeometries = new SimpleIntegerProperty(); //geometries
     public final SimpleBooleanProperty forceOverlap = new SimpleBooleanProperty(false);
 
-    public ObservableDrawingPen(){}
+    public ObservableDrawingPen(){
+        init();
+    }
 
     public ObservableDrawingPen(int penNumber, IDrawingPen source){
         this.source = source instanceof ObservableDrawingPen ? ((ObservableDrawingPen) source).source : source;
@@ -39,21 +46,15 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
         this.strokeSize.set(source.getStrokeSize());
         this.currentPercentage.set("0.0");
         this.currentGeometries.set(0);
-        initListeners();
+        init();
     }
 
-    public void initListeners(){
-        this.enable.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.name.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.type.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.javaFXColour.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtColor = null;});
-        this.distributionWeight.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.onDrawingPenChanged());
-        this.strokeSize.addListener((observable, oldValue, newValue) -> {DrawingBotV3.INSTANCE.onDrawingPenChanged(); awtStroke = null;});
-        this.forceOverlap.addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.INSTANCE != null) {
-                DrawingBotV3.INSTANCE.onDrawingPenChanged();
-            }
-        });
+    public void init(){
+        InvalidationListener genericListener = observable -> sendListenerEvent(listener -> listener.onDrawingPenPropertyChanged(this, observable));
+        getPropertyList().forEach(prop -> prop.addListener(genericListener));
+
+        this.strokeSize.addListener(observable -> awtStroke = null);
+        this.javaFXColour.addListener(observable -> awtStroke = null);
     }
 
     @Override
@@ -138,5 +139,25 @@ public class ObservableDrawingPen implements IDrawingPen, ICustomPen {
             return ImageTools.getColorFromARGB(((ICustomPen) source).getCustomARGB(pfmARGB));
         }
         return javaFXColour.get();
+    }
+
+    ///////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
+    @Override
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(penNumber, enable, type, name, javaFXColour, distributionWeight, strokeSize, forceOverlap);
+        }
+        return propertyList;
+    }
+
+    ///////////////////////////
+
+    public interface Listener {
+
+        default void onDrawingPenPropertyChanged(ObservableDrawingPen pen, Observable property) {}
+
     }
 }

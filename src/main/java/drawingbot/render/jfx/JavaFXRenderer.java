@@ -186,9 +186,9 @@ public class JavaFXRenderer implements IRenderer {
         updateCanvasScaling();
 
         updateCanvasPosition();
-        DrawingBotV3.INSTANCE.resetView();
+        DrawingBotV3.project().resetView();
         clearCanvas();//wipe the canvas
-        DrawingBotV3.INSTANCE.setRenderFlag(Flags.FORCE_REDRAW, true);
+        DrawingBotV3.project().setRenderFlag(Flags.FORCE_REDRAW, true);
     }
 
     public void updateCanvasScaling(){

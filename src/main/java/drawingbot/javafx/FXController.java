@@ -561,7 +561,7 @@ public class FXController extends AbstractFXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
-                DrawingBotV3.INSTANCE.updatePenDistribution();
+                DrawingBotV3.project().updatePenDistribution();
             }
         });
 
@@ -571,7 +571,7 @@ public class FXController extends AbstractFXController {
                 int lines = (int)Utils.mapDouble(newValue.doubleValue(), 0, 1, 0, drawing.getGeometryCount());
                 drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
-                DrawingBotV3.INSTANCE.updatePenDistribution();
+                DrawingBotV3.project().updatePenDistribution();
             }
         });
 
@@ -582,7 +582,7 @@ public class FXController extends AbstractFXController {
                 drawing.displayedShapeMax = lines;
                 textFieldDisplayedShapesMax.setText(String.valueOf(lines));
                 rangeSliderDisplayedLines.setHighValue((double)lines / drawing.getGeometryCount());
-                DrawingBotV3.INSTANCE.updatePenDistribution();
+                DrawingBotV3.project().updatePenDistribution();
             }
         });
 
@@ -593,7 +593,7 @@ public class FXController extends AbstractFXController {
                 drawing.displayedShapeMin = lines;
                 textFieldDisplayedShapesMin.setText(String.valueOf(lines));
                 rangeSliderDisplayedLines.setLowValue((double)lines / drawing.getGeometryCount());
-                DrawingBotV3.INSTANCE.updatePenDistribution();
+                DrawingBotV3.project().updatePenDistribution();
             }
         });
         EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.displayedDrawing).addListener((observable, oldValue, newValue) -> {
@@ -646,11 +646,11 @@ public class FXController extends AbstractFXController {
         viewportScrollPane.setMaxWidth(Double.MAX_VALUE);
         viewportScrollPane.setMaxHeight(Double.MAX_VALUE);
         viewportScrollPane.setPannable(true);
-        viewportScrollPane.scale.addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.INSTANCE.setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.scale.addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
+        viewportScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
 
         viewportScrollPane.contentProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){

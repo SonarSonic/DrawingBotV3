@@ -171,10 +171,10 @@ public class ExportTask extends DBTask<Boolean> {
             case PER_PEN:
                 List<ObservableDrawingPen> activePens = filterActivePens(plottedDrawing.getGlobalDisplayOrder(), false);
                 int setPos = 0;
-                for(ObservableDrawingSet drawingSet : plottedDrawing.drawingSets.drawingSetSlots.get()){
+                for(ObservableDrawingSet drawingSet : plottedDrawing.drawingSets.drawingSetSlots){
                     int penPos = 0;
                     for(ObservableDrawingPen drawingPen : drawingSet.pens){
-                        updateTitle(exportHandler.description + ": " + " Set: " + (setPos+1) + " / " + plottedDrawing.drawingSets.drawingSetSlots.get().size() +  " Pen: " + (penPos+1) + " / " + drawingSet.pens.size() + " - " + saveLocation.getPath());
+                        updateTitle(exportHandler.description + ": " + " Set: " + (setPos+1) + " / " + plottedDrawing.drawingSets.drawingSetSlots.size() +  " Pen: " + (penPos+1) + " / " + drawingSet.pens.size() + " - " + saveLocation.getPath());
                         File fileName = new File(baseSaveLocation.getPath() + "_set" + (setPos+1) + "_pen" + (penPos+1) + "_" + drawingPen.getName() + extension);
                         if(drawingPen.isEnabled() && activePens.contains(drawingPen)){
                             doExport((drawing, geometry, pen) -> geometryFilter.filter(drawing, geometry, pen) && pen == drawingPen, fileName);

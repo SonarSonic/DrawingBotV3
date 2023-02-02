@@ -43,11 +43,8 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             //update the filtered image
             FilteredImageData openImage = DrawingBotV3.project().openImage.get();
             if(openImage != null){
-                if(renderFlags.anyMatch(Flags.IMAGE_FILTERS_FULL_UPDATE, Flags.IMAGE_FILTERS_PARTIAL_UPDATE, Flags.CANVAS_CHANGED)){
+                if(openImage.nextUpdate != FilteredImageData.UpdateType.NONE){
                     if(jfr.filteringTask == null || !jfr.filteringTask.updating.get()){
-                        openImage.invalidate();
-                        openImage.updateCropping = renderFlags.anyMatch(Flags.CANVAS_CHANGED);//jfr.croppingDirty;
-                        openImage.updateAllFilters = renderFlags.anyMatch(Flags.IMAGE_FILTERS_FULL_UPDATE);//jfr.imageFiltersChanged;
                         DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.imageFilteringService, jfr.filteringTask = new ImageFilteringTask(DrawingBotV3.context(), openImage));
                         renderFlags.markForClear(Flags.IMAGE_FILTERS_FULL_UPDATE, Flags.IMAGE_FILTERS_PARTIAL_UPDATE, Flags.CANVAS_CHANGED);
                     }
@@ -171,7 +168,6 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             imageData.cropEndX.set((float) rectangle2D.getMaxX() / scale);
             imageData.cropEndY.set((float) rectangle2D.getMaxY() / scale);
             transforming = false;
-            DrawingBotV3.INSTANCE.onCanvasChanged();
         }
 
         public static void updateCropFromImageData(){
@@ -187,7 +183,6 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             cropShape.transformed = cropShape.geometry;
             cropShape.awtTransform = new AffineTransform();
             cropShape.updateFromTransform(cropShape.awtTransform);
-            DrawingBotV3.INSTANCE.onCanvasChanged();
         }
 
         public void init(){
@@ -230,7 +225,6 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         @Override
         public void resetSettings() {
             super.resetSettings();
-            DrawingBotV3.INSTANCE.onCanvasChanged();
             JFXShapeManager.INSTANCE.activeShapeList.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.maskingSettings.get().shapeList));
             ShapeOverlays.INSTANCE.enableRotation.set(true);
         }

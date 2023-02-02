@@ -1,9 +1,9 @@
 package drawingbot.drawing;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.DrawingBotV3;
 import drawingbot.files.json.adapters.JsonAdapterColourSplitter;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.INamedSetting;
@@ -29,12 +29,12 @@ public class ColourSeperationHandler implements INamedSetting {
         return null;
     }
 
-    public void applySettings(DBTaskContext context, DrawingSets drawingSets){
-        context.project().getPFMSettings().setNextDistributionType(EnumDistributionType.getRecommendedType(drawingSets.getActiveDrawingSet(), context.project().getPFMSettings().getPFMFactory()));
+    public void applySettings(DBTaskContext context, ObservableDrawingSet activeSet){
+        context.project().getPFMSettings().setNextDistributionType(EnumDistributionType.getRecommendedType(activeSet, context.project().getPFMSettings().getPFMFactory()));
     }
 
-    public void resetSettings(DBTaskContext context, DrawingSets drawingSets){
-        context.project().getPFMSettings().setNextDistributionType(EnumDistributionType.getRecommendedType(drawingSets.getActiveDrawingSet(), context.project().getPFMSettings().getPFMFactory()));
+    public void resetSettings(DBTaskContext context, ObservableDrawingSet activeSet){
+        context.project().getPFMSettings().setNextDistributionType(EnumDistributionType.getRecommendedType(activeSet, context.project().getPFMSettings().getPFMFactory()));
     }
 
     /**

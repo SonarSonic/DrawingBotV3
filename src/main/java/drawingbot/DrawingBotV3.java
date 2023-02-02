@@ -23,7 +23,6 @@ import drawingbot.plotting.ITaskManager;
 import drawingbot.javafx.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PFMTaskImage;
@@ -105,8 +104,7 @@ public class DrawingBotV3 {
 
     public void init(){
         activeProject.addListener((observable, oldValue, newValue) -> {
-            //Register.PRESET_LOADER_PROJECT.getDefaultManager().tryApplyPreset(newValue.preset.get());
-            reRender();
+            project().reRender();
             if(oldValue != null){
                 displayMode.unbindBidirectional(oldValue.displayModeProperty());
                 oldValue.setLoaded(false);
@@ -153,63 +151,11 @@ public class DrawingBotV3 {
 
     // RENDER FLAGS \\
 
-    public <T> void setRenderFlag(Flags.BooleanFlag flag){
-        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
-            displayMode.getRenderFlags().setFlag(flag, true);
-        }
-    }
-
-    public <T> void setRenderFlag(Flags.Flag<T> flag, T value){
-        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
-            displayMode.getRenderFlags().setFlag(flag, value);
-        }
-    }
-
-    public void reRender(){
-        setRenderFlag(Flags.FORCE_REDRAW);
-    }
-
-    public void onImageChanged(){
-        setRenderFlag(Flags.OPEN_IMAGE_UPDATED, true);
-        invalidateImageFiltering();
-    }
-
-    public void onCanvasChanged(){
-        setRenderFlag(Flags.CANVAS_CHANGED, true);
-        invalidateImageFiltering();
-    }
-
-    public void onDrawingCleared(){
-        setRenderFlag(Flags.CLEAR_DRAWING, true);
-    }
-
-    public void onImageFiltersChanged(){
-        setRenderFlag(Flags.IMAGE_FILTERS_FULL_UPDATE, true);
-        invalidateImageFiltering();
-    }
-
-    public void onImageFilterDirty(){
-        setRenderFlag(Flags.IMAGE_FILTERS_PARTIAL_UPDATE, true);
-        invalidateImageFiltering();
-    }
-
-    public void invalidateImageFiltering(){
-        if(project().openImage.get() != null){
-            project().openImage.get().invalidate();
-        }
-    }
-
-    public void onPFMSettingsChanged(){
-        globalFlags.setFlag(Flags.PFM_SETTINGS_UPDATE, true);
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void tick(){
 
-        taskMonitor.tick();
-
-        //TODO FIX THIS updatinmg on every tick
 
         //update the latest shapes/vertices counts from the active task
         if(context().taskManager().getActiveTask() != null){
@@ -241,10 +187,16 @@ public class DrawingBotV3 {
         }else{
             controller.labelImageResolution.setText("0 x 0");
         }
+        // Tick the current tasks
+        taskMonitor.tick();
 
-        //tick all plugins
+        // Tick all plugins
         MasterRegistry.PLUGINS.forEach(IPlugin::tick);
 
+        // Tick all open projects
+        DrawingBotV3.INSTANCE.activeProjects.forEach(ObservableProject::tick);
+
+        // Check for pen distribution updates
         if(globalFlags.anyMatch(Flags.UPDATE_PEN_DISTRIBUTION)){
             globalFlags.setFlag(Flags.UPDATE_PEN_DISTRIBUTION, false);
             lazyBackgroundService.submit(() -> {
@@ -252,12 +204,14 @@ public class DrawingBotV3 {
                 if(drawing != null){
                     drawing.updatePenDistribution();
                 }
-                Platform.runLater(() -> DrawingBotV3.INSTANCE.reRender());
+                Platform.runLater(() -> project().reRender());
             });
         }
 
-        if(DBPreferences.INSTANCE.autoRunPFM.get() && globalFlags.anyMatch(Flags.PFM_SETTINGS_UPDATE)){
-            globalFlags.setFlag(Flags.PFM_SETTINGS_UPDATE, false);
+        // Auto run the PFM is the PFM Settings have changed
+        //NOTE AUTO RUN, IS RUNNING EVEN FOR NON USER CHANGES!
+        if(DBPreferences.INSTANCE.autoRunPFM.get() && globalFlags.anyMatch(Flags.PFM_SETTINGS_USER_EDITED)){
+            globalFlags.setFlag(Flags.PFM_SETTINGS_USER_EDITED, false);
             resetTaskService();
             startPlotting(context());
         }
@@ -278,29 +232,6 @@ public class DrawingBotV3 {
         }
 
         newValue.applySettings();
-    }
-
-    public void onDrawingPenChanged(){
-        updatePenDistribution();
-    }
-
-    public void onDrawingSetChanged(){
-        if(project().getDrawingSets().getActiveDrawingSet() == null || project().getDrawingSets().getActiveDrawingSet().loadingDrawingSet){
-            //prevents events being fired for every pen addition
-            return;
-        }
-        updatePenDistribution();
-    }
-
-    public void onImageFilterChanged(ObservableImageFilter filter){
-        filter.dirty.set(true);
-        onImageFilterDirty();
-    }
-
-    public void updatePenDistribution(){
-        if(project().currentDrawing.get() != null){
-            globalFlags.setFlag(Flags.UPDATE_PEN_DISTRIBUTION, true);
-        }
     }
 
     //// PLOTTING TASKS
@@ -361,7 +292,7 @@ public class DrawingBotV3 {
         context.taskManager().setActiveTask(null);
         context.taskManager().setCurrentDrawing(null);
         context.taskManager().setRenderedTask(null);
-        setRenderFlag(Flags.FORCE_REDRAW, true);
+        project().reRender();
         project().displayMode.setValue(Register.INSTANCE.DISPLAY_MODE_IMAGE);
     }
 

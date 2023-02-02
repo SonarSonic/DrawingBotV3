@@ -23,7 +23,7 @@ public class ImageFilteringTask extends DBTask<FilteredImageData> {
         image.updateAll(context.project.imageSettings.get());
         updating.set(true);
         Platform.runLater(() -> {
-            context.project.onImageChanged();
+            context.project.onImageRenderingUpdated();
             updating.set(false);
         });
         return image;

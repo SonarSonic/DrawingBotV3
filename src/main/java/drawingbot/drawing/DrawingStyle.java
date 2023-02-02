@@ -92,7 +92,7 @@ public class DrawingStyle implements IDrawingStyle {
     @Override
     public ObservableDrawingSet getDrawingSet(DrawingSets drawingSets) {
         ObservableDrawingSet drawingSet = null;
-        if(drawingSets.drawingSetSlots.get().size() > drawingSetSlot){
+        if(drawingSets.drawingSetSlots.size() > drawingSetSlot){
             drawingSet = drawingSets.getDrawingSetForSlot(drawingSetSlot);
         }
         return drawingSet == null ? drawingSets.activeDrawingSet.get() : drawingSet;

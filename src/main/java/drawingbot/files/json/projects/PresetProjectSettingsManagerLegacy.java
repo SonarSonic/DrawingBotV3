@@ -91,7 +91,7 @@ class PresetProjectSettingsManagerLegacy {
         }
 
         presetData.drawingSets = new ArrayList<>();
-        for(ObservableDrawingSet drawingSet : context.project.getDrawingSets().drawingSetSlots.get()){
+        for(ObservableDrawingSet drawingSet : context.project.getDrawingSets().drawingSetSlots){
             presetData.drawingSets.add(new ObservableDrawingSet(drawingSet));
         }
         int activeSlot = presetData.drawingSets.indexOf(context.project.getDrawingSets().activeDrawingSet.get());
@@ -129,17 +129,17 @@ class PresetProjectSettingsManagerLegacy {
 
         context.project.getDrawingSets().getDrawingSetForSlot(0).loadDrawingSet(presetData.drawingSet.data);
         context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.set(presetData.colourSplitter);
-        context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.get().applySettings(context, context.project.getDrawingSets());
+        context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.get().applySettings(context, context.project.getDrawingSets().getActiveDrawingSet());
         context.project.getDrawingSets().getDrawingSetForSlot(0).distributionType.set(presetData.distributionType);
         context.project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.set(presetData.distributionOrder);
 
         if(presetData.drawingSets != null && !presetData.drawingSets.isEmpty()){
-            context.project.getDrawingSets().drawingSetSlots.get().clear();
+            context.project.getDrawingSets().drawingSetSlots.clear();
             for(ObservableDrawingSet drawingSet : presetData.drawingSets){
-                context.project.getDrawingSets().drawingSetSlots.get().add(new ObservableDrawingSet(drawingSet));
+                context.project.getDrawingSets().drawingSetSlots.add(new ObservableDrawingSet(drawingSet));
             }
-            int activeSlot = presetData.activeDrawingSlot < context.project.getDrawingSets().drawingSetSlots.get().size() ? presetData.activeDrawingSlot : 0;
-            context.project.getDrawingSets().activeDrawingSet.set(context.project.getDrawingSets().drawingSetSlots.get().get(activeSlot));
+            int activeSlot = presetData.activeDrawingSlot < context.project.getDrawingSets().drawingSetSlots.size() ? presetData.activeDrawingSlot : 0;
+            context.project.getDrawingSets().activeDrawingSet.set(context.project.getDrawingSets().drawingSetSlots.get(activeSlot));
         }
 
         if(!presetData.isSubProject){ //don't overwrite the versions if this is just a sub version

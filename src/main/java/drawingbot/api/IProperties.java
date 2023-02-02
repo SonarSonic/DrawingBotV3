@@ -2,19 +2,22 @@ package drawingbot.api;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+
+import java.util.List;
 
 public interface IProperties extends Observable {
 
-    ObservableList<? extends Observable> getObservables();
+    ObservableList<? extends Observable> getPropertyList();
 
     @Override
     default void addListener(InvalidationListener listener){
-        getObservables().addListener(listener);
+        getPropertyList().addListener(listener);
     }
 
     @Override
     default void removeListener(InvalidationListener listener){
-        getObservables().removeListener(listener);
+        getPropertyList().removeListener(listener);
     }
 }

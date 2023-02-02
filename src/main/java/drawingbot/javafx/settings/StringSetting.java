@@ -3,18 +3,12 @@ package drawingbot.javafx.settings;
 import com.google.gson.JsonElement;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.registry.Register;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
-import javafx.util.converter.IntegerStringConverter;
-
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 public class StringSetting<C> extends GenericSetting<C, String> {
 
@@ -41,6 +35,7 @@ public class StringSetting<C> extends GenericSetting<C, String> {
     public Node createJavaFXNode(boolean label) {
         TextField textField = new TextField();
         textField.textProperty().bindBidirectional(value);
+        textField.setOnAction(e -> sendUserEditedEvent());
         return textField;
     }
 

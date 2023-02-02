@@ -159,10 +159,10 @@ public class FXStylesController {
         styleMaskColorColumn.setCellFactory(TableCellColorPicker::new);
         styleMaskColorColumn.setCellValueFactory(param -> param.getValue().maskColor);
 
-        Binding<ObservableList<ObservableDrawingSet>> drawingSets = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(ObservableProject::drawingSetsProperty).selectObject(DrawingSets::drawingSetSlotsProperty);
+        Binding<DrawingSets> drawingSets = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(ObservableProject::drawingSetsProperty);
         styleDrawingSetColumn.setCellFactory(param -> {
             ComboBoxTableCell<ObservableDrawingStyle, ObservableDrawingSet> cell = new ComboBoxTableCell<>();
-            EasyBind.listBind(cell.getItems(), drawingSets.getValue());
+            EasyBind.listBind(cell.getItems(), drawingSets.getValue().drawingSetSlots);
             return cell;
         });
         styleDrawingSetColumn.setCellValueFactory(param -> param.getValue().drawingSet);

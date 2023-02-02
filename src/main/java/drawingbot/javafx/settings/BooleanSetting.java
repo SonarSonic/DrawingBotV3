@@ -2,18 +2,14 @@ package drawingbot.javafx.settings;
 
 import com.google.gson.JsonElement;
 import drawingbot.javafx.GenericSetting;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.util.StringConverter;
 import javafx.util.converter.BooleanStringConverter;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
 
@@ -45,6 +41,7 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
 
         //bindings
         checkBox.selectedProperty().bindBidirectional(value);
+        checkBox.setOnAction(e -> sendUserEditedEvent());
         return checkBox;
     }
 

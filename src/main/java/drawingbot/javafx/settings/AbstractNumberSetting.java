@@ -3,10 +3,6 @@ package drawingbot.javafx.settings;
 import drawingbot.javafx.GenericSetting;
 import javafx.scene.Node;
 import javafx.scene.control.Slider;
-import javafx.util.StringConverter;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public abstract class AbstractNumberSetting<C, V extends Number> extends GenericSetting<C, V> {
 
@@ -85,10 +81,9 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
                 initialValue[0] = slider.getValue();
             }
             if(!newValue && oldValue){
-                // TODO FIXME, this is a hack to make sure the change is sent, but we shouldn't have to do this?
                 double finalValue = slider.getValue();
-                setValue(fromNumber(initialValue[0]));
                 setValue(fromNumber(finalValue));
+                sendUserEditedEvent();
             }
         });
         value.addListener((observable, oldValue, newValue) -> {

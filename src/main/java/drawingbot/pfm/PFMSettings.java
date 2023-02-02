@@ -1,18 +1,15 @@
 package drawingbot.pfm;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IProperties;
-import drawingbot.files.json.presets.PresetPFMSettings;
-import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumDistributionType;
-import javafx.beans.InvalidationListener;
+import drawingbot.utils.SpecialListenable;
 import javafx.beans.Observable;
-import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
@@ -22,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PFMSettings implements IProperties {
+public class PFMSettings extends SpecialListenable<PFMSettings.Listener> implements IProperties {
 
     ///////////////////////////////////////////////
 
@@ -42,7 +39,7 @@ public class PFMSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final SimpleObjectProperty<ObservableList<GenericSetting<?, ?>>> settings = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ObservableList<GenericSetting<?, ?>>> settings = new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
     public ObservableList<GenericSetting<?, ?>> getSettings() {
         return settings.get();
@@ -91,22 +88,9 @@ public class PFMSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(factory, settings, nextDistributionType);
-
-    public InvalidationListener settingListener = observable -> {
-        if(DrawingBotV3.INSTANCE != null && DrawingBotV3.context().project().pfmSettings.get() == this){
-            // If a slider is being dragged don't send the update yet
-            if(observable instanceof ReadOnlyProperty){
-                ReadOnlyProperty<?> prop = (ReadOnlyProperty<?>) observable;
-                if(prop.getBean() instanceof GenericSetting && ((GenericSetting<?, ?>)prop.getBean()).isValueChanging()){
-                    return;
-                }
-            }
-            DrawingBotV3.INSTANCE.onPFMSettingsChanged();
-        }
-    };
-
     {
+        PropertyUtil.addSpecialListenerWithSubList(this, settings, (listener, val) -> {}, (listener, val) -> {});
+
         treeRoot.set(generateGenericSettingsTree(settings.get()));
         settings.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
@@ -120,6 +104,7 @@ public class PFMSettings implements IProperties {
         });
         factory.addListener((observable, oldValue, newValue) -> {
             settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
+            sendListenerEvent(l -> l.onPFMChanged(oldValue, newValue));
         });
     }
 
@@ -129,14 +114,12 @@ public class PFMSettings implements IProperties {
             if(setting.getBindingFactory() != null){
                 setting.getBindingFactory().accept(setting, settings);
             }
-            setting.addListener(settingListener);
         }
     }
 
     public void removeBindings(ObservableList<GenericSetting<?, ?>> settings){
         for(GenericSetting<?, ?> setting : settings){
             setting.removeBindings();
-            setting.removeListener(settingListener);
         }
     }
 
@@ -160,11 +143,6 @@ public class PFMSettings implements IProperties {
         return root;
     }
 
-    @Override
-    public ObservableList<Observable> getObservables() {
-        return observables;
-    }
-
     public PFMSettings copy(){
         PFMSettings copy = new PFMSettings();
         copy.setPFMFactory(getPFMFactory());
@@ -172,5 +150,25 @@ public class PFMSettings implements IProperties {
         copy.setSettings(MasterRegistry.INSTANCE.getNewObservableSettingsList(getPFMFactory()));
         GenericSetting.copy(getSettings(), copy.getSettings());
         return copy;
+    }
+
+    ///////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
+    @Override
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(factory, settings, nextDistributionType);
+        }
+        return propertyList;
+    }
+
+    ///////////////////////////
+
+    public interface Listener extends GenericSetting.Listener {
+
+        default void onPFMChanged(PFMFactory<?> oldValue, PFMFactory<?> newValue) {}
+
     }
 }

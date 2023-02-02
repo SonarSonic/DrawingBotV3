@@ -7,7 +7,9 @@ public class Flags {
     public final static Map<FlagCategory, List<Flag<?>>> ALL_FLAGS = new HashMap<>();
 
     public final static Flags.FlagCategory GLOBAL_CATEGORY = new Flags.FlagCategory("GLOBAL");
+    public final static Flags.FlagCategory PROJECT_CATEGORY = new Flags.FlagCategory("PROJECT");
     public final static Flags.FlagCategory RENDER_CATEGORY = new Flags.FlagCategory("RENDER");
+
     public final static Flags.BooleanFlag FORCE_REDRAW = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("FORCE_REDRAW", true, false));
     public final static Flags.BooleanFlag CURRENT_DRAWING_CHANGED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CURRENT_DRAWING_CHANGED", false, false));
     public final static Flags.BooleanFlag OPEN_IMAGE_UPDATED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("OPEN_IMAGE_UPDATED", false, false));
@@ -21,8 +23,10 @@ public class Flags {
     public final static Flags.BooleanFlag CLEAR_DRAWING = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CLEAR_DRAWING", false, false));
     public final static Flags.BooleanFlag CANVAS_MOVED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CANVAS_SCROLLED", false, false));
     public final static Flags.BooleanFlag CHANGED_RENDERER = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CHANGED_RENDERER", false, false));
-    public final static Flags.BooleanFlag UPDATE_PEN_DISTRIBUTION = Flags.addBooleanFlag(GLOBAL_CATEGORY, new Flags.BooleanFlag("DISPLAYED_SHAPES_CHANGED", false, false));
+
+    public final static Flags.BooleanFlag UPDATE_PEN_DISTRIBUTION = Flags.addBooleanFlag(GLOBAL_CATEGORY, new Flags.BooleanFlag("UPDATE_PEN_DISTRIBUTION", false, false));
     public final static Flags.BooleanFlag PFM_SETTINGS_UPDATE = Flags.addBooleanFlag(GLOBAL_CATEGORY, new Flags.BooleanFlag("PFM_SETTINGS_UPDATE", false, false));
+    public final static Flags.BooleanFlag PFM_SETTINGS_USER_EDITED = Flags.addBooleanFlag(GLOBAL_CATEGORY, new Flags.BooleanFlag("PFM_SETTINGS_USER_EDITED", false, false));
 
     public static <T> Flag<T> addFlag(FlagCategory category, Flag<T> flag){
         ALL_FLAGS.putIfAbsent(category, new ArrayList<>());

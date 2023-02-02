@@ -60,8 +60,6 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
         Button button = new Button("Configure Styles");
 
         button.setOnAction((e) -> DrawingBotV3.INSTANCE.controller.mosaicController.openWidget(this, this.getValue()));
-        //bindings
-        //checkBox.selectedProperty().bindBidirectional(value);
         return button;
     }
 

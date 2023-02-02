@@ -3,14 +3,18 @@ package drawingbot.files.json.projects;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
+import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
+import drawingbot.files.FileUtils;
 import drawingbot.geom.MaskingSettings;
+import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.util.UINodeState;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
@@ -34,14 +38,16 @@ import drawingbot.utils.MetadataMap;
 import drawingbot.utils.UnitsLength;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Tab;
@@ -52,7 +58,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class ObservableProject implements ITaskManager {
+public class ObservableProject implements ITaskManager, DrawingSets.Listener, ImageFilterSettings.Listener, ObservableCanvas.Listener, PFMSettings.Listener  {
 
     public static final String DEFAULT_NAME = "Untitled Project";
 
@@ -185,7 +191,9 @@ public class ObservableProject implements ITaskManager {
         this.maskingSettings.set(maskingSettings);
     }
 
-    // DISPLAY \\
+    /**
+     * Display Settings
+     */
     public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
 
     public IDisplayMode getDisplayMode() {
@@ -207,12 +215,6 @@ public class ObservableProject implements ITaskManager {
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(DBPreferences.INSTANCE.defaultRangeExport.get());
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
 
-    //VPYPE SETTINGS
-    //public final VpypeSettings vpypeSettings = new VpypeSettings();
-
-    //GCODE SETTINGS
-    //public final GCodeSettings gcodeSettings = new GCodeSettings();
-
     // TASKS \\
     public final ObjectProperty<FilteredImageData> openImage = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PFMTask> activeTask = new SimpleObjectProperty<>(null);
@@ -224,6 +226,7 @@ public class ObservableProject implements ITaskManager {
 
     // ADDITIONAL DATA \\
     public MetadataMap metadata = new MetadataMap(new LinkedHashMap<>());
+    //public FlagStates projectFlags = new FlagStates(Flags.PROJECT_CATEGORY);
 
     public final DBTaskContext context = new DBTaskContext(this, this);
 
@@ -231,13 +234,13 @@ public class ObservableProject implements ITaskManager {
         this(DEFAULT_NAME, null);
     }
 
+    public ObservableProject(ObservableVersion version){
+        this(version.name.get(), new File(version.file.get()));
+    }
+
     public ObservableProject(ObservableProject project){
         this(project.name.get(), project.file.get());
         copy(project);
-    }
-
-    public ObservableProject(ObservableVersion version){
-        this(version.name.get(), new File(version.file.get()));
     }
 
     public ObservableProject(String name, File file){
@@ -277,22 +280,78 @@ public class ObservableProject implements ITaskManager {
     }
 
     public void init(){
-        PropertyUtil.addPropertyListListener(drawingArea, (value, changed) -> {
-            if(!isLoaded()){
-                return;
-            }
-            if(changed.contains(value.canvasColor)){
-                DrawingBotV3.INSTANCE.reRender();
-            }else{
-                DrawingBotV3.INSTANCE.onCanvasChanged();
+
+        // Register for canvas events
+        PropertyUtil.addSpecialListener(drawingArea, this);
+
+        // Register for Drawing Sets / Drawing Pen / Drawing Slot events
+        PropertyUtil.addSpecialListener(drawingSets, this);
+
+        // Register for Image Filter Addition / Removal / Update event
+        PropertyUtil.addSpecialListener(imageSettings, this);
+
+        // Register for PFM Settings User Edited event
+        PropertyUtil.addSpecialListener(pfmSettings, this);
+
+        // Listener to automate version thumbnail Loading
+        PropertyUtil.addSimpleListListener(projectVersions, c -> {
+            while(c.next()){
+                for(ObservableVersion added : c.getAddedSubList()){
+                    if(!added.thumbnailID.get().isEmpty() && added.thumbnail.get() == null){
+                        BufferedImageLoader loader = new BufferedImageLoader(DrawingBotV3.context(), FileUtils.getUserThumbnailDirectory() + added.thumbnailID.get() + ".jpg", false);
+                        DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
+                        loader.setOnSucceeded(e -> added.thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null)));
+                    }
+                }
             }
         });
 
-        imageSettings.get().currentFilters.get().addListener((ListChangeListener<ObservableImageFilter>) c -> { if(isLoaded()) DrawingBotV3.INSTANCE.onImageFiltersChanged();});
+        // Set the default PMF
+        pfmSettings.get().factory.set(MasterRegistry.INSTANCE.getDefaultPFM());
 
+        // Set the default Display Mode
+        displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
+
+        // Add the default Drawing Sets
+        drawingSets.get().drawingSetSlots.add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
+        drawingSets.get().activeDrawingSet.set(drawingSets.get().drawingSetSlots.get(0));
+        drawingSets.get().activeDrawingSet.get().name.set("Default");
+
+        // Viewport / Display Listeners
         blendMode.addListener((observable, oldValue, newValue) -> reRender());
         dpiScaling.addListener((observable, oldValue, newValue) -> resetView());
-        displayMode.set(Register.INSTANCE.DISPLAY_MODE_IMAGE);
+
+        // Task / Drawing render bindings / listeners
+        activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
+        renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
+        currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
+        exportDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
+        displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get()==Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
+
+
+        InvalidationListener imagePropertyListener = observable -> onCanvasChanged();
+        openImage.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                oldValue.getPropertyList().forEach(prop -> prop.removeListener(imagePropertyListener));
+            }
+            if(newValue != null){
+                newValue.getPropertyList().forEach(prop -> prop.addListener(imagePropertyListener));
+            }
+            onImageRenderingUpdated();
+
+            if(newValue != null && (this.name.get().equals(DEFAULT_NAME) || oldValue != null && oldValue.getSourceFile().getName().equals(this.name.get()))){
+                this.name.set(newValue.getSourceFile().getName());
+            }
+        });
+
+        loaded.addListener((observable, oldValue, newValue) -> {
+            if(oldValue && !newValue){
+                unload();
+            }
+            if(!oldValue && newValue){
+                load();
+            }
+        });
 
         //generate the target canvas, which will always display the correct Plotting Resolution
         targetCanvas = new ImageCanvas(drawingArea.get(), new SimpleCanvas(0, 0){
@@ -318,36 +377,13 @@ public class ObservableProject implements ITaskManager {
             }
         };
 
-
-        activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
-        renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
-        currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
-        exportDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
-        openImage.addListener((observable, oldValue, newValue) -> {
-            onImageChanged();
-            if(newValue != null && (this.name.get().equals(DEFAULT_NAME) || oldValue != null && oldValue.getSourceFile().getName().equals(this.name.get()))){
-                this.name.set(newValue.getSourceFile().getName());
-            }
-        });
-
-        displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get()==Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
-
-        drawingSets.get().drawingSetSlots.get().add(new ObservableDrawingSet(MasterRegistry.INSTANCE.getDefaultDrawingSet()));
-        drawingSets.get().activeDrawingSet.set(drawingSets.get().drawingSetSlots.get().get(0));
-        drawingSets.get().activeDrawingSet.get().name.set("Default");
-        pfmSettings.get().factory.set(MasterRegistry.INSTANCE.getDefaultPFM());
-
-        loaded.addListener((observable, oldValue, newValue) -> {
-            if(oldValue && !newValue){
-                unload();
-            }
-            if(!oldValue && newValue){
-                load();
-            }
-        });
-
         Hooks.runHook(Hooks.INIT_OBSERVABLE_PROJECT, this);
     }
+
+    public void tick(){
+
+    }
+
 
     ////////////////////////////
 
@@ -362,8 +398,103 @@ public class ObservableProject implements ITaskManager {
         FXHelper.loadUIStates(nodeStates);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////
+    //// DRAWING SET EVENTS \\\\
+
+    @Override
+    public void onActiveSlotChanged(ObservableDrawingSet activeSet) {
+        //onDrawingSetChanged();
+    }
+
+    @Override
+    public void onDrawingSetAdded(ObservableDrawingSet set) {
+        onDrawingSetChanged();
+    }
+
+    @Override
+    public void onDrawingSetRemoved(ObservableDrawingSet set) {
+        onDrawingSetChanged();
+    }
+
+    @Override
+    public void onDrawingSetPropertyChanged(ObservableDrawingSet set, Observable property) {
+        if(set.distributionType == property || set.distributionOrder == property || set.colourSeperator == property){
+            onDrawingSetChanged();
+        }
+    }
+
+    @Override
+    public void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeperationHandler oldValue, ColourSeperationHandler newValue) {
+        if(oldValue == newValue){
+            return;
+        }
+        set.colourSeperator.get().resetSettings(context, set);
+        if(oldValue.wasApplied()){
+            oldValue.resetSettings(context, set);
+            oldValue.setApplied(false);
+        }
+
+        if(newValue.onUserSelected()){
+            newValue.applySettings(context, set);
+            newValue.setApplied(true);
+        }
+    }
+
+    @Override
+    public void onDrawingPenPropertyChanged(ObservableDrawingPen pen, Observable property) {
+        onDrawingPenChanged();
+    }
+
+    @Override
+    public void onDrawingPenAdded(ObservableDrawingPen pen) {
+        onDrawingSetChanged();
+    }
+
+    @Override
+    public void onDrawingPenRemoved(ObservableDrawingPen pen) {
+        onDrawingSetChanged();
+    }
+
+    //// IMAGE FILTER EVENTS \\\\
+
+    @Override
+    public void onImageFilterAdded(ObservableImageFilter filter) {
+        onImageFiltersChanged();
+    }
+
+    @Override
+    public void onImageFilterRemoved(ObservableImageFilter filter) {
+        onImageFiltersChanged();
+    }
+
+    @Override
+    public void onImageFilterPropertyChanged(ObservableImageFilter filter, Observable property) {
+        onImageFilterChanged(filter);
+    }
+
+    //// CANVAS EVENTS \\\\
+
+    @Override
+    public void onCanvasPropertyChanged(ObservableCanvas canvas, Observable property) {
+        if(property == canvas.canvasColor){
+            reRender();
+        }else{
+            onCanvasChanged();
+        }
+    }
+
+    @Override
+    public void onSettingUserEdited(GenericSetting<?, ?> setting) {
+        onPFMSettingsUserEdited();
+    }
+
+    @Override
+    public void onPFMChanged(PFMFactory<?> oldValue, PFMFactory<?> newValue) {
+        onPFMSettingsUserEdited();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public <T> void setRenderFlag(Flags.BooleanFlag flag){
         if(!isLoaded()){
@@ -387,12 +518,13 @@ public class ObservableProject implements ITaskManager {
         setRenderFlag(Flags.FORCE_REDRAW);
     }
 
-    public void onImageChanged(){
+    public void onImageRenderingUpdated(){
         setRenderFlag(Flags.OPEN_IMAGE_UPDATED, true);
     }
 
     public void onCanvasChanged(){
         setRenderFlag(Flags.CANVAS_CHANGED, true);
+        markOpenImageForUpdate(FilteredImageData.UpdateType.FULL_UPDATE);
     }
 
     public void onDrawingCleared(){
@@ -401,10 +533,12 @@ public class ObservableProject implements ITaskManager {
 
     public void onImageFiltersChanged(){
         setRenderFlag(Flags.IMAGE_FILTERS_FULL_UPDATE, true);
+        markOpenImageForUpdate(FilteredImageData.UpdateType.ALL_FILTERS);
     }
 
     public void onImageFilterDirty(){
         setRenderFlag(Flags.IMAGE_FILTERS_PARTIAL_UPDATE, true);
+        markOpenImageForUpdate(FilteredImageData.UpdateType.PARTIAL_FILTERS);
     }
 
     public void resetView(){
@@ -413,6 +547,39 @@ public class ObservableProject implements ITaskManager {
         }
     }
 
+    public void onDrawingPenChanged(){
+        updatePenDistribution();
+    }
+
+    public void onDrawingSetChanged(){
+        updatePenDistribution();
+    }
+
+    public void onImageFilterChanged(ObservableImageFilter filter){
+        filter.dirty.set(true);
+        onImageFilterDirty();
+    }
+
+    public void updatePenDistribution(){
+        if(currentDrawing.get() != null){
+            DrawingBotV3.INSTANCE.globalFlags.setFlag(Flags.UPDATE_PEN_DISTRIBUTION, true);
+        }
+    }
+
+    public void onPFMSettingsChanged(){
+        DrawingBotV3.INSTANCE.globalFlags.setFlag(Flags.PFM_SETTINGS_UPDATE, true);
+    }
+
+    public void onPFMSettingsUserEdited(){
+        DrawingBotV3.INSTANCE.globalFlags.setFlag(Flags.PFM_SETTINGS_USER_EDITED, true);
+    }
+
+
+    public void markOpenImageForUpdate(FilteredImageData.UpdateType updateType){
+        if(openImage.get() != null){
+            openImage.get().markUpdate(updateType);
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

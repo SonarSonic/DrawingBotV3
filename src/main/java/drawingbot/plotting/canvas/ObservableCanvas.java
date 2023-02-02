@@ -2,9 +2,11 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.utils.*;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.utils.*;
+import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -12,7 +14,7 @@ import javafx.scene.paint.Color;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ObservableCanvas implements ICanvas, IProperties {
+public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listener> implements ICanvas, IProperties {
 
     private static final float defaultWidth = 210, defaultHeight = 297; //DEFAULT - A4 Paper
 
@@ -46,6 +48,8 @@ public class ObservableCanvas implements ICanvas, IProperties {
     public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(useOriginalSizing, croppingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, rescaleMode, targetPenWidth, canvasColor);
 
     public ObservableCanvas(){
+        InvalidationListener genericListener = observable -> sendListenerEvent(listener -> listener.onCanvasPropertyChanged(this, observable));
+        getPropertyList().forEach(prop -> prop.addListener(genericListener));
 
         AtomicBoolean internalChange = new AtomicBoolean(false);
 
@@ -168,11 +172,14 @@ public class ObservableCanvas implements ICanvas, IProperties {
 
     @Override
     public float getPlottingScale(){
-        return getRescaleMode().shouldRescale() ? 1F / targetPenWidth.get() : 1F;
+        return getRescaleMode().shouldRescale() ? 1F / getTargetPenWidth() : 1F;
     }
 
     @Override
     public float getTargetPenWidth() {
+        if(targetPenWidth.get() == 0){
+            return 1F;
+        }
         return targetPenWidth.get();
     }
 
@@ -238,8 +245,24 @@ public class ObservableCanvas implements ICanvas, IProperties {
         return copy;
     }
 
+    ///////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
     @Override
-    public ObservableList<Observable> getObservables() {
-        return observables;
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(useOriginalSizing, croppingMode, clippingMode, inputUnits, width, height, drawingAreaPaddingLeft, drawingAreaPaddingRight, drawingAreaPaddingTop, drawingAreaPaddingBottom, drawingAreaGangPadding, orientation, rescaleMode, targetPenWidth, canvasColor, backgroundColor);
+        }
+        return propertyList;
     }
+
+    ///////////////////////////
+
+    public interface Listener {
+
+        default void onCanvasPropertyChanged(ObservableCanvas canvas, Observable property) {}
+
+    }
+
 }

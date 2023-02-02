@@ -13,9 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
-import javafx.util.converter.DefaultStringConverter;
-
-import java.util.function.BiConsumer;
 
 public class ImageSetting<C> extends GenericSetting<C, String> {
 
@@ -52,7 +49,10 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
         value.addListener((observable, oldValue, newValue) -> {
             BufferedImageLoader loader = new BufferedImageLoader(DrawingBotV3.context(), newValue, false);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
-            loader.setOnSucceeded(e -> thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null)));
+            loader.setOnSucceeded(e -> {
+                thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null));
+                sendUserEditedEvent();
+            });
             loader.setOnFailed(e -> thumbnail.set(null));
         });
 

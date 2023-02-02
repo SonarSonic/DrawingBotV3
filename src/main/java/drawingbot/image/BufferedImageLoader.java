@@ -6,7 +6,6 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.utils.DBTask;
 import drawingbot.utils.EnumRotation;
-import javafx.concurrent.Task;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
 import org.jcodec.common.model.Picture;
@@ -46,7 +45,7 @@ public class BufferedImageLoader extends DBTask<BufferedImage> {
     public static FilteredImageData loadFilteredImage(DBTaskContext context, String url, boolean internal) throws IOException {
         BufferedImage source = loadImage(url, internal);
         if(source != null){
-            FilteredImageData filtered = new FilteredImageData(context, new File(url), context.project.drawingArea.get(), source);
+            FilteredImageData filtered = new FilteredImageData(new File(url), context.project.drawingArea.get(), source);
             filtered.updateAll(context.project.getImageSettings());
             return filtered;
         }

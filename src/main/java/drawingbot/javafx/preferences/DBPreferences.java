@@ -22,7 +22,6 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,7 +50,7 @@ public class DBPreferences implements ISettings {
     public final ObservableList<GenericSetting<?, ?>> observableList;
 
     private DBPreferences(){
-        observableList = PropertyUtil.createPropertiesListFromSettings(settings);
+        observableList = PropertyUtil.createPropertiesList(settings);
     }
 
     public <T extends GenericSetting<?, ?>> T register(T add){
@@ -318,7 +317,7 @@ public class DBPreferences implements ISettings {
     }
 
     @Override
-    public ObservableList<GenericSetting<?, ?>> getObservables() {
+    public ObservableList<GenericSetting<?, ?>> getPropertyList(){
         return observableList;
     }
 }

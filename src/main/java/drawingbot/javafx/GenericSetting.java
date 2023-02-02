@@ -7,6 +7,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
 import drawingbot.registry.Register;
+import drawingbot.utils.SpecialListenable;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -27,7 +28,7 @@ import java.util.function.Function;
 
 /**a simple setting which can be easily altered in java fx, which can be randomised, reset, converted to and from a string & parsed to json.
  * it can be applied to an instance when needed or permanently attached to an instance */
-public abstract class GenericSetting<C, V> implements Observable {
+public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSetting.Listener> implements Observable {
 
     public final Class<C> clazz; //the class this setting can be applied to or belongs to
     public final Class<V> type; //the object type of the value this setting represents
@@ -590,7 +591,10 @@ public abstract class GenericSetting<C, V> implements Observable {
             textField.setTextFormatter(new TextFormatter<>(new StringConverterGenericSetting<>(() -> this)));
             textField.setText(getValueAsString());
             textField.setPrefWidth(80);
-            textField.setOnAction(e -> setValueFromString(textField.getText()));
+            textField.setOnAction(e -> {
+                setValueFromString(textField.getText());
+                sendUserEditedEvent();
+            });
             textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 //set the value when the text field is de-focused
                 if(oldValue && !newValue){
@@ -620,11 +624,26 @@ public abstract class GenericSetting<C, V> implements Observable {
 
     public abstract GenericSetting<C, V> copy();
 
+    public void sendUserEditedEvent(){
+        sendListenerEvent(l -> l.onSettingUserEdited(this));
+    }
 
     @Override
     public String toString() {
         return key + ": " + getValueAsString();
     }
+
+    ///////////////////////////
+
+    public interface Listener {
+
+        /**
+         * Called only when the generic setting is edited by a user.
+         */
+        default void onSettingUserEdited(GenericSetting<?, ?> setting) {}
+
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

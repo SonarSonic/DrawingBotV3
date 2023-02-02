@@ -1,26 +1,28 @@
 package drawingbot.image.format;
 
 import drawingbot.api.ICanvas;
-import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.api.IProperties;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-public class FilteredImageData {
+public class FilteredImageData implements IProperties {
 
-    public DBTaskContext context;
     private final File sourceFile;
     private final ICanvas targetCanvas;
 
@@ -32,16 +34,11 @@ public class FilteredImageData {
 
     public transient ImageFilterSettings lastFilterSettings;
 
-    public FilteredImageData(DBTaskContext context, File sourceFile, BufferedImage sourceImage){
-        this(context, sourceFile, context.project.getDrawingArea(), sourceImage);
+    public FilteredImageData(File sourceFile, ICanvas destCanvas, BufferedImage sourceImage){
+        this(sourceFile, destCanvas, new SimpleCanvas(sourceImage.getWidth(), sourceImage.getHeight()), sourceImage);
     }
 
-    public FilteredImageData(DBTaskContext context, File sourceFile, ICanvas destCanvas, BufferedImage sourceImage){
-        this(context, sourceFile, destCanvas, new SimpleCanvas(sourceImage.getWidth(), sourceImage.getHeight()), sourceImage);
-    }
-
-    public FilteredImageData(DBTaskContext context, File sourceFile, ICanvas destCanvas, ICanvas sourceCanvas, BufferedImage sourceImage){
-        this.context = context;
+    public FilteredImageData(File sourceFile, ICanvas destCanvas, ICanvas sourceCanvas, BufferedImage sourceImage){
         this.sourceFile = sourceFile;
         this.targetCanvas = destCanvas;
         this.destCanvas = destCanvas;
@@ -108,25 +105,6 @@ public class FilteredImageData {
     public final SimpleObjectProperty<EnumRotation> imageRotation = new SimpleObjectProperty<>(EnumRotation.R0);
     public final SimpleBooleanProperty imageFlipHorizontal = new SimpleBooleanProperty(false);
     public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
-
-    {
-        imageRotation.addListener((observable, oldValue, newValue) -> {
-            if(context.project().openImage.get() == this){
-                context.project().onCanvasChanged();
-            }
-        });
-        imageFlipHorizontal.addListener((observable, oldValue, newValue) -> {
-            if(context.project().openImage.get() == this){
-                context.project().onCanvasChanged();
-            }
-        });
-        imageFlipVertical.addListener((observable, oldValue, newValue) -> {
-            if(context.project().openImage.get() == this){
-                context.project().onCanvasChanged();
-            }
-        });
-    }
-
     public final SimpleFloatProperty cropStartX = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropEndX = new SimpleFloatProperty(0);
@@ -135,23 +113,47 @@ public class FilteredImageData {
     public BufferedImage preCrop;
     public BufferedImage cropped;
 
-    public boolean updateCropping = true;
-    public boolean updateAllFilters = true;
+    public UpdateType nextUpdate = UpdateType.FULL_UPDATE;
 
-    // Validation: to keep track of if the filtered results of this image data are updated, to save re-filtering the image on every PFM run
+    public enum UpdateType{
+        FULL_UPDATE, // The cropping of the image has changed, update canvas size, cropping and all filters
+        ALL_FILTERS, // All the filters should be updated
+        PARTIAL_FILTERS, // Some of the filters may have changed
+        NONE;
 
-    public boolean valid = false;
+        public boolean updateCropping(){
+            return this == FULL_UPDATE;
+        }
+
+        public boolean updateAllFilters(){
+            return updateCropping() || this == ALL_FILTERS;
+        }
+
+        public boolean updatePartialFilters(){
+            return updateAllFilters() || this == PARTIAL_FILTERS;
+        }
+    }
+
+    public void markUpdate(UpdateType type){
+        if(nextUpdate.ordinal() > type.ordinal()){
+            nextUpdate = type;
+        }
+    }
+
+    public void markCanvasForUpdate(){
+        markUpdate(UpdateType.FULL_UPDATE);
+    }
+
+    public void markFiltersForUpdate(){
+        markUpdate(UpdateType.ALL_FILTERS);
+    }
+
+    public void markPartialFiltersForUpdate(){
+        markUpdate(UpdateType.PARTIAL_FILTERS);
+    }
 
     public boolean isValidated(){
-        return valid;
-    }
-
-    public void invalidate(){
-        valid = false;
-    }
-
-    public void validate(){
-        valid = true;
+        return nextUpdate == UpdateType.NONE;
     }
 
     public void resetCrop() {
@@ -185,10 +187,12 @@ public class FilteredImageData {
 
     public void updateAll(ImageFilterSettings settings){
         lastFilterSettings = settings;
-        invalidate();
+        UpdateType updateType = nextUpdate;
+        nextUpdate = UpdateType.NONE;
+
         ImageCanvas newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), sourceCanvas, false);
 
-        if(cropped == null || updateCropping){
+        if(cropped == null || updateType.updateCropping()){
             preCrop = applyPreCropping(sourceImage, getCrop());
             newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
             cropped = applyCropping(preCrop, newCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
@@ -203,9 +207,8 @@ public class FilteredImageData {
             }
 
         }
-        filteredImage = applyFilters(cropped, updateCropping || updateAllFilters, settings);
+        filteredImage = applyFilters(cropped, updateType.updateAllFilters(), settings);
         destCanvas = newCanvas;
-        validate();
     }
 
     public AffineTransform getCanvasTransform(ImageFilterSettings settings){
@@ -251,7 +254,16 @@ public class FilteredImageData {
         return ImageTools.applyCurrentImageFilters(src, imgFilterSettings, forceUpdate, null);
     }
 
-
     ///////////////////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
+    @Override
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(imageRotation, imageFlipHorizontal, imageFlipVertical, cropStartX, cropStartY, cropEndX, cropEndY);
+        }
+        return propertyList;
+    }
 
 }

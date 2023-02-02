@@ -5,6 +5,6 @@ import javafx.collections.ObservableList;
 
 public interface ISettings extends IProperties {
 
-    ObservableList<GenericSetting<?, ?>> getObservables();
+    ObservableList<GenericSetting<?, ?>> getPropertyList();
 
 }

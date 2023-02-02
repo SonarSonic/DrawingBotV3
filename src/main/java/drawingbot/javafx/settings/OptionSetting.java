@@ -10,10 +10,7 @@ import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 public class OptionSetting<C, V> extends GenericSetting<C, V> {
 
@@ -70,6 +67,7 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
         choiceBox.valueProperty().bindBidirectional(value);
         HBox.setHgrow(choiceBox, Priority.ALWAYS);
         choiceBox.setMaxWidth(Double.MAX_VALUE);
+        choiceBox.setOnAction(e -> sendUserEditedEvent());
         return choiceBox;
     }
 

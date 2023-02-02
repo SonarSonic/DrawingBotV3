@@ -296,7 +296,7 @@ public class PlottedDrawing {
 
     public List<ObservableDrawingPen> getAllPens(){
         List<ObservableDrawingPen> allPens = new ArrayList<>();
-        drawingSets.drawingSetSlots.get().forEach(drawingSet -> allPens.addAll(drawingSet.pens));
+        drawingSets.drawingSetSlots.forEach(drawingSet -> allPens.addAll(drawingSet.pens));
         return allPens;
     }
 
@@ -313,7 +313,7 @@ public class PlottedDrawing {
             }
         }
 
-        drawingSets.sort(Comparator.comparingInt(set -> this.drawingSets.drawingSetSlots.get().indexOf(set)));
+        drawingSets.sort(Comparator.comparingInt(set -> this.drawingSets.drawingSetSlots.indexOf(set)));
 
         List<ObservableDrawingPen> globalOrder = new ArrayList<>();
         drawingSets.forEach(drawingSet -> globalOrder.addAll(drawingSet.pens));

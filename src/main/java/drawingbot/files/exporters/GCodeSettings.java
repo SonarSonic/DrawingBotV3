@@ -23,8 +23,6 @@ public class GCodeSettings implements IProperties {
     public final SimpleBooleanProperty gcodeCenterZeroPoint = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<GCodeBuilder.CommentType> gcodeCommentType = new SimpleObjectProperty<>(GCodeBuilder.CommentType.BRACKETS);
 
-    public final ObservableList<Observable> observables = PropertyUtil.createPropertiesList(gcodeOffsetX, gcodeOffsetY, gcodeUnits, gcodeStartCode, gcodeEndCode, gcodePenDownCode, gcodePenUpCode, gcodeStartLayerCode, gcodeEndLayerCode, gcodeCurveFlatness, gcodeEnableFlattening, gcodeCenterZeroPoint, gcodeCommentType);
-
     public float getGCodeXOffset(){
         return gcodeUnits.get().toMM(gcodeOffsetX.get());
     }
@@ -40,10 +38,6 @@ public class GCodeSettings implements IProperties {
         });
     }
 
-    @Override
-    public ObservableList<Observable> getObservables() {
-        return observables;
-    }
 
     public GCodeSettings copy(){
         GCodeSettings copy = new GCodeSettings();
@@ -63,5 +57,18 @@ public class GCodeSettings implements IProperties {
         copy.gcodeCenterZeroPoint.set(gcodeCenterZeroPoint.get());
         copy.gcodeCommentType.set(gcodeCommentType.get());
         return copy;
+    }
+
+
+    ///////////////////////////////////////////////
+
+    private ObservableList<Observable> propertyList = null;
+
+    @Override
+    public ObservableList<Observable> getPropertyList() {
+        if(propertyList == null){
+            propertyList = PropertyUtil.createPropertiesList(gcodeOffsetX, gcodeOffsetY, gcodeUnits, gcodeStartCode, gcodeEndCode, gcodePenDownCode, gcodePenUpCode, gcodeStartLayerCode, gcodeEndLayerCode, gcodeCurveFlatness, gcodeEnableFlattening, gcodeCenterZeroPoint, gcodeCommentType);
+        }
+        return propertyList;
     }
 }

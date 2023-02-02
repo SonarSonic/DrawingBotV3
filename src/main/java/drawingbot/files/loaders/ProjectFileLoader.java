@@ -32,7 +32,6 @@ public class ProjectFileLoader extends AbstractFileLoader{
             GenericPreset<PresetProjectSettings> preset = FXHelper.loadPresetFile(context, Register.PRESET_LOADER_PROJECT, file, false);
             if(preset != null){
                 ObservableProject project = new ObservableProject(FileUtils.removeExtension(file.getName()), file);
-                project.init();
 
                 Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(project.context, preset);
 

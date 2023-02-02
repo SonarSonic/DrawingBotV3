@@ -113,7 +113,6 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("DrawingBotV3: Loading Dummy Project");
         DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
         DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
-        DrawingBotV3.INSTANCE.activeProject.get().init();
 
         MasterRegistry.postInit();
         DBPreferences.INSTANCE.postInit();
@@ -160,10 +159,10 @@ public class FXApplication extends Application {
         DrawingBotV3.INSTANCE.displayMode.get().applySettings();
         DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
             if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer()){
-                DrawingBotV3.INSTANCE.setRenderFlag(Flags.FORCE_REDRAW, true);
+                DrawingBotV3.project().setRenderFlag(Flags.FORCE_REDRAW, true);
             }
             if(oldValue == null || newValue.getRenderer() != oldValue.getRenderer()){
-                DrawingBotV3.INSTANCE.setRenderFlag(Flags.CHANGED_RENDERER, true);
+                DrawingBotV3.project().setRenderFlag(Flags.CHANGED_RENDERER, true);
             }
             DrawingBotV3.INSTANCE.onDisplayModeChanged(oldValue, newValue);
         });
@@ -309,6 +308,7 @@ public class FXApplication extends Application {
                     o.doRender();
                 }
             });
+
             DrawingBotV3.INSTANCE.tick();
 
             DrawingBotV3.project().displayMode.get().getRenderer().postRender();
