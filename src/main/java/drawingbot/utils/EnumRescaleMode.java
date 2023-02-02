@@ -2,7 +2,7 @@ package drawingbot.utils;
 
 public enum EnumRescaleMode {
     HIGH_QUALITY("High Quality"),
-    LOW_QUALITY("Low Quality"),
+    NORMAL_QUALITY("Normal Quality"),
     OFF("Off");
 
     public String displayName;
@@ -15,8 +15,8 @@ public enum EnumRescaleMode {
         return this == HIGH_QUALITY;
     }
 
-    public boolean isLowQuality(){
-        return this == LOW_QUALITY;
+    public boolean isNormalQuality(){
+        return this == NORMAL_QUALITY;
     }
 
     public boolean isOff(){

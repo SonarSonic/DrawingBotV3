@@ -60,9 +60,9 @@ public class ObservableImageFilter extends SpecialListenable<ObservableImageFilt
         this.filterSettings.forEach(s -> s.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(!s.isValueChanging()){
                 genericListener.invalidated(s);
-                // Update the displayed settings string
-                this.settingsString.set(filterSettings.toString());
             }
+            // Update the displayed settings string
+            this.settingsString.set(filterSettings.toString());
         }));
     }
 

@@ -32,7 +32,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public boolean shouldLiftPen;
 
     //process specific
-    public double initialLuminance;
+    public double initialLuminance = 0;
 
     public final float desiredLuminance = 253.5F;
 

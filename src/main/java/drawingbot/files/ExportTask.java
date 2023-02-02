@@ -243,7 +243,9 @@ public class ExportTask extends DBTask<Boolean> {
         if(isSubTask){
             return;
         }
-        context.project().getExportedDrawings().clear();
+        Platform.runLater(() -> {
+            context.project().getExportedDrawings().clear();
+        });
     }
 
     public void onDrawingExported(PlottedDrawing drawing, IGeometryFilter geometryFilter, File saveLocation){

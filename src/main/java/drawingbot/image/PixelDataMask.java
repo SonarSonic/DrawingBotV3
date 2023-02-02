@@ -1,5 +1,6 @@
 package drawingbot.image;
 
+import java.util.List;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -18,21 +19,37 @@ import java.awt.geom.Rectangle2D;
  */
 public class PixelDataMask extends PixelDataLuminance implements Shape {
 
-    public Rectangle bounds = null;
-    public Shape maskShape = null;
+    public Rectangle bounds;
 
     public PixelDataMask(int width, int height, Shape maskShape) {
         super(width, height);
         this.bounds = new Rectangle(0, 0, width, height);
-        this.maskShape = maskShape;
         updateDataFromShapeMask(maskShape);
     }
 
+    public PixelDataMask(int width, int height, List<Shape> masks) {
+        super(width, height);
+        this.bounds = new Rectangle(0, 0, width, height);
+        updateDataFromShapeMasks(masks);
+    }
+
     public void updateDataFromShapeMask(Shape maskShape){
-        this.maskShape = maskShape;
         for(int x = 0; x < width; x ++){
             for(int y = 0; y < height; y ++){
                 luminance.setData(x, y, maskShape != null && maskShape.contains(x, y) ? 1 : 0);
+            }
+        }
+    }
+
+    public void updateDataFromShapeMasks(List<Shape> shapes){
+        for(Shape shape : shapes) {
+            Rectangle bounds = shape.getBounds();
+            for (int x = (int) bounds.getMinX(); x <= bounds.getMaxX(); x++) {
+                for (int y = (int) bounds.getMinY(); y <= bounds.getMaxY(); y++) {
+                    if(shape.contains(x, y)){
+                        luminance.setData(x, y, 1);
+                    }
+                }
             }
         }
     }
