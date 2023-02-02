@@ -126,6 +126,9 @@ public class FXPFMControls extends AbstractFXController {
 
         comboBoxPFMPreset.setItems(Register.PRESET_LOADER_PFM.presets);
         comboBoxPFMPreset.valueProperty().bindBidirectional(selectedPFMPreset);
+        comboBoxPFMPreset.setOnAction(e -> {
+            pfmSettings.get().sendListenerEvent(l -> l.onUserChangedPFMPreset(comboBoxPFMPreset.getValue()));
+        });
 
         FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, false, selectedPFMPreset);
 

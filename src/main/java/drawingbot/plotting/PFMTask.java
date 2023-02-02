@@ -10,6 +10,8 @@ import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.pfm.PFMFactory;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -21,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class PFMTask extends DBTask<PlottedDrawing> {
+public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenable<PFMTask.Listener> {
 
     public final ICanvas refCanvas;
     public final ObservableDrawingSet refPenSet;
@@ -85,11 +87,10 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                 pfm.init(tools);
 
                 DrawingBotV3.logger.fine("PFM - Apply Settings");
+                sendListenerEvent(l -> l.prePFMSettingsApplied(this, pfmSettings, pfm));
                 GenericSetting.applySettingsToInstance(pfmSettings, pfm);
-                onPFMSettingsApplied(pfmSettings, pfm);
                 pfm.onSettingsApplied();
-
-                preProcessImages();
+                sendListenerEvent(l -> l.postPFMSettingsApplied(this, pfmSettings, pfm));
 
                 //set the plotting transform
                 if(pfm.getPlottingResolution() != 1 && enablePlottingResolution){
@@ -117,16 +118,16 @@ public class PFMTask extends DBTask<PlottedDrawing> {
                     }
                 }
 
-                // Add the fast pixel clip mask, if there is a soft clip
-                if(tools.getSoftClip() != null && tools.getPixelData() != null){
-                    tools.getPixelData().setSoftClip(tools.getSoftClipPixelMask());
-                }
+                preProcessImages();
 
                 tools.currentGroup.setPFMFactory(pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");
                 updateMessage("Pre-Processing - PFM");
+
+                sendListenerEvent(l -> l.preSetupPFM(this, pfm));
                 pfm.setup();
+                sendListenerEvent(l -> l.postSetupPFM(this, pfm));
 
                 finishStage();
                 updateMessage("Processing"); //here to avoid excessive task updates
@@ -293,16 +294,11 @@ public class PFMTask extends DBTask<PlottedDrawing> {
         finishEarly = false;
     }
 
-    //// CALLBACKS
-    //TODO MOVE CALLBACK INTO TOOLS???
-    public BiConsumer<List<GenericSetting<?, ?>>, IPFM> onPFMSettingsAppliedCallback = null;
-    public Consumer<AbstractSketchPFM> sketchPFMProgressCallback = null;
+    //// CALLBACKS \\\\
 
-    public void onPFMSettingsApplied(List<GenericSetting<?, ?>> src, IPFM pfm){
-        if(onPFMSettingsAppliedCallback != null){
-            onPFMSettingsAppliedCallback.accept(src, pfm);
-        }
-    }
+
+    //TODO MOVE CALLBACK INTO TOOLS???
+    public Consumer<AbstractSketchPFM> sketchPFMProgressCallback = null;
 
     /**
      * Allows the PlottingTask to override the SketchPFMs progress.
@@ -315,6 +311,28 @@ public class PFMTask extends DBTask<PlottedDrawing> {
         return false;
     }
 
+    /////////////////////////////////
+
+
+    private ObservableList<Listener> listeners = null;
+
+    public ObservableList<Listener> listeners(){
+        if(listeners == null){
+            listeners = FXCollections.observableArrayList();
+        }
+        return listeners;
+    }
+
+    public interface Listener{
+
+        default void prePFMSettingsApplied(PFMTask task, List<GenericSetting<?, ?>> src, IPFM pfm){}
+
+        default void postPFMSettingsApplied(PFMTask task, List<GenericSetting<?, ?>> src, IPFM pfm){}
+
+        default void preSetupPFM(PFMTask task, IPFM pfm){}
+
+        default void postSetupPFM(PFMTask task, IPFM pfm){}
+    }
 
 
     //// GEOMETRY UI HOOKS \\\\

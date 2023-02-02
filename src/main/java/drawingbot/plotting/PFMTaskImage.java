@@ -98,6 +98,12 @@ public class PFMTaskImage extends PFMTask {
         DrawingBotV3.logger.fine("Creating Plotting Image");
         imgPlotting = pfm().preFilter(imgPlotting);
         pixelDataPlotting = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
+
+        // Add the fast pixel clip mask, if there is a soft clip, it's best to do it here before we load the data
+        if(tools.getSoftClip() != null){
+            pixelDataPlotting.setSoftClip(tools.getSoftClipPixelMask());
+        }
+
         pixelDataPlotting.setTransparentARGB(pfm().getTransparentARGB());
         pixelDataPlotting.loadData(imgPlotting);
         this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, imgPlotting);

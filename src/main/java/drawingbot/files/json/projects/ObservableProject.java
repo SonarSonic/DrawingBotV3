@@ -7,12 +7,14 @@ import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.files.FileUtils;
+import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.geom.MaskingSettings;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.util.UINodeState;
@@ -491,6 +493,11 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     @Override
     public void onPFMChanged(PFMFactory<?> oldValue, PFMFactory<?> newValue) {
+        onPFMSettingsUserEdited();
+    }
+
+    @Override
+    public void onUserChangedPFMPreset(GenericPreset<PresetPFMSettings> pfmPreset) {
         onPFMSettingsUserEdited();
     }
 

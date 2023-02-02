@@ -5,7 +5,7 @@ import javafx.collections.ObservableList;
 
 import java.util.function.Consumer;
 
-public class SpecialListenable<LISTENER> {
+public class SpecialListenable<LISTENER> implements ISpecialListenable<LISTENER>  {
 
     private ObservableList<LISTENER> listeners = null;
 
@@ -16,19 +16,11 @@ public class SpecialListenable<LISTENER> {
         return listeners;
     }
 
-    public void addSpecialListener(LISTENER listener){
-        listeners().add(listener);
-    }
-
-    public void removeSpecialListener(LISTENER listener){
-        listeners().remove(listener);
-    }
-
     public void sendListenerEvent(Consumer<LISTENER> listener){
         if(listeners == null){
             return;
         }
-        listeners().forEach(listener);
+        ISpecialListenable.super.sendListenerEvent(listener);
     }
 
 }

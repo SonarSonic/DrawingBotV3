@@ -7,6 +7,7 @@ import drawingbot.api.IProperties;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.SpecialListenable;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -40,15 +41,6 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
     ///////////////////////////////////////////////
 
     public final ObservableList<ObservableDrawingSet> drawingSetSlots = FXCollections.observableArrayList();
-    {
-        drawingSetSlots.addListener((InvalidationListener) observable -> {
-            if(!drawingSetSlots.contains(activeDrawingSet.get())){
-                if(!drawingSetSlots.isEmpty()){
-                    activeDrawingSet.set(drawingSetSlots.get(0));
-                }
-            }
-        });
-    }
 
     public ObservableList<ObservableDrawingSet> getDrawingSetSlots() {
         return drawingSetSlots;
@@ -57,16 +49,30 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
     ///////////////////////////////////////////////
 
     public DrawingSets(){
-        PropertyUtil.addSpecialListenerWithSubList(this, drawingSetSlots, Listener::onDrawingSetAdded, Listener::onDrawingSetRemoved);
-        activeDrawingSet.addListener((observable, oldValue, newValue) -> sendListenerEvent(l -> l.onActiveSlotChanged(newValue)));
+        init();
     }
 
     public DrawingSets(List<ObservableDrawingSet> sets){
-        super();
         if(sets.size() > 0){
             drawingSetSlots.addAll(sets);
             activeDrawingSet.set(sets.get(0));
         }
+        init();
+    }
+
+    public void init(){
+        PropertyUtil.addSpecialListenerWithSubList(this, drawingSetSlots, Listener::onDrawingSetAdded, Listener::onDrawingSetRemoved);
+        activeDrawingSet.addListener((observable, oldValue, newValue) -> sendListenerEvent(l -> l.onActiveSlotChanged(newValue)));
+        drawingSetSlots.addListener((InvalidationListener) observable -> {
+            if(activeDrawingSet.get() == null || !drawingSetSlots.contains(activeDrawingSet.get())){
+                if(!drawingSetSlots.isEmpty()){
+                    activeDrawingSet.set(drawingSetSlots.get(0));
+                }else{
+                    // We shouldn't reach this point but it's possible
+                    drawingSetSlots.add(new ObservableDrawingSet());
+                }
+            }
+        });
     }
 
     public int getActiveSetSlot(){
