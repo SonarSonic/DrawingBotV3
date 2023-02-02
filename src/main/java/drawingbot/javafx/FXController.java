@@ -603,16 +603,12 @@ public class FXController extends AbstractFXController {
                     rangeSliderDisplayedLines.setHighValue(1.0F);
                     textFieldDisplayedShapesMin.setText(String.valueOf(0));
                     textFieldDisplayedShapesMax.setText(String.valueOf(newValue.getGeometryCount()));
-                    labelPlottedShapes.setText(Utils.defaultNF.format(newValue.getGeometryCount()));
-                    labelPlottedVertices.setText(Utils.defaultNF.format(newValue.getVertexCount()));
                 });
             }else{
                 rangeSliderDisplayedLines.setLowValue(0.0F);
                 rangeSliderDisplayedLines.setHighValue(1.0F);
                 textFieldDisplayedShapesMin.setText(String.valueOf(0));
                 textFieldDisplayedShapesMax.setText(String.valueOf(0));
-                labelPlottedShapes.setText(Utils.defaultNF.format(0));
-                labelPlottedVertices.setText(Utils.defaultNF.format(0));
             }
         });
 
@@ -729,12 +725,17 @@ public class FXController extends AbstractFXController {
             event.consume();
         });
 
-        labelElapsedTime.setText("0 s");
-        labelPlottedShapes.setText("0");
-        labelPlottedVertices.setText("0");
-        labelImageResolution.setText("0 x 0");
-        labelPlottingResolution.setText("0 x 0");
-        labelCurrentPosition.setText("0 x 0 y");
+        labelElapsedTime.textProperty().bind(Bindings.createStringBinding(() -> {
+            long minutes = (DrawingBotV3.INSTANCE.elapsedTimeMS.get() / 1000) / 60;
+            long seconds = (DrawingBotV3.INSTANCE.elapsedTimeMS.get() / 1000) % 60;
+            return minutes + " m " + seconds + " s";
+        }, DrawingBotV3.INSTANCE.elapsedTimeMS));
+        labelPlottedShapes.textProperty().bind(Bindings.createStringBinding(() -> Utils.defaultNF.format(DrawingBotV3.INSTANCE.geometryCount.get()), DrawingBotV3.INSTANCE.geometryCount));
+        labelPlottedVertices.textProperty().bind(Bindings.createStringBinding(() -> Utils.defaultNF.format(DrawingBotV3.INSTANCE.vertexCount.get()), DrawingBotV3.INSTANCE.vertexCount));
+        labelImageResolution.textProperty().bind(Bindings.createStringBinding(() -> DrawingBotV3.INSTANCE.imageResolutionWidth.getValue().intValue() + " x " + DrawingBotV3.INSTANCE.imageResolutionHeight.getValue().intValue() + " " + DrawingBotV3.INSTANCE.imageResolutionUnits.get().getSuffix(), DrawingBotV3.INSTANCE.imageResolutionWidth, DrawingBotV3.INSTANCE.imageResolutionHeight, DrawingBotV3.INSTANCE.imageResolutionUnits));
+        labelPlottingResolution.textProperty().bind(Bindings.createStringBinding(() -> DrawingBotV3.INSTANCE.plottingResolutionWidth.getValue().intValue() + " x " + DrawingBotV3.INSTANCE.plottingResolutionHeight.getValue().intValue(), DrawingBotV3.INSTANCE.plottingResolutionWidth, DrawingBotV3.INSTANCE.plottingResolutionHeight));
+        labelCurrentPosition.textProperty().bind(Bindings.createStringBinding(() -> DrawingBotV3.INSTANCE.relativeMousePosX.getValue() + ", " + DrawingBotV3.INSTANCE.relativeMousePosY.getValue() + " " + DrawingBotV3.INSTANCE.relativeMouseUnits.get().getSuffix(), DrawingBotV3.INSTANCE.relativeMousePosX, DrawingBotV3.INSTANCE.relativeMousePosY, DrawingBotV3.INSTANCE.relativeMouseUnits));
+
     }
 
 

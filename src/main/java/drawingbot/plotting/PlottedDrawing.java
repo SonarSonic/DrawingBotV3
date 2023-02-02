@@ -34,6 +34,7 @@ public class PlottedDrawing {
     public long vertexCount;
     public int displayedShapeMin = -1;
     public int displayedShapeMax = -1;
+    public long displayedVertexCount = -1;
     public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
 
     public PlottedDrawing(ICanvas canvas, DrawingSets drawingSets){
@@ -111,6 +112,13 @@ public class PlottedDrawing {
             return getGeometryCount();
         }
         return displayedShapeMax;
+    }
+
+    public long getDisplayedVertexCount(){
+        if(displayedVertexCount == -1){
+            return getVertexCount();
+        }
+        return displayedVertexCount;
     }
 
     public int getGeometryCount(){
@@ -383,6 +391,8 @@ public class PlottedDrawing {
         Map<PlottedGroup, Map<Integer, Integer>> perGroupStats = new HashMap<>();
         Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
 
+        int actualVertexCount = 0;
+
         //create a tally for each group
         for(PlottedGroup group : plottedDrawing.groups.values()){
             Map<Integer, Integer> map = new HashMap<>();
@@ -401,6 +411,7 @@ public class PlottedDrawing {
                     stats.putIfAbsent(geometry.getPenIndex(), 0);
                     stats.put(geometry.getPenIndex(), stats.get(geometry.getPenIndex())+1);
                 }
+                actualVertexCount += geometry.getVertexCount();
             }
         }
 
@@ -413,6 +424,7 @@ public class PlottedDrawing {
             }
         }
 
+        plottedDrawing.displayedVertexCount = actualVertexCount;
         return perPenStats;
     }
 

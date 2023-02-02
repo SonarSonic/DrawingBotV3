@@ -59,6 +59,21 @@ public class DrawingBotV3 {
 
     // DISPLAY \\
     public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
+    public final SimpleIntegerProperty geometryCount = new SimpleIntegerProperty(0);
+    public final SimpleLongProperty vertexCount = new SimpleLongProperty(0L);
+    public final SimpleLongProperty elapsedTimeMS = new SimpleLongProperty(0L);
+
+    public final SimpleFloatProperty imageResolutionWidth = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty imageResolutionHeight = new SimpleFloatProperty(0);
+    public final SimpleObjectProperty<UnitsLength> imageResolutionUnits = new SimpleObjectProperty<>(UnitsLength.PIXELS);
+
+    public final SimpleFloatProperty plottingResolutionWidth = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty plottingResolutionHeight = new SimpleFloatProperty(0);
+    public final SimpleObjectProperty<UnitsLength> plottingResolutionUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
+
+    public final SimpleIntegerProperty relativeMousePosX = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty relativeMousePosY = new SimpleIntegerProperty(0);
+    public final SimpleObjectProperty<UnitsLength> relativeMouseUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     //VPYPE SETTINGS
     public final VpypeSettings vpypeSettings = new VpypeSettings();
@@ -156,37 +171,11 @@ public class DrawingBotV3 {
 
     public void tick(){
 
+        // Update the latest shapes/vertices counts from the active task
+        PFMTask activeTask = context().taskManager().getActiveTask();
+        PlottedDrawing currentDrawing = context().taskManager().getCurrentDrawing();
+        FilteredImageData openImage = project().openImage.get();
 
-        //update the latest shapes/vertices counts from the active task
-        if(context().taskManager().getActiveTask() != null){
-            if(context().taskManager().getActiveTask().isRunning()){
-                int geometryCount = context().taskManager().getActiveTask().getCurrentGeometryCount();
-                long vertexCount = context().taskManager().getActiveTask().getCurrentVertexCount();
-
-                controller.labelPlottedShapes.setText(Utils.defaultNF.format(geometryCount));
-                controller.labelPlottedVertices.setText(Utils.defaultNF.format(vertexCount));
-
-                long minutes = (context().taskManager().getActiveTask().getElapsedTime() / 1000) / 60;
-                long seconds = (context().taskManager().getActiveTask().getElapsedTime() / 1000) % 60;
-                controller.labelElapsedTime.setText(minutes + " m " + seconds + " s");
-            }
-        }
-        /*
-        else {
-            controller.labelElapsedTime.setText("0 s");
-            controller.labelPlottedShapes.setText("0");
-            controller.labelPlottedVertices.setText("0");
-        }
-         */
-
-        controller.labelPlottingResolution.setText((int)(project().targetCanvas.getScaledWidth()) + " x " + (int)(project().targetCanvas.getScaledHeight()));
-
-
-        if(project().openImage.get() != null){
-            controller.labelImageResolution.setText(((int)project().openImage.get().getSourceCanvas().getWidth()) + " x " + ((int)project().openImage.get().getSourceCanvas().getHeight()) + " " +project(). openImage.get().getSourceCanvas().getUnits().getSuffix());
-        }else{
-            controller.labelImageResolution.setText("0 x 0");
-        }
         // Tick the current tasks
         taskMonitor.tick();
 
@@ -215,6 +204,30 @@ public class DrawingBotV3 {
             resetTaskService();
             startPlotting(context());
         }
+
+        // Update Drawing Stats
+        if(activeTask != null){
+            geometryCount.set(activeTask.getCurrentGeometryCount());
+            vertexCount.set(activeTask.getCurrentVertexCount());
+            elapsedTimeMS.set(activeTask.getElapsedTime());
+        }else if(currentDrawing != null){
+            geometryCount.set(currentDrawing.getDisplayedShapeMax() - currentDrawing.getDisplayedShapeMin());
+            vertexCount.set(currentDrawing.getDisplayedVertexCount());
+            //Keep the elapsed time
+        }else{
+            geometryCount.set(0);
+            vertexCount.set(0);
+            elapsedTimeMS.set(0);
+        }
+
+        // Update Image Stats
+        plottingResolutionWidth.set(project().targetCanvas.getScaledWidth());
+        plottingResolutionHeight.set(project().targetCanvas.getScaledHeight());
+        plottingResolutionUnits.set(project().targetCanvas.getUnits());
+
+        imageResolutionWidth.set(openImage == null ? 0 : openImage.getSourceCanvas().getWidth());
+        imageResolutionHeight.set(openImage == null ? 0 : openImage.getSourceCanvas().getHeight());
+        imageResolutionUnits.set(openImage == null ? UnitsLength.PIXELS : openImage.getSourceCanvas().getUnits());
     }
 
 
@@ -411,7 +424,9 @@ public class DrawingBotV3 {
         Point2D position = project().displayMode.get().getRenderer().sceneToRenderer(mouse);
 
         if(project().getDrawingArea().useOriginalSizing.get()){
-            controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " px");
+            relativeMousePosX.set((int)position.getX());
+            relativeMousePosY.set((int)position.getY());
+            relativeMouseUnits.set(UnitsLength.PIXELS);
         }else{
             double printScale = 1;
 
@@ -424,7 +439,9 @@ public class DrawingBotV3 {
 
             position = position.multiply(1F/printScale);
 
-            controller.labelCurrentPosition.setText(((int)position.getX())  + ", " + ((int)position.getY()) + " mm");
+            relativeMousePosX.set((int)position.getX());
+            relativeMousePosY.set((int)position.getY());
+            relativeMouseUnits.set(UnitsLength.MILLIMETRES);
         }
     }
 
