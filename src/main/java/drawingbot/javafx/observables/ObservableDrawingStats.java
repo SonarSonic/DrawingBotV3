@@ -2,6 +2,7 @@ package drawingbot.javafx.observables;
 
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingStats;
+import drawingbot.utils.Utils;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -23,7 +24,7 @@ public class ObservableDrawingStats {
     public SimpleObjectProperty<LinkedHashMap<DrawingPen, Double>> penStats = new SimpleObjectProperty<>(new LinkedHashMap<>());
 
     public void updateFromStatic(DrawingStats stats){
-        this.totalTravelMM.set(stats.distanceUpMM + stats.distanceDownMM);
+        this.totalTravelMM.set(Utils.roundToPrecision(stats.distanceUpMM + stats.distanceDownMM, 3));
         this.distanceUpMM.set(stats.distanceUpMM);
         this.distanceDownMM.set(stats.distanceDownMM);
         this.maxX.set(stats.maxX);

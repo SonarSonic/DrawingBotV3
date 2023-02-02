@@ -100,7 +100,7 @@ public class ExportStatsOverlays extends AbstractOverlay {
             }
         });
         statTextFlow.getChildren().add(openFolderButton);
-        FXHelper.addText(statTextFlow, 12, "bold", " \n");
+        FXHelper.addText(statTextFlow, 12, "bold", " \n\n");
 
         ////////
 
@@ -136,7 +136,7 @@ public class ExportStatsOverlays extends AbstractOverlay {
 
     public void updatePenColours(TextFlow flow, Map<DrawingPen, Double> penStats){
         flow.getChildren().clear();
-        FXHelper.addText(flow, 14, "bold", "\nPens:\n");
+        FXHelper.addText(flow, 14, "bold", "Pens:\n");
         int penIndex = 1;
         for(Map.Entry<DrawingPen, Double> drawingPenEntry : penStats.entrySet()){
             flow.getChildren().add(new Rectangle(12, 12, ImageTools.getColorFromARGB(drawingPenEntry.getKey().getARGB())));
