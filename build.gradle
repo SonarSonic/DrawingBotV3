@@ -117,7 +117,16 @@ runtime {
             installerOptions += ['--linux-package-name', "drawingbotv3",'--linux-shortcut']
         }
         else if (currentOs.macOsX) {
-            installerOptions += ['--mac-package-name', "drawingbotv3"]
+            imageOptions += ["--verbose"]
+            installerOptions += ["--verbose", '--mac-package-name', "drawingbotv3"]
+            if(project.hasProperty("developer")){
+                String id = project.getProperty("developer");
+                project.logger.lifecycle('Found a developer id, adding mac-signing')
+                imageOptions += ['--mac-sign', "--mac-signing-key-user-name", id]
+                installerOptions += ['--mac-sign', "--mac-signing-key-user-name", id]
+            }else{
+                project.logger.lifecycle('No developer id, disabling mac-signing')
+            }
         }
         installerOptions += ['--file-associations', "src/main/resources/jpackage/FAprojects.properties"]
     }
