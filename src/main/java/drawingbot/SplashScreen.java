@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -41,7 +42,8 @@ public class SplashScreen extends Preloader {
     ///////////////
 
     public Stage stage;
-    public Label label;
+    public Label versionName;
+    public Label loadingInfo;
 
     private Scene createPreloaderScene() {
         VBox vBox = new VBox();
@@ -64,14 +66,24 @@ public class SplashScreen extends Preloader {
         vBox.getChildren().add(imageView);
 
 
-        label = new Label(DBConstants.versionName + ", " + "v" + DBConstants.appVersion);
-        label.setFont(new Font(11));
-        label.setTextFill(Color.LIGHTGREY);
-        label.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0), null, null)));
-        label.setAlignment(Pos.CENTER);
-        label.setTextAlignment(TextAlignment.CENTER);
-        label.setTranslateY(-27);
-        vBox.getChildren().add(label);
+        versionName = new Label(DBConstants.versionName + ", " + "v" + DBConstants.appVersion);
+        versionName.setFont(new Font(11));
+        versionName.setTextFill(Color.LIGHTGREY);
+        versionName.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0), null, null)));
+        versionName.setAlignment(Pos.CENTER);
+        versionName.setTextAlignment(TextAlignment.CENTER);
+        versionName.setTranslateY(-27);
+        vBox.getChildren().add(versionName);
+
+        loadingInfo = new Label();
+        loadingInfo.setFont(new Font(11));
+        loadingInfo.setTextFill(Color.WHITE);
+        loadingInfo.setAlignment(Pos.TOP_LEFT);
+        loadingInfo.setPrefWidth(480);
+
+        loadingInfo.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.5), new CornerRadii(5), null)));
+        vBox.getChildren().add(loadingInfo);
+
 
 
         return new Scene(vBox, 500, 250);
@@ -94,7 +106,7 @@ public class SplashScreen extends Preloader {
         }
         if(info instanceof InfoNotification){
             InfoNotification infoNotification = (InfoNotification) info;
-            label.setText(infoNotification.info);
+            loadingInfo.setText(infoNotification.info);
         }
     }
 

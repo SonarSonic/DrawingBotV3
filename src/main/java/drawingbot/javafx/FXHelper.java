@@ -765,7 +765,7 @@ public class FXHelper {
 
             @Override
             public void setData(Node node, FXController.NodePosition position) {
-                FXController.loadPosition(node, position);
+                Platform.runLater(() -> FXController.loadPosition(node, position));
             }
         });
     }

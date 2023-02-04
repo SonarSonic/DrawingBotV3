@@ -17,7 +17,7 @@ public interface IPlugin {
 
     default void postInit(){}
 
-    default void loadJavaFXStages() throws IOException {}
+    default void loadJavaFXStages() {}
 
     default void registerPFMS(){}
 
