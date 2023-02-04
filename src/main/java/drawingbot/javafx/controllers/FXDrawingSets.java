@@ -110,24 +110,23 @@ public class FXDrawingSets extends AbstractFXController {
         drawingSets.addListener((observable, oldValue, newValue) -> {
 
             if(oldValue != null){
-                comboBoxDrawingSets.setItems(FXCollections.observableArrayList());
                 comboBoxDrawingSets.valueProperty().unbindBidirectional(oldValue.activeDrawingSet);
-
                 onChangedActiveDrawingSet(oldValue.activeDrawingSet.get(), null);
                 oldValue.activeDrawingSet.removeListener(activeSetListener);
 
                 drawingSetTableView.setItems(FXCollections.observableArrayList());
+                comboBoxDrawingSets.setItems(FXCollections.observableArrayList());
             }
 
             if(newValue != null){
                 comboBoxDrawingSets.setItems(newValue.drawingSetSlots);
+                drawingSetTableView.setItems(drawingSets.get().drawingSetSlots);
+
                 comboBoxDrawingSets.setValue(newValue.activeDrawingSet.get());
                 comboBoxDrawingSets.valueProperty().bindBidirectional(newValue.activeDrawingSet);
 
                 onChangedActiveDrawingSet(null, newValue.activeDrawingSet.get());
                 newValue.activeDrawingSet.addListener(activeSetListener);
-
-                drawingSetTableView.setItems(drawingSets.get().drawingSetSlots);
             }
         });
 
