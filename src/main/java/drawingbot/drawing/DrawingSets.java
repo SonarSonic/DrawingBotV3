@@ -67,9 +67,6 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
             if(activeDrawingSet.get() == null || !drawingSetSlots.contains(activeDrawingSet.get())){
                 if(!drawingSetSlots.isEmpty()){
                     activeDrawingSet.set(drawingSetSlots.get(0));
-                }else{
-                    // We shouldn't reach this point but it's possible
-                    drawingSetSlots.add(new ObservableDrawingSet());
                 }
             }
         });
