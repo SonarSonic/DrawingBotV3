@@ -40,11 +40,12 @@ public class PFMRenderPipe {
     }
 
 
-    public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust, float lineWidth){
-        return eraseGeometry(pixelData, geometry, adjust, lineWidth, this::defaultEraseFunction); //FIX COLOUR SAMPLES
+    public int eraseGeometry(IPixelData pixelData, IPixelData reference, IGeometry geometry, int adjust, float lineWidth){
+        return eraseGeometry(pixelData, reference, geometry, adjust, lineWidth, this::defaultEraseFunction); //FIX COLOUR SAMPLES
     }
 
-    public int eraseGeometry(IPixelData pixelData, IGeometry geometry, int adjust, float lineWidth, PixelDataComposite.ICompositeFunction function){
+    public int eraseGeometry(IPixelData pixelData, IPixelData reference, IGeometry geometry, int adjust, float lineWidth, PixelDataComposite.ICompositeFunction function){
+        int colourSamples = -1;
         if(pixelData instanceof PixelDataGraphicsComposite){
             //HQ method: using Graphics2D implementation, slower but supports anti aliased lines and lineWidth.
             PixelDataGraphicsComposite data = (PixelDataGraphicsComposite) pixelData;
@@ -54,8 +55,12 @@ public class PFMRenderPipe {
             graphics2D.setColor(getDefaultEraseColor(adjust));
             graphics2D.draw(geometry.getAWTShape());
             data.disableBlending();
+
+            // Add Colour Samples to the Geometry
+            colourSamples = bresenhamHelper.getColourSamples(reference, geometry);
         }else{
             //original method: using bresenham, fast but with non-anti aliased lines and no support for lineWidth.
+            ColourSampleTest sampleTest = new ColourSampleTest();
             bresenhamHelper.plotShape(geometry.getAWTShape(), (x, y) -> {
                 if(x < 0 || x >= pixelData.getWidth() || y < 0 || y >= pixelData.getHeight()){
                     return;
@@ -63,9 +68,11 @@ public class PFMRenderPipe {
                 pixelData.adjustRed(x, y, adjust);
                 pixelData.adjustGreen(x, y, adjust);
                 pixelData.adjustBlue(x, y, adjust);
+                sampleTest.addSample(reference, x, y);
             });
+            colourSamples = sampleTest.getCurrentAverage();
         }
-        return -1; //TODO FIX COLOUR SAMPLES
+        return colourSamples;
     }
 
 

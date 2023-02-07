@@ -2,6 +2,7 @@ package drawingbot.api;
 
 import drawingbot.image.ImageTools;
 import drawingbot.image.RawData;
+import drawingbot.utils.Utils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -445,6 +446,26 @@ public interface IPixelData {
         RawData data = getRawLuminanceData();
         assert data != null;
         data.listener = listener;
+    }
+
+    default int clampX(int x){
+        return Utils.clamp(x, 0, getWidth()-1);
+    }
+
+    default int clampY(int y){
+        return Utils.clamp(y, 0, getHeight()-1);
+    }
+
+    default boolean withinX(int x){
+        return Utils.within(x, 0, getWidth()-1);
+    }
+
+    default boolean withinY(int y){
+        return Utils.within(y, 0, getHeight()-1);
+    }
+
+    default boolean withinXY(int x, int y){
+        return withinX(x) && withinY(y);
     }
 
 }

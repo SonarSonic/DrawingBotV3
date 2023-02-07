@@ -132,8 +132,10 @@ public interface IPlottingTools {
      */
     boolean withinPlottableAreaPrecise(double x, double y);
 
+    @Deprecated
     void addGeometryWithColourSamples(IPixelData pixelData, IGeometry geometry, int adjust);
 
+    @Deprecated
     int adjustGeometryLuminance(IPixelData pixelData, IGeometry geometry, int adjust);
 
     void findDarkestArea(IPixelData pixels, int[] dest);
@@ -199,6 +201,14 @@ public interface IPlottingTools {
     int getBestPen(int x, int y);
 
     int getBestMatchedPen(int argb);
+
+    int getColourSampling();
+
+    void setColourSampling(int argb);
+
+    void setColourSampling(IPixelData data, int x, int y);
+
+    void resetColourSampling();
 
     ////////////////////////////////////////////////////////
 

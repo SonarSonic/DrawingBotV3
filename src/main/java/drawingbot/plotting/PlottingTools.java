@@ -38,6 +38,7 @@ public class PlottingTools implements IPlottingTools {
     public ColourSampleTest defaultColourTest;
     public AffineTransformStack transform;
     public int currentPen = 0;
+    public int currentColourSampling = -1;
     public int currentFillType = -1;
 
     public int randomSeed = 0;
@@ -299,6 +300,10 @@ public class PlottingTools implements IPlottingTools {
             geometry.setPenIndex(currentPen);
         }
 
+        if(geometry.getSampledRGBA() == -1){
+            geometry.setSampledRGBA(currentColourSampling);
+        }
+
         if(geometry.getFillType() == -1){
             geometry.setFillType(currentFillType);
         }
@@ -498,6 +503,7 @@ public class PlottingTools implements IPlottingTools {
         return currentGroup.drawingSet;
     }
 
+    @Override
     public int getCurrentPen(){
         return currentPen;
     }
@@ -513,6 +519,26 @@ public class PlottingTools implements IPlottingTools {
     @Override
     public void setCurrentPen(int penNumber){
         currentPen = penNumber;
+    }
+
+    @Override
+    public int getColourSampling() {
+        return currentColourSampling;
+    }
+
+    @Override
+    public void setColourSampling(int argb) {
+        currentColourSampling = argb;
+    }
+
+    @Override
+    public void setColourSampling(IPixelData data, int x, int y) {
+        currentColourSampling = data.getARGB(x, y);
+    }
+
+    @Override
+    public void resetColourSampling(){
+        currentColourSampling = -1;
     }
 
     @Override

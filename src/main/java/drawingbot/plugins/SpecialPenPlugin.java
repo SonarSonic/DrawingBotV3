@@ -32,24 +32,36 @@ public class SpecialPenPlugin implements IPlugin {
         //// ORIGINAL COLOURS \\\\
 
         ORIGINAL_COLOUR_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", -1){
+            final int black = ImageTools.getARGB(255, 0, 0, 0);
             @Override
             public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return black;
+                }
                 return pfmARGB;
             }
         };
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_COLOUR_PEN);
 
         ORIGINAL_GRAYSCALE_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale", -1){
+            final int grey = ImageTools.getARGB(255, 25, 25, 25);
             @Override
             public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return grey;
+                }
                 return ImageTools.grayscaleFilter(pfmARGB);
             }
         };
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_GRAYSCALE_PEN);
 
         ORIGINAL_RED_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Red", ImageTools.getARGB(255, 255, 0, 0)){
+            final int red = ImageTools.getARGB(255, 255, 0, 0);
             @Override
             public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return red;
+                }
                 int red = ImageTools.red(pfmARGB);
                 return ImageTools.getARGB(255, red, 0, 0);
             }
@@ -57,8 +69,12 @@ public class SpecialPenPlugin implements IPlugin {
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_RED_PEN);
 
         ORIGINAL_GREEN_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Green", ImageTools.getARGB(255, 0, 255, 0)){
+            final int green = ImageTools.getARGB(255, 0, 255, 0);
             @Override
             public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return green;
+                }
                 int green = ImageTools.green(pfmARGB);
                 return ImageTools.getARGB(255, 0, green, 0);
             }
@@ -66,8 +82,12 @@ public class SpecialPenPlugin implements IPlugin {
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_GREEN_PEN);
 
         ORIGINAL_BLUE_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Blue", ImageTools.getARGB(255, 0, 0, 255)){
+            final int blue = ImageTools.getARGB(255, 0, 0, 255);
             @Override
             public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return blue;
+                }
                 int blue = ImageTools.blue(pfmARGB);
                 return ImageTools.getARGB(255, 0, 0, blue);
             }

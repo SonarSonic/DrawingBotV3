@@ -232,36 +232,44 @@ public class PathBuilder {
         buildingCurveSegments = true;
     }
 
-    public void addLineSegment(float x, float y){
+    public GLine addLineSegment(float x, float y){
+        GLine line = null;
         float[] P3 = new float[]{x, y};
         if (P2 != null) {
-            consumer.accept(new GLine(P2[0], P2[1], P3[0], P3[1]));
+            consumer.accept(line = new GLine(P2[0], P2[1], P3[0], P3[1]));
         }
         P0 = P1; P1 = P2; P2 = P3;
+        return line;
     }
 
-    public void addQuadSegment(float ctrlX, float ctrlY, float x, float y){
+    public GQuadCurve addQuadSegment(float ctrlX, float ctrlY, float x, float y){
+        GQuadCurve quad = null;
         float[] P3 = new float[]{x, y};
         if (P2 != null) {
-            consumer.accept(new GQuadCurve(P2[0], P2[1], ctrlX, ctrlY, P3[0], P3[1]));
+            consumer.accept(quad = new GQuadCurve(P2[0], P2[1], ctrlX, ctrlY, P3[0], P3[1]));
         }
         P0 = P1; P1 = P2; P2 = P3;
+        return quad;
     }
 
-    public void addCubicSegment(float ctrlX1, float ctrlY1, float ctrlX2, float ctrlY2, float x, float y){
+    public GCubicCurve addCubicSegment(float ctrlX1, float ctrlY1, float ctrlX2, float ctrlY2, float x, float y){
+        GCubicCurve curve = null;
         float[] P3 = new float[]{x, y};
         if (P2 != null) {
-            consumer.accept(new GCubicCurve(P2[0], P2[1], ctrlX1, ctrlY1, ctrlX2, ctrlY2, P3[0], P3[1]));
+            consumer.accept(curve = new GCubicCurve(P2[0], P2[1], ctrlX1, ctrlY1, ctrlX2, ctrlY2, P3[0], P3[1]));
         }
         P0 = P1; P1 = P2; P2 = P3;
+        return curve;
     }
 
-    public void addCatmullCurveSegment(float x, float y, float tension){
+    public GCubicCurve addCatmullCurveSegment(float x, float y, float tension){
+        GCubicCurve curve = null;
         float[] P3 = new float[]{x, y};
         if (P0 != null) {
-            consumer.accept(new GCubicCurve(P0, P1, P2, P3, tension));
+            consumer.accept(curve = new GCubicCurve(P0, P1, P2, P3, tension));
         }
         P0 = P1; P1 = P2; P2 = P3;
+        return curve;
     }
 
     public void endSegments(){

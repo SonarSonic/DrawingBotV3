@@ -1,5 +1,7 @@
 package drawingbot.pfm.helpers;
 
+import drawingbot.api.IPixelData;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.plotting.PathBuilder;
 import org.locationtech.jts.algorithm.locate.SimplePointInAreaLocator;
 import org.locationtech.jts.geom.CoordinateXY;
@@ -75,6 +77,12 @@ public class BresenhamHelper {
             }
         });
         return point;
+    }
+
+    public int getColourSamples(IPixelData pixelData, IGeometry geometry) {
+        ColourSampleTest sampleTest = new ColourSampleTest();
+        plotShape(geometry.getAWTShape(), (x, y) -> sampleTest.addSample(pixelData, x, y));
+        return sampleTest.getCurrentAverage();
     }
 
     public void plotShape(Shape path, IPixelSetter setter){

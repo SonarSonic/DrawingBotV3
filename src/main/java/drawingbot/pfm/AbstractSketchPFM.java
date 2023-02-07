@@ -242,7 +242,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         float strokeWidth = (float) (radiusMin + yProgress * (radiusMax - radiusMin));
         int erase = (int) (eraseMin + yProgress * (eraseMax-eraseMin));
 
-        return renderPipe.eraseGeometry(pixelData, geometry, erase, tools.getCanvas().getTargetPenWidth() * strokeWidth);
+        return renderPipe.eraseGeometry(pixelData, tools.getReferencePixelData(), geometry, erase, tools.getCanvas().getTargetPenWidth() * strokeWidth);
     }
 
     public static class PathFindingContext {

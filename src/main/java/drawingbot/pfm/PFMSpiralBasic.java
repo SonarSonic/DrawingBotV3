@@ -3,6 +3,7 @@ package drawingbot.pfm;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.easing.EasingUtils;
 import drawingbot.geom.shapes.GLine;
+import drawingbot.image.PixelDataARGBY;
 import drawingbot.image.PixelDataLuminance;
 import drawingbot.utils.Utils;
 
@@ -38,7 +39,7 @@ public class PFMSpiralBasic extends AbstractPFMImage {
 
     @Override
     public IPixelData createPixelData(int width, int height) {
-        return new PixelDataLuminance(width, height);
+        return new PixelDataARGBY(width, height);
     }
 
     @Override
@@ -114,6 +115,7 @@ public class PFMSpiralBasic extends AbstractPFMImage {
                 int lumRefX = Utils.clamp((int)x, 0, tools.getPixelData().getWidth()-1);
                 int lumRefY = Utils.clamp((int)y, 0, tools.getPixelData().getHeight()-1);
                 double nextLuminance = tools.getPixelData().getLuminance(lumRefX, lumRefY);
+                int sampledRGB = tools.getPixelData().getARGB(lumRefX, lumRefY);
                 luminance = (nextLuminance + lastLuminance)/2D;
                 lastLuminance = nextLuminance;
 
@@ -153,9 +155,9 @@ public class PFMSpiralBasic extends AbstractPFMImage {
                 if(draw){
                     int penIndex = getPenIndex((float)x, (float)y);
                     if(connectedLines && lastX != -1 && lastY != -1){
-                        tools.addGeometry(new GLine((float)lastX, (float)lastY, (float)xa, (float)ya), penIndex, -1);
+                        tools.addGeometry(new GLine((float)lastX, (float)lastY, (float)xa, (float)ya), penIndex, sampledRGB);
                     }
-                    tools.addGeometry(new GLine((float)xa, (float)ya, (float)xb, (float)yb), penIndex, -1);
+                    tools.addGeometry(new GLine((float)xa, (float)ya, (float)xb, (float)yb), penIndex, sampledRGB);
                     lastX = xb;
                     lastY = yb;
                 }
