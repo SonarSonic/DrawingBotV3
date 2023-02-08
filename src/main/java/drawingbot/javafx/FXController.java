@@ -434,6 +434,7 @@ public class FXController extends AbstractFXController {
         if(!FXApplication.isPremiumEnabled){
             MenuItem upgrade = new MenuItem("Upgrade");
             upgrade.setOnAction(e -> FXHelper.openURL(DBConstants.URL_UPGRADE));
+            upgrade.setGraphic(fontAwesome.create(FontAwesome.Glyph.ARROW_UP).color(Color.SLATEGRAY));
             menuHelp.getItems().add(upgrade);
             menuHelp.getItems().add(new SeparatorMenuItem());
         }
@@ -452,14 +453,6 @@ public class FXController extends AbstractFXController {
         configFolder.setOnAction(e -> FXHelper.openFolder(new File(FileUtils.getUserDataDirectory())));
         configFolder.setGraphic(fontAwesome.create(FontAwesome.Glyph.FOLDER).color(Color.SLATEGRAY));
         menuHelp.getItems().add(configFolder);
-
-
-        if(!FXApplication.isPremiumEnabled){
-            MenuItem upgrade = new MenuItem("Upgrade");
-            upgrade.setOnAction(e -> FXHelper.openURL(DBConstants.URL_UPGRADE));
-            upgrade.setGraphic(fontAwesome.create(FontAwesome.Glyph.ARROW_UP).color(Color.SLATEGRAY));
-            menuHelp.getItems().add(upgrade);
-        }
 
         DrawingBotV3.INSTANCE.activeProjects.forEach(this::onProjectAdded);
         DrawingBotV3.INSTANCE.activeProjects.addListener((ListChangeListener<ObservableProject>) c -> {
