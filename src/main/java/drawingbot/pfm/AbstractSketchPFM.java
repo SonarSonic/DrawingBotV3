@@ -98,6 +98,9 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public BiConsumer<IPixelData, int[]> findDarkestPixelMethod = AbstractDarkestPFM::findDarkestArea;
     public final PathFindingContext context = new PathFindingContext();
 
+    private int fails = 0;
+    private static final int MAX_FAILS = 1000;
+
     @Override
     public void run() {
         while(!tools.isFinished()){
@@ -161,6 +164,14 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             if(failed){
                 // If there were no path finding results from the current point, it must be isolated, so erase it.
                 tools.getPixelData().setLuminance(context.getX(), context.getY(), 255);
+                fails++;
+            }else{
+                fails = 0;
+            }
+
+            // If we still can't find a valid shape stop the process.
+            if(fails >= MAX_FAILS){
+                return;
             }
 
             // Colour Match will may change pen after each squiggle, so prevent the default while loop.
