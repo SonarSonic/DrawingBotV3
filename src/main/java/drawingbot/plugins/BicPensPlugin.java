@@ -51,6 +51,8 @@ public class BicPensPlugin extends AbstractPenPlugin {
 
     @Override
     public void registerPenSets() {
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Bic", "Grey Blues", getDrawingPensFromCodes(20, 27, 17, 24, 16)));
+
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Bic", "Cristal Ballpoint", getDrawingPensFromCodes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Bic", "Intensity Fineliner 10", getDrawingPensFromCodes(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Bic", "Intensity Fineliner 20", getDrawingPensFromCodes(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)));

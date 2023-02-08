@@ -124,6 +124,7 @@ public class DiamineInkPlugin extends AbstractPenPlugin {
 
     @Override
     public void registerPenSets(){
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Diamine", "Inks", getDrawingPensFromCodes(manufacturerCodes.keySet().toArray(new Object[0]))));
+      MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Diamine", "Grey Blues", getDrawingPensFromCodes(104, 3, 2, 88, 101)));
+      MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Diamine", "Inks", getDrawingPensFromCodes(manufacturerCodes.keySet().toArray(new Object[0]))));
     }
 }

@@ -89,6 +89,9 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
 
     @Override
     public void registerPenSets() {
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Greys", getDrawingPensFromCodes(9, 8, 85, 86, 82)));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Grey Blues", getDrawingPensFromCodes(9, 8, 85, 86, 82, 36, 30, 34)));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Grey Yellows", getDrawingPensFromCodes(9, 8, 85, 86, 82, 16, 13, 1)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Neon - 6 x Pen Set", getDrawingPensFromCodes(101, 201, 221, 301, 401, 501)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Pastel - 6 x Pen Set", getDrawingPensFromCodes(21, 43, 53, 62, 63, 82)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - Pastel Pink - 6 x Pen Set", getDrawingPensFromCodes(21, 305, 430, 505, 62, 82)));

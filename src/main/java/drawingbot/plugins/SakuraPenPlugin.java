@@ -35,6 +35,7 @@ public class SakuraPenPlugin extends AbstractPenPlugin {
 
     @Override
     public void registerPenSets() {
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Sakura", "Greys", getDrawingPensFromCodes("15", "16", "17")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Sakura", "Pigma Micron", getDrawingPensFromCodes(manufacturerCodes.keySet().toArray(new Object[0]))));
     }
 }
