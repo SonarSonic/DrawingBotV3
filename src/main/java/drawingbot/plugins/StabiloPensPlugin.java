@@ -65,14 +65,19 @@ public class StabiloPensPlugin extends AbstractPenPlugin {
 
     @Override
     public void registerPenSets() {
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Greys", getDrawingPensFromCodes( "88/46", "88/98", "88/97", "88/96", "88/95", "88/94")));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Blues", getDrawingPensFromCodes( "88/46", "88/96", "88/41", "88/32", "88/11", "88/95", "88/94")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:48 Pack", getDrawingPensFromCodes( "88/024", "88/031", "88/033", "88/040", "88/054", "88/056", "88/11", "88/13", "88/16", "88/17", "88/19", "88/22", "88/24", "88/26", "88/29", "88/30", "88/31", "88/32", "88/33", "88/36", "88/38", "88/40", "88/41", "88/43", "88/44", "88/45", "88/46", "88/48", "88/50", "88/51", "88/53", "88/54", "88/55", "88/56", "88/57", "88/58", "88/59", "88/63", "88/65", "88/75", "88/88", "88/89", "88/94", "88/95", "88/96", "88/97", "88/98")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:Pastel", getDrawingPensFromCodes( "88/96", "88/13", "88/16", "88/11", "88/59", "88/29", "88/26", "88/24")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:Neon", getDrawingPensFromCodes( "88/031", "88/033", "88/024", "88/054", "88/040", "88/056")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:Basics", getDrawingPensFromCodes( "88/46", "88/36", "88/41", "88/55", "88/58", "88/40")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:Blues", getDrawingPensFromCodes( "88/22", "88/98", "88/41", "88/31", "88/32", "88/51", "88/57", "88/11")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:Reds", getDrawingPensFromCodes( "88/50", "88/19", "88/29", "88/30", "88/40", "88/48", "88/56", "88/040")));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:20 Pack - Colour Parade", getDrawingPensFromCodes( "88/22", "88/26", "88/32", "88/33", "88/36", "88/40", "88/41", "88/44", "88/45", "88/46", "88/50", "88/51", "88/53", "88/54", "88/55", "88/56", "88/57", "88/58", "88/89", "88/96")));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:20 Pack - Assorted", getDrawingPensFromCodes( "88/13", "88/32", "88/36", "88/40", "88/41", "88/43", "88/44", "88/45", "88/46", "88/50", "88/51", "88/54", "88/55", "88/56", "88/57", "88/58", "88/63", "88/89", "88/94", "88/96")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:10 Pack A", getDrawingPensFromCodes( "88/46", "88/45", "88/36", "88/43", "88/41", "88/55", "88/56", "88/40", "88/54", "88/44")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:10 Pack B", getDrawingPensFromCodes( "88/63", "88/51", "88/13", "88/57", "88/55", "88/58", "88/56", "88/50", "88/40", "88/44")));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:6 Pack - Assorted", getDrawingPensFromCodes( "88/36", "88/40", "88/41", "88/46", "88/55", "88/58")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "88:Greys", getDrawingPensFromCodes( "88/46", "88/98", "88/97", "88/96", "88/95", "88/94")));
     }
 }
