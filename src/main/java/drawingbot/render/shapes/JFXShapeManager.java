@@ -218,11 +218,12 @@ public class JFXShapeManager{
 
         // Set the drawing shape to the last selected shape
         ShapeOverlays.INSTANCE.drawingShape.set(added);
-
+        hasSelection.set(!activeShapeList.get().getSelectionList().isEmpty());
     }
 
     public void onSelectionRemoved(JFXShape removed){
         removed.jfxShape.boundsInParentProperty().removeListener(boundsChangeListener);
+        hasSelection.set(!activeShapeList.get().getSelectionList().isEmpty());
     }
 
     ////////////////////////////

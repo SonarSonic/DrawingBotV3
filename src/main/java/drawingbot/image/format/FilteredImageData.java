@@ -190,9 +190,8 @@ public class FilteredImageData implements IProperties {
         UpdateType updateType = nextUpdate;
         nextUpdate = UpdateType.NONE;
 
-        ImageCanvas newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), sourceCanvas, false);
-
-        if(cropped == null || updateType.updateCropping()){
+        ImageCanvas newCanvas = null;
+        if(cropped == null || preCrop == null || updateType.updateCropping()){
             preCrop = applyPreCropping(sourceImage, getCrop());
             newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
             cropped = applyCropping(preCrop, newCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
@@ -205,8 +204,10 @@ public class FilteredImageData implements IProperties {
                 copy.scale = sourceCanvas.getPlottingScale();
                 newCanvas = new ImageCanvas(new SimpleCanvas(getTargetCanvas()), copy, imageRotation.get().flipAxis);
             }
-
+        }else{
+            newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
         }
+
         filteredImage = applyFilters(cropped, updateType.updateAllFilters(), settings);
         destCanvas = newCanvas;
     }
