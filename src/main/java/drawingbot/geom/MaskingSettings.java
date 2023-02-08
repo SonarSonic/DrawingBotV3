@@ -46,7 +46,7 @@ public class MaskingSettings implements IProperties {
 
     ///////////////////////////////////////////////
 
-    public final SimpleBooleanProperty softClipping = new SimpleBooleanProperty(true);
+    public final SimpleBooleanProperty softClipping = new SimpleBooleanProperty(false);
 
     public boolean isSoftClipping() {
         return softClipping.get();

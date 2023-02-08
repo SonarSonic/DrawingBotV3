@@ -212,14 +212,13 @@ public class ShapeOverlays extends AbstractOverlay{
         
         editOverlaysPane.getChildren().addAll(cornerNWResize, cornerNEResize, cornerSWResize, cornerSEResize, edgeNResize, edgeWResize, edgeEResize, edgeSResize);
         editOverlaysPane.getChildren().addAll(cornerNWRotate, cornerNERotate, cornerSWRotate, cornerSERotate, edgeNSkew, edgeWSkew, edgeESkew, edgeSSkew);
-        editOverlaysPane.getChildren().addAll(anchorPointMarker, centreMarker);
+        editOverlaysPane.getChildren().addAll(anchorPointMarker, centreMarker, vertexHandlesPane);
         editOverlaysPane.visibleProperty().bind(JFXShapeManager.INSTANCE.hasSelection);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, this::onKeyPressed);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_RELEASED, this::onKeyReleased);
 
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(geometriesPane);
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(editOverlaysPane);
-        DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(vertexHandlesPane);
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.setOnScroll(e -> {
             //prevent the overlay pane consuming the scroll event, and preventing it reaching the viewport
             DrawingBotV3.INSTANCE.controller.viewportScrollPane.getContent().getOnScroll().handle(e);

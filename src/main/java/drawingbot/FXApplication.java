@@ -208,24 +208,38 @@ public class FXApplication extends Application {
                     DrawingBotV3.logger.info("DrawingBotV3: Loading Event Handlers");
                     FXApplication.primaryScene.addEventHandler(MouseEvent.MOUSE_MOVED, mouseMonitor = new MouseMonitor());
 
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_MOVED, DrawingBotV3.INSTANCE::onMouseMovedViewport);
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, DrawingBotV3.INSTANCE::onMousePressedViewport);
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, DrawingBotV3.INSTANCE::onKeyPressedViewport);
-                    DrawingBotV3.INSTANCE.projectName.set("Untitled");
-                    DrawingBotV3.logger.info("DrawingBotV3: Display UI");
-                    primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", " + "'" + DrawingBotV3.INSTANCE.projectNameBinding.get() + "'", DrawingBotV3.INSTANCE.applicationName, DrawingBotV3.INSTANCE.versionName, DrawingBotV3.INSTANCE.projectNameBinding));
-                    primaryStage.setResizable(true);
-                    applyDBStyle(primaryStage);
-                    primaryStage.show();
-
-                    // set up main drawing loop
-                    drawTimer = new DrawTimer(FXApplication.INSTANCE);
-                    drawTimer.start();
-
                     latchC.countDown();
                 });
 
                 latchC.await();
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            //secondary config load, shouldn't cause any clashes, ensure things like UI elements are setup correctly
+            DrawingBotV3.logger.info("DrawingBotV3: Loading User Preferences");
+            JsonLoaderManager.loadConfigFiles();
+
+            if(!isHeadless) {
+                DrawingBotV3.logger.info("DrawingBotV3: Loading User Interface");
+                CountDownLatch latchD = new CountDownLatch(1);
+                Platform.runLater(() -> {
+                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_MOVED, DrawingBotV3.INSTANCE::onMouseMovedViewport);
+                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, DrawingBotV3.INSTANCE::onMousePressedViewport);
+                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, DrawingBotV3.INSTANCE::onKeyPressedViewport);
+                    DrawingBotV3.INSTANCE.projectName.set("Untitled");
+                    DrawingBotV3.INSTANCE.resetView();
+                    primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", " + "'" + DrawingBotV3.INSTANCE.projectNameBinding.get() + "'", DrawingBotV3.INSTANCE.applicationName, DrawingBotV3.INSTANCE.versionName, DrawingBotV3.INSTANCE.projectNameBinding));
+                    primaryStage.setResizable(true);
+                    applyDBStyle(primaryStage);
+                    primaryStage.show();
+                    latchD.countDown();
+
+                    // set up main drawing loop
+                    drawTimer = new DrawTimer(FXApplication.INSTANCE);
+                    drawTimer.start();
+                });
+
+                latchD.await();
             }
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,10 +253,6 @@ public class FXApplication extends Application {
                     DrawingBotV3.logger.log(Level.SEVERE, "Failed to load file at startup", e);
                 }
             }
-
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////
-            //secondary config load, shouldn't cause any clashes, ensure things like UI elements are setup correctly
-            JsonLoaderManager.loadConfigFiles();
 
             DrawingBotV3.logger.info("DrawingBotV3: Loaded");
             SplashScreen.stopPreloader(FXApplication.INSTANCE);
