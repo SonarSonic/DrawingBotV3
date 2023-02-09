@@ -111,7 +111,7 @@ runtime {
         installerOutputDir = file("$buildDir/jpackage-installers")
         if(currentOs.windows) {
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut']
-            installerType = 'exe'
+            installerType = 'msi'
         }
         else if (currentOs.linux) {
             installerOptions += ['--linux-package-name', "drawingbotv3",'--linux-shortcut']
