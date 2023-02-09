@@ -252,7 +252,7 @@ public class FXStylesController {
         tableViewAdvancedPFMSettings.setItems(FXCollections.emptyObservableList());
         tableViewAdvancedPFMSettings.setRowFactory(param -> {
             TableRow<GenericSetting<?, ?>> row = new TableRow<>();
-            row.setContextMenu(new ContextMenuGenericSetting(row, tableViewAdvancedPFMSettings.itemsProperty()));
+            row.setContextMenu(new ContextMenuGenericSetting(row, tableViewAdvancedPFMSettings.itemsProperty(), false));
             return row;
         });
 

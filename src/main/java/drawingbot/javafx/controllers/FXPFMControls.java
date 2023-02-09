@@ -134,7 +134,7 @@ public class FXPFMControls extends AbstractFXController {
 
         treeTableViewPFMSettings.setRowFactory(param -> {
             TreeTableRow<GenericSetting<?, ?>> row = new TreeTableRow<>();
-            row.setContextMenu(new ContextMenuGenericSetting(row, pfmSettings.get().settings));
+            row.setContextMenu(new ContextMenuGenericSetting(row, pfmSettings.get().settings, true));
             row.treeItemProperty().addListener((observable, oldValue, newValue) -> {
                 row.disableProperty().unbind();
                 if(newValue != null){
@@ -209,10 +209,13 @@ public class FXPFMControls extends AbstractFXController {
             }else{
                 pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), comboBoxPFMPreset.getValue());
             }
-
+            DrawingBotV3.project().onPFMSettingsUserEdited();
         });
 
-        buttonPFMSettingRandom.setOnAction(e -> GenericSetting.randomiseSettings(pfmSettings.get().settings.get()));
+        buttonPFMSettingRandom.setOnAction(e -> {
+            GenericSetting.randomiseSettings(pfmSettings.get().settings.get());
+            DrawingBotV3.project().onPFMSettingsUserEdited();
+        });
         buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));
     }
 
