@@ -133,15 +133,15 @@ runtime {
 }
 
 task jpackageImageZip(type: Zip){
+    dependsOn(jpackageImage)
     getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state + "-win"}.zip")
     getDestinationDirectory().set(file("$buildDir/release"))
 
     from "$buildDir/jpackage/$app_name"
 }
-jpackageImageZip.dependsOn jpackageImage
-
 
 task renameLaunchers (type: Copy) { //temporary, due to bug in wix toolset
+    dependsOn(jpackage)
     from ("$buildDir/jpackage-installers")
     into ("$buildDir/release")
     def baseName = "$app_name" + "-" + "$app_version"
@@ -149,6 +149,9 @@ task renameLaunchers (type: Copy) { //temporary, due to bug in wix toolset
     //windows
     include "*.exe"
     rename "(.*).exe", baseName + "-" + app_state + "-win" + ".exe"
+
+    include "*.msi"
+    rename "(.*).msi", baseName + "-" + app_state + "-win" + ".msi"
 
     //mac
     include "*.pkg"
@@ -162,19 +165,24 @@ task renameLaunchers (type: Copy) { //temporary, due to bug in wix toolset
     include "*.rpm"
     rename "(.*).rpm", baseName + "-" + app_state + "-linux" + ".rpm"
 }
-renameLaunchers.dependsOn jpackage
 
 task moveShadowJar (type: Copy) {
+    dependsOn(shadowJar)
     from ("$buildDir/libs")
     into ("$buildDir/release")
 
     include app_name + "-" + app_version + "-" + app_state + "-all.jar"
 }
-moveShadowJar.dependsOn shadowJar
 
 task prepareRelease{
-    //
+    dependsOn(renameLaunchers)
+    dependsOn(moveShadowJar)
 }
-prepareRelease.dependsOn jpackageImageZip
-prepareRelease.dependsOn renameLaunchers
-prepareRelease.dependsOn moveShadowJar
+
+// Used after signing the .exe in the application image
+task rezipWindowsImage(type: Zip){
+    getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state + "-win"}.zip")
+    getDestinationDirectory().set(file("$buildDir/release"))
+
+    from "$buildDir/jpackage/$app_name"
+}
