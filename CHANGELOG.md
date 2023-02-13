@@ -1,3 +1,73 @@
+### [v1.5.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.2-beta-free)
+- Added: **7 NEW PFMS**
+  - **Spiral Circular Scribbles:** creates a spiral made of one continuous circular scribble
+  - **Hatch Sawtooth:** creates a series of parallel wavy lines to represent an image, the lines are connected at each end, to form one continous line.
+  - **Hatch Circular Scribbles:** creates a series of parallel circular scribbles to represent an image, the lines are connected at each end, to form one continous line.
+  - **Adaptive Letters:** similar to Adaptive Shapes but instead uses letters from included SVG Fonts (it can also use regular fonts)
+  - **Voronoi Letters:** similar to Adaptive Letters but distributes the letters with a Weighted Voronoi Diagram instead
+  - **Mosaic Segments:** Generates a mosaic out of detailed segments using Simple Linear Iterative Clustering, the shapes it generates represent the shapes present in the original drawing much more accurately that Mosaic Voronoi.
+  - **Mosaic Triangulation:** Generates a mosaics out of triangulation generated via Delaunay Triangulation.
+- Added: **"Hatch Fill" options to SVG Converter** - which will allow DrawingBotV3 to convert many more SVG types, and generate fills for solid shapes which can easily be drawn by a pen plotter.
+  - "Shape Clipping" - When enabled Solid Shapes will "clip" the shapes below, meaning if a shape is covered by another in the SVG only the visible part will be drawn, this only occurs for solid shapes, individual lines won't clip the shapes below.
+  - "Shape Filling" - When enabled Hatch Fills will be generated
+  - "Spacing" - The distance between the hatch lines, it is relative to the pen width so a spacing of 1.0 will draw over the entire shape with no gaps, a spacing of 2.0 will leave spaces the same width as the pen.
+  - "Min/Max Rotation" - Controls the rotation of the generated hatch lines
+  - "Link Ends" - Links the resulting hatch lines to create one continous line (for some shapes this may not always be possible)
+  - "Crosshatch" - Creates an additional set of perpendicular Hatch Lines
+- Added: **New Erasing Settings for Sketch PFMS**, these allow the creation of new styles, specifically ones which can be drawn more easily with a single pen. The following settings have been added.
+  These settings replace "Adjust Brightness", you can think of "Erase Min" and "Erase Max" as the "Adjust Brightness range", using the same erase min & max is the same as setting "Adjust Brightness" in previous versions.
+  Using a Erase Radius Min & Erase Radius Max of 1.0 will produce the same results as previous versions. The radius allows you to control the spacing of lines in a way which wasn't possible before.
+  - Erase Min: the minimum intensity of the erase process
+  - Erase Max: the maximum intensity of the erase process
+  - Erase Radius Min: the minimum radius of the erased shape
+  - Erase Radius Max: the maximum radius of the erased shape
+  - Tone: controls the contrast of the erase processs, using a higher Tone will result in a image with a stronger contrast in the spacing of lines. The tone slider has no effect when the Erase Range values are identical.
+- Added: **New PFM Presets**
+  - Sketch Lines ("Digital", "Sharp Lines", "Micro Detail")
+  - Adaptive Dashes ("Vertical Lines", "Horizontal Lines", "Needles")
+  - Adaptive Circular Scribbles ("Sketchy")
+  - Adaptive Shapes ("Overlapping Squares", "Overlapping Circles")
+- Added: **"Exported Drawing" display mode**, this will show the last set of files exported, you can select a recent exported file.
+  - It shows the difference in the following stats after path optimization, "Shapes", "Total Travel", "Distance Down", "Distance Up", "Pen Lifts" and also each pen it's respective distance travelled.
+  - By default when you export a vector file the "Exported Drawing" display mode will be shown, you can disable this in File / Preferences / Export Settings / General
+- Added: Splash Screen, which displays while DBV3 is loading.
+- Added: New "Contrast" & "Brightness" settings to Adaptive PFMs, Adaptive PFMS rely on good contrast in the original image, so now a initial level of contrast is applied, the default is currently "1.25", setting this too "1.00" will result in the same results as previous versions
+- Added: "Align Rotation" setting to Adaptive Shapes, this will cause the shapes generated to follow the natural contours of the image, when enabled you won't be able to set "Min" & "Max" rotation
+- Added: "Point Density" to Voronoi PFMs - this new options allows you to specify a density of points which is relative to the drawings dimensions, instead of matching a arbitary point count ( you can still use a point count with the "Point Limit" option) i.e. a A4 and A3 drawing with the same density would have a similar about of points in a given area
+- Added: "Ignore White" option to Voronoi PFMs, when enabled the PFM will try to avoid creating shapes in white ares of the image.
+- Added: 'Spiral Type' setting to Spiral Sawtooth (previously named Spiral PFM)
+  - "Archimedean" - The default / original Spiral.
+  - "Parabolic" - Two connected spirals / Fermat Spiral
+- Added: "Invert" button to Mask Settings.
+- Added: "Auto Run PFM" - this will automatically re-run the PFM when you change any settings or when you change the current PFM, you can disable this in File/Preferences/General/Auto Run PFM
+- Added: "Select", "Edit", and "Draw" Modes too Masking Settings to allow the customisation of Masking and drawing custom masks with lines / bezier curves
+- Added: "Soft Clip" option to Masking Settings - when this is enabled PFMs will naturally overlap over the edges of the mask rather than clipping the shape exactly at the border.
+- Added: "Square Tiles" option to Mosaic Rectangles, when enabled the PFM will only create square tiles, when enabled "row count" and "row padding" will be disabled
+- Improvement: **Speed Improvements for Adaptive PFMs**, up to 3x faster on larger images.
+- Improvement: **Speed Improvements for Sketch PFMs**
+- Improvements: The quality of the output from Adaptive Circular Scribbles has been greatly improved and the default preset will now perform much better and result in a more consistent circular scribble quality.
+- Improvement: Increased the rendering speed of the viewport, changes to pen colours and shape ranges will be much more reponsive.
+- Improvement: Renamed mask buttons from "Bypass Mask" & "Show Masks" too "Enable Masking" and "Display Masks"
+- Improvement: Masking - when zooming in the masks edges will now remain 1px wide to allow more precise positioning.
+- Improvement: Masking - you can now more masks using the arrow keys.
+- Improvement: Using the "Reset" and "Randomise" options on category headings in PFM Settings will now affect all the settings in the category.
+- Improvement: The shape / vertice count will now update with the shapes slider
+- Fixed: Original Sampling Pens (Original Colour, Original Grayscale etc.)
+- Fixed: Installation issues on MacOS, all MacOS installers are now digitally signed and notarized with Apple.
+- Fixed: Installation issues on Windows, all Windows installers are now digitally signed and time stamped.
+- Fixed: Adaptive PFMs creating unexpected overlapping shapes in certain circumstances.
+- Fixed: Spiral PFM producing inconsistent line spacing
+- Fixed: CMYK Seperation sometimes producing pixellated areas in Dark areas of the image.
+- Fixed: "Reset" button in the Configure Styles menu.
+- Fixed: Mosaic PFMs randomly crashing on some runs.
+- Fixed: Mosaic PFMs weight not having any effect on number of specific styles
+- Fixed: Masking Settings not working in some situations
+- Fixed: Old projects not opening properly in new versions.
+- Fixed: Issue where sometimes the Pen Distribution would not update properly.
+- Fixed: Issue where Sketch Waves would freeze and not complete in some situations.
+- Fixed: Adaptive TSP path linking accuracy (results in less overlapping lines)
+- Fixed: Reduced the impact of several background processes
+
 ### [v1.5.1-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.1-beta-free)
 - Added: 'Voronoi Style' option to Adaptive Voronoi, Voronoi Diagram & Mosaic Voronoi.
   - "Classic" - The default and original Voronoi Diagram
