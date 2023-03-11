@@ -1,3 +1,18 @@
+### [v1.5.3-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.3-stable-free)
+- Added: "Create Curves" option to Voronoi TSP, matching Adaptive TSP.
+- Improved: Stars & Triangles in Adaptive Shapes are now symmetrical
+- Improved: Selecting values outside of the "safe" range of the slider with the text box now works as expected.
+- Improved: Spiral centres can not be placed outside of the drawing area.
+- Improved: When exporting files the last used extension will be kept.
+- Improved: File name increments now also check for files with different extensions within the same file type e.g. image, svg
+- Improved: Support for importing more image file extensions ".tiff", ".jif", ".jiff", ".wbmp"
+- Improved: Clicking on the slider trigger Auto Run PFM as expected
+- Improved: The CMYK Multipliers will be saved with the application as well as the project so will maintain their last state. 
+- Fixed: "Create Curves" in Adaptive TSP not working properly
+- Fixed: "Ignore White" in Spiral Circular Scribbles not working properly
+- Fixed: Spiral PFMs crashing with Colour Match enabled
+- Fixed: Checkboxes in the Drawing Pen dropdown not updating properly when pens are removed/added.
+
 ### [v1.5.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.2-beta-free)
 - Added: **7 NEW PFMS**
   - **Spiral Circular Scribbles:** creates a spiral made of one continuous circular scribble

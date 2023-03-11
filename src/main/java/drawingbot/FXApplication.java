@@ -191,12 +191,12 @@ public class FXApplication extends Application {
 
                 DrawingBotV3.logger.info("Json Loader: Load Defaults");
                 JsonLoaderManager.loadDefaults();
-
-                DrawingBotV3.logger.info("Plugins: Post Init");
-                MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
                 latchB.countDown();
             });
             latchB.await();
+
+            DrawingBotV3.logger.info("Plugins: Post Init");
+            MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
 
             if(!isHeadless){
                 CountDownLatch latchC = new CountDownLatch(1);
