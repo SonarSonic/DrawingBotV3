@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.IGeometryFilter;
+import drawingbot.drawing.DrawingPen;
 import drawingbot.files.*;
 import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -26,6 +27,7 @@ import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXMLLoader;
@@ -823,5 +825,13 @@ public class FXHelper {
                 states.add(new UINodeState(styleable.getId(), styleable));
             }
         }
+    }
+
+    public static <T> void refreshComboBox(ComboBox<T> comboBox){
+        ObservableList<T> items = comboBox.getItems();
+        T value = comboBox.getValue();
+        comboBox.setItems(FXCollections.observableArrayList());
+        comboBox.setItems(items);
+        comboBox.setValue(value);
     }
 }

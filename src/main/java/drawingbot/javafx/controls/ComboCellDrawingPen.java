@@ -19,33 +19,28 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
     public final HBox hbox;
     public final CheckBox checkBox;
     public final Rectangle colour;
-    public Callback<DrawingPen, BooleanProperty> propertyCallback;
-
+    public Property<DrawingSets> drawingSets;
     private BooleanProperty property;
 
     public ComboCellDrawingPen(Property<DrawingSets> drawingSets, boolean useCheckBox) {
         super();
+        this.drawingSets = drawingSets;
         hbox = new HBox();
 
         if (useCheckBox) {
-            propertyCallback = param -> {
-                SimpleBooleanProperty prop = new SimpleBooleanProperty(drawingSets.getValue().activeDrawingSet.get().containsPen(param));
-                prop.addListener((observable, oldValue, newValue) -> {
-                    if (newValue) {
-                        drawingSets.getValue().activeDrawingSet.get().addNewPen(getItem(), true);
-                    } else {
-                        drawingSets.getValue().activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
-                    }
-                });
-                return prop;
-            };
+            property = new SimpleBooleanProperty(false);
             checkBox = new CheckBox();
+            checkBox.selectedProperty().bindBidirectional(property);
+            checkBox.setOnAction(event -> {
+                if(checkBox.isSelected()){
+                    drawingSets.getValue().activeDrawingSet.get().addNewPen(getItem(), true);
+                }else{
+                    drawingSets.getValue().activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().getCodeName()));
+                }
+            });
             hbox.setSpacing(10);
             hbox.getChildren().add(checkBox);
             hbox.setAlignment(Pos.CENTER_LEFT);
-
-            //setOnMouseClicked(e -> DrawingBotV3.INSTANCE.controller.comboBoxDrawingPen.hide()); //TODO CHECKME!
-
         } else {
             checkBox = null;
         }
@@ -64,13 +59,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
             setText("  " + item.toString());
             setGraphic(hbox);
             if (checkBox != null) {
-                if (property != null) {
-                    checkBox.selectedProperty().unbindBidirectional(property);
-                }
-                property = propertyCallback.call(item);
-                if (property != null) {
-                    checkBox.selectedProperty().bindBidirectional(property);
-                }
+                property.set(drawingSets.getValue().activeDrawingSet.get().containsPen(item));
             }
             colour.setFill(ImageTools.getColorFromARGB(item.getARGB()));
         }

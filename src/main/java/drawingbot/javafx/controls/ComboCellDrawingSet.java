@@ -1,13 +1,10 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
-import javafx.collections.ObservableList;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;

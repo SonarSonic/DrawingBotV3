@@ -20,6 +20,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.EnumDistributionType;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -83,8 +84,6 @@ public class FXDrawingSets extends AbstractFXController {
     public Button buttonConfigureSplitter = null;
 
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
-    //public Button buttonAddDrawingSet = null;
-    //public Button buttonDeleteDrawingSet = null;
 
     public TableView<ObservableDrawingSet> drawingSetTableView = null;
     public TableColumn<ObservableDrawingSet, String> drawingSetNameColumn = null;
@@ -107,6 +106,30 @@ public class FXDrawingSets extends AbstractFXController {
     public void initialize(){
 
         final ChangeListener<ObservableDrawingSet> activeSetListener = (observable, oldValue, newValue) -> onChangedActiveDrawingSet(oldValue, newValue);
+        DrawingSets.Listener specialListener = new DrawingSets.Listener() {
+
+            @Override
+            public void onActiveSlotChanged(ObservableDrawingSet activeSet) {
+                FXHelper.refreshComboBox(comboBoxDrawingPen);
+            }
+
+            @Override
+            public void onDrawingPenPropertyChanged(ObservableDrawingPen pen, Observable property) {
+                if(property == pen.name || property == pen.type){
+                    FXHelper.refreshComboBox(comboBoxDrawingPen);
+                }
+            }
+
+            @Override
+            public void onDrawingPenAdded(ObservableDrawingPen pen) {
+                FXHelper.refreshComboBox(comboBoxDrawingPen);
+            }
+
+            @Override
+            public void onDrawingPenRemoved(ObservableDrawingPen pen) {
+                FXHelper.refreshComboBox(comboBoxDrawingPen);
+            }
+        };
         drawingSets.addListener((observable, oldValue, newValue) -> {
 
             if(oldValue != null){
@@ -116,6 +139,7 @@ public class FXDrawingSets extends AbstractFXController {
 
                 drawingSetTableView.setItems(FXCollections.observableArrayList());
                 comboBoxDrawingSets.setItems(FXCollections.observableArrayList());
+                oldValue.removeSpecialListener(specialListener);
             }
 
             if(newValue != null){
@@ -127,6 +151,7 @@ public class FXDrawingSets extends AbstractFXController {
 
                 onChangedActiveDrawingSet(null, newValue.activeDrawingSet.get());
                 newValue.activeDrawingSet.addListener(activeSetListener);
+                newValue.addSpecialListener(specialListener);
             }
         });
 
@@ -240,6 +265,7 @@ public class FXDrawingSets extends AbstractFXController {
         comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(comboBoxPenType.getValue()));
         comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
         comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(drawingSets, true));
+
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
         FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager, true,
