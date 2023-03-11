@@ -663,6 +663,15 @@ public class MasterRegistry {
         projectDataLoaders.sort(Comparator.comparingInt(l -> l.order));
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public final List<GenericSetting<?, ?>> applicationSettings = new ArrayList<>();
+
+    public <T extends GenericSetting<?, ?>> T  registerApplicationSetting(T add){
+        applicationSettings.add(add);
+        add.createDefaultGetterAndSetter();
+        return add;
+    }   
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

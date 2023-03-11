@@ -9,6 +9,7 @@ import drawingbot.files.json.projects.PresetProjectSettingsManager;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.registry.MasterRegistry;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -53,7 +54,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
 
             @Override
             public void registerDataLoaders() {
-                registerSettings(DBPreferences.INSTANCE.settings);
+                registerSettings(MasterRegistry.INSTANCE.applicationSettings);
                 registerPresetDataLoader(new PresetDataLoader.DataInstance<>(AbstractJsonData.class, "ui_state", PresetProjectSettingsManager.UIGlobalState.class, PresetProjectSettingsManager.UIGlobalState::new, 0){
 
                     @Override

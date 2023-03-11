@@ -11,6 +11,7 @@ import drawingbot.geom.converters.*;
 import drawingbot.javafx.controls.DialogExportDialog;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plugins.*;
@@ -139,6 +140,9 @@ public class Register implements IPlugin {
 
     @Override
     public void preInit() {
+
+        // Register all Application Settings
+        DBPreferences.INSTANCE.settings.forEach(setting -> MasterRegistry.INSTANCE.registerApplicationSetting(setting));
 
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_APPLICATION_SETTINGS = new PresetType("config_settings"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));

@@ -953,6 +953,10 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return (FloatSetting<C>) new FloatSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue).setSetter(setter);
     }
 
+    public static <C> FloatSetting<C> createRangedFloatSetting(Class<C> clazz, String category, String settingName, float defaultValue, float minValue, float maxValue){
+        return new FloatSetting<>(clazz, category, settingName, defaultValue, minValue, maxValue);
+    }
+
     public static <C> DoubleSetting<C> createRangedDoubleSetting(Class<C> clazz, String settingName, double defaultValue, double minValue, double maxValue, Function<C, DoubleProperty> supplier){
         return createRangedDoubleSetting(clazz, Register.CATEGORY_UNIQUE, settingName, defaultValue, minValue, maxValue, supplier);
     }
