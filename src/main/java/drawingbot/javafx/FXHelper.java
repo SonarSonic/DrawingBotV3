@@ -122,21 +122,22 @@ public class FXHelper {
         });
     }
 
-    public static void exportFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title, String initialFileName) {
+    public static void exportFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName) {
         exportFile((file, fileChooser) -> {
             FileUtils.updateExportDirectory(file.getParentFile());
             callback.accept(file, fileChooser);
-        }, FileUtils.getExportDirectory(), filters, title, initialFileName);
+        }, FileUtils.getExportDirectory(), filters, selectedFilter, title, initialFileName);
     }
 
-    public static void exportFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title, String initialFileName){
+    public static void exportFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName){
         Platform.runLater(() -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().addAll(filters);
-            fileChooser.setSelectedExtensionFilter(filters[0]);
+            fileChooser.setSelectedExtensionFilter(selectedFilter);
             fileChooser.setTitle(title);
             fileChooser.setInitialDirectory(initialDirectory);
             fileChooser.setInitialFileName(initialFileName);
+
             File file = fileChooser.showSaveDialog(null);
             if(file != null){
                 //LINUX FIX
@@ -167,13 +168,27 @@ public class FXHelper {
         }
 
         String saveLocation = null;
-        int iteration = 1;
-        while(saveLocation == null || new File(FileUtils.getExportDirectory() + File.separator + saveLocation + exportHandler.getDefaultExtension()).exists()){
-            saveLocation = FileUtils.removeExtension(originalFile.getName()) + "_plotted_" + iteration++;
+        int iteration = 0;
+        while(saveLocation == null){
+            iteration++;
+            boolean matches = false;
+            String location = FileUtils.removeExtension(originalFile.getName()) + "_plotted_" + iteration;
+            for(FileChooser.ExtensionFilter filter : exportHandler.filters){
+                String extension = filter.getExtensions().get(0).substring(1);
+
+                if(new File(FileUtils.getExportDirectory() + File.separator + location + extension).exists()){
+                    matches = true;
+                    break;
+                }
+            }
+            if(!matches){
+                saveLocation = location;
+            }
         }
         exportFile((file, chooser) -> {
+            exportHandler.selectedFilter = chooser.getSelectedExtensionFilter();
             DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
-        }, exportHandler.filters, exportHandler.getDialogTitle(), saveLocation);
+        }, exportHandler.filters, exportHandler.selectedFilter, exportHandler.getDialogTitle(), saveLocation);
     }
 
     public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
@@ -259,7 +274,7 @@ public class FXHelper {
                 JsonLoaderManager.exportPresetFile(file, preset);
                 NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
             });
-        }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Save Project", projectName);
+        }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, FileUtils.FILTER_PROJECT, "Save Project", projectName);
     }
 
     public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
@@ -277,7 +292,7 @@ public class FXHelper {
                 }
                  */
             }
-        }, preset.presetType.filters, "Save preset", initialName);
+        }, preset.presetType.filters, preset.presetType.filters[0], "Save preset", initialName);
     }
 
     public static <D extends IJsonData> GenericPreset<D> copyPreset(GenericPreset<D> preset){

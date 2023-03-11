@@ -9,7 +9,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class FileUtils {
 
-    public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.tif", "*.tga", "*.png", "*.jpg", "*.webp", "*.gif", "*.bmp", "*.jpeg");
+    public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.jif", "*.jfif", "*.tif", "*.tiff", "*.tga", "*.gif", "*.bmp", "*.wbmp");
     public static final FileChooser.ExtensionFilter IMPORT_VIDEOS = new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.mov", "*.avi");
     public static final FileChooser.ExtensionFilter IMPORT_VECTORS = new FileChooser.ExtensionFilter("Vector Files", "*.svg");
 

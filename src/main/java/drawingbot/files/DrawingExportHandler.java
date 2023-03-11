@@ -16,6 +16,8 @@ public class DrawingExportHandler {
     public final String description;
     public final boolean isVector;
     public final FileChooser.ExtensionFilter[] filters;
+    public FileChooser.ExtensionFilter selectedFilter;
+
     public final IExportMethod exportMethod;
     public final Function<ExportTask, Dialog<Boolean>> confirmDialog;
     public boolean isPremium = false;
@@ -32,6 +34,7 @@ public class DrawingExportHandler {
         this.exportMethod = exportMethod;
         this.confirmDialog = confirmDialog;
         this.filters = filters;
+        this.selectedFilter = filters[0];
     }
 
     public DrawingExportHandler setPremium(){
@@ -40,7 +43,7 @@ public class DrawingExportHandler {
     }
 
     public String getDefaultExtension(){
-        return filters[0].getExtensions().get(0).substring(1);
+        return selectedFilter.getExtensions().get(0).substring(1);
     }
 
     public String getDialogTitle(){
