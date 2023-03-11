@@ -153,7 +153,7 @@ public class PFMSpiralBasic extends AbstractPFMImage {
                 }
 
                 if(draw){
-                    int penIndex = getPenIndex((float)x, (float)y);
+                    int penIndex = getPenIndex(tools.getPixelData().clampX((int)x), tools.getPixelData().clampY((int)y));
                     if(connectedLines && lastX != -1 && lastY != -1){
                         tools.addGeometry(new GLine((float)lastX, (float)lastY, (float)xa, (float)ya), penIndex, sampledRGB);
                     }

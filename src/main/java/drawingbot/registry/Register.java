@@ -243,8 +243,8 @@ public class Register implements IPlugin {
         //// SPIRAL \\\\
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createOptionSetting(PFMSpiralBasic.class, PFMSpiralBasic.EnumSpiralType.class, CATEGORY_SPIRAL, "Spiral Type", FXCollections.observableArrayList(PFMSpiralBasic.EnumSpiralType.values()), PFMSpiralBasic.EnumSpiralType.ARCHIMEDEAN, (pfm, value) -> pfm.spiralType = value));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Spiral Size", 100F, 0F, 100F, (pfm, value) -> pfm.spiralSize = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Centre X", 50F, 0F, 100F, (pfm, value) -> pfm.centreXScale = value/100));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Centre Y", 50F, 0F, 100F, (pfm, value) -> pfm.centreYScale = value/100));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Centre X", 50F, -1000F, 1000F, (pfm, value) -> pfm.centreXScale = value/100).setSafeRange(0F, 100F));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Centre Y", 50F, -1000F, 1000F, (pfm, value) -> pfm.centreYScale = value/100).setSafeRange(0F, 100F));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Ring Spacing", 7F, 0F, 1000F, (pfm, value) -> pfm.ringSpacing = value).setSafeRange(0F, 50F));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Amplitude", 1.0F, 0F, 1000F, (pfm, value) -> pfm.amplitude = value).setSafeRange(0.01F, 2F));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createBooleanSetting(PFMSpiralBasic.class, CATEGORY_SPIRAL, "Variable Velocity", true, (pfm, value) -> pfm.variableVelocity = value));

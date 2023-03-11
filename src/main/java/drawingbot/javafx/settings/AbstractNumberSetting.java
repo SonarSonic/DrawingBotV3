@@ -1,6 +1,7 @@
 package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
+import drawingbot.utils.Utils;
 import javafx.scene.Node;
 import javafx.scene.control.Slider;
 
@@ -70,10 +71,20 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         slider.setValue(value.getValue().doubleValue());
 
         double[] initialValue = new double[1];
+        boolean[] outOfRange = new boolean[1];
+        outOfRange[0] = !Utils.within(value.getValue().doubleValue(), safeMinValue.doubleValue(), safeMaxValue.doubleValue());
 
         //bindings
         slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            setValue(fromNumber(newValue));
+            //If the value isn't at the maximum extent of the slider, then the slider has been moved and is no longer out of range
+            if(!outOfRange[0] || (newValue.doubleValue() != safeMaxValue.doubleValue() && newValue.doubleValue() != safeMinValue.doubleValue())){
+                setValue(fromNumber(newValue));
+
+                //If the user clicks on the slider but doesn't drag it.
+                if(!isValueChanging()){
+                    sendUserEditedEvent();
+                }
+            }
         });
         slider.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
             setValueChanging(newValue);
@@ -88,7 +99,15 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         });
         value.addListener((observable, oldValue, newValue) -> {
             //if(!slider.isValueChanging()){
+            outOfRange[0] = !Utils.within(newValue.doubleValue(), safeMinValue.doubleValue(), safeMaxValue.doubleValue());
+            if(!outOfRange[0]){
                 slider.setValue(newValue.doubleValue());
+            }else{
+                slider.setValue(newValue.doubleValue() >= safeMaxValue.doubleValue() ? safeMaxValue.doubleValue() : safeMinValue.doubleValue());
+
+                //The slider won't send edit events if the value is out of the safe range
+                sendUserEditedEvent();
+            }
             //}
         });
 
