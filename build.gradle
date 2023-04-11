@@ -10,7 +10,6 @@ apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
-    jcenter()
     mavenCentral()
     flatDir {
         dirs 'libs'
