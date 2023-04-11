@@ -160,15 +160,17 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
             @Override
             public void saveData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
-                for(ObservableVersion projectVersion : context.project().getProjectVersions()){
-                    projectVersion.updatePreset();
-                    data.versions.add(projectVersion.getPreset());
+                if(!preset.data.isSubProject) { //no need to save sub versions
+                    for (ObservableVersion projectVersion : context.project().getProjectVersions()) {
+                        projectVersion.updatePreset();
+                        data.versions.add(projectVersion.getPreset());
+                    }
                 }
             }
 
             @Override
             public void loadData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
-                if(!preset.data.isSubProject){ //don't override the loaded projects if they belong to a sub project
+                if(!preset.data.isSubProject){ //no need to save sub versions
                     context.project().getProjectVersions().clear();
                     for(GenericPreset<PresetProjectSettings> version : data.versions){
                         context.project().getProjectVersions().add(new ObservableVersion(version, true));
