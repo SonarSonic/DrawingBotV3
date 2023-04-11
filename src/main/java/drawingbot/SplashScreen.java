@@ -21,17 +21,21 @@ import javafx.stage.StageStyle;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
+
 public class SplashScreen extends Preloader {
 
+    public static String preloaderKey = "javafx.preloader";
+    public static String preloaderValue = SplashScreen.class.getName();
     public static PreloaderNotificationHandler notificationHandler;
 
     public static void initPreloader(){
-        System.setProperty("javafx.preloader", SplashScreen.class.getName());
+        System.setProperty(preloaderKey, preloaderValue);
     }
 
     public static void startPreloader(Application app){
         notificationHandler = new SplashScreen.PreloaderNotificationHandler(app);
         DrawingBotV3.logger.addHandler(notificationHandler);
+        app.notifyPreloader(new SplashScreen.LoadStartNotification());
     }
 
     public static void stopPreloader(Application app){
@@ -45,7 +49,7 @@ public class SplashScreen extends Preloader {
     public Label versionName;
     public Label loadingInfo;
 
-    private Scene createPreloaderScene() {
+    public Scene createPreloaderScene() {
         VBox vBox = new VBox();
         vBox.setFillWidth(true);
         vBox.setAlignment(Pos.CENTER);
@@ -100,7 +104,13 @@ public class SplashScreen extends Preloader {
         stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
     }
 
+    private boolean loaded = false;
+
     public void handleApplicationNotification(PreloaderNotification info) {
+        if(info instanceof LoadStartNotification){
+            FXApplication.InitialLoadTask loadingTask = new FXApplication.InitialLoadTask();
+            new Thread(loadingTask).start();
+        }
         if(info instanceof LoadCompleteNotification){
             stage.hide();
         }
@@ -108,6 +118,10 @@ public class SplashScreen extends Preloader {
             InfoNotification infoNotification = (InfoNotification) info;
             loadingInfo.setText(infoNotification.info);
         }
+    }
+
+    public static class LoadStartNotification implements PreloaderNotification{
+        //NOP
     }
 
     public static class LoadCompleteNotification implements PreloaderNotification{

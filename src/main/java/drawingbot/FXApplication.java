@@ -53,6 +53,7 @@ public class FXApplication extends Application {
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
+    public static boolean isLoaded;
     public static MouseMonitor mouseMonitor;
 
     public static boolean isDeveloperMode = false;
@@ -256,6 +257,7 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.info("DrawingBotV3: Loaded");
             SplashScreen.stopPreloader(FXApplication.INSTANCE);
+            isLoaded = true;
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -273,8 +275,6 @@ public class FXApplication extends Application {
 
         ///// SETUP OUTPUTS \\\\\
         SplashScreen.startPreloader(this);
-        InitialLoadTask loadingTask = new InitialLoadTask();
-        new Thread(loadingTask).start();
     }
 
     public static Image getDBV3LogoImage(){

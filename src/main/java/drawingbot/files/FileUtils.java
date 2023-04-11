@@ -88,6 +88,10 @@ public class FileUtils {
         exportDirectory = directory;
     }
 
+    public static String getTempDirectory() {
+        return System.getProperty("java.io.tmpdir");
+    }
+
     public static String getUserHomeDirectory() {
         return System.getProperty("user.home");
     }
