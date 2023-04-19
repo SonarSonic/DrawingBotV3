@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.integrations.vpype.VpypeSettings;
+import drawingbot.javafx.FXController;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.ITaskManager;
 import drawingbot.javafx.*;
@@ -465,71 +467,42 @@ public class DrawingBotV3 {
         taskMonitor.logTask(task);
     }
 
-    public final Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
-        DrawingBotV3.logger.log(Level.SEVERE, "Thread Exception: " + thread.getName(), throwable);
-    };
-
     public ExecutorService initTaskService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Task Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Task Runner"));
     }
 
     public ExecutorService initBackgroundService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t ;
-        });
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Main Background"));
     }
 
     public ExecutorService initLazyBackgroundService(){
-        return Executors.newCachedThreadPool(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t ;
-        });
-    }
-
-    public ExecutorService initImageLoadingService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Image Loading Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newCachedThreadPool(threadFactory("DrawingBotV3 - Lazy Background"));
     }
 
     public ExecutorService initImageFilteringService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Image Filtering Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Image Filtering"));
     }
 
     public ExecutorService initParallelPlottingService(){
-        return Executors.newFixedThreadPool(5, r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Parallel Plotting Service");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newFixedThreadPool(5, threadFactory("DrawingBotV3 - Parallel Plotting"));
     }
 
     public ExecutorService initSerialConnectionService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Serial Connection Writing Service");
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Serial Connection Writing"));
+    }
+
+    public final static Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
+        DrawingBotV3.logger.log(Level.SEVERE, "Thread Exception: " + thread.getName(), throwable);
+    };
+
+    public static ThreadFactory threadFactory(String name){
+        return r -> {
+            Thread t = new Thread(r, name);
             t.setDaemon(true);
             t.setUncaughtExceptionHandler(exceptionHandler);
             return t;
-        });
+        };
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 }

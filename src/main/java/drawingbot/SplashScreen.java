@@ -109,7 +109,7 @@ public class SplashScreen extends Preloader {
     public void handleApplicationNotification(PreloaderNotification info) {
         if(info instanceof LoadStartNotification){
             FXApplication.InitialLoadTask loadingTask = new FXApplication.InitialLoadTask();
-            new Thread(loadingTask).start();
+            DrawingBotV3.threadFactory("Loading Task Thread").newThread(loadingTask).start();
         }
         if(info instanceof LoadCompleteNotification){
             stage.hide();
