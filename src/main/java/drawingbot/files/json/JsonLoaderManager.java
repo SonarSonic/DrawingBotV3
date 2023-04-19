@@ -9,15 +9,14 @@ import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.FileUtils;
 import drawingbot.files.json.adapters.*;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.javafx.GenericPreset;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.geom.AffineTransform;

@@ -1,12 +1,12 @@
 package drawingbot.files.json.presets;
 
 import com.google.gson.JsonElement;
+import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.PresetType;
-import drawingbot.files.json.IJsonData;
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.Register;
 
 import java.awt.image.BufferedImageOp;

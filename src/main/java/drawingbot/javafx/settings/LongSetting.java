@@ -4,13 +4,14 @@ import com.google.gson.JsonElement;
 import com.sun.javafx.binding.BidirectionalBinding;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.utils.Utils;
-import javafx.beans.property.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.util.StringConverter;
-import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 public class LongSetting<C> extends AbstractNumberSetting<C, Long> {
 

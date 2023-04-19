@@ -2,7 +2,6 @@ package drawingbot.plugins;
 
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
-import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
 
 public class StabiloPensPlugin extends AbstractPenPlugin {

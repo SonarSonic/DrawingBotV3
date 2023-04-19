@@ -1,7 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.javafx.GenericSetting;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TreeTableCell;
 
 public class TreeTableCellSettingControl extends TreeTableCell<GenericSetting<?, ?>, Object> {

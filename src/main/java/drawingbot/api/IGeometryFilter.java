@@ -1,8 +1,8 @@
 package drawingbot.api;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;
 
 public interface IGeometryFilter {

@@ -1,7 +1,5 @@
 package drawingbot.geom.shapes;
 
-import java.awt.*;
-
 public abstract class AbstractGeometry implements IGeometry{
 
     public int geometryIndex = -1;

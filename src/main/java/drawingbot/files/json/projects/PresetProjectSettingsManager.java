@@ -14,10 +14,10 @@ import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.javafx.util.UINodeState;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableVersion;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -30,7 +30,8 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class PresetProjectSettingsManager extends AbstractPresetManager<PresetProjectSettings> {
 

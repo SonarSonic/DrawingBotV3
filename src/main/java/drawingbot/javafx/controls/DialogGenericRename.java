@@ -1,8 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.FXApplication;
-import drawingbot.javafx.GenericPreset;
-import javafx.beans.property.StringProperty;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;

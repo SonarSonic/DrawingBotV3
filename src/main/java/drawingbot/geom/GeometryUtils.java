@@ -3,10 +3,13 @@ package drawingbot.geom;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
-import drawingbot.geom.operation.*;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
+import drawingbot.geom.operation.AbstractGeometryOperation;
+import drawingbot.geom.operation.GeometryOperationOptimize;
+import drawingbot.geom.operation.GeometryOperationSimplify;
+import drawingbot.geom.operation.GeometryOperationSortGeometries;
 import drawingbot.geom.shapes.*;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
@@ -21,9 +24,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.FlatteningPathIterator;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class GeometryUtils {

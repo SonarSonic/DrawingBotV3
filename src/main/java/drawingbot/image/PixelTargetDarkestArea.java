@@ -3,8 +3,6 @@ package drawingbot.image;
 import drawingbot.api.IPixelData;
 import drawingbot.api.IPlottingTools;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
  * Essentially a fast implementation of {@link drawingbot.pfm.AbstractDarkestPFM#findDarkestArea(IPixelData, int[])}
  * It splits the image into tiles and keeps track of the total darkness of each tile so it can provide the darkest pixel in that tile as fast as possible.

@@ -1,14 +1,15 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.*;
+import drawingbot.api.ICanvas;
+import drawingbot.api.IPFM;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.AbstractSketchPFM;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
-import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.GenericSetting;
-import drawingbot.pfm.PFMFactory;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenable<PFMTask.Listener> {

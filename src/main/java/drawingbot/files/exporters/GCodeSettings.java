@@ -4,7 +4,10 @@ import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.Observable;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 
 public class GCodeSettings implements IProperties {

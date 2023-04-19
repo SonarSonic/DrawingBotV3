@@ -3,7 +3,7 @@ package drawingbot.image;
 import drawingbot.utils.Utils;
 
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelListener, IPixelListenable {
 

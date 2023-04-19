@@ -7,9 +7,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.util.StringConverter;
 
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
-
 public class ObjectSetting<C, O> extends GenericSetting<C, O> {
 
     public static StringConverter<?> stringConverter = new StringConverter<>() {

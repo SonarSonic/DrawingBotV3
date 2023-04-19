@@ -1,6 +1,7 @@
 package drawingbot.image;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.api.IPixelData;
 import drawingbot.api.IProgressCallback;
 import drawingbot.image.blend.BlendComposite;
@@ -8,10 +9,9 @@ import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.api.ICanvas;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.utils.EnumRotation;
 import drawingbot.utils.EnumCroppingMode;
+import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;

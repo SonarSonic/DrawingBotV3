@@ -4,8 +4,6 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.settings.IntegerSetting;
-import javafx.beans.binding.Bindings;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;

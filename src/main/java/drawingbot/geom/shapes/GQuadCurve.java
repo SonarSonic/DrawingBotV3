@@ -8,7 +8,6 @@ import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.CubicCurve2D;
 import java.awt.geom.QuadCurve2D;
 
 public class GQuadCurve extends AbstractGeometry implements IPathElement {

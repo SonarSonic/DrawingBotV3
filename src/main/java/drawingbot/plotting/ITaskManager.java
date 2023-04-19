@@ -9,8 +9,6 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.utils.EnumTaskStage;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.List;
 
 public interface ITaskManager {

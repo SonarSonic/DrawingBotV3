@@ -1,17 +1,10 @@
 package drawingbot.javafx.util;
 
 import drawingbot.api.IProperties;
-import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.utils.SpecialListenable;
-import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -21,7 +14,6 @@ import javafx.util.Callback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class PropertyUtil {
 

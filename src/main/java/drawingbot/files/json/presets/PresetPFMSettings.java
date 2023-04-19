@@ -1,9 +1,9 @@
 package drawingbot.files.json.presets;
 
 import com.google.gson.JsonElement;
+import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.PresetType;
-import drawingbot.files.json.IJsonData;
 import drawingbot.registry.Register;
 
 import java.util.HashMap;

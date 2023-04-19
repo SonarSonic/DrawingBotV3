@@ -2,13 +2,14 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProperties;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 

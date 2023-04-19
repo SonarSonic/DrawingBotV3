@@ -1,7 +1,6 @@
 package drawingbot.files.json.adapters;
 
 import com.google.gson.*;
-import drawingbot.drawing.ColourSeperationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;

@@ -1,8 +1,8 @@
 package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
-import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
+
 import java.awt.geom.AffineTransform;
 
 public class CanvasUtils {

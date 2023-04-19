@@ -10,7 +10,6 @@ import drawingbot.drawing.DrawingSets;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingPen;
 import drawingbot.files.json.presets.PresetDrawingSet;
-import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -25,7 +24,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXML;
@@ -43,7 +41,6 @@ import javafx.util.converter.IntegerStringConverter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class FXDrawingSets extends AbstractFXController {
 

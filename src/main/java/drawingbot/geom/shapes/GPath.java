@@ -1,14 +1,17 @@
 package drawingbot.geom.shapes;
 
-import drawingbot.image.ImageTools;
 import drawingbot.geom.GeometryUtils;
+import drawingbot.image.ImageTools;
 import drawingbot.render.RenderUtils;
 import javafx.scene.canvas.GraphicsContext;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 
 public class GPath extends AbstractGeometry implements IGeometry, IPathElement {
 

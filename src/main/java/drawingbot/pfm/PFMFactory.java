@@ -1,12 +1,12 @@
 package drawingbot.pfm;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.utils.EnumReleaseState;
-import drawingbot.utils.INamedSetting;
 import drawingbot.api.IPFM;
 import drawingbot.files.json.adapters.JsonAdapterPFMFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.EnumReleaseState;
+import drawingbot.utils.INamedSetting;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;

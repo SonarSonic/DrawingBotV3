@@ -1,7 +1,6 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.utils.Utils;
 
 import java.io.*;
@@ -9,7 +8,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;

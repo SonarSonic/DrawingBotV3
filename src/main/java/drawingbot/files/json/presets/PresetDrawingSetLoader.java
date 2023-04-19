@@ -6,11 +6,10 @@ import drawingbot.api.IDrawingSet;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
-import drawingbot.javafx.GenericPreset;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;

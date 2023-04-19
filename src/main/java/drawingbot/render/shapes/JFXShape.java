@@ -13,7 +13,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import javafx.scene.transform.Affine;
 
 import java.awt.geom.AffineTransform;

@@ -2,7 +2,6 @@ package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.javafx.controllers.AbstractFXController;
 import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
 import drawingbot.javafx.controls.TableCellImage;
 import drawingbot.javafx.observables.ObservableVersion;

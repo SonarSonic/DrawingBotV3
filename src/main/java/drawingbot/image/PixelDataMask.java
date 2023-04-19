@@ -1,11 +1,11 @@
 package drawingbot.image;
 
-import java.util.List;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 /**
  * An implementation of PixelData which is only for use as a SoftClip on other pixel datas, it may have other limited uses.

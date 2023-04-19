@@ -1,7 +1,5 @@
 package drawingbot.javafx.preferences;
 
-import static drawingbot.javafx.GenericSetting.*;
-
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.ISettings;
@@ -30,6 +28,8 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static drawingbot.javafx.GenericSetting.*;
 
 public class DBPreferences implements ISettings {
 

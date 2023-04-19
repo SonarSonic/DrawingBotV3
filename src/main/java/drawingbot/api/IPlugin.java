@@ -1,6 +1,5 @@
 package drawingbot.api;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface IPlugin {

@@ -2,7 +2,6 @@ package drawingbot.render;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
-import drawingbot.files.ConfigFileHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;

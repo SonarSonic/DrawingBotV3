@@ -2,8 +2,8 @@ package drawingbot.javafx;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.json.IJsonData;
-import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
 import drawingbot.files.json.PresetType;
+import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
 import drawingbot.utils.INamedSetting;
 
 @JsonAdapter(JsonAdapterGenericPreset.class)

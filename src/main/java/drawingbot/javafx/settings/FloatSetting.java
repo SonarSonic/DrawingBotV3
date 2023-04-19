@@ -10,10 +10,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.util.StringConverter;
 import javafx.util.converter.FloatStringConverter;
-import javafx.util.converter.LongStringConverter;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 public class FloatSetting<C> extends AbstractNumberSetting<C, Float> {
 

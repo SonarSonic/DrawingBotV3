@@ -1,6 +1,5 @@
 package drawingbot.javafx.observables;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
@@ -17,7 +16,6 @@ import javafx.collections.ObservableList;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.util.List;
 
 public class ObservableImageFilter extends SpecialListenable<ObservableImageFilter.Listener> implements IProperties {
 

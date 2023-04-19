@@ -8,7 +8,6 @@ import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 
 public class GEllipse extends AbstractGeometry implements IGeometry {
 

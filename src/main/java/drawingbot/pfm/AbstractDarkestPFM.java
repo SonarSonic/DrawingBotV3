@@ -1,8 +1,9 @@
 package drawingbot.pfm;
 
-import drawingbot.api.*;
+import drawingbot.api.IPixelData;
 import drawingbot.image.ImageTools;
-import drawingbot.pfm.helpers.*;
+import drawingbot.pfm.helpers.BresenhamHelper;
+import drawingbot.pfm.helpers.LuminanceTestLine;
 import drawingbot.utils.Utils;
 
 import java.awt.*;

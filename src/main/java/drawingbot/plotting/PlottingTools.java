@@ -15,7 +15,6 @@ import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
-import drawingbot.utils.UnitsLength;
 import drawingbot.utils.Utils;
 
 import java.awt.*;

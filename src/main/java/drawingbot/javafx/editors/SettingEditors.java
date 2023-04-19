@@ -2,8 +2,6 @@ package drawingbot.javafx.editors;
 
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.*;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -20,7 +18,6 @@ import javafx.util.converter.LongStringConverter;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.ToggleSwitch;
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
-import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 
 import java.time.LocalDate;

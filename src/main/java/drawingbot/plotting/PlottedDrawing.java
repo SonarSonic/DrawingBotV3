@@ -2,7 +2,6 @@ package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
 import drawingbot.drawing.DrawingSets;
-import drawingbot.utils.Metadata;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -10,6 +9,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import drawingbot.utils.Metadata;
 import drawingbot.utils.MetadataMap;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;

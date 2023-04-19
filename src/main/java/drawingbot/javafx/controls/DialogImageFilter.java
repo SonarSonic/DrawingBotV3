@@ -2,13 +2,14 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-
 import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;

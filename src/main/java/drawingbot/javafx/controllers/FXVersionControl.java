@@ -21,8 +21,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.util.converter.DefaultStringConverter;
-import org.controlsfx.control.Rating;
-import org.fxmisc.easybind.EasyBind;
 
 import java.util.List;
 

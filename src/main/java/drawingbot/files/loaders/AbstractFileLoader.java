@@ -1,7 +1,6 @@
 package drawingbot.files.loaders;
 
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;

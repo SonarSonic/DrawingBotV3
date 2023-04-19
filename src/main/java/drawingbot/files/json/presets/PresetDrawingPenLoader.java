@@ -5,9 +5,9 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
-import drawingbot.javafx.GenericPreset;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;

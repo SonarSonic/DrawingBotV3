@@ -4,7 +4,6 @@ import drawingbot.api.IPixelData;
 import drawingbot.geom.easing.EasingUtils;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.image.PixelDataARGBY;
-import drawingbot.image.PixelDataLuminance;
 import drawingbot.utils.Utils;
 
 import java.awt.geom.Point2D;

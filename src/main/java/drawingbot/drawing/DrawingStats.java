@@ -5,15 +5,13 @@ import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
-import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
-import javafx.beans.property.*;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class DrawingStats {
 

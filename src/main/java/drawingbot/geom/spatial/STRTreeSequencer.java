@@ -1,8 +1,8 @@
 package drawingbot.geom.spatial;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.geom.shapes.IGeometry;
 import drawingbot.api.IProgressCallback;
+import drawingbot.geom.shapes.IGeometry;
 import drawingbot.utils.LazyTimer;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;

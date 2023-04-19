@@ -9,8 +9,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.util.StringConverter;
 
-import java.util.function.BiConsumer;
-
 public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> {
 
     public static StringConverter<?> stringConverter = new StringConverter<>() {
