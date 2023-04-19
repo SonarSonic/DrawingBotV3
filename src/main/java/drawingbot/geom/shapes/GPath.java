@@ -8,31 +8,23 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateXY;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 
-public class GPath extends Path2D.Float implements IGeometry, IPathElement {
+public class GPath extends AbstractGeometry implements IGeometry, IPathElement {
+
+    public GeneralPath awtPath = new GeneralPath();
 
     public GPath() {
-        super();
-    }
-
-    public GPath(int rule) {
-        super(rule);
-    }
-
-    public GPath(int rule, int initialCapacity) {
-        super(rule, initialCapacity);
+        this.awtPath = new GeneralPath();
     }
 
     public GPath(Shape s) {
-        super(s);
+        this.awtPath = new GeneralPath(s);
     }
 
     public GPath(Shape s, AffineTransform at) {
-        super(s, at);
+        this.awtPath = new GeneralPath();
+        this.awtPath.append(s.getPathIterator(at), false);
     }
 
     public GPath(IPathElement pathElement, boolean addToPath){
@@ -68,90 +60,25 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
         }
     }
 
-    //// IGeometry \\\\
-
-    public int geometryIndex = -1;
-    public int pfmPenIndex = -1;
-    public int penIndex = -1;
-    public int sampledRGBA = -1; //TODO CHECK, -1 is a valid RGBA value though???
-    public int groupID = -1;
-    public int fillType = -1;
-
-    public int segmentCount = -1;
-
+    public int vertexCount = -1;
 
     @Override
     public int getVertexCount() {
-        if(segmentCount == -1){
-            segmentCount = GeometryUtils.getSegmentCount(this);
+        if(vertexCount == -1){
+            vertexCount = GeometryUtils.getSegmentCount(awtPath);
         }
-        return segmentCount;
+        return vertexCount;
     }
 
     @Override
     public Shape getAWTShape() {
-        return this;
-    }
-
-    @Override
-    public int getGeometryIndex() {
-        return geometryIndex;
-    }
-
-    @Override
-    public int getPenIndex() {
-        return penIndex;
-    }
-
-    @Override
-    public int getPFMPenIndex() {
-        return pfmPenIndex;
-    }
-
-    @Override
-    public int getSampledRGBA() {
-        return sampledRGBA;
-    }
-
-    @Override
-    public int getFillType(){
-        return fillType;
-    }
-
-    @Override
-    public int getGroupID() {
-        return groupID;
-    }
-
-    @Override
-    public void setGeometryIndex(int index) {
-        geometryIndex = index;
-    }
-
-    @Override
-    public void setPenIndex(int index) {
-        penIndex = index;
-    }
-
-    @Override
-    public void setPFMPenIndex(int index) {
-        pfmPenIndex = index;
+        return awtPath;
     }
 
     @Override
     public void setSampledRGBA(int rgba) {
-        sampledRGBA = rgba;
+        super.setSampledRGBA(rgba);
         resetColourSamples(rgba);
-    }
-
-    @Override
-    public void setGroupID(int groupID) {
-        this.groupID = groupID;
-    }
-
-    @Override
-    public void setFillType(int fillType) {
-        this.fillType = fillType;
     }
 
     @Override
@@ -174,32 +101,23 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
     }
 
     @Override
-    public IGeometry transformGeometry(AffineTransform transform) {
-        transform(transform);
-        return this;
-    }
-
-    private Coordinate origin = null;
-    private Coordinate endCoord = null;
-
-    @Override
     public Coordinate getEndCoordinate() {
         //better to not cache this, cause it can change
-        Point2D point2D = getCurrentPoint();
-        return endCoord = new CoordinateXY(point2D.getX(), point2D.getY());
+        Point2D point2D = awtPath.getCurrentPoint();
+        return new CoordinateXY(point2D.getX(), point2D.getY());
     }
 
     @Override
     public Coordinate getOriginCoordinate() {
-        PathIterator iterator = this.getPathIterator(null);
+        PathIterator iterator = awtPath.getPathIterator(null);
         float[] coords = new float[6];
         int type = iterator.currentSegment(coords);
-        return origin = new CoordinateXY(coords[0], coords[1]);
+        return new CoordinateXY(coords[0], coords[1]);
     }
 
     @Override
     public IGeometry copyGeometry() {
-        return GeometryUtils.copyGeometryData(new GPath(this), this);
+        return GeometryUtils.copyGeometryData(new GPath(awtPath), this);
     }
 
     /**
@@ -213,33 +131,33 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
 
 
     public void markPathDirty(){
-        segmentCount = -1;
+        vertexCount = -1;
     }
 
 
-    public static void move(GPath path, float[] coords, int type){
+    public static void move(GPath gPath, float[] coords, int type){
         switch (type){
             case PathIterator.SEG_MOVETO:
-                path.moveTo(coords[0], coords[1]);
+                gPath.awtPath.moveTo(coords[0], coords[1]);
                 break;
             case PathIterator.SEG_LINETO:
-                path.lineTo(coords[0], coords[1]);
+                gPath.awtPath.lineTo(coords[0], coords[1]);
                 break;
             case PathIterator.SEG_QUADTO:
-                path.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                gPath.awtPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
                 break;
             case PathIterator.SEG_CUBICTO:
-                path.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                gPath.awtPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
                 break;
             case PathIterator.SEG_CLOSE:
-                path.closePath();
+                gPath.awtPath.closePath();
                 break;
         }
     }
 
     @Override
     public void addToPath(boolean addMove, GPath path) {
-        PathIterator iterator = getPathIterator(null);
+        PathIterator iterator = awtPath.getPathIterator(null);
         float[] coords = new float[6];
 
         float lastMoveX = 0;
@@ -268,14 +186,34 @@ public class GPath extends Path2D.Float implements IGeometry, IPathElement {
 
     }
 
-    @Override
-    public Point2D getP1() {
-        Coordinate origin = getOriginCoordinate();
-        return new Point2D.Double(origin.x, origin.y);
+    //// Convenience Methods \\\\
+
+    public void moveTo(double x1, double y1) {
+        awtPath.moveTo(x1, y1);
     }
 
-    @Override
-    public Point2D getP2() {
-        return getCurrentPoint();
+    public void lineTo(double x1, double y1) {
+        awtPath.lineTo(x1, y1);
     }
+
+    public void quadTo(double x1, double y1, double x2, double y2) {
+        awtPath.quadTo(x1, y1, x2, y2);
+    }
+
+    public void curveTo(double x1, double y1, double x2, double y2, double x3, double y3) {
+        awtPath.curveTo(x1, y1, x2, y2, x3, y3);
+    }
+
+    public void closePath(){
+        awtPath.closePath();
+    }
+
+    public void append(Shape nextGPath, boolean connect){
+        awtPath.append(nextGPath, connect);
+    }
+
+    public void append(PathIterator iterator, boolean connect){
+        awtPath.append(iterator, connect);
+    }
+
 }

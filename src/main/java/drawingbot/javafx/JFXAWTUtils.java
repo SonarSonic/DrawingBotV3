@@ -54,7 +54,7 @@ public class JFXAWTUtils {
 
     public static void addJFXPathToGPath(Path jfxPath, GPath gPath){
         for(PathElement element : jfxPath.getElements()){
-            addJFXElementToAWTPath(gPath, element);
+            addJFXElementToAWTPath(gPath.awtPath, element);
         }
     }
 

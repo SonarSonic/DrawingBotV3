@@ -30,11 +30,11 @@ public class JFXQuadCurveConverter implements JFXGeometryConverter {
     public void update(Shape shape, IGeometry geometry) {
         GQuadCurve curve = (GQuadCurve) geometry;
         QuadCurve jfxQuadCurve = (QuadCurve) shape;
-        jfxQuadCurve.setStartX(curve.x1);
-        jfxQuadCurve.setStartY(curve.y1);
-        jfxQuadCurve.setControlX(curve.ctrlx);
-        jfxQuadCurve.setControlY(curve.ctrly);
-        jfxQuadCurve.setEndX(curve.x1);
-        jfxQuadCurve.setEndY(curve.y1);
+        jfxQuadCurve.setStartX(curve.getX1());
+        jfxQuadCurve.setStartY(curve.getY1());
+        jfxQuadCurve.setControlX(curve.getCtrlX());
+        jfxQuadCurve.setControlY(curve.getCtrlY());
+        jfxQuadCurve.setEndX(curve.getX2());
+        jfxQuadCurve.setEndY(curve.getY2());
     }
 }

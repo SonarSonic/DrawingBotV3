@@ -30,9 +30,9 @@ public class JFXLineConverter implements JFXGeometryConverter {
     public void update(Shape shape, IGeometry geometry) {
         GLine line = (GLine) geometry;
         Line jfxLine = (Line) shape;
-        jfxLine.setStartX(line.x1);
-        jfxLine.setStartY(line.y1);
-        jfxLine.setEndX(line.x2);
-        jfxLine.setEndY(line.x2);
+        jfxLine.setStartX(line.getX1());
+        jfxLine.setStartY(line.getY1());
+        jfxLine.setEndX(line.getX2());
+        jfxLine.setEndY(line.getY2());
     }
 }

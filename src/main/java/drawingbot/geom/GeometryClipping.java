@@ -22,7 +22,7 @@ public class GeometryClipping {
             Rectangle2D rectangle2D = (Rectangle2D) shape;
             if(geometry instanceof GLine){
                 GLine line = (GLine) geometry;
-                return !rectangle2D.contains(line.x1, line.y1) || !rectangle2D.contains(line.x2, line.y2);
+                return !rectangle2D.contains(line.getX1(), line.getY1()) || !rectangle2D.contains(line.getX2(), line.getY2());
             }
         }
         Rectangle2D bounds = geometry.getAWTShape().getBounds2D();
@@ -40,17 +40,17 @@ public class GeometryClipping {
             if (element instanceof GLine) {
                 recursiveSplitLine(shape, (GLine) element, (g) -> {
                     GLine line = (GLine) g;
-                    pathBuilder.lineTo(line.x1, line.y1, line.x2, line.y2);
+                    pathBuilder.lineTo(line.getX1(), line.getY1(), line.getX2(), line.getY2());
                 });
             } else if (element instanceof GQuadCurve) {
                 recursiveSplitGQuadCurve(shape, (GQuadCurve) element, (g) -> {
                     GCubicCurve cubic = (GCubicCurve) g;
-                    pathBuilder.curveTo(cubic.x1, cubic.y1, cubic.ctrlx1, cubic.ctrly1, cubic.ctrlx2, cubic.ctrly2, cubic.x2, cubic.y2);
+                    pathBuilder.curveTo(cubic.getX1(), cubic.getY1(), cubic.getCtrlX1(), cubic.getCtrlY1(), cubic.getCtrlX2(), cubic.getCtrlY2(), cubic.getX2(), cubic.getY2());
                 });
             } else if (element instanceof GCubicCurve) {
                 recursiveSplitCubicCurve(shape, (GCubicCurve) element, (g) -> {
                     GCubicCurve cubic = (GCubicCurve) g;
-                    pathBuilder.curveTo(cubic.x1, cubic.y1, cubic.ctrlx1, cubic.ctrly1, cubic.ctrlx2, cubic.ctrly2, cubic.x2, cubic.y2);
+                    pathBuilder.curveTo(cubic.getX1(), cubic.getY1(), cubic.getCtrlX1(), cubic.getCtrlY1(), cubic.getCtrlX2(), cubic.getCtrlY2(), cubic.getX2(), cubic.getY2());
                 });
             } else {
                 throw new UnsupportedOperationException("Invalid element type: " + element.getClass().getSimpleName());
@@ -67,14 +67,14 @@ public class GeometryClipping {
     public static void recursiveSplitLine(Shape shape, GLine line, Consumer<IGeometry> consumer) {
         if(shape instanceof Rectangle2D){
             Rectangle2D bounds = (Rectangle2D) shape;
-            if(bounds.contains(line.x1, line.y1) && bounds.contains(line.x2, line.y2)){
+            if(bounds.contains(line.getX1(), line.getY1()) && bounds.contains(line.getX2(), line.getY2())){
                 consumer.accept(line);
                 return;
             }
         }
-        float[] start = new float[]{line.x1, line.y1};
-        float[] end = new float[]{line.x2, line.y2};
-        double length = Utils.distance(line.x1, line.y1, line.x2, line.y2);
+        float[] start = new float[]{line.getX1(), line.getY1()};
+        float[] end = new float[]{line.getX2(), line.getY2()};
+        double length = Utils.distance(line.getX1(), line.getY1(), line.getX2(), line.getY2());
         double position = 0;
         boolean isInside = shape.contains(start[0], start[1]);
 
@@ -101,13 +101,13 @@ public class GeometryClipping {
      * Note: this method is inaccurate but fast, for a more accurate method, evenly spaced points would need to be used
      */
     public static void recursiveSplitCubicCurve(Shape shape, GCubicCurve curve, Consumer<IGeometry> consumer) {
-        float[] start = new float[]{curve.x1, curve.y1};
-        float[] control1 = new float[]{curve.ctrlx1, curve.ctrly1};
-        float[] control2 = new float[]{curve.ctrlx2, curve.ctrly2};
-        float[] end = new float[]{curve.x2, curve.y2};
-        double samples = Math.max(curveSplits, Utils.distance(curve.x1, curve.y1, curve.ctrlx1, curve.ctrly1) +
-                                       Utils.distance(curve.ctrlx1, curve.ctrly1, curve.ctrlx2, curve.ctrly2) +
-                                       Utils.distance(curve.ctrlx2, curve.ctrly2, curve.x2, curve.y2));
+        float[] start = new float[]{curve.getX1(), curve.getY1()};
+        float[] control1 = new float[]{curve.getCtrlX1(), curve.getCtrlY1()};
+        float[] control2 = new float[]{curve.getCtrlX2(), curve.getCtrlY2()};
+        float[] end = new float[]{curve.getX2(), curve.getY2()};
+        double samples = Math.max(curveSplits, Utils.distance(curve.getX1(), curve.getY1(), curve.getCtrlX1(), curve.getCtrlY1()) +
+                                       Utils.distance(curve.getCtrlX1(), curve.getCtrlY1(), curve.getCtrlX2(), curve.getCtrlY2()) +
+                                       Utils.distance(curve.getCtrlX2(), curve.getCtrlY2(), curve.getX2(), curve.getY2()));
         double sample = 0;
         boolean isInside = shape.contains(start[0], start[1]);
 
@@ -121,10 +121,10 @@ public class GeometryClipping {
                 GCubicCurve curveRight = new GCubicCurve(outputRight);
 
                 //avoids rare rounding errors when the point exists exactly on the boundary of a shape, which could cause infinite loops
-                curveLeft.x2 = point[0];
-                curveLeft.y2 = point[1];
-                curveRight.x1 = point[0];
-                curveRight.y1 = point[1];
+                curveLeft.awtCubicCurve.x2 = point[0];
+                curveLeft.awtCubicCurve.y2 = point[1];
+                curveRight.awtCubicCurve.x1 = point[0];
+                curveRight.awtCubicCurve.y1 = point[1];
 
                 if (isInside) consumer.accept(curveLeft);
                 recursiveSplitCubicCurve(shape, curveRight, consumer);

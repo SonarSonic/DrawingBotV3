@@ -9,24 +9,17 @@ import org.locationtech.jts.geom.CoordinateXY;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-public class GRectangle extends Rectangle2D.Float implements IGeometry {
+public class GRectangle extends AbstractGeometry implements IGeometry {
+
+    public Rectangle2D.Float awtRect;
 
     public GRectangle() {
-        super();
+        this.awtRect = new Rectangle2D.Float();
     }
 
     public GRectangle(float x, float y, float w, float h) {
-        super(x, y, w, h);
+        this.awtRect = new Rectangle2D.Float(x, y, w, h);
     }
-
-    //// IGeometry \\\\
-
-    public int geometryIndex = -1;
-    public int pfmPenIndex = -1;
-    public int penIndex = -1;
-    public int sampledRGBA = -1;
-    public int groupID = -1;
-    public int fillType = -1;
 
     @Override
     public int getVertexCount() {
@@ -35,105 +28,71 @@ public class GRectangle extends Rectangle2D.Float implements IGeometry {
 
     @Override
     public Shape getAWTShape() {
-        return this;
-    }
-
-    @Override
-    public int getGeometryIndex() {
-        return geometryIndex;
-    }
-
-    @Override
-    public int getPenIndex() {
-        return penIndex;
-    }
-
-    @Override
-    public int getPFMPenIndex() {
-        return pfmPenIndex;
-    }
-
-    @Override
-    public int getSampledRGBA() {
-        return sampledRGBA;
-    }
-
-    @Override
-    public int getGroupID() {
-        return groupID;
-    }
-
-    @Override
-    public int getFillType(){
-        return fillType;
-    }
-
-    @Override
-    public void setGeometryIndex(int index) {
-        geometryIndex = index;
-    }
-
-    @Override
-    public void setPenIndex(int index) {
-        penIndex = index;
-    }
-
-    @Override
-    public void setPFMPenIndex(int index) {
-        pfmPenIndex = index;
-    }
-
-    @Override
-    public void setSampledRGBA(int rgba) {
-        sampledRGBA = rgba;
-    }
-
-    @Override
-    public void setGroupID(int groupID) {
-        this.groupID = groupID;
-    }
-
-    @Override
-    public void setFillType(int fillType) {
-        this.fillType = fillType;
+        return awtRect;
     }
 
     @Override
     public void renderFX(GraphicsContext graphics) {
-        graphics.strokeRect(x, y, width, height);
+        graphics.strokeRect(getX(), getY(), getWidth(), getHeight());
     }
 
     @Override
     public void renderBresenham(BresenhamHelper helper, BresenhamHelper.IPixelSetter setter) {
-        helper.plotLine((int)x, (int)y, (int)(x + width), (int)y, setter);
-        helper.plotLine((int)x, (int)(y + height), (int)(x + width), (int)(y + height), setter);
-        helper.plotLine((int)x, (int)y, (int)(x), (int)(y + height), setter);
-        helper.plotLine((int)(x + width), (int)y, (int)(x + width), (int)(y + height), setter);
+        helper.plotLine((int)getX(), (int)getY(), (int)(getEndX()), (int)getY(), setter);
+        helper.plotLine((int)getX(), (int)(getEndY()), (int)(getEndX()), (int)(getEndY()), setter);
+        helper.plotLine((int)getX(), (int)getY(), (int)getX(), (int)(getEndY()), setter);
+        helper.plotLine((int)(getEndX()), (int)getY(), (int)(getEndX()), (int)(getEndY()), setter);
     }
 
     @Override
     public String serializeData() {
-        return GeometryUtils.serializeCoords(new float[]{x, y, x + width, y + height});
+        return GeometryUtils.serializeCoords(new float[]{getX(), getY(), getEndX(), getEndY()});
     }
 
     @Override
     public void deserializeData(String geometryData) {
         float[] coords = GeometryUtils.deserializeCoords(geometryData);
-        setFrame(coords[0], coords[1], coords[2] - x, coords[3] - y);
+        awtRect.setFrame(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
+    }
+
+    //// Coordinates \\\\
+
+    public float getX() {
+        return awtRect.x;
+    }
+
+    public float getY() {
+        return awtRect.y;
+    }
+
+    public float getWidth() {
+        return awtRect.width;
+    }
+
+    public float getHeight() {
+        return awtRect.height;
+    }
+
+    public float getEndX() {
+        return getX() + getWidth();
+    }
+
+    public float getEndY() {
+        return getY() + getHeight();
     }
 
     @Override
     public Coordinate getOriginCoordinate() {
-        return new CoordinateXY(x, y);
+        return new CoordinateXY(getX(), getY());
     }
 
     @Override
     public Coordinate getEndCoordinate() {
-        return new CoordinateXY(x, y);
+        return new CoordinateXY(getX(), getY());
     }
 
     @Override
     public IGeometry copyGeometry() {
-        return GeometryUtils.copyGeometryData(new GRectangle(x, y, width, height), this);
+        return GeometryUtils.copyGeometryData(new GRectangle(getX(), getY(), getWidth(), getHeight()), this);
     }
 }
