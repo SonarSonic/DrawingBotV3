@@ -108,6 +108,10 @@ public class FileUtils {
         return getUserDataDirectory() + "fonts" + File.separator;
     }
 
+    public static String getUserLogsDirectory() {
+        return getUserDataDirectory() + "logs" + File.separator;
+    }
+
     public static PrintWriter createWriter(File file) {
         if (file == null) {
             throw new RuntimeException("File passed to createWriter() was null");
