@@ -14,6 +14,7 @@ import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controllers.AbstractFXController;
 import drawingbot.javafx.controls.ComboCellDrawingPen;
 import drawingbot.javafx.controls.ComboCellDrawingSet;
 import drawingbot.javafx.controls.ComboCellNamedSetting;
@@ -54,7 +55,7 @@ import java.util.function.Supplier;
 /**
  * Note this implementation is inspired by / borrows from ControlsFX, PreferencesFX and FXSampler
  */
-public class FXPreferences {
+public class FXPreferences extends AbstractFXController {
 
     public TextField textFieldSearchBar = null;
     public Label labelHeading = null;

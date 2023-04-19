@@ -1,10 +1,14 @@
-package drawingbot.javafx;
+package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.drawing.DrawingStyle;
 import drawingbot.drawing.DrawingStyleSet;
 import drawingbot.files.json.projects.ObservableProject;
+import drawingbot.javafx.FXHelper;
+import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controllers.AbstractFXController;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
@@ -35,7 +39,7 @@ import org.fxmisc.easybind.EasyBind;
 import java.util.ArrayList;
 
 //TODO MAKE THIS INSTANCEABLE!
-public class FXStylesController {
+public class FXStylesController extends AbstractFXController {
 
     public DrawingStylesSetting master = null;
     public ObservableList<ObservableDrawingStyle> masterStyles = FXCollections.observableArrayList();
