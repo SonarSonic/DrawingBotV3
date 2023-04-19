@@ -736,7 +736,7 @@ public class FXHelper {
 
     public static List<PropertyAccessorAbstract> nodePropertyAccessors = new ArrayList<>();
 
-
+    @JsonData
     public static class SplitPaneDataFormat { //must be public static for GSON
 
         public double[] positions;

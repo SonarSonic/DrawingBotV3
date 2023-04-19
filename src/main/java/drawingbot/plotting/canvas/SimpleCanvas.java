@@ -1,11 +1,13 @@
 package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
+import drawingbot.files.json.JsonData;
 import drawingbot.utils.EnumClippingMode;
 import drawingbot.utils.EnumCroppingMode;
 import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 
+@JsonData
 public class SimpleCanvas implements ICanvas {
 
     public UnitsLength units = UnitsLength.MILLIMETRES;

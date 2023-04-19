@@ -4,11 +4,12 @@ import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
 import drawingbot.files.*;
+import drawingbot.files.json.JsonData;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.javafx.controllers.*;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
+import drawingbot.javafx.controllers.*;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
@@ -1089,6 +1090,7 @@ public class FXController extends AbstractFXController {
         }
     }
 
+    @JsonData
     public static class NodePosition {
 
         public int childIndex;

@@ -7,6 +7,7 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
@@ -85,12 +86,14 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         }
     }
 
+    @JsonData
     public static class VersionData {
 
         public final ArrayList<GenericPreset<PresetProjectSettings>> versions = new ArrayList<>();
 
     }
 
+    @JsonData
     public static class DrawingSetData {
 
         public final ArrayList<ObservableDrawingSet> drawingSets = new ArrayList<>();
@@ -98,6 +101,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     }
 
+    @JsonData
     public static class ImageSettings{
         public EnumRotation imageRotation = EnumRotation.R0;
         public boolean imageFlipHorizontal = false;
@@ -108,14 +112,16 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         public float cropEndY = 0;
     }
 
+    @JsonData
     public static class UIGlobalState {
 
-        public List<UINodeState> nodes = new ArrayList<>();
+        public ArrayList<UINodeState> nodes = new ArrayList<>();
 
     }
 
 
     public static void registerDefaultDataLoaders(){
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class, "ui_state", UIGlobalState.class, UIGlobalState::new, 0){
 
             @Override
@@ -139,7 +145,9 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         });
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_DRAWING_AREA, 0));
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_FILTERS, 0));
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_PFM, 0){
 
             @Override
@@ -156,6 +164,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         });
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_UI_SETTINGS, 0));
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"versions", VersionData.class, VersionData::new, 5) {
 
             @Override

@@ -2,18 +2,19 @@ package drawingbot.javafx.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.FXHelper;
 
 import java.util.HashMap;
 
+@JsonData
 public class UINodeState {
 
     public String id = "";
     public HashMap<String, JsonElement> properties = new HashMap<>();
 
-    public UINodeState() {
-    } //for gson
+    public UINodeState() {} //for gson
 
     public UINodeState(String id, Object obj) {
         this.id = id;

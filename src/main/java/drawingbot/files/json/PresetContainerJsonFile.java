@@ -1,6 +1,5 @@
 package drawingbot.files.json;
 
-import drawingbot.files.json.IJsonData;
 import drawingbot.javafx.GenericPreset;
 
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.List;
 /**
  * Used as an object to be saved by GSON, forms the actual file which stores multiple presets
  */
+@JsonData
 public class PresetContainerJsonFile<T extends IJsonData> {
 
     public List<GenericPreset<T>> jsonMap;
