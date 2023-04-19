@@ -794,7 +794,12 @@ public class FXHelper {
 
     public static void makePersistent(Styleable styleable){
         if(styleable != null && !persistentStyleables.contains(styleable)){
-            persistentStyleables.add(styleable);
+
+            if(styleable.getId() == null || styleable.getId().isEmpty()){
+                DrawingBotV3.logger.warning("Non-Persistent Styleable: " + styleable);
+            }else{
+                persistentStyleables.add(styleable);
+            }
         }
     }
 
@@ -826,7 +831,7 @@ public class FXHelper {
     public static void loadUIStates(List<UINodeState> states){
         for(UINodeState state : states){
             Styleable styleable = FXHelper.findPersistentStyleable(state.getID());
-            if(styleable != null && styleable.getId().equals(state.getID())){
+            if(styleable != null && styleable.getId() != null && !styleable.getId().isEmpty() && styleable.getId().equals(state.getID())){
                 state.loadState(styleable);
             }
         }
