@@ -3,7 +3,6 @@ package drawingbot.utils;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -14,6 +13,7 @@ public class Utils {
     public final static NumberFormat defaultNF = NumberFormat.getNumberInstance();
     public final static DecimalFormat defaultDF = new DecimalFormat("#.###");
     public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+    public final static SimpleDateFormat dateFormatSafe = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     public final static DecimalFormat oneDecimal = new DecimalFormat("#.#");
 
     public static NumberFormat gCodeNF;
@@ -49,6 +49,11 @@ public class Utils {
     public static String getDateAndTime(){
         Date date = new Date(System.currentTimeMillis());
         return dateFormat.format(date);
+    }
+
+    public static String getDateAndTimeSafe(){
+        Date date = new Date(System.currentTimeMillis());
+        return dateFormatSafe.format(date);
     }
 
     /**
