@@ -93,7 +93,7 @@ public class DrawingBotV3 {
     public final MonadicBinding<String> projectNameBinding = EasyBind.select(activeProject).selectObject(project -> project.name);
     public final MonadicBinding<FilteredImageData> imageBinding = EasyBind.select(activeProject).selectObject(project -> project.openImage);
     public final MonadicBinding<PlottedDrawing> drawingBinding = EasyBind.select(activeProject).selectObject(project -> project.currentDrawing);
-    public final MonadicBinding<PFMTask> activeTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.activeTask);
+    public final MonadicBinding<DBTask<?>> activeTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.activeTask);
     public final MonadicBinding<PFMTask> renderedTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.renderedTask);
     public final MonadicBinding<ObservableList<ExportedDrawingEntry>> exportedDrawingsBinding = EasyBind.select(activeProject).selectObject(project -> project.exportedDrawings);
 
@@ -175,7 +175,8 @@ public class DrawingBotV3 {
     public void tick(){
 
         // Update the latest shapes/vertices counts from the active task
-        PFMTask activeTask = context().taskManager().getActiveTask();
+        DBTask<?> activeTask = context().taskManager().getActiveTask();
+        PFMTask renderedTask = context().taskManager().getRenderedTask();
         PlottedDrawing currentDrawing = context().taskManager().getCurrentDrawing();
         FilteredImageData openImage = project().openImage.get();
 
@@ -209,10 +210,10 @@ public class DrawingBotV3 {
         }
 
         // Update Drawing Stats
-        if(activeTask != null){
-            geometryCount.set(activeTask.getCurrentGeometryCount());
-            vertexCount.set(activeTask.getCurrentVertexCount());
-            elapsedTimeMS.set(activeTask.getElapsedTime());
+        if(renderedTask != null){
+            geometryCount.set(renderedTask.getCurrentGeometryCount());
+            vertexCount.set(renderedTask.getCurrentVertexCount());
+            elapsedTimeMS.set(renderedTask.getElapsedTime());
         }else if(currentDrawing != null){
             geometryCount.set(currentDrawing.getDisplayedShapeMax() - currentDrawing.getDisplayedShapeMin());
             vertexCount.set(currentDrawing.getDisplayedVertexCount());
@@ -321,29 +322,27 @@ public class DrawingBotV3 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public void openFile(DBTaskContext context, File file, boolean internal, boolean changeDisplayMode) {
-        AbstractFileLoader loadingTask = getImageLoaderTask(context, file, internal, changeDisplayMode);
+    public void openFile(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
+        AbstractFileLoader loadingTask = getImageLoaderTask(context, file, internal, isSubTask);
         if(loadingTask != null){
             taskMonitor.queueTask(loadingTask);
         }
     }
 
-    public AbstractFileLoader getImageLoaderTask(DBTaskContext context, File file, boolean internal, boolean changeDisplayMode){
-        AbstractFileLoader loadingTask = MasterRegistry.INSTANCE.getFileLoader(context, file, internal);
+    public AbstractFileLoader getImageLoaderTask(DBTaskContext context, File file, boolean internal, boolean isSubTask){
+        AbstractFileLoader loadingTask = MasterRegistry.INSTANCE.getFileLoader(context, file, internal, isSubTask);
 
         //if the file loader could provide an image, wipe the current one
-        if(loadingTask.hasImageData() && context.project.activeTask.get() != null){
+        if(!isSubTask && loadingTask.hasImageData() && context.project.activeTask.get() != null){
             context.project.activeTask.get().cancel();
             context.taskManager().setActiveTask(null);
             context.project.openImage.set(null);
         }
 
         loadingTask.setOnSucceeded(e -> {
-            if(e.getSource().getValue() != null){
+            if(!isSubTask && e.getSource().getValue() != null){
                 context.project.openImage.set((FilteredImageData) e.getSource().getValue());
-                if(changeDisplayMode){
-                    Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
-                }
+                Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
                 projectName.set(file.getName());
             }
             loadingTask.onFileLoaded();

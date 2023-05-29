@@ -11,8 +11,8 @@ public class ImageFileLoaderFactory implements IFileLoaderFactory{
     }
 
     @Override
-    public AbstractFileLoader createLoader(DBTaskContext context, File file, boolean internal) {
-        return new ImageFileLoader(context, file, internal);
+    public AbstractFileLoader createLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
+        return new ImageFileLoader(context, file, internal, isSubTask);
     }
 
 }

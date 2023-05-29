@@ -571,14 +571,14 @@ public class MasterRegistry {
         return exportHandler;
     }
 
-    public AbstractFileLoader getFileLoader(DBTaskContext context, File file, boolean internal){
+    public AbstractFileLoader getFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask){
         for(IFileLoaderFactory factory : fileLoaderFactories){
-            AbstractFileLoader loader = factory.createLoader(context, file, internal);
+            AbstractFileLoader loader = factory.createLoader(context, file, internal, isSubTask);
             if(loader != null){
                 return loader;
             }
         }
-        return fallbackFileLoaderFactory.createLoader(context, file, internal);
+        return fallbackFileLoaderFactory.createLoader(context, file, internal, isSubTask);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

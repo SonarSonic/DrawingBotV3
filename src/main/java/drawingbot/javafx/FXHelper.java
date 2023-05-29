@@ -75,15 +75,15 @@ public class FXHelper {
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
     public static void importFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
     }
 
     public static void importImageFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_IMAGES);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES);
     }
 
     public static void importVideoFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.IMPORT_VIDEOS);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_VIDEOS);
     }
 
     public static void importSVGFile(){
@@ -91,12 +91,12 @@ public class FXHelper {
             FXController.showPremiumFeatureDialog();
             return;
         }
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), FileUtils.FILTER_SVG);
+        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.FILTER_SVG);
     }
 
     public static void importProject(){
         importFile((file, chooser) -> {
-            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true);
+            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false);
         }, FileUtils.FILTER_PROJECT);
     }
 

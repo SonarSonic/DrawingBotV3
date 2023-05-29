@@ -6,6 +6,7 @@ import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.utils.DBTask;
 import drawingbot.utils.EnumTaskStage;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,9 +24,9 @@ public interface ITaskManager {
 
     ////////////////////////////////////////////////////////
 
-    default void setActiveTask(PFMTask task){}
+    default void setActiveTask(DBTask<?> task){}
 
-    default PFMTask getActiveTask(){
+    default DBTask<?> getActiveTask(){
         return null;
     }
 

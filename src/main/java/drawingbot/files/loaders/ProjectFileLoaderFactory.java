@@ -13,10 +13,10 @@ public class ProjectFileLoaderFactory implements IFileLoaderFactory{
     }
 
     @Override
-    public AbstractFileLoader createLoader(DBTaskContext context, File file, boolean internal) {
+    public AbstractFileLoader createLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
         String extension = FileUtils.getExtension(file.toString());
         if(extension.equalsIgnoreCase(".drawingbotv3")) {
-            return new ProjectFileLoader(context, file, internal);
+            return new ProjectFileLoader(context, file, internal, isSubTask);
         }
         return null;
     }

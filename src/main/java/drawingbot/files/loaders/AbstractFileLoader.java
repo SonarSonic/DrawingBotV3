@@ -14,24 +14,24 @@ public abstract class AbstractFileLoader extends DBTask<FilteredImageData> {
 
     public File file;
     public boolean internal;
+    public boolean isSubTask;
 
-    public AbstractFileLoader(DBTaskContext context, File file, boolean internal){
+    public AbstractFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask){
         super(context);
         this.file = file;
         this.internal = internal;
+        this.isSubTask = isSubTask;
     }
 
     public abstract boolean hasImageData();
 
-    public String getFileType(){
-        return "File";
-    }
+    public abstract String getFileTypeDisplayName();
 
     /**
      * Called after the imagedata has been loaded into DrawingBotV3, allowing the loader to run additional steps
      */
     public void onFileLoaded(){
-        NotificationOverlays.INSTANCE.showWithSubtitle("Loaded " + getFileType(), file.toString());
+        NotificationOverlays.INSTANCE.showWithSubtitle("Loaded " + getFileTypeDisplayName(), file.toString());
     }
 
 }

@@ -712,7 +712,7 @@ public class FXController extends AbstractFXController {
             boolean success = false;
             if(db.hasFiles()){
                 List<File> files = db.getFiles();
-                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, true);
+                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, false);
                 success = true;
             }
 
