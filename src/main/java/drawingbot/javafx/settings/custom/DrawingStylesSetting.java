@@ -1,4 +1,4 @@
-package drawingbot.javafx.settings;
+package drawingbot.javafx.settings.custom;
 
 import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;

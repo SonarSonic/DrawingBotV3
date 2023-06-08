@@ -120,7 +120,7 @@ runtime {
             imageOptions += ["--verbose"]
             installerOptions += ["--verbose", '--mac-package-name', "drawingbotv3"]
             if(project.hasProperty("developer")){
-                String id = project.getProperty("developer");
+                String id = project.getProperty("developer")
                 project.logger.lifecycle('Found a developer id, adding mac-signing')
                 imageOptions += ['--mac-sign', "--mac-signing-key-user-name", id]
                 installerOptions += ['--mac-sign', "--mac-signing-key-user-name", id]

@@ -281,6 +281,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     }
 
     public void reset(){
+        /*
         subTasks.forEach(PFMTask::reset);
         subTasks = null;
         pfmFactory = null;
@@ -292,6 +293,8 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
 
         pfm = null;
         finishEarly = false;
+
+         */
     }
 
     //// CALLBACKS \\\\
@@ -369,8 +372,8 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     //// RENDERING \\\\
 
     private WrappedGeometryIterator iterator;
-    private List<PFMTask> subTasks = new ArrayList<>();
-    private List<PlottedDrawing> subDrawings = new ArrayList<>();
+    private final List<PFMTask> subTasks = new ArrayList<>();
+    private final List<PlottedDrawing> subDrawings = new ArrayList<>();
 
     /**
      * @return the geometry iterator which should be used when rendering this task, before the drawing is complete

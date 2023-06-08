@@ -81,7 +81,7 @@ public class GeometryClipping {
         while (position < length) {
             float[] point = pointAlongLineSegment(start, end, position / length);
             if (isInside != shape.contains(point[0], point[1])) {
-                if (isInside) consumer.accept(new GLine(start[0], start[1], point[0], point[1]));;
+                if (isInside) consumer.accept(new GLine(start[0], start[1], point[0], point[1]));
                 recursiveSplitLine(shape, new GLine(point[0], point[1], end[0], end[1]), consumer);
                 return;
             }

@@ -175,7 +175,6 @@ public class DrawingBotV3 {
     public void tick(){
 
         // Update the latest shapes/vertices counts from the active task
-        DBTask<?> activeTask = context().taskManager().getActiveTask();
         PFMTask renderedTask = context().taskManager().getRenderedTask();
         PlottedDrawing currentDrawing = context().taskManager().getCurrentDrawing();
         FilteredImageData openImage = project().openImage.get();

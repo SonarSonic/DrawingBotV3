@@ -3,7 +3,7 @@ package drawingbot.files.json.projects;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.files.FileUtils;
@@ -424,7 +424,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     @Override
-    public void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeperationHandler oldValue, ColourSeperationHandler newValue) {
+    public void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeparationHandler oldValue, ColourSeparationHandler newValue) {
         if(oldValue == newValue){
             return;
         }
@@ -456,7 +456,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     //// IMAGE FILTER EVENTS \\\\
-
     @Override
     public void onImageFilterAdded(ObservableImageFilter filter) {
         onImageFiltersChanged();

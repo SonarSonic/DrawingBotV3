@@ -9,12 +9,12 @@ import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.INamedSetting;
 
 @JsonAdapter(JsonAdapterColourSplitter.class)
-public class ColourSeperationHandler implements INamedSetting {
+public class ColourSeparationHandler implements INamedSetting {
 
     public final String name;
     public boolean applied;
 
-    public ColourSeperationHandler(String name){
+    public ColourSeparationHandler(String name){
         this.name = name;
     }
 

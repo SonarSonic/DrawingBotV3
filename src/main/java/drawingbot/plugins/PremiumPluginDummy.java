@@ -6,7 +6,7 @@ import drawingbot.api.Hooks;
 import drawingbot.api.IPFM;
 import drawingbot.api.IPlottingTools;
 import drawingbot.api.IPlugin;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.javafx.FXController;
@@ -155,7 +155,7 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerColourSplitterHandlers() {
-        MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("CMYK"));
+        MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeparationHandler("CMYK"));
     }
 
     public static class DummyPFM implements IPFM {

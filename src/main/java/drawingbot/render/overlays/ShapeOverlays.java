@@ -81,7 +81,7 @@ public class ShapeOverlays extends AbstractOverlay{
     public enum ToolMode {
         SELECT,
         EDIT,
-        DRAW_BEZIERS;
+        DRAW_BEZIERS
     }
 
     @Override
@@ -548,7 +548,7 @@ public class ShapeOverlays extends AbstractOverlay{
             return;
         }
         if(undo.match(event)){
-            JFXShapeManager.INSTANCE.activeShapeList.get().actionManager.undo();;
+            JFXShapeManager.INSTANCE.activeShapeList.get().actionManager.undo();
             event.consume();
             return;
         }

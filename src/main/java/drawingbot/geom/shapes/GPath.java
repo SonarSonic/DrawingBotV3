@@ -199,12 +199,12 @@ public class GPath extends AbstractGeometry implements IGeometry, IPathElement {
         awtPath.lineTo(x1, y1);
     }
 
-    public void quadTo(double x1, double y1, double x2, double y2) {
-        awtPath.quadTo(x1, y1, x2, y2);
+    public void quadTo(double ctrlX, double ctrlY, double x2, double y2) {
+        awtPath.quadTo(ctrlX, ctrlY, x2, y2);
     }
 
-    public void curveTo(double x1, double y1, double x2, double y2, double x3, double y3) {
-        awtPath.curveTo(x1, y1, x2, y2, x3, y3);
+    public void curveTo(double ctrlX1, double ctrlY1, double ctrlX2, double ctrlY2, double x3, double y3) {
+        awtPath.curveTo(ctrlX1, ctrlY1, ctrlX2, ctrlY2, x3, y3);
     }
 
     public void closePath(){

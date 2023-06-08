@@ -21,8 +21,8 @@ public class PropertyUtilTest extends TestCase {
         canvas = new ObservableCanvas();
     }
 
-    private AtomicReference<Observable> current = new AtomicReference<>();
-    private AtomicBoolean received = new AtomicBoolean(false);
+    private final AtomicReference<Observable> current = new AtomicReference<>();
+    private final AtomicBoolean received = new AtomicBoolean(false);
 
     /*
     private void setupGenericObservableTest(IProperties properties){

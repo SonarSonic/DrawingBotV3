@@ -1,6 +1,6 @@
 package drawingbot.files.json.adapters;
 
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -23,7 +23,7 @@ public class JsonAdapterObservableDrawingSet extends JsonAdapterAbstract<Observa
         settings.add(GenericSetting.createListSetting(ObservableDrawingSet.class, ObservableDrawingPen.class,"pens", new ArrayList<>(), i -> i.pens));
         settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionOrder.class, "distributionOrder", FXCollections.observableArrayList(EnumDistributionOrder.values()), EnumDistributionOrder.DARKEST_FIRST, i -> i.distributionOrder));
         settings.add(GenericSetting.createOptionSetting(ObservableDrawingSet.class, EnumDistributionType.class, "distributionType", FXCollections.observableArrayList(EnumDistributionType.values()), EnumDistributionType.EVEN_WEIGHTED, i -> i.distributionType));
-        settings.add(GenericSetting.createObjectSetting(ObservableDrawingSet.class, ColourSeperationHandler.class, "colourSeperator", Register.DEFAULT_COLOUR_SPLITTER, i -> i.colourSeperator).setValidator(i -> i == null ? Register.DEFAULT_COLOUR_SPLITTER : i));
+        settings.add(GenericSetting.createObjectSetting(ObservableDrawingSet.class, ColourSeparationHandler.class, "colourSeperator", Register.DEFAULT_COLOUR_SPLITTER, i -> i.colourSeperator).setValidator(i -> i == null ? Register.DEFAULT_COLOUR_SPLITTER : i));
     }
 
     @Override

@@ -38,7 +38,6 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
         //graphics
         CheckBox checkBox = new CheckBox();
 
-
         //bindings
         checkBox.selectedProperty().bindBidirectional(value);
         checkBox.setOnAction(e -> sendUserEditedEvent());

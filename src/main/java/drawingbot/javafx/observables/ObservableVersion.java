@@ -20,7 +20,7 @@ public class ObservableVersion {
     public final SimpleStringProperty file = new SimpleStringProperty();
     public final SimpleStringProperty notes = new SimpleStringProperty();
     public final SimpleStringProperty thumbnailID = new SimpleStringProperty("");
-    private SimpleObjectProperty<GenericPreset<PresetProjectSettings>> preset = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<GenericPreset<PresetProjectSettings>> preset = new SimpleObjectProperty<>();
 
     public ObservableVersion(ObservableVersion copy){
         this.uuid.set(UUID.randomUUID());

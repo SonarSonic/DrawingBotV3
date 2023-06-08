@@ -132,6 +132,22 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         }
     }
 
+    public static void findDarkestPixelInArea(IPixelData pixels, int startX, int startY, int endX, int endY, int[] dest){
+        int best = Integer.MAX_VALUE;
+        for(int x = startX; x < endX; x++){
+            for(int y = startY; y < endY; y++){
+                if(pixels.withinXY(x, y)){
+                    int lum = pixels.getLuminance(x, y);
+                    if(lum < best){
+                        dest[0] = x;
+                        dest[1] = y;
+                        best = lum;
+                    }
+                }
+            }
+        }
+    }
+
     /** returns a random pixel of the darkest pixels found*/
     public void findDarkestPixel(IPixelData pixels, int[] dest){
         List<int[]> darkestPixels = findDarkestPixels(pixels);

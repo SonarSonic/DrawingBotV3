@@ -29,8 +29,8 @@ public class PathBuilder {
     public int pathCount = 0;
 
     public boolean hasMoveTo = false;
-    private float lastMoveX = -1;
-    private float lastMoveY = -1;
+    private final float lastMoveX = -1;
+    private final float lastMoveY = -1;
     private float lastX = -1;
     private float lastY = -1;
 

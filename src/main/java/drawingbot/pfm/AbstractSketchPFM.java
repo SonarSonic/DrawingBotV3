@@ -268,7 +268,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         private int[] dst = new int[2];
         private boolean hasResult;
 
-        public PathFindingContext(){};
+        public PathFindingContext(){}
 
         public PathFindingContext(int[] dst, float luminance, float[] data) {
             setResult(dst, avgLuminance, data);

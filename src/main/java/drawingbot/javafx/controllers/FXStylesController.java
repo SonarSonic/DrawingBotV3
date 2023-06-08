@@ -12,7 +12,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
-import drawingbot.javafx.settings.DrawingStylesSetting;
+import drawingbot.javafx.settings.custom.DrawingStylesSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;

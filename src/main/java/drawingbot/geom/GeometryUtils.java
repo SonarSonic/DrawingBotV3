@@ -116,7 +116,7 @@ public class GeometryUtils {
                 return lastGeometry.getOriginCoordinate().equals(element.getEndCoordinate());
             }
             if(lastGeometry instanceof GPath){
-                Coordinate coordinate = ((GPath) lastGeometry).getEndCoordinate();
+                Coordinate coordinate = lastGeometry.getEndCoordinate();
                 return ((float)coordinate.x) == element.getEndCoordinate().getX() && ((float)coordinate.y) == element.getEndCoordinate().getY();
             }
         }

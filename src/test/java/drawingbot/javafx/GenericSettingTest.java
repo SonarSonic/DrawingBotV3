@@ -276,6 +276,6 @@ public class GenericSettingTest extends TestCase {
         TEST2,
         TEST3,
         TEST4,
-        TEST5;
+        TEST5
     }
 }

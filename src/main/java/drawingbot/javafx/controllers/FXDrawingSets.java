@@ -3,7 +3,7 @@ package drawingbot.javafx.controllers;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingSets;
@@ -77,7 +77,7 @@ public class FXDrawingSets extends AbstractFXController {
     public ComboBox<EnumDistributionType> comboBoxDistributionType = null;
     public ComboBox<EnumDistributionOrder> comboBoxDistributionOrder = null;
 
-    public ComboBox<ColourSeperationHandler> comboBoxColourSeperation = null;
+    public ComboBox<ColourSeparationHandler> comboBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
@@ -87,7 +87,7 @@ public class FXDrawingSets extends AbstractFXController {
     public TableColumn<ObservableDrawingSet, ObservableList<ObservableDrawingPen>> drawingSetPensColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionType> drawingSetDistributionTypeColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionOrder> drawingSetDistributionOrderColumn = null;
-    public TableColumn<ObservableDrawingSet, ColourSeperationHandler> drawingSetColourSeperatorColumn = null;
+    public TableColumn<ObservableDrawingSet, ColourSeparationHandler> drawingSetColourSeperatorColumn = null;
     public TableColumn<ObservableDrawingSet, Integer> drawingSetShapesColumn = null;
     public TableColumn<ObservableDrawingSet, Integer> drawingSetPercentageColumn = null;
 

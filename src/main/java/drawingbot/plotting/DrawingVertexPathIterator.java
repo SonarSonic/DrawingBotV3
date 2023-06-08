@@ -29,7 +29,7 @@ public class DrawingVertexPathIterator implements PathIterator {
     private final WrappedIterator wrappedIterator;
 
     private int lastSegmentType = -1;
-    private double[] lastSegment = new double[6];
+    private final double[] lastSegment = new double[6];
 
     public DrawingVertexPathIterator(PlottedDrawing plottedDrawing, List<ObservableDrawingPen> renderOrder, @Nullable AffineTransform transform){
         this.transform = transform;

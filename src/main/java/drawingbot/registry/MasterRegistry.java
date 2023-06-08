@@ -3,7 +3,7 @@ package drawingbot.registry;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.*;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.AbstractJsonLoader;
@@ -15,7 +15,6 @@ import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
-import drawingbot.geom.fills.AbstractFillGenerator;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.shapes.JFXGeometryConverter;
 import drawingbot.image.kernels.IKernelFactory;
@@ -599,16 +598,16 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// COLOUR SPLITTERS \\\\
-    public ObservableList<ColourSeperationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
+    public ObservableList<ColourSeparationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
 
-    public ColourSeperationHandler registerColourSplitter(ColourSeperationHandler colourSplitter){
+    public ColourSeparationHandler registerColourSplitter(ColourSeparationHandler colourSplitter){
         DrawingBotV3.logger.fine("Registering Colour Splitter: " + colourSplitter.name);
         this.colourSplitterHandlers.add(colourSplitter);
         return colourSplitter;
     }
 
-    public ColourSeperationHandler getColourSplitter(String name){
-        for(ColourSeperationHandler colourSplitter : colourSplitterHandlers){
+    public ColourSeparationHandler getColourSplitter(String name){
+        for(ColourSeparationHandler colourSplitter : colourSplitterHandlers){
             if(colourSplitter.name.equals(name)){
                 return colourSplitter;
             }
