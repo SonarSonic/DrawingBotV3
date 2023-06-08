@@ -30,6 +30,8 @@ import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
+import drawingbot.javafx.settings.ImageSetting;
+import drawingbot.javafx.settings.custom.DirtyBorderSetting;
 import drawingbot.pfm.*;
 import drawingbot.plugins.*;
 import drawingbot.render.IDisplayMode;
@@ -304,9 +306,11 @@ public class Register implements IPlugin {
     @Override
     public void registerImageFilters(){
 
+        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.DirtyBorder.class, "Dirty Border", SimpleBorderFilter.DirtyBorder::new, false);
+        MasterRegistry.INSTANCE.registerImageFilterSetting(new DirtyBorderSetting<>(SimpleBorderFilter.DirtyBorder.class, Register.CATEGORY_UNIQUE, "Type", 1, 1, 13).setSetter((filter, value) -> filter.borderNumber = value).setRandomiseExclude(true));
 
-        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.class, "Dirty Border", SimpleBorderFilter::new, false);
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(SimpleBorderFilter.class, "Type", 1, 1, 13, (filter, value) -> filter.borderNumber = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.CustomBorder.class, "Custom Overlay", SimpleBorderFilter.CustomBorder::new, false);
+        MasterRegistry.INSTANCE.registerImageFilterSetting(new ImageSetting<>(SimpleBorderFilter.CustomBorder.class, Register.CATEGORY_UNIQUE, "Custom File", "").setSetter((filter, value) -> filter.borderFileName = value).setRandomiseExclude(true));
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
