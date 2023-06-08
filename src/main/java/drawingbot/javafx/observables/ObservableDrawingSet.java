@@ -47,6 +47,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         this.colourSeperator.set(Register.DEFAULT_COLOUR_SPLITTER);
 
         loadDrawingSet(source);
+        init();
     }
 
     private void init(){
