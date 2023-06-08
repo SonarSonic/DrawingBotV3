@@ -29,13 +29,13 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
 
     @Override
     public void registerPreset(GenericPreset<PresetImageFilters> preset) {
-        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.getPresetName());
         super.registerPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetImageFilters> preset) {
-        DrawingBotV3.logger.finest("Unregistering Image Filter Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Unregistering Image Filter Preset: " + preset.getPresetName());
         super.unregisterPreset(preset);
     }
 

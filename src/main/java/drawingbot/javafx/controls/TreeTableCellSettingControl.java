@@ -14,7 +14,7 @@ public class TreeTableCellSettingControl extends TreeTableCell<GenericSetting<?,
         } else {
             setText("");
             if(getTableRow() != null && getTableRow().getItem() != null){
-                setGraphic(getTableRow().getItem().getJavaFXNode(false));
+                setGraphic(getTableRow().getItem().getJavaFXEditor(false));
             }else{
                 setGraphic(null);
             }

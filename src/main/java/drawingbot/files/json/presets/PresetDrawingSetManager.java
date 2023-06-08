@@ -5,6 +5,8 @@ import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.registry.MasterRegistry;
+import javafx.collections.ObservableList;
 
 public abstract class PresetDrawingSetManager extends AbstractPresetManager<PresetDrawingSet> {
 
@@ -28,5 +30,15 @@ public abstract class PresetDrawingSetManager extends AbstractPresetManager<Pres
     public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset) {
         //TODO REMOVE ME!
         context.project().getDrawingSets().changeDrawingSet(preset.data);
+    }
+
+    @Override
+    public boolean isSubTypeEditable() {
+        return true;
+    }
+
+    @Override
+    public ObservableList<String> getObservableCategoryList() {
+        return MasterRegistry.INSTANCE.registeredDrawingSetCategories;
     }
 }

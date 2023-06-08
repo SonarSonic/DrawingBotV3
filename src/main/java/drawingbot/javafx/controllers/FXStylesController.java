@@ -243,7 +243,7 @@ public class FXStylesController extends AbstractFXController {
         });
 
 
-        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, Register.PRESET_LOADER_PFM::getDefaultManager, false, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, Register.PRESET_LOADER_PFM::getDefaultManager, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering

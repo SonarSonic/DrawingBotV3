@@ -46,4 +46,5 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingBottom", 0F, i -> i.drawingAreaPaddingBottom).setValidator(Math::abs).setDisplayName("Padding Bottom"));
         registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "targetPenWidth", 0.3F, i -> i.targetPenWidth).setValidator(Math::abs).setDisplayName("Target pen width"));
     }
+
 }

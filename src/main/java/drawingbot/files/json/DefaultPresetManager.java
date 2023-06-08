@@ -5,10 +5,13 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.TreeNode;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extends AbstractPresetManager<O> {
 
@@ -67,7 +70,6 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
         I instance = getInstance(context);
         if(instance != null) {
             GenericSetting.applySettings(preset.data.settings, settings);
-
             List<GenericSetting<?, ?>> toApply = settings;
             if (changesOnly) {
                 toApply = GenericSetting.filterSettings(toApply, preset.data.settings.keySet());
@@ -84,5 +86,21 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
                 }
             }
         }
+    }
+
+    @Override
+    public void addEditDialogElements(GenericPreset<O> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<O>>> callbacks) {
+        super.addEditDialogElements(preset, builder, callbacks);
+        /* TODO - Display specific settings in the preset dialog
+        builder.add(new LabelNode("Settings").setTitleStyling());
+        GenericSetting.applySettings(preset.data.settings, getSettings());
+        for(GenericSetting<?, ?> setting : getSettings()){
+            builder.add(new SettingNode(setting));
+        }
+        callbacks.add(save -> {
+            save.data.settings = GenericSetting.toJsonMap(getSettings(), new HashMap<>(), false);
+        });
+
+         */
     }
 }

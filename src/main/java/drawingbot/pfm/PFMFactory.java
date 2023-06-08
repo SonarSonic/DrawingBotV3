@@ -18,6 +18,7 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
     public boolean bypassOptimisation = false;
     public boolean transparentColourSeperation = true;
     public EnumReleaseState releaseState = EnumReleaseState.RELEASE;
+    public boolean isNewFeature = false;
     public boolean isGenerative = false;
     public boolean isLayered = false;
     public boolean isComposite = false;
@@ -136,6 +137,16 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
 
     public PFMFactory<C> setReleaseState(EnumReleaseState releaseState) {
         this.releaseState = releaseState;
+        return this;
+    }
+
+    @Override
+    public boolean isNewFeature() {
+        return isNewFeature;
+    }
+
+    public PFMFactory<C> setNewFeature(boolean newFeature) {
+        this.isNewFeature = newFeature;
         return this;
     }
 

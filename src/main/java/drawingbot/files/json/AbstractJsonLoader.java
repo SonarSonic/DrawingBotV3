@@ -100,6 +100,7 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public final GenericPreset<O> createNewPreset(String presetSubType, String presetName, boolean userCreated) {
         GenericPreset<O> preset = new GenericPreset<>(getVersion(), type, presetSubType, presetName, userCreated);
         preset.data = getPresetInstance(preset);
+        preset.presetLoader = this;
         return preset;
     }
 
@@ -139,6 +140,10 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     public abstract JsonElement toJsonElement(Gson gson, GenericPreset<?> preset);
 
     public abstract O fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element);
+
+    public O duplicateData(Gson gson, GenericPreset<O> preset){
+        return fromJsonElement(gson, preset, toJsonElement(gson, preset));
+    }
 
     public final void queueJsonUpdate() {
         //run later to prevent json update happen before services have been created

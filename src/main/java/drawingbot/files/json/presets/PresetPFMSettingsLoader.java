@@ -39,13 +39,13 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public void registerPreset(GenericPreset<PresetPFMSettings> preset) {
-        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.getPresetName());
         super.registerPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetPFMSettings> preset) {
-        DrawingBotV3.logger.finest("Unregistering PFM Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Unregistering PFM Preset: " + preset.getPresetName());
         super.unregisterPreset(preset);
     }
 
@@ -66,6 +66,5 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
         }
         return userCreated;
     }
-
 
 }

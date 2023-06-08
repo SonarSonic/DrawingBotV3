@@ -13,6 +13,8 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.DialogGenericRename;
+import drawingbot.javafx.controls.DialogImageFilter;
+import drawingbot.javafx.controls.DialogPresetEdit;
 import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.settings.AbstractNumberSetting;
@@ -36,7 +38,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
@@ -207,9 +208,9 @@ public class FXHelper {
                 AbstractPresetManager<IJsonData> manager = loader == null ? null : loader.getDefaultManager();
 
                 if(manager != null){
-                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.presetName, file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset)));
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset)));
                 }else{
-                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.presetName, file.toString());
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString());
                 }
 
             }
@@ -291,7 +292,7 @@ public class FXHelper {
             JsonLoaderManager.exportPresetFile(file, preset);
 
             if(showDialog){
-                NotificationOverlays.INSTANCE.showWithSubtitle("Preset Exported: " + preset.presetName, file.toString(), new Action("Open Folder", event -> openFolder(file.getParentFile())));
+                NotificationOverlays.INSTANCE.showWithSubtitle("Preset Exported: " + preset.getPresetName(), file.toString(), new Action("Open Folder", event -> openFolder(file.getParentFile())));
                 /*
                 DialogExportPreset exportPreset = new DialogExportPreset(preset, file);
                 Optional<Boolean> openFolder = exportPreset.showAndWait();
@@ -310,7 +311,7 @@ public class FXHelper {
         Gson gson = JsonLoaderManager.createDefaultGson();
         JsonElement element = loader.toJsonElement(gson, preset);
 
-        GenericPreset<IJsonData> copy = loader.createNewPreset(preset.presetSubType, preset.presetName, preset.userCreated);
+        GenericPreset<IJsonData> copy = loader.createNewPreset(preset.getPresetSubType(), preset.getPresetName(), preset.userCreated);
         copy.data = loader.fromJsonElement(gson, copy, element);
         return (GenericPreset<D>) copy;
     }
@@ -376,9 +377,9 @@ public class FXHelper {
     }
 
     @Deprecated
-    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
+    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
 
-        MenuItem newPreset = new MenuItem("Save Preset");
+        MenuItem newPreset = new MenuItem("New Preset");
         newPreset.setOnAction(e -> {
             GenericPreset<O> editingPreset = loader.createNewPreset();
             if(editingPreset == null){
@@ -386,10 +387,8 @@ public class FXHelper {
             }
             editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
             if(editingPreset != null){
-                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
-                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
-                Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
-                if(result.isPresent()){
+                boolean result = DialogPresetEdit.openPresetEditDialog(editingPreset);
+                if(result){
                     loader.tryEditPreset(editingPreset);
                     loader.trySavePreset(editingPreset);
                     setter.accept(editingPreset);
@@ -403,35 +402,28 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            String originalName = current.presetName;
             boolean isDefault = current == loader.getDefaultPreset();
             GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
             if(preset != null){
                 setter.accept(preset);
-
-                if(isDefault && !originalName.equals(preset.presetName)){
+                if(isDefault){
                     MasterRegistry.INSTANCE.setDefaultPreset(preset);
                 }
             }
         });
 
-        MenuItem renamePreset = new MenuItem("Rename Preset");
+        MenuItem renamePreset = new MenuItem("Edit Preset");
         renamePreset.setOnAction(e -> {
             GenericPreset<O> current = getter.get();
             if(current == null || !current.userCreated){
                 return;
             }
-            String originalName = current.presetName;
             boolean isDefault = current == loader.getDefaultPreset();
-
-            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current, editableCategory);
-            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Rename preset");
-            Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
-            if(result.isPresent()){
+            boolean result = DialogPresetEdit.openPresetEditDialog(current);
+            if(result){
                 loader.tryEditPreset(current);
                 setter.accept(current);
-
-                if(isDefault && !originalName.equals(current.presetName)){
+                if(isDefault){
                     MasterRegistry.INSTANCE.setDefaultPreset(current);
                 }
             }
@@ -459,7 +451,7 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
+            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.getPresetName(), true);
         });
 
         MenuItem setDefault = new MenuItem("Set As Default");
@@ -479,9 +471,11 @@ public class FXHelper {
         return button;
     }
 
+
+
     public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
 
-        MenuItem newPreset = new MenuItem("Save Preset");
+        MenuItem newPreset = new MenuItem("New Preset");
         newPreset.setOnAction(e -> {
             GenericPreset<O> editingPreset = loader.createNewPreset();
             if(editingPreset == null){
@@ -489,10 +483,8 @@ public class FXHelper {
             }
             editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
             if(editingPreset != null){
-                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(editingPreset, editableCategory);
-                DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Save new preset");
-                Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
-                if(result.isPresent()){
+                boolean result = DialogPresetEdit.openPresetEditDialog(editingPreset);
+                if(result){
                     loader.tryEditPreset(editingPreset);
                     loader.trySavePreset(editingPreset);
                     property.setValue(editingPreset);
@@ -506,35 +498,28 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            String originalName = current.presetName;
             boolean isDefault = current == loader.getDefaultPreset();
             GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
             if(preset != null){
                 property.setValue(preset);
-
-                if(isDefault && !originalName.equals(preset.presetName)){
+                if(isDefault){
                     MasterRegistry.INSTANCE.setDefaultPreset(preset);
                 }
             }
         });
 
-        MenuItem renamePreset = new MenuItem("Rename Preset");
+        MenuItem renamePreset = new MenuItem("Edit Preset");
         renamePreset.setOnAction(e -> {
             GenericPreset<O> current = property.getValue();
             if(current == null || !current.userCreated){
                 return;
             }
-            String originalName = current.presetName;
             boolean isDefault = current == loader.getDefaultPreset();
-
-            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setEditingPreset(current, editableCategory);
-            DrawingBotV3.INSTANCE.controller.presetEditorDialog.setTitle("Rename preset");
-            Optional<GenericPreset<?>> result = DrawingBotV3.INSTANCE.controller.presetEditorDialog.showAndWait();
-            if(result.isPresent()){
+            boolean result = DialogPresetEdit.openPresetEditDialog(current);
+            if(result){
                 loader.tryEditPreset(current);
                 property.setValue(current);
-
-                if(isDefault && !originalName.equals(current.presetName)){
+                if(isDefault){
                     MasterRegistry.INSTANCE.setDefaultPreset(current);
                 }
             }
@@ -562,7 +547,7 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.presetName, true);
+            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.getPresetName(), true);
         });
 
         MenuItem setDefault = new MenuItem("Set As Default");
@@ -663,14 +648,15 @@ public class FXHelper {
 
     public static void openImageFilterDialog(ObservableImageFilter filter){
         if(filter != null){
-            Dialog<ObservableImageFilter> dialog = MasterRegistry.INSTANCE.getDialogForFilter(filter);
-            Optional<ObservableImageFilter> result = dialog.showAndWait();
-            //TODO MAKE DIALOG APPEAR ON THE CORRECT DISPLAY
-            if(result.isPresent()){
-                if(result.get() != filter){ //if the dialog was cancelled copy the settings of the original
-                    GenericSetting.applySettings(result.get().filterSettings, filter.filterSettings);
-                    DrawingBotV3.project().onImageFilterChanged(filter);
-                }
+
+            //Copy the original filter so we can restore it if needed
+            ObservableImageFilter original = new ObservableImageFilter(filter);
+
+            DialogImageFilter dialog = new DialogImageFilter(filter);
+            Optional<Boolean> result = dialog.showAndWait();
+            if(result.isPresent() && !result.get()){ //if the dialog was cancelled copy the settings of the original
+                GenericSetting.applySettings(original.filterSettings, filter.filterSettings);
+                DrawingBotV3.project().onImageFilterChanged(filter);
             }
         }
     }
@@ -692,7 +678,7 @@ public class FXHelper {
         for(GenericSetting<?, ?> setting : settings){
             Label label = new Label(setting.getKey() + ": ");
             label.setAlignment(Pos.TOP_LEFT);
-            Node node = setting.getJavaFXNode(true);
+            Node node = setting.getJavaFXEditor(true);
             node.minWidth(200);
             node.prefHeight(30);
 

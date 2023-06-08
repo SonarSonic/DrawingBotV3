@@ -47,8 +47,8 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<PresetDrawingPe
     @Override
     public void onPresetEdited(GenericPreset<PresetDrawingPen> preset) {
         super.onPresetEdited(preset);
-        preset.data.type = preset.presetSubType;
-        preset.data.name = preset.presetName;
+        preset.data.type = preset.getPresetSubType();
+        preset.data.name = preset.getPresetName();
     }
 
     @Override

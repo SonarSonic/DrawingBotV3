@@ -8,38 +8,38 @@ import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.IJsonData;
+import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.shapes.JFXGeometryConverter;
 import drawingbot.image.kernels.IKernelFactory;
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.controls.DialogImageFilter;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.TreeNode;
 import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.overlays.AbstractOverlay;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.Metadata;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.scene.control.Dialog;
+import javafx.collections.transformation.FilteredList;
+import org.fxmisc.easybind.EasyBind;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MasterRegistry {
@@ -121,20 +121,20 @@ public class MasterRegistry {
         Collection<GenericPreset<O>> presets = jsonLoader.type.defaultsPerSubType ? jsonLoader.getPresetsForSubType(presetSubType) : jsonLoader.getAllPresets();
         String defaultName = getDefaultPresetName(jsonLoader.type, presetSubType);
         if(defaultName != null){
-            GenericPreset<O> preset = presets.stream().filter(p -> p.presetName.equals(defaultName) && (presetSubType.isEmpty() || p.presetSubType.equals(presetSubType))).findFirst().orElse(null);
+            GenericPreset<O> preset = presets.stream().filter(p -> p.getPresetName().equals(defaultName) && (presetSubType.isEmpty() || p.getPresetSubType().equals(presetSubType))).findFirst().orElse(null);
             if(preset != null){
                 return preset;
             }
         }
         if(fallbackName != null && !fallbackName.isEmpty()){
-            GenericPreset<O> preset = presets.stream().filter(p -> p.presetName.equals(fallbackName) && (fallbackSubType.isEmpty() || p.presetSubType.equals(fallbackSubType))).findFirst().orElse(null);
+            GenericPreset<O> preset = presets.stream().filter(p -> p.getPresetName().equals(fallbackName) && (fallbackSubType.isEmpty() || p.getPresetSubType().equals(fallbackSubType))).findFirst().orElse(null);
             if(preset != null){
                 return preset;
             }
         }
 
         if(orFirst){
-            return presets.stream().filter(p -> (presetSubType.isEmpty() || p.presetSubType.equals(presetSubType))).findFirst().orElse(null);
+            return presets.stream().filter(p -> (presetSubType.isEmpty() || p.getPresetSubType().equals(presetSubType))).findFirst().orElse(null);
         }
 
         return null;
@@ -142,9 +142,9 @@ public class MasterRegistry {
 
     public void setDefaultPreset(GenericPreset<?> preset){
         if(preset.presetType.defaultsPerSubType){
-            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id + ":" + preset.presetSubType, preset.presetName);
+            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id + ":" + preset.getPresetSubType(), preset.getPresetName());
         }else{
-            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id, preset.presetName);
+            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id, preset.getPresetName());
         }
     }
 
@@ -165,8 +165,12 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PATH FINDING MODULES \\\\
-    public List<PFMFactory> pfmFactories = new ArrayList<>();
-    public HashMap<PFMFactory, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
+    public ObservableList<PFMFactory<?>> pfmFactories = FXCollections.observableArrayList();
+    public ObservableList<String> pfmCategories = FXCollections.observableArrayList();
+    public HashMap<PFMFactory<?>, ObservableList<GenericSetting<?, ?>>> pfmSettings = new LinkedHashMap<>();
+    {
+        pfmCategories.add("All");
+    }
 
     public PFMFactory<?> getDefaultPFM(){
         return pfmFactories.stream().filter(factory -> factory.getRegistryName().equals(DBPreferences.INSTANCE.defaultPFM.get())).findFirst().orElseGet(() -> pfmFactories.stream().filter(factory -> factory.getRegistryName().equals("Sketch Lines PFM")).findFirst().orElse(null));
@@ -201,7 +205,7 @@ public class MasterRegistry {
 
     public void registerMissingDefaultPFMPresets(){
         for(PFMFactory<?> pfm : pfmFactories){
-            if(getObservablePFMPresetList(pfm) == null || getObservablePFMPresetList(pfm).stream().noneMatch(preset -> preset.presetName.equals("Default"))){
+            if(getObservablePFMPresetList(pfm) == null || getObservablePFMPresetList(pfm).stream().noneMatch(preset -> preset.getPresetName().equals("Default"))){
                 Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(pfm.getRegistryName(), "Default", false));
 
                 // Move the default preset to the front of the displayed list
@@ -215,6 +219,9 @@ public class MasterRegistry {
         DrawingBotV3.logger.fine("Registering PFM: " + name);
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, category, create);
         pfmFactories.add(factory);
+        if(!pfmCategories.contains(category)){
+            pfmCategories.add(category);
+        }
         return factory;
     }
 
@@ -277,6 +284,19 @@ public class MasterRegistry {
         }
     }
 
+    public ObservableList<PFMFactory<?>> getFilteredObservablePFMLoaderList(ObjectProperty<String> category){
+        FilteredList<PFMFactory<?>> filteredList = new FilteredList<>(pfmFactories);
+        EasyBind.subscribe(category, s -> {
+            filteredList.setPredicate(f -> {
+                if(!f.isHidden() || FXApplication.isDeveloperMode){
+                    return category.get().equals("All") || f.category.equals(category.get());
+                }
+                return false;
+            });
+        });
+        return filteredList;
+    }
+
     public ObservableList<PFMFactory<?>> getObservablePFMLoaderList(){
         ObservableList<PFMFactory<?>> list = FXCollections.observableArrayList();
         for(PFMFactory<?> loader : pfmFactories){
@@ -307,6 +327,7 @@ public class MasterRegistry {
 
     //// DRAWING PENS \\\\
     public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
+    public ObservableList<String> registeredPenCategories = FXCollections.observableArrayList();
 
     public String getDefaultPenCode(){
         return "Copic Original:100 Black";
@@ -339,6 +360,9 @@ public class MasterRegistry {
         }
         registeredPens.putIfAbsent(pen.getType(), FXCollections.observableArrayList());
         registeredPens.get(pen.getType()).add(pen);
+        if(!registeredPenCategories.contains(pen.getType())){
+            registeredPenCategories.add(pen.getType());
+        }
     }
 
     public void unregisterDrawingPen(DrawingPen pen){
@@ -347,6 +371,7 @@ public class MasterRegistry {
         pens.remove(pen);
         if(pens.isEmpty()){
             registeredPens.remove(pen.getType());
+            registeredPenCategories.remove(pen.getType());
         }
     }
 
@@ -380,6 +405,7 @@ public class MasterRegistry {
 
     //// DRAWING SETS \\\\
     public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
+    public ObservableList<String> registeredDrawingSetCategories = FXCollections.observableArrayList();
 
     public String getDefaultSetCode(){
         return "Copic:Dark Greys";
@@ -412,6 +438,9 @@ public class MasterRegistry {
         }
         registeredSets.putIfAbsent(penSet.getType(), FXCollections.observableArrayList());
         registeredSets.get(penSet.getType()).add(penSet);
+        if(!registeredDrawingSetCategories.contains(penSet.getType())){
+            registeredDrawingSetCategories.add(penSet.getType());
+        }
     }
 
     public void unregisterDrawingSet(IDrawingSet<IDrawingPen> penSet){
@@ -420,6 +449,7 @@ public class MasterRegistry {
         sets.remove(penSet);
         if(sets.isEmpty()){
             registeredSets.remove(penSet.getType());
+            registeredDrawingSetCategories.remove(penSet.getType());
         }
     }
 
@@ -443,7 +473,7 @@ public class MasterRegistry {
     public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
     public HashMap<Class<? extends BufferedImageOp>, List<GenericSetting<?, ?>>> imgFilterSettings = new LinkedHashMap<>();
 
-    public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
+    //public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
 
     public EnumFilterTypes getDefaultImageFilterType(){
         return EnumFilterTypes.COLOURS;
@@ -470,11 +500,13 @@ public class MasterRegistry {
         imgFilterSettings.get(setting.clazz).add(setting);
     }
 
+    /*
     public void registerImageFilterDialog(Class<BufferedImageOp> filterClass, Function<ObservableImageFilter, Dialog<ObservableImageFilter>> dialog){
         DrawingBotV3.logger.finest("Registering Image Filter Dialog: " + filterClass);
         imgFilterSettings.putIfAbsent(filterClass, new ArrayList<>());
         imgFilterDialogs.put(filterClass, dialog);
     }
+     */
 
     /**
      * @param name the image filters name
@@ -523,10 +555,12 @@ public class MasterRegistry {
      * @param filter the observable image filter
      * @return the pop-up dialog for editing the given image filter
      */
+    /*
     public Dialog<ObservableImageFilter> getDialogForFilter(ObservableImageFilter filter){
         Function<ObservableImageFilter, Dialog<ObservableImageFilter>> func = MasterRegistry.INSTANCE.imgFilterDialogs.get(filter.filterFactory.getInstanceClass());
-        return func == null ? new DialogImageFilter(filter) : func.apply(filter);
+        return func == null ? new DialogImageFilterOld(filter) : func.apply(filter);
     }
+     */
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -645,7 +679,7 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PROJECT DATA LOADER \\\\
-    private Map<String, PresetDataLoader<PresetProjectSettings>> projectDataLoadersMap = new HashMap<>();
+    private final Map<String, PresetDataLoader<PresetProjectSettings>> projectDataLoadersMap = new HashMap<>();
     public List<PresetDataLoader<PresetProjectSettings>> projectDataLoaders = new ArrayList<>();
 
     public void registerProjectDataLoader(PresetDataLoader<PresetProjectSettings> loader){
@@ -718,48 +752,30 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PREFERENCES \\\\
-    public FXPreferences.TreeNode root = FXPreferences.root();
+    public TreeNode root = Editors.root();
 
-    public void registerPreferencesPage(FXPreferences.TreeNode treeNode){
+    public void registerPreferencesPage(TreeNode treeNode){
         registerPreferencesPage("", treeNode);
     }
 
-    public void registerPreferencesPage(String breadcrumb, FXPreferences.TreeNode treeNode){
+    public void registerPreferencesPage(String breadcrumb, TreeNode treeNode){
         if(!breadcrumb.isEmpty()){
             String[] pages = breadcrumb.split("#");
-            FXPreferences.TreeNode parentPage = root;
+            TreeNode parentPage = root;
             pages: for(String pageName : pages){
-                for(FXPreferences.TreeNode child : parentPage.getChildren()){
+                for(TreeNode child : parentPage.getChildren()){
                     if(child.getName().equals(pageName)){
                         parentPage = child;
                         continue pages;
                     }
                 }
-                parentPage.getChildren().add(parentPage = FXPreferences.node(pageName));
+                parentPage.getChildren().add(parentPage = Editors.node(pageName));
             }
             parentPage.getChildren().add(treeNode);
         }else{
             root.getChildren().add(treeNode);
         }
 
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// FILL GENERATORS \\\\
-    public ObservableList<GenericFactory<? extends AbstractFillGenerator>> fillGeneratorFactories = FXCollections.observableArrayList();
-    public HashMap<Class<? extends AbstractFillGenerator>, List<GenericSetting<?, ?>>> fillGeneratorSettings = new LinkedHashMap<>();
-
-    public <I extends AbstractFillGenerator> void registerFillGenerator(Class<I> generatorClass, String name, Supplier<I> create, boolean isHidden) {
-        DrawingBotV3.logger.fine("Registering Fill Generator: " + name);
-        fillGeneratorFactories.add(new GenericFactory<>(generatorClass, name, create, isHidden));
-    }
-
-    public <I extends AbstractFillGenerator> void registerFillGeneratorSetting(GenericSetting<? extends AbstractFillGenerator, ?> setting) {
-        DrawingBotV3.logger.finest("Registering Fill Generator Setting: " + setting.getKey());
-        fillGeneratorSettings.putIfAbsent(setting.clazz, new ArrayList<>());
-        fillGeneratorSettings.get(setting.clazz).add(setting);
     }
 
 }

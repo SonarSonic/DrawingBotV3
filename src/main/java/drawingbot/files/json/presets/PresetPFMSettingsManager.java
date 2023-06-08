@@ -4,12 +4,15 @@ import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.TreeNode;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import javafx.beans.property.Property;
 import javafx.collections.ObservableList;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class PresetPFMSettingsManager extends AbstractPresetManager<PresetPFMSettings> {
 
@@ -26,7 +29,7 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
         PFMFactory<?> pfm = pfmProperty(context).getValue();
         ObservableList<GenericSetting<?, ?>> settings = settingProperty(context).getValue();
         if(pfm != null && settings != null) {
-            preset.presetSubType = pfm.getRegistryName();
+            preset.setPresetSubType(pfm.getRegistryName());
             preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
         }
         return preset;
@@ -34,9 +37,33 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
 
     @Override
     public void applyPreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset) {
-        pfmProperty(context).setValue(MasterRegistry.INSTANCE.getPFMFactory(preset.presetSubType));
+        pfmProperty(context).setValue(MasterRegistry.INSTANCE.getPFMFactory(preset.getPresetSubType()));
         Property<ObservableList<GenericSetting<?, ?>>> settings = settingProperty(context);
         GenericSetting.applySettings(preset.data.settingList, settings.getValue());
     }
 
+    @Override
+    public void addEditDialogElements(GenericPreset<PresetPFMSettings> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<PresetPFMSettings>>> callbacks) {
+        super.addEditDialogElements(preset, builder, callbacks);
+
+        /*
+
+        builder.add(new LabelNode("Settings").setTitleStyling());
+        List<GenericSetting<?, ?>> tempSettings = MasterRegistry.INSTANCE.getNewPFMSettingsList(MasterRegistry.INSTANCE.getPFMFactory(preset.getPresetSubType()));
+
+        for(GenericSetting<?, ?> setting : tempSettings){
+            if(setting.getBindingFactory() != null){
+                setting.getBindingFactory().accept(setting, tempSettings);
+            }
+        }
+        GenericSetting.applySettings(preset.data.settingList, tempSettings);
+        for(GenericSetting<?, ?> setting :tempSettings){
+            builder.add(new SettingNode(setting));
+        }
+        callbacks.add(save -> {
+            save.data.settingList = GenericSetting.toJsonMap(tempSettings, new HashMap<>(), false);
+        });
+
+         */
+    }
 }

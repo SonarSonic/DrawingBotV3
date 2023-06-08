@@ -102,7 +102,7 @@ public class DBPreferences implements ISettings {
     public final OptionSetting<?, UnitsLength> lineSortingUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineSortingUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 
     public final BooleanSetting<?> multipassEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "multipassEnabled", false));
-    public final IntegerSetting<?> multipassCount = register(createRangedIntSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "multipassCount", 1, 1, 100));
+    public final IntegerSetting<?> multipassCount = (IntegerSetting<?>) register(createRangedIntSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "multipassCount", 1, 1, 100)).setDisplaySlider(false);
 
     ///////////////////////////////////////////////
 
@@ -124,7 +124,7 @@ public class DBPreferences implements ISettings {
     //// NOTIFICATIONS \\\\
 
     public final BooleanSetting<?> notificationsEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "notificationsEnabled", true));
-    public final IntegerSetting<?> notificationsScreenTime = register(createRangedIntSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "notificationsScreenTime", 7, 0, 1000));
+    public final IntegerSetting<?> notificationsScreenTime = (IntegerSetting<?>) register(createRangedIntSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "notificationsScreenTime", 7, 0, 1000)).setDisplaySlider(false);
 
     ///////////////////////////////////////////////
 
@@ -137,7 +137,7 @@ public class DBPreferences implements ISettings {
 
     //// IMAGE SETTINGS \\\\
 
-    public final DoubleSetting<?> exportDPI = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "exportDPI", 300D, 1D, Short.MAX_VALUE));
+    public final DoubleSetting<?> exportDPI = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "exportDPI", 300D, 1D, Short.MAX_VALUE)).setDisplaySlider(false);
     public final BooleanSetting<?> transparentPNG = register(createBooleanSetting(DBPreferences.class, CATEGORY_IMAGE, "transparentPNG", false));
 
     //// GCODE SETTINGS \\\\
@@ -181,7 +181,7 @@ public class DBPreferences implements ISettings {
     }
 
     public void setDefaultPreset(GenericPreset<?> preset){
-        setDefaultPreset(preset.presetType, preset.presetSubType, preset.presetName);
+        setDefaultPreset(preset.presetType, preset.getPresetSubType(), preset.getPresetName());
     }
 
     public void setDefaultPreset(PresetType type, String subtype, String value){

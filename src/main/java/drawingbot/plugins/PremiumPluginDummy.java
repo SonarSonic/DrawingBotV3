@@ -93,10 +93,10 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Segments", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Segments", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "SVG Converter", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
     }

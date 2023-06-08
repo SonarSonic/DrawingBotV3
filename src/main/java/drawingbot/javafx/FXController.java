@@ -14,7 +14,6 @@ import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controllers.*;
 import drawingbot.javafx.controls.ContextMenuObservableProject;
 import drawingbot.javafx.controls.DialogPremiumFeature;
-import drawingbot.javafx.controls.DialogPresetRename;
 import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
@@ -165,8 +164,6 @@ public class FXController extends AbstractFXController {
     public VBox vBoxRightContainer;
     public ScrollPane scrollPaneSettingsRight = null;
     public VBox vBoxSettingsRight = null;
-
-    public DialogPresetRename presetEditorDialog = new DialogPresetRename();
 
     public void initGlobals(){
         FXHelper.makePersistent(splitPane);

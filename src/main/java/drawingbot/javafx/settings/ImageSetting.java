@@ -40,6 +40,8 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
         this.imageView.get().imageProperty().bind(thumbnail);
         this.imageView.get().preserveRatioProperty().set(true);
+        this.imageView.get().setFitWidth(400);
+        this.imageView.get().setFitHeight(400);
         //this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty()); //TODO CHECK ME!
 
         Button button = new Button("Select Image");
@@ -57,6 +59,7 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
         });
 
         VBox vBox = new VBox();
+        vBox.setSpacing(4);
         vBox.getChildren().add(button);
         vBox.getChildren().add(imageView.get());
 

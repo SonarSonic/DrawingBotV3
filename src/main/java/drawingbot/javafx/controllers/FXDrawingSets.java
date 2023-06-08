@@ -169,7 +169,7 @@ public class FXDrawingSets extends AbstractFXController {
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
         //TODO SIMPLIFY ?
-        FXHelper.setupPresetMenuButton(menuButtonDrawingSetPresets, Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager, true,
+        FXHelper.setupPresetMenuButton(menuButtonDrawingSetPresets, Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager,
                 () -> {
                     if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
                         PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
@@ -182,7 +182,7 @@ public class FXDrawingSets extends AbstractFXController {
                     comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
                     comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
                     if(preset != null){
-                        comboBoxSetType.setValue(preset.presetSubType);
+                        comboBoxSetType.setValue(preset.getPresetSubType());
                         comboBoxDrawingSet.setValue(preset.data);
                     }
             /*
@@ -265,7 +265,7 @@ public class FXDrawingSets extends AbstractFXController {
 
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
-        FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager, true,
+        FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager,
                 () -> {
                     if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
                         PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();
@@ -279,7 +279,7 @@ public class FXDrawingSets extends AbstractFXController {
                     comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
                     if(preset != null){
-                        comboBoxPenType.setValue(preset.presetSubType);
+                        comboBoxPenType.setValue(preset.getPresetSubType());
                         comboBoxDrawingPen.setValue(preset.data);
                     }else{
                         comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());

@@ -29,7 +29,7 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
 
     @Override
     public PresetDrawingSet getPresetInstance(GenericPreset<PresetDrawingSet> preset) {
-        return new PresetDrawingSet(preset.presetSubType, preset.presetName, new ArrayList<>(), preset);
+        return new PresetDrawingSet(preset.getPresetSubType(), preset.getPresetName(), new ArrayList<>(), preset);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
     @Override
     public void onPresetEdited(GenericPreset<PresetDrawingSet> preset) {
         super.onPresetEdited(preset);
-        preset.data.type = preset.presetSubType;
-        preset.data.name = preset.presetName;
+        preset.data.type = preset.getPresetSubType();
+        preset.data.name = preset.getPresetName();
     }
 
     @Override

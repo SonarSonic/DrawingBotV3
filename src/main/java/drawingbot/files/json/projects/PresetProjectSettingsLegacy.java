@@ -2,7 +2,7 @@ package drawingbot.files.json.projects;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.files.json.presets.PresetDrawingArea;
 import drawingbot.files.json.presets.PresetDrawingSet;
 import drawingbot.files.json.presets.PresetImageFilters;
@@ -35,7 +35,7 @@ public class PresetProjectSettingsLegacy extends PresetProjectSettings {
     public float targetPenWidth;
 
     public GenericPreset<PresetDrawingSet> drawingSet; //legacy
-    public ColourSeperationHandler colourSplitter;
+    public ColourSeparationHandler colourSplitter;
     public EnumDistributionType distributionType;
     public EnumDistributionOrder distributionOrder;
 

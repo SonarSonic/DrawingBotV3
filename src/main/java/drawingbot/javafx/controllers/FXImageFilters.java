@@ -11,6 +11,7 @@ import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.controls.ComboCellNamedSetting;
 import drawingbot.javafx.controls.ContextMenuObservableFilter;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
@@ -94,6 +95,7 @@ public class FXImageFilters extends AbstractFXController {
 
         comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
         comboBoxImageFilterPreset.valueProperty().bindBidirectional(selectedImagePreset);
+        comboBoxImageFilterPreset.setCellFactory(param -> new ComboCellNamedSetting<>());
 
         FXHelper.setupPresetMenuButton(menuButtonFilterPresets, Register.PRESET_LOADER_FILTERS, this::getImageFiltersPresetManager, false, selectedImagePreset);
 

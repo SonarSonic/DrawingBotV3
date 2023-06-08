@@ -53,7 +53,7 @@ class PresetProjectSettingsManagerLegacy {
         GenericPreset<PresetPFMSettings> presetPFMSettings = Register.PRESET_LOADER_PFM.createNewPreset();
         Register.PRESET_LOADER_PFM.getDefaultManager().updatePreset(context, presetPFMSettings);
         presetData.pfmSettings = presetPFMSettings;
-        presetData.name = presetData.pfmSettings.presetSubType;
+        presetData.name = presetData.pfmSettings.getPresetSubType();
 
         GenericPreset<PresetDrawingSet> presetDrawingSet = Register.PRESET_LOADER_DRAWING_SET.createNewPreset();
         Register.PRESET_LOADER_DRAWING_SET.getDefaultManager().updatePreset(context, presetDrawingSet);

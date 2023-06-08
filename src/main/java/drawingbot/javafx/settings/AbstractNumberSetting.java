@@ -17,6 +17,8 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
     public V majorTick;
     public boolean snapToTicks;
 
+    public boolean displaySlider = true;
+
     protected AbstractNumberSetting(AbstractNumberSetting<C, V> toCopy, V newValue) {
         super(toCopy, newValue);
         this.isRanged = toCopy.isRanged;
@@ -58,9 +60,19 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         return this;
     }
 
+    public AbstractNumberSetting<C, V> setDisplaySlider(boolean displaySlider) {
+        this.displaySlider = displaySlider;
+        return this;
+    }
+
+    @Override
+    public boolean hasCustomEditor() {
+        return isRanged; //Only show the slider for ranged Number Settings
+    }
+
     @Override
     public Node createJavaFXNode(boolean label) {
-        if(!isRanged){
+        if(!isRanged || !displaySlider){
             return getEditableTextField();
         }
 

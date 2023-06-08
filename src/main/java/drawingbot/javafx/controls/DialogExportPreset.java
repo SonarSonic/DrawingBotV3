@@ -22,8 +22,8 @@ public class DialogExportPreset extends Dialog<Boolean> {
         TextFlow flow = new TextFlow();
 
         FXHelper.addText(flow, 14, "bold", "Successfully exported preset");
-        FXHelper.addText(flow, 14, "normal", "\n" + "Preset Name: " + preset.presetName);
-        FXHelper.addText(flow, 14, "normal", "\n" + "Preset Sub Type: " + preset.presetSubType);
+        FXHelper.addText(flow, 14, "normal", "\n" + "Preset Name: " + preset.getPresetName());
+        FXHelper.addText(flow, 14, "normal", "\n" + "Preset Sub Type: " + preset.getPresetSubType());
         FXHelper.addText(flow, 14, "normal", "\n" + "Preset Type: " + preset.presetType.id);
 
         setGraphic(flow);

@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import drawingbot.DrawingBotV3;
-import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
 import drawingbot.registry.Register;
 import drawingbot.utils.SpecialListenable;
@@ -351,6 +350,17 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     ////////////////////////////////
 
+    private TextFormatter<V> textFormatter;
+
+    public TextFormatter<V> getTextFormatter() {
+        if (textFormatter != null) {
+            return textFormatter;
+        }
+        return textFormatter = new TextFormatter<V>(getStringConverter(), getDefaultValue());
+    }
+
+    ////////////////////////////////
+
     @Nullable
     private BiConsumer<C, V> setter; //the setter sets the value in the instance
 
@@ -585,10 +595,14 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return true;
     }
 
+    public boolean hasCustomEditor(){
+        return true;
+    }
+
     public TextField getEditableTextField(){
         if(textField == null){
             textField = new TextField();
-            textField.setTextFormatter(new TextFormatter<>(new StringConverterGenericSetting<>(() -> this)));
+            textField.setTextFormatter(getTextFormatter());
             textField.setText(getValueAsString());
             textField.setPrefWidth(80);
             textField.setOnAction(e -> {
@@ -606,7 +620,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return textField;
     }
 
-    public Node getJavaFXNode(boolean label){
+    public Node getJavaFXEditor(boolean label){
         if(label){
             if(labelledNode == null){
                 labelledNode = createJavaFXNode(true);
