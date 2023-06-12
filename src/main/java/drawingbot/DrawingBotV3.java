@@ -395,6 +395,7 @@ public class DrawingBotV3 {
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setScale(project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1);
+        DrawingBotV3.INSTANCE.displayMode.get().getRenderer().updateCanvasPosition();
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.layout();
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);

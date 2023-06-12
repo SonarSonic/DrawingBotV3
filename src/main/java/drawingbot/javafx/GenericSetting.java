@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import drawingbot.DrawingBotV3;
+import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
 import drawingbot.registry.Register;
 import drawingbot.utils.SpecialListenable;
@@ -345,7 +346,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     }
 
     protected StringConverter<V> defaultStringConverter(){
-        return null;
+        return new StringConverterGenericSetting<>(() -> this);
     }
 
     ////////////////////////////////

@@ -4,6 +4,7 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageTools;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.render.RenderUtils;
 
 import java.awt.*;
@@ -19,8 +20,12 @@ public class Graphics2DExporter {
     }
 
     public static void preDraw(ExportTask exportTask, Graphics2D graphics){
-        graphics.translate(exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetX(), exportTask.exportDrawing.getCanvas().getScaledDrawingOffsetY());
-        graphics.scale(exportTask.exportDrawing.getCanvas().getCanvasScale(), exportTask.exportDrawing.getCanvas().getCanvasScale());
+        preDraw(exportTask.exportDrawing, graphics);
+    }
+
+    public static void preDraw(PlottedDrawing drawing, Graphics2D graphics){
+        graphics.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
+        graphics.scale(drawing.getCanvas().getCanvasScale(), drawing.getCanvas().getCanvasScale());
     }
 
     public static void drawGeometries(ExportTask exportTask, Graphics2D graphics, IGeometryFilter geometryFilter){

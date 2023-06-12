@@ -24,6 +24,7 @@ import java.util.function.BiConsumer;
 
 public class PlottedDrawing {
 
+    public UUID uuid;
     public ICanvas canvas;
     public DrawingSets drawingSets;
 
@@ -42,6 +43,7 @@ public class PlottedDrawing {
     }
 
     public PlottedDrawing(ICanvas canvas, DrawingSets drawingSets, boolean copyCanvas){
+        this.uuid = UUID.randomUUID();
         this.canvas = copyCanvas ? new SimpleCanvas(canvas) : canvas;
         this.drawingSets = drawingSets;
         this.geometries = Collections.synchronizedList(new ArrayList<>());

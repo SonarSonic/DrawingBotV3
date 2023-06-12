@@ -281,20 +281,15 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     }
 
     public void reset(){
-        /*
         subTasks.forEach(PFMTask::reset);
-        subTasks = null;
-        pfmFactory = null;
-        //drawing.reset();
+        subTasks.clear();
 
         startTime = 0;
         finishTime = -1;
         comments.clear();
 
-        pfm = null;
+        pfm.onStopped();
         finishEarly = false;
-
-         */
     }
 
     //// CALLBACKS \\\\

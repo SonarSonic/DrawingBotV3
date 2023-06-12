@@ -36,6 +36,7 @@ import drawingbot.pfm.*;
 import drawingbot.plugins.*;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.modes.DrawingJFXDisplayMode;
+import drawingbot.render.modes.DrawingJFXDisplayModeOffThread;
 import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.render.overlays.*;
 import drawingbot.utils.*;
@@ -761,7 +762,7 @@ public class Register implements IPlugin {
         EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "svg_inkscape", "Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
         EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_default", "Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
         EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "pdf_default", "PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
-        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_default", "GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogScrollPane("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_default", "GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogScrollPane("Confirm GCode Settings", FXPreferences.gcodePage.getContent(), 500, 600), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
         EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_test", "GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogScrollPane("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
         EXPORT_REF_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_reference", "Reference Image File (.png, .jpg, etc.)", false, ImageExporter::exportReferenceImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
     }

@@ -109,7 +109,7 @@ public class FXController extends AbstractFXController {
         FXHelper.makePersistent(drawingSetsController.getPersistentNodes());
         FXHelper.makePersistent(versionControlController.getPersistentNodes());
         FXHelper.makePersistent(batchProcessingController.getPersistentNodes());
-        FXHelper.makePersistent(viewportScrollPane);
+        //FXHelper.makePersistent(viewportScrollPane);
 
 
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
@@ -639,6 +639,7 @@ public class FXController extends AbstractFXController {
         viewportScrollPane.setMaxWidth(Double.MAX_VALUE);
         viewportScrollPane.setMaxHeight(Double.MAX_VALUE);
         viewportScrollPane.setPannable(true);
+        viewportScrollPane.setId("viewportScrollPane");
         viewportScrollPane.scale.addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));

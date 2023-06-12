@@ -149,39 +149,48 @@ public class JavaFXRenderer implements IRenderer {
         }
     }
 
-    public void setupCanvasSize(double width, double height){
-        if(refWidth == width && refHeight == height){
-            return;
-        }
-        refWidth = width;
-        refHeight = height;
+    public double[] calculateCanvasSize(ICanvas canvas){
+        return calculateCanvasSize((int)canvas.getScaledWidth(), (int)canvas.getScaledHeight());
+    }
+
+    public double[] calculateCanvasSize(double width, double height){
+        double[] size = new double[]{width, height, 1};
+
         if(width > getMaxTextureSize() || height > getMaxTextureSize()){
             double max = Math.max(width, height);
-            canvasScaling = getMaxTextureSize() / max;
-            width = Math.floor(width*canvasScaling);
-            height = Math.floor(height*canvasScaling);
+            size[2] = getMaxTextureSize() / max;
+            size[0] = Math.floor(width*size[2]);
+            size[1] = Math.floor(height*size[2]);
         }else if(width < getMinTextureSize() || height < getMinTextureSize()){
             double max = Math.max(width, height);
             double newScaling = getMinTextureSize() / max;
             double newWidth = Math.floor(width*newScaling);
             double newHeight = Math.floor(height*newScaling);
             if(newWidth > width && newHeight > height){ //sanity check, prevents scaling down images where one side is under and one is over the limit
-                canvasScaling = newScaling;
-                width = newWidth;
-                height = newHeight;
-            }else{
-                canvasScaling = 1;
+                size[2] = newScaling;
+                size[0] = newWidth;
+                size[1] = newHeight;
             }
-        }else{
-            canvasScaling = 1;
         }
+        return size;
+    }
 
-        if(canvas.getWidth() == width && canvas.getHeight() == height){
+    public void setupCanvasSize(double width, double height){
+        if(refWidth == width && refHeight == height){
+            return;
+        }
+        refWidth = width;
+        refHeight = height;
+
+        double[] size = calculateCanvasSize(width, height);
+
+        if(canvas.getWidth() == size[0] && canvas.getHeight() == size[1] && canvasScaling == size[2]){
             return;
         }
 
-        canvas.widthProperty().setValue(width);
-        canvas.heightProperty().setValue(height);
+        canvas.widthProperty().setValue(size[0]);
+        canvas.heightProperty().setValue(size[1]);
+        canvasScaling = size[2];
 
         updateCanvasScaling();
 

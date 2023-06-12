@@ -13,18 +13,22 @@ public class DialogScrollPane extends Dialog<Boolean> {
     public ScrollPane scrollPane;
 
     public DialogScrollPane(String title, Node content) {
+        this(title, content, -1, -1);
+    }
+
+    public DialogScrollPane(String title, Node content, double prefWidth, double prefHeight) {
         super();
         setTitle(title);
 
         scrollPane = new ScrollPane();
-        //scrollPane.setFitToWidth(true);
-        //HBox.setHgrow(scrollPane, Priority.ALWAYS);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
         scrollPane.setContent(content);
-        //getDialogPane().setMaxHeight(600);
         getDialogPane().getStylesheets().add(FXHelper.class.getResource("preference-styles.css").toExternalForm());
 
         getDialogPane().setContent(scrollPane);
-        //getDialogPane().setMaxHeight(600);
+        getDialogPane().setPrefWidth(prefWidth);
+        getDialogPane().setPrefHeight(prefHeight);
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.OK);
         setResultConverter(param -> param == ButtonType.OK);

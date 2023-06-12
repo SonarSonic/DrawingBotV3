@@ -105,8 +105,10 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
             }
         });
         factory.addListener((observable, oldValue, newValue) -> {
-            settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
-            sendListenerEvent(l -> l.onPFMChanged(oldValue, newValue));
+            if(newValue != null){
+                settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
+                sendListenerEvent(l -> l.onPFMChanged(oldValue, newValue));
+            }
         });
     }
 
