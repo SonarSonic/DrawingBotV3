@@ -36,7 +36,6 @@ import drawingbot.pfm.*;
 import drawingbot.plugins.*;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.modes.DrawingJFXDisplayMode;
-import drawingbot.render.modes.DrawingJFXDisplayModeOffThread;
 import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.render.overlays.*;
 import drawingbot.utils.*;

@@ -7,6 +7,8 @@ import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.UnitsLength;
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 
 import java.util.List;
 import java.util.Map;
@@ -28,9 +30,14 @@ public class GeometryOperationSortGeometries extends AbstractGeometryOperation{
             PlottedGroup originalGroup = originalDrawing.getPlottedGroup(group.getGroupID());
             PlottedGroup newGroup = newDrawing.getMatchingPlottedGroup(originalGroup, forExport);
 
-            for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
-                STRTreeSequencer.Geometry sequencer = new STRTreeSequencer.Geometry(entry.getValue(), tolerance);
-                sequencer.sort().forEach(g -> newDrawing.addGeometry(g, newGroup));
+            FlagStates pfmFlags = group.pfmFactory == null ? Flags.DEFAULT_PFM_STATE : group.pfmFactory.getFlags();
+            if(pfmFlags.getFlag(Flags.PFM_BYPASS_GEOMETRY_OPTIMISING) || !pfmFlags.getFlag(Flags.PFM_GEOMETRY_SORTING)){
+                originalGroup.geometries.forEach(g -> newDrawing.addGeometry(g, newGroup));
+            }else{
+                for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
+                    STRTreeSequencer.Geometry sequencer = new STRTreeSequencer.Geometry(entry.getValue(), tolerance);
+                    sequencer.sort().forEach(g -> newDrawing.addGeometry(g, newGroup));
+                }
             }
         }
         return newDrawing;

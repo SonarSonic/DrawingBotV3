@@ -10,6 +10,8 @@ import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.UnitsLength;
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
@@ -49,10 +51,11 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
                 if(!(entry.getKey().source instanceof ICustomPen)){
 
-                    if(group.pfmFactory != null && group.pfmFactory.shouldBypassOptimisation()){
+                    FlagStates pfmFlags = group.pfmFactory == null ? Flags.DEFAULT_PFM_STATE : group.pfmFactory.getFlags();
+                    if(group.pfmFactory != null && (pfmFlags.getFlag(Flags.PFM_BYPASS_LINE_OPTIMISING) || !pfmFlags.anyMatch(Flags.PFM_LINE_SIMPLIFY, Flags.PFM_LINE_MERGING, Flags.PFM_LINE_FILTERING, Flags.PFM_LINE_SORTING))){
                         entry.getValue().forEach(geometry -> {
                             IGeometry newGeometry;
-                            if(DBPreferences.INSTANCE.multipassEnabled.get()){
+                            if(DBPreferences.INSTANCE.multipassEnabled.get() && pfmFlags.getFlag(Flags.PFM_GEOMETRY_MULTIPASS)){
                                 newGeometry = GeometryUtils.createMultiPassGeometry(geometry, DBPreferences.INSTANCE.multipassCount.get());
                             }else{
                                 newGeometry = geometry.copyGeometry();
@@ -60,7 +63,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                             newDrawing.addGeometry(newGeometry, newGroup);
                         });
                     }else{
-                        List<IGeometry> geometries = optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback);
+                        List<IGeometry> geometries = optimiseBasicGeometry(entry.getValue(), toJTS, fromJTS, progressCallback, pfmFlags);
                         for(IGeometry geometry : geometries){
                             geometry.setPenIndex(entry.getKey().penNumber.get());
                             geometry.setGroupID(newGroup.getGroupID());
@@ -83,7 +86,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         return false;
     }
 
-    public static List<IGeometry> optimiseBasicGeometry(List<IGeometry> geometries, AffineTransform toJTS, AffineTransform fromJTS, IProgressCallback progressCallback) {
+    public static List<IGeometry> optimiseBasicGeometry(List<IGeometry> geometries, AffineTransform toJTS, AffineTransform fromJTS, IProgressCallback progressCallback, FlagStates pfmFlags) {
         if(geometries.isEmpty()){
             return new ArrayList<>();
         }
@@ -92,7 +95,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             GeometryUtils.toLineStrings(g, toJTS, lineStrings);
         }
 
-        lineStrings = optimiseJTSGeometry(lineStrings, progressCallback);
+        lineStrings = optimiseJTSGeometry(lineStrings, progressCallback, pfmFlags);
 
         List<IGeometry> optimised = new ArrayList<>();
         for(LineString g : lineStrings){
@@ -105,7 +108,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
     /**
      * Performs the configured optimisation on the set of line strings
      */
-    public static List<LineString> optimiseJTSGeometry(List<LineString> lineStrings, IProgressCallback progressCallback){
+    public static List<LineString> optimiseJTSGeometry(List<LineString> lineStrings, IProgressCallback progressCallback, FlagStates pfmFlags){
         if(lineStrings.isEmpty()){
             return new ArrayList<>();
         }
@@ -113,25 +116,25 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         GeometryUtils.printEstimatedTravelDistance(lineStrings);
         DBPreferences settings = DBPreferences.INSTANCE;
 
-        if(settings.lineSimplifyEnabled.get()){
+        if(settings.lineSimplifyEnabled.get() && pfmFlags.getFlag(Flags.PFM_LINE_SIMPLIFY)){
             progressCallback.updateTitle("Line Simplifying: ");
             double tolerance = UnitsLength.convert(settings.lineSimplifyTolerance.get(), settings.lineSimplifyUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineSimplify(lineStrings, tolerance, progressCallback);
         }
 
-        if(settings.lineMergingEnabled.get()){
+        if(settings.lineMergingEnabled.get() && pfmFlags.getFlag(Flags.PFM_LINE_MERGING)){
             progressCallback.updateTitle("Line Merging: ");
             double tolerance = UnitsLength.convert(settings.lineMergingTolerance.get(), settings.lineMergingUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineMerge(lineStrings, tolerance, progressCallback, 3);
         }
 
-        if(settings.lineFilteringEnabled.get()){
+        if(settings.lineFilteringEnabled.get() && pfmFlags.getFlag(Flags.PFM_LINE_FILTERING)){
             progressCallback.updateTitle("Line Filtering: ");
             double tolerance = UnitsLength.convert(settings.lineFilteringTolerance.get(), settings.lineFilteringUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineFilter(lineStrings, tolerance, progressCallback);
         }
 
-        if(settings.multipassEnabled.get() && settings.multipassCount.get() > 1){
+        if(settings.multipassEnabled.get() && pfmFlags.getFlag(Flags.PFM_GEOMETRY_MULTIPASS) && settings.multipassCount.get() > 1){
             LinearGeometryBuilder builder = new LinearGeometryBuilder(GeometryUtils.factory);
             for(LineString oldString : lineStrings){
 
@@ -152,7 +155,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
             lineStrings = LinearComponentExtracter.getLines(builder.getGeometry(), true);
         }
 
-        if(settings.lineSortingEnabled.get()){
+        if(settings.lineSortingEnabled.get() && pfmFlags.getFlag(Flags.PFM_LINE_SORTING)){
             progressCallback.updateTitle("Line Sorting: ");
             double tolerance = UnitsLength.convert(settings.lineSortingTolerance.getValue(), settings.lineSortingUnits.get(), UnitsLength.MILLIMETRES);
             lineStrings = lineSort(lineStrings, tolerance, progressCallback);

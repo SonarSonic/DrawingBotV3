@@ -11,10 +11,13 @@ import drawingbot.geom.operation.GeometryOperationSortGeometries;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
+import drawingbot.utils.flags.Flags;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
@@ -71,19 +74,16 @@ public class GeometryUtils {
     }
 
     public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
-
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
 
         if(task.exportHandler.isVector && !forceBypassOptimisation && DBPreferences.INSTANCE.pathOptimisationEnabled.getValue()){
-
             geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
             if(DBPreferences.INSTANCE.lineSortingEnabled.get()){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
         }
         return geometryOperations;
-
     }
 
     public static boolean compareRenderColour(ObservableDrawingPen pen, IGeometry geometry1, IGeometry geometry2){
