@@ -2,8 +2,11 @@ package drawingbot.plugins;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.api.*;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.api.Hooks;
+import drawingbot.api.IPFM;
+import drawingbot.api.IPlottingTools;
+import drawingbot.api.IPlugin;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
 import drawingbot.javafx.FXController;
@@ -11,7 +14,6 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
-import drawingbot.utils.EnumReleaseState;
 import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
@@ -91,10 +93,10 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Segments", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.CATEGORY_PFM_MOSAIC, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Segments", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "SVG Converter", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
     }
@@ -153,7 +155,7 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerColourSplitterHandlers() {
-        MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("CMYK"));
+        MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeparationHandler("CMYK"));
     }
 
     public static class DummyPFM implements IPFM {

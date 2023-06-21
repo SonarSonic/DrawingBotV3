@@ -4,7 +4,7 @@ import com.google.gson.annotations.JsonAdapter;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IProperties;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.files.json.adapters.JsonAdapterObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.Register;
@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsonAdapter(JsonAdapterObservableDrawingSet.class)
 public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet.Listener> implements IDrawingSet<ObservableDrawingPen>, IProperties {
@@ -29,7 +30,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
     public final ObservableList<ObservableDrawingPen> pens = FXCollections.observableArrayList();
     public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<EnumDistributionType> distributionType = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<ColourSeperationHandler> colourSeperator = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ColourSeparationHandler> colourSeperator = new SimpleObjectProperty<>();
 
     private transient int[] currentRenderOrder;
 
@@ -132,6 +133,13 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         return pens.stream().anyMatch(p -> p.getCodeName().equals(pen.getCodeName()));
     }
 
+    public List<ObservableDrawingPen> getMatchingPens(IDrawingPen pen){
+        if(pen == null){
+            return new ArrayList<>();
+        }
+        return pens.stream().filter(p -> p.getCodeName().equals(pen.getCodeName())).collect(Collectors.toList());
+    }
+
     @Override
     public String getType() {
         return type.get();
@@ -170,7 +178,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
 
         default void onDrawingSetPropertyChanged(ObservableDrawingSet set, Observable property) {}
 
-        default void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeperationHandler oldValue, ColourSeperationHandler newValue) {}
+        default void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeparationHandler oldValue, ColourSeparationHandler newValue) {}
 
         default void onDrawingPenAdded(ObservableDrawingPen pen) {}
 

@@ -1,3 +1,55 @@
+### [v1.6.0-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.0-beta-free)
+- **IMPORTANT: Premium Versions now have License Keys**, if you already own the Premium Version you'll find your license key [here](https://drawingbotv3.com/my-account/license_keys/). If you purchase DBV3 Premium in the future you'll also receive this License Key with your Order Confirmation. More details [here](https://drawingbotv3.com/license-keys/).
+- **IMPORTANT:** .jar versions of DBV3 will no longer be distributed, please use the dedicated Windows/Mac/Linux installers. This is to allow more advanced features which require specific Java versions, DBV3 now uses JAVA 19.
+- Added: **13 NEW PFMS** -
+  - **Sketch Sweeping Curves**: A new Sketch PFM focused on creating long sweeping curves which are more natural / human-like, focused on creating longer curves. It shares most setting with other Sketch PFMS.
+    - 'Curvature': Controls the appearance of "knots" in the curve. It translates to spline types: 0 = Uniform Catmull-Rom, 0.5 = Centripetal Catmull-Rom (Default), 1.0 Chordal Catmull-Rom
+  - **LBG Shapes, Triangulation, Tree, Stippling, Dashes, Letters, Diagram, TSP, Circular Scribbles** - LBS (Linde Buzo Gray) PFMs combine the speed of Adaptive PFMs with the Quality of Voronoi PFMs and in most cases will outperform both in detail retention. They also respond better to large variations in stipple spacing.
+    - 'Stipple Radius Min/Max' - Controls the spacing of the stipple points, smaller stipple radii will result in more detailed results.-
+    - 'Density' - Controls the tone of the resulting image, a low density will be low contrast and may lose detail when the min/max stipple radius are far apart, a high density will be high contrast and retain more detail but will result in longer plotting times.
+    - 'Threshold' - Controls the luminance at which stipples will stop being placed, similar to "Ignore White" but with finer control.
+    - 'Max Iteration' - The number of times the stipple points will be refined, far fewer iterations are required to get good results than with Voronoi PFMs
+  - **LBG Quad Tiles**: An LBG PFM which currently has no Voronoi / Adaptive counterpart, this PFM draws a Quad Tree from the LBS Stippling points.
+  - **ECS Drawing:** This PFM has three separate components **E**dge Detection,  **C**ontour Detection & **S**hading. Each component can be controlled independently, you can also run them individually and then combine ECS with other PFMs instead using PFM Layers.
+    - 'Simplify' - Simplifies the Edges & Contours generated.
+    - 'Draw Edges' - Disables/Enables edge detection.
+    - 'Edge Blur' - Affects the pre-filter blur applied before edges are detected, higher edge blur will result in less edges but the edges will be smoother.
+    - 'Edge Threshold' - Controls the amount of edges which are generated: lower threshold -> more edges : higher threshold -> less edges
+    - 'Draw Contours' - Disables/Enables contour detection.
+    - 'Contour Blur' - Similar to Edge Blur but for contours, has a greater impact on the amount of contours and quality of the contours.
+    - 'Contour Detail' - Controls the amount of contours to be generated.
+    - 'Draw Shading' - Disables/Enables shading. The shading component uses a simplified version of the Sketch Lines shading feature, you may choose to disable the shading entirely and overlay another Sketch PFM using PFM Layers.
+    - 'Shading Threshold' - Controls the luminance at which shading will be stopped: lower -> less shading : higher -> more shading
+    - 'Shading Detail' - Controls the accuracy of the shading: lower -> less accurate, more stylised : higher -> more accurate, less stylised
+    - 'Shading Length' - Controls the maximum length of the lines which make up the shading.
+  - **Pen Calibration:** This PFM is used for generating Pen Calibration tests which can be used to select the most accurate nib size for "Rescale to Pen Width". Choose a suitable Nib Size range for the pen you wish to test and then plot the test. Then set your Pen Width for future plots with that pen to the highest nib size which has no gaps between the lines.
+    - 'Nib Size Min' - The smallest nib size to test
+    - 'Nib Size Max' - The largest nib size to test
+    - 'Test Count' - The number of tests to run between the Min/Max nib size
+    - 'Rotation' - Controls the angle of the lines in the generated line tests
+    - 'Line Tests' - Generates simple hatches line tests
+    - 'Circle Tests' - Generates concentric circle tests
+    - 'Test Size' - The width/height in mm of each nib size test
+    - 'Spacing X/Y' - The grid spacing in mm between each test in the grid
+    - 'SVG Font' - The SVG Font to use to draw the labels for each nib size test
+    - 'Title' - An optional title to draw at the top of page, you can leave this blank to have no title.
+    - 'Font Size' - The height in mm of the label/title text.
+- Added: **New Image Filter "Custom Overlay"** - import Black & White image overlays to create new unique styles!
+- Added: **New PFM Setting - 'Draw Outlines'** - Draws the outlines of the shapes generated by Mosaic PFMS, great for creating more stylised results!
+- Added: **CMYK Offset Settings** & **CMYK Display Settings** - Controlled in the "Configure" panel, Offset settings allow you to slightly offset each colour channel, display settings allow you to control the opacity of the pens, it will automatically update the colour of the pens and re-draw the drawing (this is a on-screen change only).
+- Added: **LP Space** - A new shape type available in Voronoi Shapes / Adaptive Shapes / LBG Shapes - it roughly imitates the LP Space/p-norm function to create shapes which vary from Diamond -> Circle -> Rounded Square. This shape type can better represent the tonality of the original image by adjusting its shape to match. It also produces more variety in the final drawing.
+- Added: **New Special Pens: Original Colour (Inverted),  Original Grayscale (Inverted)** - Samples the original colour of the source image and inverts it, for use with Digital Only outputs. Great for creating stylised Digital Drawings on a black background.
+- Added: "Distortion" setting to all Dashes PFMs
+- Added: "Clarity" setting to Sketch PFMs, which increases sharpness and detail in the final output, behind the scenes this effectively adds a Unsharp Mask Filter too the image before processing.
+- Improved: Drawing Pen presets now be created easily with "New Preset" - you can select from existing categories and choose a colour
+- Improved: Setting pop up windows for Colour Separation / Image Filters / Presets have been improved and standardised
+- Improved: Console/Error Logging - log files will now be exported to the Config Folder / Logs, the last 10 logs will be retained
+- Improved: Circular Scribbles curve quality
+- Fixed: Projects with multiple versions creating massive project files which may fail to load.
+- Fixed: Mosaic PFMs not responding in some situations
+- Fixed: Batch Processing now supports SVG Files and all Image File types.
+- Fixed: UI State Reloading
+
 ### [v1.5.3-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.5.3-stable-free)
 - Added: "Create Curves" option to Voronoi TSP, matching Adaptive TSP.
 - Improved: Stars & Triangles in Adaptive Shapes are now symmetrical

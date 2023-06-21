@@ -16,15 +16,19 @@ import drawingbot.pfm.PFMSettings;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.DBConstants;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.*;
-import javafx.util.Callback;
+import javafx.scene.control.cell.CheckBoxTreeTableCell;
+import javafx.scene.control.cell.TextFieldTreeTableCell;
+import javafx.stage.Popup;
+import org.fxmisc.easybind.EasyBind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,20 +38,15 @@ public class FXPFMControls extends AbstractFXController {
 
     public final SimpleObjectProperty<PFMSettings> pfmSettings = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<GenericPreset<PresetPFMSettings>> selectedPFMPreset = new SimpleObjectProperty<>();
+    public final FilteredList<PFMFactory<?>> filteredList = new FilteredList<>(MasterRegistry.INSTANCE.pfmFactories);
 
     ////////////////////////////////////////////////////////
 
+    public ChoiceBox<String> choiceBoxPFMCategory = null;
     public ComboBox<PFMFactory<?>> comboBoxPFM = null;
-    public MenuButton menuButtonPFM = null;
 
     public ComboBox<GenericPreset<PresetPFMSettings>> comboBoxPFMPreset = null;
     public MenuButton menuButtonPFMPresets = null;
-
-    public TableView<GenericSetting<?,?>> tableViewAdvancedPFMSettings = null;
-    public TableColumn<GenericSetting<?, ?>, Boolean> tableColumnLock = null;
-    public TableColumn<GenericSetting<?, ?>, String> tableColumnSetting = null;
-    public TableColumn<GenericSetting<?, ?>, Object> tableColumnValue = null;
-    public TableColumn<GenericSetting<?, ?>, Object> tableColumnControl = null;
 
     public TreeTableView<GenericSetting<?, ?>> treeTableViewPFMSettings = null;
     public TreeTableColumn<GenericSetting<?, ?>, Boolean> treeTableColumnLock = null;
@@ -63,15 +62,18 @@ public class FXPFMControls extends AbstractFXController {
     public void initialize(){
 
         final ChangeListener<PFMFactory<?>> FACTORY_CHANGE_LISTENER = (observable, oldValue, newValue) -> {
-            comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
-            comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getRegistryName()));
+            if(newValue == null){
+                pfmSettings.get().setPFMFactory(comboBoxPFM.getItems().get(0));
+            }else{
+                comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
+                comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getRegistryName()));
+            }
         };
 
         pfmSettings.addListener((observable, oldValue, newValue) -> {
 
             if(oldValue != null){
                 comboBoxPFM.valueProperty().unbindBidirectional(oldValue.factory);
-                //tableViewAdvancedPFMSettings.itemsProperty().unbind();
                 treeTableViewPFMSettings.rootProperty().unbind();
                 oldValue.factory.removeListener(FACTORY_CHANGE_LISTENER);
             }
@@ -89,6 +91,7 @@ public class FXPFMControls extends AbstractFXController {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         ////PATH FINDING CONTROLS
+        /*
         if(menuButtonPFM != null){
             menuButtonPFM.getItems().clear();
             ObservableList<PFMFactory<?>> pfmFactories = MasterRegistry.INSTANCE.getObservablePFMLoaderList();
@@ -111,11 +114,36 @@ public class FXPFMControls extends AbstractFXController {
                 menuButtonPFM.getItems().add(pfmCategory);
             }
         }
+        */
 
-        comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
-        comboBoxPFM.setItems(MasterRegistry.INSTANCE.getObservablePFMLoaderList());
-        comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
-        comboBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> changePathFinderModule(newValue));
+
+        choiceBoxPFMCategory.setItems(MasterRegistry.INSTANCE.pfmCategories);
+        choiceBoxPFMCategory.setValue("All");
+
+        EasyBind.subscribe(choiceBoxPFMCategory.valueProperty(), s -> {
+            filteredList.setPredicate(f -> {
+                if(!f.isHidden() || FXApplication.isDeveloperMode){
+                    return choiceBoxPFMCategory.getValue().equals("All") || f.category.equals(choiceBoxPFMCategory.getValue());
+                }
+                return false;
+            });
+            comboBoxPFM.setValue(filteredList.get(0));
+            //comboBoxPFM.setVisibleRowCount(filteredList.size());
+            comboBoxPFM.setItems(filteredList);
+            comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
+        });
+
+        if(comboBoxPFM != null){
+            comboBoxPFM.setCellFactory(param -> new ComboCellNamedSetting<>());
+            comboBoxPFM.setItems(filteredList);
+            comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+            comboBoxPFM.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue != null){
+                    changePathFinderModule(newValue);
+                }
+            });
+            comboBoxPFM.setVisibleRowCount(30);
+        }
 
         selectedPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
         selectedPFMPreset.addListener((observable, oldValue, newValue) -> {
@@ -129,6 +157,7 @@ public class FXPFMControls extends AbstractFXController {
         comboBoxPFMPreset.setOnAction(e -> {
             pfmSettings.get().sendListenerEvent(l -> l.onUserChangedPFMPreset(comboBoxPFMPreset.getValue()));
         });
+        comboBoxPFMPreset.setCellFactory(param -> new ComboCellNamedSetting<>());
 
         FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, false, selectedPFMPreset);
 
@@ -220,8 +249,14 @@ public class FXPFMControls extends AbstractFXController {
     }
 
     public void changePathFinderModule(PFMFactory<?> pfm){
+        if(pfm == null){
+            return;
+        }
         if(pfm.isPremiumFeature() && !FXApplication.isPremiumEnabled){
-            comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+            if(comboBoxPFM != null){
+                comboBoxPFM.setValue(MasterRegistry.INSTANCE.getDefaultPFM());
+            }
+            changePathFinderModule(MasterRegistry.INSTANCE.getDefaultPFM());
             FXController.showPremiumFeatureDialog();
         }else{
             pfmSettings.get().factory.set(pfm);

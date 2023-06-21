@@ -16,8 +16,8 @@ import java.io.File;
 
 public class ProjectFileLoader extends AbstractFileLoader{
     
-    public ProjectFileLoader(DBTaskContext context, File file, boolean internal) {
-        super(context, file, internal);
+    public ProjectFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
+        super(context, file, internal, isSubTask);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ProjectFileLoader extends AbstractFileLoader{
     }
 
     @Override
-    public String getFileType() {
+    public String getFileTypeDisplayName() {
         return "Project File";
     }
 

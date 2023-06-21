@@ -1,11 +1,12 @@
 package drawingbot.files.json.presets;
 
 import com.google.gson.JsonElement;
-import drawingbot.files.json.PresetType;
 import drawingbot.files.json.IJsonData;
-import drawingbot.javafx.observables.ObservableImageFilter;
+import drawingbot.files.json.JsonData;
+import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.Register;
 
 import java.awt.image.BufferedImageOp;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * TODO REMOVE REDUNDANT FILTER CLASS AND ADD AN ObservableImageFilter Json Adapter
  */
+@JsonData
 public class PresetImageFilters implements IJsonData {
 
     public List<Filter> filters;
@@ -38,6 +40,7 @@ public class PresetImageFilters implements IJsonData {
     }
 
 
+    @JsonData
     public static class Filter {
 
         public boolean isEnabled = true;

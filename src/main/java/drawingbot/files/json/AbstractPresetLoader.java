@@ -34,17 +34,17 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
     @Override
     public void registerPreset(GenericPreset<O> preset) {
         presets.add(preset);
-        if(preset.presetSubType != null && !preset.presetSubType.isEmpty()){
-            presetsByType.putIfAbsent(preset.presetSubType, FXCollections.observableArrayList());
-            presetsByType.get(preset.presetSubType).add(preset);
+        if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()){
+            presetsByType.putIfAbsent(preset.getPresetSubType(), FXCollections.observableArrayList());
+            presetsByType.get(preset.getPresetSubType()).add(preset);
         }
     }
 
     @Override
     public void unregisterPreset(GenericPreset<O> preset) {
         presets.remove(preset);
-        if(preset.presetSubType != null && !preset.presetSubType.isEmpty()) {
-            presetsByType.get(preset.presetSubType).remove(preset);
+        if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()) {
+            presetsByType.get(preset.getPresetSubType()).remove(preset);
         }
     }
 

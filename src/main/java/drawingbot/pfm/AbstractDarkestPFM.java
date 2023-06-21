@@ -1,8 +1,9 @@
 package drawingbot.pfm;
 
-import drawingbot.api.*;
+import drawingbot.api.IPixelData;
 import drawingbot.image.ImageTools;
-import drawingbot.pfm.helpers.*;
+import drawingbot.pfm.helpers.BresenhamHelper;
+import drawingbot.pfm.helpers.LuminanceTestLine;
 import drawingbot.utils.Utils;
 
 import java.awt.*;
@@ -128,6 +129,26 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         if(nearest != null){
             dest[0] = nearest[0];
             dest[1] = nearest[1];
+        }
+    }
+
+    public static void findDarkestPixelInArea(IPixelData pixels, int startX, int startY, int endX, int endY, int[] dest){
+        int best = Integer.MAX_VALUE;
+        for(int x = startX; x < endX; x++){
+            for(int y = startY; y < endY; y++){
+                if(pixels.withinXY(x, y)){
+                    int lum = pixels.getLuminance(x, y);
+                    if(lum < best){
+                        dest[0] = x;
+                        dest[1] = y;
+                        best = lum;
+                    }
+                }
+            }
+        }
+
+        if(dest.length >= 3){
+            dest[2] = best;
         }
     }
 

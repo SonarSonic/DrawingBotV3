@@ -3,15 +3,21 @@ package drawingbot.geom;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.api.IProgressCallback;
-import drawingbot.geom.operation.*;
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.files.ExportTask;
+import drawingbot.geom.operation.AbstractGeometryOperation;
+import drawingbot.geom.operation.GeometryOperationOptimize;
+import drawingbot.geom.operation.GeometryOperationSimplify;
+import drawingbot.geom.operation.GeometryOperationSortGeometries;
 import drawingbot.geom.shapes.*;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottedDrawing;
+import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
+import drawingbot.utils.flags.Flags;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
@@ -21,9 +27,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.FlatteningPathIterator;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class GeometryUtils {
@@ -69,19 +74,16 @@ public class GeometryUtils {
     }
 
     public static List<AbstractGeometryOperation> getGeometryExportOperations(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
-
         List<AbstractGeometryOperation> geometryOperations = new ArrayList<>();
         geometryOperations.add(new GeometryOperationSimplify(filter, true, false));
 
         if(task.exportHandler.isVector && !forceBypassOptimisation && DBPreferences.INSTANCE.pathOptimisationEnabled.getValue()){
-
             geometryOperations.add(new GeometryOperationOptimize(CanvasUtils.createCanvasScaleTransform(task.plottedDrawing.getCanvas())));
             if(DBPreferences.INSTANCE.lineSortingEnabled.get()){
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
         }
         return geometryOperations;
-
     }
 
     public static boolean compareRenderColour(ObservableDrawingPen pen, IGeometry geometry1, IGeometry geometry2){
@@ -111,11 +113,11 @@ public class GeometryUtils {
         if(nextGeometry instanceof IPathElement){
             IPathElement element = (IPathElement) nextGeometry;
             if(lastGeometry instanceof IPathElement){
-                return ((IPathElement) lastGeometry).getP1().equals(element.getP2());
+                return lastGeometry.getOriginCoordinate().equals(element.getEndCoordinate());
             }
             if(lastGeometry instanceof GPath){
-                Coordinate coordinate = ((GPath) lastGeometry).getEndCoordinate();
-                return ((float)coordinate.x) == element.getP2().getX() && ((float)coordinate.y) == element.getP2().getY();
+                Coordinate coordinate = lastGeometry.getEndCoordinate();
+                return ((float)coordinate.x) == element.getEndCoordinate().getX() && ((float)coordinate.y) == element.getEndCoordinate().getY();
             }
         }
         return false;
@@ -251,21 +253,21 @@ public class GeometryUtils {
         for(IGeometry geometry : geometries){
             IPathElement pathElement = (IPathElement) geometry;
 
-            if(last == null || !last.getP1().equals(pathElement.getP2())){
-                reversedPath.moveTo(pathElement.getP2().getX(), pathElement.getP2().getY());
+            if(last == null || !last.getOriginCoordinate().equals(pathElement.getEndCoordinate())){
+                reversedPath.moveTo(pathElement.getEndCoordinate().getX(), pathElement.getEndCoordinate().getY());
             }
 
             if(geometry instanceof GLine){
                 GLine gLine = (GLine) geometry;
-                reversedPath.lineTo(gLine.x1, gLine.y1);
+                reversedPath.lineTo(gLine.getX1(), gLine.getY1());
             }
             if(geometry instanceof GQuadCurve){
                 GQuadCurve gQuad = (GQuadCurve) geometry;
-                reversedPath.quadTo(gQuad.ctrlx, gQuad.ctrly, gQuad.x1, gQuad.y1);
+                reversedPath.quadTo(gQuad.getCtrlX(), gQuad.getCtrlY(), gQuad.getX1(), gQuad.getY1());
             }
             if(geometry instanceof GCubicCurve){
                 GCubicCurve gCubic = (GCubicCurve) geometry;
-                reversedPath.curveTo(gCubic.ctrlx2, gCubic.ctrly2, gCubic.ctrlx1, gCubic.ctrly1, gCubic.x1, gCubic.y1);
+                reversedPath.curveTo(gCubic.getCtrlX2(), gCubic.getCtrlY2(), gCubic.getCtrlX1(), gCubic.getCtrlY1(), gCubic.getX1(), gCubic.getY1());
             }
             last = pathElement;
         }
@@ -273,7 +275,7 @@ public class GeometryUtils {
     }
 
     public static void splitGPath(GPath gPath, Consumer<IGeometry> consumer){
-        PathIterator pathIterator = gPath.getPathIterator(null);
+        PathIterator pathIterator = gPath.getAWTShape().getPathIterator(null);
 
         float lastMoveX = 0;
         float lastMoveY = 0;

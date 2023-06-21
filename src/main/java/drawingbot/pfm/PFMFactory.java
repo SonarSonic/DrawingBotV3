@@ -1,12 +1,14 @@
 package drawingbot.pfm;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.utils.EnumReleaseState;
-import drawingbot.utils.INamedSetting;
 import drawingbot.api.IPFM;
 import drawingbot.files.json.adapters.JsonAdapterPFMFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.EnumReleaseState;
+import drawingbot.utils.INamedSetting;
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -15,16 +17,9 @@ import java.util.function.Supplier;
 public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INamedSetting {
 
     public EnumDistributionType distributionType;
-    public boolean bypassOptimisation = false;
-    public boolean transparentColourSeperation = true;
     public EnumReleaseState releaseState = EnumReleaseState.RELEASE;
-    public boolean isGenerative = false;
-    public boolean isLayered = false;
-    public boolean isComposite = false;
-    public boolean hasSampledARGB = false;
-    public boolean supportsSoftClip = false;
+    public FlagStates flags = new FlagStates(Flags.PFM_FACTORY_FLAGS);
 
-    public boolean requiresPremium = false;
     public String category = "";
     public String displayName;
 
@@ -50,6 +45,26 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
         return releaseState.isExperimental();
     }
 
+    public FlagStates getFlags(){
+        return flags;
+    }
+
+    public final <V> PFMFactory<C> setFlags(V value, Flags.Flag<V> ...flagArray) {
+        for(Flags.Flag<V> flag : flagArray){
+            flags.setFlag(flag, value);
+        }
+        return this;
+    }
+
+    public boolean shouldBypassOptimisation() {
+        return flags.getFlag(Flags.PFM_BYPASS_LINE_OPTIMISING);
+    }
+
+    public PFMFactory<C> setBypassOptimisation(boolean bypassOptimisation) {
+        flags.setFlag(Flags.PFM_BYPASS_LINE_OPTIMISING, bypassOptimisation);
+        return this;
+    }
+
     /**
      * The PFMs distribution type preference
      */
@@ -63,48 +78,39 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
         return this;
     }
 
-    public boolean shouldBypassOptimisation() {
-        return bypassOptimisation;
-    }
-
-    public PFMFactory<C> setBypassOptimisation(boolean bypassOptimisation) {
-        this.bypassOptimisation = bypassOptimisation;
-        return this;
-    }
-
     public boolean getTransparentCMYK() {
-        return transparentColourSeperation;
+        return flags.getFlag(Flags.PFM_TRANSPARENT_CMYK);
     }
 
     public PFMFactory<C> setTransparentCMYK(boolean transparentCMYK) {
-        this.transparentColourSeperation = transparentCMYK;
+        flags.setFlag(Flags.PFM_TRANSPARENT_CMYK, transparentCMYK);
         return this;
     }
 
     public boolean isLayeredPFM() {
-        return isLayered;
+        return flags.getFlag(Flags.PFM_LAYERED);
     }
 
     public PFMFactory<C> setIsLayeredPFM(boolean isLayered) {
-        this.isLayered = isLayered;
+        flags.setFlag(Flags.PFM_LAYERED, isLayered);
         return this;
     }
 
     public boolean isGenerativePFM(){
-        return isGenerative;
+        return flags.getFlag(Flags.PFM_GENERATIVE);
     }
 
     public PFMFactory<C> setIsGenerative(boolean isGenerative) {
-        this.isGenerative = isGenerative;
+        flags.setFlag(Flags.PFM_GENERATIVE, isGenerative);
         return this;
     }
 
     public boolean supportsSoftClip() {
-        return supportsSoftClip;
+        return flags.getFlag(Flags.PFM_SUPPORTS_SOFT_CLIP);
     }
 
     public PFMFactory<C> setSupportsSoftClip(boolean supportsSoftClip) {
-        this.supportsSoftClip = supportsSoftClip;
+        flags.setFlag(Flags.PFM_SUPPORTS_SOFT_CLIP, supportsSoftClip);
         return this;
     }
 
@@ -112,20 +118,20 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
      * A composite PFM, will create sub PFMS while it's processing.
      */
     public boolean isCompositePFM(){
-        return isComposite;
+        return flags.getFlag(Flags.PFM_COMPOSITE);
     }
 
     public PFMFactory<C> setIsComposite(boolean isComposite) {
-        this.isComposite = isComposite;
+        flags.setFlag(Flags.PFM_COMPOSITE, isComposite);
         return this;
     }
 
     public boolean hasSampledARGB() {
-        return hasSampledARGB;
+        return flags.getFlag(Flags.PFM_HAS_SAMPLED_ARGB);
     }
 
     public PFMFactory<C> hasSampledARGB(boolean hasSampledARGB) {
-        this.hasSampledARGB = hasSampledARGB;
+        flags.setFlag(Flags.PFM_HAS_SAMPLED_ARGB, hasSampledARGB);
         return this;
     }
 
@@ -140,12 +146,22 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
     }
 
     @Override
+    public boolean isNewFeature() {
+        return flags.getFlag(Flags.PFM_NEW_FEATURE);
+    }
+
+    public PFMFactory<C> setNewFeature(boolean newFeature) {
+        flags.setFlag(Flags.PFM_NEW_FEATURE, newFeature);
+        return this;
+    }
+
+    @Override
     public boolean isPremiumFeature() {
-        return requiresPremium;
+        return flags.getFlag(Flags.PFM_REQUIRES_PREMIUM);
     }
 
     public PFMFactory<C> setPremium(boolean isPremium) {
-        this.requiresPremium = isPremium;
+        flags.setFlag(Flags.PFM_REQUIRES_PREMIUM, isPremium);
         return this;
     }
 

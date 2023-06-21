@@ -1,5 +1,6 @@
 package drawingbot.pfm;
 
+import drawingbot.api.IPlottingTools;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.geom.shapes.GRectangle;
 import drawingbot.geom.shapes.GShape;
@@ -24,14 +25,14 @@ public class PFMTest extends AbstractPFMImage {
 
         Graphics2D graphics2D = new BufferedImage(tools.getPlottingWidth(), tools.getPlottingHeight(), BufferedImage.TYPE_INT_ARGB).createGraphics();
 
-        drawTextAsGeometry("TL", 1+16, 1 + 64, 64, graphics2D);
-        drawTextAsGeometry("TR", tools.getPlottingWidth() - 104, 1 + 64, 64, graphics2D);
-        drawTextAsGeometry("BL", 1+16, tools.getPlottingHeight() - 32, 64, graphics2D);
-        drawTextAsGeometry("BR", tools.getPlottingWidth() - 104, tools.getPlottingHeight() - 32, 64, graphics2D);
+        drawTextAsGeometry(tools,"TL", 1+16, 1 + 64, 64, graphics2D);
+        drawTextAsGeometry(tools,"TR", tools.getPlottingWidth() - 104, 1 + 64, 64, graphics2D);
+        drawTextAsGeometry(tools,"BL", 1+16, tools.getPlottingHeight() - 32, 64, graphics2D);
+        drawTextAsGeometry(tools,"BR", tools.getPlottingWidth() - 104, tools.getPlottingHeight() - 32, 64, graphics2D);
 
     }
 
-    public void drawTextAsGeometry(String text, int x, int y, float size, Graphics2D graphics2D){
+    public static void drawTextAsGeometry(IPlottingTools tools, String text, float x, float y, float size, Graphics2D graphics2D){
         Font baseFont = graphics2D.getFont().deriveFont(size);
         GlyphVector top = baseFont.createGlyphVector(graphics2D.getFontRenderContext(), text);
         top.setGlyphTransform(0, AffineTransform.getTranslateInstance(x, y));

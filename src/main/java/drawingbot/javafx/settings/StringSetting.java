@@ -36,7 +36,7 @@ public class StringSetting<C> extends GenericSetting<C, String> {
         TextField textField = new TextField();
         textField.textProperty().bindBidirectional(value);
         textField.setOnAction(e -> sendUserEditedEvent());
-        return textField;
+        return getEditableTextField();
     }
 
     @Override

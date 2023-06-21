@@ -92,9 +92,10 @@ public interface IGeometry {
      * This generally results in a version created as a gPath.
      */
     default IGeometry transformGeometry(AffineTransform transform) {
+        //TODO CHANGE TRANSFORM METHOD TO MAINTAIN CURVES i.e. so optimizing steps don't think they can just change them
         GPath gPath = new GPath(getAWTShape());
         GeometryUtils.copyGeometryData(gPath, this);
-        gPath.transform(transform);
+        gPath.awtPath.transform(transform);
         return gPath;
     }
 

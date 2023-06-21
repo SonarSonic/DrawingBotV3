@@ -4,10 +4,10 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingArea;
 import drawingbot.files.json.presets.PresetDrawingAreaManager;
-import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.controls.ComboCellNamedSetting;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
@@ -16,7 +16,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.converter.FloatStringConverter;
@@ -124,6 +123,7 @@ public class FXDrawingArea extends AbstractFXController {
 
         comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
         comboBoxDrawingAreaPreset.valueProperty().bindBidirectional(selectedDrawingAreaPreset);
+        comboBoxDrawingAreaPreset.setCellFactory(param -> new ComboCellNamedSetting<>());
 
         FXHelper.setupPresetMenuButton(menuButtonDrawingAreaPresets, Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, false, selectedDrawingAreaPreset);
 

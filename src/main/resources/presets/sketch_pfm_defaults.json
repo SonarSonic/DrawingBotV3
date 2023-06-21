@@ -250,6 +250,40 @@
           "Line Density": "90.0"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Sweeping Curves",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Erase Radius Min": "1.0",
+          "Erase Min": "50",
+          "Distortion": "0.0",
+          "Edge Power": "0.0",
+          "Squiggle Max Length": "500",
+          "Erase Radius Max": "1.0",
+          "Sobel Power": "0.0",
+          "Clarity": "0.0",
+          "Should Lift Pen": "true",
+          "Line Max Length": "80",
+          "Directionality": "0.0",
+          "Line Max Limit": "-1",
+          "Luminance Power": "100.0",
+          "Tone": "50.0",
+          "Line Min Length": "20",
+          "Erase Max": "125",
+          "Angularity": "0.0",
+          "Squiggle Min Length": "25",
+          "Curvature": "0.5",
+          "Random Seed": "0",
+          "Line Density": "75.0",
+          "Squiggle Max Deviation": "25.0"
+        }
+      }
     }
   ]
 }

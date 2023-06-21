@@ -246,7 +246,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
      * Erases the Geometry on the provided pixel data, allows you to provide custom erasing values
      */
     public int eraseGeometry(IPixelData pixelData, IGeometry geometry, float radiusMin, float radiusMax, float eraseMin, float eraseMax){
-        int luminance = tools.getPixelData().getLuminance(context.getX(), context.getY());
+        int luminance = !tools.getPixelData().withinXY(context.getX(), context.getY()) ? 255 : tools.getPixelData().getLuminance(context.getX(), context.getY());
         double xProgress = luminance/255D;
         double yProgress = (EasingUtils.easeInCubic(xProgress)*(tone)) + (xProgress*(1-tone));
 
@@ -267,8 +267,9 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         private float avgLuminance = 0F;
         private int[] dst = new int[2];
         private boolean hasResult;
+        public Object resultData = null;
 
-        public PathFindingContext(){};
+        public PathFindingContext(){}
 
         public PathFindingContext(int[] dst, float luminance, float[] data) {
             setResult(dst, avgLuminance, data);
@@ -282,13 +283,18 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         }
 
         public void setResult(int[] dst, float luminance) {
-            setResult(dst, luminance, null);
+            setResult(dst, luminance, null, null);
         }
 
         public void setResult(int[] dst, float luminance, float[] testData) {
+            setResult(dst, luminance, testData, null);
+        }
+
+        public void setResult(int[] dst, float luminance, float[] testData, Object resultData) {
             this.data = testData;
             this.avgLuminance = luminance;
             this.dst = dst;
+            this.resultData = resultData;
 
             // Check the result is actually valid
             this.hasResult = luminance != -1;

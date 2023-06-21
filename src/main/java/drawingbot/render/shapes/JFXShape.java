@@ -13,7 +13,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import javafx.scene.transform.Affine;
 
 import java.awt.geom.AffineTransform;
@@ -127,11 +128,11 @@ public class JFXShape {
     //TODO UPDATE AWT PATH AT THE END IF IT'S BEING EDITED
     public void addElement(PathElement element){
         if(geometry instanceof GPath && jfxShape != null){
-            GPath awtPath = (GPath) geometry;
+            GPath gPath = (GPath) geometry;
             Path jfxPath = jfxShape;
 
             jfxPath.getElements().add(element);
-            JFXAWTUtils.addJFXElementToAWTPath(awtPath, element);
+            JFXAWTUtils.addJFXElementToAWTPath(gPath.awtPath, element);
         }
     }
 
@@ -150,7 +151,7 @@ public class JFXShape {
     }
 
     public void confirmTempNextElement(){
-        JFXAWTUtils.addJFXElementToAWTPath((GPath) geometry, tempElement);
+        JFXAWTUtils.addJFXElementToAWTPath(((GPath) geometry).awtPath, tempElement);
     }
 
 

@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -23,19 +22,22 @@ import java.util.logging.LogRecord;
 
 public class SplashScreen extends Preloader {
 
+    public static String preloaderKey = "javafx.preloader";
+    public static String preloaderValue = SplashScreen.class.getName();
     public static PreloaderNotificationHandler notificationHandler;
 
     public static void initPreloader(){
-        System.setProperty("javafx.preloader", SplashScreen.class.getName());
+        System.setProperty(preloaderKey, preloaderValue);
     }
 
     public static void startPreloader(Application app){
-        notificationHandler = new SplashScreen.PreloaderNotificationHandler(app);
+        notificationHandler = new PreloaderNotificationHandler(app);
         DrawingBotV3.logger.addHandler(notificationHandler);
+        app.notifyPreloader(new LoadStartNotification());
     }
 
     public static void stopPreloader(Application app){
-        app.notifyPreloader(new SplashScreen.LoadCompleteNotification());
+        app.notifyPreloader(new LoadCompleteNotification());
         DrawingBotV3.logger.removeHandler(notificationHandler);
     }
 
@@ -45,7 +47,7 @@ public class SplashScreen extends Preloader {
     public Label versionName;
     public Label loadingInfo;
 
-    private Scene createPreloaderScene() {
+    public Scene createPreloaderScene() {
         VBox vBox = new VBox();
         vBox.setFillWidth(true);
         vBox.setAlignment(Pos.CENTER);
@@ -58,13 +60,11 @@ public class SplashScreen extends Preloader {
             vBox.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0), null, null)));
         }
 
-
         ImageView imageView = new ImageView(FXApplication.getDBV3LogoImage());
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(200);
         imageView.setSmooth(true);
         vBox.getChildren().add(imageView);
-
 
         versionName = new Label(DBConstants.versionName + ", " + "v" + DBConstants.appVersion);
         versionName.setFont(new Font(11));
@@ -84,8 +84,6 @@ public class SplashScreen extends Preloader {
         loadingInfo.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.5), new CornerRadii(5), null)));
         vBox.getChildren().add(loadingInfo);
 
-
-
         return new Scene(vBox, 500, 250);
     }
     
@@ -101,6 +99,10 @@ public class SplashScreen extends Preloader {
     }
 
     public void handleApplicationNotification(PreloaderNotification info) {
+        if(info instanceof LoadStartNotification){
+            FXApplication.InitialLoadTask loadingTask = new FXApplication.InitialLoadTask();
+            DrawingBotV3.threadFactory("Loading Task Thread").newThread(loadingTask).start();
+        }
         if(info instanceof LoadCompleteNotification){
             stage.hide();
         }
@@ -108,6 +110,10 @@ public class SplashScreen extends Preloader {
             InfoNotification infoNotification = (InfoNotification) info;
             loadingInfo.setText(infoNotification.info);
         }
+    }
+
+    public static class LoadStartNotification implements PreloaderNotification{
+        //NOP
     }
 
     public static class LoadCompleteNotification implements PreloaderNotification{
@@ -127,13 +133,13 @@ public class SplashScreen extends Preloader {
 
         public Application app;
 
-        public PreloaderNotificationHandler(Application app){
+        public PreloaderNotificationHandler(Application app) {
             this.app = app;
         }
 
         @Override
         public void publish(LogRecord record) {
-            this.app.notifyPreloader(new SplashScreen.InfoNotification(record.getMessage()));
+            this.app.notifyPreloader(new InfoNotification(record.getMessage()));
         }
 
         @Override

@@ -3,14 +3,13 @@ package drawingbot.javafx.controllers;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetDrawingPen;
 import drawingbot.files.json.presets.PresetDrawingSet;
-import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -25,7 +24,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXML;
@@ -43,7 +41,6 @@ import javafx.util.converter.IntegerStringConverter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class FXDrawingSets extends AbstractFXController {
 
@@ -80,7 +77,7 @@ public class FXDrawingSets extends AbstractFXController {
     public ComboBox<EnumDistributionType> comboBoxDistributionType = null;
     public ComboBox<EnumDistributionOrder> comboBoxDistributionOrder = null;
 
-    public ComboBox<ColourSeperationHandler> comboBoxColourSeperation = null;
+    public ComboBox<ColourSeparationHandler> comboBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
@@ -90,7 +87,7 @@ public class FXDrawingSets extends AbstractFXController {
     public TableColumn<ObservableDrawingSet, ObservableList<ObservableDrawingPen>> drawingSetPensColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionType> drawingSetDistributionTypeColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionOrder> drawingSetDistributionOrderColumn = null;
-    public TableColumn<ObservableDrawingSet, ColourSeperationHandler> drawingSetColourSeperatorColumn = null;
+    public TableColumn<ObservableDrawingSet, ColourSeparationHandler> drawingSetColourSeperatorColumn = null;
     public TableColumn<ObservableDrawingSet, Integer> drawingSetShapesColumn = null;
     public TableColumn<ObservableDrawingSet, Integer> drawingSetPercentageColumn = null;
 
@@ -172,7 +169,7 @@ public class FXDrawingSets extends AbstractFXController {
         comboBoxDrawingSet.setPromptText("Select a Drawing Set");
 
         //TODO SIMPLIFY ?
-        FXHelper.setupPresetMenuButton(menuButtonDrawingSetPresets, Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager, true,
+        FXHelper.setupPresetMenuButton(menuButtonDrawingSetPresets, Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager,
                 () -> {
                     if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
                         PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
@@ -185,7 +182,7 @@ public class FXDrawingSets extends AbstractFXController {
                     comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
                     comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
                     if(preset != null){
-                        comboBoxSetType.setValue(preset.presetSubType);
+                        comboBoxSetType.setValue(preset.getPresetSubType());
                         comboBoxDrawingSet.setValue(preset.data);
                     }
             /*
@@ -268,7 +265,7 @@ public class FXDrawingSets extends AbstractFXController {
 
         comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
-        FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager, true,
+        FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager,
                 () -> {
                     if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
                         PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();
@@ -282,7 +279,7 @@ public class FXDrawingSets extends AbstractFXController {
                     comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(drawingSets,false));
 
                     if(preset != null){
-                        comboBoxPenType.setValue(preset.presetSubType);
+                        comboBoxPenType.setValue(preset.getPresetSubType());
                         comboBoxDrawingPen.setValue(preset.data);
                     }else{
                         comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());

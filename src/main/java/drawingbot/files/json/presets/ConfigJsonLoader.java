@@ -31,7 +31,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
         setDefaultManager(new AbstractPresetManager<>(this) {
             @Override
             public GenericPreset<AbstractJsonData> updatePreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
-                IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.presetSubType);
+                IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.getPresetSubType());
                 if(manager != null){
                     manager.updatePreset(null, preset);
                 }
@@ -40,7 +40,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
 
             @Override
             public void applyPreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
-                IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.presetSubType);
+                IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.getPresetSubType());
                 if(manager != null){
                     manager.applyPreset(null, preset);
                 }
@@ -107,17 +107,17 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
 
     @Override
     protected AbstractJsonData getPresetInstance(GenericPreset<AbstractJsonData> preset) {
-        return presetFactories.get(preset.presetSubType).get();
+        return presetFactories.get(preset.getPresetSubType()).get();
     }
 
     @Override
     protected void registerPreset(GenericPreset<AbstractJsonData> preset) {
-        configs.put(preset.presetSubType, preset);
+        configs.put(preset.getPresetSubType(), preset);
     }
 
     @Override
     protected void unregisterPreset(GenericPreset<AbstractJsonData> preset) {
-        configs.remove(preset.presetSubType);
+        configs.remove(preset.getPresetSubType());
     }
 
     @Override
@@ -132,7 +132,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
 
     @Override
     public JsonElement toJsonElement(Gson gson, GenericPreset<?> preset) {
-        return gson.toJsonTree(preset.data, presetClass.get(preset.presetSubType));
+        return gson.toJsonTree(preset.data, presetClass.get(preset.getPresetSubType()));
     }
 
     @Override
@@ -151,7 +151,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
                 }
             }
         }
-        return gson.fromJson(element, presetClass.get(preset.presetSubType));
+        return gson.fromJson(element, presetClass.get(preset.getPresetSubType()));
     }
 
     public void markDirty(){

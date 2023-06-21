@@ -3,13 +3,18 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
-import drawingbot.files.*;
+import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.ExportTask;
+import drawingbot.files.FileUtils;
+import drawingbot.files.json.JsonData;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.javafx.controllers.*;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
-import drawingbot.javafx.controls.*;
+import drawingbot.javafx.controllers.*;
+import drawingbot.javafx.controls.ContextMenuObservableProject;
+import drawingbot.javafx.controls.DialogPremiumFeature;
+import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
@@ -19,7 +24,9 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.render.shapes.JFXShapeManager;
-import drawingbot.utils.*;
+import drawingbot.utils.DBConstants;
+import drawingbot.utils.EnumFilterTypes;
+import drawingbot.utils.Utils;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -40,7 +47,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
 import javafx.scene.control.*;
-
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -103,7 +109,7 @@ public class FXController extends AbstractFXController {
         FXHelper.makePersistent(drawingSetsController.getPersistentNodes());
         FXHelper.makePersistent(versionControlController.getPersistentNodes());
         FXHelper.makePersistent(batchProcessingController.getPersistentNodes());
-        FXHelper.makePersistent(viewportScrollPane);
+        //FXHelper.makePersistent(viewportScrollPane);
 
 
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
@@ -158,8 +164,6 @@ public class FXController extends AbstractFXController {
     public VBox vBoxRightContainer;
     public ScrollPane scrollPaneSettingsRight = null;
     public VBox vBoxSettingsRight = null;
-
-    public DialogPresetRename presetEditorDialog = new DialogPresetRename();
 
     public void initGlobals(){
         FXHelper.makePersistent(splitPane);
@@ -635,6 +639,7 @@ public class FXController extends AbstractFXController {
         viewportScrollPane.setMaxWidth(Double.MAX_VALUE);
         viewportScrollPane.setMaxHeight(Double.MAX_VALUE);
         viewportScrollPane.setPannable(true);
+        viewportScrollPane.setId("viewportScrollPane");
         viewportScrollPane.scale.addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
         viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
@@ -705,7 +710,7 @@ public class FXController extends AbstractFXController {
             boolean success = false;
             if(db.hasFiles()){
                 List<File> files = db.getFiles();
-                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, true);
+                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, false);
                 success = true;
             }
 
@@ -1089,6 +1094,7 @@ public class FXController extends AbstractFXController {
         }
     }
 
+    @JsonData
     public static class NodePosition {
 
         public int childIndex;

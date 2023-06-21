@@ -1,8 +1,8 @@
-package drawingbot.javafx;
+package drawingbot.javafx.controllers;
 
 import org.controlsfx.control.TaskProgressView;
 
-public class FXTaskMonitorController {
+public class FXTaskMonitorController extends AbstractFXController {
 
     public TaskProgressView taskProgressView = null;
 

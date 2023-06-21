@@ -3,14 +3,13 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id "org.beryx.runtime" version "1.12.7"
+    id "org.beryx.runtime" version "1.13.0"
 }
 
 apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
-    jcenter()
     mavenCentral()
     flatDir {
         dirs 'libs'
@@ -44,10 +43,11 @@ dependencies {
     implementation "com.aparapi:aparapi:${aparapi_version}"
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
     implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
-    implementation 'org.fxmisc.easybind:easybind:1.0.3'
+    implementation "org.fxmisc.easybind:easybind:${easy_bind_version}"
 
     //required for cross platform compatibility, src: https://stackoverflow.com/questions/61579722/making-a-cross-platform-build-of-javafx-using-gradle
 
+    /*
     implementation group: 'org.openjfx', name: 'javafx-base', version: javaFX_version, classifier: 'win'
     implementation group: 'org.openjfx', name: 'javafx-base', version: javaFX_version, classifier: 'mac'
     implementation group: 'org.openjfx', name: 'javafx-base', version: javaFX_version, classifier: 'linux'
@@ -63,14 +63,14 @@ dependencies {
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFX_version, classifier: 'win'
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFX_version, classifier: 'mac'
     implementation group: 'org.openjfx', name: 'javafx-swing', version: javaFX_version, classifier: 'linux'
-
+     */
     //// JOGL
     implementation "org.jogamp.gluegen:gluegen-rt-main:${jogl_version}"
     implementation "org.jogamp.jogl:jogl-all-main:${jogl_version}"
 }
 
-//targetCompatibility = "11"
-//sourceCompatibility = "11"
+targetCompatibility = "19"
+sourceCompatibility = "19"
 
 project.setArchivesBaseName(app_name + "-" + app_version + "-" + app_state)
 project.setApplicationName(app_name)
@@ -120,7 +120,7 @@ runtime {
             imageOptions += ["--verbose"]
             installerOptions += ["--verbose", '--mac-package-name', "drawingbotv3"]
             if(project.hasProperty("developer")){
-                String id = project.getProperty("developer");
+                String id = project.getProperty("developer")
                 project.logger.lifecycle('Found a developer id, adding mac-signing')
                 imageOptions += ['--mac-sign', "--mac-signing-key-user-name", id]
                 installerOptions += ['--mac-sign', "--mac-signing-key-user-name", id]

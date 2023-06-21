@@ -8,11 +8,15 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 
-public class DialogExportDialog extends Dialog<Boolean> {
+public class DialogScrollPane extends Dialog<Boolean> {
 
     public ScrollPane scrollPane;
 
-    public DialogExportDialog(String title, Node content) {
+    public DialogScrollPane(String title, Node content) {
+        this(title, content, -1, -1);
+    }
+
+    public DialogScrollPane(String title, Node content, double prefWidth, double prefHeight) {
         super();
         setTitle(title);
 
@@ -23,9 +27,8 @@ public class DialogExportDialog extends Dialog<Boolean> {
         getDialogPane().getStylesheets().add(FXHelper.class.getResource("preference-styles.css").toExternalForm());
 
         getDialogPane().setContent(scrollPane);
-        getDialogPane().setPrefWidth(600);
-        getDialogPane().setPrefHeight(500);
-
+        getDialogPane().setPrefWidth(prefWidth);
+        getDialogPane().setPrefHeight(prefHeight);
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.OK);
         setResultConverter(param -> param == ButtonType.OK);

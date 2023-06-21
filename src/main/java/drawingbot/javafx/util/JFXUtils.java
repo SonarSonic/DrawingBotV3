@@ -6,7 +6,6 @@ import javafx.beans.value.ObservableValue;
 import org.fxmisc.easybind.Subscription;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
 
 public class JFXUtils {
 

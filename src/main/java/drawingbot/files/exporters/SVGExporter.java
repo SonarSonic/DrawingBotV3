@@ -2,19 +2,25 @@ package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
+import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.files.ExportTask;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.CanvasUtils;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 //Documentation/Source: https://xmlgraphics.apache.org/batik/using/svg-generator.html
 //Check with: https://validator.w3.org/

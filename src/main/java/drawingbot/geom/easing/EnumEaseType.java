@@ -49,9 +49,9 @@ public enum EnumEaseType {
     EASE_OUT_BOUNCE(EnumEaseCurve.BOUNCE, EnumEaseTarget.OUT, EasingUtils::easeOutBounce),
     EASE_BOTH_BOUNCE(EnumEaseCurve.BOUNCE, EnumEaseTarget.BOTH, EasingUtils::easeInOutBounce);
 
-    private EnumEaseCurve curve;
-    private EnumEaseTarget target;
-    private Function<Double, Double> easingFunction;
+    private final EnumEaseCurve curve;
+    private final EnumEaseTarget target;
+    private final Function<Double, Double> easingFunction;
 
     EnumEaseType(EnumEaseCurve curve, EnumEaseTarget target, Function<Double, Double> easingFunction) {
         this.curve = curve;

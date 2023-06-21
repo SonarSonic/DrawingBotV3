@@ -9,8 +9,8 @@ import java.io.File;
 
 public class ImageFileLoader extends AbstractFileLoader {
 
-    public ImageFileLoader(DBTaskContext context, File file, boolean internal) {
-        super(context, file, internal);
+    public ImageFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
+        super(context, file, internal, isSubTask);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ImageFileLoader extends AbstractFileLoader {
     }
 
     @Override
-    public String getFileType() {
+    public String getFileTypeDisplayName() {
         return "Image File";
     }
 }

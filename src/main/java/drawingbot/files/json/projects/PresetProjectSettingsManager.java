@@ -7,16 +7,17 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.javafx.util.UINodeState;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableVersion;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -29,7 +30,8 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class PresetProjectSettingsManager extends AbstractPresetManager<PresetProjectSettings> {
 
@@ -85,12 +87,14 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         }
     }
 
+    @JsonData
     public static class VersionData {
 
         public final ArrayList<GenericPreset<PresetProjectSettings>> versions = new ArrayList<>();
 
     }
 
+    @JsonData
     public static class DrawingSetData {
 
         public final ArrayList<ObservableDrawingSet> drawingSets = new ArrayList<>();
@@ -98,6 +102,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     }
 
+    @JsonData
     public static class ImageSettings{
         public EnumRotation imageRotation = EnumRotation.R0;
         public boolean imageFlipHorizontal = false;
@@ -108,14 +113,16 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         public float cropEndY = 0;
     }
 
+    @JsonData
     public static class UIGlobalState {
 
-        public List<UINodeState> nodes = new ArrayList<>();
+        public ArrayList<UINodeState> nodes = new ArrayList<>();
 
     }
 
 
     public static void registerDefaultDataLoaders(){
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class, "ui_state", UIGlobalState.class, UIGlobalState::new, 0){
 
             @Override
@@ -139,7 +146,9 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         });
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_DRAWING_AREA, 0));
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_FILTERS, 0));
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_PFM, 0){
 
             @Override
@@ -156,6 +165,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         });
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_UI_SETTINGS, 0));
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"versions", VersionData.class, VersionData::new, 5) {
 
             @Override
@@ -219,7 +229,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             FilteredImageData imageData = loadingTask.getValue();

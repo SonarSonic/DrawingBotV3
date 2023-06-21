@@ -12,8 +12,8 @@ import drawingbot.javafx.controls.DialogExportNPens;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.DrawingGeometryIterator;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.Register;
@@ -26,7 +26,10 @@ import org.controlsfx.control.action.Action;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 

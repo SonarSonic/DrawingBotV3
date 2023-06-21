@@ -2,7 +2,6 @@ package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
 import drawingbot.drawing.DrawingSets;
-import drawingbot.utils.Metadata;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -10,6 +9,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
+import drawingbot.utils.Metadata;
 import drawingbot.utils.MetadataMap;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
@@ -24,6 +24,7 @@ import java.util.function.BiConsumer;
 
 public class PlottedDrawing {
 
+    public UUID uuid;
     public ICanvas canvas;
     public DrawingSets drawingSets;
 
@@ -42,6 +43,7 @@ public class PlottedDrawing {
     }
 
     public PlottedDrawing(ICanvas canvas, DrawingSets drawingSets, boolean copyCanvas){
+        this.uuid = UUID.randomUUID();
         this.canvas = copyCanvas ? new SimpleCanvas(canvas) : canvas;
         this.drawingSets = drawingSets;
         this.geometries = Collections.synchronizedList(new ArrayList<>());

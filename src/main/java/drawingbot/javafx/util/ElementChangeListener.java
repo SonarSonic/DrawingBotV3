@@ -1,13 +1,5 @@
 package drawingbot.javafx.util;
 
-import drawingbot.api.IProperties;
-import javafx.beans.property.Property;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-
-
 /**
  * Attach this listener to a list of ObservableValues, to get change updates for all of them.
  */

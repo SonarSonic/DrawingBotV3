@@ -27,9 +27,7 @@
 
 package drawingbot.image.blend;
 
-import java.awt.Composite;
-import java.awt.CompositeContext;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.ColorModel;
 
 public final class BlendComposite implements Composite {

@@ -1,11 +1,9 @@
 package drawingbot.geom.operation;
 
 import drawingbot.geom.GeometryUtils;
-import drawingbot.geom.shapes.GPath;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
-import org.locationtech.jts.geom.Coordinate;
 
 /**
  * This will add multi-passes to every geometry, typically this is only used if the default Optimize operation is bypassed

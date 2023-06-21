@@ -5,7 +5,6 @@ import drawingbot.api.ICanvas;
 import drawingbot.geom.shapes.GPath;
 import drawingbot.geom.snapping.ISnappingGuide;
 import drawingbot.geom.snapping.RectangleSnappingGuide;
-import drawingbot.javafx.JFXAWTUtils;
 import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.render.shapes.TransformModes;
@@ -13,7 +12,10 @@ import drawingbot.utils.Utils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -26,7 +28,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.TransformChangedEvent;
-import org.fxmisc.easybind.EasyBind;
 
 import java.awt.geom.AffineTransform;
 import java.util.*;
@@ -80,7 +81,7 @@ public class ShapeOverlays extends AbstractOverlay{
     public enum ToolMode {
         SELECT,
         EDIT,
-        DRAW_BEZIERS;
+        DRAW_BEZIERS
     }
 
     @Override
@@ -547,7 +548,7 @@ public class ShapeOverlays extends AbstractOverlay{
             return;
         }
         if(undo.match(event)){
-            JFXShapeManager.INSTANCE.activeShapeList.get().actionManager.undo();;
+            JFXShapeManager.INSTANCE.activeShapeList.get().actionManager.undo();
             event.consume();
             return;
         }

@@ -7,17 +7,16 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.FileUtils;
 import drawingbot.files.json.adapters.*;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.javafx.GenericPreset;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.geom.AffineTransform;
@@ -49,7 +48,7 @@ public class JsonLoaderManager {
             builder.setExclusionStrategies(exclusionStrategy);
             builder.setPrettyPrinting();
             builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
-            builder.registerTypeHierarchyAdapter(ColourSeperationHandler.class, new JsonAdapterColourSplitter());
+            builder.registerTypeHierarchyAdapter(ColourSeparationHandler.class, new JsonAdapterColourSplitter());
             builder.registerTypeHierarchyAdapter(DrawingExportHandler.class, new JsonAdapterDrawingExportHandler());
             builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
             builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
@@ -155,10 +154,12 @@ public class JsonLoaderManager {
         return preset;
     }
 
-    private static void loadDefaultPresetContainerJSON(String json){
+    public static void loadDefaultPresetContainerJSON(String json){
         InputStream stream = JsonLoaderManager.class.getResourceAsStream("/presets/" + json);
         if(stream != null){
             importPresetContainerFile(stream);
+        }else{
+            DrawingBotV3.logger.warning("Missing Preset Container JSON: " + json);
         }
     }
 

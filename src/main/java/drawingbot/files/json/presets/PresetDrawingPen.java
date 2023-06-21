@@ -2,11 +2,13 @@ package drawingbot.files.json.presets;
 
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
-import drawingbot.files.json.PresetType;
 import drawingbot.files.json.IJsonData;
+import drawingbot.files.json.JsonData;
+import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.Register;
 
+@JsonData
 public class PresetDrawingPen extends DrawingPen implements IJsonData {
 
     public transient GenericPreset<PresetDrawingPen> preset;

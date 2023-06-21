@@ -1,7 +1,6 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.ICanvas;
 import drawingbot.api.IPFMImage;
 import drawingbot.api.IPixelData;
 import drawingbot.files.json.projects.DBTaskContext;

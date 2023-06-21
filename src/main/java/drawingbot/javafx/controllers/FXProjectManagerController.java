@@ -1,4 +1,4 @@
-package drawingbot.javafx;
+package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.projects.ObservableProject;
@@ -17,7 +17,7 @@ import javafx.util.converter.DefaultStringConverter;
 import org.fxmisc.easybind.EasyBind;
 
 //W.I.P
-public class FXProjectManagerController {
+public class FXProjectManagerController extends AbstractFXController {
 
     public TableView<ObservableVersion> tableViewProjects = null;
     public TableColumn<ObservableVersion, Image> projectThumbColumn = null;

@@ -6,7 +6,6 @@ import drawingbot.image.PixelDataComposite;
 import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.EnumRescaleMode;
-import drawingbot.utils.Utils;
 
 import java.awt.*;
 

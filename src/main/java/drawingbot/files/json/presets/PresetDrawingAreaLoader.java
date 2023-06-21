@@ -3,8 +3,8 @@ package drawingbot.files.json.presets;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.MasterRegistry;
 
 public class PresetDrawingAreaLoader extends AbstractPresetLoader<PresetDrawingArea> {

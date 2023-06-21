@@ -28,14 +28,15 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
         GenericPreset<IJsonData> preset = new GenericPreset<>();
         preset.presetType = MasterRegistry.INSTANCE.getPresetType(jsonObject.get(PRESET_TYPE).getAsString());
         preset.version = jsonObject.get(VERSION).getAsString();
-        preset.presetSubType = jsonObject.get(PRESET_SUB_TYPE).getAsString();
-        preset.presetName = jsonObject.get(PRESET_NAME).getAsString();
+        preset.setPresetSubType(jsonObject.get(PRESET_SUB_TYPE).getAsString());
+        preset.setPresetName(jsonObject.get(PRESET_NAME).getAsString());
         preset.userCreated = jsonObject.get(USER_CREATED).getAsBoolean();
 
         Gson gson = JsonLoaderManager.createDefaultGson();
         AbstractJsonLoader<IJsonData> manager = JsonLoaderManager.getJsonLoaderForPresetType(preset);
         if(manager != null){
             preset.data = manager.fromJsonElement(gson, preset, jsonObject.get(JSON_DATA));
+            preset.presetLoader = manager;
             return preset;
         }
         return null;
@@ -46,8 +47,8 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(PRESET_TYPE, src.presetType.id);
         jsonObject.addProperty(VERSION, src.version);
-        jsonObject.addProperty(PRESET_SUB_TYPE, src.presetSubType);
-        jsonObject.addProperty(PRESET_NAME, src.presetName);
+        jsonObject.addProperty(PRESET_SUB_TYPE, src.getPresetSubType());
+        jsonObject.addProperty(PRESET_NAME, src.getPresetName());
         jsonObject.addProperty(USER_CREATED, src.userCreated);
 
         Gson gson = JsonLoaderManager.createDefaultGson();

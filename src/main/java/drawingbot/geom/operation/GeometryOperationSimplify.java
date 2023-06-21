@@ -8,6 +8,8 @@ import drawingbot.geom.shapes.IPathElement;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 
 /**
  * This operation is always run when performing a vector based export, and creates a copy of the Geometries
@@ -32,6 +34,12 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
         int index = 0;
         for(PlottedGroup group : originalDrawing.groups.values()){
             PlottedGroup newGroup = newDrawing.getPlottedGroup(group.getGroupID());
+            FlagStates pfmFlags = group.pfmFactory == null ? Flags.DEFAULT_PFM_STATE : group.pfmFactory.getFlags();
+            if(pfmFlags.getFlag(Flags.PFM_BYPASS_GEOMETRY_OPTIMISING) || !pfmFlags.getFlag(Flags.PFM_GEOMETRY_SIMPLIFY)){
+                group.geometries.forEach(g -> newDrawing.addGeometry(g, newGroup));
+                continue;
+            }
+
             GPath currentPath = null;
             for(IGeometry geometry : group.geometries){
                 ObservableDrawingPen pen = group.drawingSet.getPen(geometry.getPenIndex());

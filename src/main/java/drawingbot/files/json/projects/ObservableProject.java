@@ -3,7 +3,7 @@ package drawingbot.files.json.projects;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.files.FileUtils;
@@ -17,12 +17,12 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.util.UINodeState;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.javafx.util.UINodeState;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.plotting.ITaskManager;
@@ -34,10 +34,7 @@ import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
-import drawingbot.utils.EnumTaskStage;
-import drawingbot.utils.Metadata;
-import drawingbot.utils.MetadataMap;
-import drawingbot.utils.UnitsLength;
+import drawingbot.utils.*;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -219,7 +216,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     // TASKS \\
     public final ObjectProperty<FilteredImageData> openImage = new SimpleObjectProperty<>(null);
-    public final ObjectProperty<PFMTask> activeTask = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<DBTask<?>> activeTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PFMTask> renderedTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PlottedDrawing> currentDrawing = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PlottedDrawing> exportDrawing = new SimpleObjectProperty<>(null);
@@ -270,7 +267,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
             lastRun.set(project.lastRun.get().copy());
         }
         if(openImage.get() != null){
-            DrawingBotV3.INSTANCE.openFile(context, openImage.get().getSourceFile(), false, false);
+            DrawingBotV3.INSTANCE.openFile(context, openImage.get().getSourceFile(), false, true);
         }
         if(currentDrawing.get() != null) {
             currentDrawing.set(project.currentDrawing.get().copy());
@@ -427,7 +424,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     @Override
-    public void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeperationHandler oldValue, ColourSeperationHandler newValue) {
+    public void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeparationHandler oldValue, ColourSeparationHandler newValue) {
         if(oldValue == newValue){
             return;
         }
@@ -459,7 +456,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     //// IMAGE FILTER EVENTS \\\\
-
     @Override
     public void onImageFilterAdded(ObservableImageFilter filter) {
         onImageFiltersChanged();
@@ -603,7 +599,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     //// DRAWING MANAGER
 
     @Override
-    public PFMTask getActiveTask(){
+    public DBTask<?> getActiveTask(){
         return activeTask.get();
     }
 
@@ -628,12 +624,12 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     @Override
-    public void setActiveTask(PFMTask task) {
+    public void setActiveTask(DBTask<?> task) {
         if(activeTask.get() == task){
             return;
         }
         if(activeTask.get() != null){
-            final PFMTask toReset = activeTask.get();
+            final DBTask<?> toReset = activeTask.get();
             DrawingBotV3.INSTANCE.backgroundService.submit(toReset::reset); //help GC by removing references to Geometries, run after other queue tasks have finished
         }
         activeTask.set(task);
@@ -647,7 +643,13 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     @Override
     public PFMTask getRenderedTask(){
-        return renderedTask.get() == null ? activeTask.get() : renderedTask.get();
+        if(renderedTask.get() != null){
+            return renderedTask.get();
+        }
+        if(activeTask.get() instanceof PFMTask){
+            return (PFMTask) activeTask.get();
+        }
+        return null;
     }
 
     @Override

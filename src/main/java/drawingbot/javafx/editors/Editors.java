@@ -1,14 +1,18 @@
 package drawingbot.javafx.editors;
 
+import drawingbot.files.json.AbstractPresetLoader;
+import drawingbot.files.json.IJsonData;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.settings.*;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -19,18 +23,181 @@ import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.ToggleSwitch;
+import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
-import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class SettingEditors {
+/**
+ * Class for creating simple editor dialogs e.g. pages of settings which can be displayed as a tree or as actual settings.
+ *
+ */
+public class Editors {
+
+    public static TreeItem<TreeNode> build(TreeNode rootNode, String search){
+        TreeItem<TreeNode> root = new TreeItem<>(rootNode);
+        root.setExpanded(true);
+
+        for(TreeNode child : rootNode.getChildren()){
+            root.getChildren().add(build(child, search));
+        }
+
+        if(search != null){
+            prune(root, search);
+        }
+
+        //sort(root, Comparator.comparing(o -> o.getValue().getName()));
+
+        return root;
+    }
+
+    public static boolean prune(TreeItem<TreeNode> treeItem, String search){
+        if(treeItem.getValue().isHiddenFromTree()){
+            return false;
+        }
+        if(treeItem.isLeaf()){
+            return treeItem.getValue().getName().toLowerCase().contains(search.toLowerCase());
+        }else{
+            List<TreeItem<TreeNode>> toRemove = new ArrayList<>();
+
+            for (TreeItem<TreeNode> child : treeItem.getChildren()) {
+                boolean keep = prune(child, search);
+                if (! keep) {
+                    toRemove.add(child);
+                }
+            }
+            treeItem.getChildren().removeAll(toRemove);
+
+            return !treeItem.getChildren().isEmpty();
+        }
+    }
+
+    private static void sort(TreeItem<TreeNode> node, Comparator<TreeItem<TreeNode>> comparator) {
+        node.getChildren().sort(comparator);
+        for (TreeItem<TreeNode> child : node.getChildren()) {
+            sort(child, comparator);
+        }
+    }
+
+    public static TreeNode root(TreeNode...children){
+        return new TreeNode("root", children);
+    }
+
+    public static TreeNode node(String name, TreeNode...children){
+        return new TreeNode(name, children);
+    }
+
+    public static PageNode page(String name, TreeNode...children){
+        return new PageNode(name, children){
+
+            @Override
+            public Node buildContent() {
+                PageBuilder builder = new PageBuilder();
+                builder.build(this.getChildren());
+                return builder.gridPane;
+            }
+        };
+    }
+    public static PageNode page(String name, Consumer<ObservableList<TreeNode>> builder){
+        PageNode pageNode = new PageNode(name){
+
+            @Override
+            public Node buildContent() {
+                PageBuilder builder = new PageBuilder();
+                builder.build(this.getChildren());
+                return builder.gridPane;
+            }
+        };
+        builder.accept(pageNode.children);
+        return pageNode;
+    }
+
+    public static void property(GridPane gridPane, String displayName, Property<?> property, Class<?> type){
+        Label label = new Label(displayName);
+        gridPane.addRow(gridPane.getRowCount(), label, Editors.createEditor(property, type));
+    }
+
+    public static void node(GridPane gridPane, Node node){
+        gridPane.add(node, 0, gridPane.getRowCount(), 2, 1);
+    }
+
+    /////////////////////////
+
 
     public static DefaultPropertyEditorFactory defaultPropertyEditorFactory = new DefaultPropertyEditorFactory();
 
+    public static PropertyEditor<?> getPropertyEditor(PropertySheet.Item item){
+        //TODO CUSTOM EDITORS
+        if(item instanceof SettingProperty && ((SettingProperty) item).setting instanceof BooleanSetting){
+            return createSwitchEditor(item);
+        }
+        return defaultPropertyEditorFactory.call(item);
+    }
+
+    public static PropertyEditor<?> createSwitchEditor( PropertySheet.Item property) {
+
+        return new AbstractPropertyEditor<Boolean, ToggleSwitch>(property, new ToggleSwitch()) {
+
+            @Override protected BooleanProperty getObservableValue() {
+                return getEditor().selectedProperty();
+            }
+
+            @Override public void setValue(Boolean value) {
+                getEditor().setSelected(value);
+            }
+        };
+    }
+
+    public static <O extends IJsonData> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(AbstractPresetLoader<O> loader){
+        ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
+        comboBox.setItems(loader.presets);
+        comboBox.setValue(loader.getDefaultPreset());
+        DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
+            comboBox.setValue(loader.getDefaultPreset());
+        });
+        comboBox.setOnAction(e -> {
+            DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
+        });
+        return comboBox;
+    }
+
+    @Nullable
+    public static Node createNodeEditor(GenericSetting<?, ?> generic){
+        if(generic instanceof AbstractNumberSetting){
+            AbstractNumberSetting<?, ?> numberSetting = (AbstractNumberSetting<?, ?>) generic;
+            if(numberSetting.isRanged){
+                TextField textField = generic.getEditableTextField();
+                Node node = generic.getJavaFXEditor(true);
+                if(node == textField){
+                    return node;
+                }
+
+                HBox hBox = new HBox();
+                hBox.setSpacing(4);
+                hBox.getChildren().addAll(node, textField);
+                HBox.setHgrow(node, Priority.ALWAYS);
+                HBox.setHgrow(textField, Priority.ALWAYS);
+                textField.setPrefWidth(80);
+                textField.setPrefHeight(12);
+                return hBox;
+            }
+        }
+
+        if(generic.hasCustomEditor()){
+            return generic.getJavaFXEditor(true);
+        }
+        return generic.getEditableTextField();
+    }
+
     public static Node createEditor(GenericSetting<?, ?> generic){
+        /*
         Node editor = null;
         if(generic instanceof BooleanSetting){
             BooleanSetting<?> setting = (BooleanSetting<?>) generic;
@@ -57,7 +224,9 @@ public class SettingEditors {
             StringSetting<?> setting = (StringSetting<?>) generic;
             editor = createTextEditor(setting.valueProperty());
         }
-        return editor;
+
+         */
+        return generic.getJavaFXEditor(true);
     }
 
     public static Node createEditor(Property property, Class<?> type){
@@ -164,7 +333,7 @@ public class SettingEditors {
 
     public static Node createLongTextEditor(LongSetting<?> longSetting){
         TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new LongStringConverter(), longSetting.getDefaultValue()));
+        textField.setTextFormatter(new TextFormatter<>(longSetting.getStringConverter(), longSetting.getDefaultValue()));
         textField.textProperty().bindBidirectional(longSetting.valueProperty(), new LongStringConverter());
         return textField;
     }
@@ -215,5 +384,4 @@ public class SettingEditors {
         textArea.setMinHeight(100);
         return textArea;
     }
-
 }

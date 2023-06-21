@@ -5,6 +5,8 @@ import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 public class FileUtils {
@@ -30,6 +32,16 @@ public class FileUtils {
     public static final FileChooser.ExtensionFilter FILTER_GCODE = new FileChooser.ExtensionFilter("GCODE", "*.gcode");
     public static final FileChooser.ExtensionFilter FILTER_HPGL = new FileChooser.ExtensionFilter("HPGL", "*.hpgl");
     public static final FileChooser.ExtensionFilter FILTER_TXT = new FileChooser.ExtensionFilter("Text File", "*.txt");
+
+    public static final FileChooser.ExtensionFilter IMPORT_ALL;
+
+    static {
+        List<String> filters = new ArrayList<>();
+        filters.addAll(IMPORT_IMAGES.getExtensions());
+        filters.addAll(IMPORT_VIDEOS.getExtensions());
+        filters.addAll(IMPORT_VECTORS.getExtensions());
+        IMPORT_ALL = new FileChooser.ExtensionFilter("Supported Files", filters);
+    }
 
     public static File removeExtension(File file){
         String path = file.toString();
@@ -88,6 +100,10 @@ public class FileUtils {
         exportDirectory = directory;
     }
 
+    public static String getTempDirectory() {
+        return System.getProperty("java.io.tmpdir");
+    }
+
     public static String getUserHomeDirectory() {
         return System.getProperty("user.home");
     }
@@ -102,6 +118,10 @@ public class FileUtils {
 
     public static String getUserFontsDirectory() {
         return getUserDataDirectory() + "fonts" + File.separator;
+    }
+
+    public static String getUserLogsDirectory() {
+        return getUserDataDirectory() + "logs" + File.separator;
     }
 
     public static PrintWriter createWriter(File file) {
@@ -126,6 +146,20 @@ public class FileUtils {
         BufferedOutputStream bos = new BufferedOutputStream(output, 8192);
         OutputStreamWriter osw = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         return new PrintWriter(osw);
+    }
+
+    public static String createPathMatcherGlob(FileChooser.ExtensionFilter ...filters){
+        StringBuilder builder = new StringBuilder();
+        for(FileChooser.ExtensionFilter filter : filters){
+            for(String extension : filter.getExtensions()){
+                extension = extension.replace("*.", "");
+                builder.append(extension);
+                builder.append(",");
+            }
+        }
+        //Remove the trailing ","
+        builder.deleteCharAt(builder.length() - 1);
+        return "glob:*.{" + builder.toString() + "}";
     }
 
     public static void createPath(File file) {

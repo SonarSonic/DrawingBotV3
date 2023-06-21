@@ -2,7 +2,6 @@ package drawingbot.javafx.controls;
 
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;

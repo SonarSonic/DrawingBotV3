@@ -4,7 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.javafx.GenericSetting;
 import javafx.util.StringConverter;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public class StringConverterGenericSetting<V> extends StringConverter<V> {

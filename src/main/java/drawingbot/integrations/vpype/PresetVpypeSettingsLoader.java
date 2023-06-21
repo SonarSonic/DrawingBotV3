@@ -41,7 +41,7 @@ public class PresetVpypeSettingsLoader extends AbstractPresetLoader<PresetVpypeS
     }
 
     public static GenericPreset<PresetVpypeSettings> getPresetOrDefault(String presetName){
-        Optional<GenericPreset<PresetVpypeSettings>> preset = Register.PRESET_LOADER_VPYPE_SETTINGS.presets.stream().filter(p -> p.presetName.equals(presetName)).findFirst();
+        Optional<GenericPreset<PresetVpypeSettings>> preset = Register.PRESET_LOADER_VPYPE_SETTINGS.presets.stream().filter(p -> p.getPresetName().equals(presetName)).findFirst();
         return preset.orElseGet(() -> Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
     }
 }

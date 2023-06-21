@@ -1,15 +1,14 @@
-package drawingbot.javafx.settings;
+package drawingbot.javafx.settings.custom;
 
 import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingStyleSet;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controls.StringConverterGenericSetting;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.util.StringConverter;
-
-import java.util.function.BiConsumer;
 
 public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> {
 
@@ -17,6 +16,9 @@ public class DrawingStylesSetting<C> extends GenericSetting<C, DrawingStyleSet> 
 
         @Override
         public String toString(Object object) {
+            if(object == null){
+                return "";
+            }
             return object.toString();
         }
 

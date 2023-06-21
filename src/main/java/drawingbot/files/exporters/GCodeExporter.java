@@ -1,10 +1,10 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.ICanvas;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.geom.shapes.IGeometry;
-import drawingbot.api.ICanvas;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.Limit;

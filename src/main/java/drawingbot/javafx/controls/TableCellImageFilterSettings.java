@@ -1,7 +1,7 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.observables.ObservableImageFilter;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;

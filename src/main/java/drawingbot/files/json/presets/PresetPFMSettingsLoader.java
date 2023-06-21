@@ -4,14 +4,16 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.pfm.PFMFactory;
-import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.pfm.PFMFactory;
+import drawingbot.registry.MasterRegistry;
 import javafx.beans.property.Property;
 import javafx.collections.ObservableList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSettings> {
 
@@ -37,13 +39,13 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
 
     @Override
     public void registerPreset(GenericPreset<PresetPFMSettings> preset) {
-        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.getPresetName());
         super.registerPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetPFMSettings> preset) {
-        DrawingBotV3.logger.finest("Unregistering PFM Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Unregistering PFM Preset: " + preset.getPresetName());
         super.unregisterPreset(preset);
     }
 
@@ -64,6 +66,5 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
         }
         return userCreated;
     }
-
 
 }

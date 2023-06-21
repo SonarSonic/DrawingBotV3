@@ -2,6 +2,16 @@ package drawingbot.files.json;
 
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.editors.LabelNode;
+import drawingbot.javafx.editors.PropertyNode;
+import drawingbot.javafx.editors.TreeNode;
+import javafx.beans.property.Property;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class AbstractPresetManager<O extends IJsonData> implements IPresetManager<O> {
 
@@ -41,4 +51,33 @@ public abstract class AbstractPresetManager<O extends IJsonData> implements IPre
     public final void tryApplyPreset(DBTaskContext context, GenericPreset<O> preset) {
         applyPreset(context, preset);
     }
+
+    public boolean isSubTypeEditable(){
+        return false;
+    }
+
+    public ObservableList<String> getObservableCategoryList(){
+        return null;
+    }
+
+    public void addEditDialogElements(GenericPreset<O> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<O>>> callbacks) {
+        builder.add(new LabelNode("Preset").setTitleStyling());
+        builder.add(new PropertyNode("Category", preset.presetSubTypeProperty(), String.class){
+            @Override
+            public Node createEditor() {
+                //Setup the special ComboBox to show a drop down for the Preset's Categories
+                ObservableList<String> categoryList = getObservableCategoryList();
+                if(categoryList != null && isSubTypeEditable()){
+                    ComboBox<String> categoryComboBox = new ComboBox<>();
+                    categoryComboBox.setEditable(true);
+                    categoryComboBox.itemsProperty().set(categoryList);
+                    categoryComboBox.valueProperty().bindBidirectional((Property<String>) property); //TODO WHY IS CATEGORY NOT SAVING?
+                    return categoryComboBox;
+                }
+                return super.createEditor();
+            }
+        }.setEditable(isSubTypeEditable()));
+        builder.add(new PropertyNode("Name", preset.presetNameProperty(), String.class));
+    }
+
 }

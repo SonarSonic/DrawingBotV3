@@ -3,7 +3,6 @@ package drawingbot.javafx.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import drawingbot.javafx.FXController;
 import org.jetbrains.annotations.Nullable;
 
 public class PropertyAccessor<TARGET, DATA> extends PropertyAccessorAbstract {

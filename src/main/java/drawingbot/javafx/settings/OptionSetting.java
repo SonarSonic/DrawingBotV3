@@ -61,6 +61,11 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
     }
 
     @Override
+    public boolean hasEditableTextField() {
+        return false;
+    }
+
+    @Override
     protected Node createJavaFXNode(boolean label) {
         ChoiceBox<V> choiceBox = new ChoiceBox<>();
         choiceBox.setItems(FXCollections.observableArrayList(values));

@@ -16,7 +16,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
-import org.fxmisc.easybind.EasyBind;
 
 import java.awt.geom.AffineTransform;
 import java.util.*;

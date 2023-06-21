@@ -1,7 +1,7 @@
 package drawingbot.utils;
 
-import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 
 import java.util.Comparator;
 

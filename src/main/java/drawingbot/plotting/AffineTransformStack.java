@@ -5,7 +5,7 @@ import java.awt.geom.AffineTransform;
 //following the designs in JOML
 public class AffineTransformStack extends AffineTransform {
 
-    private AffineTransform[] transforms;
+    private final AffineTransform[] transforms;
     private int curr;
 
     public AffineTransformStack(int stackSize) {

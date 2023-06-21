@@ -4,9 +4,9 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.javafx.GenericPreset;
 import javafx.beans.property.Property;
 import javafx.collections.ObservableList;
 
@@ -29,13 +29,13 @@ public class PresetImageFiltersLoader extends AbstractPresetLoader<PresetImageFi
 
     @Override
     public void registerPreset(GenericPreset<PresetImageFilters> preset) {
-        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Registering Image Filter Preset: " + preset.getPresetName());
         super.registerPreset(preset);
     }
 
     @Override
     public void unregisterPreset(GenericPreset<PresetImageFilters> preset) {
-        DrawingBotV3.logger.finest("Unregistering Image Filter Preset: " + preset.presetName);
+        DrawingBotV3.logger.finest("Unregistering Image Filter Preset: " + preset.getPresetName());
         super.unregisterPreset(preset);
     }
 

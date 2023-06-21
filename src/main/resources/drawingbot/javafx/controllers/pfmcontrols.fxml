@@ -6,17 +6,12 @@
 
 <VBox prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
       <children>
-          <Label contentDisplay="RIGHT" graphicTextGap="8.0" prefHeight="25.0" prefWidth="403.0" text="Path Finding Module: ">
-              <graphic>
+      <HBox spacing="4.0">
+         <children>
+            <ChoiceBox fx:id="choiceBoxPFMCategory" prefWidth="150.0" />
                   <ComboBox fx:id="comboBoxPFM" prefHeight="25.0" prefWidth="246.0" visibleRowCount="100" />
-              </graphic>
-            <padding>
-               <Insets left="8.0" />
-            </padding>
-            <VBox.margin>
-               <Insets left="6.0" />
-            </VBox.margin>
-          </Label>
+         </children>
+      </HBox>
           <Separator prefHeight="3.0" prefWidth="412.0" />
          <HBox spacing="4.0">
             <children>

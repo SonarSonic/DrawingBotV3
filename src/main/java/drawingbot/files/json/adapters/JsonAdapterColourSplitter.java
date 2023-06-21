@@ -1,20 +1,20 @@
 package drawingbot.files.json.adapters;
 
 import com.google.gson.*;
-import drawingbot.drawing.ColourSeperationHandler;
+import drawingbot.drawing.ColourSeparationHandler;
 import drawingbot.registry.MasterRegistry;
 
 import java.lang.reflect.Type;
 
-public class JsonAdapterColourSplitter implements JsonSerializer<ColourSeperationHandler>, JsonDeserializer<ColourSeperationHandler> {
+public class JsonAdapterColourSplitter implements JsonSerializer<ColourSeparationHandler>, JsonDeserializer<ColourSeparationHandler> {
 
     @Override
-    public ColourSeperationHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public ColourSeparationHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         return MasterRegistry.INSTANCE.getColourSplitter(json.getAsString());
     }
 
     @Override
-    public JsonElement serialize(ColourSeperationHandler src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(ColourSeparationHandler src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(src.name);
     }
 

@@ -30,13 +30,13 @@ public class JFXCubicCurveConverter implements JFXGeometryConverter {
     public void update(Shape shape, IGeometry geometry) {
         GCubicCurve curve = (GCubicCurve) geometry;
         CubicCurve jfxCubicCurve = (CubicCurve) shape;
-        jfxCubicCurve.setStartX(curve.x1);
-        jfxCubicCurve.setStartY(curve.y1);
-        jfxCubicCurve.setControlX1(curve.ctrlx1);
-        jfxCubicCurve.setControlY1(curve.ctrly1);
-        jfxCubicCurve.setControlX2(curve.ctrlx2);
-        jfxCubicCurve.setControlY2(curve.ctrly2);
-        jfxCubicCurve.setEndX(curve.x1);
-        jfxCubicCurve.setEndY(curve.y1);
+        jfxCubicCurve.setStartX(curve.getX1());
+        jfxCubicCurve.setStartY(curve.getY1());
+        jfxCubicCurve.setControlX1(curve.getCtrlX1());
+        jfxCubicCurve.setControlY1(curve.getCtrlY1());
+        jfxCubicCurve.setControlX2(curve.getCtrlX2());
+        jfxCubicCurve.setControlY2(curve.getCtrlY2());
+        jfxCubicCurve.setEndX(curve.getX1());
+        jfxCubicCurve.setEndY(curve.getY1());
     }
 }

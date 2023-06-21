@@ -6,15 +6,17 @@ import javafx.stage.FileChooser;
 public class PresetType {
 
     public final String id;
+    public final String displayName;
     public final FileChooser.ExtensionFilter[] filters;
     public boolean defaultsPerSubType = false;
 
-    public PresetType(String id){
-        this(id, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_JSON});
+    public PresetType(String id, String displayName){
+        this(id, displayName, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_JSON});
     }
 
-    public PresetType(String id, FileChooser.ExtensionFilter[] filters){
+    public PresetType(String id, String displayName, FileChooser.ExtensionFilter[] filters){
         this.id = id;
+        this.displayName = displayName;
         this.filters = filters;
     }
 

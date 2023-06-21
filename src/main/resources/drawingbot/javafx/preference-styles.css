@@ -20,7 +20,7 @@
 .preference-grid{
     -fx-hgap: 4;
     -fx-vgap: 6;
-    -fx-padding: 12 12 64 12;
+    -fx-padding: 12 12 32 12;
 }
 
 .preference-separator{
@@ -31,3 +31,4 @@
 .preference-reset-button{
     -fx-background-color: transparent;
 }
+

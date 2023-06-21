@@ -84,4 +84,7 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback {
         super.updateTitle(title);
     }
 
+    public void reset(){}
+
+    public void stopElegantly(){}
 }

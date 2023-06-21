@@ -25,6 +25,12 @@ public class FlagStates {
         toReset.remove(flag);
     }
 
+    public <T> void setFlags(T value, Flags.Flag<T> ...flagArray) {
+        for(Flags.Flag<T> flag : flagArray){
+            setFlag(flag, value);
+        }
+    }
+
     public <T> T getFlag(Flags.Flag<T> flag){
         return flag.type.cast(STATE_MAP.get(flag));
     }

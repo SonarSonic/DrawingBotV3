@@ -1,6 +1,5 @@
 package drawingbot.javafx.observables;
 
-import drawingbot.DrawingBotV3;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
@@ -17,7 +16,6 @@ import javafx.collections.ObservableList;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.util.List;
 
 public class ObservableImageFilter extends SpecialListenable<ObservableImageFilter.Listener> implements IProperties {
 
@@ -57,13 +55,22 @@ public class ObservableImageFilter extends SpecialListenable<ObservableImageFilt
         InvalidationListener genericListener = observable -> sendListenerEvent(listener -> listener.onImageFilterPropertyChanged(this, observable));
         this.enable.addListener(genericListener);
         this.name.addListener(genericListener);
-        this.filterSettings.forEach(s -> s.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(!s.isValueChanging()){
-                genericListener.invalidated(s);
-            }
-            // Update the displayed settings string
-            this.settingsString.set(filterSettings.toString());
-        }));
+
+        this.filterSettings.forEach(s -> {
+            s.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if(!s.isValueChanging()){
+                    genericListener.invalidated(s);
+                }
+                // Update the displayed settings string
+                this.settingsString.set(filterSettings.toString());
+            });
+            s.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
+                if(oldValue && !newValue){
+                    genericListener.invalidated(s);
+                }
+            });
+
+        });
     }
 
     public ObservableImageFilter copy(){

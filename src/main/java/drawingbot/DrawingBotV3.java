@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.integrations.vpype.VpypeSettings;
+import drawingbot.javafx.FXController;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.ITaskManager;
 import drawingbot.javafx.*;
@@ -91,7 +93,7 @@ public class DrawingBotV3 {
     public final MonadicBinding<String> projectNameBinding = EasyBind.select(activeProject).selectObject(project -> project.name);
     public final MonadicBinding<FilteredImageData> imageBinding = EasyBind.select(activeProject).selectObject(project -> project.openImage);
     public final MonadicBinding<PlottedDrawing> drawingBinding = EasyBind.select(activeProject).selectObject(project -> project.currentDrawing);
-    public final MonadicBinding<PFMTask> activeTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.activeTask);
+    public final MonadicBinding<DBTask<?>> activeTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.activeTask);
     public final MonadicBinding<PFMTask> renderedTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.renderedTask);
     public final MonadicBinding<ObservableList<ExportedDrawingEntry>> exportedDrawingsBinding = EasyBind.select(activeProject).selectObject(project -> project.exportedDrawings);
 
@@ -173,7 +175,7 @@ public class DrawingBotV3 {
     public void tick(){
 
         // Update the latest shapes/vertices counts from the active task
-        PFMTask activeTask = context().taskManager().getActiveTask();
+        PFMTask renderedTask = context().taskManager().getRenderedTask();
         PlottedDrawing currentDrawing = context().taskManager().getCurrentDrawing();
         FilteredImageData openImage = project().openImage.get();
 
@@ -207,10 +209,10 @@ public class DrawingBotV3 {
         }
 
         // Update Drawing Stats
-        if(activeTask != null){
-            geometryCount.set(activeTask.getCurrentGeometryCount());
-            vertexCount.set(activeTask.getCurrentVertexCount());
-            elapsedTimeMS.set(activeTask.getElapsedTime());
+        if(renderedTask != null){
+            geometryCount.set(renderedTask.getCurrentGeometryCount());
+            vertexCount.set(renderedTask.getCurrentVertexCount());
+            elapsedTimeMS.set(renderedTask.getElapsedTime());
         }else if(currentDrawing != null){
             geometryCount.set(currentDrawing.getDisplayedShapeMax() - currentDrawing.getDisplayedShapeMin());
             vertexCount.set(currentDrawing.getDisplayedVertexCount());
@@ -319,29 +321,27 @@ public class DrawingBotV3 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public void openFile(DBTaskContext context, File file, boolean internal, boolean changeDisplayMode) {
-        AbstractFileLoader loadingTask = getImageLoaderTask(context, file, internal, changeDisplayMode);
+    public void openFile(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
+        AbstractFileLoader loadingTask = getImageLoaderTask(context, file, internal, isSubTask);
         if(loadingTask != null){
             taskMonitor.queueTask(loadingTask);
         }
     }
 
-    public AbstractFileLoader getImageLoaderTask(DBTaskContext context, File file, boolean internal, boolean changeDisplayMode){
-        AbstractFileLoader loadingTask = MasterRegistry.INSTANCE.getFileLoader(context, file, internal);
+    public AbstractFileLoader getImageLoaderTask(DBTaskContext context, File file, boolean internal, boolean isSubTask){
+        AbstractFileLoader loadingTask = MasterRegistry.INSTANCE.getFileLoader(context, file, internal, isSubTask);
 
         //if the file loader could provide an image, wipe the current one
-        if(loadingTask.hasImageData() && context.project.activeTask.get() != null){
+        if(!isSubTask && loadingTask.hasImageData() && context.project.activeTask.get() != null){
             context.project.activeTask.get().cancel();
             context.taskManager().setActiveTask(null);
             context.project.openImage.set(null);
         }
 
         loadingTask.setOnSucceeded(e -> {
-            if(e.getSource().getValue() != null){
+            if(!isSubTask && e.getSource().getValue() != null){
                 context.project.openImage.set((FilteredImageData) e.getSource().getValue());
-                if(changeDisplayMode){
-                    Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
-                }
+                Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
                 projectName.set(file.getName());
             }
             loadingTask.onFileLoaded();
@@ -395,6 +395,7 @@ public class DrawingBotV3 {
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setScale(project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1);
+        DrawingBotV3.INSTANCE.displayMode.get().getRenderer().updateCanvasPosition();
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.layout();
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
         DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
@@ -465,71 +466,42 @@ public class DrawingBotV3 {
         taskMonitor.logTask(task);
     }
 
-    public final Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
-        DrawingBotV3.logger.log(Level.SEVERE, "Thread Exception: " + thread.getName(), throwable);
-    };
-
     public ExecutorService initTaskService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Task Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Task Runner"));
     }
 
     public ExecutorService initBackgroundService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t ;
-        });
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Main Background"));
     }
 
     public ExecutorService initLazyBackgroundService(){
-        return Executors.newCachedThreadPool(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Background Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t ;
-        });
-    }
-
-    public ExecutorService initImageLoadingService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Image Loading Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newCachedThreadPool(threadFactory("DrawingBotV3 - Lazy Background"));
     }
 
     public ExecutorService initImageFilteringService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Image Filtering Thread");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Image Filtering"));
     }
 
     public ExecutorService initParallelPlottingService(){
-        return Executors.newFixedThreadPool(5, r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Parallel Plotting Service");
-            t.setDaemon(true);
-            t.setUncaughtExceptionHandler(exceptionHandler);
-            return t;
-        });
+        return Executors.newFixedThreadPool(5, threadFactory("DrawingBotV3 - Parallel Plotting"));
     }
 
     public ExecutorService initSerialConnectionService(){
-        return Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "DrawingBotV3 - Serial Connection Writing Service");
+        return Executors.newSingleThreadExecutor(threadFactory("DrawingBotV3 - Serial Connection Writing"));
+    }
+
+    public final static Thread.UncaughtExceptionHandler exceptionHandler = (thread, throwable) -> {
+        DrawingBotV3.logger.log(Level.SEVERE, "Thread Exception: " + thread.getName(), throwable);
+    };
+
+    public static ThreadFactory threadFactory(String name){
+        return r -> {
+            Thread t = new Thread(r, name);
             t.setDaemon(true);
             t.setUncaughtExceptionHandler(exceptionHandler);
             return t;
-        });
+        };
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 }

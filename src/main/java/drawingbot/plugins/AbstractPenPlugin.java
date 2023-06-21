@@ -4,7 +4,10 @@ import drawingbot.api.IPlugin;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.registry.MasterRegistry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractPenPlugin implements IPlugin {
 

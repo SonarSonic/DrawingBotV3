@@ -1,7 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.javafx.GenericSetting;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TreeTableCell;
 
 public class TreeTableCellSettingControl extends TreeTableCell<GenericSetting<?, ?>, Object> {
@@ -15,7 +14,7 @@ public class TreeTableCellSettingControl extends TreeTableCell<GenericSetting<?,
         } else {
             setText("");
             if(getTableRow() != null && getTableRow().getItem() != null){
-                setGraphic(getTableRow().getItem().getJavaFXNode(false));
+                setGraphic(getTableRow().getItem().getJavaFXEditor(false));
             }else{
                 setGraphic(null);
             }

@@ -346,7 +346,18 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     }
 
     protected StringConverter<V> defaultStringConverter(){
-        return null;
+        return new StringConverterGenericSetting<>(() -> this);
+    }
+
+    ////////////////////////////////
+
+    private TextFormatter<V> textFormatter;
+
+    public TextFormatter<V> getTextFormatter() {
+        if (textFormatter != null) {
+            return textFormatter;
+        }
+        return textFormatter = new TextFormatter<V>(getStringConverter(), getDefaultValue());
     }
 
     ////////////////////////////////
@@ -585,10 +596,14 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return true;
     }
 
+    public boolean hasCustomEditor(){
+        return true;
+    }
+
     public TextField getEditableTextField(){
         if(textField == null){
             textField = new TextField();
-            textField.setTextFormatter(new TextFormatter<>(new StringConverterGenericSetting<>(() -> this)));
+            textField.setTextFormatter(getTextFormatter());
             textField.setText(getValueAsString());
             textField.setPrefWidth(80);
             textField.setOnAction(e -> {
@@ -606,7 +621,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return textField;
     }
 
-    public Node getJavaFXNode(boolean label){
+    public Node getJavaFXEditor(boolean label){
         if(label){
             if(labelledNode == null){
                 labelledNode = createJavaFXNode(true);

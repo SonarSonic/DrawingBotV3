@@ -3,35 +3,42 @@ package drawingbot.registry;
 import com.jhlabs.image.*;
 import drawingbot.FXApplication;
 import drawingbot.api.IPlugin;
+import drawingbot.drawing.ColourSeparationHandler;
+import drawingbot.drawing.DrawingPen;
+import drawingbot.drawing.DrawingSet;
+import drawingbot.drawing.DrawingStats;
+import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.FileUtils;
+import drawingbot.files.exporters.GCodeExporter;
+import drawingbot.files.exporters.ImageExporter;
+import drawingbot.files.exporters.PDFExporter;
+import drawingbot.files.exporters.SVGExporter;
+import drawingbot.files.json.PresetType;
+import drawingbot.files.json.presets.*;
 import drawingbot.files.json.projects.PresetProjectSettingsLoader;
 import drawingbot.files.json.projects.PresetProjectSettingsManager;
 import drawingbot.files.loaders.ImageFileLoaderFactory;
 import drawingbot.files.loaders.ProjectFileLoaderFactory;
 import drawingbot.geom.converters.*;
-import drawingbot.javafx.controls.DialogExportDialog;
-import drawingbot.javafx.observables.ObservableDrawingPen;
-import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.javafx.preferences.FXPreferences;
-import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plugins.*;
-import drawingbot.render.overlays.*;
-import drawingbot.utils.*;
-import drawingbot.files.json.presets.*;
-import drawingbot.drawing.*;
 import drawingbot.geom.shapes.*;
-import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.FileUtils;
-import drawingbot.files.exporters.*;
-import drawingbot.files.json.PresetType;
 import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
 import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controls.DialogScrollPane;
+import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.preferences.FXPreferences;
+import drawingbot.javafx.settings.ImageSetting;
+import drawingbot.javafx.settings.custom.DirtyBorderSetting;
 import drawingbot.pfm.*;
+import drawingbot.plugins.*;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.modes.DrawingJFXDisplayMode;
 import drawingbot.render.modes.ImageJFXDisplayMode;
+import drawingbot.render.overlays.*;
+import drawingbot.utils.*;
 import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -84,9 +91,10 @@ public class Register implements IPlugin {
     public static final String CATEGORY_GENERIC = "Generic"; // Priority = 0
     public static final String CATEGORY_SPIRAL = "Spiral";
     public static final String CATEGORY_PFM_SKETCH = "Sketch";
+    public static final String CATEGORY_PFM_HATCH = "Hatch";
     public static final String CATEGORY_PFM_VORONOI = "Voronoi";
     public static final String CATEGORY_PFM_ADAPTIVE = "Adaptive";
-    public static final String CATEGORY_PFM_MOSAIC = "Mosaic";
+    public static final String CATEGORY_PFM_COMPOSITE = "Composite";
     public static final String CATEGORY_PFM_SPECIAL = "Special";
     public static final String CATEGORY_PFM_WIP = "W.I.P";
 
@@ -144,16 +152,16 @@ public class Register implements IPlugin {
         // Register all Application Settings
         DBPreferences.INSTANCE.settings.forEach(setting -> MasterRegistry.INSTANCE.registerApplicationSetting(setting));
 
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_APPLICATION_SETTINGS = new PresetType("config_settings"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings").setDefaultsPerSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_APPLICATION_SETTINGS = new PresetType("config_settings", "Preferences"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", "Project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings", "PFM Preset").setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings", "UI Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters", "Image Filter Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set", "Drawing Set Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen", "Drawing Pen Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area", "Drawing Area Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings", "GCode Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings", "VPype Preset"));
 
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_APPLICATION_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
@@ -222,8 +230,8 @@ public class Register implements IPlugin {
         if(!FXApplication.isPremiumEnabled){ //swap out the basic PFMS for the premium ones
             MasterRegistry.INSTANCE.registerPFM(PFMSketchLinesBasic.class, "Sketch Lines PFM", CATEGORY_PFM_SKETCH, PFMSketchLinesBasic::new).setDisplayName("Sketch Lines").hasSampledARGB(true).setSupportsSoftClip(true);
             MasterRegistry.INSTANCE.registerPFM(PFMSketchSquaresBasic.class, "Sketch Squares PFM", CATEGORY_PFM_SKETCH, PFMSketchSquaresBasic::new).setDisplayName("Sketch Squares").hasSampledARGB(true).setSupportsSoftClip(true);
-            MasterRegistry.INSTANCE.registerPFM(PFMSpiralBasic.class, "Spiral PFM", CATEGORY_PFM_SPECIAL, PFMSpiralBasic::new).setDistributionType(EnumDistributionType.SINGLE_PEN).setTransparentCMYK(false).setDisplayName("Spiral Sawtooth").setSupportsSoftClip(true);
-            MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", CATEGORY_PFM_SPECIAL, PFMTest::new).setReleaseState(EnumReleaseState.EXPERIMENTAL).setDistributionType(EnumDistributionType.SINGLE_PEN).setSupportsSoftClip(true);
+            MasterRegistry.INSTANCE.registerPFM(PFMSpiralBasic.class, "Spiral PFM", CATEGORY_SPIRAL, PFMSpiralBasic::new).setDistributionType(EnumDistributionType.SINGLE_PEN).setTransparentCMYK(false).setDisplayName("Spiral Sawtooth").setSupportsSoftClip(true);
+            MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", CATEGORY_SPIRAL, PFMTest::new).setReleaseState(EnumReleaseState.EXPERIMENTAL).setDistributionType(EnumDistributionType.SINGLE_PEN).setSupportsSoftClip(true);
         }
     }
 
@@ -262,7 +270,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Segments", "Line Density", 75F, 0F, 100F, (pfm, value) -> pfm.lineDensity = value/100).setRandomiseExclude(true));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Min Length", 2, 2, Short.MAX_VALUE, (pfm, value) -> pfm.minLineLength = value).setSafeRange(2, 500).addAltKey("Min Line length"));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Length", 40, 2, Short.MAX_VALUE, (pfm, value) -> pfm.maxLineLength = value).setSafeRange(2, 500).addAltKey("Max Line length"));
-        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Limit", -1, -1, Integer.MAX_VALUE, (pfm, value) -> pfm.maxLines = value).setRandomiseExclude(true).addAltKey("Max Line Limit"));
+        MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Segments", "Line Max Limit", -1, -1, Integer.MAX_VALUE, (pfm, value) -> pfm.maxLines = value).setSafeRange(-1, 1000000).setRandomiseExclude(true).addAltKey("Max Line Limit"));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Min Length", 25, 0, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleMinLength = value).setSafeRange(0, 5000).setRandomiseExclude(true));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedIntSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Length", 500, 1, Short.MAX_VALUE, (pfm, value) -> pfm.squiggleMaxLength = value).setSafeRange(1, 5000).addAltKey("Squiggle Length"));
         MasterRegistry.INSTANCE.registerPFMSetting(GenericSetting.createRangedFloatSetting(AbstractSketchPFM.class, "Squiggles", "Squiggle Max Deviation", 25, 0, 100, (pfm, value) -> pfm.squiggleMaxDeviation = value/100F));
@@ -298,9 +306,11 @@ public class Register implements IPlugin {
     @Override
     public void registerImageFilters(){
 
+        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.DirtyBorder.class, "Dirty Border", SimpleBorderFilter.DirtyBorder::new, false);
+        MasterRegistry.INSTANCE.registerImageFilterSetting(new DirtyBorderSetting<>(SimpleBorderFilter.DirtyBorder.class, Register.CATEGORY_UNIQUE, "Type", 1, 1, 13).setSetter((filter, value) -> filter.borderNumber = value).setRandomiseExclude(true));
 
-        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.class, "Dirty Border", SimpleBorderFilter::new, false);
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedIntSetting(SimpleBorderFilter.class, "Type", 1, 1, 13, (filter, value) -> filter.borderNumber = value).setRandomiseExclude(true));
+        MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BORDERS, SimpleBorderFilter.CustomBorder.class, "Custom Overlay", SimpleBorderFilter.CustomBorder::new, false);
+        MasterRegistry.INSTANCE.registerImageFilterSetting(new ImageSetting<>(SimpleBorderFilter.CustomBorder.class, Register.CATEGORY_UNIQUE, "Custom File", "").setSetter((filter, value) -> filter.borderFileName = value).setRandomiseExclude(true));
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -751,16 +761,16 @@ public class Register implements IPlugin {
         EXPORT_INKSCAPE_SVG = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.SVG, "svg_inkscape", "Inkscape SVG (.svg)", true, SVGExporter::exportInkscapeSVG, FileUtils.FILTER_SVG));
         EXPORT_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_default", "Image File (.png, .jpg, etc.)", false, ImageExporter::exportImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
         EXPORT_PDF = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "pdf_default", "PDF (.pdf)", true, PDFExporter::exportPDF, FileUtils.FILTER_PDF));
-        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_default", "GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogExportDialog("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
-        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_test", "GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogExportDialog("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_GCODE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_default", "GCode File (.gcode, .txt)", true, GCodeExporter::exportGCode, e -> new DialogScrollPane("Confirm GCode Settings", FXPreferences.gcodePage.getContent(), 500, 600), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
+        EXPORT_GCODE_TEST = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "gcode_test", "GCode Test Drawing (.gcode, .txt)", true, GCodeExporter::exportGCodeTest, e -> new DialogScrollPane("Confirm GCode Settings", FXPreferences.gcodePage.getContent()), FileUtils.FILTER_GCODE, FileUtils.FILTER_TXT));
         EXPORT_REF_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_reference", "Reference Image File (.png, .jpg, etc.)", false, ImageExporter::exportReferenceImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
     }
 
-    public static ColourSeperationHandler DEFAULT_COLOUR_SPLITTER;
+    public static ColourSeparationHandler DEFAULT_COLOUR_SPLITTER;
 
     @Override
     public void registerColourSplitterHandlers(){
-        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeperationHandler("Default"));
+        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeparationHandler("Default"));
      }
 
     @Override

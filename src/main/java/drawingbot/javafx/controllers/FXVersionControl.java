@@ -21,8 +21,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.util.converter.DefaultStringConverter;
-import org.controlsfx.control.Rating;
-import org.fxmisc.easybind.EasyBind;
 
 import java.util.List;
 
@@ -98,7 +96,6 @@ public class FXVersionControl extends AbstractFXController {
         versionPFMColumn.setEditable(false);
          */
 
-        ;
         buttonAddVersion.setOnAction(e -> saveVersion());
         buttonAddVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.drawingBinding.getValue() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.drawingBinding));
         buttonAddVersion.setTooltip(new Tooltip("Save Version"));

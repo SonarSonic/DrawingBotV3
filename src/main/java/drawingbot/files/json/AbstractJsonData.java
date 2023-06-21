@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
 
+@JsonData
 public abstract class AbstractJsonData implements IJsonData {
 
     @SerializedName(value = "settings", alternate = "settingList")

@@ -5,7 +5,7 @@ import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.files.ConfigFileHandler;
+import drawingbot.files.LoggingHandler;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.preferences.DBPreferences;
@@ -53,12 +53,17 @@ public class FXApplication extends Application {
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
+    public static boolean isLoaded;
     public static MouseMonitor mouseMonitor;
 
     public static boolean isDeveloperMode = false;
 
     public static void main(String[] args) {
         launchArgs = args;
+
+        // Setup console / file logging
+        LoggingHandler.init();
+
         SplashScreen.initPreloader();
         launch(args);
     }
@@ -66,11 +71,13 @@ public class FXApplication extends Application {
     public static class InitialLoadTask extends Task<Boolean> {
 
         @Override
-        protected Boolean call() throws Exception {
-            DrawingBotV3.logger.setLevel(Level.FINE);
-            ConfigFileHandler.setupConsoleOutputFile();
-            ConfigFileHandler.logApplicationStatus();
+        protected void setException(Throwable t) {
+            super.setException(t);
+            DrawingBotV3.logger.log(Level.SEVERE, "LOAD TASK FAILED", t);
+        }
 
+        @Override
+        protected Boolean call() throws Exception {
             DrawingBotV3.logger.entering("FXApplication", "start");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +97,7 @@ public class FXApplication extends Application {
             MasterRegistry.INSTANCE.presetLoaders.forEach(AbstractJsonLoader::init);
 
             DrawingBotV3.logger.info("DrawingBotV3: Loading Configuration");
-            ConfigFileHandler.init();
+            JsonLoaderManager.loadConfigFiles();
 
             DrawingBotV3.logger.info("DrawingBotV3: Loading API");
             API.INSTANCE = new DrawingBotV3API();
@@ -248,7 +255,7 @@ public class FXApplication extends Application {
                 DrawingBotV3.logger.info("Attempting to load file at startup");
                 try {
                     File startupFile =  new File(launchArgs[0]);
-                    DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), startupFile, false, true);
+                    DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), startupFile, false, false);
                 } catch (Exception e) {
                     DrawingBotV3.logger.log(Level.SEVERE, "Failed to load file at startup", e);
                 }
@@ -256,6 +263,7 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.info("DrawingBotV3: Loaded");
             SplashScreen.stopPreloader(FXApplication.INSTANCE);
+            isLoaded = true;
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -268,13 +276,14 @@ public class FXApplication extends Application {
     public void start(Stage primaryStage) throws IOException {
         INSTANCE = this;
         FXApplication.primaryStage = primaryStage;
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            DrawingBotV3.logger.log(Level.SEVERE, e, e::getMessage);
+        });
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         ///// SETUP OUTPUTS \\\\\
         SplashScreen.startPreloader(this);
-        InitialLoadTask loadingTask = new InitialLoadTask();
-        new Thread(loadingTask).start();
     }
 
     public static Image getDBV3LogoImage(){
@@ -316,6 +325,7 @@ public class FXApplication extends Application {
     public void stop() throws Exception {
         super.stop();
         Register.PRESET_LOADER_CONFIGS.markDirty();
+        LoggingHandler.saveLoggingFiles();
     }
 
     public static class DrawTimer extends AnimationTimer{

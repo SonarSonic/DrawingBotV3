@@ -1,6 +1,8 @@
 package drawingbot.plotting;
 
+import com.itextpdf.text.pdf.parser.BezierCurve;
 import drawingbot.geom.shapes.*;
+import drawingbot.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +31,8 @@ public class PathBuilder {
     public int pathCount = 0;
 
     public boolean hasMoveTo = false;
-    private float lastMoveX = -1;
-    private float lastMoveY = -1;
+    private final float lastMoveX = -1;
+    private final float lastMoveY = -1;
     private float lastX = -1;
     private float lastY = -1;
 
@@ -158,8 +160,8 @@ public class PathBuilder {
 
     //// CATMULL ROM CURVES \\\\\
 
-    private List<float[]> catmullCurvePath;
-    private float catmullTension = 1;
+    public List<float[]> catmullCurvePath;
+    public float catmullTension = 1;
 
     public float getCatmullTension(){
         return catmullTension;
@@ -224,7 +226,7 @@ public class PathBuilder {
         catmullCurvePath.add(new float[]{x, y});
     }
 
-    private float[] P0 = null, P1 = null, P2 = null;
+    public float[] P0 = null, P1 = null, P2 = null;
     public boolean buildingCurveSegments;
 
     public void startSegments(){
@@ -327,5 +329,4 @@ public class PathBuilder {
         catmull[3][1] = bezier[0][1] + 6*(bezier[3][1] - bezier[2][1]);
         return catmull;
     }
-
 }

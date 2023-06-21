@@ -1,9 +1,15 @@
 package drawingbot.utils;
 
+import javafx.scene.Node;
+
 public interface INamedSetting {
 
     default String getDisplayName(){
         return toString();
+    }
+
+    default Node getDisplayNode(){
+        return null;
     }
 
     default EnumReleaseState getReleaseState(){
@@ -11,6 +17,10 @@ public interface INamedSetting {
     }
 
     default boolean isPremiumFeature(){
+        return false;
+    }
+
+    default boolean isNewFeature(){
         return false;
     }
 

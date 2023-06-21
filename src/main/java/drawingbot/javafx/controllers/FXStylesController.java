@@ -1,15 +1,18 @@
-package drawingbot.javafx;
+package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.drawing.DrawingStyle;
 import drawingbot.drawing.DrawingStyleSet;
+import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.json.projects.ObservableProject;
+import drawingbot.javafx.FXHelper;
+import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableDrawingStyle;
-import drawingbot.files.json.presets.PresetPFMSettings;
-import drawingbot.javafx.settings.DrawingStylesSetting;
+import drawingbot.javafx.settings.custom.DrawingStylesSetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -35,7 +38,7 @@ import org.fxmisc.easybind.EasyBind;
 import java.util.ArrayList;
 
 //TODO MAKE THIS INSTANCEABLE!
-public class FXStylesController {
+public class FXStylesController extends AbstractFXController {
 
     public DrawingStylesSetting master = null;
     public ObservableList<ObservableDrawingStyle> masterStyles = FXCollections.observableArrayList();
@@ -240,7 +243,7 @@ public class FXStylesController {
         });
 
 
-        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, Register.PRESET_LOADER_PFM::getDefaultManager, false, comboBoxPFMPreset::getValue, (preset) -> {
+        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, Register.PRESET_LOADER_PFM::getDefaultManager, comboBoxPFMPreset::getValue, (preset) -> {
             comboBoxPFMPreset.setValue(preset);
 
             ///force update rendering

@@ -30,9 +30,9 @@ public class JFXRectangleConverter implements JFXGeometryConverter {
     public void update(Shape shape, IGeometry geometry) {
         GRectangle rect = (GRectangle) geometry;
         Rectangle jfxRectangle = (Rectangle) shape;
-        jfxRectangle.setX(rect.x);
-        jfxRectangle.setY(rect.y);
-        jfxRectangle.setWidth(rect.width);
-        jfxRectangle.setHeight(rect.height);
+        jfxRectangle.setX(rect.getX());
+        jfxRectangle.setY(rect.getY());
+        jfxRectangle.setWidth(rect.getWidth());
+        jfxRectangle.setHeight(rect.getHeight());
     }
 }
