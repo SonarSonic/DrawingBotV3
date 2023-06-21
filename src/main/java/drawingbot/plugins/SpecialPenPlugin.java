@@ -21,6 +21,12 @@ public class SpecialPenPlugin implements IPlugin {
     public static DrawingSet ORIGINAL_COLOUR_SET;
     public static DrawingSet ORIGINAL_GRAYSCALE_SET;
 
+    public static DrawingPen INVERTED_COLOUR_PEN;
+    public static DrawingPen INVERTED_GRAYSCALE_PEN;
+
+    public static DrawingSet INVERTED_COLOUR_SET;
+    public static DrawingSet INVERTED_GRAYSCALE_SET;
+
     @Override
     public String getPluginName() {
         return "Special Pen Plugin";
@@ -99,6 +105,40 @@ public class SpecialPenPlugin implements IPlugin {
 
         ORIGINAL_GRAYSCALE_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Grayscale", List.of(ORIGINAL_GRAYSCALE_PEN));
         MasterRegistry.INSTANCE.registerDrawingSet(ORIGINAL_GRAYSCALE_SET);
+
+        //// INVERTED COLOURS \\\\
+
+        INVERTED_COLOUR_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour (Inverted)", -1){
+            final int white = ImageTools.getARGB(255, 255, 255, 255);
+            @Override
+            public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return white;
+                }
+                int a = pfmARGB & 0xff000000;
+                return a | (~pfmARGB & 0x00ffffff);
+            }
+        };
+        MasterRegistry.INSTANCE.registerDrawingPen(INVERTED_COLOUR_PEN);
+
+        INVERTED_GRAYSCALE_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale (Inverted)", -1){
+            final int softWhite = ImageTools.getARGB(255, 230, 230, 230);
+            @Override
+            public int getCustomARGB(int pfmARGB) {
+                if(pfmARGB == -1){
+                    return softWhite;
+                }
+                int a = pfmARGB & 0xff000000;
+                return ImageTools.grayscaleFilter(a | (~pfmARGB & 0x00ffffff));
+            }
+        };
+        MasterRegistry.INSTANCE.registerDrawingPen(INVERTED_GRAYSCALE_PEN);
+
+        INVERTED_COLOUR_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Colour (Inverted)", List.of(INVERTED_COLOUR_PEN));
+        MasterRegistry.INSTANCE.registerDrawingSet(INVERTED_COLOUR_SET);
+
+        INVERTED_GRAYSCALE_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL,"Original Grayscale (Inverted)", List.of(INVERTED_GRAYSCALE_PEN));
+        MasterRegistry.INSTANCE.registerDrawingSet(INVERTED_GRAYSCALE_SET);
     }
 
 }

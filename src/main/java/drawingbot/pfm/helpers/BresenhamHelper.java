@@ -582,6 +582,9 @@ public class BresenhamHelper {
             plotLine(x0, y0, x3, y3, setter);       /* remaining part in case of cusp or crunode */
     }
 
+    public void plotCubicBezier(float[][] bezier, IPixelSetter setter){
+        plotCubicBezier((int)bezier[0][0], (int)bezier[0][1], (int)bezier[1][0], (int)bezier[1][1], (int)bezier[2][0], (int)bezier[2][1], (int)bezier[3][0], (int)bezier[3][1], setter);
+    }
 
     public void plotCubicBezier(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, IPixelSetter setter)
     {                                              /* plot any cubic Bezier curve */

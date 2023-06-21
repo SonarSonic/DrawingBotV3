@@ -146,6 +146,10 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
                 }
             }
         }
+
+        if(dest.length >= 3){
+            dest[2] = best;
+        }
     }
 
     /** returns a random pixel of the darkest pixels found*/
