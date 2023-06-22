@@ -1,3 +1,8 @@
+### [v1.6.1-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.1-beta-free)
+- Added: Pencil Sketch V1 preset from Discord.
+- Improved: Renamed + Re-organised some ECS Drawing settings to make them easier to use.
+- Fixed: Masking Settings not appearing in the user interface
+
 ### [v1.6.0-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.0-beta-free)
 - **IMPORTANT: Premium Versions now have License Keys**, if you already own the Premium Version you'll find your license key [here](https://drawingbotv3.com/my-account/license_keys/). If you purchase DBV3 Premium in the future you'll also receive this License Key with your Order Confirmation. More details [here](https://drawingbotv3.com/license-keys/).
 - **IMPORTANT:** .jar versions of DBV3 will no longer be distributed, please use the dedicated Windows/Mac/Linux installers. This is to allow more advanced features which require specific Java versions, DBV3 now uses JAVA 19.
