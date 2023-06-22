@@ -94,6 +94,7 @@ public class Register implements IPlugin {
     public static final String CATEGORY_PFM_HATCH = "Hatch";
     public static final String CATEGORY_PFM_VORONOI = "Voronoi";
     public static final String CATEGORY_PFM_ADAPTIVE = "Adaptive";
+    public static final String CATEGORY_PFM_LBG = "LBG";
     public static final String CATEGORY_PFM_COMPOSITE = "Composite";
     public static final String CATEGORY_PFM_SPECIAL = "Special";
     public static final String CATEGORY_PFM_WIP = "W.I.P";
