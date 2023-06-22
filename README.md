@@ -1,13 +1,14 @@
 # Drawing Bot V3
 
 ![Screenshot](https://github.com/SonarSonic/DrawingBotV3/blob/master/images/screenshotV6.JPG?raw=true)
+
 [![Platforms](https://img.shields.io/badge/platform-Windows%2C%20Mac%2C%20Linux-green?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3#installation)
-![GitHub top language](https://img.shields.io/github/languages/top/SonarSonic/DrawingBotV3?style=flat-square)
-[![GitHub License](https://img.shields.io/github/license/SonarSonic/DrawingBotV3?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/blob/master/LICENSE)
+![GitHub all releases](https://img.shields.io/github/downloads/SonarSonic/DrawingBotV3/total)
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/SonarSonic/DrawingBotV3?include_prereleases&style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/releases/latest)
 [![Documentation Status](https://readthedocs.org/projects/drawingbotv3/badge/?version=latest)](https://drawingbotv3.readthedocs.io/en/latest/?badge=latest)
-![GitHub all releases](https://img.shields.io/github/downloads/SonarSonic/DrawingBotV3/total)
 [![Discord Shield](https://discordapp.com/api/guilds/929089222118359100/widget.png?style=shield)](https://discord.com/invite/pwNdjYxrM9)
+![GitHub top language](https://img.shields.io/github/languages/top/SonarSonic/DrawingBotV3?style=flat-square)
+[![GitHub License](https://img.shields.io/github/license/SonarSonic/DrawingBotV3?style=flat-square)](https://github.com/SonarSonic/DrawingBotV3/blob/master/LICENSE)
 
 ### About
 
@@ -23,6 +24,11 @@ Both versions are available for Windows, Mac and Linux.
 
 Join our [Discord Server](https://discord.com/invite/pwNdjYxrM9) to chat all things DrawingBotV3!
 
+### Examples
+
+<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_4.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_7.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_9.png?raw=true" width="250">
+<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_5.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_8.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_6.jpg?raw=true" width="250">
+<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_1.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_3.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_2.jpg?raw=true" width="250">
 
 ### Features - *Free Version*
 
