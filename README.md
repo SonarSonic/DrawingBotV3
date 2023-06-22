@@ -26,9 +26,9 @@ Join our [Discord Server](https://discord.com/invite/pwNdjYxrM9) to chat all thi
 
 ### Examples
 
-<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_4.jpg" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_7.jpg" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_9.png" width="250">
-<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_5.jpg" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_8.jpg" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_6.jpg" width="250">
-<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_1.jpg" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_3.jpg" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_2.jpg" width="250">
+<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_4.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_7.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_9.png?raw=true" width="250">
+<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_5.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_8.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_6.jpg?raw=true" width="250">
+<img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_1.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_3.jpg?raw=true" width="250"> <img src="https://github.com/SonarSonic/DrawingBotV3/blob/master/docs/source/images/examples/example_2.jpg?raw=true" width="250">
 
 ### Features - *Free Version*
 
