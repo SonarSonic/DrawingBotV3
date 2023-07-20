@@ -372,7 +372,7 @@ public class FXHelper {
         stage.hide();
         stage.setTitle(stageTitle);
         stage.setResizable(false);
-        FXApplication.applyDBStyle(stage);
+        FXApplication.applyTheme(stage);
         FXApplication.childStages.add(stage);
     }
 

@@ -109,7 +109,7 @@ public class FileUtils {
     }
 
     public static String getUserDataDirectory() {
-        return getUserHomeDirectory() + File.separator + "." + DBConstants.appName + File.separator;
+        return getUserHomeDirectory() + File.separator + "." + "DrawingBotV3" + File.separator;
     }
 
     public static String getUserThumbnailDirectory() {

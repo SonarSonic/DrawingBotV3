@@ -27,7 +27,7 @@ public class DialogPremiumFeature extends Dialog<Boolean> {
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         getDialogPane().getButtonTypes().add(upgrade);
         setResultConverter(param -> param == upgrade);
-        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyTheme((Stage)getDialogPane().getScene().getWindow());
     }
 
 }

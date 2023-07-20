@@ -81,8 +81,6 @@ public class DrawingBotV3 {
     public final VpypeSettings vpypeSettings = new VpypeSettings();
 
     // WINDOW TITLES \\
-    public final StringProperty applicationName = new SimpleStringProperty();
-    public final StringProperty versionName = new SimpleStringProperty();
     public final StringProperty projectName = new SimpleStringProperty();
 
     // PROJECTS \\

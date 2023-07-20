@@ -28,7 +28,7 @@ public class DialogGenericRename extends Dialog<String> {
         setResultConverter(param -> param == ButtonType.APPLY ? textField.getText() : value);
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.APPLY);
-        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyTheme((Stage)getDialogPane().getScene().getWindow());
     }
 
 

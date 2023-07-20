@@ -61,7 +61,7 @@ public class DialogExportNPens extends Dialog<Integer> {
             textField.commitValue();
             return param == ButtonType.APPLY ? nPens.get() : -1;
         });
-        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyTheme((Stage)getDialogPane().getScene().getWindow());
     }
 
     public void updatePenGroups(){

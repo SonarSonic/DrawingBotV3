@@ -1,6 +1,6 @@
 package drawingbot;
 
-import drawingbot.utils.DBConstants;
+import drawingbot.utils.AbstractSoftware;
 import javafx.application.Application;
 import javafx.application.Preloader;
 import javafx.geometry.Pos;
@@ -53,20 +53,22 @@ public class SplashScreen extends Preloader {
         vBox.setAlignment(Pos.CENTER);
         vBox.setPrefSize(500, 250);
 
-        Image splashImage = FXApplication.getDBV3SplashImage();
+        AbstractSoftware software = FXApplication.getSoftware();
+
+        Image splashImage = software.getSplashImage();
         if(splashImage != null){
             vBox.setBackground(new Background(new BackgroundImage(splashImage, null, null, null, null)));
         }else{
-            vBox.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0), null, null)));
+            vBox.setBackground(new Background(new BackgroundFill(new Color(0.1, 0.1, 0.1, 1), null, null)));
         }
 
-        ImageView imageView = new ImageView(FXApplication.getDBV3LogoImage());
+        ImageView imageView = new ImageView(software.getLogoImage());
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(200);
         imageView.setSmooth(true);
         vBox.getChildren().add(imageView);
 
-        versionName = new Label(DBConstants.versionName + ", " + "v" + DBConstants.appVersion);
+        versionName = new Label(software.getDisplayName() + ", " + "v" + software.getDisplayVersion());
         versionName.setFont(new Font(11));
         versionName.setTextFill(Color.LIGHTGREY);
         versionName.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0), null, null)));
@@ -91,7 +93,7 @@ public class SplashScreen extends Preloader {
         this.stage = stage;
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(createPreloaderScene());
-        FXApplication.applyDBStyle(stage);
+        FXApplication.applyTheme(stage);
         stage.show();
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);

@@ -32,7 +32,7 @@ public class DialogScrollPane extends Dialog<Boolean> {
         getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         getDialogPane().getButtonTypes().add(ButtonType.OK);
         setResultConverter(param -> param == ButtonType.OK);
-        FXApplication.applyDBStyle((Stage)getDialogPane().getScene().getWindow());
+        FXApplication.applyTheme((Stage)getDialogPane().getScene().getWindow());
     }
 
 }

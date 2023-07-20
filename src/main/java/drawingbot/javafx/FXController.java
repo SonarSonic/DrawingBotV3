@@ -648,7 +648,6 @@ public class FXController extends AbstractFXController {
 
         viewportScrollPane.contentProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-
                 ObservableObjectValue<Color> backgroundColor = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.backgroundColor);
                 newValue.styleProperty().unbind();
                 newValue.styleProperty().bind(Bindings.createStringBinding(() -> {
@@ -657,8 +656,6 @@ public class FXController extends AbstractFXController {
                 }, backgroundColor));
             }
         });
-
-
 
         VBox.setVgrow(viewportScrollPane, Priority.ALWAYS);
         HBox.setHgrow(viewportScrollPane, Priority.ALWAYS);
@@ -1034,7 +1031,7 @@ public class FXController extends AbstractFXController {
             Scene scene = new Scene(scrollPane);
             settingsStage.setScene(scene);
             settingsStage.setOnCloseRequest(event -> redockSettingsPane(pane));
-            FXApplication.applyDBStyle(settingsStage);
+            FXApplication.applyTheme(settingsStage);
             settingsStage.show();
         }else{
             redockSettingsPane(pane);

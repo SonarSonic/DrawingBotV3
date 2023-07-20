@@ -15,7 +15,7 @@ import drawingbot.render.IDisplayMode;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.render.overlays.*;
-import drawingbot.utils.DBConstants;
+import drawingbot.utils.AbstractSoftware;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
 import drawingbot.utils.Utils;
@@ -30,7 +30,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -46,6 +45,7 @@ import java.util.logging.Level;
 public class FXApplication extends Application {
 
     public static FXApplication INSTANCE;
+    public static AbstractSoftware software;
     public static String[] launchArgs = new String[0];
     public static Stage primaryStage;
     public static Scene primaryScene;
@@ -235,9 +235,9 @@ public class FXApplication extends Application {
                     DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, DrawingBotV3.INSTANCE::onKeyPressedViewport);
                     DrawingBotV3.INSTANCE.projectName.set("Untitled");
                     DrawingBotV3.INSTANCE.resetView();
-                    primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> DBConstants.versionName + ", Version: " + DBConstants.appVersion + ", " + "'" + DrawingBotV3.INSTANCE.projectNameBinding.get() + "'", DrawingBotV3.INSTANCE.applicationName, DrawingBotV3.INSTANCE.versionName, DrawingBotV3.INSTANCE.projectNameBinding));
+                    primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> FXApplication.getSoftware().getDisplayName() + ", Version: " + FXApplication.getSoftware().getDisplayVersion() + ", " + "'" + DrawingBotV3.INSTANCE.projectNameBinding.get() + "'", DrawingBotV3.INSTANCE.projectNameBinding));
                     primaryStage.setResizable(true);
-                    applyDBStyle(primaryStage);
+                    applyTheme(primaryStage);
                     primaryStage.show();
                     latchD.countDown();
 
@@ -286,35 +286,22 @@ public class FXApplication extends Application {
         SplashScreen.startPreloader(this);
     }
 
-    public static Image getDBV3LogoImage(){
-        InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
-        return stream == null ? null : new Image(stream);
+    public static AbstractSoftware getSoftware(){
+        return software;
     }
 
-    public static Image getDBV3SplashImage(){
-        InputStream stream = FXApplication.class.getResourceAsStream("/images/splash.png");
-        return stream == null ? null : new Image(stream);
+    public static void setSoftware(AbstractSoftware theme){
+        software = theme;
     }
 
-    public static void applyDBStyle(Stage primaryStage){
-        InputStream stream = FXApplication.class.getResourceAsStream("/images/icon.png");
-        if(stream != null){
-            primaryStage.getIcons().add(getDBV3LogoImage());
-        }
-        applyCurrentTheme(primaryStage.getScene());
+    public static void applyTheme(Stage primaryStage){
+        software.applyThemeToStage(primaryStage);
+        software.applyThemeToScene(primaryStage.getScene());
     }
 
     public static void applyCurrentTheme(){
-        applyCurrentTheme(primaryScene);
-        childStages.forEach(stage -> applyCurrentTheme(stage.getScene()));
-    }
-
-    public static void applyCurrentTheme(Scene scene){
-        if (DBPreferences.INSTANCE.darkTheme.get()) {
-            scene.getRoot().setStyle("-fx-base: rgba(30, 30, 30, 255); -fx-accent: rgba(0, 100, 134, 255);");
-        } else {
-            scene.getRoot().setStyle("");
-        }
+        software.applyThemeToScene(primaryScene);
+        childStages.forEach(stage -> software.applyThemeToScene(stage.getScene()));
     }
 
     public void onFirstTick(){

@@ -8,6 +8,7 @@ public class Launcher {
 
     public static void main(String[] args) {
         MasterRegistry.PLUGINS.add(new PremiumPluginDummy());
+        FXApplication.setSoftware(SoftwareDBV3Free.INSTANCE);
         FXApplication.main(args);
     }
 
