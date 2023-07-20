@@ -5,9 +5,11 @@ import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
+import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.Register;
 import drawingbot.utils.Utils;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
@@ -25,6 +27,7 @@ public class DrawingStats {
     public long geometryCount = 0;
     public long coordCount = 0;
     public long penLifts = 0;
+    public long penChanges = 0;
     public LinkedHashMap<DrawingPen, Double> penStats = new LinkedHashMap<>();
 
     public DrawingStats(PlottedDrawing exportDrawing){
@@ -43,6 +46,7 @@ public class DrawingStats {
         this.geometryCount += other.geometryCount;
         this.coordCount += other.coordCount;
         this.penLifts += other.penLifts;
+        this.penChanges += other.penChanges;
     }
 
     public void updateDrawingStats(PlottedDrawing exportDrawing, IGeometryFilter filter){
@@ -61,8 +65,6 @@ public class DrawingStats {
         long penLifts = 0;
         long penChanges = 0;
 
-        //AffineTransform printTransform = CanvasUtils.createCanvasScaleTransform(exportDrawing.getCanvas());
-
         for(PlottedGroup group : exportDrawing.groups.values()) {
             if(group.drawingSet == Register.INSTANCE.EXPORT_PATH_DRAWING_SET){
                 continue;
@@ -78,19 +80,19 @@ public class DrawingStats {
                         float[] coords = new float[6];
                         while(!it.isDone()){
                             int type = it.currentSegment(coords);
-                            double distance = Point2D.distance(lastX, lastY, coords[0], coords[1]);
-                            switch (type){
-                                case PathIterator.SEG_MOVETO:
-                                    if(hasMove){
+                            double distance = Point2D.distance(lastX, lastY, coords[0], coords[1]) / exportDrawing.getCanvas().getPlottingScale();
+                            switch (type) {
+                                case PathIterator.SEG_MOVETO -> {
+                                    if (hasMove) {
                                         distanceUpMM += distance;
-                                        penLifts ++;
+                                        penLifts++;
                                     }
                                     hasMove = true;
-                                    break;
-                                case PathIterator.SEG_LINETO:
+                                }
+                                case PathIterator.SEG_LINETO -> {
                                     distanceDownMM += distance;
                                     perPenDistance += distance;
-                                    break;
+                                }
                             }
                             lastX = coords[0];
                             lastY = coords[1];
@@ -115,6 +117,7 @@ public class DrawingStats {
         this.geometryCount = geometryCount;
         this.coordCount = coordCount;
         this.penLifts = penLifts;
+        this.penChanges = penChanges;
     }
 
     public void reset() {
