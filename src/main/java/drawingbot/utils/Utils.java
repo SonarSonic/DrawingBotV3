@@ -223,6 +223,10 @@ public class Utils {
         return Math.sqrt(((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1)));
     }
 
+    public static double distance(double x1, double y1, double x2, double y2){
+        return Math.sqrt(((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1)));
+    }
+
     public static byte[][] convertArray1Dto2D(int width, int height, byte[] src, byte[][] dst){
         int index = 0;
         for(int x = 0; x < width; x++){

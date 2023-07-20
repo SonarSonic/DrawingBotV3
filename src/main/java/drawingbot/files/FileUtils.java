@@ -74,6 +74,16 @@ public class FileUtils {
         return extensionFilter.getExtensions().contains("*" + extension.toLowerCase()) || extensionFilter.getExtensions().contains(extension.toLowerCase()) ;
     }
 
+    public static List<String> getRawExtensions(FileChooser.ExtensionFilter[] extensionFilters){
+        List<String> extensions = new ArrayList<>();
+        for(FileChooser.ExtensionFilter filter : extensionFilters){
+            for(String extension : filter.getExtensions()){
+                extensions.add(extension.replace("*", ""));
+            }
+        }
+        return extensions;
+    }
+
     private static File importDirectory = null;
 
     public static File getImportDirectory(){

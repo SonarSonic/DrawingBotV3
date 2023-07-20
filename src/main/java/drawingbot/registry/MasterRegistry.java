@@ -480,7 +480,7 @@ public class MasterRegistry {
     }
 
     public GenericFactory<BufferedImageOp> getDefaultImageFilter(EnumFilterTypes type){
-        return imgFilterFactories.get(type).stream().filter(i -> i.getRegistryName().equals("Contrast")).findFirst().orElse(null);
+        return imgFilterFactories.get(type).stream().findFirst().orElse(null);
     }
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){

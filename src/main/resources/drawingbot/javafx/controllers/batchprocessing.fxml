@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="vboxBatchProcessing" prefHeight="440.0" prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
+<VBox fx:id="vboxBatchProcessing" prefHeight="440.0" minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
    <HBox alignment="CENTER">
       <children>
           <Button fx:id="buttonSelectInputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />

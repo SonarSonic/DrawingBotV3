@@ -163,7 +163,35 @@ public class FXHelper {
         });
     }
 
+    public static String getSaveLocation(String baseName, String suffix, FileChooser.ExtensionFilter[] filters){
+        return getSaveLocation(FileUtils.getExportDirectory(), baseName, suffix, FileUtils.getRawExtensions(filters));
+    }
+
+    public static String getSaveLocation(File saveDirectory, String baseName, String suffix, List<String> extensions){
+        String saveLocation = null;
+        int iteration = 0;
+        while(saveLocation == null){
+            iteration++;
+            boolean matches = false;
+            String location = FileUtils.removeExtension(baseName) + suffix + iteration;
+            for(String extension : extensions){
+                if(new File(saveDirectory + File.separator + location + extension).exists()){
+                    matches = true;
+                    break;
+                }
+            }
+            if(!matches){
+                saveLocation = location;
+            }
+        }
+        return saveLocation;
+    }
+
     public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
+        exportFile(exportHandler, exportMode, "_plotted_", "Untitled");
+    }
+
+    public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, String suffix, String fallbackFileName){
         PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
         if(drawing == null){
             return;
@@ -173,27 +201,10 @@ public class FXHelper {
             originalFile = DrawingBotV3.project().file.get();
         }
         if(originalFile == null){
-            originalFile = new File(FileUtils.getUserDataDirectory() + File.separator + "Untitled");
+            originalFile = new File(FileUtils.getUserDataDirectory() + File.separator + fallbackFileName);
         }
 
-        String saveLocation = null;
-        int iteration = 0;
-        while(saveLocation == null){
-            iteration++;
-            boolean matches = false;
-            String location = FileUtils.removeExtension(originalFile.getName()) + "_plotted_" + iteration;
-            for(FileChooser.ExtensionFilter filter : exportHandler.filters){
-                String extension = filter.getExtensions().get(0).substring(1);
-
-                if(new File(FileUtils.getExportDirectory() + File.separator + location + extension).exists()){
-                    matches = true;
-                    break;
-                }
-            }
-            if(!matches){
-                saveLocation = location;
-            }
-        }
+        String saveLocation = getSaveLocation(originalFile.getName(), suffix, exportHandler.filters);
         exportFile((file, chooser) -> {
             exportHandler.selectedFilter = chooser.getSelectedExtensionFilter();
             DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);

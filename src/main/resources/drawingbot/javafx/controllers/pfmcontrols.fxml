@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
+<VBox minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
       <children>
       <HBox spacing="4.0">
          <children>
@@ -27,7 +27,7 @@
           <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="144.0" text="Setting" />
           <TreeTableColumn fx:id="treeTableColumnControl" minWidth="0.0" prefWidth="139.0" text="Control" />
             <TreeTableColumn fx:id="treeTableColumnValue" minWidth="0.0" prefWidth="96.0" text="Value" />
-            <TreeTableColumn fx:id="treeTableColumnLock" minWidth="1.0" prefWidth="14.0" text="Randomise Exclude" />
+            <TreeTableColumn fx:id="treeTableColumnLock" minWidth="400.0" prefWidth="14.0" text="Randomise Exclude" visible="false" />
         </columns>
       </TreeTableView>
          <HBox alignment="CENTER" prefHeight="25.0" spacing="8.0">
