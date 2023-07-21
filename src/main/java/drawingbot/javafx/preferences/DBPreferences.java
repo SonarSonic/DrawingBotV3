@@ -132,6 +132,8 @@ public class DBPreferences implements ISettings {
 
     public final StringSetting<?> svgLayerNaming = register(createStringSetting(DBPreferences.class, CATEGORY_SVG, "svgLayerNaming", "%NAME%"));
     public final BooleanSetting<?> exportSVGBackground = register(createBooleanSetting(DBPreferences.class, CATEGORY_SVG, "exportSVGBackground", false));
+    public final BooleanSetting<?> svgDrawingStatsComment = register(createBooleanSetting(DBPreferences.class, CATEGORY_SVG, "svgDrawingStatsComment", true));
+    public final BooleanSetting<?> svgPFMSettingsText = register(createBooleanSetting(DBPreferences.class, CATEGORY_SVG, "svgPFMSettingsText", false));
 
     ///////////////////////////////////////////////
 

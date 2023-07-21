@@ -120,8 +120,8 @@ public class GCodeExporter {
             }
             while(!iterator.isDone()){
                 int type = iterator.currentSegment(coords);
-                dx.update_limit(coords[0]);
-                dy.update_limit(coords[1]);
+                dx.updateLimit(coords[0]);
+                dy.updateLimit(coords[1]);
                 iterator.next();
             }
             exportTask.onGeometryExported();

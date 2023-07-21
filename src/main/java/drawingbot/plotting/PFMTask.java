@@ -3,6 +3,7 @@ package drawingbot.plotting;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IPFM;
+import drawingbot.files.json.presets.PresetPFMSettingsManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -59,6 +60,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
         this.drawing = drawing;
+        this.drawing.setMetadata(Register.INSTANCE.SETTINGS_JSON, PresetPFMSettingsManager.getPFMPresetJson(pfmFactory, pfmSettings));
         this.tools = new PlottingTools(drawing, drawing.newPlottedGroup(refPenSet, pfmFactory));
         this.tools.pfmTask = this;
         this.tools.progressCallback = this;

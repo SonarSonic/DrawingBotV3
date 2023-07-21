@@ -1,12 +1,14 @@
 package drawingbot.files.json.presets;
 
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.editors.TreeNode;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import javafx.beans.property.Property;
 import javafx.collections.ObservableList;
 
@@ -20,9 +22,17 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
         super(presetLoader);
     }
 
+
     public abstract Property<PFMFactory<?>> pfmProperty(DBTaskContext context);
 
     public abstract Property<ObservableList<GenericSetting<?, ?>>> settingProperty(DBTaskContext context);
+
+    public static String getPFMPresetJson(PFMFactory<?> pfmFactory, List<GenericSetting<?,?>> pfmSettings) {
+        GenericPreset<PresetPFMSettings> preset = Register.PRESET_LOADER_PFM.createNewPreset();
+        preset.setPresetSubType(pfmFactory.getRegistryName());
+        preset.data.settingList = GenericSetting.toJsonMap(pfmSettings, new HashMap<>(), false);
+        return JsonLoaderManager.createDefaultGson().toJson(preset);
+    }
 
     @Override
     public GenericPreset<PresetPFMSettings> updatePreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset) {

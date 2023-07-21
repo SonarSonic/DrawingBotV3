@@ -2,11 +2,13 @@ package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICustomPen;
+import drawingbot.drawing.DrawingStats;
 import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.registry.Register;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
@@ -63,8 +65,14 @@ public class SVGExporter {
             svgRoot.setAttributeNS(null, "width", exportTask.exportDrawing.getCanvas().getWidth() + exportTask.exportDrawing.getCanvas().getUnits().getSuffix());
             svgRoot.setAttributeNS(null, "height", exportTask.exportDrawing.getCanvas().getHeight() + exportTask.exportDrawing.getCanvas().getUnits().getSuffix());
 
+
             if(inkscape){
                 svgRoot.setAttributeNS(XMLNS, "xmlns:inkscape", INKSCAPE_NS);
+            }
+
+            if(DBPreferences.INSTANCE.svgDrawingStatsComment.get()) {
+                DrawingStats drawingStats = exportTask.exportDrawing.getOrCreateDrawingStats();
+                svgRoot.appendChild(document.createComment(drawingStats.getDrawingStatsComment()));
             }
 
             if(DBPreferences.INSTANCE.exportSVGBackground.get()){
@@ -145,6 +153,12 @@ public class SVGExporter {
                 index++;
             }
 
+            if(DBPreferences.INSTANCE.svgPFMSettingsText.get()){
+                String settingsJson = exportTask.exportDrawing.getMetadata(Register.INSTANCE.SETTINGS_JSON);
+                if(settingsJson != null){
+                    svgRoot.appendChild(document.createTextNode(settingsJson));
+                }
+            }
 
             // Finally, stream out SVG to the standard output using UTF-8 encoding.
             exportTask.updateMessage("Encoding SVG");

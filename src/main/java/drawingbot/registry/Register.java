@@ -121,6 +121,7 @@ public class Register implements IPlugin {
     public Metadata<Shape> CLIPPING_SHAPE;
     public Metadata<Shape> SOFT_CLIP_SHAPE;
     public Metadata<DrawingStats> DRAWING_STATS;
+    public Metadata<String> SETTINGS_JSON;
 
     public ObservableDrawingPen INVISIBLE_DRAWING_PEN;
     public DrawingPen BLACK_DRAWING_PEN;
@@ -220,7 +221,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerMetadataType(CLIPPING_SHAPE = new Metadata<>("clipping_shape", Shape.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(SOFT_CLIP_SHAPE = new Metadata<>("soft_clip_shape", Shape.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(DRAWING_STATS = new Metadata<>("drawing_stats", DrawingStats.class, false));
-
+        MasterRegistry.INSTANCE.registerMetadataType(SETTINGS_JSON = new Metadata<>("pfm_settings", String.class, false));
 
         MasterRegistry.INSTANCE.setFallbackFileLoaderFactory(new ImageFileLoaderFactory());
         MasterRegistry.INSTANCE.registerFileLoaderFactory(new ProjectFileLoaderFactory());

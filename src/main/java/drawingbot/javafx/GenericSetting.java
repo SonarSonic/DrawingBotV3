@@ -793,8 +793,9 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return dst;
     }
 
-    public static void saveValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
+    public static Map<String, String> saveValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
         list.forEach(setting -> valueMap.put(setting.getKey(), setting.getValueAsString()));
+        return valueMap;
     }
 
     public static void loadValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
@@ -812,6 +813,19 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
                 setting.setValueFromString(value);
             }
         });
+    }
+
+
+    public static Map<String, String> getValueMap(List<GenericSetting<?, ?>> pfmSettings, List<GenericSetting<?, ?>> cacheSettings){
+        Map<String, String> valueMap = new HashMap<>();
+        for(GenericSetting<?, ?> cacheSetting : cacheSettings){
+            for(GenericSetting<?, ?> pfmSetting : pfmSettings){
+                if(pfmSetting.testKey(cacheSetting.getKey()) && Objects.equals(pfmSetting.clazz, cacheSetting.clazz)){
+                    valueMap.put(pfmSetting.getKey(), pfmSetting.getValueAsString());
+                }
+            }
+        }
+        return valueMap;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

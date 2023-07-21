@@ -258,6 +258,9 @@ public class FXPreferences extends AbstractFXController {
                 Editors.page("SVG",
                         new LabelNode("General").setTitleStyling(),
                         new SettingNode("Export Background Layer", settings.exportSVGBackground),
+                        new SettingNode("Save Drawing Stats to SVG", settings.svgDrawingStatsComment),
+                        new SettingNode("Save PFM Settings to SVG", settings.svgPFMSettingsText),
+
                         new LabelNode("Inkscape SVG").setTitleStyling(),
                         new LabelNode("Create a custom layer naming pattern (with wildcards %INDEX% and %NAME%)").setSubtitleStyling(),
                         new SettingNode("Layer Name", settings.svgLayerNaming){
@@ -338,7 +341,6 @@ public class FXPreferences extends AbstractFXController {
                             }
                         }
                 ),
-                //node("HPGL"),
                 imageAnimationPage = Editors.page("Image & Animation",
                         new LabelNode("Resolution").setTitleStyling(),
                         new SettingNode("Export DPI", settings.exportDPI),

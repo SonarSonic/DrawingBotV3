@@ -2,6 +2,7 @@ package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
 import drawingbot.drawing.DrawingSets;
+import drawingbot.drawing.DrawingStats;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -587,6 +588,15 @@ public class PlottedDrawing {
     @Nullable
     public File getOriginalFile() {
         return getMetadata(Register.INSTANCE.ORIGINAL_FILE);
+    }
+
+    public DrawingStats getOrCreateDrawingStats(){
+        DrawingStats stats = getMetadata(Register.INSTANCE.DRAWING_STATS);
+        if(stats == null){
+            stats = new DrawingStats(this);
+            setMetadata(Register.INSTANCE.DRAWING_STATS, stats);
+        }
+        return getMetadata(Register.INSTANCE.DRAWING_STATS);
     }
 
 }

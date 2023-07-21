@@ -7,6 +7,7 @@ import drawingbot.image.ImageTools;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingStats;
 import drawingbot.registry.Register;
+import drawingbot.utils.UnitsLength;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -111,6 +112,8 @@ public class ExportStatsOverlays extends AbstractOverlay {
         addStat(statTextFlow,"Distance Down", preStats.distanceDownMM, postStats.distanceDownMM, "m");
         addStat(statTextFlow,"Distance Up", preStats.distanceUpMM, postStats.distanceUpMM, "m");
         addStat(statTextFlow,"Pen Lifts", preStats.penLifts, postStats.penLifts, "");
+        addDimensions(statTextFlow,"Page Size", postStats.pageWidthMM, postStats.pageHeightMM, postStats.drawingUnitsMM);
+        addDimensions(statTextFlow,"Drawing Size", postStats.drawingWidthMM, postStats.drawingHeightMM, postStats.drawingUnitsMM);
         vBox.getChildren().add(statTextFlow);
 
         ////////
@@ -133,6 +136,14 @@ public class ExportStatsOverlays extends AbstractOverlay {
         Text text = new Text();
         text.setStyle("-fx-font-size: 12px;");
         text.textProperty().bind(Bindings.createStringBinding(() -> before.getValue().toString() + "" + suffix + " -> " + after.getValue().toString() + "" + suffix + " \n", before, after));
+        flow.getChildren().add(text);
+    }
+
+    public void addDimensions(TextFlow flow, String name, Property<?> before, Property<?> after, Property<UnitsLength> units){
+        FXHelper.addText(flow, 12, "bold", name + ": ");
+        Text text = new Text();
+        text.setStyle("-fx-font-size: 12px;");
+        text.textProperty().bind(Bindings.createStringBinding(() -> before.getValue().toString() + "" + units.getValue().getSuffix() + " x " + after.getValue().toString() + "" + units.getValue().getSuffix() + " \n", before, after, units));
         flow.getChildren().add(text);
     }
 

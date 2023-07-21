@@ -1,14 +1,19 @@
 package drawingbot.utils;
 
-/**a class to check the upper and lower limits of a value */
+/**A class to check the upper and lower limits of a value */
 public class Limit {
+
     public float min = Integer.MAX_VALUE;
     public float max = Integer.MIN_VALUE;
 
     public Limit() { }
 
-    public void update_limit(float value_) {
-        if (value_ < min) { min = value_; }
-        if (value_ > max) { max = value_; }
+    public void updateLimit(float value) {
+        if (value < min) {
+            min = value;
+        }
+        if (value > max) {
+            max = value;
+        }
     }
 }
