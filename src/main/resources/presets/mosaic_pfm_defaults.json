@@ -563,6 +563,143 @@
           "Voronoi Iterations": "5"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Mosaic Triangulation",
+      "presetName": "Default",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Draw Outlines": "true",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Adaptive Triangulation",
+                "pfm": "Adaptive Triangulation",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "20.0",
+                  "Min Sample Radius": "0.75",
+                  "Ignore White": "false",
+                  "Brightness": "1.0",
+                  "Triangulate Corners": "false",
+                  "Contrast": "1.25",
+                  "Random Seed": "0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Adaptive Letters",
+                "pfm": "Adaptive Letters",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "20.0",
+                  "Order": "Random",
+                  "Ignore White": "false",
+                  "Brightness": "1.0",
+                  "Min Rotation": "0.0",
+                  "Contrast": "1.25",
+                  "SVG Font": "EMSCasualHand",
+                  "Font": "Arial",
+                  "Min Sample Radius": "0.5",
+                  "RegEx Filter": "",
+                  "Fill Size": "100.0",
+                  "Style": "Plain",
+                  "Character Filter": "",
+                  "Random Seed": "0",
+                  "Align Rotation": "true",
+                  "Max Rotation": "360.0",
+                  "Use SVG Fonts": "true"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Adaptive Dashes",
+                "pfm": "Adaptive Dashes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "12.0",
+                  "Min Sample Radius": "0.5",
+                  "Ignore White": "false",
+                  "Brightness": "1.0",
+                  "Fill Size": "500.0",
+                  "Min Rotation": "0.0",
+                  "Distortion": "0.0",
+                  "Contrast": "1.25",
+                  "Random Seed": "0",
+                  "Align Rotation": "false",
+                  "Max Rotation": "0.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Adaptive Dashes",
+                "pfm": "Adaptive Dashes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "6.0",
+                  "Min Sample Radius": "1.0",
+                  "Ignore White": "false",
+                  "Brightness": "1.0",
+                  "Fill Size": "300.0",
+                  "Min Rotation": "0.0",
+                  "Distortion": "0.0",
+                  "Contrast": "1.25",
+                  "Random Seed": "0",
+                  "Align Rotation": "true",
+                  "Max Rotation": "360.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Adaptive Dashes",
+                "pfm": "Adaptive Dashes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "12.0",
+                  "Min Sample Radius": "0.5",
+                  "Ignore White": "false",
+                  "Brightness": "1.0",
+                  "Fill Size": "500.0",
+                  "Min Rotation": "90.0",
+                  "Distortion": "0.0",
+                  "Contrast": "1.25",
+                  "Random Seed": "0",
+                  "Align Rotation": "false",
+                  "Max Rotation": "90.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Offset Cells": "1.0",
+          "Density Power": "5",
+          "Luminance Power": "5",
+          "Voronoi Style": "Smooth",
+          "Point Count": "400",
+          "Triangulate Corners": "true",
+          "Random Seed": "613566756",
+          "Voronoi Iterations": "50"
+        }
+      }
     }
   ]
 }

@@ -324,6 +324,56 @@
           "Squiggle Max Deviation": "25.0"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Sweeping Curves",
+      "presetName": "Single Pen Preset V1",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Erase Radius Min": "1.0",
+          "Erase Radius Max": "24.0",
+          "Tone": "100.0",
+          "Erase Min": "50",
+          "Erase Max": "50"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Sketch Waves PFM",
+      "presetName": "Distorted Waves",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
+          "Wave Offset Y": "45.0",
+          "Wave Offset X": "45.0",
+          "Wave Divisor X": "9.0",
+          "Start Angle": "45",
+          "Erase Radius Min": "1.0",
+          "Erase Min": "50",
+          "Squiggle Max Length": "500",
+          "Erase Radius Max": "5.0",
+          "Should Lift Pen": "true",
+          "Line Max Length": "40",
+          "Wave Type Y": "COS",
+          "Line Max Limit": "-1",
+          "Angle Tests": "20",
+          "Wave Type X": "TAN",
+          "Tone": "100.0",
+          "Line Min Length": "2",
+          "Erase Max": "125",
+          "Squiggle Min Length": "25",
+          "Wave Divisor Y": "9.0",
+          "Random Seed": "0",
+          "Line Density": "75.0",
+          "Squiggle Max Deviation": "25.0"
+        }
+      }
     }
   ]
 }
