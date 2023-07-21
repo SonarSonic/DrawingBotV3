@@ -9,10 +9,7 @@ import drawingbot.javafx.FXController;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.controls.ComboCellNamedSetting;
-import drawingbot.javafx.controls.ContextMenuGenericSetting;
-import drawingbot.javafx.controls.StringConverterGenericSetting;
-import drawingbot.javafx.controls.TreeTableCellSettingControl;
+import drawingbot.javafx.controls.*;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
@@ -155,7 +152,7 @@ public class FXPFMControls extends AbstractFXController {
         comboBoxPFMPreset.setOnAction(e -> {
             pfmSettings.get().sendListenerEvent(l -> l.onUserChangedPFMPreset(comboBoxPFMPreset.getValue()));
         });
-        comboBoxPFMPreset.setCellFactory(param -> new ComboCellNamedSetting<>());
+        comboBoxPFMPreset.setCellFactory(param -> new ComboCellPreset<>());
 
         FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, false, selectedPFMPreset);
 

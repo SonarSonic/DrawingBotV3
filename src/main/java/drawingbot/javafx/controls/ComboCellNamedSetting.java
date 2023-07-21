@@ -41,6 +41,7 @@ public class ComboCellNamedSetting<S extends INamedSetting> extends ComboBoxList
                     stateLabel.setTextFill(new Color(0/255F, 147/255F, 255/255F, 1.0));
                     box.getChildren().add(stateLabel);
                 }
+
                 node = box;
             }
             setText(null);
