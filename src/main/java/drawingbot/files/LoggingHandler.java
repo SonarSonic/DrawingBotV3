@@ -1,6 +1,7 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.utils.Utils;
 
 import java.io.*;
@@ -80,6 +81,7 @@ public class LoggingHandler {
 
             logFileStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true);
             StreamHandler streamHandler = new StreamHandler(logFileStream, new OutputFormat());
+            streamHandler.setLevel(Level.ALL);
             DrawingBotV3.logger.addHandler(streamHandler);
 
 
@@ -112,6 +114,7 @@ public class LoggingHandler {
         DrawingBotV3.logger.info("Java Home: " + System.getProperty("java.home"));
         DrawingBotV3.logger.info("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
         DrawingBotV3.logger.info("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
+        DrawingBotV3.logger.info("Running: " + FXApplication.getSoftware().getDisplayName() + " " + FXApplication.getSoftware().getDisplayVersion());
     }
 
 

@@ -234,7 +234,9 @@ public class ExportTask extends DBTask<Boolean> {
             NotificationOverlays.INSTANCE.showWithSubtitle("Export Error", error);
         }else{
             updateMessage("Finished");
-            NotificationOverlays.INSTANCE.showWithSubtitle("File Exported", saveLocation.getPath(), new Action("Open", e -> FXHelper.openFolder(saveLocation)), new Action("Open Folder", e -> FXHelper.openFolder(saveLocation.getParentFile())));
+            if(!isSubTask){
+                NotificationOverlays.INSTANCE.showWithSubtitle("File Exported", saveLocation.getPath(), new Action("Open", e -> FXHelper.openFolder(saveLocation)), new Action("Open Folder", e -> FXHelper.openFolder(saveLocation.getParentFile())));
+            }
         }
         DrawingBotV3.logger.info("Export Task: Finished " + saveLocation.getPath());
         return true;

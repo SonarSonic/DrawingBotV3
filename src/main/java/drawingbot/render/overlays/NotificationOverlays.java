@@ -46,7 +46,7 @@ public class NotificationOverlays extends AbstractOverlay{
     public void doRender() {
         super.doRender();
 
-        if(displayMS != 0 && System.currentTimeMillis() - startTime > displayMS){
+        if((displayMS == 0 && notificationPane.isShowing()) || System.currentTimeMillis() - startTime > displayMS){
             displayMS = 0;
             notificationPane.hide();
             notificationPane.setMouseTransparent(true);
@@ -70,13 +70,14 @@ public class NotificationOverlays extends AbstractOverlay{
             Platform.runLater(() -> showWithSubtitle(text, subtitle, actions));
             return;
         }
-        notificationPane.setGraphic(null);
-        notificationPane.getActions().clear();
-        notificationPane.setMouseTransparent(false);
 
         TextFlow flow = new TextFlow();
         FXHelper.addText(flow, 14, "Bold", text + "\n");
         FXHelper.addText(flow, 12, "Normal", subtitle);
+
+        notificationPane.setGraphic(null);
+        notificationPane.getActions().clear();
+        notificationPane.setMouseTransparent(false);
         notificationPane.show("", flow, actions);
         setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
 
