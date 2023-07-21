@@ -112,6 +112,7 @@ public class PlottedGroup {
         int slot = parent.drawingSets.getDrawingSetSlot(drawingSet);
         return slot == -1 ? 0 : slot;
     }
+
     //this list will be modified to represent the optimised order for the geometries, should be invalidated when anything in the group changes
     private transient Map<ObservableDrawingPen, List<IGeometry>> geometriesPerPen;
 

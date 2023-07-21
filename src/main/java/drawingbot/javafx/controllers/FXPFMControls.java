@@ -9,14 +9,16 @@ import drawingbot.javafx.FXController;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.controls.*;
+import drawingbot.javafx.controls.ComboCellNamedSetting;
+import drawingbot.javafx.controls.ContextMenuGenericSetting;
+import drawingbot.javafx.controls.StringConverterGenericSetting;
+import drawingbot.javafx.controls.TreeTableCellSettingControl;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.DBConstants;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -27,11 +29,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeTableCell;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
-import javafx.stage.Popup;
 import org.fxmisc.easybind.EasyBind;
-
-import java.util.ArrayList;
-import java.util.List;
 
 //TODO PRESETS MAY STILL APPLY TO THE MASTER REGISTRY LISTS
 public class FXPFMControls extends AbstractFXController {

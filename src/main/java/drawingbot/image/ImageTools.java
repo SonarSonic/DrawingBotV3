@@ -376,6 +376,26 @@ public class ImageTools {
         return dst;
     }
 
+    public static boolean lazyCompare(IPixelData dataA, IPixelData dataB){
+        if(dataA == null && dataB == null){
+            return true;
+        }
+        if(dataA == null || dataB == null){
+            return false;
+        }
+        if(dataA.getWidth() != dataB.getWidth() || dataA.getHeight() != dataB.getHeight()){
+            return false;
+        }
+        for(int x = 0; x < dataA.getWidth(); x++){
+            for(int y = 0; y < dataA.getHeight(); y++){
+                if(dataA.getARGB(x, y) != dataB.getARGB(x, y)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public static BufferedImage getBufferedImage(IPixelData data){
         BufferedImage image = new BufferedImage(data.getWidth(), data.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for(int x = 0; x < data.getWidth(); x ++){

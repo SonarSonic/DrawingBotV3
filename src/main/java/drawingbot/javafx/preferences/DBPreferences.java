@@ -156,14 +156,14 @@ public class DBPreferences implements ISettings {
     public final IntegerSetting<?> duration = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "duration", 5));
     public final IntegerSetting<?> frameHoldStart = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "frameHoldStart", 1));
     public final IntegerSetting<?> frameHoldEnd = register(createIntSetting(DBPreferences.class, CATEGORY_ANIMATION, "frameHoldEnd", 1));
-    public final OptionSetting<?, UnitsTime> durationUnits = register(createOptionSetting(DBPreferences.class, UnitsTime.class, CATEGORY_ANIMATION, "durationUnits", UnitsTime.OBSERVABLE_LIST, UnitsTime.SECONDS));
+    public final OptionSetting<?, UnitsTime> durationUnits = register(createOptionSetting(DBPreferences.class, UnitsTime.class, CATEGORY_ANIMATION, "durationUnits", FXCollections.observableArrayList(UnitsTime.values()), UnitsTime.SECONDS));
 
     //// ANIMATION STATS \\\\\
 
-    public final StringProperty imageExportSize = new SimpleStringProperty();
-    public final StringProperty animationFrameCount = new SimpleStringProperty();
-    public final StringProperty animationGeometriesPFrame = new SimpleStringProperty();
-    public final StringProperty animationVerticesPFrame = new SimpleStringProperty();
+    public final StringProperty imageExportSize = new SimpleStringProperty("");
+    public final StringProperty animationFrameCount = new SimpleStringProperty("");
+    public final StringProperty animationGeometriesPFrame = new SimpleStringProperty("");
+    public final StringProperty animationVerticesPFrame = new SimpleStringProperty("");
 
     ///////////////////////////////////////////////
 

@@ -1,15 +1,10 @@
 package drawingbot.utils;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 public enum UnitsTime {
 
     SECONDS("secs", 1F),
     MINUTES("mins", 60F),
     HOURS("hours", 3600F);
-
-    public static final ObservableList<UnitsTime> OBSERVABLE_LIST = FXCollections.observableArrayList(UnitsTime.values());
 
     public final String displayName;
     public final float convertToSeconds;

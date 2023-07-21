@@ -109,10 +109,10 @@ public class PFMTaskImage extends PFMTask {
     @Override
     public void reset(){
         super.reset();
-        imageData = null;
+        //imageData = null;
 
-        pixelDataReference = null;
-        pixelDataPlotting = null;
+        //pixelDataReference = null;
+        //pixelDataPlotting = null;
     }
 
     public int getBestPen(int x, int y){
