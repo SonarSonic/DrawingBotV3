@@ -2,11 +2,9 @@ package drawingbot.geom.spatial;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IProgressCallback;
-import drawingbot.geom.shapes.IGeometry;
 import drawingbot.utils.LazyTimer;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.index.strtree.ItemBoundable;
 import org.locationtech.jts.index.strtree.ItemDistance;
 import org.locationtech.jts.index.strtree.STRtree;
 
@@ -15,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public abstract class STRTreeSequencer<T> implements ItemDistance {
+public abstract class STRTreeSequencer<T> {
 
     public Collection<T> cities;
     public boolean[] sorted;
@@ -44,12 +42,11 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         int i = 0;
         for (T city : cities) {
             Coordinate startCoordinate = getStartCoordinateFromCity(city);
-            Envelope startEnvelope = new Envelope(startCoordinate.x, startCoordinate.x, startCoordinate.y, startCoordinate.y);
             Coordinate endCoordinate = getEndCoordinateFromCity(city);
-            Envelope endEnvelope = new Envelope(endCoordinate.x, endCoordinate.x, endCoordinate.y, endCoordinate.y);
+            Envelope envelope = new Envelope(startCoordinate, startCoordinate);
 
-            STRNode<T> node = new STRNode<>(i, city, startCoordinate, startEnvelope, endCoordinate, endEnvelope);
-            tree.insert(startEnvelope, node);
+            STRNode<T> node = new STRNode<>(i, city, startCoordinate, endCoordinate, envelope, this::reverseCity);
+            tree.insert(envelope, node);
             nodes.add(node);
             i++;
         }
@@ -64,7 +61,7 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         this.tree = new STRtree();
         for(STRNode<T> node : nodes){
             if(!sorted[node.index]){
-                tree.insert(node.startEnvelope, node);
+                tree.insert(node.envelope, node);
             }
         }
         this.tree.build();
@@ -80,9 +77,8 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
         int sortedCount = 1;
 
         while (sortedCount < cities.size()) {
-            STRNode<T> next = findNext(last.reverse());
-            tree.remove(next.startEnvelope, next);
-            tree.remove(next.endEnvelope, next);
+            STRNode<T> next = findNext(last);
+            tree.remove(next.envelope, next);
             consumer.accept(last, next);
             last = next;
             sorted[last.index] = true;
@@ -108,7 +104,9 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
     }
 
     public STRNode<T> findNext(STRNode<T> last) {
-        Object[] neighbours = tree.nearestNeighbour(last.startEnvelope, last, this, 150);
+        Envelope searchEnvelope = new Envelope(last.endCoord.x, last.endCoord.x, last.endCoord.y, last.endCoord.y);
+        Object[] neighbours = tree.nearestNeighbour(searchEnvelope, last, getDistanceMetricWithOrigin(last), 150);
+
         STRNode<T> next = null;
         for (Object obj : neighbours) {
             if(obj instanceof STRNode){
@@ -120,9 +118,13 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
             }
         }
 
-        if(next == null){
+        if(next == null || next.index == last.index ||sorted[next.index]){
             rebuild();
             return findNext(last);
+        }
+
+        if(canReverse(next.city) && last.endCoord.distance(next.startCoord) > last.endCoord.distance(next.endCoord)){
+            next.reverse();
         }
 
         return next;
@@ -134,7 +136,7 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
 
         for (STRNode<T> node : nodes) {
             if (node.index != last.index && !sorted[node.index]) {
-                double dist = distance(last, node);
+                double dist = distanceSTRNodes(last, node);
                 if (measuredDistance == -1 || dist < measuredDistance) {
                     measuredDistance = dist;
                     next = node;
@@ -144,6 +146,11 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
                 }
             }
         }
+
+        if(next != null && canReverse(next.city) && last.endCoord.distance(next.startCoord) > last.endCoord.distance(next.endCoord)){
+            next.reverse();
+        }
+
         return next;
     }
 
@@ -151,32 +158,29 @@ public abstract class STRTreeSequencer<T> implements ItemDistance {
 
     protected abstract Coordinate getEndCoordinateFromCity(T geometry);
 
-    @Override
-    public double distance(ItemBoundable item1, ItemBoundable item2) {
-        STRNode<T> node1 = (STRNode<T>) item1.getItem();
-        STRNode<T> node2 = (STRNode<T>) item2.getItem();
-        return distance(node1, node2);
+    public ItemDistance getDistanceMetricWithOrigin(STRNode<T> queryOrigin){
+        return (item1, item2) -> {
+            STRNode<T> node1 = (STRNode<T>) item1.getItem();
+            STRNode<T> node2 = (STRNode<T>) item2.getItem();
+
+            STRNode<T> last = node1 == queryOrigin ? node1 : node2;
+            STRNode<T> next = last == node1 ? node2 : node1;
+
+            return distanceSTRNodes(last, next);
+        };
     }
 
-    public double distance(STRNode<T> node1, STRNode<T> node2) {
-        return node1.startCoord.distance(node2.startCoord);
+    public double distanceSTRNodes(STRNode<T> last, STRNode<T> next) {
+        boolean canReverse = canReverse(next.city);
+        return Math.min(last.endCoord.distance(next.startCoord), canReverse ? last.endCoord.distance(next.endCoord) : Double.MAX_VALUE);
     }
 
-    public static class Geometry extends STRTreeSequencer<IGeometry> {
+    public T reverseCity(T city){
+        return city;
+    }
 
-        public Geometry(List<IGeometry> lineStrings, double allowableDistance) {
-            super(lineStrings, allowableDistance);
-        }
-
-        @Override
-        protected Coordinate getStartCoordinateFromCity(IGeometry geometry) {
-            return geometry.getOriginCoordinate();
-        }
-
-        @Override
-        protected Coordinate getEndCoordinateFromCity(IGeometry geometry) {
-            return geometry.getEndCoordinate();
-        }
+    public boolean canReverse(T city){
+        return false;
     }
 
 }

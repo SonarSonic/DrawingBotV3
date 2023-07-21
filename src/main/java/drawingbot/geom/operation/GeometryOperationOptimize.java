@@ -52,7 +52,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
                 if(!(entry.getKey().source instanceof ICustomPen)){
 
                     FlagStates pfmFlags = group.pfmFactory == null ? Flags.DEFAULT_PFM_STATE : group.pfmFactory.getFlags();
-                    if(group.pfmFactory != null && (pfmFlags.getFlag(Flags.PFM_BYPASS_LINE_OPTIMISING) || !pfmFlags.anyMatch(Flags.PFM_LINE_SIMPLIFY, Flags.PFM_LINE_MERGING, Flags.PFM_LINE_FILTERING, Flags.PFM_LINE_SORTING))){
+                    if(group.pfmFactory != null && (!pfmFlags.getFlag(Flags.PFM_LINE_OPTIMISING) || !pfmFlags.anyMatch(Flags.PFM_LINE_SIMPLIFY, Flags.PFM_LINE_MERGING, Flags.PFM_LINE_FILTERING, Flags.PFM_LINE_SORTING))){
                         entry.getValue().forEach(geometry -> {
                             IGeometry newGeometry;
                             if(DBPreferences.INSTANCE.multipassEnabled.get() && pfmFlags.getFlag(Flags.PFM_GEOMETRY_MULTIPASS)){

@@ -39,7 +39,7 @@ public class Flags {
     public final static Flags.BooleanFlag PFM_SUPPORTS_SOFT_CLIP = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_SUPPORTS_SOFT_CLIP", false, false));
     public final static Flags.BooleanFlag PFM_REQUIRES_PREMIUM = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_REQUIRES_PREMIUM", false, false));
 
-    public final static Flags.BooleanFlag PFM_BYPASS_LINE_OPTIMISING = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_BYPASS_LINE_OPTIMISING", false, false));
+    public final static Flags.BooleanFlag PFM_LINE_OPTIMISING = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_LINE_OPTIMISING", false, false));
     public final static Flags.BooleanFlag PFM_LINE_SIMPLIFY = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_LINE_SIMPLIFY", true, true));
     public final static Flags.BooleanFlag PFM_LINE_MERGING = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_LINE_MERGING", true, true));
     public final static Flags.BooleanFlag PFM_LINE_FILTERING = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_LINE_FILTERING", true, true));

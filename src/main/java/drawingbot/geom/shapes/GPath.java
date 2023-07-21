@@ -141,19 +141,19 @@ public class GPath extends AbstractGeometry implements IGeometry, IPathElement {
     public static void move(GPath gPath, float[] coords, int type){
         switch (type){
             case PathIterator.SEG_MOVETO:
-                gPath.awtPath.moveTo(coords[0], coords[1]);
+                gPath.moveTo(coords[0], coords[1]);
                 break;
             case PathIterator.SEG_LINETO:
-                gPath.awtPath.lineTo(coords[0], coords[1]);
+                gPath.lineTo(coords[0], coords[1]);
                 break;
             case PathIterator.SEG_QUADTO:
-                gPath.awtPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                gPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
                 break;
             case PathIterator.SEG_CUBICTO:
-                gPath.awtPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                gPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
                 break;
             case PathIterator.SEG_CLOSE:
-                gPath.awtPath.closePath();
+                gPath.closePath();
                 break;
         }
     }

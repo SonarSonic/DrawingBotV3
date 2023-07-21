@@ -230,8 +230,8 @@ public class Register implements IPlugin {
     @Override
     public void registerPFMS() {
         if(!FXApplication.isPremiumEnabled){ //swap out the basic PFMS for the premium ones
-            MasterRegistry.INSTANCE.registerPFM(PFMSketchLinesBasic.class, "Sketch Lines PFM", CATEGORY_PFM_SKETCH, PFMSketchLinesBasic::new).setDisplayName("Sketch Lines").hasSampledARGB(true).setSupportsSoftClip(true);
-            MasterRegistry.INSTANCE.registerPFM(PFMSketchSquaresBasic.class, "Sketch Squares PFM", CATEGORY_PFM_SKETCH, PFMSketchSquaresBasic::new).setDisplayName("Sketch Squares").hasSampledARGB(true).setSupportsSoftClip(true);
+            MasterRegistry.INSTANCE.registerPFM(PFMSketchLinesBasic.class, "Sketch Lines PFM", CATEGORY_PFM_SKETCH, PFMSketchLinesBasic::new).setDisplayName("Sketch Lines").hasSampledARGB(true).setLineOptimisation(true).setSupportsSoftClip(true);
+            MasterRegistry.INSTANCE.registerPFM(PFMSketchSquaresBasic.class, "Sketch Squares PFM", CATEGORY_PFM_SKETCH, PFMSketchSquaresBasic::new).setDisplayName("Sketch Squares").hasSampledARGB(true).setLineOptimisation(true).setSupportsSoftClip(true);
             MasterRegistry.INSTANCE.registerPFM(PFMSpiralBasic.class, "Spiral PFM", CATEGORY_SPIRAL, PFMSpiralBasic::new).setDistributionType(EnumDistributionType.SINGLE_PEN).setTransparentCMYK(false).setDisplayName("Spiral Sawtooth").setSupportsSoftClip(true);
             MasterRegistry.INSTANCE.registerPFM(PFMTest.class, "Test PFM", CATEGORY_SPIRAL, PFMTest::new).setReleaseState(EnumReleaseState.EXPERIMENTAL).setDistributionType(EnumDistributionType.SINGLE_PEN).setSupportsSoftClip(true);
         }

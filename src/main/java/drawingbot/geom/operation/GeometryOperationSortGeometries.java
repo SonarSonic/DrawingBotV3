@@ -1,7 +1,7 @@
 package drawingbot.geom.operation;
 
 import drawingbot.geom.shapes.IGeometry;
-import drawingbot.geom.spatial.STRTreeSequencer;
+import drawingbot.geom.spatial.STRTreeSequencerGeometry;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.PlottedDrawing;
@@ -35,8 +35,8 @@ public class GeometryOperationSortGeometries extends AbstractGeometryOperation{
                 originalGroup.geometries.forEach(g -> newDrawing.addGeometry(g, newGroup));
             }else{
                 for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
-                    STRTreeSequencer.Geometry sequencer = new STRTreeSequencer.Geometry(entry.getValue(), tolerance);
-                    sequencer.sort().forEach(g -> newDrawing.addGeometry(g, newGroup));
+                    STRTreeSequencerGeometry sequencer = new STRTreeSequencerGeometry(entry.getValue(), tolerance);
+                    sequencer.merge().forEach(g -> newDrawing.addGeometry(g, newGroup));
                 }
             }
         }

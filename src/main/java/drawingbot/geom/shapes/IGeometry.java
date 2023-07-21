@@ -110,5 +110,4 @@ public interface IGeometry {
     Coordinate getEndCoordinate();
 
     IGeometry copyGeometry();
-
 }

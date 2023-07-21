@@ -56,12 +56,12 @@ public class PFMFactory<C extends IPFM> extends GenericFactory<C> implements INa
         return this;
     }
 
-    public boolean shouldBypassOptimisation() {
-        return flags.getFlag(Flags.PFM_BYPASS_LINE_OPTIMISING);
+    public boolean shouldLineOptimise() {
+        return flags.getFlag(Flags.PFM_LINE_OPTIMISING);
     }
 
-    public PFMFactory<C> setBypassOptimisation(boolean bypassOptimisation) {
-        flags.setFlag(Flags.PFM_BYPASS_LINE_OPTIMISING, bypassOptimisation);
+    public PFMFactory<C> setLineOptimisation(boolean bypassOptimisation) {
+        flags.setFlag(Flags.PFM_LINE_OPTIMISING, bypassOptimisation);
         return this;
     }
 
