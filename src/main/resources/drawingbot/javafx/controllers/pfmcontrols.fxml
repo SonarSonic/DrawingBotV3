@@ -34,10 +34,7 @@
             <children>
                 <Button fx:id="buttonPFMSettingReset" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
                 <Button fx:id="buttonPFMSettingRandom" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
-                <Button fx:id="buttonPFMSettingHelp" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help">
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin></Button>
+                <Button fx:id="buttonPFMSettingHelp" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help"/>
             </children>
             <VBox.margin>
                <Insets />

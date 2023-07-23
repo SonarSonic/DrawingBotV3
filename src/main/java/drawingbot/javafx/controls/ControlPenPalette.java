@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
@@ -39,6 +40,7 @@ public class ControlPenPalette extends Control {
     public void init(){
         hBox = new HBox();
         swatchMap = new HashMap<>();
+        hBox.setAlignment(Pos.CENTER);
 
         minWidthProperty().bind(paletteWidth);
         minHeightProperty().bind(paletteHeight);

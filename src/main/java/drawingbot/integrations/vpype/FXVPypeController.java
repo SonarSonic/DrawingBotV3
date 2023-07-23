@@ -5,6 +5,7 @@ import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controllers.AbstractFXController;
+import drawingbot.javafx.controls.ComboCellPreset;
 import drawingbot.registry.Register;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
@@ -47,6 +48,7 @@ public class FXVPypeController extends AbstractFXController {
 
         comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
         comboBoxVPypePreset.valueProperty().bindBidirectional(selectedVPypePreset);
+        comboBoxVPypePreset.setCellFactory(f -> new ComboCellPreset<>());
 
         FXHelper.setupPresetMenuButton(menuButtonVPypePresets, Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, false, selectedVPypePreset);
 

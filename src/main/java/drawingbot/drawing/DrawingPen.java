@@ -86,7 +86,6 @@ public class DrawingPen implements IDrawingPen {
             IDrawingPen otherPen = (IDrawingPen) obj;
             return otherPen.getType().equals(getType()) && otherPen.getName().equals(getName()) && otherPen.isEnabled() == isEnabled()  && otherPen.getARGB() == getARGB() && otherPen.getStrokeSize() == getStrokeSize() && otherPen.getDistributionWeight() == getDistributionWeight();
         }
-
         return super.equals(obj);
     }
 }

@@ -27,15 +27,18 @@ public class ComboCellPreset<D extends IJsonData> extends ComboBoxListCell<Gener
                 HBox box = new HBox();
                 box.getChildren().add(new Label("  " + item.getDisplayName()));
                 if(item.userCreated){
-                    Label userLabel = new Label(" (User)");
-                    userLabel.setTextFill(new Color(0/255F, 200/255F, 130/255F, 1.0));
-                    box.getChildren().add(userLabel);
+                    box.getChildren().add(createUserLabel());
                 }
-
                 node = box;
             }
             setText(null);
             setGraphic(node);
         }
+    }
+
+    public static Label createUserLabel(){
+        Label userLabel = new Label(" (User)");
+        userLabel.setTextFill(new Color(0/255F, 200/255F, 130/255F, 1.0));
+        return userLabel;
     }
 }

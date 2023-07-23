@@ -2,9 +2,13 @@ package drawingbot.javafx.controls;
 
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
+import drawingbot.files.json.presets.PresetDrawingPen;
+import drawingbot.files.json.presets.PresetDrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.beans.InvalidationListener;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -36,18 +40,36 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
             setText(null);
             setGraphic(null);
         } else {
-            setText("  " + item.toString());
-            setGraphic(createStaticPenPalette(item.getPens()));
+            setText("");
+            HBox hBox = new HBox();
+            hBox.setAlignment(Pos.CENTER_LEFT);
             if(item instanceof ObservableDrawingSet){
                 currentDrawingSet = (ObservableDrawingSet) item;
                 currentDrawingSet.name.addListener(textListener);
-                setGraphic(new ControlPenPalette(currentDrawingSet.pens));
+                hBox.getChildren().add(new ControlPenPalette(currentDrawingSet.pens));
+            }else{
+                hBox.getChildren().add(createStaticPenPalette(item.getPens()));
             }
+            Label displayNameLabel = new Label("  " + item.getDisplayName());
+            displayNameLabel.setPrefHeight(12);
+            displayNameLabel.setTextFill(Color.BLACK);
+
+            hBox.getChildren().add(displayNameLabel);
+            if(item instanceof PresetDrawingSet){
+                PresetDrawingSet presetDrawingSet = (PresetDrawingSet) item;
+                if(presetDrawingSet.preset.userCreated){
+                    hBox.getChildren().add(ComboCellPreset.createUserLabel());
+                }
+            }
+            setGraphic(hBox);
+
         }
     }
 
     public static HBox createStaticPenPalette(List<? extends IDrawingPen> drawingPens){
         HBox box = new HBox();
+        box.setAlignment(Pos.CENTER);
+        box.setPrefHeight(12);
         int minColourWidth = 2;
         int maxColourWidth = 20;
         int penTotal = drawingPens.size();

@@ -15,6 +15,7 @@ import drawingbot.javafx.controllers.AbstractFXController;
 import drawingbot.javafx.controls.ComboCellDrawingPen;
 import drawingbot.javafx.controls.ComboCellDrawingSet;
 import drawingbot.javafx.controls.ComboCellNamedSetting;
+import drawingbot.javafx.controls.ComboCellPreset;
 import drawingbot.javafx.editors.*;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -195,6 +196,7 @@ public class FXPreferences extends AbstractFXController {
                             builder.add(new LabelNode(factory.getDisplayName(), () -> {
                                 ObservableList<GenericPreset<PresetPFMSettings>> presets = MasterRegistry.INSTANCE.getObservablePFMPresetList(factory);
                                 ComboBox<GenericPreset<PresetPFMSettings>> comboBox = new ComboBox<>();
+                                comboBox.setCellFactory(view -> new ComboCellPreset<>());
                                 comboBox.setItems(presets);
                                 comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default"));
                                 DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
@@ -281,6 +283,7 @@ public class FXPreferences extends AbstractFXController {
                                 HBox hBox = new HBox();
                                 ComboBox<GenericPreset<PresetGCodeSettings>> comboBox = new ComboBox<>();
                                 comboBox.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
+                                comboBox.setCellFactory(view -> new ComboCellPreset<>());
                                 comboBox.valueProperty().bindBidirectional(settings.selectedGCodePreset);
                                 HBox.setHgrow(comboBox, Priority.ALWAYS);
                                 hBox.getChildren().add(comboBox);
