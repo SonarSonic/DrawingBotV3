@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.controllers.AbstractFXController;
 import drawingbot.registry.Register;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
@@ -12,7 +13,7 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import java.io.File;
 import java.nio.file.Files;
 
-public class FXVPypeController {
+public class FXVPypeController extends AbstractFXController {
 
 
     public void initialize(){

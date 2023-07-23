@@ -9,9 +9,9 @@ import javafx.collections.ObservableList;
 
 public class VpypeSettings implements IProperties {
 
-    public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty();
-    public final SimpleStringProperty vPypePresetName = new SimpleStringProperty();
-    public final SimpleStringProperty vPypeCommand = new SimpleStringProperty();
+    public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty("");
+    public final SimpleStringProperty vPypePresetName = new SimpleStringProperty("");
+    public final SimpleStringProperty vPypeCommand = new SimpleStringProperty("");
     public final SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
 
     ///////////////////////////
