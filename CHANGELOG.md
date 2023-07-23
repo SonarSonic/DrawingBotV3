@@ -1,3 +1,24 @@
+### [v1.6.2-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.2-beta-free)
+- Added: New presets "Single Pen Preset V1" for Sketch Sweeping Curves and "Distorted Waves" for Sketch Waves
+- Added: "Cache Result" option to all LBG PFMs, which results in a significant increase in speed for subsequent runs on the same image if the "LBG Sampling" settings are still the same. Any changes to image filtering / drawing size will invalidate this cache.
+- Added: New "Exporting Drawing" stats, "Page Size" & "Drawing Size" (which shows the size of the area occupied by the drawing only) to make the size of the exported SVG more clear.
+- Added: SVG exports now contain the drawing stats, e.g. Shapes / Total Travel etc, enabled by default. Disable it by going to File/Preferences/SVG/Save Drawing Stats to SVG
+- Added: SVG exports can now contain the PFM Settings as a JSON preset, disabled by default. Enable it by going to File/Preferences/SVG/Save PFM Settings to SVG
+- Improved: Circular Scribbles Performance, now creates much smoother scribbles with fewer artifacts.
+- Improved: Simplified Batch Processing Notifications to reduce clutter.
+- Improved: Performance of Video Processing, frames are loaded when needed, rather than buffered at the start.  
+- Improved: Path Optimisation performance, up to 2x reduction in 'pen up' / 'air time' with some PFMs
+- Improved: User Created Presets will now have a coloured label _(User)_ indicating they can be edited/renamed/deleted etc.
+- Fixed: Curves becoming flattened to lines in some instances when exporting SVGs.
+- Fixed: Animation / Image Sequence Exporting not starting when selected.
+- Fixed: Video Exporting stopping unexpectedly or causing "Java Heap Issues"
+- Fixed: 'Image & Animation' settings category not displaying when selected in the preferences menu
+- Fixed: 'Exported Drawing' stats, in previous versions the reported distances were inaccurate.
+- Fixed: Pen Calibration PFM, crashing/hanging when the Test Count was set to 1.
+- Fixed: LBG Circular Scribbles not rendering a preview while the sampling is running.
+- Fixed: Export File Notifications glitching when using Batch Processing.
+- Fixed: Interactions with the "Export to vPype" interface
+
 ### [v1.6.1-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.1-beta-free)
 - Added: Pencil Sketch V1 preset from Discord.
 - Improved: Renamed + Re-organised some ECS Drawing settings to make them easier to use.
