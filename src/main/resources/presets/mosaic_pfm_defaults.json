@@ -700,6 +700,105 @@
           "Voronoi Iterations": "50"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Layers PFM",
+      "presetName": "Light Crosshatch",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Curves",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "0.0",
+                  "Start Angle Min": "-35",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Erase Radius Max": "12.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "40",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "-65",
+                  "Curve Tension": "0.5",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Erase Radius Min": "1.0",
+                  "Shading": "true",
+                  "Squiggle Max Length": "500",
+                  "Clarity": "25.0",
+                  "Directionality": "25.0",
+                  "Angle Tests": "50",
+                  "Tone": "100.0",
+                  "Line Min Length": "5",
+                  "Erase Max": "125",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Curves",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "0.0",
+                  "Start Angle Min": "35",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Erase Radius Max": "12.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "40",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "65",
+                  "Curve Tension": "0.5",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Erase Radius Min": "1.0",
+                  "Shading": "true",
+                  "Squiggle Max Length": "500",
+                  "Clarity": "25.0",
+                  "Directionality": "25.0",
+                  "Angle Tests": "50",
+                  "Tone": "100.0",
+                  "Line Min Length": "5",
+                  "Erase Max": "125",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Layer Distribution": "Ordered",
+          "Keep Lightened Image": "true"
+        }
+      }
     }
   ]
 }

@@ -296,7 +296,7 @@ public class DrawingBotV3 {
     public void saveLastRun(DBTaskContext context){
         backgroundService.submit(() -> {
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset); //TODO FIXME! - is last run even used ?
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false); //TODO FIXME! - is last run even used ?
             context.project().lastRun.set(new ObservableVersion(preset, true));
         });
     }
