@@ -35,7 +35,7 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
     }
 
     @Override
-    public GenericPreset<PresetPFMSettings> updatePreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset) {
+    public GenericPreset<PresetPFMSettings> updatePreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset, boolean loadingProject) {
         PFMFactory<?> pfm = pfmProperty(context).getValue();
         ObservableList<GenericSetting<?, ?>> settings = settingProperty(context).getValue();
         if(pfm != null && settings != null) {
@@ -46,7 +46,7 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset, boolean loadingProject) {
         pfmProperty(context).setValue(MasterRegistry.INSTANCE.getPFMFactory(preset.getPresetSubType()));
         Property<ObservableList<GenericSetting<?, ?>>> settings = settingProperty(context);
         GenericSetting.applySettings(preset.data.settingList, settings.getValue());

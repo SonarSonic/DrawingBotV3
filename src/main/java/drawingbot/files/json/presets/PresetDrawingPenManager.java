@@ -25,7 +25,7 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Pres
     public abstract IDrawingPen getSelectedDrawingPen();
 
     @Override
-    public GenericPreset<PresetDrawingPen> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset) {
+    public GenericPreset<PresetDrawingPen> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset, boolean loadingProject) {
         IDrawingPen selectedPen = getSelectedDrawingPen();
         if (selectedPen != null) {
             DrawingPen pen = new DrawingPen(selectedPen);
@@ -39,7 +39,7 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Pres
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset, boolean loadingProject) {
         //nothing to apply
     }
 

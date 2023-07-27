@@ -27,7 +27,7 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
         GenericPreset<O> defaultPreset = getDefaultPreset();
         AbstractPresetManager<O> presetManager = getDefaultManager();
         if(defaultPreset != null && presetManager != null){
-            presetManager.applyPreset(DrawingBotV3.context(), defaultPreset);
+            presetManager.applyPreset(DrawingBotV3.context(), defaultPreset, false);
         }
     }
 

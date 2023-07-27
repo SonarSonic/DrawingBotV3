@@ -40,7 +40,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
     }
 
     @Override
-    public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
+    public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject) {
         PlottedDrawing renderedDrawing = context.taskManager().getCurrentDrawing();
         preset.data.imagePath = context.project.openImage.get() != null && context.project.openImage.get().getSourceFile() != null ? context.project.openImage.get().getSourceFile().getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
@@ -71,7 +71,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject) {
         if(preset.data instanceof PresetProjectSettingsLegacy){
             PresetProjectSettingsManagerLegacy.applyPreset(context, preset);
             return;
@@ -164,7 +164,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                 super.loadData(context, gson, element, preset);
             }
         });
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_UI_SETTINGS, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_LOADER_UI_SETTINGS, 0));
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"versions", VersionData.class, VersionData::new, 5) {
 
@@ -229,7 +229,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
+                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             FilteredImageData imageData = loadingTask.getValue();

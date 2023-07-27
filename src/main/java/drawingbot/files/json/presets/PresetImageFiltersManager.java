@@ -21,7 +21,7 @@ public abstract class PresetImageFiltersManager extends AbstractPresetManager<Pr
     public abstract Property<ObservableList<ObservableImageFilter>> imageFiltersProperty(DBTaskContext context);
 
     @Override
-    public GenericPreset<PresetImageFilters> updatePreset(DBTaskContext context, GenericPreset<PresetImageFilters> preset) {
+    public GenericPreset<PresetImageFilters> updatePreset(DBTaskContext context, GenericPreset<PresetImageFilters> preset, boolean loadingProject) {
         ObservableList<ObservableImageFilter> filterList = imageFiltersProperty(context).getValue();
         if(filterList != null){
             preset.data.filters.clear();
@@ -31,7 +31,7 @@ public abstract class PresetImageFiltersManager extends AbstractPresetManager<Pr
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetImageFilters> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetImageFilters> preset, boolean loadingProject) {
         ObservableList<ObservableImageFilter> filterList = imageFiltersProperty(context).getValue();
         if(filterList != null) {
             filterList.clear();

@@ -104,7 +104,7 @@ public class FXVersionControl extends AbstractFXController {
         buttonDeleteVersion.setTooltip(new Tooltip("Remove selected version"));
         buttonDeleteVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
 
-        buttonLoadVersion.setOnAction(e -> Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(DrawingBotV3.context(), tableViewVersions.getSelectionModel().getSelectedItem().getPreset()));
+        buttonLoadVersion.setOnAction(e -> Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(DrawingBotV3.context(), tableViewVersions.getSelectionModel().getSelectedItem().getPreset(), false));
         buttonLoadVersion.setTooltip(new Tooltip("Load the selected version"));
         buttonLoadVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
 
@@ -125,7 +125,7 @@ public class FXVersionControl extends AbstractFXController {
         final ObservableList<ObservableVersion> list = projectVersions.get();
         DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false);
             list.add(new ObservableVersion(preset, true));
             NotificationOverlays.INSTANCE.showWithSubtitle("Saved New Version", preset.data.imagePath);
         });

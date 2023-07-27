@@ -46,7 +46,7 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
     public abstract I getInstance(DBTaskContext context);
 
     @Override
-    public GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset) {
+    public GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject) {
         I instance = getInstance(context);
         if(instance != null){
             GenericSetting.updateSettingsFromInstance(settings, instance);
@@ -66,7 +66,7 @@ public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extend
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<O> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject) {
         I instance = getInstance(context);
         if(instance != null) {
             GenericSetting.applySettings(preset.data.settings, settings);

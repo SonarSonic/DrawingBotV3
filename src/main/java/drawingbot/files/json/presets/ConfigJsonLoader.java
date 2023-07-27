@@ -30,19 +30,19 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
         super(presetType, "config_settings.json");
         setDefaultManager(new AbstractPresetManager<>(this) {
             @Override
-            public GenericPreset<AbstractJsonData> updatePreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
+            public GenericPreset<AbstractJsonData> updatePreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset, boolean loadingProject) {
                 IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.getPresetSubType());
                 if(manager != null){
-                    manager.updatePreset(null, preset);
+                    manager.updatePreset(null, preset, false);
                 }
                 return preset;
             }
 
             @Override
-            public void applyPreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset) {
+            public void applyPreset(DBTaskContext context, GenericPreset<AbstractJsonData> preset, boolean loadingProject) {
                 IPresetManager<AbstractJsonData> manager = presetManagers.get(preset.getPresetSubType());
                 if(manager != null){
-                    manager.applyPreset(null, preset);
+                    manager.applyPreset(null, preset, false);
                 }
             }
         });
@@ -96,10 +96,10 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
             GenericPreset<AbstractJsonData> preset = configs.get(managerEntry.getKey());
             if(preset == null){
                 preset = createNewPreset(managerEntry.getKey(), "config", false);
-                getDefaultManager().updatePreset(null, preset);
+                getDefaultManager().updatePreset(null, preset, false);
                 registerPreset(preset);
             }else{
-                getDefaultManager().applyPreset(null, preset);
+                getDefaultManager().applyPreset(null, preset, false);
             }
         }
         loading = false;
@@ -160,7 +160,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
         }
         //at the moment there is only one preset per config, TODO, when this changes this logic should too
         for(GenericPreset<AbstractJsonData> preset : getAllPresets()){
-            getDefaultManager().updatePreset(null, preset);
+            getDefaultManager().updatePreset(null, preset, false);
         }
         queueJsonUpdate();
     }

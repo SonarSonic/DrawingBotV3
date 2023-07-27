@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.javafx.GenericPreset;
 
 import java.lang.reflect.Type;
@@ -84,14 +85,14 @@ public abstract class PresetDataLoader<MASTER extends AbstractJsonData> {
         public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<MASTER> preset) {
             GenericPreset<SUB> data = gson.fromJson(element, type);
             if(data != null){
-                manager.getDefaultManager().applyPreset(context, data);
+                manager.getDefaultManager().applyPreset(context, data, preset.data instanceof PresetProjectSettings);
             }
         }
 
         @Override
         public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset) {
             GenericPreset<SUB> data = manager.createNewPreset();
-            manager.getDefaultManager().updatePreset(context, data);
+            manager.getDefaultManager().updatePreset(context, data, preset.data instanceof PresetProjectSettings);
             return gson.toJsonTree(data, type);
         }
     }

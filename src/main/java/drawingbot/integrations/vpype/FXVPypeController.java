@@ -1,7 +1,6 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controllers.AbstractFXController;
@@ -9,7 +8,6 @@ import drawingbot.javafx.controls.ComboCellPreset;
 import drawingbot.registry.Register;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.ComboBoxListCell;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -42,7 +40,7 @@ public class FXVPypeController extends AbstractFXController {
         selectedVPypePreset.setValue(Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
         selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue);
+                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false);
             }
         });
 

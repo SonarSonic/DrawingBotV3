@@ -17,7 +17,7 @@ public abstract class PresetDrawingSetManager extends AbstractPresetManager<Pres
     public abstract ObservableDrawingSet getSelectedDrawingSet(DBTaskContext context);
 
     @Override
-    public GenericPreset<PresetDrawingSet> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset) {
+    public GenericPreset<PresetDrawingSet> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset, boolean loadingProject) {
         ObservableDrawingSet drawingSet = getSelectedDrawingSet(context);
         if(drawingSet != null){
             preset.data.pens.clear();
@@ -27,7 +27,7 @@ public abstract class PresetDrawingSetManager extends AbstractPresetManager<Pres
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingSet> preset, boolean loadingProject) {
         //TODO REMOVE ME!
         context.project().getDrawingSets().changeDrawingSet(preset.data);
     }

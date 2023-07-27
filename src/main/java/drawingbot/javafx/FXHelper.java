@@ -98,7 +98,7 @@ public class FXHelper {
     public static void importProject(){
         importFile((file, chooser) -> {
             DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false);
-        }, FileUtils.FILTER_PROJECT);
+        }, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Open DBV3 Project");
     }
 
     public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
@@ -219,7 +219,7 @@ public class FXHelper {
                 AbstractPresetManager<IJsonData> manager = loader == null ? null : loader.getDefaultManager();
 
                 if(manager != null){
-                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset)));
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset, false)));
                 }else{
                     NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString());
                 }
@@ -259,7 +259,7 @@ public class FXHelper {
         final DBTaskContext context = DrawingBotV3.context();
         if(context.project().file.get() != null){
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
+            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false);
 
             JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
             NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
@@ -289,7 +289,7 @@ public class FXHelper {
                 FileUtils.updateExportDirectory(file.getParentFile());
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset);
+                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
                 NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));

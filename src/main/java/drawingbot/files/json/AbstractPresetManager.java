@@ -29,17 +29,17 @@ public abstract class AbstractPresetManager<O extends IJsonData> implements IPre
      * updates the presets settings with the ones currently configured
      * @return the preset or null if the settings couldn't be saved
      */
-    public abstract GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset);
+    public abstract GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject);
 
     /**
      * applies the presets settings
      */
-    public abstract void applyPreset(DBTaskContext context, GenericPreset<O> preset);
+    public abstract void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject);
 
 
     public final GenericPreset<O> tryUpdatePreset(DBTaskContext context, GenericPreset<O> preset) {
         if (preset != null && preset.userCreated) {
-            preset = updatePreset(context, preset);
+            preset = updatePreset(context, preset, false);
             if (preset != null) {
                 presetLoader.queueJsonUpdate();
                 return preset;
@@ -49,7 +49,7 @@ public abstract class AbstractPresetManager<O extends IJsonData> implements IPre
     }
 
     public final void tryApplyPreset(DBTaskContext context, GenericPreset<O> preset) {
-        applyPreset(context, preset);
+        applyPreset(context, preset, false);
     }
 
     public boolean isSubTypeEditable(){

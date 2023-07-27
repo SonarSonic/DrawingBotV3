@@ -7,7 +7,6 @@ import drawingbot.files.json.presets.PresetDrawingAreaManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.controls.ComboCellNamedSetting;
 import drawingbot.javafx.controls.ComboCellPreset;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
@@ -118,7 +117,7 @@ public class FXDrawingArea extends AbstractFXController {
         selectedDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
         selectedDrawingAreaPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue);
+                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue, false);
             }
         });
 

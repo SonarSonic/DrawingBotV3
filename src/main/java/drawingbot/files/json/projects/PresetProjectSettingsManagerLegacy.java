@@ -43,20 +43,20 @@ class PresetProjectSettingsManagerLegacy {
         presetData.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
         GenericPreset<PresetDrawingArea> presetDrawingArea = Register.PRESET_LOADER_DRAWING_AREA.createNewPreset();
-        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().updatePreset(context, presetDrawingArea);
+        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().updatePreset(context, presetDrawingArea, false);
         presetData.drawingArea = presetDrawingArea;
 
         GenericPreset<PresetImageFilters> presetImageFilters = Register.PRESET_LOADER_FILTERS.createNewPreset();
-        Register.PRESET_LOADER_FILTERS.getDefaultManager().updatePreset(context, presetImageFilters);
+        Register.PRESET_LOADER_FILTERS.getDefaultManager().updatePreset(context, presetImageFilters, false);
         presetData.imageFilters = presetImageFilters;
 
         GenericPreset<PresetPFMSettings> presetPFMSettings = Register.PRESET_LOADER_PFM.createNewPreset();
-        Register.PRESET_LOADER_PFM.getDefaultManager().updatePreset(context, presetPFMSettings);
+        Register.PRESET_LOADER_PFM.getDefaultManager().updatePreset(context, presetPFMSettings, false);
         presetData.pfmSettings = presetPFMSettings;
         presetData.name = presetData.pfmSettings.getPresetSubType();
 
         GenericPreset<PresetDrawingSet> presetDrawingSet = Register.PRESET_LOADER_DRAWING_SET.createNewPreset();
-        Register.PRESET_LOADER_DRAWING_SET.getDefaultManager().updatePreset(context, presetDrawingSet);
+        Register.PRESET_LOADER_DRAWING_SET.getDefaultManager().updatePreset(context, presetDrawingSet, false);
         presetData.drawingSet = presetDrawingSet;
 
         /*
@@ -103,9 +103,9 @@ class PresetProjectSettingsManagerLegacy {
     public static void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
         PresetProjectSettingsLegacy presetData = (PresetProjectSettingsLegacy) preset.data;
 
-        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().applyPreset(context, presetData.drawingArea);
-        Register.PRESET_LOADER_FILTERS.getDefaultManager().applyPreset(context, presetData.imageFilters);
-        Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(context, presetData.pfmSettings);
+        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().applyPreset(context, presetData.drawingArea, false);
+        Register.PRESET_LOADER_FILTERS.getDefaultManager().applyPreset(context, presetData.imageFilters, false);
+        Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(context, presetData.pfmSettings, false);
 
         /*
         DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.set(presetData.imageRotation);
