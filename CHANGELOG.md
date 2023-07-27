@@ -1,3 +1,18 @@
+### [v1.6.3-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.3-beta-free)
+- Added: New Presets "Messy TSP", "Hatchy Squiggles" &  "Glitchy Stars" - for Adaptive/LBG Circular Scribbles & "Light Crosshatch" for Layers PFM
+- Improved: 'Default' & 'Detailed Scribbles' & 'Sketch' - Circular Scribbles Presets
+- Improved: More improvements to the quality of Circular Scribbles, transitions between different radii will be smoother.  
+- Changed: The default "Angular Velocity" for Adaptive Circular Scribbles & LBG Circular Scribbles is 60 instead of 20.
+- Fixed: Using CMYK with Mosaic PFMS.
+- Fixed: CMYK Processing failing to finish properly with "Coordinate out of bounds"
+- Fixed: SVG Converter PFM not scaling properly and sometimes moving elements of the SVG.
+- Fixed: Drawings created with the SVG Converter PFM not keeping the SVGs original size when exported.
+- Fixed: Loading Projects when the original image can't be located would not load the chosen replacement image.
+- Fixed: "Star" and "Triangle" shapes missing rotation when using Shapes PFMs
+- Fixed: Loading Projects ignored the Drawing Area orientation.
+- Fixed: Drawings being re-rendered when exporting non-vector files.
+- Fixed: Drawings being re-generated when creating new preset files.
+
 ### [v1.6.2-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.2-beta-free)
 - Added: New presets "Single Pen Preset V1" for Sketch Sweeping Curves and "Distorted Waves" for Sketch Waves
 - Added: "Cache Result" option to all LBG PFMs, which results in a significant increase in speed for subsequent runs on the same image if the "LBG Sampling" settings are still the same. Any changes to image filtering / drawing size will invalidate this cache.
