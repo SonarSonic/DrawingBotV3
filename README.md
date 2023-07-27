@@ -12,7 +12,7 @@
 
 ### About
 
-DrawingBotV3 is a software for converting images to stylised drawings with many applications including Pen Plotter Art, Digital Artwork, Image/Video Stylisation, NFT Creation, Embroidery and Graphic Design . With an intuitive User Interface DrawingBotV3, allowing both Beginners and Advanced users to create beautiful artwork without any programming knowledge. Featuring over 50 in-built styles which are all highly customisable, the possibilities are endless!
+DrawingBotV3 is a software for converting images to stylised drawings with many applications including Pen Plotter Art, Digital Artwork, Image/Video Stylisation, NFT Creation, Embroidery and Graphic Design. With an intuitive User Interface allowing both Beginners and Advanced users to create beautiful artwork without any programming knowledge. Featuring over 50 in-built styles which are all highly customisable, the possibilities are endless!
 
 You can find the full documentation [here](https://drawingbotv3.readthedocs.io/en/latest/). 
 
