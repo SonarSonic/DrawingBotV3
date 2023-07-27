@@ -324,7 +324,11 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
         currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
-        exportDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
+        exportDrawing.addListener((observable, oldValue, newValue) -> {
+            if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING){
+                setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
+            }
+        });
         displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get()==Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
 
 
@@ -494,7 +498,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     @Override
     public void onUserChangedPFMPreset(GenericPreset<PresetPFMSettings> pfmPreset) {
-        onPFMSettingsUserEdited();
+        //onPFMSettingsUserEdited(); If we've just created a new Preset we don't want to fire the event, as no settings will have changed, on onSettingUserEdited will fire it anyway.
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
