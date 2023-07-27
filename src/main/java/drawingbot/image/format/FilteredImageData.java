@@ -190,26 +190,27 @@ public class FilteredImageData implements IProperties {
         UpdateType updateType = nextUpdate;
         nextUpdate = UpdateType.NONE;
 
-        ImageCanvas newCanvas = null;
+        ImageCanvas preCropCanvas = null;
         if(cropped == null || preCrop == null || updateType.updateCropping()){
             preCrop = applyPreCropping(sourceImage, getCrop());
-            newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
-            cropped = applyCropping(preCrop, newCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
-
-            if(sourceCanvas.getUnits() != UnitsLength.PIXELS){
-                Rectangle2D crop = getCrop();
-                double width = crop.getWidth() / sourceCanvas.getPlottingScale();
-                double height = crop.getHeight() / sourceCanvas.getPlottingScale();
-                SimpleCanvas copy = new SimpleCanvas((float)width, (float)height, sourceCanvas.getUnits());
-                copy.scale = sourceCanvas.getPlottingScale();
-                newCanvas = new ImageCanvas(new SimpleCanvas(getTargetCanvas()), copy, imageRotation.get().flipAxis);
-            }
+            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
+            cropped = applyCropping(preCrop, preCropCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
         }else{
-            newCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
+            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
+        }
+
+        //If we are dealing with an SVG we should maintain the correct units and not use PIXELS as the unit type, so we must alter the canvas created
+        if(sourceCanvas.getUnits() != UnitsLength.PIXELS){
+            Rectangle2D crop = getCrop();
+            double width = crop.getWidth() / sourceCanvas.getPlottingScale();
+            double height = crop.getHeight() / sourceCanvas.getPlottingScale();
+            SimpleCanvas copy = new SimpleCanvas((float)width, (float)height, sourceCanvas.getUnits());
+            copy.scale = sourceCanvas.getPlottingScale();
+            preCropCanvas = new ImageCanvas(new SimpleCanvas(getTargetCanvas()), copy, imageRotation.get().flipAxis);
         }
 
         filteredImage = applyFilters(cropped, updateType.updateAllFilters(), settings);
-        destCanvas = newCanvas;
+        destCanvas = preCropCanvas;
     }
 
     public AffineTransform getCanvasTransform(ImageFilterSettings settings){
