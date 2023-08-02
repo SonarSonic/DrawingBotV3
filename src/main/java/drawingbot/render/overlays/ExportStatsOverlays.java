@@ -108,12 +108,12 @@ public class ExportStatsOverlays extends AbstractOverlay {
         ////////
 
         addStat(statTextFlow, "Shapes", preStats.geometryCount, postStats.geometryCount, "");
-        addStat(statTextFlow,"Total Travel", preStats.totalTravelMM, postStats.totalTravelMM, "m");
-        addStat(statTextFlow,"Distance Down", preStats.distanceDownMM, postStats.distanceDownMM, "m");
-        addStat(statTextFlow,"Distance Up", preStats.distanceUpMM, postStats.distanceUpMM, "m");
+        addStat(statTextFlow,"Total Travel", preStats.totalTravelM, postStats.totalTravelM, "m");
+        addStat(statTextFlow,"Distance Down", preStats.distanceDownM, postStats.distanceDownM, "m");
+        addStat(statTextFlow,"Distance Up", preStats.distanceUpM, postStats.distanceUpM, "m");
         addStat(statTextFlow,"Pen Lifts", preStats.penLifts, postStats.penLifts, "");
-        addDimensions(statTextFlow,"Page Size", postStats.pageWidthMM, postStats.pageHeightMM, postStats.drawingUnitsMM);
-        addDimensions(statTextFlow,"Drawing Size", postStats.drawingWidthMM, postStats.drawingHeightMM, postStats.drawingUnitsMM);
+        addDimensions(statTextFlow,"Page Size", postStats.pageWidth, postStats.pageHeight, postStats.drawingUnits);
+        addDimensions(statTextFlow,"Drawing Size", postStats.drawingWid, postStats.drawingHeight, postStats.drawingUnits);
         vBox.getChildren().add(statTextFlow);
 
         ////////

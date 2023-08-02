@@ -12,15 +12,15 @@ import java.util.LinkedHashMap;
 
 public class ObservableDrawingStats {
 
-    public SimpleDoubleProperty totalTravelMM = new SimpleDoubleProperty();
-    public SimpleDoubleProperty distanceUpMM = new SimpleDoubleProperty();
-    public SimpleDoubleProperty distanceDownMM = new SimpleDoubleProperty();
+    public SimpleDoubleProperty totalTravelM = new SimpleDoubleProperty();
+    public SimpleDoubleProperty distanceUpM = new SimpleDoubleProperty();
+    public SimpleDoubleProperty distanceDownM = new SimpleDoubleProperty();
 
-    public SimpleDoubleProperty pageWidthMM = new SimpleDoubleProperty();
-    public SimpleDoubleProperty pageHeightMM = new SimpleDoubleProperty();
-    public SimpleDoubleProperty drawingWidthMM = new SimpleDoubleProperty();
-    public SimpleDoubleProperty drawingHeightMM = new SimpleDoubleProperty();
-    public SimpleObjectProperty<UnitsLength> drawingUnitsMM = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
+    public SimpleDoubleProperty pageWidth = new SimpleDoubleProperty();
+    public SimpleDoubleProperty pageHeight = new SimpleDoubleProperty();
+    public SimpleDoubleProperty drawingWid = new SimpleDoubleProperty();
+    public SimpleDoubleProperty drawingHeight = new SimpleDoubleProperty();
+    public SimpleObjectProperty<UnitsLength> drawingUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     public SimpleDoubleProperty minX = new SimpleDoubleProperty();
     public SimpleDoubleProperty minY = new SimpleDoubleProperty();
@@ -34,13 +34,14 @@ public class ObservableDrawingStats {
     public SimpleObjectProperty<LinkedHashMap<DrawingPen, Double>> penStats = new SimpleObjectProperty<>(new LinkedHashMap<>());
 
     public void updateFromStatic(DrawingStats stats){
-        this.totalTravelMM.set(Utils.roundToPrecision(stats.distanceUpM + stats.distanceDownM, 3));
-        this.distanceUpMM.set(stats.distanceUpM);
-        this.distanceDownMM.set(stats.distanceDownM);
-        this.pageWidthMM.set(stats.pageWidth);
-        this.pageHeightMM.set(stats.pageHeight);
-        this.drawingWidthMM.set(stats.drawingWidth);
-        this.drawingHeightMM.set(stats.drawingHeight);
+        this.totalTravelM.set(Utils.roundToPrecision(stats.distanceUpM + stats.distanceDownM, 3));
+        this.distanceUpM.set(stats.distanceUpM);
+        this.distanceDownM.set(stats.distanceDownM);
+        this.pageWidth.set(stats.pageWidth);
+        this.pageHeight.set(stats.pageHeight);
+        this.drawingWid.set(stats.drawingWidth);
+        this.drawingHeight.set(stats.drawingHeight);
+        this.drawingUnits.set(stats.drawingUnits);
         this.minX.set(stats.minX);
         this.minY.set(stats.minY);
         this.maxX.set(stats.maxX);
@@ -52,14 +53,14 @@ public class ObservableDrawingStats {
     }
 
     public void reset(){
-        this.totalTravelMM.set(0);
-        this.distanceUpMM.set(0);
-        this.distanceDownMM.set(0);
-        this.drawingUnitsMM.set(UnitsLength.MILLIMETRES);
-        this.pageWidthMM.set(0);
-        this.pageHeightMM.set(0);
-        this.drawingWidthMM.set(0);
-        this.drawingHeightMM.set(0);
+        this.totalTravelM.set(0);
+        this.distanceUpM.set(0);
+        this.distanceDownM.set(0);
+        this.drawingUnits.set(UnitsLength.MILLIMETRES);
+        this.pageWidth.set(0);
+        this.pageHeight.set(0);
+        this.drawingWid.set(0);
+        this.drawingHeight.set(0);
         this.minX.set(0);
         this.minX.set(0);
         this.maxX.set(0);

@@ -25,7 +25,7 @@ public class DrawingStats {
     public double distanceUpM = 0;
     public double distanceDownM = 0;
 
-    public UnitsLength units = UnitsLength.MILLIMETRES;
+    public UnitsLength drawingUnits = UnitsLength.MILLIMETRES;
     public double pageWidth = 0;
     public double pageHeight = 0;
     public double drawingWidth = 0;
@@ -52,14 +52,14 @@ public class DrawingStats {
     public void addDrawingStats(DrawingStats other){
         this.distanceUpM += other.distanceUpM;
         this.distanceDownM += other.distanceDownM;
-        this.pageWidth = Math.max(UnitsLength.convert(other.pageWidth, other.units, units), this.pageWidth);
-        this.pageHeight = Math.max(UnitsLength.convert(other.pageHeight, other.units, units), this.pageHeight);
-        this.drawingWidth = Math.max(UnitsLength.convert(other.drawingWidth, other.units, units), this.drawingWidth);
-        this.drawingHeight = Math.max(UnitsLength.convert(other.drawingHeight, other.units, units), this.drawingHeight);
-        this.minX = Math.min(UnitsLength.convert(other.minX, other.units, units), this.minX);
-        this.minY = Math.min(UnitsLength.convert(other.minY, other.units, units), this.minY);
-        this.maxX = Math.max(UnitsLength.convert(other.maxX, other.units, units), this.maxX);
-        this.maxY = Math.max(UnitsLength.convert(other.maxY, other.units, units), this.maxY);
+        this.pageWidth = Math.max(UnitsLength.convert(other.pageWidth, other.drawingUnits, drawingUnits), this.pageWidth);
+        this.pageHeight = Math.max(UnitsLength.convert(other.pageHeight, other.drawingUnits, drawingUnits), this.pageHeight);
+        this.drawingWidth = Math.max(UnitsLength.convert(other.drawingWidth, other.drawingUnits, drawingUnits), this.drawingWidth);
+        this.drawingHeight = Math.max(UnitsLength.convert(other.drawingHeight, other.drawingUnits, drawingUnits), this.drawingHeight);
+        this.minX = Math.min(UnitsLength.convert(other.minX, other.drawingUnits, drawingUnits), this.minX);
+        this.minY = Math.min(UnitsLength.convert(other.minY, other.drawingUnits, drawingUnits), this.minY);
+        this.maxX = Math.max(UnitsLength.convert(other.maxX, other.drawingUnits, drawingUnits), this.maxX);
+        this.maxY = Math.max(UnitsLength.convert(other.maxY, other.drawingUnits, drawingUnits), this.maxY);
         this.geometryCount += other.geometryCount;
         this.coordCount += other.coordCount;
         this.penLifts += other.penLifts;
@@ -81,8 +81,8 @@ public class DrawingStats {
         comment.append("Distance Down: %s m \n".formatted(distanceDownM));
         comment.append("Distance Up: %s m \n".formatted(distanceUpM));
         comment.append("Pen Lifts: %s \n".formatted(penLifts));
-        comment.append("Page Size: %s %s x %s %s \n".formatted(pageWidth, units.getSuffix(), pageHeight, units.getSuffix()));
-        comment.append("Drawing Size: %s %s x %s %s \n".formatted(drawingWidth, units.getSuffix(), drawingHeight, units.getSuffix()));
+        comment.append("Page Size: %s %s x %s %s \n".formatted(pageWidth, drawingUnits.getSuffix(), pageHeight, drawingUnits.getSuffix()));
+        comment.append("Drawing Size: %s %s x %s %s \n".formatted(drawingWidth, drawingUnits.getSuffix(), drawingHeight, drawingUnits.getSuffix()));
 
         comment.append("\n");
         comment.append("Pens:\n");
@@ -173,11 +173,11 @@ public class DrawingStats {
         this.maxX = Utils.roundToPrecision(maxX,3);
         this.maxY = Utils.roundToPrecision(maxY,3);
 
-        this.units = exportDrawing.getCanvas().getUnits();
+        this.drawingUnits = exportDrawing.getCanvas().getUnits();
         this.pageWidth = Utils.roundToPrecision(exportDrawing.getCanvas().getWidth(exportDrawing.getCanvas().getUnits()),1);
         this.pageHeight = Utils.roundToPrecision(exportDrawing.getCanvas().getHeight(exportDrawing.getCanvas().getUnits()),1);
-        this.drawingWidth = Utils.roundToPrecision(UnitsLength.convert(maxX - minX, UnitsLength.MILLIMETRES, units),1);
-        this.drawingHeight = Utils.roundToPrecision(UnitsLength.convert(maxY - minY, UnitsLength.MILLIMETRES, units),1);
+        this.drawingWidth = Utils.roundToPrecision(UnitsLength.convert(maxX - minX, UnitsLength.MILLIMETRES, drawingUnits),1);
+        this.drawingHeight = Utils.roundToPrecision(UnitsLength.convert(maxY - minY, UnitsLength.MILLIMETRES, drawingUnits),1);
 
         this.geometryCount = geometryCount;
         this.coordCount = coordCount;
@@ -188,7 +188,7 @@ public class DrawingStats {
     public void reset() {
         distanceUpM = 0;
         distanceDownM = 0;
-        units = UnitsLength.MILLIMETRES;
+        drawingUnits = UnitsLength.MILLIMETRES;
         pageWidth = 0;
         pageHeight = 0;
         drawingWidth = 0;
