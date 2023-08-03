@@ -34,7 +34,7 @@ public class ObservableDrawingStats {
     public SimpleObjectProperty<LinkedHashMap<DrawingPen, Double>> penStats = new SimpleObjectProperty<>(new LinkedHashMap<>());
 
     public void updateFromStatic(DrawingStats stats){
-        this.totalTravelM.set(Utils.roundToPrecision(stats.distanceUpM + stats.distanceDownM, 3));
+        this.totalTravelM.set(Utils.roundToPrecision(stats.distanceUpM + stats.distanceDownM, 2));
         this.distanceUpM.set(stats.distanceUpM);
         this.distanceDownM.set(stats.distanceDownM);
         this.pageWidth.set(stats.pageWidth);

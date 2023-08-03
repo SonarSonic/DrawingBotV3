@@ -9,12 +9,15 @@ import drawingbot.javafx.observables.ObservableDrawingStats;
 import drawingbot.registry.Register;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -72,8 +75,9 @@ public class ExportStatsOverlays extends AbstractOverlay {
 
         ////////
 
-        TextFlow statTextFlow = new TextFlow();
-        FXHelper.addText(statTextFlow, 12, "bold", "File: ");
+        ////////
+        GridPane gridPane = new GridPane();
+        gridPane.getStyleClass().add("export-stats-grid");
 
         ComboBox<ExportedDrawingEntry> entryComboBox = new ComboBox<>();
         entryComboBox.itemsProperty().bind(exportEntries);
@@ -85,16 +89,21 @@ public class ExportStatsOverlays extends AbstractOverlay {
                 selectedEntry.set(entryComboBox.getItems().get(0));
             }
         });
-        entryComboBox.setPromptText("Export File");
-        statTextFlow.getChildren().add(entryComboBox);
+        entryComboBox.setPrefWidth(300);
+        entryComboBox.setPromptText("Exported File");
 
-        Button openButton = new Button("Open");
+        gridPane.add(entryComboBox, 0, gridPane.getRowCount(), 3, 1);
+
+
+        Label labelName = new Label("Exported File");
+        labelName.getStyleClass().add("export-stats-name");
+
+        Button openButton = new Button("Open File");
         openButton.setOnAction(e -> {
             if(selectedEntry.get() != null){
                 FXHelper.openFolder(selectedEntry.get().file);
             }
         });
-        statTextFlow.getChildren().add(openButton);
 
         Button openFolderButton = new Button("Open Folder");
         openFolderButton.setOnAction(e -> {
@@ -102,19 +111,38 @@ public class ExportStatsOverlays extends AbstractOverlay {
                 FXHelper.openFolder(selectedEntry.get().file.getParentFile());
             }
         });
-        statTextFlow.getChildren().add(openFolderButton);
-        FXHelper.addText(statTextFlow, 12, "bold", " \n\n");
+        gridPane.addRow(gridPane.getRowCount(), labelName, openButton, openFolderButton);
 
         ////////
 
-        addStat(statTextFlow, "Shapes", preStats.geometryCount, postStats.geometryCount, "");
-        addStat(statTextFlow,"Total Travel", preStats.totalTravelM, postStats.totalTravelM, "m");
-        addStat(statTextFlow,"Distance Down", preStats.distanceDownM, postStats.distanceDownM, "m");
-        addStat(statTextFlow,"Distance Up", preStats.distanceUpM, postStats.distanceUpM, "m");
-        addStat(statTextFlow,"Pen Lifts", preStats.penLifts, postStats.penLifts, "");
-        addDimensions(statTextFlow,"Page Size", postStats.pageWidth, postStats.pageHeight, postStats.drawingUnits);
-        addDimensions(statTextFlow,"Drawing Size", postStats.drawingWid, postStats.drawingHeight, postStats.drawingUnits);
-        vBox.getChildren().add(statTextFlow);
+        addGroupHeader(gridPane, "Dimensions");
+
+        addDimensions(gridPane,"Page Size", postStats.pageWidth, postStats.pageHeight, postStats.drawingUnits);
+        addDimensions(gridPane,"Drawing Size", postStats.drawingWid, postStats.drawingHeight, postStats.drawingUnits);
+
+        ////////
+
+        addGroupHeader(gridPane, "Path Optimisation");
+
+        Label before = new Label("Before");
+        before.getStyleClass().add("export-stats-column-label");
+        GridPane.setHalignment(before, HPos.RIGHT);
+
+        Label after = new Label("After");
+        after.getStyleClass().add("export-stats-column-label");
+        GridPane.setHalignment(after, HPos.RIGHT);
+
+        gridPane.addRow(gridPane.getRowCount(), new Label(""), before, after);
+
+        addStat(gridPane, "Shapes", preStats.geometryCount, postStats.geometryCount, "");
+        addStat(gridPane,"Total Travel", preStats.totalTravelM, postStats.totalTravelM, " m");
+        addStat(gridPane,"Distance Down", preStats.distanceDownM, postStats.distanceDownM, " m");
+        addStat(gridPane,"Distance Up", preStats.distanceUpM, postStats.distanceUpM, " m");
+        addStat(gridPane,"Pen Lifts", preStats.penLifts, postStats.penLifts, "");
+
+        addGroupHeader(gridPane, "Pen Export Order");
+
+        vBox.getChildren().add(gridPane);
 
         ////////
 
@@ -130,26 +158,79 @@ public class ExportStatsOverlays extends AbstractOverlay {
         DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(scrollPane);
     }
 
+    public void addGroupHeader(GridPane gridPane, String name){
+        Label labelDimensions = new Label(name);
+        labelDimensions.getStyleClass().add("export-stats-header");
+        gridPane.add(labelDimensions, 0, gridPane.getRowCount(), 3, 1);
+    }
+
+    public void addStat(GridPane gridPane, String name, Property<?> before, Property<?> after, String suffix){
+        int row = gridPane.getRowCount();
+
+        Label labelName = new Label(name);
+        labelName.getStyleClass().add("export-stats-name");
+
+        Label labelBefore = new Label();
+        labelBefore.getStyleClass().add("export-stats-before");
+        GridPane.setHalignment(labelBefore, HPos.RIGHT);
+        labelBefore.textProperty().bind(Bindings.createStringBinding(() -> before.getValue().toString() + "" + suffix, before));
+
+        Label labelAfter = new Label();
+        labelAfter.getStyleClass().add("export-stats-after");
+        GridPane.setHalignment(labelAfter, HPos.RIGHT);
+        labelAfter.textProperty().bind(Bindings.createStringBinding(() -> after.getValue().toString() + "" + suffix, after));
+
+        gridPane.addRow(row, labelName, labelBefore, labelAfter);
+    }
+
+    public void addDimensions(GridPane gridPane, String name, Property<?> before, Property<?> after, Property<UnitsLength> units){
+        int row = gridPane.getRowCount();
+
+        Label labelName = new Label(name);
+        labelName.getStyleClass().add("export-stats-name");
+        gridPane.add(labelName, 0, row);
+
+        Label labelDimensions = new Label();
+        labelDimensions.setMinWidth(100);
+        labelDimensions.textProperty().bind(Bindings.createStringBinding(() -> before.getValue().toString() + " " + units.getValue().getSuffix() + " x " + after.getValue().toString() + " " + units.getValue().getSuffix(), after, units));
+        gridPane.add(labelDimensions, 1, row, 2, 1);
+    }
+
+    public void addSpecialStat(GridPane gridPane, String name, StringBinding binding){
+        int row = gridPane.getRowCount();
+
+        Label labelName = new Label(name);
+        labelName.getStyleClass().add("export-stats-name");
+        gridPane.add(labelName, 0, row);
+
+        Label labelValue = new Label();
+        labelValue.getStyleClass().add("export-stats-hyperlink");
+        labelValue.textProperty().bind(binding);
+        gridPane.add(labelValue, 1, row, 2, 1);
+    }
+
+
+    @Deprecated
     public void addStat(TextFlow flow, String name, Property<?> before, Property<?> after, String suffix){
         FXHelper.addText(flow, 12, "bold", name + ": ");
 
         Text text = new Text();
-        text.setStyle("-fx-font-size: 12px;");
+        text.getStyleClass().add("export-stats-name");
         text.textProperty().bind(Bindings.createStringBinding(() -> before.getValue().toString() + "" + suffix + " -> " + after.getValue().toString() + "" + suffix + " \n", before, after));
         flow.getChildren().add(text);
     }
 
+    @Deprecated
     public void addDimensions(TextFlow flow, String name, Property<?> before, Property<?> after, Property<UnitsLength> units){
         FXHelper.addText(flow, 12, "bold", name + ": ");
         Text text = new Text();
-        text.setStyle("-fx-font-size: 12px;");
+        text.getStyleClass().add("export-stats-name");
         text.textProperty().bind(Bindings.createStringBinding(() -> before.getValue().toString() + "" + units.getValue().getSuffix() + " x " + after.getValue().toString() + "" + units.getValue().getSuffix() + " \n", before, after, units));
         flow.getChildren().add(text);
     }
 
     public void updatePenColours(TextFlow flow, Map<DrawingPen, Double> penStats){
         flow.getChildren().clear();
-        FXHelper.addText(flow, 14, "bold", "Pens:\n");
         int penIndex = 1;
         for(Map.Entry<DrawingPen, Double> drawingPenEntry : penStats.entrySet()){
             flow.getChildren().add(new Rectangle(12, 12, ImageTools.getColorFromARGB(drawingPenEntry.getKey().getARGB())));

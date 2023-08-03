@@ -161,13 +161,13 @@ public class DrawingStats {
                     }
                 }
                 if(perPenDistance != 0){
-                    penStats.put(new DrawingPen(pen), Utils.roundToPrecision(perPenDistance*0.001F,3));
+                    penStats.put(new DrawingPen(pen), Utils.roundToPrecision(perPenDistance*0.001F,2));
                     penChanges++;
                 }
             }
         }
-        this.distanceUpM = Utils.roundToPrecision(distanceUpMM*0.001F, 3);
-        this.distanceDownM = Utils.roundToPrecision(distanceDownMM*0.001F, 3);
+        this.distanceUpM = Utils.roundToPrecision(distanceUpMM*0.001F, 2);
+        this.distanceDownM = Utils.roundToPrecision(distanceDownMM*0.001F, 2);
         this.minX = Utils.roundToPrecision(minX,3);
         this.minY = Utils.roundToPrecision(minY,3);
         this.maxX = Utils.roundToPrecision(maxX,3);

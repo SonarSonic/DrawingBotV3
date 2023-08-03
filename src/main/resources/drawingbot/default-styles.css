@@ -21,3 +21,39 @@
 .drag-receiver-left:drag-over {
     -fx-fill: linear-gradient(to left, transparent, rgba(0,147,255,0.3));
 }
+
+.export-stats-grid{
+    -fx-hgap: 10;
+    -fx-vgap: 5;
+}
+
+.export-stats-header{
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 12 0 0 0;
+}
+
+.export-stats-name{
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+
+}
+
+.export-stats-column-label{
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-font-style: italic;
+}
+
+.export-stats-hyperlink{
+
+}
+
+.export-stats-before{
+    -fx-font-style: italic;
+    -fx-text-fill: darkred;
+}
+
+.export-stats-after{
+    -fx-text-fill: darkgreen;
+}
