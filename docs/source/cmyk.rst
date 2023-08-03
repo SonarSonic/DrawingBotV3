@@ -4,10 +4,7 @@
 CMYK Separation
 ======================
 
-.. image:: images/cmyk_before.jpg
-    :width: 250pt
-
-.. image:: images/cmyk_after1.jpg
+.. image:: images/cmyk/cmyk_comparison_V1.jpg
     :width: 250pt
 
 *Before + After CMYK Separation*
@@ -30,4 +27,4 @@ How to use
 
 Notes
 ^^^^^^
-The rendering you see in the viewer is only a representation and may differ from the final plot. Some experimentation may be needed to achive a good balance of CMYK. It is strongly recommended that you specify the drawing areas size and active **Rescale to Pen Width**
+The rendering you see in the viewer is only a representation and may differ from the final plot. Some experimentation may be needed to achieve a good balance of CMYK. It is strongly recommended that you specify the drawing areas size and active **Rescale to Pen Width**

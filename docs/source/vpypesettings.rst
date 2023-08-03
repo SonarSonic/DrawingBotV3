@@ -1,8 +1,8 @@
 .. _vpype-settings:
 
-======================
-vpype Integration
-======================
+============================
+vpype Integration / Export
+============================
 
 DrawingBotV3 allows you to export directly to `vpype <https://vpype.readthedocs.io/en/stable/>`_ which gives you quick access to advanced layout tools, pre-visualisation, SVG optimisation, HPGL output and more.
 

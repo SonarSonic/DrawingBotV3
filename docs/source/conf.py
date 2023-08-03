@@ -19,11 +19,11 @@ from m2r import MdInclude
 # -- Project information -----------------------------------------------------
 
 project = 'Drawing Bot V3'
-copyright = '2022, Ollie Lansdell'
+copyright = '2021-2023, Ollie Lansdell'
 author = 'Ollie Lansdell'
 
 # The full version, including alpha/beta/rc tags
-release = '1.5.1'
+release = '1.6.0'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
@@ -35,7 +35,8 @@ import sphinx_rtd_theme
 
 extensions = [
     "sphinx_rtd_theme",
-    'recommonmark'
+    'recommonmark',
+    'sphinxcontrib.youtube'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

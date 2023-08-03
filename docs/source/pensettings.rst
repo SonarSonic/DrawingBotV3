@@ -62,7 +62,9 @@ Special Drawing Pens
 These Drawing Pens provide some unique style for digital only outputs
 
 - **Original Colour**: The rendered colour will be sampled RGBA from the original image
+- **Original Colour (Inverted)**: The rendered colour will be sampled RGBA from the original image with an Invert Filter applied.
 - **Original Grayscale**: The same as Original Colour but grayscaled.
+- **Original Grayscale (Inverted)**: The same as Original Colour (Inverted) but grayscaled.
 - **Original Red**: The rendered colour will be sampled Red Channel from the original image
 - **Original Green**: The rendered colour will be sampled Green Channel from the original image
 - **Original Blue**: The rendered colour will be sampled Blue Channel from the original image
@@ -83,7 +85,7 @@ Special Drawing Sets
 
 - **Original Colour**: A Drawing Set which includes one "Original Colour" Pen.
 - **Original Grayscale**: A Drawing Set which includes one "Original Grayscale" Pen.
-- **CMYK Seperation**: Selecting this Drawing Set will active :ref:`cmyk-separation`
+- **CMYK Separation**: Selecting this Drawing Set will active :ref:`cmyk-separation`
 
 ------
 

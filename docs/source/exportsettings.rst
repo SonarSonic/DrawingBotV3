@@ -1,55 +1,96 @@
 .. _export-settings:
 
 ======================
-Export Settings
+Exporting Drawings
 ======================
 
-All export options are accesed via the "File" drop down.
+DrawingBotV3 allows you to export Drawings in a variety of file formats.
+
+All export options are accessed via the "File" drop down where you can select an :ref:`Export Mode <export-modes>` and an :ref:`Export Format <export-formats>`
+
+Note: The export options will be greyed out if no drawing is loaded. Press **Start** and wait for processing to finish.
+
+
+.. _export-modes:
 
 Export Modes
 ^^^^^^^^^^^^^^^^^
 
-**per/drawing**: The standard option, exports the drawing as a single file.
-**per/pen**: Exports a separate file for each active pen in the drawing.
-**per/group**: Exports a separate file for each group in the drawing, when using Layers PFM or any Mosaic PFM other PFMs will only have one 'group'
-**per/n pen**: Allows drawings with multiple pens to be split into a certain number of pens. Useful when exporting for Vintage Plotters which have automatic pen changes.
+- **per/drawing**
+    The standard option, exports the drawing as a single file with all of the pens included.
 
+- **per/pen**
+    Exports a separate file for each active pen in the drawing.
+
+- **per/group**
+    Exports a separate file for each group in the drawing, when using Layers PFM or any Mosaic PFM other PFMs will only have one 'group'
+
+- **per/n pen**
+    Allows drawings with multiple pens to be split into a certain number of pens. Useful when exporting for Vintage Plotters which have automatic pen changes.
+
+
+.. _export-formats:
 
 Export Formats
 ^^^^^^^^^^^^^^^^^
 
-**Export SVG**: Export a standard SVG which will be compatible with any software which supports SVG import, each pen will be in a separate group.
+- SVG Formats
+    - **Export SVG**
+        Export a standard SVG which will be compatible with any software which supports SVG import, each pen will be in a separate group.
 
-**Export Inkscape SVG**: Exports a special SVG which can be imported into Inkscape with the layers preserved.
+    - **Export Inkscape SVG**
+        Exports a special SVG which can be imported into Inkscape with the layers preserved.
 
-**Export Image File**: Exports a bitmap image of the drawing, the exported image will be the scaled depending on the current "Export Resolution" PPI which is defined in Export Settings/Image & Animation, if you are using "Original Sizing" this will be the same resolution as the source image.
+- Bitmap/Image Formats
+    - **Export Image File**
+        Exports a bitmap image of the drawing, the exported image will be the scaled depending on the current "Export Resolution" PPI which is defined in Export Settings/Image & Animation, if you are using "Original Sizing" this will be the same resolution as the source image.
 
-**Export Reference Image**: Exports a bitmap image of the reference image, this is image used to create the final plot with all the cropping / image filter settings applied.
+    - **Export Reference Image**
+        Exports a bitmap image of the reference image, this is image used to create the final plot with all the cropping / image filter settings applied.
 
-**Export PDF**: Exports the drawing a vector PDF file.
+- Vector Formats
+    - **Export PDF**
+        Exports the drawing a vector PDF file.
 
-**Export GCode**: Exports the drawing as a GCode file, see `GCode Settings`_
+    - **Export GCode**
+        Exports the drawing as a GCode file, see :ref:`gcode-settings`
 
-**Export GCode Test Drawing**: Exports a GCode test file which draws the extremes of the drawing area.
+    - **Export GCode Test Drawing**
+        Exports a GCode test file which draws the extremes of the drawing area.
 
-**Export HPGL**: Exports a HP-GL (Hewlett-Packard Graphics Language) file, which can be sent to Vintage Plotters manufactured by HP, Roland and many others.
+    - **Export HPGL**
+        Exports a HP-GL (Hewlett-Packard Graphics Language) file, which can be sent to Vintage Plotters manufactured by HP, Roland and many others.
 
-**Export Animation - Image Sequence**: Exports a image sequence animation of the drawing being created, using the same scaling as export created with *Export Image File*, see `Image Sequence Settings`_
+- Animation/Video Formats
 
-**Export Animation - H.264**: Similar to *Export Animation - Image Sequence*, used for creating a H.264 MP4 animation of the drawing being created.
+    - **Export Animation - Image Sequence**
+        Exports a image sequence animation of the drawing being created, using the same scaling as export created with *Export Image File*, see `Image Sequence Settings`_
 
-**Export Animation - ProRes 422**: Similar to *Export Animation - Image Sequence*, used for creating a ProRes MOV animation of the drawing being created.
+    - **Export Animation - H.264**
+        Similar to *Export Animation - Image Sequence*, used for creating a H.264 MP4 animation of the drawing being created.
+
+    - **Export Animation - ProRes 422**
+        Similar to *Export Animation - Image Sequence*, used for creating a ProRes MOV animation of the drawing being created.
+
+
 
 **Export to vpype**: :ref:`vpype-settings`
 
 -----
 
+.. _quick-export:
+
 Quick Export
 ^^^^^^^^^^^^^^^^^
-You can also export you're drawing instantly using the keyboard shortcut **Ctrl+E**.
-This option is also accessible by going to File/Quick Export.
+Drawings can be exported instantly using the keyboard shortcut **Ctrl+E**, you can also use **File/Quick Export**. By default this will use **per/drawing** / **Export SVG** or the export format & mode selected in your :ref:`preferences`
 
-By default this will export a standard SVG file, per/drawing. However you can configure the export format & mode in your :ref:`preferences`
+This option is also accessible by going to .
+
+Export to vpype
+^^^^^^^^^^^^^^^^^
+Drawings can be exported directly to vpype for further processing / optimisation.
+
+More details here: :ref:`vpype-settings`
 
 
 -----
@@ -74,21 +115,25 @@ When enabled vector outputs (e.g. svg, pdf, gcode, hpgl) will be optimised befor
 -----
 
 SVG Settings
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Edit SVG Settings in your :ref:`preferences`.
 
 *General*
 **Export Background Layer**: By default the Canvas Colour will not be exported with the SVG as when plotting this may result in unwanted lines. However, for digital only outputs you may wish to add the canvas colour as a background layer.
 
 *Inkscape SVG*
 **Layer Name**: Allows you to specify a custom layer naming for how the layers will appear in Inkscape. You can use two wildcards %INDEX% - the pens index position (1,2,3 etc.) and %NAME% - the pens name.
-    - %NAME% - Default, names all of the layers according to the pens name (e.g. Black, Red, Green etc.)
-    - %INDEX% - %NAME% - In some instances Inkscape will print layers in order of layer number, so this option can be useful. (e.g. 1 - Black, 2 - Red, 3 - Green etc.)
-    - Pen%INDEX% - Useful if you are using the "Plot" extension with Inkscape for sending plots to vintage plotters as this requires the pen layers to be named in this format. (e.g. Pen1, Pen2, Pen3 etc.)
-    - *Custom* - You can of course create your own custom layer naming scheme if you prefer.
+- %NAME% - Default, names all of the layers according to the pens name (e.g. Black, Red, Green etc.)
+- %INDEX% - %NAME% - In some instances Inkscape will print layers in order of layer number, so this option can be useful. (e.g. 1 - Black, 2 - Red, 3 - Green etc.)
+- Pen%INDEX% - Useful if you are using the "Plot" extension with Inkscape for sending plots to vintage plotters as this requires the pen layers to be named in this format. (e.g. Pen1, Pen2, Pen3 etc.)
+- *Custom* - You can of course create your own custom layer naming scheme if you prefer.
 
 
 HPGL Settings
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+HPGL Settings will appear when selecting **Export HPGL**, you can also configure them in :ref:`preferences`
 
 HPGL Settings can be saved as :ref:`presets`, this only includes the "Paper Size" i.e. Min, Max, X Axis Mirror and Y Axis Mirror.
 
@@ -107,6 +152,7 @@ All units are defined in HPGL units, which are 40 Units = 1 mm.
 **Y Axis Mirror**: Flips all values on the Y Axis.
 
 ----
+
 **Pen Configuration**
 
 **Pen Velocity**: Defines the Pen Velocity in mm/s that the plotter should be set too, a value of 0 will use the maximum speed of the plotter.
@@ -118,18 +164,18 @@ All units are defined in HPGL units, which are 40 Units = 1 mm.
 **Curve Flatness**: All curves are converted to lines when generating HPGL files, this value specifies the maximum distance (in MM) that the generated lines can deviate from the original curves.
 
 
------
+----
 
 .. _gcode-settings:
 
 GCode Settings
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 GCode Settings can be saved as :ref:`presets`
 
 You must specify the Drawing Area size when using GCode export.
 
-**X/Y Offset**: The offset from HOME on each axis, in the speciied input units.
+**X/Y Offset**: The offset from HOME on each axis, in the specified input units.
 
 **Curve Flatness**: When enabled all curves in the drawing are converted to lines. This value specifies the maximum distance (in MM) that the generated lines can deviate from the original curves.
 
@@ -159,10 +205,9 @@ Note: GCode export is not as reliable as SVG export and has only been added for 
 
 .. _Image Sequence Settings:
 
-Image & Animation Settings
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Image & Animation Export Settings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-----
 **Resolution**
 
 **Export DPI**: Controls the DPI of exported Images / Animations, the resolution is derived from the Drawing Area's width/height. If "Original Sizing" is being used this will have no effect.
@@ -177,4 +222,4 @@ Image & Animation Settings
 
 **Vertices per frame**: *Plotted Vertices / Frame Count*
 
-Note: The image sequence exporter using an Vertex Iterator which splits continous paths across frames, which can result in missing lines depending on the nature of the source curve.
+Note: The image sequence exporter using an Vertex Iterator which splits continuous paths across frames, which can result in missing lines depending on the nature of the source curve.

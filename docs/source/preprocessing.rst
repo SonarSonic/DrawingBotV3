@@ -14,6 +14,7 @@ Borders
 ^^^^^^^^
 
 - Dirty Border
+- Custom Overlay
 
 Blur
 ^^^^^

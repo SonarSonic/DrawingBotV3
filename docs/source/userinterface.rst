@@ -40,6 +40,8 @@ This area is split into multiple sections which each control different elements 
 - :ref:`pre-processing`
 - :ref:`Path Finding Controls <pfms>`
 - :ref:`pen-settings`
+- :ref:`version-control`
+- :ref:`mask-settings`
 - :ref:`batch-processing`
 
 
@@ -55,7 +57,7 @@ The viewport will show you a live preview of the current drawing, all the contro
 - Original: Displays the original source image.
 - Reference: Displays the reference image being used by the Path Finding Module after it's inbuilt pre-processing has been applied.
 - Lightened: Displays the image which has altered by the Path Finding Module, some modules will not alter the image.
-- Selected Pen: Displays only the pen which is currently highlighted in the Pen Settings's table.
+- Selected Pen: Displays only the pen which is currently highlighted in the Pen Settings table.
 
 **Displayed Shapes**:  Allows you to display only shapes in the specified range, currently has no effect on the final output.
 
