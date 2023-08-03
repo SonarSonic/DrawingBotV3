@@ -6,7 +6,7 @@
 
 .notification-pane .notification-bar > .pane {
     -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
-    -fx-padding: 0 7 0 7;
+    -fx-padding: 6 3 6 14;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
 }
@@ -17,11 +17,6 @@
 
 .notification-pane.bottom .notification-bar > .pane {
     -fx-background-insets: 0 0 0 0, 0 0 0 0, 0 0 0 0;
-}
-
-.notification-pane .notification-bar > .pane .label {
-    -fx-font-size: 1.166667em; /*15px;*/
-    -fx-text-fill: #292929;
 }
 
 
@@ -102,4 +97,19 @@
 
 .notification-pane .notification-bar > .pane .close-button > .graphic {
     -fx-shape: "M395.992,296.758l1.794-1.794l7.292,7.292l-1.795,1.794 L395.992,296.758z M403.256,294.992l1.794,1.794l-7.292,7.292l-1.794-1.795 L403.256,294.992z";
+}
+
+.notification-vbox{
+    -fx-spacing: 1px;
+}
+
+.notification-title{
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #383838;
+}
+
+.notification-subtitle{
+    -fx-font-size: 13px;
+    -fx-text-fill: #383838;
 }

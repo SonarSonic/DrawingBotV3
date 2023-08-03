@@ -8,7 +8,11 @@ public abstract class AbstractSoftware {
 
     public abstract String getDisplayName();
 
+    public abstract String getRawVersion();
+
     public abstract String getDisplayVersion();
+
+    public abstract String getUpdateLink();
 
     public abstract Image getLogoImage();
 

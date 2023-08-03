@@ -4,10 +4,23 @@ import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.preferences.DBPreferences;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.action.Action;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.GlyphFont;
+import org.controlsfx.glyphfont.GlyphFontRegistry;
 
 public class NotificationOverlays extends AbstractOverlay{
 
@@ -61,24 +74,75 @@ public class NotificationOverlays extends AbstractOverlay{
         startTime = System.currentTimeMillis();
     }
 
-    public void showWithSubtitle(String text, String subtitle, final Action... actions){
+    public static Node getIcon(String name){
+        GlyphFont fontAwesome = GlyphFontRegistry.font("FontAwesome");
+        return fontAwesome.create(name).size(12);
+    }
+
+    public void showWithSubtitle(String icon, String text, String subtitle, final Action... actions) {
+        showIconTextSubtitle(getIcon(icon), text, subtitle, actions);
+    }
+
+    public void showWithSubtitle(String text, String subtitle, final Action... actions) {
+        showIconTextSubtitle(null, text, subtitle, actions);
+    }
+
+    public void showIconTextSubtitle(Node icon, String text, String subtitle, final Action... actions){
         if(!isActive()){
             return;
         }
-
         if(!Platform.isFxApplicationThread()){
-            Platform.runLater(() -> showWithSubtitle(text, subtitle, actions));
+            Platform.runLater(() -> showIconTextSubtitle(icon, text, subtitle, actions));
             return;
         }
 
-        TextFlow flow = new TextFlow();
-        FXHelper.addText(flow, 14, "Bold", text + "\n");
-        FXHelper.addText(flow, 12, "Normal", subtitle);
+        Parent parent = null;
+        VBox vBox = new VBox();
+        vBox.getStyleClass().add("notification-vbox");
 
-        notificationPane.setGraphic(null);
+        if(!text.isEmpty()){
+            Label titleLabel = new Label(text);
+            titleLabel.getStyleClass().add("notification-title");
+
+            if(icon != null){
+                HBox hBox = new HBox(icon, titleLabel);
+                hBox.setAlignment(Pos.BASELINE_LEFT);
+                hBox.setSpacing(4);
+                vBox.getChildren().add(hBox);
+            }else{
+                vBox.getChildren().add(titleLabel);
+            }
+        }
+
+        if(!subtitle.isEmpty()) {
+            Label subtitleLabel = new Label(subtitle);
+            subtitleLabel.setPadding(new Insets(0, 0, 0, icon != null ? 16 : 0));
+            subtitleLabel.getStyleClass().add("notification-subtitle");
+            vBox.getChildren().add(subtitleLabel);
+        }
+
+        parent = vBox;
+
+        if(actions.length != 0){
+            HBox hBox = new HBox();
+            ButtonBar buttonBar = new ButtonBar();
+            for(Action action : actions){
+                Button button = new Button(action.getText());
+                button.setOnAction(action);
+                button.setStyle("-fx-font-size: 12px;");
+                buttonBar.getButtons().add(button);
+            }
+            hBox.getChildren().addAll(vBox, buttonBar);
+            HBox.setHgrow(vBox, Priority.NEVER);
+            HBox.setHgrow(buttonBar, Priority.SOMETIMES);
+            parent = hBox;
+        }
+
+        parent.getStylesheets().add(NotificationOverlays.class.getResource("/drawingbot/render/overlays/notifications.css").toExternalForm());
+
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
-        notificationPane.show("", flow, actions);
+        notificationPane.show("", parent);
         setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
 
         DrawingBotV3.logger.info("Notification: " + text + " : " + subtitle);
@@ -88,17 +152,7 @@ public class NotificationOverlays extends AbstractOverlay{
         if(!isActive()){
             return;
         }
-        if(!Platform.isFxApplicationThread()){
-            Platform.runLater(() -> show(text));
-            return;
-        }
-        notificationPane.setGraphic(null);
-        notificationPane.getActions().clear();
-        notificationPane.setMouseTransparent(false);
-        notificationPane.show(text);
-        setDisplayTime(DBPreferences.INSTANCE.notificationsScreenTime.get());
-
-        DrawingBotV3.logger.info("Notification: " + text);
+        showWithSubtitle(text, "");
     }
 
     public void show(final String text, final Node graphic) {

@@ -6,6 +6,7 @@ import drawingbot.api.Hooks;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
+import drawingbot.files.UpdateChecker;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.blend.EnumBlendMode;
@@ -457,6 +458,13 @@ public class FXController extends AbstractFXController {
         configFolder.setOnAction(e -> FXHelper.openFolder(new File(FileUtils.getUserDataDirectory())));
         configFolder.setGraphic(fontAwesome.create(FontAwesome.Glyph.FOLDER).color(Color.SLATEGRAY));
         menuHelp.getItems().add(configFolder);
+
+        menuHelp.getItems().add(new SeparatorMenuItem());
+
+        MenuItem checkForUpdates = new MenuItem("Check For Updates");
+        checkForUpdates.setOnAction(e -> UpdateChecker.INSTANCE.requestLatestUpdate());
+        checkForUpdates.setGraphic(fontAwesome.create(FontAwesome.Glyph.BELL).color(Color.SLATEGRAY));
+        menuHelp.getItems().add(checkForUpdates);
 
         DrawingBotV3.INSTANCE.activeProjects.forEach(this::onProjectAdded);
         DrawingBotV3.INSTANCE.activeProjects.addListener((ListChangeListener<ObservableProject>) c -> {

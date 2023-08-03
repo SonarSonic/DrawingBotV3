@@ -2,6 +2,7 @@ package drawingbot;
 
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.AbstractSoftware;
+import drawingbot.utils.DBConstants;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -13,7 +14,9 @@ public class SoftwareDBV3Free extends AbstractSoftware {
     public static final SoftwareDBV3Free INSTANCE = new SoftwareDBV3Free();
 
     public static final String displayName = "DrawingBotV3 Free";
-    public static final String displayVersion = "1.6.3 Beta";
+    public static final String rawVersion = "1.6.4";
+    public static final String releaseType = "Beta";
+    public static final String displayVersion = rawVersion + " " + releaseType;
 
     @Override
     public String getDisplayName() {
@@ -21,8 +24,18 @@ public class SoftwareDBV3Free extends AbstractSoftware {
     }
 
     @Override
+    public String getRawVersion() {
+        return rawVersion;
+    }
+
+    @Override
     public String getDisplayVersion() {
         return displayVersion;
+    }
+
+    @Override
+    public String getUpdateLink() {
+        return DBConstants.UPDATE_LINK_FREE;
     }
 
     @Override

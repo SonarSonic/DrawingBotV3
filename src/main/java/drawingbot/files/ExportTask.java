@@ -231,11 +231,11 @@ public class ExportTask extends DBTask<Boolean> {
         }
         if(!error.isEmpty()){
             updateMessage("Export Error: " + error);
-            NotificationOverlays.INSTANCE.showWithSubtitle("Export Error", error);
+            NotificationOverlays.INSTANCE.showWithSubtitle("WARNING", "Export Error", error);
         }else{
             updateMessage("Finished");
             if(!isSubTask){
-                NotificationOverlays.INSTANCE.showWithSubtitle("File Exported", saveLocation.getPath(), new Action("Open", e -> FXHelper.openFolder(saveLocation)), new Action("Open Folder", e -> FXHelper.openFolder(saveLocation.getParentFile())));
+                NotificationOverlays.INSTANCE.showWithSubtitle("File Exported", saveLocation.getPath(), new Action("Open File", e -> FXHelper.openFolder(saveLocation)), new Action("Open Folder", e -> FXHelper.openFolder(saveLocation.getParentFile())));
             }
         }
         DrawingBotV3.logger.info("Export Task: Finished " + saveLocation.getPath());
