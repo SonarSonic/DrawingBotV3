@@ -229,6 +229,10 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public final DBTaskContext context = new DBTaskContext(this, this);
 
+    // EXTRA DATA \\
+    public final SimpleStringProperty lastExportDirectory = new SimpleStringProperty("");
+    public final SimpleStringProperty lastImportDirectory = new SimpleStringProperty("");
+
     public ObservableProject(){
         this(DEFAULT_NAME, null);
     }
@@ -586,6 +590,50 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         if(openImage.get() != null){
             openImage.get().markUpdate(updateType);
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public File getImportDirectory(){
+        if(lastImportDirectory.get() != null && !lastImportDirectory.get().isEmpty()){
+            return new File(lastImportDirectory.get());
+        }
+        if(DBPreferences.INSTANCE.defaultImportDirectory.get() != null && !DBPreferences.INSTANCE.defaultImportDirectory.get().isEmpty()){
+            return new File(DBPreferences.INSTANCE.defaultImportDirectory.get());
+        }
+        return new File(FileUtils.getUserHomeDirectory());
+    }
+
+    public void updateImportDirectory(File directory){
+        lastImportDirectory.set(directory.toString());
+    }
+
+    public void updateImportDirectoryFromFile(File file){
+        if(file.toString().toLowerCase().endsWith(".drawingbotv3")){
+            return;
+        }
+        updateImportDirectory(file.getParentFile());
+    }
+
+    public File getExportDirectory(){
+        if(lastExportDirectory.get() != null && !lastExportDirectory.get().isEmpty()){
+            return new File(lastExportDirectory.get());
+        }
+        if(DBPreferences.INSTANCE.defaultExportDirectory.get() != null && !DBPreferences.INSTANCE.defaultExportDirectory.get().isEmpty()){
+            return new File(DBPreferences.INSTANCE.defaultExportDirectory.get());
+        }
+        return new File(FileUtils.getUserHomeDirectory());
+    }
+
+    public void updateExportDirectory(File directory){
+        lastExportDirectory.set(directory.toString());
+    }
+
+    public void updateExportDirectoryFromFile(File file){
+        if(file.toString().toLowerCase().endsWith(".drawingbotv3")){
+            return;
+        }
+        updateExportDirectory(file.getParentFile());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

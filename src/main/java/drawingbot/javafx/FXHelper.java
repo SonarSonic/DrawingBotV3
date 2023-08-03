@@ -45,6 +45,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -75,48 +76,48 @@ public class FXHelper {
 
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
-    public static void importFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
+    public static void importFile(DBTaskContext context){
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
     }
 
-    public static void importImageFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES);
+    public static void importImageFile(DBTaskContext context){
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES);
     }
 
-    public static void importVideoFile(){
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_VIDEOS);
+    public static void importVideoFile(DBTaskContext context){
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_VIDEOS);
     }
 
-    public static void importSVGFile(){
+    public static void importSVGFile(DBTaskContext context){
         if(!FXApplication.isPremiumEnabled){
             FXController.showPremiumFeatureDialog();
             return;
         }
-        importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.FILTER_SVG);
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.FILTER_SVG);
     }
 
-    public static void importProject(){
-        importFile((file, chooser) -> {
-            DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false);
+    public static void importProject(DBTaskContext context){
+        importFile(context, (file, chooser) -> {
+            DrawingBotV3.INSTANCE.openFile(context, file, false, false);
         }, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Open DBV3 Project");
     }
 
-    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
-        importFile(callback, new FileChooser.ExtensionFilter[]{filter}, "Select a file to import");
+    public static void importFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter filter){
+        importFile(context, callback, new FileChooser.ExtensionFilter[]{filter}, "Select a file to import");
     }
 
-    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter... filters){
-        importFile(callback, filters, "Select a file to import");
+    public static void importFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter... filters){
+        importFile(context, callback, filters, "Select a file to import");
     }
 
-    public static void importFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title){
-        importFile((file, fileChooser) -> {
-            FileUtils.updateImportDirectory(file.getParentFile());
+    public static void importFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, String title){
+        importFile(context, (file, fileChooser) -> {
+            context.project().updateImportDirectoryFromFile(file);
             callback.accept(file, fileChooser);
-        }, FileUtils.getImportDirectory(), filters, title);
+        }, context.project().getImportDirectory(), filters, title);
     }
 
-    public static void importFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title){
+    public static void importFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title){
         Platform.runLater(() -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().addAll(filters);
@@ -125,17 +126,17 @@ public class FXHelper {
             fileChooser.setInitialDirectory(initialDirectory);
             File file = fileChooser.showOpenDialog(null);
             if(file != null){
-                FileUtils.updateImportDirectory(file.getParentFile());
+                context.project().updateImportDirectoryFromFile(file);
                 callback.accept(file, fileChooser);
             }
         });
     }
 
-    public static void exportFile(BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName) {
+    public static void exportFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName) {
         exportFile((file, fileChooser) -> {
-            FileUtils.updateExportDirectory(file.getParentFile());
+            context.project().updateExportDirectoryFromFile(file);
             callback.accept(file, fileChooser);
-        }, FileUtils.getExportDirectory(), filters, selectedFilter, title, initialFileName);
+        }, context.project().getExportDirectory(), filters, selectedFilter, title, initialFileName);
     }
 
     public static void exportFile(BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName){
@@ -163,8 +164,8 @@ public class FXHelper {
         });
     }
 
-    public static String getSaveLocation(String baseName, String suffix, FileChooser.ExtensionFilter[] filters){
-        return getSaveLocation(FileUtils.getExportDirectory(), baseName, suffix, FileUtils.getRawExtensions(filters));
+    public static String getSaveLocation(DBTaskContext context, String baseName, String suffix, FileChooser.ExtensionFilter[] filters){
+        return getSaveLocation(context.project().getExportDirectory(), baseName, suffix, FileUtils.getRawExtensions(filters));
     }
 
     public static String getSaveLocation(File saveDirectory, String baseName, String suffix, List<String> extensions){
@@ -187,11 +188,11 @@ public class FXHelper {
         return saveLocation;
     }
 
-    public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
-        exportFile(exportHandler, exportMode, "_plotted_", "Untitled");
+    public static void exportFile(DBTaskContext context, DrawingExportHandler exportHandler, ExportTask.Mode exportMode){
+        exportFile(context, exportHandler, exportMode, "_plotted_", "Untitled");
     }
 
-    public static void exportFile(DrawingExportHandler exportHandler, ExportTask.Mode exportMode, String suffix, String fallbackFileName){
+    public static void exportFile(DBTaskContext context, DrawingExportHandler exportHandler, ExportTask.Mode exportMode, String suffix, String fallbackFileName){
         PlottedDrawing drawing = DrawingBotV3.taskManager().getCurrentDrawing();
         if(drawing == null){
             return;
@@ -204,15 +205,15 @@ public class FXHelper {
             originalFile = new File(FileUtils.getUserDataDirectory() + File.separator + fallbackFileName);
         }
 
-        String saveLocation = getSaveLocation(originalFile.getName(), suffix, exportHandler.filters);
-        exportFile((file, chooser) -> {
+        String saveLocation = getSaveLocation(context, originalFile.getName(), suffix, exportHandler.filters);
+        exportFile(context, (file, chooser) -> {
             exportHandler.selectedFilter = chooser.getSelectedExtensionFilter();
             DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
         }, exportHandler.filters, exportHandler.selectedFilter, exportHandler.getDialogTitle(), saveLocation);
     }
 
     public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
-        importFile((file, chooser) -> {
+        importFile(context, (file, chooser) -> {
             GenericPreset<IJsonData> preset = loadPresetFile(context, presetType, file, apply);
             if(showDialog){
                 AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
@@ -230,7 +231,7 @@ public class FXHelper {
 
     public static GenericPreset<IJsonData> loadPresetFile(DBTaskContext context, PresetType presetType, File file, boolean apply){
         GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
-        FileUtils.updateImportDirectory(file.getParentFile());
+        context.project().updateImportDirectoryFromFile(file);
         if(preset != null && apply){
             AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
             if(jsonLoader != null){
@@ -246,7 +247,9 @@ public class FXHelper {
 
     public static <D extends IJsonData> GenericPreset<D> loadPresetFile(DBTaskContext context, AbstractJsonLoader<D> loader, File file, boolean apply){
         GenericPreset<D> preset = (GenericPreset<D>) JsonLoaderManager.importPresetFile(file, loader.type);
-        FileUtils.updateImportDirectory(file.getParentFile());
+
+        context.project().updateImportDirectoryFromFile(file);
+
         if(preset != null && apply){
             if(loader.getDefaultManager() != null){
                 loader.getDefaultManager().tryApplyPreset(context, preset);
@@ -270,7 +273,7 @@ public class FXHelper {
 
     public static void saveProjectAs(){
         final DBTaskContext context = DrawingBotV3.context();
-        File folder = FileUtils.getExportDirectory();
+        File folder = context.project().getExportDirectory();
         String projectName = context.project().name.get();
 
         PlottedDrawing renderedDrawing = DrawingBotV3.project().getCurrentDrawing();
@@ -286,7 +289,7 @@ public class FXHelper {
             context.project.file.set(file);
             context.project.name.set(FileUtils.removeExtension(file.getName()));
             DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
-                FileUtils.updateExportDirectory(file.getParentFile());
+                //context.project().updateExportDirectory(file.getParentFile()); //saving our project is not "Exporting"
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
                 Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false);
@@ -297,9 +300,9 @@ public class FXHelper {
         }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, FileUtils.FILTER_PROJECT, "Save Project", projectName);
     }
 
-    public static void exportPreset(GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
-        exportFile((file, chooser) -> {
-            FileUtils.updateExportDirectory(file.getParentFile());
+    public static void exportPreset(DBTaskContext context, GenericPreset<?> preset, File initialDirectory, String initialName, boolean showDialog){
+        exportFile(context, (file, chooser) -> {
+            context.project().updateExportDirectoryFromFile(file);
             JsonLoaderManager.exportPresetFile(file, preset);
 
             if(showDialog){
@@ -325,6 +328,18 @@ public class FXHelper {
         GenericPreset<IJsonData> copy = loader.createNewPreset(preset.getPresetSubType(), preset.getPresetName(), preset.userCreated);
         copy.data = loader.fromJsonElement(gson, copy, element);
         return (GenericPreset<D>) copy;
+    }
+
+    public static void selectFolder(String title, File initialDirectory, Consumer<File> callback){
+        Platform.runLater(() -> {
+            DirectoryChooser d = new DirectoryChooser();
+            d.setTitle(title);
+            d.setInitialDirectory(initialDirectory);
+            File file = d.showDialog(null);
+            if(file != null){
+                callback.accept(file);
+            }
+        });
     }
 
     public static void openURL(String url) {
@@ -462,7 +477,7 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.getPresetName(), true);
+            FXHelper.exportPreset(DrawingBotV3.context(), current, DrawingBotV3.project().getExportDirectory(), current.getPresetName(), true);
         });
 
         MenuItem setDefault = new MenuItem("Set As Default");
@@ -558,7 +573,7 @@ public class FXHelper {
             if(current == null){
                 return;
             }
-            FXHelper.exportPreset(current, FileUtils.getExportDirectory(), current.getPresetName(), true);
+            FXHelper.exportPreset(DrawingBotV3.context(), current, DrawingBotV3.project().getExportDirectory(), current.getPresetName(), true);
         });
 
         MenuItem setDefault = new MenuItem("Set As Default");

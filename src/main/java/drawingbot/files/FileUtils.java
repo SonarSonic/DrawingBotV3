@@ -84,32 +84,6 @@ public class FileUtils {
         return extensions;
     }
 
-    private static File importDirectory = null;
-
-    public static File getImportDirectory(){
-        if(importDirectory == null){
-            importDirectory = new File(FileUtils.getUserHomeDirectory());
-        }
-        return importDirectory;
-    }
-
-    public static void updateImportDirectory(File directory){
-        importDirectory = directory;
-    }
-
-    private static File exportDirectory = null;
-
-    public static File getExportDirectory(){
-        if(exportDirectory == null){
-            exportDirectory = new File(FileUtils.getUserHomeDirectory());
-        }
-        return exportDirectory;
-    }
-
-    public static void updateExportDirectory(File directory){
-        exportDirectory = directory;
-    }
-
     public static String getTempDirectory() {
         return System.getProperty("java.io.tmpdir");
     }

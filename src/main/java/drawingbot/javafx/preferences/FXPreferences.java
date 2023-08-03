@@ -102,6 +102,9 @@ public class FXPreferences extends AbstractFXController {
                                 return comboBox;
                             }),
 
+                            new LabelNode("Default Folders").setTitleStyling(),
+                            new LabelNode("Import Folder", () -> Editors.createDefaultFolderPicker("Select Default Import Folder", () -> DrawingBotV3.project().getImportDirectory(), settings.defaultImportDirectory.valueProperty())),
+                            new LabelNode("Export Folder", () -> Editors.createDefaultFolderPicker("Select Default Export Folder", () -> DrawingBotV3.project().getExportDirectory(), settings.defaultExportDirectory.valueProperty())),
                             new LabelNode("Preset Defaults").setTitleStyling(),
                             new LabelNode("Drawing Area", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_DRAWING_AREA)),
                             new LabelNode("Image Processing", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_FILTERS)),

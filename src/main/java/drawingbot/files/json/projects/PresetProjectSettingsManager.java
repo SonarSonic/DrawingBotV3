@@ -120,6 +120,14 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     }
 
+    @JsonData
+    public static class OptionalData {
+
+        public String exportDirectory = "";
+        public String importDirectory = "";
+
+    }
+
 
     public static void registerDefaultDataLoaders(){
 
@@ -229,7 +237,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
+                            FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             FilteredImageData imageData = loadingTask.getValue();
@@ -248,6 +256,20 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                 }else{
                     context.project.openImage.set(null);
                 }
+            }
+        });
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"optional_data", OptionalData.class, OptionalData::new, 8) {
+
+            @Override
+            public void loadData(DBTaskContext context, OptionalData data, GenericPreset<PresetProjectSettings> preset) {
+                context.project().lastExportDirectory.set(data.exportDirectory);
+                context.project().lastImportDirectory.set(data.importDirectory);
+            }
+
+            @Override
+            public void saveData(DBTaskContext context, OptionalData data, GenericPreset<PresetProjectSettings> preset) {
+                data.exportDirectory = context.project().lastExportDirectory.get();
+                data.importDirectory = context.project().lastImportDirectory.get();
             }
         });
     }

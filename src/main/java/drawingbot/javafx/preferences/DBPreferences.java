@@ -81,6 +81,12 @@ public class DBPreferences implements ISettings {
 
     ///////////////////////////////////////////////
 
+    //// FILES \\\\
+    public final StringSetting<?> defaultImportDirectory = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultImportDirectory", ""));
+    public final StringSetting<?> defaultExportDirectory = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportDirectory", ""));
+
+    ///////////////////////////////////////////////
+
     //// PATH OPTIMISATION \\\\
 
     public final BooleanSetting<?> pathOptimisationEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "pathOptimisationEnabled", true));

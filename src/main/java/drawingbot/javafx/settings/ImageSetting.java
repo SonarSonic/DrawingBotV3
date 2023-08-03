@@ -46,7 +46,7 @@ public class ImageSetting<C> extends GenericSetting<C, String> {
 
         Button button = new Button("Select Image");
 
-        button.setOnAction(event -> FXHelper.importFile((file, chooser) -> value.set(file.getPath()), FileUtils.IMPORT_IMAGES));
+        button.setOnAction(event -> FXHelper.importFile(DrawingBotV3.context(), (file, chooser) -> value.set(file.getPath()), FileUtils.IMPORT_IMAGES));
 
         value.addListener((observable, oldValue, newValue) -> {
             BufferedImageLoader loader = new BufferedImageLoader(DrawingBotV3.context(), newValue, false);

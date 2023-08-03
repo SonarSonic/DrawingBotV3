@@ -170,7 +170,7 @@ class PresetProjectSettingsManagerLegacy {
                 AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), false, true);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED) {
-                        FXHelper.importFile((file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                        FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
@@ -186,7 +186,7 @@ class PresetProjectSettingsManagerLegacy {
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), false, true);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile((file, chooser) -> {
+                            FXHelper.importFile(context, (file, chooser) -> {
                                 DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true);
                                 DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, context, presetData.drawingState));
                             }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");

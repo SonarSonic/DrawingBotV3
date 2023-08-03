@@ -200,7 +200,7 @@ public class FXController extends AbstractFXController {
         menuFile.getItems().add(menuNew);
 
         MenuItem menuOpen = new MenuItem("Open");
-        menuOpen.setOnAction(e -> FXHelper.importProject());
+        menuOpen.setOnAction(e -> FXHelper.importProject(DrawingBotV3.context()));
         menuOpen.setGraphic(fontAwesome.create(FontAwesome.Glyph.FOLDER_OPEN).color(Color.SLATEGRAY));
         menuOpen.setAccelerator(KeyCombination.valueOf("Ctrl + O"));
         menuFile.getItems().add(menuOpen);
@@ -227,17 +227,17 @@ public class FXController extends AbstractFXController {
 
 
         MenuItem menuImport = new MenuItem("Import Image");
-        menuImport.setOnAction(e -> FXHelper.importImageFile());
+        menuImport.setOnAction(e -> FXHelper.importImageFile(DrawingBotV3.context()));
         menuImport.setAccelerator(KeyCombination.valueOf("Ctrl + I"));
         menuFile.getItems().add(menuImport);
 
         MenuItem menuVideo = new MenuItem("Import Video");
-        menuVideo.setOnAction(e -> FXHelper.importVideoFile());
+        menuVideo.setOnAction(e -> FXHelper.importVideoFile(DrawingBotV3.context()));
         menuFile.getItems().add(menuVideo);
 
         if(FXApplication.isPremiumEnabled) {
             MenuItem menuSVG = new MenuItem("Import SVG");
-            menuSVG.setOnAction(e -> FXHelper.importSVGFile());
+            menuSVG.setOnAction(e -> FXHelper.importSVGFile(DrawingBotV3.context()));
             menuFile.getItems().add(menuSVG);
         }else{
             MenuItem menuSVG = new MenuItem("Import SVG " + "(Premium)");
@@ -249,7 +249,7 @@ public class FXController extends AbstractFXController {
 
         MenuItem menuQuickExport = new MenuItem("Quick Export");
         menuQuickExport.textProperty().bind(Bindings.createStringBinding(() -> "Quick Export: " + DBPreferences.INSTANCE.getQuickExportHandler() + " - " + DBPreferences.INSTANCE.quickExportMode.get().getDisplayName(), DBPreferences.INSTANCE.quickExportMode, DBPreferences.INSTANCE.quickExportHandler));
-        menuQuickExport.setOnAction(e -> FXHelper.exportFile(DBPreferences.INSTANCE.getQuickExportHandler(), DBPreferences.INSTANCE.quickExportMode.get()));
+        menuQuickExport.setOnAction(e -> FXHelper.exportFile(DrawingBotV3.context(), DBPreferences.INSTANCE.getQuickExportHandler(), DBPreferences.INSTANCE.quickExportMode.get()));
         menuQuickExport.disableProperty().bind(Bindings.isNull(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing)));
         menuQuickExport.setAccelerator(KeyCombination.valueOf("Ctrl + E"));
         menuFile.getItems().add(menuQuickExport);
@@ -269,7 +269,7 @@ public class FXController extends AbstractFXController {
                         menuExport.getItems().add(item);
                     }else{
                         MenuItem item = new MenuItem(format.description);
-                        item.setOnAction(e -> FXHelper.exportFile(format, exportMode));
+                        item.setOnAction(e -> FXHelper.exportFile(DrawingBotV3.context(), format, exportMode));
                         menuExport.getItems().add(item);
                     }
                 }

@@ -4,6 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.Register;
 import javafx.application.Platform;
@@ -28,7 +29,7 @@ public class VpypeHelper {
                 File tempSVG = new File(FileUtils.getUserDataDirectory(), TEMP_FILE_NAME);
 
                 if(userCommand.contains(OUTPUT_FILE_WILDCARD)){
-                    File outputFile = chooseOutputFile();
+                    File outputFile = chooseOutputFile(DrawingBotV3.context());
                     if(outputFile == null){
                         return;
                     }
@@ -45,17 +46,17 @@ public class VpypeHelper {
     public static void choosePathToExecutable(VpypeSettings settings){
         FileChooser d = new FileChooser();
         d.setTitle("Choose " + VPYPE_NAME + " Executable");
-        d.setInitialDirectory(settings.vPypeExecutable.getValue().isEmpty() ? FileUtils.getImportDirectory() : new File(settings.vPypeExecutable.getValue()).getParentFile());
+        d.setInitialDirectory(settings.vPypeExecutable.getValue().isEmpty() ? new File(FileUtils.getUserHomeDirectory()) : new File(settings.vPypeExecutable.getValue()).getParentFile());
         File file = d.showOpenDialog(null);
         if(file != null){
             settings.vPypeExecutable.setValue(file.getPath());
         }
     }
 
-    public static File chooseOutputFile(){
+    public static File chooseOutputFile(DBTaskContext context){
         FileChooser d = new FileChooser();
         d.setTitle("Save " + VPYPE_NAME + " output file");
-        d.setInitialDirectory(FileUtils.getExportDirectory());
+        d.setInitialDirectory(context.project().getExportDirectory());
         return d.showSaveDialog(null);
     }
 

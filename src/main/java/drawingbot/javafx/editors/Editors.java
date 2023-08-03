@@ -2,6 +2,7 @@ package drawingbot.javafx.editors;
 
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.IJsonData;
+import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.preferences.DBPreferences;
@@ -28,12 +29,14 @@ import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Class for creating simple editor dialogs e.g. pages of settings which can be displayed as a tree or as actual settings.
@@ -166,6 +169,22 @@ public class Editors {
             DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
         });
         return comboBox;
+    }
+
+    public static Node createDefaultFolderPicker(String title, Supplier<File> initialDirectory, Property<String> stringProperty){
+        HBox hBox = new HBox();
+        hBox.setSpacing(8);
+
+        Button configure = new Button("Configure");
+        configure.setOnAction(e -> FXHelper.selectFolder(title, initialDirectory.get(), file -> stringProperty.setValue(file.toString())));
+        hBox.getChildren().add(configure);
+
+        Label fileLabel = new Label();
+        fileLabel.textProperty().bind(stringProperty);
+        hBox.getChildren().add(fileLabel);
+        fileLabel.setMaxWidth(275);
+        fileLabel.setWrapText(true);
+        return hBox;
     }
 
     @Nullable
