@@ -13,9 +13,7 @@ import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controllers.*;
-import drawingbot.javafx.controls.ContextMenuObservableProject;
-import drawingbot.javafx.controls.DialogPremiumFeature;
-import drawingbot.javafx.controls.ZoomableScrollPane;
+import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
@@ -112,7 +110,6 @@ public class FXController extends AbstractFXController {
         FXHelper.makePersistent(batchProcessingController.getPersistentNodes());
         //FXHelper.makePersistent(viewportScrollPane);
 
-
         DrawingBotV3.logger.exiting("FX Controller", "initialize");
     }
 
@@ -141,6 +138,8 @@ public class FXController extends AbstractFXController {
     public Stage preferencesStage;
     public FXPreferences preferencesController;
 
+    public Stage documentationStage;
+    public FXDocumentation documentationController;
 
     public void initSeparateStages() {
         vpypeController = FXHelper.initSeparateStage("/drawingbot/javafx/vpypesettings.fxml", vpypeSettingsStage = new Stage(), "vpype Settings", Modality.APPLICATION_MODAL);
@@ -148,6 +147,9 @@ public class FXController extends AbstractFXController {
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
         projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
         preferencesController = FXHelper.initSeparateStage("/drawingbot/javafx/preferences.fxml", preferencesStage = new Stage(), "Preferences", Modality.APPLICATION_MODAL);
+        documentationController = FXHelper.initSeparateStage("/drawingbot/javafx/documentation.fxml", documentationStage = new Stage(), "Documentation", Modality.NONE);
+
+        documentationStage.setResizable(true);
 
         FXHelper.initSeparateStageWithController("/drawingbot/javafx/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
     }
@@ -444,8 +446,8 @@ public class FXController extends AbstractFXController {
             menuHelp.getItems().add(new SeparatorMenuItem());
         }
 
-        MenuItem documentation = new MenuItem("View Documentation");
-        documentation.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_HOME));
+        MenuItem documentation = new MenuItem("Open Documentation");
+        documentation.setOnAction(e -> FXDocumentation.navigate(DBConstants.URL_READ_THE_DOCS_HOME));
         documentation.setGraphic(fontAwesome.create(FontAwesome.Glyph.INFO).color(Color.SLATEGRAY));
         menuHelp.getItems().add(documentation);
 

@@ -2,6 +2,7 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controllers.FXDocumentation;
 import drawingbot.javafx.settings.CategorySetting;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
@@ -36,8 +37,8 @@ public class ContextMenuGenericSetting extends ContextMenu {
         });
         getItems().add(menuDelete);
 
-        MenuItem menuDuplicate = new MenuItem("Reset");
-        menuDuplicate.setOnAction(e -> {
+        MenuItem menuReset = new MenuItem("Reset");
+        menuReset.setOnAction(e -> {
             GenericSetting<?, ?> setting = row.getItem();
             if(setting instanceof CategorySetting){
                 CategorySetting<?> categorySetting = (CategorySetting<?>) setting;
@@ -54,6 +55,12 @@ public class ContextMenuGenericSetting extends ContextMenu {
                     DrawingBotV3.project().onPFMSettingsUserEdited();
             }
         });
-        getItems().add(menuDuplicate);
+        getItems().add(menuReset);
+
+        MenuItem menuHelp = new MenuItem("Help");
+        menuHelp.setOnAction(e -> {
+            FXDocumentation.openPFMSetting(row.getItem());
+        });
+        getItems().add(menuHelp);
     }
 }

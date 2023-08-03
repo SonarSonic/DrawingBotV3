@@ -165,6 +165,11 @@ public class FXPFMControls extends AbstractFXController {
                     row.disableProperty().bind(newValue.getValue().disabledProperty());
                 }
             });
+            row.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue){
+                    FXDocumentation.onPFMSettingSelected(row.getItem());
+                }
+            });
             return row;
         });
         treeTableViewPFMSettings.setShowRoot(false);
@@ -240,7 +245,7 @@ public class FXPFMControls extends AbstractFXController {
             GenericSetting.randomiseSettings(pfmSettings.get().settings.get());
             DrawingBotV3.project().onPFMSettingsUserEdited();
         });
-        buttonPFMSettingHelp.setOnAction(e -> FXHelper.openURL(DBConstants.URL_READ_THE_DOCS_PFMS));
+        buttonPFMSettingHelp.setOnAction(e -> FXDocumentation.openPFMHelp(pfmSettings.get().getPFMFactory()));
     }
 
     public void changePathFinderModule(PFMFactory<?> pfm){

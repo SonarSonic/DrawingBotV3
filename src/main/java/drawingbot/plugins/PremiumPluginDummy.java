@@ -63,57 +63,57 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerPFMS() {
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Curves", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Quad Beziers", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Cubic Beziers", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Catmull-Roms", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sweeping Curves", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Shapes", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sobel Edges", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Waves", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sweeping Curves", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "ECS Drawing", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Spiral Circular Scribbles", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Hatch Sawtooth", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Hatch Circular Scribbles", Register.CATEGORY_PFM_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Curves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Quad Beziers", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Cubic Beziers", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Catmull-Roms", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sweeping Curves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Shapes", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sobel Edges", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Waves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sweeping Curves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "ECS Drawing", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Spiral Circular Scribbles", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Hatch Sawtooth", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Hatch Circular Scribbles", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Shapes", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Triangulation", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Tree", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Stippling", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Dashes", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Letters", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Diagram", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Circular Scribbles", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive TSP", Register.CATEGORY_PFM_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Shapes", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Triangulation", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Tree", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Stippling", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Dashes", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Letters", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Diagram", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive Circular Scribbles", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Adaptive TSP", Register.PFM_TYPE_ADAPTIVE, DummyPFM::new).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Shapes", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Triangulation", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Tree", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Stippling", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Dashes", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Letters", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Diagram", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG TSP", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Quad Tiles", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Circular Scribbles", Register.CATEGORY_PFM_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Shapes", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Triangulation", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Tree", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Stippling", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Dashes", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Letters", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Diagram", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG TSP", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Quad Tiles", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "LBG Circular Scribbles", Register.PFM_TYPE_LBG, DummyPFM::new).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Shapes", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Triangulation", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Tree", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Stippling", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Dashes", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Letters", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", Register.CATEGORY_PFM_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Shapes", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Triangulation", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Tree", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Stippling", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Dashes", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Letters", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
 
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Segments", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.CATEGORY_PFM_COMPOSITE, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "SVG Converter", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
-        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Pen Calibration", Register.CATEGORY_PFM_SPECIAL, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.PFM_TYPE_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.PFM_TYPE_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Segments", Register.PFM_TYPE_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Custom", Register.PFM_TYPE_COMPOSITE, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "SVG Converter", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Pen Calibration", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
     }
 
     public Object[] disableBatchProcessingUI(Object...objects){

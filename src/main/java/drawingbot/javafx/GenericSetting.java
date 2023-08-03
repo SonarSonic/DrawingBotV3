@@ -49,6 +49,8 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         this.setDisabled(toCopy.disabled.get());
         this.setBindingFactory(toCopy.bindingFactory);
         this.setRandomiseExclude(toCopy.randomiseExclude.get());
+        this.setDocURLSuffix(toCopy.docURLSuffix);
+        this.setDocURL(toCopy.docURL);
         this.setValue(newValue);
     }
 
@@ -659,6 +661,43 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     }
 
+    ///////////////////////////
+
+    /**
+     * Defines a different URL to use for this settings documentation
+     */
+    private String docURL = null;
+
+    public String getDocURL() {
+        return docURL;
+    }
+
+    public GenericSetting<C, V> setDocURL(String docURL) {
+        this.docURL = docURL;
+        return this;
+    }
+
+    ///////////////////////////
+
+    /**
+     * Defines a different suffix to use for this settings documentation
+     */
+    private String docURLSuffix = null;
+
+    public String getDocURLSuffix() {
+        return docURLSuffix;
+    }
+
+
+    public GenericSetting<C, V> setDocURLTerm(String docURLTerm) {
+        this.docURLSuffix = "#term-" + docURLTerm;
+        return this;
+    }
+
+    public GenericSetting<C, V> setDocURLSuffix(String docURLSuffix) {
+        this.docURLSuffix = docURLSuffix;
+        return this;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

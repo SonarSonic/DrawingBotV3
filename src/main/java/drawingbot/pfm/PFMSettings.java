@@ -131,14 +131,17 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
         TreeItem<GenericSetting<?, ?>> root = new TreeItem<>(new CategorySetting<>(Object.class, "Root", "Root", true));
         if(settings != null){
             Map<String, List<GenericSetting<?, ?>>> result = settings.stream().collect(Collectors.groupingBy(GenericSetting::getCategory));
-            List<String> sortedCategories = new ArrayList<>(result.keySet());
-            sortedCategories.sort(Comparator.comparingInt(value -> -MasterRegistry.INSTANCE.getCategoryPriority(value)));
+            List<String> categoryNames = new ArrayList<>(result.keySet());
+            List<CategorySetting<?>> sortedCategories = new ArrayList<>();
+            for(String categoryRegistryName : categoryNames){
+                sortedCategories.add(MasterRegistry.INSTANCE.getCategorySettingInstance(categoryRegistryName));
+            }
+            sortedCategories.sort(Comparator.comparingInt(value -> -value.getPriority()));
 
-            for(String category : sortedCategories){
-
-                TreeItem<GenericSetting<?, ?>> treeItem = new TreeItem<>(new CategorySetting<>(Object.class, category, category, true));
+            for(CategorySetting<?> categorySetting : sortedCategories){
+                TreeItem<GenericSetting<?, ?>> treeItem = new TreeItem<>(categorySetting);
                 treeItem.setExpanded(true);
-                for(GenericSetting<?, ?> setting : result.get(category)){
+                for(GenericSetting<?, ?> setting : result.get(categorySetting.getKey())){
                     treeItem.getChildren().add(new TreeItem<>(setting));
                 }
                 root.getChildren().add(treeItem);

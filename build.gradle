@@ -18,7 +18,7 @@ repositories {
 
 javafx {
     version = javaFX_version
-    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.swing']
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.swing', 'javafx.web']
 }
 
 dependencies {
@@ -80,7 +80,10 @@ runtime {
             'jdk.unsupported',
             'java.datatransfer',
             'java.xml',
-            'jdk.xml.dom']//created via suggestModules
+            'jdk.xml.dom', //for Documentation
+            'java.net.http', //for Documentation
+            'jdk.crypto.ec' //for Documentation / Changelog HTTPs connection
+    ]
 
     jpackage{
         def currentOs = org.gradle.internal.os.OperatingSystem.current()

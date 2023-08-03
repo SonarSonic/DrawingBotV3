@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.*?>
+
+<?import org.controlsfx.glyphfont.Glyph?>
+<VBox prefHeight="800" prefWidth="1200" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDocumentation">
+   <HBox spacing="5.0">
+      <children>
+         <Button fx:id="buttonHome" layoutX="15.0" layoutY="15.0" mnemonicParsing="false" onAction="#home" text="Home">
+          <graphic>
+              <Glyph fontFamily="FontAwesome" icon="HOME" />
+          </graphic>
+         </Button>
+         <Button fx:id="buttonBack" mnemonicParsing="false" onAction="#back" text="Back">
+          <graphic>
+              <Glyph fontFamily="FontAwesome" icon="ARROW_LEFT" />
+          </graphic>
+         </Button>
+         <Button fx:id="buttonForward" layoutX="15.0" layoutY="15.0" mnemonicParsing="false" onAction="#forward" text="Forward">
+          <graphic>
+              <Glyph fontFamily="FontAwesome" icon="ARROW_RIGHT" />
+          </graphic>
+         </Button>
+      </children>
+      <padding>
+          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+      </padding>
+   </HBox>
+       <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+       <ButtonBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="NEVER">
+         <buttons>
+           <Button mnemonicParsing="false" onAction="#openBrowser" text="Open Browser">
+          </Button>
+         </buttons>
+          <padding>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+          </padding>
+       </ButtonBar>
+</VBox>

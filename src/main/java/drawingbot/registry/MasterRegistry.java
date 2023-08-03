@@ -24,6 +24,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.editors.Editors;
 import drawingbot.javafx.editors.TreeNode;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.overlays.AbstractOverlay;
@@ -151,15 +152,36 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// SETTINGS CATEGORIES \\\\
-    public HashMap<String, Integer> settingCategories = new HashMap<>();
+    public HashMap<String, CategorySetting<?>> settingCategories = new HashMap<>();
 
-    public int getCategoryPriority(String category){
-        Integer priority = settingCategories.get(category);
-        return priority == null ? 5 : priority;
+    public CategorySetting<?> getCategorySettingInstance(String categoryRegistryName){
+        CategorySetting<?> categorySetting = settingCategories.get(categoryRegistryName);
+        if(categorySetting != null){
+            return categorySetting.copy();
+        }
+        return new CategorySetting<>(Object.class, categoryRegistryName, categoryRegistryName, true);
     }
 
-    public void registerSettingCategory(String category, int priority){
-        settingCategories.put(category, priority);
+    public int getCategoryPriority(String category){
+        CategorySetting<?> categorySetting = settingCategories.get(category);
+        return categorySetting == null ? 5 : categorySetting.getPriority();
+    }
+
+    /**
+     * It's not actually necessary to register the setting category, if it's not registered one will be created at runtime.
+     * However, if we are configuring them we do enforce the registry name is unique so ensure any special attributes are used correctly.
+     * 
+     * This is also added to allow custom Documentation links for category using {@link GenericSetting#setDocURLSuffix(String)}
+     */
+    public CategorySetting<?> registerSettingCategory(String categoryRegistryName, int priority){
+        if(settingCategories.containsKey(categoryRegistryName)){
+            throw new UnsupportedOperationException("DUPLICATE CATEGORY REGISTRY NAME: " + categoryRegistryName);
+        }
+        CategorySetting<?> categorySetting = new CategorySetting<>(Object.class, categoryRegistryName, categoryRegistryName, true);
+        categorySetting.setPriority(priority);
+        settingCategories.put(categoryRegistryName, categorySetting);
+
+        return categorySetting;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
