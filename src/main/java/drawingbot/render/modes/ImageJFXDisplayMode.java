@@ -124,7 +124,7 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
 
         public static ChangeListener<Number> valueChangeListener = (observable, oldValue, newValue) -> {
             if(!transforming){
-                updateCropFromImageData();
+                updateCropFromImageData(DrawingBotV3.project().openImage.get());
             }
         };
 
@@ -146,15 +146,15 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         public static void addListeners(FilteredImageData imageData){
             imageData.cropStartX.addListener(valueChangeListener);
             imageData.cropStartY.addListener(valueChangeListener);
-            imageData.cropEndX.addListener(valueChangeListener);
-            imageData.cropEndY.addListener(valueChangeListener);
+            imageData.cropWidth.addListener(valueChangeListener);
+            imageData.cropHeight.addListener(valueChangeListener);
         }
 
         public static void removeListeners(FilteredImageData imageData){
             imageData.cropStartX.removeListener(valueChangeListener);
             imageData.cropStartY.removeListener(valueChangeListener);
-            imageData.cropEndX.removeListener(valueChangeListener);
-            imageData.cropEndY.removeListener(valueChangeListener);
+            imageData.cropWidth.removeListener(valueChangeListener);
+            imageData.cropHeight.removeListener(valueChangeListener);
         }
 
         public static void updateImageDataFromCrop(){
@@ -165,15 +165,14 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             transforming = true;
             imageData.cropStartX.set((float) rectangle2D.getX() / scale);
             imageData.cropStartY.set((float) rectangle2D.getY() / scale);
-            imageData.cropEndX.set((float) rectangle2D.getMaxX() / scale);
-            imageData.cropEndY.set((float) rectangle2D.getMaxY() / scale);
+            imageData.cropWidth.set((float) rectangle2D.getWidth() / scale);
+            imageData.cropHeight.set((float) rectangle2D.getHeight() / scale);
             transforming = false;
         }
 
-        public static void updateCropFromImageData(){
-            FilteredImageData imageData = DrawingBotV3.project().openImage.get();
+        public static void updateCropFromImageData(FilteredImageData imageData){
             if(imageData != null){
-                Rectangle2D rectangle2D = DrawingBotV3.project().openImage.get().getCrop();
+                Rectangle2D rectangle2D = imageData.getCrop();
                 cropShape.geometry = new GRectangle((float) rectangle2D.getX(), (float) rectangle2D.getY(), (float) rectangle2D.getWidth(), (float) rectangle2D.getHeight());
                 cropShape.setDisplayed(true);
             }else{
@@ -189,19 +188,19 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             if(!init){
                 croppingList.getShapeList().add(cropShape);
                 cropShape.setSelected(true);
-                DrawingBotV3.project().openImage.addListener((observable, oldValue, newValue) -> {
+                DrawingBotV3.INSTANCE.imageBinding.addListener((observable, oldValue, newValue) -> {
                     if(oldValue != null){
                         removeListeners(oldValue);
                     }
                     if(newValue != null){
                         addListeners(newValue);
-                        updateCropFromImageData();
+                        updateCropFromImageData(newValue);
                     }
                 });
 
                 // Run the listener manually the first time, ensure the shape has been generated for the image.
                 addListeners(DrawingBotV3.project().openImage.get());
-                updateCropFromImageData();
+                updateCropFromImageData(DrawingBotV3.project().openImage.get());
 
                 init = true;
             }

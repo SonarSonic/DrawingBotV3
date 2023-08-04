@@ -65,8 +65,8 @@ public class FXImageFilters extends AbstractFXController {
 
     public TextField textFieldCropStartX = null;
     public TextField textFieldCropStartY = null;
-    public TextField textFieldCropEndX = null;
-    public TextField textFieldCropEndY = null;
+    public TextField textFieldCropWidth = null;
+    public TextField textFieldCropHeight = null;
     public ToggleButton buttonEditCrop = null;
     public Button buttonResetCrop;
 
@@ -162,8 +162,8 @@ public class FXImageFilters extends AbstractFXController {
             if(oldValue != null){
                 textFieldCropStartX.textProperty().unbindBidirectional(oldValue.cropStartX);
                 textFieldCropStartY.textProperty().unbindBidirectional(oldValue.cropStartY);
-                textFieldCropEndX.textProperty().unbindBidirectional(oldValue.cropEndX);
-                textFieldCropEndY.textProperty().unbindBidirectional(oldValue.cropEndY);
+                textFieldCropWidth.textProperty().unbindBidirectional(oldValue.cropWidth);
+                textFieldCropHeight.textProperty().unbindBidirectional(oldValue.cropHeight);
                 choiceBoxRotation.valueProperty().unbindBidirectional(oldValue.imageRotation);
                 checkBoxFlipX.selectedProperty().unbindBidirectional(oldValue.imageFlipHorizontal);
                 checkBoxFlipY.selectedProperty().unbindBidirectional(oldValue.imageFlipVertical);
@@ -171,8 +171,8 @@ public class FXImageFilters extends AbstractFXController {
             if(newValue != null){
                 textFieldCropStartX.textProperty().bindBidirectional(newValue.cropStartX, new NumberStringConverter(Utils.oneDecimal));
                 textFieldCropStartY.textProperty().bindBidirectional(newValue.cropStartY, new NumberStringConverter(Utils.oneDecimal));
-                textFieldCropEndX.textProperty().bindBidirectional(newValue.cropEndX, new NumberStringConverter(Utils.oneDecimal));
-                textFieldCropEndY.textProperty().bindBidirectional(newValue.cropEndY, new NumberStringConverter(Utils.oneDecimal));
+                textFieldCropWidth.textProperty().bindBidirectional(newValue.cropWidth, new NumberStringConverter(Utils.oneDecimal));
+                textFieldCropHeight.textProperty().bindBidirectional(newValue.cropHeight, new NumberStringConverter(Utils.oneDecimal));
                 choiceBoxRotation.valueProperty().bindBidirectional(newValue.imageRotation);
                 checkBoxFlipX.selectedProperty().bindBidirectional(newValue.imageFlipHorizontal);
                 checkBoxFlipY.selectedProperty().bindBidirectional(newValue.imageFlipVertical);
@@ -181,8 +181,8 @@ public class FXImageFilters extends AbstractFXController {
 
         textFieldCropStartX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
         textFieldCropStartY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldCropEndX.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textFieldCropEndY.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldCropWidth.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textFieldCropHeight.textFormatterProperty().setValue(new TextFormatter<>(new FloatStringConverter(), 0F));
 
         EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(ObservableProject::displayModeProperty).addListener((observable, oldValue, newValue) -> {
             buttonEditCrop.setSelected(newValue == Register.INSTANCE.DISPLAY_MODE_IMAGE_CROPPING);

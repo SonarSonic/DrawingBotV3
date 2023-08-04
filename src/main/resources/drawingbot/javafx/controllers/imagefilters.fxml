@@ -18,9 +18,9 @@
          </HBox>
           <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="390.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
               <columns>
-                  <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="45.0" sortable="false" text="Enable" />
-                  <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="123.0" sortable="false" text="Filter Type" />
-                  <TableColumn fx:id="columnImageFilterSettings" prefWidth="218.0" sortable="false" text="Settings" />
+                  <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="55.0" sortable="false" text="Enable" />
+                  <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="124.0" sortable="false" text="Filter Type" />
+                  <TableColumn fx:id="columnImageFilterSettings" prefWidth="207.0" sortable="false" text="Settings" />
               </columns>
             <VBox.margin>
                <Insets />
@@ -79,9 +79,9 @@
                <Label layoutX="87.0" layoutY="10.0" prefHeight="24.0" text="Y" />
                <TextField fx:id="textFieldCropStartY" prefHeight="25.0" prefWidth="54.0" promptText="top" />
                <Label layoutX="149.0" layoutY="10.0" prefHeight="24.0" text="W" />
-               <TextField fx:id="textFieldCropEndX" prefHeight="25.0" prefWidth="54.0" promptText="width" />
+               <TextField fx:id="textFieldCropWidth" prefHeight="25.0" prefWidth="54.0" promptText="width" />
                <Label layoutX="211.0" layoutY="10.0" prefHeight="24.0" text="H" />
-               <TextField fx:id="textFieldCropEndY" prefHeight="25.0" prefWidth="54.0" promptText="height" />
+               <TextField fx:id="textFieldCropHeight" prefHeight="25.0" prefWidth="54.0" promptText="height" />
                <Button fx:id="buttonResetCrop" layoutX="332.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0">
                     <graphic>
                         <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />

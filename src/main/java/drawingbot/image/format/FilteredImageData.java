@@ -107,8 +107,8 @@ public class FilteredImageData implements IProperties {
     public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
     public final SimpleFloatProperty cropStartX = new SimpleFloatProperty(0);
     public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty cropEndX = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty cropEndY = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty cropWidth = new SimpleFloatProperty(0);
+    public final SimpleFloatProperty cropHeight = new SimpleFloatProperty(0);
 
     public BufferedImage preCrop;
     public BufferedImage cropped;
@@ -159,16 +159,16 @@ public class FilteredImageData implements IProperties {
     public void resetCrop() {
         this.cropStartX.set(0);
         this.cropStartY.set(0);
-        this.cropEndX.set(sourceCanvas.getWidth());
-        this.cropEndY.set(sourceCanvas.getHeight());
+        this.cropWidth.set(sourceCanvas.getWidth());
+        this.cropHeight.set(sourceCanvas.getHeight());
     }
 
     public Rectangle2D getCrop(){
         double scale = getSourceCanvas().getPlottingScale();
-        double startX = Math.min(cropStartX.get(), cropEndX.get()) * scale;
-        double startY = Math.min(cropStartY.get(), cropEndY.get()) * scale;
-        double width = Math.abs(cropEndX.get() - cropStartX.get()) * scale;
-        double height = Math.abs(cropEndY.get() - cropStartY.get()) * scale;
+        double startX = cropStartX.get() * scale;
+        double startY = cropStartY.get() * scale;
+        double width = cropWidth.get() * scale;
+        double height = cropHeight.get() * scale;
         if(width == 0 || height == 0){
             return new Rectangle2D.Double(0, 0, sourceCanvas.getWidth(), sourceCanvas.getHeight());
         }
@@ -263,7 +263,7 @@ public class FilteredImageData implements IProperties {
     @Override
     public ObservableList<Observable> getPropertyList() {
         if(propertyList == null){
-            propertyList = PropertyUtil.createPropertiesList(imageRotation, imageFlipHorizontal, imageFlipVertical, cropStartX, cropStartY, cropEndX, cropEndY);
+            propertyList = PropertyUtil.createPropertiesList(imageRotation, imageFlipHorizontal, imageFlipVertical, cropStartX, cropStartY, cropWidth, cropHeight);
         }
         return propertyList;
     }

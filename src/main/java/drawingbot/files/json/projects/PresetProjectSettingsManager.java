@@ -223,8 +223,8 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                 if(context.project.openImage.get() != null){
                     data.cropStartX = context.project.openImage.get().cropStartX.get();
                     data.cropStartY = context.project.openImage.get().cropStartY.get();
-                    data.cropEndX = context.project.openImage.get().cropEndX.get();
-                    data.cropEndY = context.project.openImage.get().cropEndY.get();
+                    data.cropEndX = context.project.openImage.get().cropStartX.get() + context.project.openImage.get().cropWidth.get();
+                    data.cropEndY = context.project.openImage.get().cropStartY.get() + context.project.openImage.get().cropHeight.get();
                     data.imageRotation = context.project.openImage.get().imageRotation.get();
                     data.imageFlipHorizontal = context.project.openImage.get().imageFlipHorizontal.get();
                     data.imageFlipVertical = context.project.openImage.get().imageFlipVertical.get();
@@ -244,11 +244,12 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                             if(imageData != null){
                                 imageData.cropStartX.set(data.cropStartX);
                                 imageData.cropStartY.set(data.cropStartY);
-                                imageData.cropEndX.set(data.cropEndX);
-                                imageData.cropEndY.set(data.cropEndY);
+                                imageData.cropWidth.set(Math.abs(data.cropEndX-data.cropStartX));
+                                imageData.cropHeight.set(Math.abs(data.cropEndY-data.cropStartY));
                                 imageData.imageRotation.set(data.imageRotation);
                                 imageData.imageFlipHorizontal.set(data.imageFlipHorizontal);
                                 imageData.imageFlipVertical.set(data.imageFlipVertical);
+                                imageData.markUpdate(FilteredImageData.UpdateType.FULL_UPDATE);
                             }
                         }
                     });
