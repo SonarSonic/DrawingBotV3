@@ -345,7 +345,7 @@ public class PlottingTools implements IPlottingTools {
     @Override
     public void clearAllGeometries() {
         getPlottedDrawing().clearGeometries();
-        if(pfmTask != null){
+        if(pfmTask != null && !pfmTask.isCancelled() && !pfmTask.skipReRender){
             pfmTask.context.taskManager.clearDrawingRender();
         }
     }

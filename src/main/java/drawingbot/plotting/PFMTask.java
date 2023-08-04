@@ -43,9 +43,10 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     public IPFM pfm;
     public boolean finishEarly = false;
     public PlottingTools tools;
+    public boolean isSubTask = false;
 
     // RENDERING \\\
-    public boolean isSubTask = false;
+    public boolean skipReRender = false;
 
     // SPECIAL \\
     public boolean useLowQuality = false;
@@ -259,7 +260,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 cancel();
             }
         }
-        if(!isSubTask){
+        if(!isSubTask && !isCancelled()){
             Platform.runLater(() -> {
                 context.taskManager.setActiveTask(null);
                 context.taskManager.setRenderedTask(null);

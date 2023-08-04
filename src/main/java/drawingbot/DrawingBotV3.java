@@ -311,6 +311,10 @@ public class DrawingBotV3 {
     }
 
     public void resetTaskService(){
+        Task<?> task = taskMonitor.currentTask;
+        if(task != null){
+            task.cancel();
+        }
         taskService.shutdownNow();
         taskService = initTaskService();
         taskMonitor.resetMonitor(taskService);
