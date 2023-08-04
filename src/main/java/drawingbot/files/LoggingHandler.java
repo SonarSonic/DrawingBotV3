@@ -50,7 +50,7 @@ public class LoggingHandler {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static PrintStream logFileStream;
+    public static FileHandler fileHandler;
     public static String logPrefix = "DBV3_Log_";
     public static int logFileCount = 10; //How many log files to keep before deleting them
 
@@ -77,14 +77,10 @@ public class LoggingHandler {
             }
 
             // Send the loggers output to the latest_log.txt file
-            File logFile = Files.createTempFile(new File(FileUtils.getUserLogsDirectory()).toPath(), logPrefix + Utils.getDateAndTimeSafe() + "_", ".txt").toFile();
-
-            logFileStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true);
-            StreamHandler streamHandler = new StreamHandler(logFileStream, new OutputFormat());
-            streamHandler.setLevel(Level.ALL);
-            DrawingBotV3.logger.addHandler(streamHandler);
-
-
+            FileHandler fileHandler = new FileHandler(FileUtils.getUserLogsDirectory() + File.separator + logPrefix + Utils.getDateAndTimeSafe()+ "_%g" + ".txt");
+            fileHandler.setLevel(Level.ALL);
+            fileHandler.setFormatter(new OutputFormat());
+            DrawingBotV3.logger.addHandler(fileHandler);
         } catch (Exception e) {
             DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error setting up console output");
         }
@@ -104,9 +100,9 @@ public class LoggingHandler {
     }
 
     public static void saveLoggingFiles(){
-        if(logFileStream != null){
-            logFileStream.flush();
-            logFileStream.close();
+        if(fileHandler != null){
+            fileHandler.flush();
+            fileHandler.close();
         }
     }
 
