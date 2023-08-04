@@ -1,7 +1,6 @@
 package drawingbot.render.overlays;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.preferences.DBPreferences;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -14,11 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.action.Action;
-import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 
@@ -37,7 +33,7 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.layoutXProperty().bind(DrawingBotV3.INSTANCE.controller.vBoxMain.layoutXProperty().add(DrawingBotV3.INSTANCE.controller.vBoxMain.widthProperty()).subtract(notificationPane.widthProperty()).subtract(30));
         notificationPane.layoutYProperty().bind(DrawingBotV3.INSTANCE.controller.vBoxMain.layoutYProperty().add(DrawingBotV3.INSTANCE.controller.vBoxMain.heightProperty()).subtract(notificationPane.heightProperty()).subtract(50));
         notificationPane.resize(600, 70);
-        notificationPane.getStylesheets().add(NotificationOverlays.class.getResource("notifications.css").toExternalForm());
+        notificationPane.getStylesheets().add(NotificationOverlays.class.getResource("/drawingbot/notifications.css").toExternalForm());
         DrawingBotV3.INSTANCE.controller.vBoxMain.getChildren().add(notificationPane);
 
         activeProperty().bindBidirectional(DBPreferences.INSTANCE.notificationsEnabled.asBooleanProperty());
@@ -136,9 +132,7 @@ public class NotificationOverlays extends AbstractOverlay{
             HBox.setHgrow(vBox, Priority.NEVER);
             HBox.setHgrow(buttonBar, Priority.SOMETIMES);
             parent = hBox;
-        }
-
-        parent.getStylesheets().add(NotificationOverlays.class.getResource("/drawingbot/render/overlays/notifications.css").toExternalForm());
+        };
 
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
