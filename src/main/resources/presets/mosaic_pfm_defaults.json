@@ -252,6 +252,163 @@
       "data": {
         "settingList": {
           "Plotting Resolution": "1.0",
+          "Draw Outlines": "true",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Adaptive Shapes",
+                "pfm": "Adaptive Shapes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "20.0",
+                  "Min Sample Radius": "0.5",
+                  "Ignore White": "false",
+                  "Shape Type": "Circle",
+                  "Brightness": "1.0",
+                  "Fill Size": "100.0",
+                  "Min Rotation": "0.0",
+                  "Contrast": "1.25",
+                  "Random Seed": "0",
+                  "Align Rotation": "true",
+                  "Max Rotation": "360.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Adaptive Triangulation",
+                "pfm": "Adaptive Triangulation",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Max Sample Radius": "20.0",
+                  "Min Sample Radius": "0.75",
+                  "Ignore White": "false",
+                  "Brightness": "1.0",
+                  "Triangulate Corners": "false",
+                  "Contrast": "1.25",
+                  "Random Seed": "0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Grid Shapes",
+                "pfm": "Grid Shapes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Gang Spacing": "true",
+                  "Y Spacing": "6.0",
+                  "Brightness": "1.0",
+                  "Min Rotation": "0.0",
+                  "Contrast": "1.25",
+                  "X Spacing": "4.0",
+                  "Rand Offset Y": "0.0",
+                  "Rand Offset X": "0.0",
+                  "Threshold Feather": "5.0",
+                  "Shape Type": "LP Space",
+                  "Shape Scale": "1.5",
+                  "Luminance Power": "30.0",
+                  "Fill Size": "100.0",
+                  "Interleave": "true",
+                  "Concentric Fills": "false",
+                  "Random Seed": "0",
+                  "Align Rotation": "true",
+                  "Max Rotation": "360.0",
+                  "Threshold": "90.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Grid Dashes",
+                "pfm": "Grid Dashes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Gang Spacing": "true",
+                  "Y Spacing": "6.0",
+                  "Brightness": "1.0",
+                  "Min Rotation": "0.0",
+                  "Distortion": "0.0",
+                  "Contrast": "1.25",
+                  "X Spacing": "2.0",
+                  "Rand Offset Y": "0.0",
+                  "Rand Offset X": "0.0",
+                  "Threshold Feather": "20.0",
+                  "Shape Scale": "3.0",
+                  "Luminance Power": "75.0",
+                  "Fill Size": "100.0",
+                  "Interleave": "true",
+                  "Random Seed": "0",
+                  "Align Rotation": "true",
+                  "Max Rotation": "360.0",
+                  "Threshold": "80.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Grid Letters",
+                "pfm": "Grid Letters",
+                "settings": {
+                  "Gang Spacing": "true",
+                  "Brightness": "1.0",
+                  "Min Rotation": "0.0",
+                  "Font": "Arial",
+                  "Shape Scale": "1.5",
+                  "Luminance Power": "30.0",
+                  "Fill Size": "100.0",
+                  "Style": "Plain",
+                  "Interleave": "true",
+                  "Random Seed": "0",
+                  "Threshold": "90.0",
+                  "Use SVG Fonts": "true",
+                  "Plotting Resolution": "1.0",
+                  "Order": "Tone mapped",
+                  "Y Spacing": "6.0",
+                  "Contrast": "1.25",
+                  "X Spacing": "4.0",
+                  "SVG Font": "HersheySans1",
+                  "Rand Offset Y": "0.0",
+                  "Rand Offset X": "0.0",
+                  "Threshold Feather": "5.0",
+                  "RegEx Filter": "",
+                  "Character Filter": "",
+                  "Concentric Fills": "false",
+                  "Align Rotation": "true",
+                  "Max Rotation": "0.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Offset Cells": "1.0",
+          "Compactness": "40",
+          "Segments": "400",
+          "Iterations": "10",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Mosaic Segments",
+      "presetName": "Spiral",
+      "userCreated": false,
+      "data": {
+        "settingList": {
+          "Plotting Resolution": "1.0",
           "Drawing Styles": {
             "styles": [
               {
@@ -693,7 +850,7 @@
           "Offset Cells": "1.0",
           "Density Power": "5",
           "Luminance Power": "5",
-          "Voronoi Style": "Smooth",
+          "Voronoi Style": "Classic",
           "Point Count": "400",
           "Triangulate Corners": "true",
           "Random Seed": "613566756",
