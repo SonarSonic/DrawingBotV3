@@ -24,6 +24,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -53,7 +54,8 @@ public class FXApplication extends Application {
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
-    public static boolean isLoaded;
+
+    public static SimpleBooleanProperty isLoaded = new SimpleBooleanProperty(false);
     public static MouseMonitor mouseMonitor;
 
     public static boolean isDeveloperMode = false;
@@ -263,7 +265,7 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.info("DrawingBotV3: Loaded");
             SplashScreen.stopPreloader(FXApplication.INSTANCE);
-            isLoaded = true;
+            isLoaded.set(true);
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

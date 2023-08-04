@@ -55,7 +55,10 @@ public class DrawingBotV3Test {
     @Test
     public void testPathFindingModules() throws InterruptedException {
 
-        for(final PFMFactory factory : MasterRegistry.INSTANCE.pfmFactories){
+        for(final PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories){
+            if(factory.isPremiumFeature() && !FXApplication.isPremiumEnabled){
+                continue;
+            }
             System.out.println("Started PFM Test: " + factory.getRegistryName());
             final CountDownLatch latch = new CountDownLatch(1);
 
