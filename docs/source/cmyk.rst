@@ -5,7 +5,7 @@ CMYK Separation
 ======================
 
 .. image:: images/cmyk/cmyk_comparison_V1.jpg
-    :width: 250pt
+    :width: 500pt
 
 *Before + After CMYK Separation*
 

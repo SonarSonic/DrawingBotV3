@@ -1,3 +1,30 @@
+### [v1.6.4-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.4-beta-free)
+- Added: **3 New PFMs**: **Grid Shapes**, **Grid Dashes** and **Grid Letters**, more details [here](https://docs.drawingbotv3.com/en/latest/pfms.html#grid-pfms)
+- Added: Documentation Integration
+  - Go to **Help / Open Documentation** - to open the documentation in-app
+  - In the **Path Finding Controls** window, select **Help**, to display a specific PFM's settings.
+  - Select **Any PFM Setting** while the documentation window is open, to bring up the specific setting's definition.
+- Added: You can now check for new updates in software by going to **Help / Check For Updates**, if an update is available a link will be provided.
+- Added: Option to specify a default Import / Export folder for new projects.
+- Added: Invert Colour Option too Colour Match.  
+- Added: Keyboard Shortcut *Shift + V* - Creates a new version.
+- Improved: Saved Projects will save the last used Import / Export Folder.
+- Improved: Layout / Appearance of *Export Stats* and moves/pen lifts will now be placed in order making the shapes slider more useful in Exported Drawing mode, shown when exporting vector files  
+- Improved: Visual appearance of *Notifications*
+- Improved: "Reset" & "Stop" responsiveness on Voronoi PFMs
+- Improved: Mosaic PFMs will now render their progress in a more useful way, without restarting after each tile is processed.
+- Improved: Performance of transformations on SVG masks
+- Improved: *Sketch Shapes* PFM now supports all Style parameters.
+- Fixed: Mosaic + Layers PFM - Drawing Styles not loading/saving properly.  
+- Fixed: CMYK Pens not exporting with the correct Opacity value.
+- Fixed: Export Stats displaying the wrong units.
+- Fixed: Image Cropping not loading properly when re-opening a project / switching to another open project.  
+- Fixed: Drawings / Images not being refreshed properly when switching between two open projects.  
+- Fixed: Voronoi PFMs continuing to run the background after being reset.  
+- Fixed: Log Files being incomplete.
+- Fixed: Project files saving with the wrong extension in some situations.
+- Fixed: Stipple Size having no effect on Stipple PFMs
+
 ### [v1.6.3-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.3-beta-free)
 - Added: New Presets "Messy TSP", "Hatchy Squiggles" &  "Glitchy Stars" - for Adaptive/LBG Circular Scribbles & "Light Crosshatch" for Layers PFM
 - Improved: 'Default' & 'Detailed Scribbles' & 'Sketch' - Circular Scribbles Presets
@@ -13,7 +40,7 @@
 - Fixed: Drawings being re-rendered when exporting non-vector files.
 - Fixed: Drawings being re-generated when creating new preset files.
 
-### [v1.6.2-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.2-beta-free)
+### [v1.6.2-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.2-beta-free)
 - Added: New presets "Single Pen Preset V1" for Sketch Sweeping Curves and "Distorted Waves" for Sketch Waves
 - Added: "Cache Result" option to all LBG PFMs, which results in a significant increase in speed for subsequent runs on the same image if the "LBG Sampling" settings are still the same. Any changes to image filtering / drawing size will invalidate this cache.
 - Added: New "Exporting Drawing" stats, "Page Size" & "Drawing Size" (which shows the size of the area occupied by the drawing only) to make the size of the exported SVG more clear.
@@ -34,12 +61,12 @@
 - Fixed: Export File Notifications glitching when using Batch Processing.
 - Fixed: Interactions with the "Export to vPype" interface
 
-### [v1.6.1-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.1-beta-free)
+### [v1.6.1-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.1-beta-free)
 - Added: Pencil Sketch V1 preset from Discord.
 - Improved: Renamed + Re-organised some ECS Drawing settings to make them easier to use.
 - Fixed: Masking Settings not appearing in the user interface
 
-### [v1.6.0-Beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.0-beta-free)
+### [v1.6.0-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.0-beta-free)
 - **IMPORTANT: Premium Versions now have License Keys**, if you already own the Premium Version you'll find your license key [here](https://drawingbotv3.com/my-account/license_keys/). If you purchase DBV3 Premium in the future you'll also receive this License Key with your Order Confirmation. More details [here](https://drawingbotv3.com/license-keys/).
 - **IMPORTANT:** .jar versions of DBV3 will no longer be distributed, please use the dedicated Windows/Mac/Linux installers. This is to allow more advanced features which require specific Java versions, DBV3 now uses JAVA 19.
 - Added: **13 NEW PFMS** -

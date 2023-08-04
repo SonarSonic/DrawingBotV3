@@ -1826,6 +1826,169 @@ Settings
     - `Default Voronoi Settings`_
     - `Adaptive TSP`_
 
+
+
+********************
+Grid PFMS
+********************
+
+Grid PFMs create styles using a grid, great for creating some classic half-tone drawing styles but also much more stylised drawings where the grid is only a starting point and the points may diverge away from it.
+
+They work especially well with :ref:`cmyk-separation` and :ref:`colour-match`
+
+They also process very quickly due to the simplicity of generating the starting grid.
+
+**Quick Tip:** Grid PFMs often work better with thicker pens 0.5mm + as this helps to introduce contrast to the grid.
+
+
+Default Grid PFM Settings
+===================================
+
+Grid
+----------------
+
+.. glossary::
+
+ Uniform Spacing
+
+    ``Values: Boolean (True | False)``
+
+    When **True**, the Grid Spacing will be the same on both the X & Y Axis and the :term:`Grid Y Spacing` variable will be locked.
+
+    When **False**, the :term:`Grid X Spacing` and :term:`Grid Y Spacing` can be different.
+
+ Grid X Spacing
+
+    ``Values: Number (Safe Range: 1.0 -> 32.0)``
+
+    Controls the number of columns in the grid.
+
+ Grid Y Spacing
+
+    ``Values: Number (Safe Range: 1.0 -> 32.0)``
+
+    Controls the number of rows in the grid, only usable if :term:`Uniform Spacing` is **False**.
+
+ Shape Scale
+
+    ``Values: Number (Safe Range: 0.01 -> 4.0)``
+
+    Controls the shape of the generated Shapes, a value of 1.0 will occupy all the available space in the grid.
+
+    Values higher than 1.0 will use more than the available space and cause shapes too overlap.
+
+    Values lower than 1.0 will use less than the available space.
+
+ Rand Offset X/Y
+
+    ``Values: Number (Safe Range: 0.0 -> 64.0)``
+
+    Introduces a random X/Y offset too each grid position, introducing some natural noise to the grid.
+
+    With values higher than 0, the grid positions will no longer be uniform.
+
+ Interleave
+
+    ``Values: Boolean (True | False)``
+
+    When **True**, every odd row will be offset by the grid spacing, creating interlocking grid points.
+
+    When **False**, the grid will be uniform.
+
+
+Grid Style
+----------------
+
+.. glossary::
+
+ Brightness (Grid PFMs)
+
+    ``Values: Number (Safe Range: 0.0 -> 2.0)``
+
+    Controls the brightness applied as a pre-processing step too the source image, see :term:`Brightness (Adaptive PFMs)`
+
+ Contrast (Grid PFMs)
+
+    ``Values: Number (Safe Range: 0.0 -> 2.0)``
+
+    Controls the contrast applied as a pre-processing step too the source image.
+
+    The quality of Drawings from Grid PFMs can vary massively on the contrast and brightness so these controls are included for simplicity though they behave the same as adding a contrast filter in the Pre-Processing tab.
+
+
+ Threshold (Grid PFMs)
+
+    ``Values: Number (Safe Range: 0.0 -> 100.0)``
+
+    Controls the cut-off luminance to stop generating grid points. Lowering the Threshold will prevent points being drawn in bright areas of the image.
+
+ Threshold Feather
+
+    ``Values: Number (Safe Range: 0.0 -> 100.0)``
+
+    Controls a dithering process applied when a Threshold has been introduced.
+
+    When the Feather is 0 the threshold will be a hard cut-off, due to the linear nature of the grid this can become quite obvious with some settings / image combinations.
+
+    In these situations introducing a feather will add some randomness to if points are drawn or not, resulting in more gradual cut-off.
+
+ Concentric Fills
+
+    **(Grid Shapes / Letters Only)**
+
+    ``Values: Boolean (True | False)``
+
+    When **True**, the generated shapes will be filled entirely with the pen, a continuous fill consisting of progressively smaller shapes will be generated, this is useful for introducing some more tone/contrast into the final drawing.
+
+    When **False**, no fills will be generated.
+
+    .. image:: images/grids/concentric_fills_comparison_v1.jpg
+        :width: 300pt
+
+ Convergence
+
+    ``Values: Percentage (Range: 0.0 -> 100.0)``
+
+    Causes grid points to converge towards the darkest areas of the image making the grid no longer uniform but having the effect of emphasising edges and contrast in the image.
+
+    This is great for creating stylised results and is used in many of the default grid presets.
+
+    .. image:: images/grids/convergence_comparison_v1.jpg
+        :width: 450pt
+
+    *Fig 1. Convergence = 0, Fig 2. Convergence = 50, Fig 3. Convergence = 100*
+
+Grid Shapes
+======================================
+
+.. image:: images/pfms/grid_shapes_1.jpg
+    :width: 300pt
+
+**+ Inherits settings from:**
+    - `Default Grid PFM Settings`_
+    - `Adaptive Shapes`_
+
+Grid Dashes
+======================================
+
+.. image:: images/pfms/grid_dashes_1.jpg
+    :width: 300pt
+
+**+ Inherits settings from:**
+    - `Default Grid PFM Settings`_
+    - `Adaptive Dashes`_
+
+Grid Letters
+======================================
+
+.. image:: images/pfms/grid_letters_1.jpg
+    :width: 300pt
+
+**+ Inherits settings from:**
+    - `Default Grid PFM Settings`_
+    - `Grid Shapes`_
+    - `Adaptive Letters`_
+
 ********************
 Composite PFMS
 ********************

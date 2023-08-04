@@ -67,7 +67,7 @@ public class ExportStatsOverlays extends AbstractOverlay {
         scrollPane.getStyleClass().add("export-stats-scrollpane");
 
         StackPane stackPane = new StackPane();
-        stackPane.setBackground(new Background(new BackgroundFill(Color.color(220/255F, 220/255F, 220/255F, 0.7), new CornerRadii(15),null)));
+        stackPane.setBackground(new Background(new BackgroundFill(Color.color(220/255F, 220/255F, 220/255F, 0.8), new CornerRadii(15),null)));
 
         VBox vBox = new VBox();
         vBox.setSpacing(2);
