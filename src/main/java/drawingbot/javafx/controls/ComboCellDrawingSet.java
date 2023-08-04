@@ -7,6 +7,7 @@ import drawingbot.files.json.presets.PresetDrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.cell.ComboBoxListCell;
@@ -40,28 +41,32 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
             setText(null);
             setGraphic(null);
         } else {
-            setText("");
             HBox hBox = new HBox();
             hBox.setAlignment(Pos.CENTER_LEFT);
             if(item instanceof ObservableDrawingSet){
+                setText(""); //although not necessary, it forces a re-render
+
                 currentDrawingSet = (ObservableDrawingSet) item;
                 currentDrawingSet.name.addListener(textListener);
                 hBox.getChildren().add(new ControlPenPalette(currentDrawingSet.pens));
+                setGraphic(hBox);
+                setText(currentDrawingSet.getName());
             }else{
+                setText("");
                 hBox.getChildren().add(createStaticPenPalette(item.getPens()));
-            }
-            Label displayNameLabel = new Label("  " + item.getDisplayName());
-            displayNameLabel.setPrefHeight(12);
-            displayNameLabel.setTextFill(Color.BLACK);
+                Label displayNameLabel = new Label("  " + item.getDisplayName());
+                displayNameLabel.setPrefHeight(12);
+                displayNameLabel.setTextFill(Color.BLACK);
 
-            hBox.getChildren().add(displayNameLabel);
-            if(item instanceof PresetDrawingSet){
-                PresetDrawingSet presetDrawingSet = (PresetDrawingSet) item;
-                if(presetDrawingSet.preset.userCreated){
-                    hBox.getChildren().add(ComboCellPreset.createUserLabel());
+                hBox.getChildren().add(displayNameLabel);
+                if(item instanceof PresetDrawingSet){
+                    PresetDrawingSet presetDrawingSet = (PresetDrawingSet) item;
+                    if(presetDrawingSet.preset.userCreated){
+                        hBox.getChildren().add(ComboCellPreset.createUserLabel());
+                    }
                 }
+                setGraphic(hBox);
             }
-            setGraphic(hBox);
 
         }
     }

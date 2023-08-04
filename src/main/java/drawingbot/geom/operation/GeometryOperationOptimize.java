@@ -49,7 +49,7 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
 
 
             for(Map.Entry<ObservableDrawingPen, List<IGeometry>> entry : group.getGeometriesPerPen().entrySet()){
-                if(!(entry.getKey().source instanceof ICustomPen)){
+                if(!(entry.getKey().source instanceof ICustomPen) || ((ICustomPen)entry.getKey().source).canOptimisePenPaths()){
 
                     FlagStates pfmFlags = group.pfmFactory == null ? Flags.DEFAULT_PFM_STATE : group.pfmFactory.getFlags();
                     if(group.pfmFactory != null && (!pfmFlags.getFlag(Flags.PFM_LINE_OPTIMISING) || !pfmFlags.anyMatch(Flags.PFM_LINE_SIMPLIFY, Flags.PFM_LINE_MERGING, Flags.PFM_LINE_FILTERING, Flags.PFM_LINE_SORTING))){

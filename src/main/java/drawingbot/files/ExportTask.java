@@ -261,7 +261,7 @@ public class ExportTask extends DBTask<Boolean> {
 
         DrawingStats preStats = new DrawingStats(plottedDrawing, geometryFilter);
         PlottedDrawing exportPathsDrawing = new GeometryOperationAddExportPaths().run(drawing);
-        DrawingStats postStats = new DrawingStats(exportPathsDrawing);
+        DrawingStats postStats = new DrawingStats(drawing);
 
         ExportedDrawingEntry entry = new ExportedDrawingEntry(exportPathsDrawing, saveLocation, preStats, postStats);
 
@@ -269,7 +269,7 @@ public class ExportTask extends DBTask<Boolean> {
         Platform.runLater(() -> ExportStatsOverlays.INSTANCE.selectedEntry.set(entry));
 
         // Custom pens can't be optimised fully, so don't show their export output.
-        boolean customPens = drawing.getAllPens().stream().anyMatch(pen -> pen.source instanceof ICustomPen);
+        boolean customPens = drawing.getAllPens().stream().anyMatch(pen -> pen.source instanceof ICustomPen && !((ICustomPen) pen.source).canOptimisePenPaths());
 
         if(DBPreferences.INSTANCE.showExportedDrawing.get() && exportHandler.isVector && !customPens && !shownExportPage){
             Platform.runLater(() -> {

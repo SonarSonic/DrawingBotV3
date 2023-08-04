@@ -119,7 +119,6 @@ public class DrawingBotV3 {
 
     public void init(){
         activeProject.addListener((observable, oldValue, newValue) -> {
-            project().reRender();
             if(oldValue != null){
                 displayMode.unbindBidirectional(oldValue.displayModeProperty());
                 oldValue.setLoaded(false);
@@ -127,6 +126,7 @@ public class DrawingBotV3 {
             if(newValue != null){
                 displayMode.bindBidirectional(newValue.displayModeProperty());
                 newValue.setLoaded(true);
+                newValue.reRender();
             }
         });
 

@@ -123,6 +123,11 @@ public class PlottingTools implements IPlottingTools {
     public boolean withinPlottableArea(int x, int y){
         x *= plottingTransform == null ? 1 : plottingTransform.getScaleX();
         y *= plottingTransform == null ? 1 : plottingTransform.getScaleY();
+
+        if(getPixelData() != null && !getPixelData().withinXY(x, y)){
+            return false;
+        }
+
         if(Utils.within(x, 0F, getPlottingWidth()) && Utils.within(y, 0F, getPlottingHeight())){
             return getSoftClipPixelMask() == null || getSoftClipPixelMask().contains(x, y);
         }
@@ -133,6 +138,11 @@ public class PlottingTools implements IPlottingTools {
     public boolean withinPlottableAreaPrecise(double x, double y){
         x *= plottingTransform == null ? 1 : plottingTransform.getScaleX();
         y *= plottingTransform == null ? 1 : plottingTransform.getScaleY();
+
+        if(getPixelData() != null && !getPixelData().withinXY((int)x, (int)y)){
+            return false;
+        }
+
         if(Utils.within(x, 0F, getPlottingWidth()) && Utils.within(y, 0F, getPlottingHeight())){
             return softClip == null || softClip.contains(x, y);
         }
@@ -159,6 +169,14 @@ public class PlottingTools implements IPlottingTools {
             return false;
         }
         return pfmTask.isFinished();
+    }
+
+    @Override
+    public boolean isCancelled() {
+        if(pfmTask == null){
+            return false;
+        }
+        return pfmTask.isCancelled();
     }
 
     @Override

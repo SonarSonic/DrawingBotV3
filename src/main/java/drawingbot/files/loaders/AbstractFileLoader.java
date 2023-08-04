@@ -28,7 +28,7 @@ public abstract class AbstractFileLoader extends DBTask<FilteredImageData> {
     public abstract String getFileTypeDisplayName();
 
     /**
-     * Called after the imagedata has been loaded into DrawingBotV3, allowing the loader to run additional steps
+     * Called after the image data has been loaded into DrawingBotV3, allowing the loader to run additional steps
      */
     public void onFileLoaded(){
         if(!isSubTask){

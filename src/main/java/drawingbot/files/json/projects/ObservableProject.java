@@ -347,7 +347,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
             onImageRenderingUpdated();
 
             if(newValue != null && (this.name.get().equals(DEFAULT_NAME) || oldValue != null && oldValue.getSourceFile().getName().equals(this.name.get()))){
-                this.name.set(newValue.getSourceFile().getName());
+                this.name.set(FileUtils.removeExtension(newValue.getSourceFile().getName()));
             }
         });
 

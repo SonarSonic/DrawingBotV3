@@ -21,6 +21,13 @@ public interface IPlottingTools {
      */
     boolean isFinished();
 
+    /**
+     * When the PFM has been cancelled, it should stop as soon as possible
+     * When TRUE, {@link #isFinished()} will also be true.
+     * @return if the task has been cancelled by the task manager.
+     */
+    boolean isCancelled();
+
 
     /**
      * Updates the progress bar in the user interface

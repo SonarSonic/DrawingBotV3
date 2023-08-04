@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet.Listener> implements IDrawingSet<ObservableDrawingPen>, IProperties {
 
     public final SimpleStringProperty type = new SimpleStringProperty();
-    public final SimpleStringProperty name = new SimpleStringProperty();
+    public final SimpleStringProperty name = new SimpleStringProperty("");
     public final ObservableList<ObservableDrawingPen> pens = FXCollections.observableArrayList();
     public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<EnumDistributionType> distributionType = new SimpleObjectProperty<>();

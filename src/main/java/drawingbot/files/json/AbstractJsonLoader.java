@@ -177,4 +177,13 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
 
     }
 
+    public GenericPreset<O> findPreset(String presetName){
+        for(GenericPreset<O> preset : getAllPresets()){
+            if(preset.getPresetName().equals(presetName)){
+                return preset;
+            }
+        }
+        return null;
+    }
+
 }

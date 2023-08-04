@@ -9,4 +9,11 @@ public interface ICustomPen extends IDrawingPen{
         return getARGB();
     }
 
+    /**
+     * @return if this Custom Pen's geometries can be linked regardless of their original sampled colour
+     */
+    default boolean canOptimisePenPaths(){
+        return false;
+    }
+
 }

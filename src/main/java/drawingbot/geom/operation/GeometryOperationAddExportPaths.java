@@ -18,11 +18,13 @@ public class GeometryOperationAddExportPaths extends AbstractGeometryOperation{
 
     @Override
     public PlottedDrawing run(PlottedDrawing originalDrawing) {
-        PlottedDrawing newDrawing = originalDrawing.copy();
+        PlottedDrawing newDrawing = originalDrawing.copyBase();
 
         PlottedGroup exportGroup = newDrawing.newPlottedGroup(Register.INSTANCE.EXPORT_PATH_DRAWING_SET, null);
 
         for(PlottedGroup group : originalDrawing.groups.values()) {
+
+            PlottedGroup newGroup = newDrawing.getMatchingPlottedGroup(group, true);
 
             IGeometry lastGeometry = null;
             for(IGeometry geometry : group.geometries){
@@ -32,6 +34,7 @@ public class GeometryOperationAddExportPaths extends AbstractGeometryOperation{
                 originEllipse.setPenIndex(2);
                 newDrawing.addGeometry(originEllipse, exportGroup);
 
+                newDrawing.addGeometry(geometry, newGroup);
 
                 Coordinate dstCoord = geometry.getEndCoordinate();
                 IGeometry dstEllipse = new GEllipse((float)dstCoord.x-0.5F, (float)dstCoord.y-0.5F, 1, 1);

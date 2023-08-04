@@ -41,6 +41,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class FXApplication extends Application {
@@ -169,6 +170,8 @@ public class FXApplication extends Application {
                 FXApplication.primaryScene.getAccelerators().put(KeyCombination.valueOf("Shift + " + keypad), () -> DrawingBotV3.INSTANCE.displayMode.set(displayMode));
                 keypad++;
             }
+
+            FXApplication.primaryScene.getAccelerators().put(KeyCombination.valueOf("Shift + V"), () -> DrawingBotV3.INSTANCE.controller.versionControlController.saveVersion());
 
             CountDownLatch latchB = new CountDownLatch(1);
             Platform.runLater(() -> {
