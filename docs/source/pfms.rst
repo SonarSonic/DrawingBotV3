@@ -60,9 +60,9 @@ Default
     Random Seed
         ``Values: Number``
 
-        Used to generate all the random numbers used by the PFM. If you use the same Random Seed the PFM will produces the same results when given the same image.
+        Used to generate all the random numbers used by the PFM. If you use the same Random Seed the PFM will produce the same results when given the same image.
 
-        **Quick Tip:** Created a good style but the lines aren't falling in quite the right way? Adjust the random seed and get alter the positions of the generated lines.
+        **Quick Tip:** Created a good style but the lines aren't falling in quite the right way? Adjust the random seed and to alter the positions of the generated lines.
 
 ----
 
@@ -72,7 +72,7 @@ Style
 The style portion of the Sketch PFM settings are great for applying a specific creative style to the generated paths.
 The majority of the style sliders affect the path processing only and not the original bitmap image.
 
-The values don't need too add up 100% the balance between all of them decides the weighting of what to emphasise.
+The values don't need to add up 100% the balance between all of them decides the weighting of what to emphasise.
 e.g :term:`Directionality` of 100% and a :term:`Luminance Power` of 100%, means that the paths will be 50% driven by the luminance of the image and 50% by the :term:`Directionality`.
 
 .. glossary::
@@ -80,7 +80,7 @@ e.g :term:`Directionality` of 100% and a :term:`Luminance Power` of 100%, means 
  Should Lift Pen
         ``Values: Boolean (True | False)``
 
-        When **True**, the pen will be lifted inbetween Squiggles.
+        When **True**, the pen will be lifted in-between Squiggles.
 
         When **False**, the PFM will never lift the pen from the paper.
 
@@ -92,12 +92,12 @@ e.g :term:`Directionality` of 100% and a :term:`Luminance Power` of 100%, means 
         .. image:: images/style/directionality_comparison_v1.jpg
             :width: 400pt
 
-        *e.g. Fig 1. Directionality = 0, Fig 2. Directionality = 100 - You can see in this example the paths on the right tend to follow the curves of the original image more carefully and don't fally outside of the shapes as often*
+        *e.g. Fig 1. Directionality = 0, Fig 2. Directionality = 100 - You can see in this example the paths on the right tend to follow the curves of the original image more carefully and don't fall outside of the shapes as often*
 
  Clarity
         ``Values: Number (Safe Range: 0 -> 100)``
 
-        Controls an sharpness of the input image, and automatically applies an Unsharp Mask before processing the image.
+        Controls a sharpness of the input image, and automatically applies an Unsharp Mask before processing the image.
 
         .. image:: images/style/clarity_comparison_v1.jpg
             :width: 400pt
@@ -128,7 +128,7 @@ e.g :term:`Directionality` of 100% and a :term:`Luminance Power` of 100%, means 
  Edge Power
         ``Values: Number (Safe Range: 0 -> 100)``
 
-        Pushes the Path Finding process to edges detected by Canny Edge Detection, which is very accurate and will highlight sharp edges, and keep detail in the image.
+        Pushes the Path Finding process to edges detected by Canny Edge Detection, which is very accurate and will highlight sharp edges, keeping more detail in the image.
 
 
         .. image:: images/style/edge_power_comparison_v1.jpg
@@ -139,7 +139,7 @@ e.g :term:`Directionality` of 100% and a :term:`Luminance Power` of 100%, means 
  Sobel Power
         ``Values: Number (Safe Range: 0 -> 100)``
 
-        Similar to Edge Power but uses a Sobel Edge Filter instead of Canny Edge Detection, which results in less accurate edges and creates an exaggerated cartoonish quality on the plot
+        Similar to Edge Power but uses a Sobel Edge Filter instead of Canny Edge Detection, which results in less accurate edges and creates an exaggerated cartoonish quality on the plot.
 
 
         .. image:: images/style/sobel_power_comparison_v1.jpg
@@ -150,7 +150,7 @@ e.g :term:`Directionality` of 100% and a :term:`Luminance Power` of 100%, means 
  Luminance Power
         ``Values: Number (Safe Range: 0 -> 100)``
 
-        Luminance Power is what typically drives the Path Finding Process so should typically be left at 100%, and the others style sliders should be introduces bit by bit.
+        Luminance Power is what typically drives the Path Finding Process so should usually be left at 100%, and the other style sliders should be introduced bit by bit.
         Typically PFMs will follow dark areas in the image when creating lines, this slider can be used to decrease the influence of brightness which in turn will favour other style options like Directionarity or Edge Power etc.
 
  Drawing Delta Angle
@@ -195,7 +195,7 @@ Segments
 
         ``Values: Number (Safe Range: -1 -> 1000000)``
 
-        Limits the total number of segments, will only have an effect if this limit is reached before the chosen :term:`Line Density`.
+        Limits the total number of segments. Will only have an effect if this limit is reached before the chosen :term:`Line Density`.
 
         When the Max Limit is -1, the limit will be ignored.
 
@@ -205,12 +205,12 @@ Segments
 
         Controls the accuracy of the generated lines. When finding the next segment the PFM will generate new segments travelling in different directions and then compare them. The Angle Tests controls the number of new segments to generate at each position.
 
-        **Quick Tip:** This control can also be used creatively, try setting it too 3 or 4 or 6. You'll see the PFM generate Triangles, Squares and Hexagonal Lines.
+        **Quick Tip:** This control can also be used creatively, try setting it to 3, 4 or 6. You'll see the PFM generate Triangles, Squares and Hexagonal Lines.
 
     Unlimited Tests
         ``Values: Boolean (True | False)``
 
-        will run as many angle tests as required to find the “best” line possible, resulting in more accurate drawings with longer processing times.
+        Will run as many angle tests as required to find the “best” line possible, resulting in more accurate drawings with longer processing times.
 
 ----
 
@@ -219,7 +219,7 @@ Squiggles
 
 A path of segments(lines/curves) is called a squiggle. Each squiggle is continuous and doesn't include any pen lifts.
 
-You can use this area of the PFM too reduce the plotting time of the sketches generated but at the trade-off of losing smaller details and potentially having squiggles which cross bright areas of the source image.
+You can use this area of the PFM to reduce the plotting time of sketches generated but at the trade-off of losing smaller details and potentially having squiggles crossing bright areas of the source image.
 
 Shorter Squiggles = Longer Plotting Time & Higher Quality Output
 Longer Squiggles = Shorter Plotting & Lower Quality Output
@@ -236,7 +236,7 @@ Longer Squiggles = Shorter Plotting & Lower Quality Output
     Squiggle Max Length
         ``Values: Number (Safe Range: 0 -> 5000)``
 
-        Defines the cut-off for the maximum number of segments allowed in each squiggle. Once the squiggle has reached the max length the pen will be lifted and move too a new location.
+        Defines the cut-off for the maximum number of segments allowed in each squiggle. Once the squiggle has reached the max length the pen will be lifted and move to a new location.
 
         Increasing the Max Length will decrease the plotting time, but may create a poor distribution of tones.
 
@@ -244,21 +244,21 @@ Longer Squiggles = Shorter Plotting & Lower Quality Output
 
         ``Values: Percentage (Safe Range: 0 -> 100)``
 
-        Control how far a squiggle is allowed to deviate in brightness before it is ended prematurely, this has the result of making shorter squiggles which are more accurate and less likely to cross over brighter areas of the image. Increasing the allowed deviation will result in a less accurate drawing with fewer pen lifts.
+        Control how far a squiggle is allowed to deviate in brightness before it is ended prematurely. This has the result of making shorter squiggles which are more accurate and less likely to cross over brighter areas of the image. Increasing the allowed deviation will result in a less accurate drawing with fewer pen lifts.
 
         If you notice your drawing has lines crossing bright areas of the image that you wish to remove, you can try lowering the Max Deviation and lowering the Squiggle Min Length.
 
         .. image:: images/sketch/squiggle_deviation_comparison.jpg
             :width: 500pt
 
-        *e.g. Fig 1. Squiggle Max Deviation = 5, Fig 2. Squiggle Max Deviation = 1000 - The green lines show the plotters travel while the pen is up. The overall distance of the plot changed by a few metres, and the number of pen lifts was dramatically reduced. The default Squiggle Max Deviation of 25 provides a good middle ground, keeping quality while not having too many pen lifts.*
+        *e.g. Fig 1. Squiggle Max Deviation = 5, Fig 2. Squiggle Max Deviation = 1000 - The green lines show the plotter's travel while the pen is up. The overall distance of the plot changed by a few metres, and the number of pen lifts was dramatically reduced. The default Squiggle Max Deviation of 25 provides a good middle-ground, keeping quality while not having too many pen lifts.*
 
 ----
 
 Erasing
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Sketch PFMs use a Lightened Image to keep track of the areas which have been drawn over. When a line is drawn it is erased from the Working Image, so when the same area is next considered lines will be less likely to cross over.
+Sketch PFMs use a Lightened Image to keep track of the areas which have been drawn over. When a line is drawn it is erased from the Working Image, so when the same area is next considered, lines will be less likely to cross over.
 
 You can view the Lightened Image in your viewport by going to "Display / Lightened" after the drawing has finished processing.
 
@@ -313,7 +313,7 @@ You can view the Lightened Image in your viewport by going to "Display / Lighten
 
         The :term:`Tone` setting alters the interpolation between these two values.
 
-        **Quick Tip:** Are you wanting Plotting with a single pen? Increasing the Erase Radius Max is a great way to introduce contrast back into the drawing.
+        **Quick Tip:** Are you wanting to plot with a single pen? Increasing the Erase Radius Max is a great way to introduce contrast back into the drawing.
 
         .. image:: images/sketch/erase_radius_comparison_v1.jpg
             :width: 500pt
@@ -326,9 +326,9 @@ You can view the Lightened Image in your viewport by going to "Display / Lighten
 
         Controls the contrast of the _`Erasing` process, by controlling a tone curve between the :term:`Erase Min` / :term:`Erase Max`  & :term:`Erase Radius Min` / :term:`Erase Radius Max`.
 
-        Using a higher Tone will result in a image with a stronger contrast with more overlap and less spacing between lines.
+        Using a higher Tone will result in an image with a stronger contrast, with more overlap and less spacing between lines.
 
-        Note: The tone slider has no effect when the Erase Values values are identical.
+        Note: The tone slider has no effect when the Erase Values are identical.
 
         .. image:: images/sketch/erase_tone_comparison_v1.jpg
             :width: 500pt
@@ -361,7 +361,7 @@ Shading
 
         ``Values: Number (Range: -360 -> 360)``
 
-        Controls the maximum angle when __`Shading`, effectively changing the direction of the __`Shading` Process, it will have less effect when __`Shading` is disabled unless the :term:`Drawing Delta Angle` isn't set too 360, then the angle of the start angle will be more obvious.
+        Controls the maximum angle when __`Shading`, effectively changing the direction of the __`Shading` Process, it will have less effect when __`Shading` is disabled unless the :term:`Drawing Delta Angle` isn't set to 360, then the angle of the start angle will be more obvious.
 
         .. image:: images/sketch/shading_angle_comparison_v1.jpg
             :width: 500pt
@@ -468,14 +468,14 @@ Curves (Quad Beziers)
 
         ``Values: Number (Range: 1 -> 1000)``
 
-        the maximum magnitude of the curve, increasing this will decrease the test accuracy and increase the control points offsets.
+        the maximum magnitude of the curve, increasing this will decrease the test accuracy and increase the control point's offsets.
 
 
     Curve Offset
 
         ``Values: Number (Range: -100 -> 100)``
 
-        Allow you to control the ‘wiggle’ of the curve by defining the maximum offset the controls points can move from the initial segment.
+        Allow you to control the ‘wiggle’ of the curve by defining the maximum offset the control's points can move from the initial segment.
 
         For _`Sketch Quad Beziers`, this is a single control which controls the variation of the central point of each quad segment.
 
@@ -552,7 +552,7 @@ Shapes (Sketch Shapes)
 
 Sketch Sobel Edges
 ======================
-Transforms an image into lines using brightness data & edge detection data. By using a `Sobel Operator <https://en.wikipedia.org/wiki/Sobel_operator>`_ to find edges and then using this data in conjunction with the brightness to find the next line.
+Transforms an image into lines using brightness & edge detection data. By using a `Sobel Operator <https://en.wikipedia.org/wiki/Sobel_operator>`_ to find edges and then using this data in conjunction with the brightness to find the next line.
 
 .. image:: images/pfms/sketch_sobeledges_1.jpg
     :width: 300pt
@@ -619,7 +619,7 @@ Waves
 
         ``Values: Sin | Cos | Tan``
 
-        Changes the mathematical wave used to create the wave.
+        Changes the mathematical function used to create the wave.
 
 **+ Inherits settings from:**
     - `Sketch Lines`_
@@ -649,7 +649,7 @@ Curves (Sweeping Curves)
 
         ``Values: Number (Range: 0 -> 1.0)``
 
-        Controls the appearance of "knots" in the curve, it will make more a visual difference at extreme changes in direction which _`Sketch Sweeping Curves` tries to avoid so the difference will be subtle.
+        Controls the appearance of "knots" in the curve, it will make a greater visual difference at extreme changes in direction which _`Sketch Sweeping Curves` tries to avoid so the difference will be subtle.
 
         - 0 = Uniform Catmull-Rom
         - 0.5 = Centripetal Catmull-Rom (Default)
@@ -671,7 +671,7 @@ With a small Ring Spacing they can also be very accurate and represent small det
 How they work
 ======================
 1) Moves to the first point on the spiral.
-2) Samples the brightness at the current point and draws a line which is perpendicular to the spiral where the lines length is proportional to the sampled brightness.
+2) Samples the brightness at the current point and draws a line which is perpendicular to the spiral where the line's length is proportional to the sampled brightness.
 3) Move to the next point on the spiral and Repeat step 2.
 
 The process stops when the specified :term:`Spiral Size` has been reached
@@ -696,7 +696,7 @@ Spiral
 
     ``Values: Number (Safe Range: 0 -> 100)``
 
-    Alters where the generated spiral will end, a spiral at 100% will always reach the corner of the image.
+    Alters where the generated spiral will end. A spiral at 100% will always reach the corner of the image.
 
     **Quick Tip:** You can adjust the Spiral Size after the drawing has been generated with the Shapes Slider.
 
@@ -721,7 +721,7 @@ Spiral
 
     ``Values: Number (Safe Range: 0.01 -> 2.0)``
 
-    Controls the scaling of the lines/shapes generated along the spiral, it is proportional too the **Ring Spacing**
+    Controls the scaling of the lines/shapes generated along the spiral. It is proportional to the **Ring Spacing**
 
     :math:`finalWidth = ringSpacing * (amplitude)`
 
@@ -730,7 +730,7 @@ Spiral
 
     ``Values: Boolean (True | False)``
 
-    When **True**, the velocity will vary between the Min & Max velocity proportionally to the images luminance.
+    When **True**, the velocity will vary between the Min & Max proportionally to the image's luminance.
 
     When **False**, the Min Velocity will always be used.
 
@@ -738,12 +738,12 @@ Spiral
 
     ``Values: Number (Safe Range: 1.0 -> 360.0)``
 
-    Controls the frequency of shapes along the spiral, lower velocities will result in more shapes, higher will result in less.
+    Controls the frequency of shapes along the spiral. Lower velocities will result in more shapes, higher will result in less.
 
     The velocity variables should be used to adjust the overall contrast of the spiral (adding a contrast filter in Image Processing is a good place to start too)
 
-    - Higher velocity = less shapes generated, lower plotting time, high values will result in more inconsistent results as the spiral generation may skip of key areas of the image.
-    - Lower velocity = more shapes generated, higher plotting time, more accurate to the original image
+    - Higher velocity = less shapes generated, lower plotting time. High values will result in more inconsistent results as the spiral generation may skip of key areas of the image.
+    - Lower velocity = more shapes generated, higher plotting time. More accurate to the original image.
 
     :math:`velocity = minVelocity + sineFunction(luminance) * (maxVelocity-minVelocity)`
 
@@ -752,9 +752,9 @@ Spiral
 
     ``Values: Boolean (True | False)``
 
-    When **True**, if the spiral reaches a complete white pixel in the source image the spiral will not be drawn.
+    When **True**, if the spiral reaches a white pixel in the source image the spiral will not be drawn.
 
-    When **False**, the spiral will draw over the entire image upto the Spiral Size.
+    When **False**, the spiral will draw over the entire image up to the Spiral Size.
 
 ----
 
@@ -803,7 +803,7 @@ Settings
 Hatch PFMs
 ***********************
 
-Hatch PFMs generate a set of lines across the image and then use different styles to turn these lines into waves/scribble those width matches the luminance at a given point.
+Hatch PFMs generate a set of lines across the image and then use different styles to turn these lines into waves/scribbles whose width matches the luminance at a given point.
 
 They are suitable for plots with a Single Pen and similarly to Spiral PFMs can generate continuous hatched lines across the drawing which don't require any pen lifts.
 
@@ -833,7 +833,7 @@ Hatching
 
     ``Values: Boolean (True | False)``
 
-    When **True**, an additional set of lines will be generated travelling perpendicular to the current angle. Creating a crosshatched effect.
+    When **True**, an additional set of lines will be generated travelling perpendicular to the current angle, creating a crosshatched effect.
 
 
  Link Ends
@@ -866,7 +866,7 @@ Sawtooth
 
     ``Values: Number (Safe Range: 0.01 -> 2.0)``
 
-    Controls the scaling of the shapes generated along the lines, it is proportional too the **Line Spacing**
+    Controls the scaling of the shapes generated along the lines, it is proportional to the **Line Spacing**.
 
     :math:`finalWidth = lingSpacing * (amplitude)`
 
@@ -876,7 +876,7 @@ Sawtooth
 
     Controls the frequency of shapes along the generated lines, lower velocities will result in more shapes, higher will result in less.
 
-    Similar too Min/Max Velocity in Spiral PFMs
+    Similar to Min/Max Velocity in Spiral PFMs
 
     :math:`velocity = minVelocity + sineFunction(luminance) * (maxVelocity-minVelocity)`
 
@@ -914,9 +914,9 @@ Adaptive PFMS
 
 'Adaptive' are named after the way they adapt to match the tone of the input image.
 
-This means the reproductions of tones is way more accurate then other PFMs, this means they have an additional processing stage "Tone Mapping". This process only needs to be performed once per configuration of settings, if you change a setting which could alter the tone map it will run again.
+The reproduction of tones is considerably more accurate than other PFMs as they have an additional "Tone Mapping" processing stage. This process only needs to be performed once per configuration of settings. If you change a setting which could alter the tone map it will generated again.
 
-You can view the output of the tone mapping stage by selecting "Display:" and then "Tone Map", this shows you three outputs the Reference Tone Map, the drawing created by the PFM with the current settings and the blurred version of this output.
+You can view the output of the tone mapping stage by selecting "Display:" and then "Tone Map". This shows you three outputs; the Reference Tone Map, the drawing created by the PFM with the current settings and the blurred version of this output.
 
 Adaptive PFMs are suitable for Single Pen Plots or Multi Colour Plots
 
@@ -944,22 +944,22 @@ Adaptive Sampling
 
     In general keeping Min Sample Radius < 2 and changing the Max Sample Radius will provide the best results with more Adaptive PFMs.
 
-    Unlike LBG & Voronoi, Adaptive PFMs follow the sample sizes strictly and place points evenly across the entire image and to consistent looking drawing.
+    Unlike LBG & Voronoi, Adaptive PFMs follow the sample sizes strictly and place points evenly across the entire image and produce a consistent looking drawing.
 
  Brightness (Adaptive PFMs)
 
     ``Values: Number (Safe Range: 0.0 -> 2.0)``
 
-    Controls the brightness applied as a pre-processing step too the source image, see :term:`Contrast (Adaptive PFMs)`
+    Controls the brightness applied as a pre-processing step to the source image, see :term:`Contrast (Adaptive PFMs)`.
 
 
  Contrast (Adaptive PFMs)
 
     ``Values: Number (Safe Range: 0.0 -> 2.0)``
 
-    Controls the contrast applied as a pre-processing step too the source image.
+    Controls the contrast applied as a pre-processing step to the source image.
 
-    The quality of Drawings from Adaptive PFMs rely massively on the contrast and brightness so these controls are included for simplicity though they behave the same as adding a contrast filter in the Pre-Processing tab.
+    The quality of Drawings from Adaptive PFMs rely massively on contrast and brightness so these controls are included for simplicity, though they behave the same as adding a contrast filter in the Pre-Processing tab.
 
 
  Ignore White (Adaptive PFMs)
@@ -997,7 +997,7 @@ These settings are shared by  _`Spiral Circular Scribbles`, _`Adaptive Circular 
 
     ``Values: Number (Safe Range: 0.1 -> 128)``
 
-    Controls the radius of the generated Circular Loops which make up the scribble, the radius will vary across the drawing based on the images *luminance*.
+    Controls the radius of the generated Circular Loops which make up the scribble. The radius will vary across the drawing based on the image's *luminance*.
 
     :math:`radius = minRadius + (luminance * (maxRadius-minRadius))`
 
@@ -1011,7 +1011,7 @@ These settings are shared by  _`Spiral Circular Scribbles`, _`Adaptive Circular 
     ``Values: Number (Safe Range: 0.1 -> 128)``
 
     Controls the min/max velocity of the generated Circular Scribbles, in other words this controls the frequency of circular loops in the final scribble.
-    The radius will vary across the drawing based on images *luminance*.
+    The radius will vary across the drawing based on the image's *luminance*.
 
     :math:`velocity = minVelocity + (luminance * (maxVelocity-minVelocity))`
 
@@ -1089,7 +1089,7 @@ These settings are shared by  _`Spiral Circular Scribbles`, _`Adaptive Circular 
 
     ``Values: Number (Range: 1F -> 255F)``
 
-    These thresholds are used by the internal Canny Edge Detector to filter out the target edges, raising the threshold will reduce the effect of the edge retention.
+    These thresholds are used by the internal Canny Edge Detector to filter out the target edges. Raising the threshold will reduce the effect of the edge retention.
 
     From the `OpenCV documentation <https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html>`_
 
@@ -1097,7 +1097,7 @@ These settings are shared by  _`Spiral Circular Scribbles`, _`Adaptive Circular 
         b) If a pixel gradient value is below the lower threshold, then it is rejected.
         c) If the pixel gradient is between the two thresholds, then it will be accepted only if it is connected to a pixel that is above the upper threshold.
 
-    Canny recommended a upper:lower ratio between 2:1 and 3:1.
+    Canny recommended an upper:lower ratio between 2:1 and 3:1.
 
 ----
 
@@ -1161,7 +1161,7 @@ Shapes
 
  Fill Size (Adaptive Shapes)
 
-    Controls the scaling of the shape within the shape available (as defined by the Sampling used e.g. Adaptive, LBG or Voronoi)
+    Controls the scaling of the shape within the shape available (as defined by the Sampling used e.g. Adaptive, LBG or Voronoi).
 
     :math:`finalRadius = sampleRadius * (fillSize/100)`
 
@@ -1188,7 +1188,7 @@ Settings
 
 These settings are also shared with `Adaptive Triangulation`_, `LBG Triangulation`_ and `Mosaic Triangulation`_
 
-Transforms an image into a series of connected triangles joining all the sample points generated using `Delaunay Triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation>`_
+Transforms an image into a series of connected triangles joining all the sample points generated using `Delaunay Triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation>`_.
 
 Triangulation
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -1214,7 +1214,7 @@ Triangulation
 
 Adaptive Tree
 ======================================
-Transforms an image into a Minimum Spanning Tree, which connects all the points by creating links between each point and it's nearest neighbour.
+Transforms an image into a Minimum Spanning Tree, which connects all the points by creating links between each point and its nearest neighbour.
 
 .. image:: images/pfms/adaptive_tree_1.jpg
     :width: 300pt
@@ -1232,7 +1232,7 @@ Tree
 
     ``Values: Boolean (True | False)``
 
-    When **True**, the lines generated by the PFM will be converted to curves as a final finishing step.
+    When **True**, the lines generated by the PFM will be converted to curves in a final finishing step.
 
 
 **+ Inherits settings from:**
@@ -1260,7 +1260,7 @@ Stippling
 
     ``Values: Number (Safe Range: 1.0 -> 100.0)``
 
-    Controls the size of generated stipples
+    Controls the size of generated stipples.
 
 
 **+ Inherits settings from:**
@@ -1287,7 +1287,7 @@ Dashes
 
     ``Values: Number (Safe Range: 0.0 -> 100.0)``
 
-    Controls the random distortion applies to the generated dashes, giving them a more human-like quality.
+    Controls the random distortion applied to the generated dashes, giving them a more human-like quality.
 
 **+ Inherits settings from:**
     - `Default Adaptive PFM Settings`_
@@ -1315,29 +1315,29 @@ Letters
 
     ``Values: Tone Mapped | Random | Sequenced``
 
-    Controls how characters are selected for at each sample point.
+    Controls how characters are selected for each sample point.
 
     Letters will only be considered if they pass the :term:`Character Filter` and :term:`RegEx Filter`
 
     - **Tone Mapped**
-        Before processing the fonts characters will be ordered from Darkest -> Brightness.
-        Then when selecting letters the closest match to the images luminance at the sample point will be selected.
+        Before processing, the font's characters will be ordered from Darkest -> Brightest.
+        Then when selecting letters, the closest match to the image's luminance at the sample point will be selected.
 
     - **Random**
         A random character will be selected at each position from the chosen :term:`SVG Font`
 
     - **Ordered**
-        Will follow the order of the allowed characters. If a Character Filter has been added, ordered will follow it which means with this setting enabled you can write sentences which will be written in order.
+        Will follow the order of the allowed characters. If a Character Filter has been added then that order will be followed, allowing you to write sentences.
 
  Character Filter
 
     ``Values: Text``
 
-    Combines with the :term:`RegEx Filter` to define which characters are allowed in the final drawing, characters must pass both filters.
+    Combines with the :term:`RegEx Filter` to define which characters are allowed in the final drawing. Characters must pass both filters.
 
-    If you leave this empty any character available in the chosen font is allowed which passes the :term:`RegEx Filter`.
+    If you leave this empty, any character available in the chosen font is allowed which passes the :term:`RegEx Filter`.
 
-    If you type any text in the filter, any characters included will be allowed in the final drawing, any not featured will be excluded.
+    If you type any text in the filter, only those included characters will be used in the final drawing.
 
  RegEx Filter
 
@@ -1375,7 +1375,7 @@ Font
 
     The included SVG fonts are Single Line Fonts which are well optimised for pen plotting.
 
-    (Thanks too Oskay from `Evil Mad Scientist <https://www.evilmadscientist.com/>`_ for allowing me too include them)
+    (Thanks to Oskay from `Evil Mad Scientist <https://www.evilmadscientist.com/>`_ for allowing me to include them)
 
     **Adding your own SVG Fonts**
         - Go to **Help / Open Configs Folder**.
@@ -1386,13 +1386,13 @@ Font
 
     ``Values: Regular Font``
 
-    If :term:`Use SVG Fonts` is **False** you can choose from the fonts on your computer.  Many won't be well suited for pen plotting!
+    If :term:`Use SVG Fonts` is **False** you can choose from the fonts on your computer.  Many won't be well-suited for pen plotting!
 
  Style
 
     ``Values: Plain | Bold | Italic``
 
-    Allows you too choose the style of the letters when using your computers own font.
+    Allows you to choose the style of the letters when using your computer's own fonts.
 
 
 **+ Inherits settings from:**
@@ -1433,7 +1433,7 @@ Voronoi Style
 
 Adaptive TSP
 ======================================
-Transforms an image into a one continuous line, or alternatively multiple individual continuous line segments.
+Transforms an image into a single continuous line, or alternatively multiple individual continuous line segments.
 
 .. image:: images/pfms/adaptive_tsp_1.jpg
     :width: 300pt
@@ -1459,7 +1459,7 @@ TSP
     - `Default Adaptive PFM Settings`_
 
 ********************
-LBG PFMS
+LBG PFMs
 ********************
 
 LBS (Linde Buzo Gray) PFMs combine the speed of Adaptive PFMs with the Quality of Voronoi PFMs and in most cases will outperform both in detail retention. They also respond better to large variations in stipple spacing.
@@ -1494,15 +1494,15 @@ LBG Sampling
 
     ``Values: Number (Safe Range: 1 -> 100)``
 
-    Number of improvements to make too the LBG positions before stopping.
+    Number of improvements to make to the LBG positions before stopping.
 
-    Higher iterations will result in more accurate results, if no more improvements can be made the process will stop early
+    Higher iterations will result in more accurate results. If no more improvements can be made the process will stop early
 
  Cache Result
 
     ``Values: Boolean (True | False)``
 
-    When enabled, if all of the settings above have remained the same the result of the LBG Sampling will not be regenerated on the next run. Which saves processing time and is very useful for PFMs like LBG Circular Scribbles.
+    When enabled, if all of the settings above have remained the same the result of the LBG Sampling will not be regenerated on the next run, which saves processing time and is very useful for PFMs like LBG Circular Scribbles.
 
 ----
 
@@ -1599,7 +1599,7 @@ Transforms an image into a series of dashes placed at each point generated.
 
 LBG Letters
 ======================================
-Transforms an image into a series of dashes placed at each point generated.
+Transforms an image into a series of letters placed at each point generated.
 
 .. image:: images/pfms/lbg_letters_1.jpg
     :width: 300pt
@@ -1610,7 +1610,7 @@ Settings
 
 **+ Inherits settings from:**
     - `Default LBG Settings`_
-    - `Adaptive Dashes`_
+    - `Adaptive Letters`_
 
 ----
 
@@ -1632,7 +1632,7 @@ Settings
 
 LBG TSP
 ======================================
-Transforms an image into a one continuous line, or alternatively multiple individual continuous line segments.
+Transforms an image into a single continuous line, or alternatively multiple individual continuous line segments.
 
 .. image:: images/pfms/lbg_tsp_1.jpg
     :width: 300pt
@@ -1681,14 +1681,14 @@ Voronoi Sampling
 
     ``Values: Number (Safe Range: 0 -> 1000000)``
 
-    Controls a hard limit for the amount of points to be generated, only has an effect if the the number is lower the amount that would be generated by the given Point Density
-    The limit will be ignored when set too 0.
+    Controls a hard limit for the amount of points to be generated. Only has an effect if the the number is lower than the amount that would be generated by the given Point Density
+    The limit will be ignored when set to 0.
 
  Luminance Power (Voronoi PFMs)
 
     ``Values: Number (Safe Range: 1 -> 50)``
 
-    Used when randomly scattering points over the image, it affects how bias the scattering is towards darker areas of the image, typically using the same value for Density Power yields the best results.
+    Used when randomly scattering points over the image, it affects how biased the scattering is towards darker areas of the image, typically using the same value for Density Power yields the best results.
 
  Density Power
 
@@ -1700,7 +1700,7 @@ Voronoi Sampling
 
     ``Values: Number (Safe Range: 1 -> 100)``
 
-    How many times to re-calculate the voronoi diagram, more iterations will result in a more accurate representation of the original image.
+    How many times to re-calculate the voronoi diagram. More iterations will result in a more accurate representation of the original image.
 
  Voronoi Accuracy
 
@@ -1712,7 +1712,7 @@ Voronoi Sampling
 
     ``Values: Boolean (True | False)``
 
-    When **True**, the PFM will filter out points in white ares of the image.
+    When **True**, the PFM will filter out points in white areas of the image.
 
 ----
 
@@ -1798,7 +1798,7 @@ Settings
 
 Voronoi Diagram
 ======================================
-Transforms an image into a Voronoi Diagram
+Transforms an image into a Voronoi Diagram.
 
 .. image:: images/pfms/voronoi_diagram_1.jpg
     :width: 300pt
@@ -1846,27 +1846,27 @@ Drawing Styles
 
     A configurable list of Drawing Styles.
 
-    A **Drawing Style** consists of a Path Finding Module and a Drawing Set, when run the PFM will be run with the given Drawing Set and added to the final drawing.
+    A **Drawing Style** consists of a Path Finding Module and a Drawing Set. When run the PFM will be run with the given Drawing Set and added to the final drawing.
 
     Upon clicking the "Drawing Styles" button in the PFM Settings you'll be presented with this window.
 
     .. image:: images/composite/drawing_styles_ui.png
         :width: 300pt
 
-    Here you can configure the Composite PFMs enabled Drawing Styles. You may add as many Styles as you wish and by selecting each one in the list on the left of the window you can configure the settings of the Path Finding Module on the right.
+    Here you can configure the Composite PFM's enabled Drawing Styles. You may add as many Styles as you wish and by selecting each one in the list on the left of the window you can configure the settings of the Path Finding Module on the right.
 
     - *Name*
-        Defaults too the selected PFM, but can be changed by the user.
+        Defaults to the selected PFM, but can be changed by the user.
 
     - *Weight*
         *Only visible for specific Composite PFMs*
 
         Typically the selection of PFMs for the various tiles of the mosaic is random and the random selections can be changed with the :term:`Random Seed`.
 
-        However, when the weight is changed, the random selection will be weighted (similar to pen weights) and the number of tiles in the mosaic drawn in that style will be proportional to it's weight.
+        However, when the weight is changed, the random selection will be weighted (similar to pen weights) and the number of tiles in the mosaic drawn in that style will be proportional to its weight.
 
     - *Drawing Set:*
-        The selected Drawing Set, change it by double clicking the current value, to create more Drawing Sets you see **Drawing Slots** at the bottom of the Pen Settings tab.
+        The selected Drawing Set. Change it by double clicking the current value. To create more Drawing Sets see **Drawing Slots** at the bottom of the Pen Settings tab.
 
     Note: It's also possible to stack multiple composite PFMs inside each other, when Composite PFMs are stacked selecting the "Drawing Styles" button will open another identical window, but the title of the window will change, indicating where in the chain of PFMs you currently are. This should be considered an Experimental feature and may result in crashes due to the complexity of deep stacks of mosaic pfms.
 
@@ -1877,7 +1877,7 @@ Drawing Styles
 
     ``Values: Boolean (True | False)``
 
-    When **True**, the shapes used to generate the mosaic will also be outputted as Shapes, giving each Mosaic Cell/Tile a sharp outline.
+    When **True**, the shapes used to generate the mosaic will also be output as Shapes, giving each Mosaic Cell/Tile a sharp outline.
 
 ----
 
@@ -1933,7 +1933,7 @@ Tiles
 
 Mosaic Voronoi
 ======================================
-Divides an image into a Voronoi Diagram, each cell is distributed randomly amongst the enabled Drawing Styles
+Divides an image into a Voronoi Diagram, each cell is distributed randomly amongst the enabled Drawing Styles.
 
 .. image:: images/pfms/mosaic_voronoi_1.jpg
     :width: 300pt
@@ -1954,7 +1954,7 @@ Tiles
  Offset Cells
     ``Values: Percentage (Range: -20 -> 20)``
 
-    Shifts the border of the generated Voronoi Tiles, negative values will shrink the cell, positive values will grow the cell.
+    Shifts the border of the generated Voronoi Tiles. Negative values will shrink the cell, positive values will grow the cell.
     Note: Negative values may result in nothing being drawn in cells if they become too small.
 
 
@@ -1967,7 +1967,7 @@ Tiles
 Mosaic Triangulation
 ======================================
 
-Divides an image into a Mosaic using Delaunay Triangulation, each triangle is distributed randomly amongst the enabled Drawing Styles.
+Divides an image into a Mosaic using Delaunay Triangulation. Each triangle is distributed randomly amongst the enabled Drawing Styles.
 
 
 .. image:: images/pfms/mosaic_triangulation_1.jpg
@@ -2105,13 +2105,13 @@ Edges
 
     ``Values: Number (Safe Range: 0 -> 50)``
 
-    Affects the pre-filter blur applied before edges are detected, higher edge blur will result in less edges but the edges will be smoother.
+    Affects the pre-filter blur applied before edges are detected. Higher edge blur will result in less edges but the edges will be smoother.
 
  Edge Detail
 
     ``Values: Number (Safe Range: 0 -> 255)``
 
-    Controls the amount of edges which are generated: lower detail -> less edges : higher detail -> more edges
+    Controls the amount of edges which are generated: lower detail -> less edges : higher detail -> more edges.
 
  Edge Simplify
 
@@ -2141,13 +2141,13 @@ Contours
 
     ``Values: Number (Safe Range: 0 -> 99)``
 
-    Similar to Edge Blur but for contours, has a greater impact on the amount of contours and quality of the contours.
+    Similar to Edge Blur but for contours. Has a greater impact on the amount of contours and quality of the contours.
 
  Contour Detail
 
     ``Values: Number (Safe Range: 0 -> 255)``
 
-    Controls the amount of contours which are generated: lower detail -> less contours : higher detail -> more contours
+    Controls the amount of contours which are generated: lower detail -> less contours : higher detail -> more contours.
 
  Contour Simplify
 
@@ -2212,7 +2212,7 @@ Shape
 
     ``Values: SVG File Path``
 
-    The path to the SVG to be used, if this isn't set it will use the current imported SVG, if there isn't one the PFM will produce no output. You can use this PFM as part of a Layers PFM, to layer SVGs together, when you run the PFM like this you can set the SVG Path to use an SVG which hasn't been imported.
+    The path to the SVG to be used. If this isn't set it will use the current imported SVG, if there isn't one the PFM will produce no output. You can use this PFM as part of a Layers PFM, to layer SVGs together, when you run the PFM like this you can set the SVG Path to use an SVG which hasn't been imported.
 
  Shape Clipping
 
@@ -2239,13 +2239,13 @@ If shapes in the SVG have solid fills, hatch fills will be used instead which ca
 
     ``Values: Boolean (True | False)``
 
-    When enabled Hatch Fills will be generated
+    When enabled Hatch Fills will be generated.
 
  Spacing (Hatch Fill)
 
     ``Values: Number (Safe Range: 1 -> 10)``
 
-    The distance between the hatch lines, it is relative to the pen width so a spacing of 1.0 will draw over the entire shape with no gaps, a spacing of 2.0 will leave spaces the same width as the pen.
+    The distance between the hatch lines. This is relative to the pen width so a spacing of 1.0 will draw over the entire shape with no gaps, a spacing of 2.0 will leave spaces the same width as the pen.
 
  Min/Max Rotation (Hatch Fill)
 
@@ -2294,13 +2294,13 @@ Layout
 
     ``Values: Number (Safe Range: 0.1 -> 2.0)``
 
-    The smallest nib size to test
+    The smallest nib size to test.
 
  Nib Size Max
 
     ``Values: Number (Safe Range: 0.1 -> 2.0)``
 
-    The largest nib size to test, if you're pen is larger than 2.0, enter the value manually in the text field.
+    The largest nib size to test. If your pen is larger than 2.0, enter the value manually in the text field.
 
  Test Count
 
@@ -2312,31 +2312,31 @@ Layout
 
     ``Values: Number (Safe Range: 10.0 -> 40.0)``
 
-    The width/height in mm of each nib size test
+    The width/height in mm of each nib size test.
 
  Spacing X/Y
 
     ``Values: Number (Safe Range: 0 -> 40.0)``
 
-    The grid spacing in mm between each test in the grid
+    The grid spacing in mm between each test in the grid.
 
  Rotation
 
     ``Values: Number (Safe Range: 0 -> 360.0)``
 
-    Controls the angle of the lines in the generated line tests
+    Controls the angle of the lines in the generated line tests.
 
  Line Tests
 
     ``Values: Boolean (True | False)``
 
-    Generates simple hatches line tests
+    Generates simple hatches line tests.
 
  Circle Tests
 
     ``Values: Boolean (True | False)``
 
-    Generates concentric circle tests
+    Generates concentric circle tests.
 
 
 Text
@@ -2348,7 +2348,7 @@ Text
 
     ``Values: SVG Font``
 
-    The SVG Font to use to draw the labels for each nib size test
+    The SVG Font to use to draw the labels for each nib size test.
 
  Title
 
