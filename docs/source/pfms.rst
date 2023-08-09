@@ -282,7 +282,7 @@ You can view the Lightened Image in your viewport by going to "Display / Lighten
 
         Controls the maximum intensity of the __`Erasing` process, with :term:`Erase Min` defining the minimum.
 
-        The Erase Min/Max alter the amount of brighten each RGB channel by in the Lightened Image.
+        Erase Min/Max alters the amount to brighten each RGB channel in the Lightened Image.
 
         It therefore controls the overall plot density & contrast in the image and can be fine-tuned to your specific pens.
 
@@ -293,7 +293,7 @@ You can view the Lightened Image in your viewport by going to "Display / Lighten
 
         *e.g. Fig 1. Erase Min = 50 & Erase Max = 50, Fig 2. Erase Min = 50 & Erase Max = 125 (Default), Fig 3. Erase Min = 50 & Erase Max = 255*
 
-        **Quick Tip:** Are you Physical Plots coming out too dense and soaking the paper?
+        **Quick Tip:** Are your Physical Plots coming out too dense and soaking the paper?
 
         Try increasing the Erase Min/Max to reduce the amount of overlap.
 
@@ -445,7 +445,7 @@ Squares
 
 Sketch Quad Beziers
 ======================
-Transforms an image into `Quadratic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for one control point. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
+Transforms an image into `Quadratic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for one control point. It uses more accurate "Bresenham" calculations which results in increased precision but longer processing times.
 
 .. image:: images/pfms/sketch_quadbeziers_1.jpg
     :width: 300pt
@@ -468,7 +468,7 @@ Curves (Quad Beziers)
 
         ``Values: Number (Range: 1 -> 1000)``
 
-        the maximum magnitude of the curve, increasing this will decrease the test accuracy and increase the control point's offsets.
+        the maximum magnitude of the curve. Increasing this will decrease the test accuracy and increase the control point's offsets.
 
 
     Curve Offset
@@ -489,7 +489,7 @@ Curves (Quad Beziers)
 
 Sketch Cubic Beziers
 ======================
-Transforms an image into `Cubic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for the two control points. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
+Transforms an image into `Cubic Bézier curves <https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves>`_ using brightness data, by first finding the darkest line and then finding the darkest position for the two control points. It uses more accurate "Bresenham" calculations which results in increased precision but longer processing times.
 
 .. image:: images/pfms/sketch_cubicbeziers_1.jpg
     :width: 300pt
@@ -505,7 +505,7 @@ Settings
 
 Sketch Catmull-Roms
 ======================
-Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline>`_ using brightness data, by finding the next darkest curve from each point. It uses more accurate "Bresenham" calculations which results in longer processing times but increased precision.
+Transforms an image into `catmull-rom splines <https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline>`_ using brightness data, by finding the next darkest curve from each point. It uses more accurate "Bresenham" calculations which results in increased precision but longer processing times.
 
 
 .. image:: images/pfms/sketch_catmullroms_1.jpg
@@ -542,7 +542,7 @@ Shapes (Sketch Shapes)
         Allows you to choose the type of shapes to create the drawing with.
 
             - Rectangles: All of the rectangles will be linked by sharing a corner segment, which means this setting is still fast to plot.
-            - Ellipses: All ellipses will end in similar positions but won't be linked so will require more pen lifts, may change in the future.
+            - Ellipses: All ellipses will end in similar positions but won't be linked so will require more pen lifts. May change in the future.
 
 
 **+ Inherits settings from:**
@@ -740,7 +740,7 @@ Spiral
 
     Controls the frequency of shapes along the spiral. Lower velocities will result in more shapes, higher will result in less.
 
-    The velocity variables should be used to adjust the overall contrast of the spiral (adding a contrast filter in Image Processing is a good place to start too)
+    The velocity variables should be used to adjust the overall contrast of the spiral (adding a contrast filter in Image Processing is a good place to start too).
 
     - Higher velocity = less shapes generated, lower plotting time. High values will result in more inconsistent results as the spiral generation may skip of key areas of the image.
     - Lower velocity = more shapes generated, higher plotting time. More accurate to the original image.
@@ -866,7 +866,7 @@ Sawtooth
 
     ``Values: Number (Safe Range: 0.01 -> 2.0)``
 
-    Controls the scaling of the shapes generated along the lines, it is proportional to the **Line Spacing**.
+    Controls the scaling of the shapes generated along the lines. It is proportional to the **Line Spacing**.
 
     :math:`finalWidth = lingSpacing * (amplitude)`
 
@@ -874,7 +874,7 @@ Sawtooth
 
     ``Values: Number (Safe Range: 1.0 -> 360.0)``
 
-    Controls the frequency of shapes along the generated lines, lower velocities will result in more shapes, higher will result in less.
+    Controls the frequency of shapes along the generated lines. Lower velocities will result in more shapes, higher will result in less.
 
     Similar to Min/Max Velocity in Spiral PFMs
 
@@ -914,7 +914,7 @@ Adaptive PFMS
 
 'Adaptive' are named after the way they adapt to match the tone of the input image.
 
-The reproduction of tones is considerably more accurate than other PFMs as they have an additional "Tone Mapping" processing stage. This process only needs to be performed once per configuration of settings. If you change a setting which could alter the tone map it will generated again.
+The reproduction of tones is considerably more accurate than other PFMs as they have an additional "Tone Mapping" processing stage. This process only needs to be performed once per configuration of settings. If you change a setting which could alter the tone map it will be generated again.
 
 You can view the output of the tone mapping stage by selecting "Display:" and then "Tone Map". This shows you three outputs; the Reference Tone Map, the drawing created by the PFM with the current settings and the blurred version of this output.
 
@@ -1023,9 +1023,9 @@ These settings are shared by  _`Spiral Circular Scribbles`, _`Adaptive Circular 
 
     ``Values: Number (Safe Range: 0.1 -> 180)``
 
-    Controls the speed of rotation of the scribbles, low angular velocity will result in fewer loops, higher velocity will result in more loops.
+    Controls the speed of rotation of the scribbles. Low angular velocity will result in fewer loops, higher velocity will result in more loops.
     Generally the angular velocity should be at least double the maximum velocity if you wish the scribbles to always create loops.
-    In general the default is good, but it can be useful to adjust it slightly for some images.
+    The default is generally good, but it can be useful to adjust it slightly for some images.
 
     .. image:: images/circularscribbles/circular_scribbles_angular_velocity_10.png
 
@@ -1875,7 +1875,7 @@ Grid
 
     Controls the shape of the generated Shapes, a value of 1.0 will occupy all the available space in the grid.
 
-    Values higher than 1.0 will use more than the available space and cause shapes too overlap.
+    Values higher than 1.0 will use more than the available space and cause shapes to overlap.
 
     Values lower than 1.0 will use less than the available space.
 
@@ -1883,7 +1883,7 @@ Grid
 
     ``Values: Number (Safe Range: 0.0 -> 64.0)``
 
-    Introduces a random X/Y offset too each grid position, introducing some natural noise to the grid.
+    Introduces a random X/Y offset to each grid position, introducing some natural noise to the grid.
 
     With values higher than 0, the grid positions will no longer be uniform.
 
@@ -1905,13 +1905,13 @@ Grid Style
 
     ``Values: Number (Safe Range: 0.0 -> 2.0)``
 
-    Controls the brightness applied as a pre-processing step too the source image, see :term:`Brightness (Adaptive PFMs)`
+    Controls the brightness applied as a pre-processing step to the source image, see :term:`Brightness (Adaptive PFMs)`
 
  Contrast (Grid PFMs)
 
     ``Values: Number (Safe Range: 0.0 -> 2.0)``
 
-    Controls the contrast applied as a pre-processing step too the source image.
+    Controls the contrast applied as a pre-processing step to the source image.
 
     The quality of Drawings from Grid PFMs can vary massively on the contrast and brightness so these controls are included for simplicity though they behave the same as adding a contrast filter in the Pre-Processing tab.
 
