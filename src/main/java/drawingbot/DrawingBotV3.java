@@ -222,8 +222,8 @@ public class DrawingBotV3 {
         }
 
         // Update Image Stats
-        plottingResolutionWidth.set(project().targetCanvas.getScaledWidth());
-        plottingResolutionHeight.set(project().targetCanvas.getScaledHeight());
+        plottingResolutionWidth.set(project().targetCanvas.getScaledDrawingWidth());
+        plottingResolutionHeight.set(project().targetCanvas.getScaledDrawingHeight());
         plottingResolutionUnits.set(project().targetCanvas.getUnits());
 
         imageResolutionWidth.set(openImage == null ? 0 : openImage.getSourceCanvas().getWidth());
