@@ -15,6 +15,7 @@ import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.EnumRendererType;
 import drawingbot.utils.Utils;
 
 import java.awt.*;
@@ -361,10 +362,14 @@ public class PlottingTools implements IPlottingTools {
     }
 
     @Override
-    public void clearAllGeometries() {
+    public void clearDrawing() {
         getPlottedDrawing().clearGeometries();
+    }
+
+    @Override
+    public void reRender(EnumRendererType rendererType) {
         if(pfmTask != null && !pfmTask.isCancelled() && !pfmTask.skipReRender){
-            pfmTask.context.taskManager.clearDrawingRender();
+            pfmTask.context.taskManager.clearDrawingRender(EnumRendererType.ANY);
         }
     }
 

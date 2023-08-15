@@ -538,8 +538,13 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         markOpenImageForUpdate(FilteredImageData.UpdateType.FULL_UPDATE);
     }
 
-    public void onDrawingCleared(){
-        setRenderFlag(Flags.CLEAR_DRAWING, true);
+    public void onDrawingCleared(EnumRendererType rendererType){
+        if(rendererType.reRenderJFX()){
+            setRenderFlag(Flags.CLEAR_DRAWING_JFX, true);
+        }
+        if(rendererType.reRenderOpenGL()) {
+            setRenderFlag(Flags.CLEAR_DRAWING_OPENGL, true);
+        }
     }
 
     public void onImageFiltersChanged(){
@@ -731,7 +736,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     @Override
-    public void clearDrawingRender(){
-        Platform.runLater(this::onDrawingCleared);
+    public void clearDrawingRender(EnumRendererType rendererType){
+        Platform.runLater(() -> onDrawingCleared(rendererType));
     }
 }

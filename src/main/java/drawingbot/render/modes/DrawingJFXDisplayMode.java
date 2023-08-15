@@ -42,10 +42,10 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
             PFMTask renderedTask = DrawingBotV3.taskManager().getRenderedTask();
             if (renderedTask.stage == EnumTaskStage.DO_PROCESS) {
                 WrappedGeometryIterator iterator = renderedTask.getTaskGeometryIterator();
-                if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
+                if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)) {
                     jfr.clearCanvas();
                     iterator.reset();
-                    renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
+                    renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE);
                 }
                 if (iterator.hasNext()) {
                     jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
@@ -53,9 +53,9 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
                     RenderUtils.renderDrawingFX(jfr.graphicsFX, iterator, getGeometryFilter(), jfr.getVertexRenderLimit(), jfr.getRenderTimeout());
                 }
-            }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED)){
+            }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED)){
                 jfr.clearCanvas();
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED);
             }
             return;
         }
@@ -65,12 +65,12 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
                 drawingIterator = new DrawingGeometryIterator(drawing);
             }
             EnumBlendMode blendMode = DrawingBotV3.project().blendMode.get();
-            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED)) {
+            if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED)) {
                 jfr.clearCanvas();
                 drawingIterator.reset(drawing);
                 DrawingBotV3.INSTANCE.updateLocalMessage("Drawing");
                 DrawingBotV3.INSTANCE.updateLocalProgress(0);
-                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.CURRENT_DRAWING_CHANGED);
+                renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED);
             }
             if(drawingIterator.hasNext()){
                 jfr.graphicsFX.scale(jfr.canvasScaling, jfr.canvasScaling);
@@ -81,9 +81,9 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
 
                 DrawingBotV3.INSTANCE.updateLocalProgress(drawingIterator.getCurrentGeometryProgress());
             }
-        }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE, Flags.CURRENT_DRAWING_CHANGED)) {
+        }else if (renderFlags.anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE, Flags.CURRENT_DRAWING_CHANGED)) {
             jfr.clearCanvas();
-            renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE, Flags.CURRENT_DRAWING_CHANGED);
+            renderFlags.markForClear(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE, Flags.CURRENT_DRAWING_CHANGED);
         }
     }
 

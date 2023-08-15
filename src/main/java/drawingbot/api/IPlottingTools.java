@@ -3,6 +3,7 @@ package drawingbot.api;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.EnumRendererType;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -123,7 +124,13 @@ public interface IPlottingTools {
 
     IGeometry getLastGeometry();
 
-    void clearAllGeometries();
+    void clearDrawing();
+
+    default void reRender(){
+        reRender(EnumRendererType.ANY);
+    }
+
+    void reRender(EnumRendererType rendererType);
 
     ////////////////////////////////////////////////////////
 

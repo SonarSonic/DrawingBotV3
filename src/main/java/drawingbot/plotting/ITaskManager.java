@@ -7,6 +7,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.utils.DBTask;
+import drawingbot.utils.EnumRendererType;
 import drawingbot.utils.EnumTaskStage;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,5 +47,5 @@ public interface ITaskManager {
         return null;
     }
 
-    default void clearDrawingRender(){}
+    default void clearDrawingRender(EnumRendererType rendererType){}
 }
