@@ -55,8 +55,6 @@ public class GCodeBuilder {
      * Must be called to save the file
      */
     public void close() {
-        movePenUp();
-        linearMoveG1(0, 0);
         command(settings.gcodeEndCode.getValue());
 
         comment("Distance Moved: " + Utils.gcodeFloat(distanceMoved) + " mm");

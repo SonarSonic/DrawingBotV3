@@ -16,16 +16,21 @@ import java.io.PrintWriter;
 
 public class GCodeExporter {
 
-    public static final String defaultStartCode =   "G21 (programming in millimeters, mm)" +
-                                                    "\n" +
-                                                    "G90 (programming in absolute positioning)" +
-                                                    "\n" +
-                                                    "G28 (auto homing)" +
-                                                    "\n" +
-                                                    "G1 F8000 (set speed)";
-    public static final String defaultEndCode = "";
-    public static final String defaultPenDownCode = "G1 Z0";
-    public static final String defaultPenUpCode = "G0 Z1";
+    public static final String defaultStartCode = """
+            G21 (programming in millimeters, mm)
+            G90 (programming in absolute positioning)
+            G28 (auto homing)
+            G1 F8000 (set speed)""";
+    public static final String defaultEndCode = """
+            G0 Z1
+            G0 X0 Y0
+            """;
+    public static final String defaultPenDownCode = """
+            G1 Z0
+            """;
+    public static final String defaultPenUpCode = """
+            G0 Z1
+            """;
     public static final String defaultStartLayerCode = "";
     public static final String defaultEndLayerCode = "";
 
