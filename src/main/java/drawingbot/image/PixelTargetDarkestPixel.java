@@ -60,6 +60,14 @@ public class PixelTargetDarkestPixel extends PixelTargetCache {
 
     }
 
+    @Override
+    public void destroy() {
+        if(pointQueue != null){
+            pointQueue.clear();
+            pointQueue = null;
+        }
+    }
+
     public int getLimit() {
         return limit;
     }

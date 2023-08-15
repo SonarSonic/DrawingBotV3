@@ -10,4 +10,5 @@ public abstract class PixelTargetCache {
 
     public abstract int[] getNextDarkestPixel(boolean remove);
 
+    public abstract void destroy();
 }

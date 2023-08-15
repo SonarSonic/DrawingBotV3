@@ -26,13 +26,13 @@ public class LazyTimer {
         return endTime - startTime;
     }
 
+    public String getElapsedTimeFormatted(){
+        return getElapsedTimeFormatted(endTime - startTime);
+    }
     /**
      * Prints out the finishing time
      */
-    public String getElapsedTimeFormatted(){
-
-        long elapsedTime = (endTime - startTime);
-
+    public static String getElapsedTimeFormatted(long elapsedTime){
         int seconds = (int) (elapsedTime / 1000) % 60 ;
         int minutes = (int) ((elapsedTime / (1000*60)) % 60);
         int hours = (int) ((elapsedTime / (1000*60*60)) % 24);

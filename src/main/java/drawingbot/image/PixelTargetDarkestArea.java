@@ -63,7 +63,7 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
                         }
                     }
                 }
-                tileSamples[sampleX][sampleY] = tileSample;
+                tileSamples[sampleX][sampleY] = tileSample/pixelCount;
                 pixelCounts[sampleX][sampleY] = pixelCount;
             }
         }
@@ -79,7 +79,8 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
         if(tools.withinPlottableArea(x, y)) {
             int tileX = Math.min(totalSamplesX - 1, getTileX(x, y));
             int tileY = Math.min(totalSamplesY - 1, getTileY(x, y));
-            tileSamples[tileX][tileY] += newValue - oldValue;
+            int pixelCount = pixelCounts[tileX][tileY];
+            tileSamples[tileX][tileY] += (double)(newValue - oldValue)/pixelCount;
             if (darkestPixelCache != null && x == darkestPixelCache[0] && y == darkestPixelCache[1]) {
                 darkestPixelCache = null;
             }
@@ -112,10 +113,9 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
                 if(pixelCount == 0){
                     continue;
                 }
-
-                double average = (int) (sample/pixelCount);
-                if((darkestSampleX == -1 || average < darkestSample)){
-                    darkestSample = average;
+                int sampleI = (int)sample;
+                if((darkestSampleX == -1 || sampleI < darkestSample)){
+                    darkestSample = sampleI;
                     darkestSampleX = sampleX;
                     darkestSampleY = sampleY;
                 }
@@ -155,6 +155,13 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
             }
         }
         return darkestPixelCache = new int[]{darkestPixelX, darkestPixelY, darkestPixel};
+    }
+
+    @Override
+    public void destroy() {
+        tileSamples = null;
+        pixelCounts = null;
+        darkestPixelCache = null;
     }
 
     public int getWidth(){
