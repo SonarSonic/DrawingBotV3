@@ -394,13 +394,13 @@ public class DrawingBotV3 {
     //// MOUSE EVENTS
 
     public void resetView(){
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.setScale(project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1);
-        DrawingBotV3.INSTANCE.displayMode.get().getRenderer().updateCanvasPosition();
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.layout();
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.setHvalue(0.5);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.setVvalue(0.5);
+        controller.viewportScrollPane.setHvalue(0.5);
+        controller.viewportScrollPane.setVvalue(0.5);
+        controller.viewportScrollPane.setScale(project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1);
+        displayMode.get().getRenderer().updateCanvasPosition();
+        controller.viewportScrollPane.layout();
+        controller.viewportScrollPane.setHvalue(0.5);
+        controller.viewportScrollPane.setVvalue(0.5);
     }
 
     public double getDPIScaleFactor(){

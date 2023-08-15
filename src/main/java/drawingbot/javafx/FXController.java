@@ -698,6 +698,9 @@ public class FXController extends AbstractFXController {
         VBox.setVgrow(viewport, Priority.ALWAYS);
         HBox.setHgrow(viewport, Priority.ALWAYS);
 
+        VBox.setVgrow(viewportScrollPane, Priority.ALWAYS);
+        HBox.setHgrow(viewportScrollPane, Priority.ALWAYS);
+
         viewport.getChildren().add(viewportScrollPane);
         viewport.getChildren().add(viewportOverlayAnchorPane);
         vBoxViewportContainer.getChildren().add(viewport);
@@ -740,10 +743,14 @@ public class FXController extends AbstractFXController {
         });
 
         labelElapsedTime.textProperty().bind(Bindings.createStringBinding(() -> {
-            long minutes = (DrawingBotV3.INSTANCE.elapsedTimeMS.get() / 1000) / 60;
-            long seconds = (DrawingBotV3.INSTANCE.elapsedTimeMS.get() / 1000) % 60;
+            long millis = DrawingBotV3.INSTANCE.elapsedTimeMS.get();
+            long minutes = (millis / 1000) / 60;
+            long seconds = (millis / 1000) % 60;
+            if(seconds == 0){
+                return "%s ms".formatted(millis);
+            }
             return minutes + " m " + seconds + " s";
-        }, DrawingBotV3.INSTANCE.elapsedTimeMS));
+        }, DrawingBotV3.INSTANCE.elapsedTimeMS, DrawingBotV3.INSTANCE.taskMonitor.isPlotting));
         labelPlottedShapes.textProperty().bind(Bindings.createStringBinding(() -> Utils.defaultNF.format(DrawingBotV3.INSTANCE.geometryCount.get()), DrawingBotV3.INSTANCE.geometryCount));
         labelPlottedVertices.textProperty().bind(Bindings.createStringBinding(() -> Utils.defaultNF.format(DrawingBotV3.INSTANCE.vertexCount.get()), DrawingBotV3.INSTANCE.vertexCount));
         labelImageResolution.textProperty().bind(Bindings.createStringBinding(() -> DrawingBotV3.INSTANCE.imageResolutionWidth.getValue().intValue() + " x " + DrawingBotV3.INSTANCE.imageResolutionHeight.getValue().intValue() + " " + DrawingBotV3.INSTANCE.imageResolutionUnits.get().getSuffix(), DrawingBotV3.INSTANCE.imageResolutionWidth, DrawingBotV3.INSTANCE.imageResolutionHeight, DrawingBotV3.INSTANCE.imageResolutionUnits));

@@ -99,35 +99,35 @@
                      <children>
                         <Label contentDisplay="RIGHT" text="Image Size:">
                            <graphic>
-                              <Label fx:id="labelImageResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="79.0" text="10000 x 10000" />
+                              <Label fx:id="labelImageResolution" contentDisplay="RIGHT" maxHeight="17.0" maxWidth="80.0" minHeight="17.0" minWidth="80.0" prefHeight="17.0" prefWidth="80.0" text="10000 x 10000" />
                            </graphic>
                         </Label>
                         <Label contentDisplay="RIGHT" text="Plotting Size:">
                            <graphic>
-                              <Label fx:id="labelPlottingResolution" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="79.0" text="10000 x 10000" />
+                              <Label fx:id="labelPlottingResolution" contentDisplay="RIGHT" maxHeight="17.0" maxWidth="80.0" minHeight="17.0" minWidth="80.0" prefHeight="17.0" prefWidth="80.0" text="10000 x 10000" />
                            </graphic>
                         </Label>
                         <Separator orientation="VERTICAL" />
                           <Label contentDisplay="RIGHT" text="Elapsed Time:">
                            <graphic>
-                              <Label fx:id="labelElapsedTime" prefHeight="17.0" prefWidth="53.0" text=" 10000 hr" />
+                              <Label fx:id="labelElapsedTime" maxHeight="17.0" maxWidth="70.0" minHeight="17.0" minWidth="70.0" prefHeight="17.0" prefWidth="70.0" text="100 m 26 s" />
                            </graphic>
                         </Label>
                         <Separator layoutX="355.0" layoutY="14.0" orientation="VERTICAL" />
                         <Label contentDisplay="RIGHT" text="Shapes:">
                            <graphic>
-                              <Label fx:id="labelPlottedShapes" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="57.0" text="10000000" />
+                              <Label fx:id="labelPlottedShapes" contentDisplay="RIGHT" maxHeight="17.0" maxWidth="60.0" minHeight="17.0" minWidth="60.0" prefHeight="17.0" prefWidth="60.0" text="10000000" />
                            </graphic>
                         </Label>
                         <Label contentDisplay="RIGHT" text="Vertices:">
                            <graphic>
-                              <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="56.0" text="10000000" />
+                              <Label fx:id="labelPlottedVertices" contentDisplay="RIGHT" maxHeight="17.0" maxWidth="70.0" minHeight="17.0" minWidth="70.0" prefHeight="17.0" prefWidth="56.0" text="10000000" />
                            </graphic>
                         </Label>
                         <Separator layoutX="347.0" layoutY="14.0" orientation="VERTICAL" />
                         <Label contentDisplay="RIGHT" text="Position:">
                            <graphic>
-                              <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" prefHeight="17.0" prefWidth="80.0" text="10000 x 10000" />
+                              <Label fx:id="labelCurrentPosition" contentDisplay="RIGHT" maxHeight="17.0" maxWidth="120.0" minHeight="17.0" minWidth="120.0" prefHeight="17.0" prefWidth="120.0" text="-1000 x -1000 mm" />
                            </graphic>
                         </Label>
                         <Rectangle fx:id="colourPickerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="17.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="17.0" />
