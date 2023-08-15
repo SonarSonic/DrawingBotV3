@@ -84,7 +84,19 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback {
         super.updateTitle(title);
     }
 
-    public void reset(){}
+    public boolean shouldDestroy = false;
+
+    public void tryDestroy(){
+        if(!isRunning()){
+            destroy();
+        }
+        shouldDestroy = true;
+    }
+
+    /**
+     * Called when the outputs of this task are no longer required on any thread, destroy should be able to be called multiple times without issues, as it should only de-reference and not process
+     */
+    public void destroy(){}
 
     public void stopElegantly(){}
 }

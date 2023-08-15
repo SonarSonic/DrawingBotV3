@@ -1,11 +1,13 @@
 package drawingbot.pfm.helpers;
 
+import drawingbot.api.IPixelConsumer;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.PixelDataComposite;
 import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.EnumRescaleMode;
+import drawingbot.utils.Utils;
 
 import java.awt.*;
 
@@ -18,6 +20,7 @@ public class PFMRenderPipe {
     private Color defaultColor = null;
     public BresenhamHelper bresenhamHelper = new BresenhamHelper();
     public EnumRescaleMode rescaleMode = DBPreferences.INSTANCE.defaultRescalingMode.get();
+    public RenderPipeSampleTest sampleTest = new RenderPipeSampleTest();
 
     public void setRescaleMode(EnumRescaleMode rescaleMode) {
         this.rescaleMode = rescaleMode;
@@ -56,24 +59,19 @@ public class PFMRenderPipe {
             data.disableBlending();
 
             // Add Colour Samples to the Geometry
-            colourSamples = bresenhamHelper.getColourSamples(reference, geometry);
+            sampleTest.resetColourSamples(0); //make sure we don't alter the pixel data twice
+            sampleTest.setPixelDataTargets(reference, null);
+            bresenhamHelper.plotShape(geometry.getAWTShape(), sampleTest);//Erase the geometry and gather colour samples
+            colourSamples = sampleTest.getCurrentAverage();
         }else{
             //original method: using bresenham, fast but with non-anti aliased lines and no support for lineWidth.
-            ColourSampleTest sampleTest = new ColourSampleTest();
-            bresenhamHelper.plotShape(geometry.getAWTShape(), (x, y) -> {
-                if(x < 0 || x >= pixelData.getWidth() || y < 0 || y >= pixelData.getHeight()){
-                    return;
-                }
-                pixelData.adjustRed(x, y, adjust);
-                pixelData.adjustGreen(x, y, adjust);
-                pixelData.adjustBlue(x, y, adjust);
-                sampleTest.addSample(reference, x, y);
-            });
+            sampleTest.resetColourSamples(adjust);
+            sampleTest.setPixelDataTargets(reference, pixelData);
+            bresenhamHelper.plotShape(geometry.getAWTShape(), sampleTest);//Erase the geometry and gather colour samples
             colourSamples = sampleTest.getCurrentAverage();
         }
         return colourSamples;
     }
-
 
     public void defaultEraseFunction(int[] foreground, int[] background, int[] result){
         int offset = (int) (foreground[0]*1F); //1.2F offset approximately makes images match previous versions more closely
@@ -104,4 +102,39 @@ public class PFMRenderPipe {
 
     }
 
+    /**
+     * Simple colour sample test which gets colour samples from the reference data and erases the pixel data
+     */
+    public static class RenderPipeSampleTest extends ColourSampleTest implements BresenhamHelper.IPixelSetter {
+        private IPixelData referenceData;
+        private IPixelData pixelData;
+
+        public void setPixelDataTargets(IPixelData referenceData, IPixelData pixelData){
+            this.referenceData = referenceData;
+            this.pixelData = pixelData;
+        }
+
+        @Override
+        public void setPixel(int x, int y) {
+            if(isPixelInvalid(referenceData, x, y)){
+                return;
+            }
+            sum_alpha += referenceData.getAlpha(x, y);
+            sum_red += referenceData.getRed(x, y);
+            sum_green += referenceData.getGreen(x, y);
+            sum_blue += referenceData.getBlue(x, y);
+            if(adjustLum != 0 && pixelData != null){
+                int red = Utils.clamp(pixelData.getRed(x, y)+adjustLum, 0, 255);
+                int green = Utils.clamp(pixelData.getGreen(x, y)+adjustLum, 0, 255);
+                int blue = Utils.clamp(pixelData.getBlue(x, y)+adjustLum, 0, 255);
+                int alpha = pixelData.getAlpha(x, y);
+                pixelData.setARGB(x, y, alpha, red, green, blue);
+            }
+            total_pixels++;
+        }
+
+        public void destroy(){
+
+        }
+    }
 }

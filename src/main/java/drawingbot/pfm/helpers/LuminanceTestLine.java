@@ -47,12 +47,17 @@ public class LuminanceTestLine extends LuminanceTest {
             return;
         }
 
-        super.addSample(pixels, x, y);
+        luminanceSum += pixels.getLuminance(x, y);
+        pixelCount++;
+        lastTestX = x;
+        lastTestY = y;
 
-        if((darkestSample == -1 || getCurrentSample() < darkestSample) && pixelCount > minPixelCount){
+        float currentSample = getCurrentSample();
+
+        if((darkestSample == -1 || currentSample < darkestSample) && pixelCount > minPixelCount){
             darkestDst[0] = x;
             darkestDst[1] = y;
-            darkestSample = getCurrentSample();
+            darkestSample = currentSample;
             sampleIndex = pixelCount;
         }
     }

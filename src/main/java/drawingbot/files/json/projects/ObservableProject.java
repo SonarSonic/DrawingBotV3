@@ -325,10 +325,27 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         dpiScaling.addListener((observable, oldValue, newValue) -> resetView());
 
         // Task / Drawing render bindings / listeners
-        activeTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
-        renderedTask.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true));
-        currentDrawing.addListener((observable, oldValue, newValue) -> setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true));
+        activeTask.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null && renderedTask.get() != oldValue){
+                oldValue.tryDestroy();
+            }
+            setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
+        });
+        renderedTask.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null && activeTask.get() != oldValue){
+                oldValue.tryDestroy();
+            }
+            setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
+        });
+        currentDrawing.addListener((observable, oldValue, newValue) -> {
+            //Clear up the old drawing.
+            if(oldValue != null){
+                oldValue.reset();
+            }
+            setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
+        });
         exportDrawing.addListener((observable, oldValue, newValue) -> {
+            //If we override the export drawing, we are done with the previous one.
             if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING){
                 setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
             }
@@ -684,10 +701,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     public void setActiveTask(DBTask<?> task) {
         if(activeTask.get() == task){
             return;
-        }
-        if(activeTask.get() != null){
-            final DBTask<?> toReset = activeTask.get();
-            DrawingBotV3.INSTANCE.backgroundService.submit(toReset::reset); //help GC by removing references to Geometries, run after other queue tasks have finished
         }
         activeTask.set(task);
         renderedTask.set(null);

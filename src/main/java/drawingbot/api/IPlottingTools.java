@@ -1,6 +1,7 @@
 package drawingbot.api;
 
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumRendererType;
@@ -156,9 +157,9 @@ public interface IPlottingTools {
 
     List<int[]> findDarkestPixels(IPixelData pixels);
 
-    float findDarkestLine(IPixelData pixels, Shape softClip, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst);
+    float findDarkestLine(IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst);
 
-    void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer);
+    void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BresenhamHelper.IPixelSetter consumer);
 
     ////////////////////////////////////////////////////////
 

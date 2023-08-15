@@ -180,7 +180,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 break;
             case FINISHING:
                 finishTime = (System.currentTimeMillis() - startTime);
-                updateMessage("Finished - Elapsed Time: " + finishTime/1000 + " s");
+                updateMessage("Finished - Elapsed Time: " + LazyTimer.getElapsedTimeFormatted(finishTime));
                 updateProgress(1, 1);
                 finishStage();
                 break;
@@ -226,6 +226,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         DrawingBotV3.logger.info(stage.toString());
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
+            shouldDestroy = true;
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishEarly = true;
         }
@@ -267,6 +268,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 context.taskManager.setCurrentDrawing(drawing);
             });
         }
+        destroy();
         return drawing;
     }
 
@@ -278,21 +280,31 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         return isCancelled() || finishEarly;
     }
 
-    public void updatePlottingProgress(double progress, double max) {
-        double actual = Math.min(Utils.roundToPrecision(progress / max, 3), 1D);
-        updateProgress(actual, 1D);
+    @Override
+    protected void failed() {
+        super.failed();
+        tryDestroy();
     }
 
-    public void reset(){
-        subTasks.forEach(PFMTask::reset);
+    public void destroy(){
+
+        /*
+         * Note: we don't destroy anything which could be used as an output of the task: e.g. the Drawing, reference images, plotted images
+         */
+        subTasks.forEach(PFMTask::destroy);
         subTasks.clear();
 
-        startTime = 0;
-        finishTime = -1;
         comments.clear();
 
-        pfm.onStopped();
+        if(pfm != null){
+            pfm.onStopped();
+            pfm = null;
+        }
         finishEarly = false;
+
+        if(tools != null){
+            tools.destroy();
+        }
     }
 
     //// CALLBACKS \\\\

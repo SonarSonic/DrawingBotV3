@@ -20,4 +20,8 @@ public abstract class AbstractPFM implements IPFM {
         return pfmResolution;
     }
 
+    @Override
+    public void onStopped() {
+        IPFM.super.onStopped();
+    }
 }

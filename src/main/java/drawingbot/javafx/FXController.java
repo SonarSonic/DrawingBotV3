@@ -867,7 +867,7 @@ public class FXController extends AbstractFXController {
         labelCancelExport.setOnMouseClicked(event -> {
             Task<?> task = DrawingBotV3.INSTANCE.taskMonitor.currentTask;
             if(task instanceof ExportTask){
-                DrawingBotV3.INSTANCE.resetTaskService();
+                task.cancel();
             }
         });
         labelCancelExport.visibleProperty().bind(DrawingBotV3.INSTANCE.taskMonitor.isExporting);

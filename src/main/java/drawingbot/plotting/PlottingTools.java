@@ -13,6 +13,7 @@ import drawingbot.pfm.AbstractDarkestPFM;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.pfm.helpers.ColourSampleTest;
+import drawingbot.pfm.helpers.SimpleLineSampler;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.EnumRendererType;
@@ -162,6 +163,23 @@ public class PlottingTools implements IPlottingTools {
         return context().taskManager;
     }
 
+    /**
+     * Called when the tools are no longer needed on any thread, handles
+     */
+    public void destroy(){
+        pfmTask = null;
+        progressCallback = null;
+        drawing = null;
+        currentGroup = null;
+        pathBuilder = null;
+        bresenham = null;
+        defaultColourTest = null;
+        transform = null;
+        clippingShape = null;
+        softClip = null;
+        softClipFastMask = null;
+    }
+
     ////////////////////////////////////////////////////////
 
     @Override
@@ -216,13 +234,17 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public IPixelData getPixelData() {
-        assert pfmTask instanceof PFMTaskImage;
+        if(!(pfmTask instanceof PFMTaskImage)){
+            return null;
+        }
         return ((PFMTaskImage) pfmTask).getPixelData();
     }
 
     @Override
     public IPixelData getReferencePixelData() {
-        assert pfmTask instanceof PFMTaskImage;
+        if(!(pfmTask instanceof PFMTaskImage)){
+            return null;
+        }
         return ((PFMTaskImage) pfmTask).getReferencePixelData();
     }
 
@@ -316,7 +338,9 @@ public class PlottingTools implements IPlottingTools {
             return;
         }
 
-        geometry = geometry.transformGeometry(transform);
+        if(!transform.isIdentity()){
+            geometry = geometry.transformGeometry(transform);
+        }
 
         if(geometry.getPenIndex() == -1){
             geometry.setPenIndex(currentPen);
@@ -390,6 +414,7 @@ public class PlottingTools implements IPlottingTools {
         return defaultColourTest.getCurrentAverage();
     }
 
+
     @Override
     public void findDarkestArea(IPixelData pixels, int[] dest) {
         AbstractDarkestPFM.findDarkestArea(pixels, dest);
@@ -400,14 +425,25 @@ public class PlottingTools implements IPlottingTools {
         return AbstractDarkestPFM.findDarkestPixels(pixels);
     }
 
-    @Override
-    public float findDarkestLine(IPixelData pixels, Shape softClip, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst) {
-        return AbstractDarkestPFM.findDarkestLine(bresenham, pixels, softClip, startX, startY, minLength, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, darkestDst);
+    ////////////////////////////////////////////////////////
+
+    private SimpleLineSampler simpleLineSampler = null;
+
+    public SimpleLineSampler getSimpleLineSampler(){
+        if(simpleLineSampler == null){
+            simpleLineSampler = new SimpleLineSampler(this);
+        }
+        return simpleLineSampler;
     }
 
     @Override
-    public void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer) {
-        AbstractDarkestPFM.forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, safe, consumer);
+    public float findDarkestLine(IPixelData pixels, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst) {
+        return getSimpleLineSampler().findDarkestLine(pixels, getSoftClipPixelMask(), startX, startY, minLength, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, darkestDst);
+    }
+
+    @Override
+    public void forAvailableEndPoints(IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BresenhamHelper.IPixelSetter consumer) {
+        getSimpleLineSampler().forAvailableEndPoints(pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, safe, consumer);
     }
 
     ////////////////////////////////////////////////////////

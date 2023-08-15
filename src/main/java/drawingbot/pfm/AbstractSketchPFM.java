@@ -13,6 +13,7 @@ import drawingbot.pfm.helpers.PFMRenderPipe;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
@@ -224,7 +225,6 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public ColourSampleTest defaultColourTest = new ColourSampleTest();
     public PFMRenderPipe renderPipe = new PFMRenderPipe();
 
     /**
@@ -254,6 +254,14 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         int erase = (int) (eraseMin + yProgress * (eraseMax-eraseMin));
 
         return renderPipe.eraseGeometry(pixelData, tools.getReferencePixelData(), geometry, erase, tools.getCanvas().getTargetPenWidth() * strokeWidth);
+    }
+
+    @Override
+    public void onStopped() {
+        super.onStopped();
+        if(targetCache != null){
+            targetCache.destroy();
+        }
     }
 
     public static class PathFindingContext {

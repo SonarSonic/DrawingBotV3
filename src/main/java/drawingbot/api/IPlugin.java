@@ -32,4 +32,5 @@ public interface IPlugin {
 
     default void registerPreferencePages() {}
 
+    default void shutdown() {}
 }

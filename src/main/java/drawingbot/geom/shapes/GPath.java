@@ -30,6 +30,14 @@ public class GPath extends AbstractGeometry implements IGeometry, IPathElement {
         this.awtPath.append(s.getPathIterator(at), false);
     }
 
+    public GPath(GeneralPath generalPath, boolean raw) {
+        if(raw){
+            this.awtPath = generalPath;
+        }else{
+            this.awtPath = new GeneralPath(generalPath);
+        }
+    }
+
     public GPath(IPathElement pathElement, boolean addToPath){
         super();
         GeometryUtils.copyGeometryData(this, pathElement);

@@ -164,4 +164,14 @@ public class ConfigJsonLoader extends AbstractJsonLoader<AbstractJsonData> {
         }
         queueJsonUpdate();
     }
+
+    /**
+     * This won't wait for a background thread which could be cancelled, save the json on the main thread.
+     */
+    public void onShutdown(){
+        for(GenericPreset<AbstractJsonData> preset : getAllPresets()){
+            getDefaultManager().updatePreset(null, preset, false);
+        }
+        saveToJSON();
+    }
 }

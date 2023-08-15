@@ -1,5 +1,6 @@
 package drawingbot.pfm;
 
+import drawingbot.api.IPixelConsumer;
 import drawingbot.api.IPixelData;
 import drawingbot.image.ImageTools;
 import drawingbot.pfm.helpers.BresenhamHelper;
@@ -164,6 +165,7 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     /**
      * Finds the darkest line from the given start point, choosing between a naive approach or bresenham circle tests for faster results
      */
+    @Deprecated
     public static float findDarkestLine(BresenhamHelper bresenham, IPixelData pixels, Shape softClip, int startX, int startY, int minLength, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, int[] darkestDst){
         LuminanceTestLine luminanceTest = new LuminanceTestLine(darkestDst, minLength, maxLength, true, softClip);
         forAvailableEndPoints(bresenham, pixels, startX, startY, maxLength, maxTests, startAngle, drawingDeltaAngle, shading, false, (x, y) -> {
@@ -176,7 +178,8 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
     /**
      * Returns the end coordinates of each line test
      */
-    public static void forAvailableEndPoints(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, BiConsumer<Integer, Integer> consumer){
+    @Deprecated
+    public static void forAvailableEndPoints(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int maxLength, int maxTests, float startAngle, float drawingDeltaAngle, boolean shading, boolean safe, IPixelConsumer consumer){
         if(drawingDeltaAngle == 360 && !shading && (maxTests == -1 || bresenham.getBresenhamCircleSize(maxLength) <= maxTests)){
             bresenham.plotCircle(startX, startY, maxLength, (x1, y1) -> processSafePixels(bresenham, pixels, startX, startY, x1, y1, safe, consumer));
         }else{
@@ -190,17 +193,19 @@ public abstract class AbstractDarkestPFM extends AbstractPFMImage {
         }
     }
 
+
     /**
      * Takes the consumer of a darkness test and the next pixel position, and checks it is "safe" (within the bounds of the image)
      * If the pixels are "unsafe" and the safe boolean is enabled, the first edge pixel from the line is returned.
      * Safe should be disabled for tests which check if the pixels are within the bounds of the image themselves.
      */
-    public static void processSafePixels(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int endX, int endY, boolean safe, BiConsumer<Integer, Integer> consumer){
+    @Deprecated
+    public static void processSafePixels(BresenhamHelper bresenham, IPixelData pixels, int startX, int startY, int endX, int endY, boolean safe, IPixelConsumer consumer){
         if(!safe || (Utils.within(endX, 0, pixels.getWidth()) && Utils.within(endY, 0, pixels.getHeight()))){
-            consumer.accept(endX, endY);
+            consumer.sendPixel(endX, endY);
         }else{
             int[] edgePixel = bresenham.findEdge(startX, startY, endX, endY, pixels.getWidth(), pixels.getHeight());
-            consumer.accept(edgePixel[0], edgePixel[1]);
+            consumer.sendPixel(edgePixel[0], edgePixel[1]);
         }
     }
 

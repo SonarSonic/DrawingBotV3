@@ -47,9 +47,9 @@ public class PlottedDrawing {
         this.uuid = UUID.randomUUID();
         this.canvas = copyCanvas ? new SimpleCanvas(canvas) : canvas;
         this.drawingSets = drawingSets;
-        this.geometries = Collections.synchronizedList(new ArrayList<>());
-        this.groups = new ConcurrentHashMap<>();
-        this.metadata = new MetadataMap(new ConcurrentHashMap<>());
+        this.geometries = new ArrayList<>();
+        this.groups = new HashMap<>();
+        this.metadata = new MetadataMap(new HashMap<>());
     }
 
     /**

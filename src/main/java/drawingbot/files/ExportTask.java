@@ -250,6 +250,7 @@ public class ExportTask extends DBTask<Boolean> {
             return;
         }
         Platform.runLater(() -> {
+            context.project().getExportedDrawings().forEach(entry -> entry.drawing.reset());
             context.project().getExportedDrawings().clear();
         });
     }

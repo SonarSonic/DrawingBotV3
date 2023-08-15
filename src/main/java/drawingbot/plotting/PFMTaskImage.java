@@ -103,16 +103,30 @@ public class PFMTaskImage extends PFMTask {
         updateMessage("Post-Processing - Converting Reference Images");
         if(pixelDataPlotting != null){
             this.drawing.setMetadata(Register.INSTANCE.PLOTTING_IMAGE, ImageTools.getBufferedImage(pixelDataPlotting));
+            this.pixelDataPlotting.destroy();
+            this.pixelDataPlotting = null;
+        }
+        if(pixelDataReference != null){
+            pixelDataReference.destroy();
+            this.pixelDataReference = null;
         }
     }
 
+    /**
+     * Ensure the pixel data has been destroyed, as {@link #postProcessImages()} might not have run
+     */
     @Override
-    public void reset(){
-        super.reset();
-        //imageData = null;
+    public void destroy(){
+        super.destroy();
 
-        //pixelDataReference = null;
-        //pixelDataPlotting = null;
+        if(pixelDataPlotting != null){
+            this.pixelDataPlotting.destroy();
+            this.pixelDataPlotting = null;
+        }
+        if(this.pixelDataReference != null){
+            this.pixelDataReference.destroy();
+            this.pixelDataReference = null;
+        }
     }
 
     public int getBestPen(int x, int y){
