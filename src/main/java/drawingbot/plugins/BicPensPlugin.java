@@ -29,7 +29,7 @@ public class BicPensPlugin extends AbstractPenPlugin {
         registerPenWithCode("13", new DrawingPen("Cristal Ballpoint",  "Light Blue", -855602212));
         registerPenWithCode("14", new DrawingPen("Cristal Ballpoint",  "Fluorescent Yellow", -1442840832));
 
-        registerPenWithCode("31", new DrawingPen("Cristal Intensity",  "Yellow", ImageTools.getARGB(255, 47, 190, 9)));
+        registerPenWithCode("31", new DrawingPen("Cristal Intensity",  "Yellow", ImageTools.getARGB(255, 235, 211, 87)));
         registerPenWithCode("32", new DrawingPen("Cristal Intensity",  "Orange", ImageTools.getARGB(255, 251, 136, 119)));
         registerPenWithCode("33", new DrawingPen("Cristal Intensity",  "Red", ImageTools.getARGB(255, 220, 32, 32)));
         registerPenWithCode("34", new DrawingPen("Cristal Intensity",  "Pink", ImageTools.getARGB(255, 235, 175, 201)));
