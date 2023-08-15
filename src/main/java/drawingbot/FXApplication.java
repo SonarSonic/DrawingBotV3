@@ -226,15 +226,15 @@ public class FXApplication extends Application {
                 latchC.await();
             }
 
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////
-            //secondary config load, shouldn't cause any clashes, ensure things like UI elements are setup correctly
-            DrawingBotV3.logger.info("DrawingBotV3: Loading User Preferences");
-            JsonLoaderManager.loadConfigFiles();
-
             if(!isHeadless) {
                 DrawingBotV3.logger.info("DrawingBotV3: Loading User Interface");
                 CountDownLatch latchD = new CountDownLatch(1);
                 Platform.runLater(() -> {
+
+                    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+                    //secondary config load, shouldn't cause any clashes, ensure things like UI elements are setup correctly
+                    JsonLoaderManager.loadConfigFiles();
+
                     DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_MOVED, DrawingBotV3.INSTANCE::onMouseMovedViewport);
                     DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, DrawingBotV3.INSTANCE::onMousePressedViewport);
                     DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, DrawingBotV3.INSTANCE::onKeyPressedViewport);
@@ -316,8 +316,18 @@ public class FXApplication extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-        Register.PRESET_LOADER_CONFIGS.markDirty();
+        DrawingBotV3.logger.info("Starting Shutdown");
+
+        DrawingBotV3.logger.info("Stopping Plugins");
+        MasterRegistry.PLUGINS.forEach(IPlugin::shutdown);
+
+        DrawingBotV3.logger.info("Saving Config Files");
+        Register.PRESET_LOADER_CONFIGS.onShutdown();
+
+        DrawingBotV3.logger.info("Saving Logging Files");
         LoggingHandler.saveLoggingFiles();
+
+        DrawingBotV3.logger.info("Finish Shutdown");
     }
 
     public static class DrawTimer extends AnimationTimer{
