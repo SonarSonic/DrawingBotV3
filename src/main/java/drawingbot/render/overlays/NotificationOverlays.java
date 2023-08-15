@@ -3,6 +3,8 @@ package drawingbot.render.overlays;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.preferences.DBPreferences;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -10,9 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.GlyphFont;
@@ -22,7 +22,7 @@ public class NotificationOverlays extends AbstractOverlay{
 
     public static final NotificationOverlays INSTANCE = new NotificationOverlays();
 
-    private NotificationPane notificationPane;
+    public NotificationPane notificationPane;
 
     @Override
     public void init() {
@@ -30,13 +30,22 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.setManaged(false);
         notificationPane.setShowFromTop(false);
         notificationPane.setPickOnBounds(false);
-        notificationPane.layoutXProperty().bind(DrawingBotV3.INSTANCE.controller.vBoxMain.layoutXProperty().add(DrawingBotV3.INSTANCE.controller.vBoxMain.widthProperty()).subtract(notificationPane.widthProperty()).subtract(30));
-        notificationPane.layoutYProperty().bind(DrawingBotV3.INSTANCE.controller.vBoxMain.layoutYProperty().add(DrawingBotV3.INSTANCE.controller.vBoxMain.heightProperty()).subtract(notificationPane.heightProperty()).subtract(50));
         notificationPane.resize(600, 70);
         notificationPane.getStylesheets().add(NotificationOverlays.class.getResource("/drawingbot/notifications.css").toExternalForm());
-        DrawingBotV3.INSTANCE.controller.vBoxMain.getChildren().add(notificationPane);
-
         activeProperty().bindBidirectional(DBPreferences.INSTANCE.notificationsEnabled.asBooleanProperty());
+
+        target.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                notificationPane.layoutXProperty().unbind();
+                notificationPane.layoutYProperty().unbind();
+            }
+            if(newValue != null){
+                notificationPane.layoutXProperty().bind(newValue.layoutXProperty().add(newValue.widthProperty()).subtract(notificationPane.widthProperty()).subtract(30));
+                notificationPane.layoutYProperty().bind(newValue.layoutYProperty().add(newValue.heightProperty()).subtract(notificationPane.heightProperty()).subtract(50));
+                newValue.getChildren().add(notificationPane);
+            }
+        });
+
     }
 
     @Override
@@ -182,6 +191,24 @@ public class NotificationOverlays extends AbstractOverlay{
 
         DrawingBotV3.logger.info("Notification: " + text);
     }
+
+    /////////////////////////////////////////
+
+    public final ObjectProperty<Pane> target = new SimpleObjectProperty<>();
+
+    public Pane getTarget() {
+        return target.get();
+    }
+
+    public ObjectProperty<Pane> targetProperty() {
+        return target;
+    }
+
+    public void setTarget(Pane target) {
+        this.target.set(target);
+    }
+
+    /////////////////////////////////////////
 
     @Override
     public String getName() {

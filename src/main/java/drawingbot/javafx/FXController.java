@@ -484,6 +484,9 @@ public class FXController extends AbstractFXController {
             }
         });
 
+
+        NotificationOverlays.INSTANCE.setTarget(vBoxMain);
+
     }
 
     public void onProjectRemoved(ObservableProject project){
@@ -527,6 +530,8 @@ public class FXController extends AbstractFXController {
     ////VIEWPORT WINDOW
     public VBox vBoxViewportContainer = null;
     public NotificationPane notificationPane = null;
+
+    public VBox viewport = null;
     public ZoomableScrollPane viewportScrollPane = null;
     public AnchorPane viewportOverlayAnchorPane = null;
 
@@ -659,7 +664,8 @@ public class FXController extends AbstractFXController {
                 newValue.styleProperty().unbind();
                 newValue.styleProperty().bind(Bindings.createStringBinding(() -> {
                     Color c = backgroundColor.get();
-                    return "-fx-background-color: rgb(" + (int)(c.getRed()*255) + "," + (int)(c.getGreen()*255) + ", " + (int)(c.getBlue()*255) + ", " + c.getOpacity() + ");";
+
+                    return "-fx-background-color: rgb(%s,%s,%s,%s)".formatted((int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255), c.getOpacity());
                 }, backgroundColor));
             }
         });
@@ -687,8 +693,14 @@ public class FXController extends AbstractFXController {
         viewportOverlayAnchorPane.setClip(overlayClip);
         viewportOverlayAnchorPane.getStylesheets().add(FXController.class.getResource(STYLESHEET_VIEWPORT_OVERLAYS).toExternalForm());
 
-        vBoxViewportContainer.getChildren().add(viewportScrollPane);
-        vBoxViewportContainer.getChildren().add(viewportOverlayAnchorPane);
+        //Wrap the viewport & overlay
+        viewport = new VBox();
+        VBox.setVgrow(viewport, Priority.ALWAYS);
+        HBox.setHgrow(viewport, Priority.ALWAYS);
+
+        viewport.getChildren().add(viewportScrollPane);
+        viewport.getChildren().add(viewportOverlayAnchorPane);
+        vBoxViewportContainer.getChildren().add(viewport);
 
         viewportScrollPane.setOnDragEntered(onDragEntered(viewportScrollPane));
         viewportScrollPane.setOnDragExited(onDragExited(viewportScrollPane));

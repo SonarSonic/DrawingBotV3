@@ -105,11 +105,11 @@ public class RulerOverlays extends AbstractOverlay {
 
     @Override
     protected void activate() {
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().add(separator);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().add(hBoxXAxisWrapper);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().add(hBoxYAxisWrapper);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(separator);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(hBoxXAxisWrapper);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(hBoxYAxisWrapper);
         hBoxYAxisWrapper.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
         hBoxYAxisWrapper.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
     }
@@ -117,11 +117,11 @@ public class RulerOverlays extends AbstractOverlay {
     @Override
     protected void deactivate() {
 
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().remove(separator);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().remove(hBoxXAxisWrapper);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().remove(hBoxYAxisWrapper);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
-        DrawingBotV3.INSTANCE.controller.vBoxViewportContainer.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(separator);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(hBoxXAxisWrapper);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(hBoxYAxisWrapper);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
+        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
         hBoxYAxisWrapper.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
         hBoxYAxisWrapper.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
 
