@@ -29,7 +29,9 @@ public class PixelDataGraphicsComposite extends PixelDataComposite<PixelDataARGB
         return graphics2D;
     }
 
-    public void dispose(){
+    @Override
+    public void destroy() {
+        super.destroy();
         graphics2D.dispose();
     }
 }

@@ -1,11 +1,13 @@
 package drawingbot.image;
 
+import drawingbot.api.IPixelDataHSB;
+
 import java.awt.*;
 
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to HSB values and their cached averages
  */
-public class PixelDataHSB extends PixelDataAbstract {
+public class PixelDataHSB extends PixelDataAbstract implements IPixelDataHSB {
 
     public RawData hue;
     public RawData saturation;
@@ -124,5 +126,12 @@ public class PixelDataHSB extends PixelDataAbstract {
         hue.setSoftClip(softClip);
         saturation.setSoftClip(softClip);
         brightness.setSoftClip(softClip);
+    }
+
+    @Override
+    public void destroy() {
+        hue.destroy();
+        saturation.destroy();
+        brightness.destroy();
     }
 }

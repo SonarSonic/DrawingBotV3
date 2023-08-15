@@ -1,11 +1,13 @@
 package drawingbot.image;
 
+import drawingbot.api.IPixelDataHSB;
+
 import java.awt.*;
 
 /**
  * an implementation of {@link drawingbot.api.IPixelData} optimised for quick access to RGB values and their cached averages
  */
-public class PixelDataARGB extends PixelDataAbstract {
+public class PixelDataARGB extends PixelDataAbstract implements IPixelDataHSB {
 
     public RawData alpha;
     public RawData red;
@@ -34,6 +36,26 @@ public class PixelDataARGB extends PixelDataAbstract {
                 return blue;
         }
         return null;
+    }
+
+    @Override
+    public int getAlpha(int x, int y) {
+        return alpha.getData(x, y);
+    }
+
+    @Override
+    public int getRed(int x, int y) {
+        return red.getData(x, y);
+    }
+
+    @Override
+    public int getGreen(int x, int y) {
+        return green.getData(x, y);
+    }
+
+    @Override
+    public int getBlue(int x, int y) {
+        return blue.getData(x, y);
     }
 
     @Override
@@ -120,5 +142,13 @@ public class PixelDataARGB extends PixelDataAbstract {
         red.setSoftClip(softClip);
         green.setSoftClip(softClip);
         blue.setSoftClip(softClip);
+    }
+
+    @Override
+    public void destroy() {
+        alpha.destroy();
+        red.destroy();
+        green.destroy();
+        blue.destroy();
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class ObservableWritableRaster extends WritableRaster {
 
-    public List<IPixelListener> listenerList = new ArrayList<>();
+    public IPixelListener listener = null;
 
     public static ObservableWritableRaster createDefaultWritableRaster(int width, int height){
         ColorModel colormodel = ColorModel.getRGBdefault();
@@ -23,7 +23,7 @@ public class ObservableWritableRaster extends WritableRaster {
         WritableRaster tempRaster = colormodel.createCompatibleWritableRaster(width, height);
         ObservableWritableRaster observableRaster = new ObservableWritableRaster(tempRaster.getSampleModel(), tempRaster.getDataBuffer(), new Point(0,0));
         BufferedImage bufferedImage = new BufferedImage(colormodel, observableRaster, true, null);
-        observableRaster.listenerList.add(listener);
+        observableRaster.listener = listener;
         return bufferedImage;
     }
 
@@ -54,7 +54,7 @@ public class ObservableWritableRaster extends WritableRaster {
         x -= sampleModelTranslateX;
         y -= sampleModelTranslateY;
 
-        for(IPixelListener listener : listenerList){
+        if(listener != null){
             listener.onPixelChanged(x, y);
         }
     }

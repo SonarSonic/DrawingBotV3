@@ -62,7 +62,7 @@ public class PixelDataComposite<B extends IPixelData & IPixelListenable, F exten
 
         compositeFunction.composite(CACHE_FOREGROUND, CACHE_BACKGROUND, CACHE_RESULT);
 
-        setARGB(x, y, ImageTools.getARGB(CACHE_RESULT[0], CACHE_RESULT[1], CACHE_RESULT[2], CACHE_RESULT[3]));
+        setARGB(x, y, CACHE_RESULT[0], CACHE_RESULT[1], CACHE_RESULT[2], CACHE_RESULT[3]);
     }
 
     public void enableBlending(ICompositeFunction compositeFunction){
@@ -87,4 +87,10 @@ public class PixelDataComposite<B extends IPixelData & IPixelListenable, F exten
         foreground.setSoftClip(softClip);
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+        background.destroy();
+        foreground.destroy();
+    }
 }

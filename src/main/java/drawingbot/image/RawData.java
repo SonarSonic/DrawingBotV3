@@ -114,6 +114,11 @@ public class RawData {
         return softClip;
     }
 
+    public void destroy() {
+        this.softClip = null;
+        this.data = null;
+    }
+
     public interface IDataListener{
 
         void onChange(int x, int y, int oldValue, int newValue);

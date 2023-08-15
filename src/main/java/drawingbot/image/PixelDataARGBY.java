@@ -83,4 +83,10 @@ public class PixelDataARGBY extends PixelDataARGB implements IPixelListenable {
         super.setSoftClip(softClip);
         luminance.setSoftClip(softClip);
     }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        luminance.destroy();
+    }
 }

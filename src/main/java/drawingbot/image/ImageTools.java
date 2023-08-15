@@ -342,24 +342,6 @@ public class ImageTools {
 
     /// IMAGE CONVERSION
 
-    @Deprecated
-    public static IPixelData newPixelData(int width, int height, int colourMode){
-        switch (colourMode){
-            case 1:
-                return new PixelDataHSB(width, height);
-            case 2:
-                return new PixelDataLuminance(width, height);
-            case 3:
-                return new PixelDataARGBY(width, height);
-            case 4:
-                return new PixelDataHybrid(width, height);
-            case 5:
-                return new PixelDataBufferedImage(width, height);
-            default:
-                return new PixelDataARGB(width, height);
-        }
-    }
-
     public static BufferedImage deepCopy(BufferedImage copy) {
         ColorModel cm = copy.getColorModel();
         boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();

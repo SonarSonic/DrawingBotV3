@@ -102,26 +102,6 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelL
         return 0; //TODO
     }
 
-    @Override
-    public int getHSB(int type, int x, int y) {
-        return 0; //TODO
-    }
-
-    @Override
-    public void setHSB(int type, int x, int y, int value) {
-        //TODO
-    }
-
-    @Override
-    public void adjustHSB(int type, int x, int y, int value) {
-        //TODO
-    }
-
-    @Override
-    public double getAverageHSB(int type) {
-        return 0; //TODO
-    }
-
 
     @Override
     public int getLuminance(int x, int y) {
@@ -164,5 +144,17 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelL
     public void setSoftClip(Shape softClip) {
         super.setSoftClip(softClip);
         data.setSoftClip(softClip);
+    }
+
+    @Override
+    public BufferedImage asBufferedImage() {
+        return image;
+    }
+
+    @Override
+    public void destroy() {
+        data.destroy();
+        image.flush();
+        image = null;
     }
 }

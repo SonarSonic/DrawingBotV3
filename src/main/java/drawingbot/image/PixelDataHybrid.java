@@ -103,4 +103,13 @@ public class PixelDataHybrid extends PixelDataARGB {
         brightness.setSoftClip(softClip);
         luminance.setSoftClip(softClip);
     }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        hue.destroy();
+        saturation.destroy();
+        brightness.destroy();
+        luminance.destroy();
+    }
 }
