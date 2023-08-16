@@ -1,3 +1,16 @@
+### [v1.6.5-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.5-stable-free)
+- Improved: RAM Usage has been reduced in many situations and the general responsiveness of the application improved.
+- Improved: Sketch PFMs have been further optimised, with speed improvements up to 2x.
+- Improved: Sketch Sweeping Curves especially now runs considerably faster.
+- Improved: Optimised the Hardware Accelerated renderer and improved curve quality.
+- Improved: Updated Bic Pens and Drawing Set Definitions & Colours -led
+- Improved: Moved baked GCode into default GCode preset, to allow more custom GCode.
+- Improved: Drawings which take less than a second will now show elapsed time in milliseconds.  
+- Fixed: Memory Leak when "Auto Run PFM" is enabled, resulting in slow down of the application.
+- Fixed: "Plotting Resolution" breaking on multiple PFMs
+- Fixed: "Plotting Size" not showing the correct dimensions when using padding -led
+- Fixed: "Preferences" config not saving properly on shutdown in some situations
+
 ### [v1.6.4-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.4-beta-free)
 - Added: **3 New PFMs**: **Grid Shapes**, **Grid Dashes** and **Grid Letters**, more details [here](https://docs.drawingbotv3.com/en/latest/pfms.html#grid-pfms)
 - Added: Documentation Integration
