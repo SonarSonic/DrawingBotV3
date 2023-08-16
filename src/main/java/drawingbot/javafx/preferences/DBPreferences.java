@@ -103,7 +103,7 @@ public class DBPreferences implements ISettings {
     public final DoubleSetting<?> lineFilteringTolerance = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineFilteringTolerance", 0.5D, 0.1D, 100D));
     public final OptionSetting<?, UnitsLength> lineFilteringUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineFilteringUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 
-    public final BooleanSetting<?> lineSortingEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSortingEnabled", false));
+    public final BooleanSetting<?> lineSortingEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSortingEnabled", true));
     public final DoubleSetting<?> lineSortingTolerance = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSortingTolerance", 1D, 0.1D, 100D));
     public final OptionSetting<?, UnitsLength> lineSortingUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineSortingUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 

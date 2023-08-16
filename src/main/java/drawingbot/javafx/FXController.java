@@ -166,7 +166,7 @@ public class FXController extends AbstractFXController {
     public VBox vBoxSettingsRight = null;
 
     public void initGlobals(){
-        FXHelper.makePersistent(splitPane);
+        //FXHelper.makePersistent(splitPane); //TODO FIXME, breaks initial sizing with new viewport wrapper
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
