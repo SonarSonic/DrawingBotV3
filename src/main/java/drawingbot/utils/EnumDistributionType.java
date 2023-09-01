@@ -10,16 +10,22 @@ import drawingbot.plotting.PlottedDrawing;
 import java.util.function.Consumer;
 
 public enum EnumDistributionType {
-    EVEN(group -> PlottedDrawing.updateEvenDistribution(group,false, false)),
-    EVEN_WEIGHTED(group -> PlottedDrawing.updateEvenDistribution(group,true, false)),
-    RANDOM(group -> PlottedDrawing.updateEvenDistribution(group,false, true)),
-    RANDOM_WEIGHTED(group -> PlottedDrawing.updateEvenDistribution(group, true, true)),
-    SINGLE_PEN(PlottedDrawing::updateSinglePenDistribution),
-    PRECONFIGURED(PlottedDrawing::updatePreConfiguredPenDistribution);
+    //EVEN("Even", false, group -> PlottedDrawing.updateEvenDistribution(group,false)),
+    EVEN_WEIGHTED("Even Weighted", group -> PlottedDrawing.updateEvenDistribution(group,true)),
+    //RANDOM("Random", false, group -> PlottedDrawing.updateRandomDistribution(group,false)),
+    RANDOM_WEIGHTED("Random Weighted", group -> PlottedDrawing.updateRandomDistribution(group, true)),
+    //RANDOM_SQUIGGLES("Random Squiggles", false, group -> PlottedDrawing.updateRandomSquiggleDistribution(group,false)),
+    RANDOM_SQUIGGLES_WEIGHTED("Random Squiggles Weighted", group -> PlottedDrawing.updateRandomSquiggleDistribution(group, true)),
+    //LUMINANCE("Luminance", false, group -> PlottedDrawing.updateLuminanceDistribution(group,true)),
+    LUMINANCE_WEIGHTED("Luminance Weighted", group -> PlottedDrawing.updateLuminanceDistribution(group,true)),
+    SINGLE_PEN("Single Pen", PlottedDrawing::updateSinglePenDistribution),
+    PRECONFIGURED("Preconfigured", PlottedDrawing::updatePreConfiguredPenDistribution);
 
+    public String displayName;
     public final Consumer<DistributionSet> distribute;
 
-    EnumDistributionType(Consumer<DistributionSet> distribute){
+    EnumDistributionType(String displayName, Consumer<DistributionSet> distribute){
+        this.displayName = displayName;
         this.distribute = distribute;
     }
 

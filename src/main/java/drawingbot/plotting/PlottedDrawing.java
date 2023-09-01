@@ -3,7 +3,9 @@ package drawingbot.plotting;
 import drawingbot.api.ICanvas;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.drawing.DrawingStats;
+import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
@@ -12,7 +14,7 @@ import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.Metadata;
 import drawingbot.utils.MetadataMap;
-import drawingbot.utils.Utils;
+import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import org.jetbrains.annotations.Nullable;
 
@@ -385,7 +387,9 @@ public class PlottedDrawing {
     public static void updatePenNumbers(DistributionSet set){
         for(int i = 0; i < set.source.drawingSet.pens.size(); i++){
             ObservableDrawingPen pen = set.source.drawingSet.pens.get(i);
-            pen.penNumber.set(i); //update pens number based on position
+            if(pen.getPenNumber() != i){
+                pen.setPenNumber(i); //update pens number based on position
+            }
         }
     }
 
@@ -439,90 +443,290 @@ public class PlottedDrawing {
         }
     }
 
-    /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
-    public static void updateEvenDistribution(DistributionSet set, boolean weighted, boolean random){
+    public static boolean preDistributionSetup(DistributionSet set){
         updatePenNumbers(set);
-
-        int totalWeight = 0;
-        int[] weights = new int[set.source.drawingSet.pens.size()];
-        for(int i = 0; i < set.source.drawingSet.pens.size(); i++){
-            ObservableDrawingPen pen = set.source.drawingSet.pens.get(i);
-            pen.penNumber.set(i); //update pens number based on position
-            if(pen.isEnabled()){
-                weights[i] = weighted ? pen.distributionWeight.get() : 100;
-                totalWeight += weights[i];
-            }
-        }
-
-        int[] renderOrder = set.source.drawingSet.calculateRenderOrder();
-
         if(set.getGeometryList().isEmpty()){
+            return false;
+        }
+        return true;
+    }
+
+    /**updates every pen's unique number, and sets the correct pen number for every line based on their weighted distribution*/
+    public static void updateEvenDistribution(DistributionSet set, boolean weighted){
+        if(!preDistributionSetup(set)){
             return;
         }
 
-        if(!random){
-            int geometryCount = 0;
-            for(IGeometry geometry : set.getGeometryList()){
-                if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()){ //TODO MAKE THIS A FILTER THING!!
-                    geometryCount ++;
-                }
+        List<ObservableDrawingPen> renderOrder = set.source.drawingSet.getRenderOrderEnabled();
+
+        int[] weights = getPenWeights(renderOrder, weighted);
+        int totalWeight = getTotalWeight(weights);
+
+        int visibleShapeCount = 0;
+        for(IGeometry geometry : set.getGeometryList()){
+            if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()){ //TODO MAKE THIS A FILTER THING!!
+                visibleShapeCount ++;
             }
-            int currentIndex = 0;
-            order: for(int i = 0; i < renderOrder.length; i++){
-                int penNumber = renderOrder[i];
-                ObservableDrawingPen pen = set.source.drawingSet.getPen(penNumber);
-                if(pen.isEnabled()){
-                    //update percentage
-                    float percentage = (weighted ? (float)pen.distributionWeight.get() : 100) / totalWeight;
+        }
 
-                    //update geometry count
-                    int geometriesPerPen = (int)(percentage * geometryCount);
-                    int currentCount = 0;
+        int currentIndex = 0;
+        order: for(int i = 0; i < renderOrder.size(); i++){
+            ObservableDrawingPen pen = renderOrder.get(i);
+            if(pen.isEnabled()){
+                //update percentage
+                float percentage = (float)weights[i] / totalWeight;
 
-                    //set pen references
-                    for (; currentIndex < set.getGeometryList().size(); currentIndex++) {
-                        IGeometry geometry = set.getGeometryList().get(currentIndex);
-                        if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()) { //TODO MAKE THIS A FILTER THING!!
-                            geometry.setPenIndex(penNumber);
-                            currentCount++;
-                        }else{
-                            geometry.setPenIndex(-1);
-                        }
-                        if(currentCount >= geometriesPerPen && i != renderOrder.length-1){ // if it's the last pen ignore the geometries per pen count;
-                            continue order;
-                        }
+                //update geometry count
+                int geometriesPerPen = (int)(percentage * visibleShapeCount);
+                int currentCount = 0;
+
+                //set pen references
+                for (; currentIndex < set.getGeometryList().size(); currentIndex++) {
+                    IGeometry geometry = set.getGeometryList().get(currentIndex);
+                    if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()) { //TODO MAKE THIS A FILTER THING!!
+                        geometry.setPenIndex(pen.getPenNumber());
+                        currentCount++;
+                    }else{
+                        geometry.setPenIndex(-1);
                     }
-                }
-            }
-
-        }else{
-            Random rand = new Random(0);
-
-            for(IGeometry geometry : set.getGeometryList()){
-                int weightedRand = rand.nextInt(totalWeight);
-                int currentWeight = 0;
-                for(int w = 0; w < weights.length; w++){
-                    currentWeight += weights[w];
-                    if(weightedRand < currentWeight){
-                        geometry.setPenIndex(w);
-                        break;
+                    if(currentCount >= geometriesPerPen && i != renderOrder.size()-1){ // if it's the last pen ignore the geometries per pen count;
+                        continue order;
                     }
                 }
             }
         }
     }
 
+    public static void updateRandomDistribution(DistributionSet set, boolean weighted){
+        if(!preDistributionSetup(set)){
+            return;
+        }
+
+        List<ObservableDrawingPen> renderOrder = set.source.drawingSet.getRenderOrderEnabled();
+        int[] weights = getPenWeights(renderOrder, weighted);
+        int totalWeight = getTotalWeight(weights);
+
+        Random rand = new Random(0);
+
+        for(IGeometry geometry : set.getGeometryList()){
+            geometry.setPenIndex(getRandomIndexWeighted(rand, weights, totalWeight));
+        }
+    }
+
+    public static void updateLuminanceDistribution(DistributionSet set, boolean weighted){
+        if(!preDistributionSetup(set)){
+            return;
+        }
+
+        List<ObservableDrawingPen> renderOrder = set.source.drawingSet.getRenderOrderEnabled();
+        int[] weights = getPenWeights(renderOrder, weighted);
+        int totalWeight = getTotalWeight(weights);
+
+        List<Squiggle> squiggles = getSquigglesFromGeometries(set.getGeometryList(), new ArrayList<>(), set.plottedDrawing.getDisplayedShapeMin(), set.plottedDrawing.getDisplayedShapeMax(), 500);
+        squiggles.sort(Comparator.comparingDouble(Squiggle::getAverageLuminance));
+
+        double lumMin = Integer.MAX_VALUE;
+        double lumMax = 0;
+
+        for(Squiggle squiggle : squiggles){
+            lumMin = Math.min(lumMin, squiggle.getAverageLuminance());
+            lumMax = Math.max(lumMax, squiggle.getAverageLuminance());
+        }
+
+        double penLumMin = Integer.MAX_VALUE;
+        double penLumMax = 0;
+
+        for(ObservableDrawingPen pen : renderOrder){
+            float lum = ImageTools.getPerceivedLuminanceFromRGB(pen.getARGB());
+            penLumMin = Math.min(penLumMin, lum);
+            penLumMax = Math.max(penLumMax, lum);
+        }
+
+
+
+        int visibleShapeCount = 0;
+        for(IGeometry geometry : set.getGeometryList()){
+            if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()){ //TODO MAKE THIS A FILTER THING!!
+                visibleShapeCount ++;
+            }
+        }
+
+
+        double lumRange = lumMax-lumMin;
+
+        double currentLuminanceThreshold = lumMin;
+        int currentIndex = 0;
+
+        order: for(int i = 0; i < renderOrder.size(); i++){
+            ObservableDrawingPen pen = renderOrder.get(i);
+            float percentage = (float)weights[i] / totalWeight;
+
+
+            //update geometry count
+            int geometriesPerPen = (int)(percentage * visibleShapeCount);
+            int currentCount = 0;
+            /*
+            //set pen references
+            while (currentIndex < squiggles.size()){
+                Squiggle squiggle = squiggles.get(currentIndex);
+                squiggle.geometries.forEach(s -> s.setPenIndex(pen.getPenNumber()));
+                currentIndex++;
+                currentCount+=squiggle.geometries.size();
+                if(currentCount >= geometriesPerPen && i != renderOrder.size()-1){ // if it's the last pen ignore the geometries per pen count;
+                    continue order;
+                }
+            }
+             */
+            currentLuminanceThreshold +=  percentage * lumRange;
+
+            while (currentIndex < squiggles.size()){
+                Squiggle squiggle = squiggles.get(currentIndex);
+                if(i==renderOrder.size()-1 || squiggle.getAverageLuminance() < currentLuminanceThreshold){
+                    squiggle.geometries.forEach(s -> s.setPenIndex(pen.getPenNumber()));
+                    currentCount+=squiggle.geometries.size();
+                    currentIndex++;
+                }else{
+                    break;
+                }
+            }
+
+
+            /*
+
+
+             */
+        }
+    }
+
+    public static void updateRandomSquiggleDistribution(DistributionSet set, boolean weighted){
+        //Some PFMs don't create squiggles, and are instead multiple disconnected geometries, look for the flag bypass them to avoid unnecessary overhead / slow downs.
+        if(set.source.pfmFactory != null && !set.source.pfmFactory.getFlags().getFlag(Flags.PFM_ALLOW_SQUIGGLE_DISTRIBUTION)){
+            updateRandomDistribution(set, weighted);
+            return;
+        }
+
+        if(!preDistributionSetup(set)){
+            return;
+        }
+
+        List<ObservableDrawingPen> renderOrder = set.source.drawingSet.getRenderOrder();
+        int[] weights = getPenWeights(renderOrder, weighted);
+        int totalWeight = getTotalWeight(weights);
+
+        Random rand = new Random(0);
+        List<Squiggle> squiggles = getSquigglesFromGeometries(set.getGeometryList(), new ArrayList<>(), set.plottedDrawing.getDisplayedShapeMin(), set.plottedDrawing.getDisplayedShapeMax(), 500);
+        int totalSquiggles = squiggles.size();
+
+        for(int i = 0; i < renderOrder.size() ; i++){
+            ObservableDrawingPen pen = renderOrder.get(i);
+            float percentage = (float)weights[i] / totalWeight;
+            int squigglesPerPen = (int)(percentage * totalSquiggles);
+
+            for(int s = 0; i != renderOrder.size()-1 ? s < squigglesPerPen : !squiggles.isEmpty(); s++){
+                Squiggle squiggle = squiggles.remove(rand.nextInt(0, squiggles.size()));
+                squiggle.geometries.forEach(g -> g.setPenIndex(pen.getPenNumber()));
+            }
+        }
+    }
+
+    public static class Squiggle{
+        public double totalLuminance = 0;
+        public List<IGeometry> geometries = new ArrayList<>();
+
+        public double getAverageLuminance(){
+            return totalLuminance / geometries.size();
+        }
+    }
+
+    public static List<Squiggle> getSquigglesFromGeometries(List<IGeometry> geometries, List<Squiggle> dstSquiggles, int minIndex, int maxIndex, int maxSquiggleLength){
+        IGeometry lastGeometry = null;
+        dstSquiggles.clear();
+        Squiggle squiggle = null;
+        for(IGeometry geometry : geometries){
+            if(geometry.getGeometryIndex() >= minIndex && geometry.getGeometryIndex() <= maxIndex) {
+                boolean continuity = GeometryUtils.comparePathContinuity(lastGeometry, geometry);
+                if (!continuity || (maxSquiggleLength != -1 && squiggle.geometries.size() >= maxSquiggleLength)) {
+                    dstSquiggles.add(squiggle = new Squiggle());
+                }
+                squiggle.totalLuminance += ImageTools.getPerceivedLuminanceFromRGB(geometry.getSampledRGBA());
+                squiggle.geometries.add(geometry);
+                lastGeometry = geometry;
+            }
+        }
+        return dstSquiggles;
+    }
+
+
+    public static int[] getPenWeights(List<ObservableDrawingPen> pens, boolean useWeighting){
+        int[] weights = new int[pens.size()];
+        for(int i = 0; i < pens.size(); i++){
+            ObservableDrawingPen pen = pens.get(i);
+            if(pen.isEnabled()){
+                weights[i] = useWeighting ? pen.distributionWeight.get() : 100;
+            }
+        }
+        return weights;
+    }
+
+    public static int getTotalWeight(int[] weights){
+        int totalWeight = 0;
+        for(int i : weights){
+            totalWeight+=i;
+        }
+        return totalWeight;
+    }
+
+    public static int getRandomIndexWeighted(Random rand, int[] weights, int totalWeight){
+        int weightedRand = rand.nextInt(totalWeight);
+        int currentWeight = 0;
+        for(int w = 0; w < weights.length; w++){
+            currentWeight += weights[w];
+            if(weightedRand < currentWeight){
+                return w;
+            }
+        }
+        return 0;
+    }
+
     public static void updatePreConfiguredPenDistribution(DistributionSet set){
         updatePenNumbers(set);
 
         for(PlottedGroup group : set.plottedGroups){
+
+            Map<Integer, Integer> remapIndexMap = new LinkedHashMap<>();
+            int index = 0;
+            pens: for(ObservableDrawingPen drawingPen : group.originalDrawingSetOrder){
+                int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
+                if(currentIndex != -1){
+                    remapIndexMap.put(index, currentIndex);
+                    return;
+                }
+
+                //The pen doesn't exist anymore so lets try and find the most suitable match from it's code name
+                List<ObservableDrawingPen> matches = group.drawingSet.getMatchingPens(drawingPen);
+                if(matches.isEmpty()){
+                    remapIndexMap.put(index, -1);
+                    continue;
+                }
+                if(matches.size() > 1) {
+                    //if there are multiple matches, see if the original index still exists
+                    for (ObservableDrawingPen pen : matches) {
+                        if (pen.getPenNumber() == index) {
+                            continue pens;
+                        }
+                    }
+                }
+                int newIndex = matches.get(0).getPenNumber();
+                if(index != newIndex){
+                    remapIndexMap.put(index, newIndex);
+                }
+                index++;
+            }
+
             for(IGeometry geometry : group.geometries){
                 int originalIndex = geometry.getPFMPenIndex();
-                if(Utils.within(originalIndex, 0, group.originalDrawingSetOrder.size()-1)){
-                    ObservableDrawingPen drawingPen = group.originalDrawingSetOrder.get(originalIndex);
-                    int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
-                    geometry.setPenIndex(currentIndex);
-                }
+                int currentIndex = remapIndexMap.getOrDefault(originalIndex, originalIndex);
+                geometry.setPenIndex(currentIndex);
             }
         }
 
