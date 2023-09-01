@@ -704,8 +704,8 @@ public class ShapeOverlays extends AbstractOverlay{
                 //if shift isn't down use the centre as the rotation point
                 anchorPoint = new Point2D(originalSize.getMinX() + originalSize.getWidth()/2, originalSize.getMinY() + originalSize.getHeight()/2);
             }
-            double refAngle = Math.toRadians(Math.atan2(anchorPoint.getY() - mouseOrigin.getY(), anchorPoint.getY() - mouseOrigin.getX()) * 180 / Math.PI);
-            double currentAngle = Math.toRadians(Math.atan2(anchorPoint.getY() - mousePoint.getY(), anchorPoint.getY() - mousePoint.getX()) * 180 / Math.PI);
+            double refAngle = Math.toRadians(Math.atan2(anchorPoint.getY() - mouseOrigin.getY(), anchorPoint.getX() - mouseOrigin.getX()) * 180 / Math.PI);
+            double currentAngle = Math.toRadians(Math.atan2(anchorPoint.getY() - mousePoint.getY(), anchorPoint.getX() - mousePoint.getX()) * 180 / Math.PI);
 
             double theta = currentAngle-refAngle;
 

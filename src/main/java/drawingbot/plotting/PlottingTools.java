@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.BiConsumer;
 
 public class PlottingTools implements IPlottingTools {
 
@@ -664,6 +663,11 @@ public class PlottingTools implements IPlottingTools {
     @Override
     public int getRandomSeed(){
         return randomSeed;
+    }
+
+    public void setRandomSeed(int seed) {
+        this.randomSeed = seed;
+        this.random.setSeed(seed);
     }
 
     ////////////////////////////////////////////////////////

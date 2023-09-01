@@ -37,11 +37,11 @@ public class LazyTimer {
         int minutes = (int) ((elapsedTime / (1000*60)) % 60);
         int hours = (int) ((elapsedTime / (1000*60*60)) % 24);
 
-        if(seconds == 0){
+        if(hours == 0 && minutes == 0 && seconds == 0){
             return elapsedTime + " ms";
         }
 
-        if(minutes == 0){
+        if(hours == 0 && minutes == 0){
             return seconds + " s";
         }
 

@@ -2,6 +2,7 @@ package drawingbot.render.overlays;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.JFXUtils;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -12,7 +13,10 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.GlyphFont;
@@ -34,7 +38,8 @@ public class NotificationOverlays extends AbstractOverlay{
         notificationPane.getStylesheets().add(NotificationOverlays.class.getResource("/drawingbot/notifications.css").toExternalForm());
         activeProperty().bindBidirectional(DBPreferences.INSTANCE.notificationsEnabled.asBooleanProperty());
 
-        target.addListener((observable, oldValue, newValue) -> {
+
+        JFXUtils.subscribeListener(target, (observable, oldValue, newValue) -> {
             if(oldValue != null){
                 notificationPane.layoutXProperty().unbind();
                 notificationPane.layoutYProperty().unbind();

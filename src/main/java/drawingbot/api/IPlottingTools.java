@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 import java.util.Random;
-import java.util.function.BiConsumer;
 
 public interface IPlottingTools {
 
@@ -251,9 +250,7 @@ public interface IPlottingTools {
 
     int getRandomSeed();
 
-    default void setRandomSeed(int seed){
-        getRandom().setSeed(seed);
-    }
+    void setRandomSeed(int seed);
 
     default boolean randomBoolean(){
         return getRandom().nextBoolean();
