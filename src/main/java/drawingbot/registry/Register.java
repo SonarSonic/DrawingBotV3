@@ -3,7 +3,7 @@ package drawingbot.registry;
 import com.jhlabs.image.*;
 import drawingbot.FXApplication;
 import drawingbot.api.IPlugin;
-import drawingbot.drawing.ColourSeparationHandler;
+import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingStats;
@@ -777,11 +777,11 @@ public class Register implements IPlugin {
         EXPORT_REF_IMAGE = MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.IMAGE, "image_reference", "Reference Image File (.png, .jpg, etc.)", false, ImageExporter::exportReferenceImage, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP));
     }
 
-    public static ColourSeparationHandler DEFAULT_COLOUR_SPLITTER;
+    public static ColorSeparationHandler DEFAULT_COLOUR_SPLITTER;
 
     @Override
     public void registerColourSplitterHandlers(){
-        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColourSeparationHandler("Default"));
+        DEFAULT_COLOUR_SPLITTER = MasterRegistry.INSTANCE.registerColourSplitter(new ColorSeparationHandler("Default"));
      }
 
     @Override

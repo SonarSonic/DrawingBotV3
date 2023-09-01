@@ -214,10 +214,10 @@ public class FXHelper {
 
     public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
         importFile(context, (file, chooser) -> {
-            GenericPreset<IJsonData> preset = loadPresetFile(context, presetType, file, apply);
+            GenericPreset<Object> preset = loadPresetFile(context, presetType, file, apply);
             if(showDialog){
-                AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
-                AbstractPresetManager<IJsonData> manager = loader == null ? null : loader.getDefaultManager();
+                AbstractJsonLoader<Object> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+                AbstractPresetManager<Object> manager = loader == null ? null : loader.getDefaultManager();
 
                 if(manager != null){
                     NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset, false)));
@@ -229,11 +229,11 @@ public class FXHelper {
         }, presetType.filters, "Select a preset to import");
     }
 
-    public static GenericPreset<IJsonData> loadPresetFile(DBTaskContext context, PresetType presetType, File file, boolean apply){
-        GenericPreset<IJsonData> preset = JsonLoaderManager.importPresetFile(file, presetType);
+    public static <D> GenericPreset<D> loadPresetFile(DBTaskContext context, PresetType presetType, File file, boolean apply){
+        GenericPreset<D> preset = JsonLoaderManager.importPresetFile(file, presetType);
         context.project().updateImportDirectoryFromFile(file);
         if(preset != null && apply){
-            AbstractJsonLoader<IJsonData> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
+            AbstractJsonLoader<D> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
             if(jsonLoader != null){
                 if(jsonLoader.getDefaultManager() != null){
                     jsonLoader.getDefaultManager().tryApplyPreset(context, preset);
@@ -245,8 +245,8 @@ public class FXHelper {
         return preset;
     }
 
-    public static <D extends IJsonData> GenericPreset<D> loadPresetFile(DBTaskContext context, AbstractJsonLoader<D> loader, File file, boolean apply){
-        GenericPreset<D> preset = (GenericPreset<D>) JsonLoaderManager.importPresetFile(file, loader.type);
+    public static <D> GenericPreset<D> loadPresetFile(DBTaskContext context, AbstractJsonLoader<D> loader, File file, boolean apply){
+        GenericPreset<D> preset = JsonLoaderManager.importPresetFile(file, loader.type);
 
         context.project().updateImportDirectoryFromFile(file);
 
@@ -318,14 +318,14 @@ public class FXHelper {
         }, preset.presetType.filters, preset.presetType.filters[0], "Save preset", initialName);
     }
 
-    public static <D extends IJsonData> GenericPreset<D> copyPreset(GenericPreset<D> preset){
-        AbstractJsonLoader<IJsonData> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+    public static <D> GenericPreset<D> copyPreset(GenericPreset<D> preset){
+        AbstractJsonLoader<D> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
         assert loader != null;
 
         Gson gson = JsonLoaderManager.createDefaultGson();
         JsonElement element = loader.toJsonElement(gson, preset);
 
-        GenericPreset<IJsonData> copy = loader.createNewPreset(preset.getPresetSubType(), preset.getPresetName(), preset.userCreated);
+        GenericPreset<D> copy = loader.createNewPreset(preset.getPresetSubType(), preset.getPresetName(), preset.userCreated);
         copy.data = loader.fromJsonElement(gson, copy, element);
         return (GenericPreset<D>) copy;
     }
@@ -403,7 +403,7 @@ public class FXHelper {
     }
 
     @Deprecated
-    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
+    public static <O> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
 
         MenuItem newPreset = new MenuItem("New Preset");
         newPreset.setOnAction(e -> {
@@ -491,7 +491,7 @@ public class FXHelper {
         button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
     }
 
-    public static <O extends IJsonData> MenuButton createPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+    public static <O> MenuButton createPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
         MenuButton button = new MenuButton("Presets");
         setupPresetMenuButton(button, loader, manager, editableCategory, property);
         return button;
@@ -499,7 +499,7 @@ public class FXHelper {
 
 
 
-    public static <O extends IJsonData> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+    public static <O> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
 
         MenuItem newPreset = new MenuItem("New Preset");
         newPreset.setOnAction(e -> {

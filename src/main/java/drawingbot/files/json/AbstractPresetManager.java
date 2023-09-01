@@ -13,7 +13,7 @@ import javafx.scene.control.ComboBox;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractPresetManager<O extends IJsonData> implements IPresetManager<O> {
+public abstract class AbstractPresetManager<O> implements IPresetManager<O> {
 
     public AbstractJsonLoader<O> presetLoader;
 

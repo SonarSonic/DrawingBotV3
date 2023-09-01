@@ -7,7 +7,8 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
-import drawingbot.drawing.ColourSeparationHandler;
+import drawingbot.drawing.ColorSeparationHandler;
+import drawingbot.drawing.DrawingSet;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.adapters.*;
 import drawingbot.javafx.GenericPreset;
@@ -17,6 +18,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
+import drawingbot.utils.MetadataMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.geom.AffineTransform;
@@ -44,19 +46,21 @@ public class JsonLoaderManager {
 
         @Override
         public void setupGsonBuilder(GsonBuilder builder) {
-            super.setupGsonBuilder(builder);
-            builder.setExclusionStrategies(exclusionStrategy);
-            builder.setPrettyPrinting();
-            builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
-            builder.registerTypeHierarchyAdapter(ColourSeparationHandler.class, new JsonAdapterColourSplitter());
-            builder.registerTypeHierarchyAdapter(DrawingExportHandler.class, new JsonAdapterDrawingExportHandler());
-            builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
-            builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
-            builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
-            builder.registerTypeAdapter(PFMFactory.class, new JsonAdapterPFMFactory());
-            builder.registerTypeAdapter(ICanvas.class, (InstanceCreator<Object>) type -> new SimpleCanvas());
-            builder.registerTypeAdapter(AffineTransform.class, new JsonAdapterAffineTransform());
-            Hooks.runHook(Hooks.GSON_BUILDER_INIT, builder);
+        super.setupGsonBuilder(builder);
+        builder.setExclusionStrategies(exclusionStrategy);
+        builder.setPrettyPrinting();
+        builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
+        builder.registerTypeHierarchyAdapter(ColorSeparationHandler.class, new JsonAdapterColorSeparationHandler());
+        builder.registerTypeHierarchyAdapter(DrawingExportHandler.class, new JsonAdapterDrawingExportHandler());
+        builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
+        builder.registerTypeAdapter(IDrawingPen.class, new JsonAdapterDrawingPen());
+        builder.registerTypeAdapter(ObservableDrawingSet.class, new JsonAdapterObservableDrawingSet());
+        builder.registerTypeAdapter(PFMFactory.class, new JsonAdapterPFMFactory());
+        builder.registerTypeAdapter(ICanvas.class, (InstanceCreator<Object>) type -> new SimpleCanvas());
+        builder.registerTypeAdapter(AffineTransform.class, new JsonAdapterAffineTransform());
+        builder.registerTypeAdapter(MetadataMap.class, new JsonAdapterMetadataMap());
+        builder.registerTypeAdapter(DrawingSet.class, new JsonAdapterDrawingSet());
+        Hooks.runHook(Hooks.GSON_BUILDER_INIT_POST, builder);
         }
     };
 
@@ -67,10 +71,10 @@ public class JsonLoaderManager {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Nullable
-    public static AbstractJsonLoader<IJsonData> getJsonLoaderForPresetType(GenericPreset<?> preset) {
-        for(AbstractJsonLoader<IJsonData> manager : MasterRegistry.INSTANCE.presetLoaders){
+    public static <D> AbstractJsonLoader<D> getJsonLoaderForPresetType(GenericPreset<D> preset) {
+        for(AbstractJsonLoader<?> manager : MasterRegistry.INSTANCE.presetLoaders){
             if(manager.canLoadPreset(preset)){
-                return manager;
+                return (AbstractJsonLoader<D>) manager;
             }
         }
         return null;
@@ -129,7 +133,7 @@ public class JsonLoaderManager {
      * @param file the location to load the json from
      * @param targetType the type of preset to import, if null all types will be accepted
      */
-    public static GenericPreset<IJsonData> importPresetFile(File file, PresetType targetType){
+    public static <O> GenericPreset<O> importPresetFile(File file, PresetType targetType){
         try {
             return importPresetFile(new FileInputStream(file), targetType);
         } catch (FileNotFoundException e) {
@@ -143,10 +147,10 @@ public class JsonLoaderManager {
      * @param stream the input stream to load the json from
      * @param targetType the type of preset to import, if null all types will be accepted
      */
-    public static GenericPreset<IJsonData> importPresetFile(InputStream stream, PresetType targetType){
-        GenericPreset<IJsonData> preset = importJsonFile(stream, GenericPreset.class);
+    public static <O> GenericPreset<O> importPresetFile(InputStream stream, PresetType targetType){
+        GenericPreset<O> preset = importJsonFile(stream, GenericPreset.class);
         if(preset != null && (targetType == null || targetType == preset.presetType)){
-            AbstractJsonLoader<IJsonData> manager = getJsonLoaderForPresetType(preset);
+            AbstractJsonLoader<O> manager = getJsonLoaderForPresetType(preset);
             if(manager != null){
                 manager.trySavePreset(preset);
             }
@@ -172,10 +176,10 @@ public class JsonLoaderManager {
     }
 
     public static void importPresetContainerFile(InputStream stream){
-        PresetContainerJsonFile<IJsonData> container = importJsonFile(stream, PresetContainerJsonFile.class);
+        PresetContainerJsonFile<Object> container = importJsonFile(stream, PresetContainerJsonFile.class);
         container.jsonMap.forEach(preset -> {
             if(preset != null){
-                AbstractJsonLoader<IJsonData> manager = getJsonLoaderForPresetType(preset);
+                AbstractJsonLoader<Object> manager = getJsonLoaderForPresetType(preset);
                 if(manager != null){
                     manager.registerPreset(preset);
                 }

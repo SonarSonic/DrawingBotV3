@@ -3,11 +3,11 @@ package drawingbot.files.json.projects;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
-import drawingbot.drawing.ColourSeparationHandler;
+import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.files.FileUtils;
-import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.PresetData;
 import drawingbot.geom.MaskingSettings;
 import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.ImageFilterSettings;
@@ -443,17 +443,17 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     @Override
     public void onDrawingSetPropertyChanged(ObservableDrawingSet set, Observable property) {
-        if(set.distributionType == property || set.distributionOrder == property || set.colourSeperator == property){
+        if(set.distributionType == property || set.distributionOrder == property || set.colorHandler == property){
             onDrawingSetChanged();
         }
     }
 
     @Override
-    public void onColourSeparatorChanged(ObservableDrawingSet set, ColourSeparationHandler oldValue, ColourSeparationHandler newValue) {
+    public void onColourSeparatorChanged(ObservableDrawingSet set, ColorSeparationHandler oldValue, ColorSeparationHandler newValue) {
         if(oldValue == newValue){
             return;
         }
-        set.colourSeperator.get().resetSettings(context, set);
+        set.colorHandler.get().resetSettings(context, set);
         if(oldValue.wasApplied()){
             oldValue.resetSettings(context, set);
             oldValue.setApplied(false);
@@ -518,7 +518,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     @Override
-    public void onUserChangedPFMPreset(GenericPreset<PresetPFMSettings> pfmPreset) {
+    public void onUserChangedPFMPreset(GenericPreset<PresetData> pfmPreset) {
         //onPFMSettingsUserEdited(); If we've just created a new Preset we don't want to fire the event, as no settings will have changed, on onSettingUserEdited will fire it anyway.
     }
 

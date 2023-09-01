@@ -1,8 +1,7 @@
 package drawingbot.files.json.presets;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IDrawingPen;
-import drawingbot.api.IDrawingSet;
+import drawingbot.drawing.DrawingSet;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -10,15 +9,13 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
-import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSet> {
+public class PresetDrawingSetLoader extends AbstractPresetLoader<DrawingSet> {
 
     public PresetDrawingSetLoader(PresetType presetType) {
-        super(PresetDrawingSet.class, presetType,"user_set_presets.json");
+        super(DrawingSet.class, presetType,"user_set_presets.json");
         setDefaultManager(new PresetDrawingSetManager(this) {
             @Override
             public ObservableDrawingSet getSelectedDrawingSet(DBTaskContext context) {
@@ -28,52 +25,38 @@ public class PresetDrawingSetLoader extends AbstractPresetLoader<PresetDrawingSe
     }
 
     @Override
-    public PresetDrawingSet getPresetInstance(GenericPreset<PresetDrawingSet> preset) {
-        return new PresetDrawingSet(preset.getPresetSubType(), preset.getPresetName(), new ArrayList<>(), preset);
+    public DrawingSet getPresetInstance(GenericPreset<DrawingSet> preset) {
+        return new DrawingSet(preset.getPresetSubType(), preset.getPresetName(), new ArrayList<>());
     }
 
     @Override
-    public void registerPreset(GenericPreset<PresetDrawingSet> preset) {
+    public void registerPreset(GenericPreset<DrawingSet> preset) {
         super.registerPreset(preset);
         MasterRegistry.INSTANCE.registerDrawingSet(preset.data);
         preset.data.preset = preset; //set transient binding
     }
 
     @Override
-    public void unregisterPreset(GenericPreset<PresetDrawingSet> preset) {
+    public void unregisterPreset(GenericPreset<DrawingSet> preset) {
         super.unregisterPreset(preset);
         MasterRegistry.INSTANCE.unregisterDrawingSet(preset.data);
     }
 
     @Override
-    public void onPresetEdited(GenericPreset<PresetDrawingSet> preset) {
+    public void onPresetEdited(GenericPreset<DrawingSet> preset) {
         super.onPresetEdited(preset);
         preset.data.type = preset.getPresetSubType();
         preset.data.name = preset.getPresetName();
     }
 
     @Override
-    public GenericPreset<PresetDrawingSet> getDefaultPreset() {
+    public GenericPreset<DrawingSet> getDefaultPreset() {
         return MasterRegistry.INSTANCE.getDefaultPreset(this, "", "", "", true);
     }
 
     @Override
-    public GenericPreset<PresetDrawingSet> createNewPreset() {
+    public GenericPreset<DrawingSet> createNewPreset() {
         return createNewPreset(DBConstants.DRAWING_TYPE_USER, "New Preset", true);
-    }
-
-    @Override
-    public List<GenericPreset<?>> getUserCreatedPresets() {
-        List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (ObservableList<IDrawingSet<IDrawingPen>> list : MasterRegistry.INSTANCE.registeredSets.values()) {
-            for (IDrawingSet<IDrawingPen> set : list) {
-                if (set instanceof PresetDrawingSet) {
-                    PresetDrawingSet userSet = (PresetDrawingSet) set;
-                    userCreated.add(userSet.preset);
-                }
-            }
-        }
-        return userCreated;
     }
 
     @Override

@@ -7,16 +7,21 @@ import drawingbot.pfm.PFMSettings;
 import drawingbot.utils.EnumDistributionType;
 import javafx.beans.binding.Binding;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.control.Label;
 import javafx.scene.control.cell.ComboBoxListCell;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import org.fxmisc.easybind.EasyBind;
 
 public class ComboCellDistributionType extends ComboBoxListCell<EnumDistributionType> {
 
     public static Binding<PFMFactory<?>> binding = null;
     public final ChangeListener<PFMFactory<?>> changeListener = (observable, oldValue, newValue) -> updateText();
+    public final boolean isButtonCell;
 
-    public ComboCellDistributionType() {
+    public ComboCellDistributionType(boolean isButtonCell) {
         super();
+        this.isButtonCell = isButtonCell;
     }
 
     @Override
@@ -35,16 +40,31 @@ public class ComboCellDistributionType extends ComboBoxListCell<EnumDistribution
         } else {
             binding.addListener(changeListener);
 
-            updateText();
             setGraphic(null);
+            setText(null);
+            updateText();
         }
     }
 
     public void updateText(){
-        if(getItem() == EnumDistributionType.getRecommendedType()){
-            setText(getItem().toString() + " (Recommended)");
+        if(isButtonCell){
+            setText(getItem().displayName);
+            setGraphic(null);
             return;
         }
-        setText(getItem().toString());
+
+        HBox box = new HBox();
+        Label displayName = new Label(getItem().displayName);
+        box.getChildren().add(displayName);
+
+        if(getItem() == EnumDistributionType.getRecommendedType()){
+            Label stateLabel = new Label(" (" + "Recommended" + ")");
+            stateLabel.setStyle("-fx-font-weight: bold");
+            stateLabel.setTextFill(new Color(0/255F, 200/255F, 120/255F, 1.0));
+            box.getChildren().add(stateLabel);
+        }
+
+        setText(null);
+        setGraphic(box);
     }
 }

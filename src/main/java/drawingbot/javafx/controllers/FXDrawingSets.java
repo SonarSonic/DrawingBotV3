@@ -3,13 +3,11 @@ package drawingbot.javafx.controllers;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
-import drawingbot.drawing.ColourSeparationHandler;
+import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.json.AbstractPresetManager;
-import drawingbot.files.json.presets.PresetDrawingPen;
-import drawingbot.files.json.presets.PresetDrawingSet;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -77,7 +75,7 @@ public class FXDrawingSets extends AbstractFXController {
     public ComboBox<EnumDistributionType> comboBoxDistributionType = null;
     public ComboBox<EnumDistributionOrder> comboBoxDistributionOrder = null;
 
-    public ComboBox<ColourSeparationHandler> comboBoxColourSeperation = null;
+    public ComboBox<ColorSeparationHandler> comboBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
@@ -87,7 +85,7 @@ public class FXDrawingSets extends AbstractFXController {
     public TableColumn<ObservableDrawingSet, ObservableList<ObservableDrawingPen>> drawingSetPensColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionType> drawingSetDistributionTypeColumn = null;
     public TableColumn<ObservableDrawingSet, EnumDistributionOrder> drawingSetDistributionOrderColumn = null;
-    public TableColumn<ObservableDrawingSet, ColourSeparationHandler> drawingSetColourSeperatorColumn = null;
+    public TableColumn<ObservableDrawingSet, ColorSeparationHandler> drawingSetColourSeperatorColumn = null;
     public TableColumn<ObservableDrawingSet, Integer> drawingSetShapesColumn = null;
     public TableColumn<ObservableDrawingSet, Integer> drawingSetPercentageColumn = null;
 
@@ -171,8 +169,8 @@ public class FXDrawingSets extends AbstractFXController {
         //TODO SIMPLIFY ?
         FXHelper.setupPresetMenuButton(menuButtonDrawingSetPresets, Register.PRESET_LOADER_DRAWING_SET, this::getDrawingSetPresetManager,
                 () -> {
-                    if(comboBoxDrawingSet.getValue() instanceof PresetDrawingSet){
-                        PresetDrawingSet set = (PresetDrawingSet) comboBoxDrawingSet.getValue();
+                    if(comboBoxDrawingSet.getValue() instanceof DrawingSet){
+                        DrawingSet set = (DrawingSet) comboBoxDrawingSet.getValue();
                         return set.preset;
                     }
                     return null;
@@ -267,8 +265,8 @@ public class FXDrawingSets extends AbstractFXController {
 
         FXHelper.setupPresetMenuButton(menuButtonDrawingPenPresets, Register.PRESET_LOADER_DRAWING_PENS, this::getDrawingPenPresetManager,
                 () -> {
-                    if(comboBoxDrawingPen.getValue() instanceof PresetDrawingPen){
-                        PresetDrawingPen set = (PresetDrawingPen) comboBoxDrawingPen.getValue();
+                    if(comboBoxDrawingPen.getValue() != null && comboBoxDrawingPen.getValue().preset != null){
+                        DrawingPen set = comboBoxDrawingPen.getValue();
                         return set.preset;
                     }
                     return null;
@@ -323,13 +321,17 @@ public class FXDrawingSets extends AbstractFXController {
         comboBoxDistributionOrder.setItems(FXCollections.observableArrayList(EnumDistributionOrder.values()));
 
         comboBoxDistributionType.setItems(FXCollections.observableArrayList(EnumDistributionType.values()));
-        comboBoxDistributionType.setButtonCell(new ComboCellDistributionType());
-        comboBoxDistributionType.setCellFactory(param -> new ComboCellDistributionType());
+        comboBoxDistributionType.setButtonCell(new ComboCellDistributionType(true));
+        comboBoxDistributionType.setCellFactory(param -> new ComboCellDistributionType(false));
 
         comboBoxColourSeperation.setItems(MasterRegistry.INSTANCE.colourSplitterHandlers);
         comboBoxColourSeperation.setCellFactory(param -> new ComboCellNamedSetting<>());
+        comboBoxColourSeperation.setVisibleRowCount(10);
 
-        buttonConfigureSplitter.setOnAction(e -> drawingSets.get().activeDrawingSet.get().colourSeperator.get().onUserConfigure());
+        buttonConfigureSplitter.setOnAction(e -> {
+            ObservableDrawingSet drawingSet = drawingSets.get().activeDrawingSet.get();
+            drawingSet.colorHandler.get().onUserConfigure(drawingSet);
+        });
 
         comboBoxDrawingSets.setCellFactory(param -> new ComboCellDrawingSet<>());
         comboBoxDrawingSets.setButtonCell(new ComboCellDrawingSet<>());
@@ -359,7 +361,7 @@ public class FXDrawingSets extends AbstractFXController {
         drawingSetNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         drawingSetNameColumn.setCellValueFactory(param -> param.getValue().name);
 
-        drawingSetPensColumn.setCellFactory(param -> new TableCellNode<>(value -> new ControlPenPalette(value, drawingSetPensColumn.widthProperty())));
+        drawingSetPensColumn.setCellFactory(param -> new TableCellNode<>((set, pens) -> new ControlPenPalette(pens, drawingSetPensColumn.widthProperty())));
         drawingSetPensColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().pens));
 
         drawingSetDistributionTypeColumn.setCellFactory(param -> new ComboBoxTableCell<>(FXCollections.observableArrayList(EnumDistributionType.values())));
@@ -369,7 +371,7 @@ public class FXDrawingSets extends AbstractFXController {
         drawingSetDistributionOrderColumn.setCellValueFactory(param -> param.getValue().distributionOrder);
 
         drawingSetColourSeperatorColumn.setCellFactory(param -> new ComboBoxTableCell<>(MasterRegistry.INSTANCE.colourSplitterHandlers));
-        drawingSetColourSeperatorColumn.setCellValueFactory(param -> param.getValue().colourSeperator);
+        drawingSetColourSeperatorColumn.setCellValueFactory(param -> param.getValue().colorHandler);
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -404,7 +406,7 @@ public class FXDrawingSets extends AbstractFXController {
         if(oldValue != null){
             comboBoxDistributionOrder.valueProperty().unbindBidirectional(oldValue.distributionOrder);
             comboBoxDistributionType.valueProperty().unbindBidirectional(oldValue.distributionType);
-            comboBoxColourSeperation.valueProperty().unbindBidirectional(oldValue.colourSeperator);
+            comboBoxColourSeperation.valueProperty().unbindBidirectional(oldValue.colorHandler);
         }
 
         if(newValue == null){
@@ -414,10 +416,10 @@ public class FXDrawingSets extends AbstractFXController {
         penTableView.setItems(newValue.pens);
         comboBoxDistributionOrder.valueProperty().bindBidirectional(newValue.distributionOrder);
         comboBoxDistributionType.valueProperty().bindBidirectional(newValue.distributionType);
-        comboBoxColourSeperation.valueProperty().bindBidirectional(newValue.colourSeperator);
+        comboBoxColourSeperation.valueProperty().bindBidirectional(newValue.colorHandler);
 
         buttonConfigureSplitter.disableProperty().unbind();
-        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> !newValue.colourSeperator.get().canUserConfigure(), newValue.colourSeperator));
+        buttonConfigureSplitter.disableProperty().bind(Bindings.createBooleanBinding(() -> !newValue.colorHandler.get().canUserConfigure(), newValue.colorHandler));
 
     }
 
@@ -428,13 +430,13 @@ public class FXDrawingSets extends AbstractFXController {
 
     ////////////////////////////////////////////////////////
 
-    public AbstractPresetManager<PresetDrawingPen> drawingPenPresetManager;
+    public AbstractPresetManager<DrawingPen> drawingPenPresetManager;
 
-    public void setDrawingPenPresetManager(AbstractPresetManager<PresetDrawingPen> presetManager){
+    public void setDrawingPenPresetManager(AbstractPresetManager<DrawingPen> presetManager){
         this.drawingPenPresetManager = presetManager;
     }
 
-    public AbstractPresetManager<PresetDrawingPen> getDrawingPenPresetManager(){
+    public AbstractPresetManager<DrawingPen> getDrawingPenPresetManager(){
         if(drawingPenPresetManager == null){
             return Register.PRESET_LOADER_DRAWING_PENS.getDefaultManager();
         }
@@ -444,13 +446,13 @@ public class FXDrawingSets extends AbstractFXController {
 
     ////////////////////////////////////////////////////////
 
-    public AbstractPresetManager<PresetDrawingSet> drawingSetPresetManager;
+    public AbstractPresetManager<DrawingSet> drawingSetPresetManager;
 
-    public void setDrawingSetPresetManager(AbstractPresetManager<PresetDrawingSet> presetManager){
+    public void setDrawingSetPresetManager(AbstractPresetManager<DrawingSet> presetManager){
         this.drawingSetPresetManager = presetManager;
     }
 
-    public AbstractPresetManager<PresetDrawingSet> getDrawingSetPresetManager(){
+    public AbstractPresetManager<DrawingSet> getDrawingSetPresetManager(){
         if(drawingSetPresetManager == null){
             return Register.PRESET_LOADER_DRAWING_SET.getDefaultManager();
         }

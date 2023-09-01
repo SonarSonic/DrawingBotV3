@@ -7,8 +7,7 @@ import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.exporters.GCodeBuilder;
-import drawingbot.files.json.presets.PresetGCodeSettings;
-import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.PresetData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controllers.AbstractFXController;
@@ -197,8 +196,8 @@ public class FXPreferences extends AbstractFXController {
                     for (PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
                         if (!factory.isHidden() && (!factory.isPremiumFeature() || FXApplication.isPremiumEnabled)) {
                             builder.add(new LabelNode(factory.getDisplayName(), () -> {
-                                ObservableList<GenericPreset<PresetPFMSettings>> presets = MasterRegistry.INSTANCE.getObservablePFMPresetList(factory);
-                                ComboBox<GenericPreset<PresetPFMSettings>> comboBox = new ComboBox<>();
+                                ObservableList<GenericPreset<PresetData>> presets = MasterRegistry.INSTANCE.getObservablePFMPresetList(factory);
+                                ComboBox<GenericPreset<PresetData>> comboBox = new ComboBox<>();
                                 comboBox.setCellFactory(view -> new ComboCellPreset<>());
                                 comboBox.setItems(presets);
                                 comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default"));
@@ -284,7 +283,7 @@ public class FXPreferences extends AbstractFXController {
                             @Override
                             public Node createEditor() {
                                 HBox hBox = new HBox();
-                                ComboBox<GenericPreset<PresetGCodeSettings>> comboBox = new ComboBox<>();
+                                ComboBox<GenericPreset<PresetData>> comboBox = new ComboBox<>();
                                 comboBox.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
                                 comboBox.setCellFactory(view -> new ComboCellPreset<>());
                                 comboBox.valueProperty().bindBidirectional(settings.selectedGCodePreset);
@@ -419,6 +418,8 @@ public class FXPreferences extends AbstractFXController {
                     }
                 }
                 scrollPaneContent.setContent(content);
+                scrollPaneContent.setHvalue(0);
+                scrollPaneContent.setVvalue(0);
                 labelHeading.setText(newValue.getValue().getName());
             }
         });

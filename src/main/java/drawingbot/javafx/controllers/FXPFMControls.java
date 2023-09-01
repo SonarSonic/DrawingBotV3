@@ -2,7 +2,7 @@ package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.presets.PresetPFMSettingsManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXController;
@@ -15,7 +15,6 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.utils.DBConstants;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -32,7 +31,7 @@ import org.fxmisc.easybind.EasyBind;
 public class FXPFMControls extends AbstractFXController {
 
     public final SimpleObjectProperty<PFMSettings> pfmSettings = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<GenericPreset<PresetPFMSettings>> selectedPFMPreset = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetData>> selectedPFMPreset = new SimpleObjectProperty<>();
     public final FilteredList<PFMFactory<?>> filteredList = new FilteredList<>(MasterRegistry.INSTANCE.pfmFactories);
 
     ////////////////////////////////////////////////////////
@@ -40,7 +39,7 @@ public class FXPFMControls extends AbstractFXController {
     public ChoiceBox<String> choiceBoxPFMCategory = null;
     public ComboBox<PFMFactory<?>> comboBoxPFM = null;
 
-    public ComboBox<GenericPreset<PresetPFMSettings>> comboBoxPFMPreset = null;
+    public ComboBox<GenericPreset<PresetData>> comboBoxPFMPreset = null;
     public MenuButton menuButtonPFMPresets = null;
 
     public TreeTableView<GenericSetting<?, ?>> treeTableViewPFMSettings = null;

@@ -37,8 +37,8 @@ public enum EnumDistributionType {
     }
 
     public static EnumDistributionType getRecommendedType(ObservableDrawingSet drawingSet, PFMFactory<?> factory){
-        if(drawingSet != null && drawingSet.colourSeperator.get().getDistributionType() != null){
-            return drawingSet.colourSeperator.get().getDistributionType();
+        if(drawingSet != null && drawingSet.colorHandler.get().getDistributionType() != null){
+            return drawingSet.colorHandler.get().getDistributionType();
         }
         if(factory != null && factory.getDistributionType() != null){
             return factory.getDistributionType();

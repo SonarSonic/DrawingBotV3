@@ -2,7 +2,7 @@ package drawingbot.files.json;
 
 import drawingbot.javafx.GenericPreset;
 
-public interface IConfigData extends IJsonData {
+public interface IConfigData {
 
     GenericPreset<IConfigData> updatePreset(GenericPreset<IConfigData> preset);
 

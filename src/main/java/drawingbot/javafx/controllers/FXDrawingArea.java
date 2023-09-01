@@ -2,7 +2,7 @@ package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
-import drawingbot.files.json.presets.PresetDrawingArea;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.presets.PresetDrawingAreaManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXHelper;
@@ -24,11 +24,11 @@ import javafx.util.converter.NumberStringConverter;
 public class FXDrawingArea extends AbstractFXController {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<GenericPreset<PresetDrawingArea>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetData>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
-    public ComboBox<GenericPreset<PresetDrawingArea>> comboBoxDrawingAreaPreset = null;
+    public ComboBox<GenericPreset<PresetData>> comboBoxDrawingAreaPreset = null;
     public MenuButton menuButtonDrawingAreaPresets = null;
 
     /////SIZING OPTIONS
@@ -158,13 +158,13 @@ public class FXDrawingArea extends AbstractFXController {
         choiceBoxClippingMode.setValue(EnumClippingMode.DRAWING);
     }
 
-    public AbstractPresetManager<PresetDrawingArea> presetManager;
+    public AbstractPresetManager<PresetData> presetManager;
 
-    public void setDrawingAreaPresetManager(AbstractPresetManager<PresetDrawingArea> presetManager){
+    public void setDrawingAreaPresetManager(AbstractPresetManager<PresetData> presetManager){
         this.presetManager = presetManager;
     }
 
-    public AbstractPresetManager<PresetDrawingArea> getDrawingAreaPresetManager(){
+    public AbstractPresetManager<PresetData> getDrawingAreaPresetManager(){
         if(presetManager == null){
             return presetManager = new PresetDrawingAreaManager(Register.PRESET_LOADER_DRAWING_AREA) {
                 @Override

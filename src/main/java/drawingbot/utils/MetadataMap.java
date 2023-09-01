@@ -1,10 +1,16 @@
 package drawingbot.utils;
 
+import com.google.gson.annotations.JsonAdapter;
+import drawingbot.files.json.adapters.JsonAdapterMetadataMap;
+
 import java.util.Map;
 
+@JsonAdapter(JsonAdapterMetadataMap.class)
 public class MetadataMap {
 
     public Map<Metadata<?>, Object> data;
+
+    public MetadataMap(){}
 
     public MetadataMap(Map<Metadata<?>, Object> data){
         this.data = data;

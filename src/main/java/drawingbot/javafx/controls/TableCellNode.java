@@ -3,13 +3,13 @@ package drawingbot.javafx.controls;
 import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class TableCellNode<S,T> extends TableCell<S, T> {
 
-    public Function<T, Node> nodeFactory;
+    public BiFunction<S, T, Node> nodeFactory;
 
-    public TableCellNode(Function<T, Node> nodeFactory) {
+    public TableCellNode(BiFunction<S, T, Node> nodeFactory) {
         super();
         this.nodeFactory = nodeFactory;
     }
@@ -21,8 +21,9 @@ public class TableCellNode<S,T> extends TableCell<S, T> {
             setText(null);
             setGraphic(null);
         } else {
+
             setText("");
-            setGraphic(nodeFactory.apply(item));
+            setGraphic(nodeFactory.apply(getTableRow().getItem(), item));
         }
     }
 }

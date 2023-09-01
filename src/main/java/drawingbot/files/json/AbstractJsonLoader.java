@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
-public abstract class AbstractJsonLoader<O extends IJsonData> {
+public abstract class AbstractJsonLoader<O> {
 
     public final PresetType type;
     public final File configFile;
@@ -32,7 +32,7 @@ public abstract class AbstractJsonLoader<O extends IJsonData> {
     }
 
     public String getVersion(){
-        return "1.1";
+        return "1.11";
     }
 
     protected abstract O getPresetInstance(GenericPreset<O> preset);

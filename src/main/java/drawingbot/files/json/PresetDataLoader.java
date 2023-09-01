@@ -10,7 +10,7 @@ import drawingbot.javafx.GenericPreset;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-public abstract class PresetDataLoader<MASTER extends AbstractJsonData> {
+public abstract class PresetDataLoader<MASTER extends PresetData> {
 
     public Class<MASTER> masterType;
     public final String key;
@@ -70,7 +70,7 @@ public abstract class PresetDataLoader<MASTER extends AbstractJsonData> {
         return null;
     }
 
-    public static class Preset<SUB extends IJsonData, MASTER extends AbstractJsonData> extends PresetDataLoader<MASTER> {
+    public static class Preset<SUB, MASTER extends PresetData> extends PresetDataLoader<MASTER> {
 
         public final AbstractPresetLoader<SUB> manager;
         public Type type;
@@ -97,7 +97,7 @@ public abstract class PresetDataLoader<MASTER extends AbstractJsonData> {
         }
     }
 
-    public static abstract class DataInstance<MASTER extends AbstractJsonData, D> extends PresetDataLoader<MASTER> {
+    public static abstract class DataInstance<MASTER extends PresetData, D> extends PresetDataLoader<MASTER> {
 
         public Class<D> dataType;
         public Supplier<D> supplier;

@@ -36,4 +36,6 @@ public interface IDrawingSet<P extends IDrawingPen> {
      */
     List<P> getPens();
 
+    boolean isUserCreated();
+
 }

@@ -6,8 +6,8 @@ import drawingbot.api.ISettings;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.exporters.GCodeSettings;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetType;
-import drawingbot.files.json.presets.PresetGCodeSettings;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -151,7 +151,7 @@ public class DBPreferences implements ISettings {
     //// GCODE SETTINGS \\\\
 
     public final GCodeSettings gcodeSettings = new GCodeSettings();
-    public final SimpleObjectProperty<GenericPreset<PresetGCodeSettings>> selectedGCodePreset = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetData>> selectedGCodePreset = new SimpleObjectProperty<>();
     public final BooleanSetting<?> showGCodeExportSettings = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "showGCodeExportSettings", false));
 
     ///////////////////////////////////////////////
@@ -183,6 +183,11 @@ public class DBPreferences implements ISettings {
     public BooleanProperty flagDefaultPresetChange = new SimpleBooleanProperty(false);
 
     ///////////////////////////////////////////////
+
+    //// CMYK SETTINGS \\\\
+    public final FloatSetting<?> defaultColorSplitterPenMultiplier = (FloatSetting<?>) register(createRangedFloatSetting(DBPreferences.class, "CMYK", "defaultColorSplitterPenMultiplier", 1F, 0F, 1F)).setDisplayName("Generic Pen Multiplier");
+    public final FloatSetting<?> defaultColorSplitterPenOpacity = (FloatSetting<?>) register(createRangedFloatSetting(DBPreferences.class, "CMYK", "defaultColorSplitterPenOpacity", 0.25F, 0F, 1F)).setDisplayName("Generic Pen Opacity");
+
 
     public String getDefaultPreset(String key){
         return defaultPresets.get().get(key);

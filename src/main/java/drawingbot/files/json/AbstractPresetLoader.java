@@ -11,10 +11,11 @@ import javafx.collections.ObservableList;
 
 import java.util.*;
 
-public abstract class AbstractPresetLoader<O extends IJsonData> extends AbstractJsonLoader<O>{
+public abstract class AbstractPresetLoader<O> extends AbstractJsonLoader<O>{
 
     public final Class<O> dataType;
     public final ObservableList<GenericPreset<O>> presets = FXCollections.observableArrayList();
+    public final ObservableList<String> subTypes = FXCollections.observableArrayList();
     public final HashMap<String, ObservableList<GenericPreset<O>>> presetsByType = new LinkedHashMap<>();
 
     public AbstractPresetLoader(Class<O> dataType, PresetType type, String configFile) {
@@ -35,6 +36,9 @@ public abstract class AbstractPresetLoader<O extends IJsonData> extends Abstract
     public void registerPreset(GenericPreset<O> preset) {
         presets.add(preset);
         if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()){
+            if(!subTypes.contains(preset.getPresetSubType())){
+                subTypes.add(preset.getPresetSubType());
+            }
             presetsByType.putIfAbsent(preset.getPresetSubType(), FXCollections.observableArrayList());
             presetsByType.get(preset.getPresetSubType()).add(preset);
         }

@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 
 /**
  * Produces higher quality images by bypassing the Graphics2D's low quality interpolation and instead uses incremental resizing
+ * TODO WHEN USING ORIGINAL SIZING THE EXPORT ARE POOR QUALITY
  */
 public class ImageRenderer {
 

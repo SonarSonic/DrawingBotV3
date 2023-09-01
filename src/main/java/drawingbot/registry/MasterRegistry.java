@@ -2,15 +2,17 @@ package drawingbot.registry;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.api.*;
-import drawingbot.drawing.ColourSeparationHandler;
+import drawingbot.api.IDrawingPen;
+import drawingbot.api.IDrawingSet;
+import drawingbot.api.IPFM;
+import drawingbot.api.IPlugin;
+import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.AbstractJsonLoader;
-import drawingbot.files.json.IJsonData;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.json.PresetType;
-import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
@@ -103,22 +105,22 @@ public class MasterRegistry {
     }
 
     @Nullable
-    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String fallbackName){
+    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String fallbackName){
         return getDefaultPreset(jsonLoader, "", fallbackName, "", true);
     }
 
     @Nullable
-    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName){
+    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName){
         return getDefaultPreset(jsonLoader, presetSubType, fallbackName, presetSubType, true);
     }
 
     @Nullable
-    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, boolean orFirst){
+    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, boolean orFirst){
         return getDefaultPreset(jsonLoader, presetSubType, fallbackName, presetSubType, orFirst);
     }
 
     @Nullable
-    public <O extends IJsonData> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, String fallbackSubType, boolean orFirst){
+    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, String fallbackSubType, boolean orFirst){
         Collection<GenericPreset<O>> presets = jsonLoader.type.defaultsPerSubType ? jsonLoader.getPresetsForSubType(presetSubType) : jsonLoader.getAllPresets();
         String defaultName = getDefaultPresetName(jsonLoader.type, presetSubType);
         if(defaultName != null){
@@ -213,9 +215,9 @@ public class MasterRegistry {
     public void createSettingsList(PFMFactory<?> factory, List<GenericSetting<?, ?>> dst){
         List<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), dst);
         GenericSetting.resetSettings(list);
-        GenericPreset<PresetPFMSettings> preset = Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getRegistryName());
+        GenericPreset<PresetData> preset = Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getRegistryName());
         if(preset != null){
-            GenericSetting.applySettings(preset.data.settingList, list);
+            GenericSetting.applySettings(preset.data.settings, list);
         }
     }
 
@@ -231,7 +233,7 @@ public class MasterRegistry {
                 Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(pfm.getRegistryName(), "Default", false));
 
                 // Move the default preset to the front of the displayed list
-                ObservableList<GenericPreset<PresetPFMSettings>> presets = Register.PRESET_LOADER_PFM.presetsByType.get(pfm.getRegistryName());
+                ObservableList<GenericPreset<PresetData>> presets = Register.PRESET_LOADER_PFM.presetsByType.get(pfm.getRegistryName());
                 presets.add(0, presets.remove(presets.size()-1));
             }
         }
@@ -337,11 +339,11 @@ public class MasterRegistry {
         return pfmSettings.get(factory);
     }
 
-    public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(){
+    public ObservableList<GenericPreset<PresetData>> getObservablePFMPresetList(){
         return getObservablePFMPresetList(DrawingBotV3.project().getPFMSettings().getPFMFactory());
     }
 
-    public ObservableList<GenericPreset<PresetPFMSettings>> getObservablePFMPresetList(PFMFactory<?> loader){
+    public ObservableList<GenericPreset<PresetData>> getObservablePFMPresetList(PFMFactory<?> loader){
         return Register.PRESET_LOADER_PFM.presetsByType.get(loader.getRegistryName());
     }
 
@@ -654,16 +656,16 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// COLOUR SPLITTERS \\\\
-    public ObservableList<ColourSeparationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
+    public ObservableList<ColorSeparationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
 
-    public ColourSeparationHandler registerColourSplitter(ColourSeparationHandler colourSplitter){
+    public ColorSeparationHandler registerColourSplitter(ColorSeparationHandler colourSplitter){
         DrawingBotV3.logger.fine("Registering Colour Splitter: " + colourSplitter.name);
         this.colourSplitterHandlers.add(colourSplitter);
         return colourSplitter;
     }
 
-    public ColourSeparationHandler getColourSplitter(String name){
-        for(ColourSeparationHandler colourSplitter : colourSplitterHandlers){
+    public ColorSeparationHandler getColourSplitter(String name){
+        for(ColorSeparationHandler colourSplitter : colourSplitterHandlers){
             if(colourSplitter.name.equals(name)){
                 return colourSplitter;
             }
@@ -675,9 +677,9 @@ public class MasterRegistry {
 
     //// PRESET LOADERS \\\\
     public List<PresetType> presetTypes = new ArrayList<>();
-    public List<AbstractJsonLoader<IJsonData>> presetLoaders = new ArrayList<>();
+    public List<AbstractJsonLoader<?>> presetLoaders = new ArrayList<>();
 
-    public AbstractJsonLoader<IJsonData> registerPresetLoaders(AbstractJsonLoader presetLoader){
+    public AbstractJsonLoader<?> registerPresetLoaders(AbstractJsonLoader<?> presetLoader){
         DrawingBotV3.logger.fine("Registering Preset Loader: " + presetLoader.type.id);
         this.presetLoaders.add(presetLoader);
         return presetLoader;
@@ -764,10 +766,17 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// METADATA \\\\
-    public List<Metadata<?>> metadataTypes = new ArrayList<>();
+    public Map<String, Metadata<?>> metadataTypes = new LinkedHashMap<>();
 
     public void registerMetadataType(Metadata<?> metadata){
-        this.metadataTypes.add(metadata);
+        if(metadata == null){
+            DrawingBotV3.logger.info("Passed NULL Metadata");
+            return;
+        }
+        if(metadataTypes.get(metadata.key) != null){
+            throw new IllegalArgumentException("Metadata must have Unique Key");
+        }
+        this.metadataTypes.put(metadata.key, metadata);
     }
 
 

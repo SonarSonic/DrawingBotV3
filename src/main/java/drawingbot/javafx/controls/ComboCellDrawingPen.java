@@ -2,7 +2,6 @@ package drawingbot.javafx.controls;
 
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSets;
-import drawingbot.files.json.presets.PresetDrawingPen;
 import drawingbot.image.ImageTools;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -73,11 +72,8 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
             displayNameLabel.setTextFill(Color.BLACK);
             colour.setFill(ImageTools.getColorFromARGB(item.getARGB()));
             String userCreatedText = "";
-            if(item instanceof PresetDrawingPen){
-                PresetDrawingPen presetDrawingPen = (PresetDrawingPen) item;
-                if(presetDrawingPen.preset.userCreated){
-                    userCreatedText = " (User)";
-                }
+            if(item.isUserCreated()){
+                userCreatedText = " (User)";
             }
             userCreatedLabel.setText(userCreatedText);
         }

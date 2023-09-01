@@ -3,11 +3,10 @@ package drawingbot.files.json.projects;
 import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
+import drawingbot.drawing.DrawingSet;
 import drawingbot.files.FileUtils;
-import drawingbot.files.json.presets.PresetDrawingArea;
-import drawingbot.files.json.presets.PresetDrawingSet;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.presets.PresetImageFilters;
-import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
@@ -42,7 +41,7 @@ class PresetProjectSettingsManagerLegacy {
         presetData.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
         presetData.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
-        GenericPreset<PresetDrawingArea> presetDrawingArea = Register.PRESET_LOADER_DRAWING_AREA.createNewPreset();
+        GenericPreset<PresetData> presetDrawingArea = Register.PRESET_LOADER_DRAWING_AREA.createNewPreset();
         Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().updatePreset(context, presetDrawingArea, false);
         presetData.drawingArea = presetDrawingArea;
 
@@ -50,12 +49,12 @@ class PresetProjectSettingsManagerLegacy {
         Register.PRESET_LOADER_FILTERS.getDefaultManager().updatePreset(context, presetImageFilters, false);
         presetData.imageFilters = presetImageFilters;
 
-        GenericPreset<PresetPFMSettings> presetPFMSettings = Register.PRESET_LOADER_PFM.createNewPreset();
+        GenericPreset<PresetData> presetPFMSettings = Register.PRESET_LOADER_PFM.createNewPreset();
         Register.PRESET_LOADER_PFM.getDefaultManager().updatePreset(context, presetPFMSettings, false);
         presetData.pfmSettings = presetPFMSettings;
         presetData.name = presetData.pfmSettings.getPresetSubType();
 
-        GenericPreset<PresetDrawingSet> presetDrawingSet = Register.PRESET_LOADER_DRAWING_SET.createNewPreset();
+        GenericPreset<DrawingSet> presetDrawingSet = Register.PRESET_LOADER_DRAWING_SET.createNewPreset();
         Register.PRESET_LOADER_DRAWING_SET.getDefaultManager().updatePreset(context, presetDrawingSet, false);
         presetData.drawingSet = presetDrawingSet;
 
@@ -67,7 +66,7 @@ class PresetProjectSettingsManagerLegacy {
 
         presetData.optimiseForPrint = context.project.getDrawingArea().getRescaleMode().shouldRescale();
         presetData.targetPenWidth = context.project.getDrawingArea().targetPenWidth.get();
-        presetData.colourSplitter = context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.get();
+        presetData.colourSplitter = context.project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.get();
         presetData.distributionType = context.project.getDrawingSets().getDrawingSetForSlot(0).distributionType.get();
         presetData.distributionOrder = context.project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.get();
         presetData.blendMode = context.project.blendMode.get();
@@ -128,8 +127,8 @@ class PresetProjectSettingsManagerLegacy {
          */
 
         context.project.getDrawingSets().getDrawingSetForSlot(0).loadDrawingSet(presetData.drawingSet.data);
-        context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.set(presetData.colourSplitter);
-        context.project.getDrawingSets().getDrawingSetForSlot(0).colourSeperator.get().applySettings(context, context.project.getDrawingSets().getActiveDrawingSet());
+        context.project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.set(presetData.colourSplitter);
+        context.project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.get().applySettings(context, context.project.getDrawingSets().getActiveDrawingSet());
         context.project.getDrawingSets().getDrawingSetForSlot(0).distributionType.set(presetData.distributionType);
         context.project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.set(presetData.distributionOrder);
 

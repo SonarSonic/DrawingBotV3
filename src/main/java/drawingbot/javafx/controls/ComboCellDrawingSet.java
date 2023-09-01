@@ -2,12 +2,9 @@ package drawingbot.javafx.controls;
 
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
-import drawingbot.files.json.presets.PresetDrawingPen;
-import drawingbot.files.json.presets.PresetDrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.cell.ComboBoxListCell;
@@ -54,16 +51,13 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
             }else{
                 setText("");
                 hBox.getChildren().add(createStaticPenPalette(item.getPens()));
-                Label displayNameLabel = new Label("  " + item.getDisplayName());
+                Label displayNameLabel = new Label("  " + item.getName());
                 displayNameLabel.setPrefHeight(12);
                 displayNameLabel.setTextFill(Color.BLACK);
 
                 hBox.getChildren().add(displayNameLabel);
-                if(item instanceof PresetDrawingSet){
-                    PresetDrawingSet presetDrawingSet = (PresetDrawingSet) item;
-                    if(presetDrawingSet.preset.userCreated){
-                        hBox.getChildren().add(ComboCellPreset.createUserLabel());
-                    }
+                if(item.isUserCreated()){
+                    hBox.getChildren().add(ComboCellPreset.createUserLabel());
                 }
                 setGraphic(hBox);
             }

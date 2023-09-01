@@ -1,6 +1,5 @@
 package drawingbot.javafx.controls;
 
-import drawingbot.files.json.IJsonData;
 import drawingbot.javafx.GenericPreset;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -8,7 +7,7 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
-public class ComboCellPreset<D extends IJsonData> extends ComboBoxListCell<GenericPreset<D>> {
+public class ComboCellPreset<D> extends ComboBoxListCell<GenericPreset<D>> {
 
     public ComboCellPreset() {
         super();

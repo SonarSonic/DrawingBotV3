@@ -96,6 +96,7 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
     public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
         if(set != null){
             activeDrawingSet.get().loadDrawingSet(set);
+
             Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set, this);
         }
     }

@@ -2,6 +2,7 @@ package drawingbot.files.json.presets;
 
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class PresetPFMSettingsManager extends AbstractPresetManager<PresetPFMSettings> {
+public abstract class PresetPFMSettingsManager extends AbstractPresetManager<PresetData> {
 
     public PresetPFMSettingsManager(PresetPFMSettingsLoader presetLoader) {
         super(presetLoader);
@@ -28,32 +29,32 @@ public abstract class PresetPFMSettingsManager extends AbstractPresetManager<Pre
     public abstract Property<ObservableList<GenericSetting<?, ?>>> settingProperty(DBTaskContext context);
 
     public static String getPFMPresetJson(PFMFactory<?> pfmFactory, List<GenericSetting<?,?>> pfmSettings) {
-        GenericPreset<PresetPFMSettings> preset = Register.PRESET_LOADER_PFM.createNewPreset();
+        GenericPreset<PresetData> preset = Register.PRESET_LOADER_PFM.createNewPreset();
         preset.setPresetSubType(pfmFactory.getRegistryName());
-        preset.data.settingList = GenericSetting.toJsonMap(pfmSettings, new HashMap<>(), false);
+        preset.data.settings = GenericSetting.toJsonMap(pfmSettings, new HashMap<>(), false);
         return JsonLoaderManager.createDefaultGson().toJson(preset);
     }
 
     @Override
-    public GenericPreset<PresetPFMSettings> updatePreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset, boolean loadingProject) {
+    public GenericPreset<PresetData> updatePreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean loadingProject) {
         PFMFactory<?> pfm = pfmProperty(context).getValue();
         ObservableList<GenericSetting<?, ?>> settings = settingProperty(context).getValue();
         if(pfm != null && settings != null) {
             preset.setPresetSubType(pfm.getRegistryName());
-            preset.data.settingList = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
+            preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
         }
         return preset;
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetPFMSettings> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean loadingProject) {
         pfmProperty(context).setValue(MasterRegistry.INSTANCE.getPFMFactory(preset.getPresetSubType()));
         Property<ObservableList<GenericSetting<?, ?>>> settings = settingProperty(context);
-        GenericSetting.applySettings(preset.data.settingList, settings.getValue());
+        GenericSetting.applySettings(preset.data.settings, settings.getValue());
     }
 
     @Override
-    public void addEditDialogElements(GenericPreset<PresetPFMSettings> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<PresetPFMSettings>>> callbacks) {
+    public void addEditDialogElements(GenericPreset<PresetData> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<PresetData>>> callbacks) {
         super.addEditDialogElements(preset, builder, callbacks);
 
         /*

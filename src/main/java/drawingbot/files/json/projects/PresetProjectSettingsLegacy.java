@@ -2,11 +2,10 @@ package drawingbot.files.json.projects;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import drawingbot.drawing.ColourSeparationHandler;
-import drawingbot.files.json.presets.PresetDrawingArea;
-import drawingbot.files.json.presets.PresetDrawingSet;
+import drawingbot.drawing.ColorSeparationHandler;
+import drawingbot.drawing.DrawingSet;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.presets.PresetImageFilters;
-import drawingbot.files.json.presets.PresetPFMSettings;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -22,9 +21,9 @@ import java.util.List;
  */
 public class PresetProjectSettingsLegacy extends PresetProjectSettings {
 
-    public GenericPreset<PresetDrawingArea> drawingArea;
+    public GenericPreset<PresetData> drawingArea;
     public GenericPreset<PresetImageFilters> imageFilters;
-    public GenericPreset<PresetPFMSettings> pfmSettings;
+    public GenericPreset<PresetData> pfmSettings;
 
     public EnumBlendMode blendMode;
     public EnumRotation imageRotation = EnumRotation.R0;
@@ -34,8 +33,8 @@ public class PresetProjectSettingsLegacy extends PresetProjectSettings {
     public boolean optimiseForPrint;
     public float targetPenWidth;
 
-    public GenericPreset<PresetDrawingSet> drawingSet; //legacy
-    public ColourSeparationHandler colourSplitter;
+    public GenericPreset<DrawingSet> drawingSet; //legacy
+    public ColorSeparationHandler colourSplitter;
     public EnumDistributionType distributionType;
     public EnumDistributionOrder distributionOrder;
 

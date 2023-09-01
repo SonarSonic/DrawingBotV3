@@ -4,13 +4,14 @@ import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.exporters.GCodeExporter;
 import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.DefaultPresetManager;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.UnitsLength;
 import javafx.collections.FXCollections;
 
-public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetGCodeSettings, GCodeSettings> {
+public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetData, GCodeSettings> {
 
     public PresetGCodeSettingsManager(PresetGCodeSettingsLoader presetLoader) {
         super(presetLoader);

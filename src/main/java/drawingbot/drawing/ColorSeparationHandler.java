@@ -1,20 +1,24 @@
 package drawingbot.drawing;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.files.json.adapters.JsonAdapterColourSplitter;
+import drawingbot.files.json.adapters.JsonAdapterColorSeparationHandler;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.EnumReleaseState;
 import drawingbot.utils.INamedSetting;
 
-@JsonAdapter(JsonAdapterColourSplitter.class)
-public class ColourSeparationHandler implements INamedSetting {
+@JsonAdapter(JsonAdapterColorSeparationHandler.class)
+public class ColorSeparationHandler implements INamedSetting {
 
     public final String name;
     public boolean applied;
 
-    public ColourSeparationHandler(String name){
+    public EnumReleaseState releaseState = EnumReleaseState.RELEASE;
+    public boolean isNewFeature = false;
+
+    public ColorSeparationHandler(String name){
         this.name = name;
     }
 
@@ -51,7 +55,7 @@ public class ColourSeparationHandler implements INamedSetting {
         return false;
     }
 
-    public void onUserConfigure(){}
+    public void onUserConfigure(ObservableDrawingSet drawingSet){}
 
     public boolean wasApplied(){
         return applied;
@@ -59,6 +63,38 @@ public class ColourSeparationHandler implements INamedSetting {
 
     public void setApplied(boolean appliedSettings){
         this.applied = appliedSettings;
+    }
+
+    public Class<? extends ColorSeparationSettings> getSettingsClass(){
+        return null;
+    }
+
+    public ColorSeparationSettings getDefaultSettings(){
+        return null;
+    }
+
+    @Override
+    public EnumReleaseState getReleaseState() {
+        return releaseState;
+    }
+
+    public ColorSeparationHandler setReleaseState(EnumReleaseState releaseState) {
+        this.releaseState = releaseState;
+        return this;
+    }
+
+    @Override
+    public boolean isNewFeature() {
+        return isNewFeature;
+    }
+
+    public ColorSeparationHandler setNewFeature(boolean newFeature) {
+        isNewFeature = newFeature;
+        return this;
+    }
+
+    public boolean useColorSplitterOpacity(){
+        return false;
     }
 
     @Override

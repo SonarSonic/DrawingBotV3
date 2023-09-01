@@ -1,15 +1,13 @@
 package drawingbot.integrations.vpype;
 
 import com.google.gson.JsonElement;
-import drawingbot.files.json.AbstractJsonData;
 import drawingbot.files.json.JsonData;
-import drawingbot.files.json.PresetType;
-import drawingbot.registry.Register;
+import drawingbot.files.json.PresetData;
 
 import java.util.HashMap;
 
 @JsonData
-public class PresetVpypeSettings extends AbstractJsonData {
+public class PresetVpypeSettings extends PresetData {
 
     public PresetVpypeSettings() {
         super();
@@ -19,8 +17,4 @@ public class PresetVpypeSettings extends AbstractJsonData {
         super(settingList);
     }
 
-    @Override
-    public PresetType getPresetType() {
-        return Register.PRESET_TYPE_VPYPE_SETTINGS;
-    }
 }

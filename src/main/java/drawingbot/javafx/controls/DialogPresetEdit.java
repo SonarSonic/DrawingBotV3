@@ -1,7 +1,6 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.files.json.AbstractPresetManager;
-import drawingbot.files.json.IJsonData;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.editors.Editors;
 
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class DialogPresetEdit<O extends IJsonData> extends DialogScrollPane {
+public class DialogPresetEdit<O> extends DialogScrollPane {
 
     private DialogPresetEdit(GenericPreset<O> preset, List<Consumer<GenericPreset<O>>> callbacks) {
         super("Edit " + preset.presetType.displayName, Editors.page("settings", builder -> {
@@ -20,7 +19,7 @@ public class DialogPresetEdit<O extends IJsonData> extends DialogScrollPane {
 
     }
 
-    public static <O extends IJsonData> boolean openPresetEditDialog(GenericPreset<O> preset){
+    public static <O> boolean openPresetEditDialog(GenericPreset<O> preset){
         GenericPreset<O> copy = new GenericPreset<>(preset);
         List<Consumer<GenericPreset<O>>> callbacks = new ArrayList<>();
         DialogPresetEdit<O> dialog = new DialogPresetEdit<>(copy, callbacks);

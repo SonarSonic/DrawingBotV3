@@ -1,6 +1,5 @@
 package drawingbot.files;
 
-import drawingbot.utils.DBConstants;
 import javafx.stage.FileChooser;
 
 import java.io.*;
@@ -121,8 +120,7 @@ public class FileUtils {
             return createWriter(output);
 
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't create a writer for " +
-                    file.getAbsolutePath(), e);
+            throw new RuntimeException("Couldn't create a writer for " + file.getAbsolutePath(), e);
         }
     }
 

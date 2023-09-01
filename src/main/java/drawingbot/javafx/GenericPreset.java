@@ -2,7 +2,6 @@ package drawingbot.javafx;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.json.AbstractJsonLoader;
-import drawingbot.files.json.IJsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
@@ -10,7 +9,7 @@ import drawingbot.utils.INamedSetting;
 import javafx.beans.property.SimpleStringProperty;
 
 @JsonAdapter(JsonAdapterGenericPreset.class)
-public class GenericPreset<O extends IJsonData> implements INamedSetting {
+public class GenericPreset<O> implements INamedSetting {
 
     public transient AbstractJsonLoader<O> presetLoader; //the preset loader which created this preset
 

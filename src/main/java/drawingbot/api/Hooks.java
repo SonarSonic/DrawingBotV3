@@ -22,7 +22,7 @@ public class Hooks {
     public static final String SERIALIZE_DRAWING_STATE = "SERIALIZE_DRAWING_STATE";
     public static final String DESERIALIZE_DRAWING_STATE = "DESERIALIZE_DRAWING_STATE";
 
-    public static final String GSON_BUILDER_INIT = "GSON_BUILDER_INIT";
+    public static final String GSON_BUILDER_INIT_POST = "GSON_BUILDER_INIT_POST";
 
     public static final String FILE_MENU = "FILE_MENU";
 

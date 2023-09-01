@@ -1,7 +1,6 @@
 package drawingbot.javafx.editors;
 
 import drawingbot.files.json.AbstractPresetLoader;
-import drawingbot.files.json.IJsonData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -158,7 +157,7 @@ public class Editors {
         };
     }
 
-    public static <O extends IJsonData> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(AbstractPresetLoader<O> loader){
+    public static <O> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(AbstractPresetLoader<O> loader){
         ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
         comboBox.setItems(loader.presets);
         comboBox.setValue(loader.getDefaultPreset());
@@ -184,6 +183,23 @@ public class Editors {
         hBox.getChildren().add(fileLabel);
         fileLabel.setMaxWidth(275);
         fileLabel.setWrapText(true);
+        return hBox;
+    }
+
+    @Nullable
+    public static Node createNodeEditorGroupSetting(List<GenericSetting<?, ?>> settings){
+        if(settings.isEmpty()){
+            return null;
+        }
+        if(settings.size() == 1){
+            return createNodeEditor(settings.get(0));
+        }
+        HBox hBox = new HBox();
+        for(GenericSetting<?, ?> setting : settings){
+            hBox.getChildren().add(createNodeEditor(setting));
+        }
+        hBox.setSpacing(4);
+        HBox.setHgrow(hBox, Priority.ALWAYS);
         return hBox;
     }
 

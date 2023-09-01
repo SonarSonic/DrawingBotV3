@@ -1,7 +1,7 @@
 package drawingbot.pfm;
 
 import drawingbot.api.IProperties;
-import drawingbot.files.json.presets.PresetPFMSettings;
+import drawingbot.files.json.PresetData;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.CategorySetting;
@@ -177,7 +177,7 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
 
         default void onPFMChanged(PFMFactory<?> oldValue, PFMFactory<?> newValue) {}
 
-        default void onUserChangedPFMPreset(GenericPreset<PresetPFMSettings> pfmPreset) {}
+        default void onUserChangedPFMPreset(GenericPreset<PresetData> pfmPreset) {}
 
     }
 }

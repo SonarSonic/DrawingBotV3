@@ -13,7 +13,9 @@ import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.integrations.vpype.FXVPypeController;
 import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controllers.*;
-import drawingbot.javafx.controls.*;
+import drawingbot.javafx.controls.ContextMenuObservableProject;
+import drawingbot.javafx.controls.DialogPremiumFeature;
+import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
@@ -746,7 +748,7 @@ public class FXController extends AbstractFXController {
             long millis = DrawingBotV3.INSTANCE.elapsedTimeMS.get();
             long minutes = (millis / 1000) / 60;
             long seconds = (millis / 1000) % 60;
-            if(seconds == 0){
+            if(minutes == 0 && seconds == 0){
                 return "%s ms".formatted(millis);
             }
             return minutes + " m " + seconds + " s";

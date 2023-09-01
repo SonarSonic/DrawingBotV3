@@ -23,6 +23,12 @@ public class JsonAdapterObservableDrawingPen extends JsonAdapterAbstract<Observa
         settings.add(GenericSetting.createColourSetting(ObservableDrawingPen.class, "argb", Color.BLACK, i -> i.javaFXColour));
         settings.add(GenericSetting.createIntSetting(ObservableDrawingPen.class, "distributionWeight", 100, i -> i.distributionWeight));
         settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "strokeSize", 1F, i -> i.strokeSize));
+
+        //// COLOUR SPLITTER DATA \\\\
+        settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "colorSplitMultiplier", 1F, i -> i.colorSplitMultiplier));
+        settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "colorSplitOpacity", 1F, i -> i.colorSplitOpacity));
+        settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "colorSplitOffsetX", 0F, i -> i.colorSplitOffsetX));
+        settings.add(GenericSetting.createFloatSetting(ObservableDrawingPen.class, "colorSplitOffsetY", 0F, i -> i.colorSplitOffsetY));
      }
 
 

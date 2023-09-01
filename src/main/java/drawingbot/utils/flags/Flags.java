@@ -39,6 +39,7 @@ public class Flags {
     public final static Flags.BooleanFlag PFM_HAS_SAMPLED_ARGB = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_HAS_SAMPLED_ARGB", false, false));
     public final static Flags.BooleanFlag PFM_SUPPORTS_SOFT_CLIP = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_SUPPORTS_SOFT_CLIP", false, false));
     public final static Flags.BooleanFlag PFM_REQUIRES_PREMIUM = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_REQUIRES_PREMIUM", false, false));
+    public final static Flags.BooleanFlag PFM_ALLOW_SQUIGGLE_DISTRIBUTION = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_USE_SQUIGGLE_DISTRIBUTION", true, true));
 
     public final static Flags.BooleanFlag PFM_LINE_OPTIMISING = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_LINE_OPTIMISING", false, false));
     public final static Flags.BooleanFlag PFM_LINE_SIMPLIFY = Flags.addBooleanFlag(PFM_FACTORY_FLAGS, new Flags.BooleanFlag("PFM_LINE_SIMPLIFY", true, true));

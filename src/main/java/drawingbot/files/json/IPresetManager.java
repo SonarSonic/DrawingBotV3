@@ -3,7 +3,7 @@ package drawingbot.files.json;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 
-public interface IPresetManager<O extends IJsonData> {
+public interface IPresetManager<O> {
 
     /**
      * updates the presets settings with the ones currently configured

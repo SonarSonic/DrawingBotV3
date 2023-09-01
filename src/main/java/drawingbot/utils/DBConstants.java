@@ -5,6 +5,7 @@ public class DBConstants {
     // KEYWORDS \\
     public static final String DRAWING_TYPE_SPECIAL = "Special";
     public static final String DRAWING_TYPE_USER = "User";
+    public static final String PRESET_MISSING_NAME = "#MISSING#";
 
     // WEBSITES \\
     public static final String URL_UPGRADE = "https://drawingbotv3.com/downloads/";

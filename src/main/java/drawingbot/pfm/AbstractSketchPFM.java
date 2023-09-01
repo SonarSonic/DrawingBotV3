@@ -8,12 +8,10 @@ import drawingbot.image.PixelDataARGBY;
 import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.image.PixelTargetCache;
 import drawingbot.image.PixelTargetDarkestArea;
-import drawingbot.pfm.helpers.ColourSampleTest;
 import drawingbot.pfm.helpers.PFMRenderPipe;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
 
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
@@ -104,6 +102,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     @Override
     public void run() {
+        //Check we actually need to run, images passed via Color Separation may not have any drawable lines.
+        if(updateProgress(tools)){
+            return;
+        }
+
         while(!tools.isFinished()){
 
             // Find the darkest pixel in the image, using the current method, use this as the current position

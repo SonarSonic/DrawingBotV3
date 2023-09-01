@@ -53,4 +53,28 @@ public interface IDrawingPen {
      */
     int getDistributionWeight();
 
+    boolean isUserCreated();
+
+    //// COLOR SPLITTER \\\\
+
+    default boolean hasColorSplitterData(){
+        return false;
+    }
+
+    default float getColorSplitMultiplier(){
+        return 1.0F;
+    }
+
+    default float getColorSplitOpacity(){
+        return 1F;
+    }
+
+    default float getColorSplitOffsetX(){
+        return 0F;
+    }
+
+    default float getColorSplitOffsetY(){
+        return 0F;
+    }
+
 }

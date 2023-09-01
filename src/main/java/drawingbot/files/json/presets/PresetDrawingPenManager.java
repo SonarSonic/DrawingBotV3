@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class PresetDrawingPenManager extends AbstractPresetManager<PresetDrawingPen> {
+public abstract class PresetDrawingPenManager extends AbstractPresetManager<DrawingPen> {
 
     public PresetDrawingPenManager(PresetDrawingPenLoader presetLoader) {
         super(presetLoader);
@@ -25,7 +25,7 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Pres
     public abstract IDrawingPen getSelectedDrawingPen();
 
     @Override
-    public GenericPreset<PresetDrawingPen> updatePreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset, boolean loadingProject) {
+    public GenericPreset<DrawingPen> updatePreset(DBTaskContext context, GenericPreset<DrawingPen> preset, boolean loadingProject) {
         IDrawingPen selectedPen = getSelectedDrawingPen();
         if (selectedPen != null) {
             DrawingPen pen = new DrawingPen(selectedPen);
@@ -39,12 +39,12 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Pres
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetDrawingPen> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<DrawingPen> preset, boolean loadingProject) {
         //nothing to apply
     }
 
     @Override
-    public void addEditDialogElements(GenericPreset<PresetDrawingPen> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<PresetDrawingPen>>> callbacks) {
+    public void addEditDialogElements(GenericPreset<DrawingPen> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<DrawingPen>>> callbacks) {
         super.addEditDialogElements(preset, builder, callbacks);
         SimpleObjectProperty<Color> penColour = new SimpleObjectProperty<>();
         penColour.set(ImageTools.getColorFromARGB(preset.data.argb));

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class DefaultPresetManager<O extends AbstractJsonData, I> extends AbstractPresetManager<O> {
+public abstract class DefaultPresetManager<O extends PresetData, I> extends AbstractPresetManager<O> {
 
     private final List<GenericSetting<?, ?>> settings = new ArrayList<>();
     public boolean changesOnly;

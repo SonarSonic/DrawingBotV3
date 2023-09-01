@@ -245,7 +245,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
 
                 //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered
                 //if(drawingManager instanceof DrawingBotV3){ //TODO FIXME?
-                    if(refPenSet.colourSeperator.get().isDefault()){
+                    if(refPenSet.colorHandler.get().isDefault()){
                         if(context.project.getPFMSettings().getNextDistributionType() != null){
                             refPenSet.distributionType.set(context.project.getPFMSettings().getNextDistributionType());
                             context.project.getPFMSettings().setNextDistributionType(null);

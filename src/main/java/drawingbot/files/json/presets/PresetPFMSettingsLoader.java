@@ -2,6 +2,7 @@ package drawingbot.files.json.presets;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetLoader;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetType;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
@@ -15,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSettings> {
+public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetData> {
 
     public PresetPFMSettingsLoader(PresetType presetType) {
-        super(PresetPFMSettings.class, presetType, "user_pfm_presets.json");
+        super(PresetData.class, presetType, "user_pfm_presets.json");
         setDefaultManager(new PresetPFMSettingsManager(this) {
             @Override
             public Property<PFMFactory<?>> pfmProperty(DBTaskContext context) {
@@ -33,32 +34,32 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetPFMSetti
     }
 
     @Override
-    public PresetPFMSettings getPresetInstance(GenericPreset<PresetPFMSettings> preset) {
-        return new PresetPFMSettings();
+    public PresetData getPresetInstance(GenericPreset<PresetData> preset) {
+        return new PresetData();
     }
 
     @Override
-    public void registerPreset(GenericPreset<PresetPFMSettings> preset) {
+    public void registerPreset(GenericPreset<PresetData> preset) {
         DrawingBotV3.logger.finest("Registering PFM Preset: " + preset.getPresetName());
         super.registerPreset(preset);
     }
 
     @Override
-    public void unregisterPreset(GenericPreset<PresetPFMSettings> preset) {
+    public void unregisterPreset(GenericPreset<PresetData> preset) {
         DrawingBotV3.logger.finest("Unregistering PFM Preset: " + preset.getPresetName());
         super.unregisterPreset(preset);
     }
 
     @Override
-    public GenericPreset<PresetPFMSettings> getDefaultPreset() {
+    public GenericPreset<PresetData> getDefaultPreset() {
         return MasterRegistry.INSTANCE.getDefaultPreset(this, MasterRegistry.INSTANCE.getDefaultPFM().getRegistryName(), "Default");
     }
 
     @Override
     public List<GenericPreset<?>> getUserCreatedPresets() {
         List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (Map.Entry<String, ObservableList<GenericPreset<PresetPFMSettings>>> entry : presetsByType.entrySet()) {
-            for (GenericPreset<PresetPFMSettings> preset : entry.getValue()) {
+        for (Map.Entry<String, ObservableList<GenericPreset<PresetData>>> entry : presetsByType.entrySet()) {
+            for (GenericPreset<PresetData> preset : entry.getValue()) {
                 if (preset.userCreated) {
                     userCreated.add(preset);
                 }
