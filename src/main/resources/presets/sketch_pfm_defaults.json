@@ -412,7 +412,7 @@
       "version": "1.11",
       "presetSubType": "Sketch Flow Field",
       "presetName": "Wavy Field",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settings": {
           "Plotting Resolution": "1.0",
@@ -443,7 +443,7 @@
       "version": "1.11",
       "presetSubType": "Sketch Superformula",
       "presetName": "Vortex",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settings": {
           "Plotting Resolution": "1.0",
@@ -478,7 +478,7 @@
       "version": "1.11",
       "presetSubType": "Sketch Superformula",
       "presetName": "Star",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settings": {
           "Plotting Resolution": "1.0",
@@ -513,7 +513,7 @@
       "version": "1.11",
       "presetSubType": "Sketch Superformula",
       "presetName": "Tunnel",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settings": {
           "Plotting Resolution": "1.0",
@@ -548,7 +548,7 @@
       "version": "1.11",
       "presetSubType": "Sketch Superformula",
       "presetName": "Diamond",
-      "userCreated": true,
+      "userCreated": false,
       "data": {
         "settings": {
           "Plotting Resolution": "1.0",

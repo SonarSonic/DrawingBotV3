@@ -71,9 +71,12 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Shapes", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sobel Edges", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Waves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Flow Field", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Superformula", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sweeping Curves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "ECS Drawing", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Spiral Circular Scribbles", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Hatch Sawtooth", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Hatch Circular Scribbles", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
 
@@ -106,6 +109,10 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Letters", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi Diagram", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Voronoi TSP", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Grid Shapes", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Grid Dashes", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Grid Letters", Register.PFM_TYPE_VORONOI, DummyPFM::new).setPremium(true);
 
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Rectangles", Register.PFM_TYPE_COMPOSITE, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Mosaic Voronoi", Register.PFM_TYPE_COMPOSITE, DummyPFM::new).setPremium(true);
