@@ -44,6 +44,7 @@ dependencies {
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
     implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
     implementation "org.fxmisc.easybind:easybind:${easy_bind_version}"
+    implementation "org.apache.commons:commons-lang3:${apache_commons_lang3}"
 
     //// JOGL
     implementation "org.jogamp.gluegen:gluegen-rt-main:${jogl_version}"
