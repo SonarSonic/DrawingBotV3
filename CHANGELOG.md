@@ -1,3 +1,23 @@
+### [v1.6.6-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.6-beta-free)
+- Added: **2 New PFMs**: 
+  - **Sketch Flow Fields** - Uses a Flow Field to direct the generated paths.
+  - **Sketch Superformula** - Uses [Superformula](https://en.wikipedia.org/wiki/Superformula) to produce sketch plots which are driven by radial patterns, such as stars, vortexes and ellipses. You can use examples shown on the Superformula wiki by using the examples **m**, **n1**, **n2** and **n3** for  **Frequency**, **Curvature**, **Sine Factor** and **Cos Factor** respectively
+- Added: **CMYK (Extended Gamut)** - A new color separation option which extends the stand CMYK range to include Orange, Green, Violet, Red and Blue. It can create plots with even more vibrant colors and more colour accurate result than standard CMYK. You can even add your own pens to the color separation, allowing for even more accurate results, it is best to still keep the main CMYK pens as part of the plot.  
+- Added: **2 New Distribution Types** 
+  - **Random Squiggles** - Unlike the classic *Random* distribution, random squiggles will only change pen when a *Squiggle* (continuous path without pen lifts) is finished.
+  - **Luminance Weighted** - Distributes pens according to each shape's luminance in the original image, works especially well with non-Sketch PFMs by reintroducing multiple pens to the plot in a more aesthetically pleasing way than alternative distribution types. Try it out with Adaptive Shapes!
+- Added: **New CMYK Settings**
+  - **Clean Black** - Prevents areas of complete black being drawn over by non-black pens, resulting in a cleaner result with less ink wasted.
+  - **Clean White** - Works in a similar way to Clean Black, and protects white areas from being drawn over by off-white pens.
+  - **Vibrancy** - Controls the overall intensity for the Extended Gamut colors (Orange, Green, Violet, Red and Blue)
+  - **Reduce Overlay** - Controls the amount pens are allowed to overlap in the final result.
+- Improved: New CMYK Separation configuration UI, to allow more advanced configurations.  
+- Improved: CMYK Settings can now be saved along with Drawing Set presets.
+- Improved: Serial Connection progress will now show high values in hours/min/sec and not just min/sec
+- Fixed: Notifications not appearing
+- Fixed: Anchor point positioning when rotating mask shapes with shift held down.
+- Fixed: Elapsed time flickering when hours / minutes reached 0
+
 ### [v1.6.5-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.5-stable-free)
 - Improved: RAM Usage has been reduced in many situations and the general responsiveness of the application improved.
 - Improved: Sketch PFMs have been further optimised, with speed improvements up to 2x.
