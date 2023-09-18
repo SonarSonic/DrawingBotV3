@@ -4,8 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="vboxBatchProcessing" prefHeight="440.0" minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
-   <HBox alignment="CENTER">
+<VBox fx:id="vboxBatchProcessing" minWidth="410.0" prefHeight="440.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
+   <HBox alignment="CENTER_LEFT" spacing="14.0">
       <children>
           <Button fx:id="buttonSelectInputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
           <Button fx:id="buttonSelectOutputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Output Folder" />
@@ -36,7 +36,7 @@
             <CheckBox fx:id="checkBoxOverwrite" contentDisplay="RIGHT" mnemonicParsing="false" />
         </graphic>
     </Label>
-   <HBox alignment="CENTER">
+   <HBox alignment="CENTER_LEFT" spacing="14.0">
       <children>
           <Button fx:id="buttonStartBatchProcessing" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Start Batch Processing" />
           <Button fx:id="buttonStopBatchProcessing" cancelButton="true" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Stop Batch Processing" />
