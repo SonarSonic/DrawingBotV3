@@ -3,6 +3,7 @@ package drawingbot.files;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.proxy.SimpleProxyHandler;
 import drawingbot.javafx.FXHelper;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBConstants;
@@ -15,6 +16,7 @@ import org.controlsfx.control.action.Action;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -58,7 +60,8 @@ public class UpdateChecker {
             // Download the CHANGELOG.MD, to check for changes
             URL url = new URI(DBConstants.CHANGELOG_URL).toURL();
             String changelog = "";
-            try (InputStream in = url.openStream()){
+            URLConnection connection = url.openConnection(SimpleProxyHandler.getDefaultProxy());
+            try (InputStream in = connection.getInputStream()){
                 byte[] bytes = in.readAllBytes();
                 changelog = new String(bytes, StandardCharsets.UTF_8);
             }catch (Exception e){
