@@ -1,3 +1,15 @@
+### [v1.6.7-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.7-beta-free)
+- Added: **Group** option for Masks, right-click a mask in the table with multiple selected to create a new grouped mask.
+- Added: **Link Square Paths** & **Link Circle Paths** to Pen Calibration PFM, reducing pen lifts when running tests.
+- Added: **Heart** as a new Shape and Mask Type.
+- Added: Support for Proxies when running with a Corporate Firewall.
+- Improved: UI Scaling on Pen Settings and Batch Processing panels.
+- Fixed: Colour Match failing to finish with "*Out of range*".
+- Fixed: Catmull-Roms PFM failing to finish with "*testData is null*".
+- Fixed: Duplicating masks creating an additional invisible mask.
+- Fixed: SVG Converter PFM handling empty paths incorrectly, resulting in export failures.
+- Fixed: SVG Converter PFM ignoring the *Pen Limit* when using *Colour Match*
+
 ### [v1.6.6-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.6-beta-free)
 - Added: **2 New PFMs**: 
   - **Sketch Flow Fields** - Uses a Flow Field to direct the generated paths.
