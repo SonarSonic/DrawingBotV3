@@ -459,8 +459,8 @@ public class ImageTools {
         return array;
     }
 
-    public static int getBrightnessFromRGB(int r, int g, int b){
-        return Math.max(b, Math.max(r, g));
+    public static int getBrightnessFromRGB(int argb){
+        return Math.max(red(argb), Math.max(green(argb), blue(argb)));
     }
 
     public static int getPerceivedLuminanceFromRGB(int argb){

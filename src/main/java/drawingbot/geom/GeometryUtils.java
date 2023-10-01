@@ -370,6 +370,11 @@ public class GeometryUtils {
         return segmentCount;
     }
 
+    public static boolean hasSegments(Shape shape){
+        PathIterator iterator = shape.getPathIterator(null);
+        return !iterator.isDone();
+    }
+
     @Deprecated
     public static int getVertexCount(Shape shape){
         int vertexCount = 0;
