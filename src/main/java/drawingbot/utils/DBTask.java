@@ -1,13 +1,14 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.api.IExceptionCallback;
 import drawingbot.api.IProgressCallback;
 import drawingbot.files.json.projects.DBTaskContext;
 import javafx.concurrent.Task;
 
 import java.util.logging.Level;
 
-public abstract class DBTask<V> extends Task<V> implements IProgressCallback {
+public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IExceptionCallback {
 
     public final DBTaskContext context;
     public boolean updateProgressInstantly = true;
@@ -30,10 +31,11 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback {
     }
 
     @Override
-    protected void setException(Throwable t) {
+    public void setException(Throwable t) {
         super.setException(t);
         DrawingBotV3.logger.log(Level.SEVERE, "TASK FAILED", t);
         setError(t.getMessage());
+        updateProgress(-1, 1);
     }
 
     @Override

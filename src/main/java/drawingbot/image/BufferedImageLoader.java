@@ -37,7 +37,7 @@ public class BufferedImageLoader extends DBTask<BufferedImage> {
     }
 
     @Override
-    protected void setException(Throwable t) {
+    public void setException(Throwable t) {
         super.setException(t);
         DrawingBotV3.logger.log(Level.SEVERE, "Buffered Image Loader Failed", t);
     }

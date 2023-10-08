@@ -65,7 +65,11 @@ public class GCodeExporter {
 
     public static void exportGCode(ExportTask exportTask, GCodeSettings settings, File saveLocation){
 
-        PrintWriter output = FileUtils.createWriter(saveLocation);
+        PrintWriter output = exportTask.createFileWriter(saveLocation);
+        if(output == null){
+            return;
+        }
+
         GCodeBuilder builder = new GCodeBuilder(exportTask, settings, output);
 
         builder.open();
@@ -103,11 +107,16 @@ public class GCodeExporter {
         DrawingBotV3.logger.info("GCode File Created:  " +  saveLocation);
     }
 
-    public static void exportGCodeTest(ExportTask exportTask, File saveLocation){
+    public static void exportGCodeTest(ExportTask exportTask, File saveLocation) {
         exportGCodeTest(exportTask, DBPreferences.INSTANCE.gcodeSettings, saveLocation);
     }
 
-    public static void exportGCodeTest(ExportTask exportTask, GCodeSettings settings, File saveLocation){
+    public static void exportGCodeTest(ExportTask exportTask, GCodeSettings settings, File saveLocation) {
+        String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + exportTask.extension;
+        PrintWriter output = exportTask.createFileWriter(new File(gname));
+        if(output == null){
+            return;
+        }
         AffineTransform transform = createGCodeTransform(exportTask.exportDrawing.getCanvas(), settings);
 
         Limit dx = new Limit(), dy = new Limit();
@@ -132,8 +141,6 @@ public class GCodeExporter {
             exportTask.onGeometryExported();
         }
 
-        String gname = FileUtils.removeExtension(saveLocation) + "gcode_test" + exportTask.extension;
-        PrintWriter output = FileUtils.createWriter(new File(gname));
         GCodeBuilder builder = new GCodeBuilder(exportTask, settings, output);
 
         builder.comment("This is a test file to draw the extremes of the drawing area.");

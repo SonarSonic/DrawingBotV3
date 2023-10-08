@@ -23,8 +23,12 @@ import drawingbot.utils.DBTask;
 import javafx.application.Platform;
 import javafx.scene.control.Dialog;
 import org.controlsfx.control.action.Action;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -230,8 +234,9 @@ public class ExportTask extends DBTask<Boolean> {
                 break;
         }
         if(!error.isEmpty()){
-            updateMessage("Export Error: " + error);
-            NotificationOverlays.INSTANCE.showWithSubtitle("WARNING", "Export Error", error);
+            updateTitle("Export Failed");
+            updateMessage(error);
+            NotificationOverlays.INSTANCE.showWithSubtitle("WARNING", "Export Failed", error);
         }else{
             updateMessage("Finished");
             if(!isSubTask){
@@ -256,7 +261,7 @@ public class ExportTask extends DBTask<Boolean> {
     }
 
     public void onDrawingExported(PlottedDrawing drawing, IGeometryFilter geometryFilter, File saveLocation){
-        if(isSubTask){
+        if(isSubTask || !error.isEmpty()){
             return;
         }
 
@@ -283,6 +288,21 @@ public class ExportTask extends DBTask<Boolean> {
     public void onGeometryExported(){
         renderedGeometries++;
         updateProgress(renderedGeometries, exportDrawing.getGeometryCount());
+    }
+
+    @Nullable
+    public PrintWriter createFileWriter(File file) {
+        try {
+            File parent = file.getParentFile();
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IOException("Unable to create directory: " + parent.getAbsolutePath());
+            }
+            return new PrintWriter(new FileWriter(file));
+        }catch (Exception e){
+            setException(e);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public enum Mode {

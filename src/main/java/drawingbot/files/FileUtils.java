@@ -2,11 +2,9 @@ package drawingbot.files;
 
 import javafx.stage.FileChooser;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 public class FileUtils {
 
@@ -107,29 +105,6 @@ public class FileUtils {
         return getUserDataDirectory() + "logs" + File.separator;
     }
 
-    public static PrintWriter createWriter(File file) {
-        if (file == null) {
-            throw new RuntimeException("File passed to createWriter() was null");
-        }
-        try {
-            createPath(file);  // make sure in-between folders exist
-            OutputStream output = new FileOutputStream(file);
-            if (file.getName().toLowerCase().endsWith(".gz")) {
-                output = new GZIPOutputStream(output);
-            }
-            return createWriter(output);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't create a writer for " + file.getAbsolutePath(), e);
-        }
-    }
-
-    public static PrintWriter createWriter(OutputStream output) {
-        BufferedOutputStream bos = new BufferedOutputStream(output, 8192);
-        OutputStreamWriter osw = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        return new PrintWriter(osw);
-    }
-
     public static String createPathMatcherGlob(FileChooser.ExtensionFilter ...filters){
         StringBuilder builder = new StringBuilder();
         for(FileChooser.ExtensionFilter filter : filters){
@@ -142,20 +117,5 @@ public class FileUtils {
         //Remove the trailing ","
         builder.deleteCharAt(builder.length() - 1);
         return "glob:*.{" + builder.toString() + "}";
-    }
-
-    public static void createPath(File file) {
-        try {
-            String parent = file.getParent();
-            if (parent != null) {
-                File unit = new File(parent);
-                if (!unit.exists()){
-                    unit.mkdirs();
-                }
-            }
-        } catch (SecurityException se) {
-            System.err.println("You don't have permissions to create " +
-                    file.getAbsolutePath());
-        }
     }
 }
