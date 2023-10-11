@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class PresetProjectSettingsManager extends AbstractPresetManager<PresetProjectSettings> {
@@ -41,6 +42,10 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     @Override
     public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject) {
+        return updatePreset(context, preset, loadingProject, MasterRegistry.INSTANCE.projectDataLoaders);
+    }
+
+    public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject, List<PresetDataLoader<PresetProjectSettings>> dataLoaders) {
         PlottedDrawing renderedDrawing = context.taskManager().getCurrentDrawing();
         preset.data.imagePath = context.project.openImage.get() != null && context.project.openImage.get().getSourceFile() != null ? context.project.openImage.get().getSourceFile().getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
@@ -50,7 +55,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             PresetProjectSettingsManagerLegacy.updatePreset(context, preset);
         }else{
             Gson gson = JsonLoaderManager.createDefaultGson();
-            for(PresetDataLoader<PresetProjectSettings> loader : MasterRegistry.INSTANCE.projectDataLoaders){
+            for(PresetDataLoader<PresetProjectSettings> loader : dataLoaders){
                 try {
                     loader.save(context, gson, preset);
                 } catch (Exception exception) {
@@ -72,12 +77,16 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
 
     @Override
     public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject) {
+        applyPreset(context, preset, loadingProject, MasterRegistry.INSTANCE.projectDataLoaders);
+    }
+
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject, List<PresetDataLoader<PresetProjectSettings>> dataLoaders) {
         if(preset.data instanceof PresetProjectSettingsLegacy){
             PresetProjectSettingsManagerLegacy.applyPreset(context, preset);
             return;
         }
         Gson gson = JsonLoaderManager.createDefaultGson();
-        for(PresetDataLoader<PresetProjectSettings> loader : MasterRegistry.INSTANCE.projectDataLoaders){
+        for(PresetDataLoader<PresetProjectSettings> loader : dataLoaders){
             try {
                 loader.load(context, gson, preset);
             } catch (Exception exception) {

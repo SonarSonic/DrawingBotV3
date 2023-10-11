@@ -32,7 +32,7 @@ public abstract class AbstractJsonLoader<O> {
     }
 
     public String getVersion(){
-        return "1.11";
+        return "1.12";
     }
 
     protected abstract O getPresetInstance(GenericPreset<O> preset);
