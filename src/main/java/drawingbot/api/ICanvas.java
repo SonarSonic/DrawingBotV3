@@ -33,12 +33,32 @@ public interface ICanvas {
 
     float getDrawingOffsetY();
 
+    /**
+     * @return the user's desired pen width size in mm, (e.g. 0.3, 0.5, 0.7)
+     * <br>
+     * See: {@link #getRenderedPenWidth()}
+     */
     default float getTargetPenWidth(){
         return 1F;
     }
 
-    default float getRenderedPenWidth(float penWidth){
-        return getRescaleMode().isHighQuality() ? penWidth * getTargetPenWidth() : penWidth;
+    /**
+     * Used internally by PFMs, when they should factor in the pen width into calculations
+     * Typically the image is scaled so that 1 px = 1 pen width, so in most situations this value is 1.
+     * However, when High Quality mode is enabled, the image size may be higher resolution
+     */
+    default float getRenderedPenWidth(){
+        if(!useOriginalSizing() && getRescaleMode().isHighQuality()){
+            return getTargetPenWidth() * getPlottingScale();
+        }
+        return 1F;
+    }
+
+    default float getRenderedPenWidth(float strokeSize){
+        if(!useOriginalSizing() && getRescaleMode().isHighQuality()){
+            return strokeSize * getRenderedPenWidth();
+        }
+        return strokeSize;
     }
 
     default float getCanvasScale(){
@@ -108,6 +128,25 @@ public interface ICanvas {
                 && Objects.equals(canvasA.getDrawingOffsetY(), canvasB.getDrawingOffsetY())
                 && Objects.equals(canvasA.getTargetPenWidth(), canvasB.getTargetPenWidth())
                 && Objects.equals(canvasA.getCanvasScale(), canvasB.getCanvasScale());
+    }
+
+    default String asString(){
+        return """
+               Units: %s"
+               Original Sizing: %s
+               Width: %s
+               Height: %s
+               Drawing Width: %s
+               Drawing Height: %s
+               Drawing Offset X: %s
+               Drawing Offset Y: %s
+               Plotting Scale: %s
+               Canvas Scale: %s
+               Pen Target Width: %s
+               Cropping Mode: %s"
+               Clipping Mode: %s"
+               Rescale Mode: %s"
+               """.formatted(getUnits(), useOriginalSizing(), getWidth(), getHeight(), getDrawingWidth(), getDrawingHeight(), getDrawingOffsetX(), getDrawingOffsetY(), getPlottingScale(), getCanvasScale(), getTargetPenWidth(), getCroppingMode(), getClippingMode(), getRescaleMode());
     }
 
 }

@@ -56,9 +56,9 @@ public class PFMSpiralBasic extends AbstractPFMImage {
     public void run() {
         //adjust for HQ mode
         if(tools.getCanvas().getRescaleMode().isHighQuality()){
-            ringSpacing = ringSpacing * (tools.getCanvas().getTargetPenWidth());
-            minVelocity = minVelocity * (tools.getCanvas().getTargetPenWidth());
-            maxVelocity = maxVelocity * (tools.getCanvas().getTargetPenWidth());
+            ringSpacing = ringSpacing * (tools.getCanvas().getRenderedPenWidth());
+            minVelocity = minVelocity * (tools.getCanvas().getRenderedPenWidth());
+            maxVelocity = maxVelocity * (tools.getCanvas().getRenderedPenWidth());
         }
 
         boolean parabolic = spiralType == EnumSpiralType.PARABOLIC;

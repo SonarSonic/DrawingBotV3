@@ -121,10 +121,10 @@ public class ImageCanvas implements ICanvas {
 
     @Override
     public float getTargetPenWidth() {
-        if(!useOriginalSizing() && getRescaleMode().isHighQuality()){
-            return getPlottingScale() / targetCanvas.getPlottingScale();
+        if(useOriginalSizing()){
+            return 1F;
         }
-        return 1F;
+        return targetCanvas.getTargetPenWidth();
     }
 
     @Override
@@ -179,4 +179,10 @@ public class ImageCanvas implements ICanvas {
         }
         return targetCanvas.getDrawingOffsetY() + getImageOffsetY();
     }
+
+    @Override
+    public String toString() {
+        return asString();
+    }
+
 }

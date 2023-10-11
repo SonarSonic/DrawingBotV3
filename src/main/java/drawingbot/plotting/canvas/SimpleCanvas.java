@@ -122,4 +122,9 @@ public class SimpleCanvas implements ICanvas {
     public float getCanvasScale() {
         return canvasScale;
     }
+
+    @Override
+    public String toString() {
+        return asString();
+    }
 }

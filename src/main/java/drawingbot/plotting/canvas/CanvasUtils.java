@@ -13,6 +13,13 @@ public class CanvasUtils {
         return transform;
     }
 
+    public static AffineTransform createCanvasToCanvasTransform(ICanvas src, ICanvas dst){
+        AffineTransform transform = new AffineTransform();
+        transform.scale(src.getUnits().convertToMM / dst.getUnits().convertToMM, src.getUnits().convertToMM / dst.getUnits().convertToMM);
+        transform.scale(src.getPlottingScale() / dst.getPlottingScale(), src.getPlottingScale() / dst.getPlottingScale());
+        return transform;
+    }
+
     public static ICanvas retargetCanvas(ICanvas canvas, UnitsLength units){
         if(canvas.getUnits() == units){
             return new SimpleCanvas(canvas);

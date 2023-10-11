@@ -85,7 +85,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
     @Override
     public IPixelData createPixelData(int width, int height) {
-        if(radiusMin != radiusMax || tools.getCanvas().getTargetPenWidth() != 1F){
+        if(radiusMin != radiusMax || tools.getCanvas().getRenderedPenWidth() != 1F){
             return PixelDataGraphicsComposite.create(width, height);
         }
         return new PixelDataARGBY(width, height);
@@ -256,7 +256,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
         float strokeWidth = (float) (radiusMin + yProgress * (radiusMax - radiusMin));
         int erase = (int) (eraseMin + yProgress * (eraseMax-eraseMin));
 
-        return renderPipe.eraseGeometry(pixelData, tools.getReferencePixelData(), geometry, erase, tools.getCanvas().getTargetPenWidth() * strokeWidth);
+        return renderPipe.eraseGeometry(pixelData, tools.getReferencePixelData(), geometry, erase, tools.getCanvas().getRenderedPenWidth() * strokeWidth);
     }
 
     @Override

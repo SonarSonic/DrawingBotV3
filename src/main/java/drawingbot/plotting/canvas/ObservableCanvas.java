@@ -178,10 +178,12 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
 
     @Override
     public float getTargetPenWidth() {
-        if(targetPenWidth.get() == 0){
-            return 1F;
-        }
-        return targetPenWidth.get();
+        return targetPenWidth.get() == 0 ? 1F : targetPenWidth.get();
+    }
+
+    @Override
+    public float getRenderedPenWidth() {
+        return 1F;
     }
 
     @Override
@@ -264,6 +266,12 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
 
         default void onCanvasPropertyChanged(ObservableCanvas canvas, Observable property) {}
 
+    }
+
+
+    @Override
+    public String toString() {
+        return asString();
     }
 
 }
