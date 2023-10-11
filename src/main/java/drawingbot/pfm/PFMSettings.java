@@ -15,11 +15,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PFMSettings extends SpecialListenable<PFMSettings.Listener> implements IProperties {
 
@@ -127,21 +125,17 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
         }
     }
 
-    public static TreeItem<GenericSetting<?, ?>> generateGenericSettingsTree(ObservableList<GenericSetting<?, ?>> settings){
+    public static TreeItem<GenericSetting<?, ?>> generateGenericSettingsTree(Collection<GenericSetting<?, ?>> settings){
         TreeItem<GenericSetting<?, ?>> root = new TreeItem<>(new CategorySetting<>(Object.class, "Root", "Root", true));
         if(settings != null){
-            Map<String, List<GenericSetting<?, ?>>> result = settings.stream().collect(Collectors.groupingBy(GenericSetting::getCategory));
-            List<String> categoryNames = new ArrayList<>(result.keySet());
-            List<CategorySetting<?>> sortedCategories = new ArrayList<>();
-            for(String categoryRegistryName : categoryNames){
-                sortedCategories.add(MasterRegistry.INSTANCE.getCategorySettingInstance(categoryRegistryName));
-            }
-            sortedCategories.sort(Comparator.comparingInt(value -> -value.getPriority()));
+
+            List<CategorySetting<?>> sortedCategories = MasterRegistry.INSTANCE.getSortedCategorySettings(settings);
+            Map<String, List<GenericSetting<?, ?>>> groupedSettings = MasterRegistry.INSTANCE.getSettingsByCategory(settings);
 
             for(CategorySetting<?> categorySetting : sortedCategories){
                 TreeItem<GenericSetting<?, ?>> treeItem = new TreeItem<>(categorySetting);
                 treeItem.setExpanded(true);
-                for(GenericSetting<?, ?> setting : result.get(categorySetting.getKey())){
+                for(GenericSetting<?, ?> setting : groupedSettings.get(categorySetting.getKey())){
                     treeItem.getChildren().add(new TreeItem<>(setting));
                 }
                 root.getChildren().add(treeItem);

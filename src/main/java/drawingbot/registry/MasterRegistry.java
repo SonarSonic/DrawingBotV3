@@ -44,6 +44,7 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class MasterRegistry {
 
@@ -164,9 +165,34 @@ public class MasterRegistry {
         return new CategorySetting<>(Object.class, categoryRegistryName, categoryRegistryName, true);
     }
 
+    public Map<String, List<GenericSetting<?, ?>>> getSettingsByCategory(Collection<GenericSetting<?, ?>> settings){
+        return settings.stream().collect(Collectors.groupingBy(GenericSetting::getCategory));
+    }
+
+    public List<CategorySetting<?>> getSortedCategorySettings(Collection<GenericSetting<?, ?>> settings){
+        return settings.stream().map(GenericSetting::getCategory).distinct().map(category -> MasterRegistry.INSTANCE.getCategorySettingInstance(category)).sorted(Comparator.comparingInt(value -> -value.getPriority())).collect(Collectors.toList());
+    }
+
+    public List<String> getSortedCategoryNamesFromSettings(Collection<GenericSetting<?, ?>> settings){
+        return settings.stream().map(GenericSetting::getCategory).distinct().sorted(Comparator.comparingInt(value -> -getCategoryPriority(value))).collect(Collectors.toList());
+    }
+
+    public List<String> getSortedCategoryNames(Collection<String> categoryNames){
+        return categoryNames.stream().distinct().sorted(Comparator.comparingInt(value -> -getCategoryPriority(value))).collect(Collectors.toList());
+    }
+
+    public List<GenericSetting<?, ?>> sortSettingsByCategory(List<GenericSetting<?, ?>> settings){
+        List<GenericSetting<?, ?>> sortedList = new ArrayList<>();
+
+        Map<String, List<GenericSetting<?, ?>>> groupedSettings = MasterRegistry.INSTANCE.getSettingsByCategory(settings);
+        getSortedCategoryNames(groupedSettings.keySet()).forEach(category -> sortedList.addAll(groupedSettings.get(category)));
+        
+        return sortedList;
+    }
+
     public int getCategoryPriority(String category){
         CategorySetting<?> categorySetting = settingCategories.get(category);
-        return categorySetting == null ? 5 : categorySetting.getPriority();
+        return categorySetting == null ? CategorySetting.DEFAULT_PRIORITY : categorySetting.getPriority();
     }
 
     /**

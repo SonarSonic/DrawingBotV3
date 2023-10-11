@@ -1,10 +1,10 @@
 package drawingbot.javafx.settings;
 
-import drawingbot.javafx.GenericSetting;
-
 public class CategorySetting<C>  extends BooleanSetting<C> {
 
-    public int priority = 5;
+    public static final int DEFAULT_PRIORITY = 5;
+
+    public int priority = DEFAULT_PRIORITY;
 
     protected CategorySetting(CategorySetting<C> toCopy) {
         super(toCopy);
