@@ -116,7 +116,7 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
     public void addBindings(ObservableList<GenericSetting<?, ?>> settings){
         for(GenericSetting<?, ?> setting : settings){
             if(setting.getBindingFactory() != null){
-                setting.getBindingFactory().accept(setting, settings);
+                setting.getBindingFactory().setupBindings(setting, settings);
             }
         }
     }

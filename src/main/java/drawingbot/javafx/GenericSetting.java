@@ -6,11 +6,12 @@ import com.google.gson.JsonPrimitive;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
 import drawingbot.javafx.settings.*;
+import drawingbot.javafx.settings.bindings.BindingFactory;
+import drawingbot.javafx.settings.bindings.SimpleBindingFactory;
 import drawingbot.registry.Register;
 import drawingbot.utils.SpecialListenable;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -439,48 +440,33 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     ////////////////////////////////
 
-    public BiConsumer<GenericSetting<?, ?>, List<GenericSetting<?, ?>>> bindingFactory;
+    private BindingFactory bindingFactory;
 
-    public BiConsumer<GenericSetting<?, ?>, List<GenericSetting<?, ?>>> getBindingFactory() {
+    public BindingFactory getBindingFactory() {
         return bindingFactory;
     }
 
-    public GenericSetting<C, V> setBindingFactory(BiConsumer<GenericSetting<?, ?>, List<GenericSetting<?, ?>>> bindingFactory) {
+    public GenericSetting<C, V> setBindingFactory(BindingFactory bindingFactory) {
         this.bindingFactory = bindingFactory;
         return this;
     }
 
     public GenericSetting<C, V> createDisableBinding(String targetKey, boolean value){
-        setBindingFactory((setting, settings) -> {
-            GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
-            if(disablingSetting instanceof BooleanSetting){
-                BooleanSetting<?> booleanSetting = (BooleanSetting<?>) disablingSetting;
-                setting.disabledProperty().bind(Bindings.createBooleanBinding(() -> booleanSetting.getValue() == value, disablingSetting.valueProperty()));
-            }
-        });
+        setBindingFactory(new SimpleBindingFactory(targetKey, value));
         return this;
     }
 
     public GenericSetting<C, V> createDisableObjectBinding(String targetKey, Object value){
-        setBindingFactory((setting, settings) -> {
-            GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
-            if(disablingSetting != null){
-                setting.disabledProperty().bind(Bindings.createBooleanBinding(() -> Objects.equals(disablingSetting.getValue(), value), disablingSetting.valueProperty()));
-            }
-        });
+        setBindingFactory(new SimpleBindingFactory(targetKey, value));
         return this;
     }
 
     public GenericSetting<C, V> createDisableObjectBindingNot(String targetKey, Object value){
-        setBindingFactory((setting, settings) -> {
-            GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
-            if(disablingSetting != null){
-                setting.disabledProperty().bind(Bindings.createBooleanBinding(() -> !Objects.equals(disablingSetting.getValue(), value), disablingSetting.valueProperty()));
-            }
-        });
+        setBindingFactory(new SimpleBindingFactory(targetKey, value).invert());
         return this;
     }
 
+    /*
     public GenericSetting<C, V> createBindingFactory(String targetKey, Object value, BiConsumer<GenericSetting<C, V>, GenericSetting<?, ?>> bindingFactory){
         setBindingFactory((setting, settings) -> {
             GenericSetting<?, ?> disablingSetting = GenericSetting.findSetting(settings, targetKey);
@@ -490,6 +476,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         });
         return this;
     }
+     */
 
     public void removeBindings(){
         disabledProperty().unbind();
