@@ -121,6 +121,7 @@ public class JavaFXRenderer implements IRenderer {
         displayMode.getRenderFlags().applyMarkedChanges();
 
         //update the canvas position after it has been resized
+        updateCanvasScaling();
         updateCanvasPosition();
     }
 
@@ -202,8 +203,10 @@ public class JavaFXRenderer implements IRenderer {
 
     public void updateCanvasScaling(){
         if(DrawingBotV3.project().dpiScaling.get()){
-            canvas.setScaleX(1);
-            canvas.setScaleY(1);
+            if(canvas.getScaleX() != 1){
+                canvas.setScaleX(1);
+                canvas.setScaleY(1);
+            }
         }else{
             double screen_scale_x = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth() / ((float) canvas.getWidth());
             double screen_scale_y = DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight() / ((float) canvas.getHeight());

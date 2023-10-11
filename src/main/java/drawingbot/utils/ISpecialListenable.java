@@ -9,7 +9,9 @@ public interface ISpecialListenable<LISTENER> {
     ObservableList<LISTENER> listeners();
 
     default void addSpecialListener(LISTENER listener){
-        listeners().add(listener);
+        if(!listeners().contains(listener)){
+            listeners().add(listener);
+        }
     }
 
     default void removeSpecialListener(LISTENER listener){

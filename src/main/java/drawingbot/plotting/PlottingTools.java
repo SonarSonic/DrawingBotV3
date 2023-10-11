@@ -57,8 +57,12 @@ public class PlottingTools implements IPlottingTools {
     }
 
     public PlottingTools(PlottedDrawing drawing, PlottedGroup currentGroup) {
+        this();
         this.drawing = drawing;
         this.currentGroup = currentGroup;
+    }
+
+    public PlottingTools(){
         this.pathBuilder = new PathBuilder(this);
         this.bresenham = new BresenhamHelper();
         this.defaultColourTest = new ColourSampleTest();
@@ -269,7 +273,7 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public boolean isToneMapping() {
-        return drawing.getMetadata(Register.INSTANCE.TONE_MAPPING) != null;
+        return drawing != null && drawing.getMetadata(Register.INSTANCE.TONE_MAPPING) != null;
     }
 
     @Override
@@ -354,7 +358,10 @@ public class PlottingTools implements IPlottingTools {
         }
 
         geometry.setPFMPenIndex(geometry.getPenIndex()); //store the pfm pen index for later reference
-        geometry.setGroupID(currentGroup.getGroupID());
+
+        if(currentGroup != null){
+            geometry.setGroupID(currentGroup.getGroupID());
+        }
 
         //transform geometry back to the images size
         if(plottingTransform != null){
@@ -367,16 +374,18 @@ public class PlottingTools implements IPlottingTools {
                 if(hostTaskTransform != null){
                     g = g.transformGeometry(hostTaskTransform);
                 }
-                getPlottedDrawing().addGeometry(g);
+                addGeometryInternal(g);
             });
         }else{
             if(hostTaskTransform != null){
                 geometry = geometry.transformGeometry(hostTaskTransform);
             }
-            getPlottedDrawing().addGeometry(geometry);
+            addGeometryInternal(geometry);
         }
+    }
 
-
+    public void addGeometryInternal(IGeometry geometry){
+        getPlottedDrawing().addGeometry(geometry);
     }
 
     @Override
@@ -594,6 +603,11 @@ public class PlottingTools implements IPlottingTools {
 
     @Override
     public void setColourSampling(IPixelData data, int x, int y) {
+        if(data == null){
+            return;
+        }
+        x = data.clampX(x);
+        y = data.clampY(y);
         currentColourSampling = data.getARGB(x, y);
     }
 

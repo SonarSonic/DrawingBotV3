@@ -832,6 +832,7 @@ public class ShapeOverlays extends AbstractOverlay{
             PathElement prevElement = path.getElements().get(index-1);
 
             if(prevElement instanceof CubicCurveTo){
+                //TODO FIX CURVE EDITING / RECREATE ISSUE WITH HEART SHAPE TYPE
                 CubicCurveTo otherCurve = (CubicCurveTo) prevElement;
                 curveTo.controlX1Property().bind(otherCurve.xProperty().add(otherCurve.xProperty().subtract(otherCurve.controlX2Property())));
                 curveTo.controlY1Property().bind(otherCurve.yProperty().add(otherCurve.yProperty().subtract(otherCurve.controlY2Property())));
