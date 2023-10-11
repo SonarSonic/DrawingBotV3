@@ -11,13 +11,10 @@ import drawingbot.geom.operation.GeometryOperationSortGeometries;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PlottedDrawing;
-import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.Utils;
-import drawingbot.utils.flags.Flags;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.*;
@@ -182,6 +179,14 @@ public class GeometryUtils {
     }
 
 
+    public static List<LineString> toLineStrings(List<IGeometry> geometries, AffineTransform transform) {
+        List<LineString> lineStrings = new ArrayList<>();
+        for (IGeometry g : geometries) {
+            GeometryUtils.toLineStrings(g, transform, lineStrings);
+        }
+        return lineStrings;
+    }
+
     public static void toLineStrings(IGeometry geometry, AffineTransform transform, List<LineString> lineStrings){
         List<Coordinate[]> coordinates = ShapeReader.toCoordinates(new FlatteningPathIterator(geometry.getAWTShape().getPathIterator(transform), 6D));
         for (Coordinate[] coordinate : coordinates) {
@@ -191,6 +196,14 @@ public class GeometryUtils {
             LineString lineString = factory.createLineString(coordinate);
             lineStrings.add(lineString);
         }
+    }
+
+    public static List<IGeometry> fromLineStrings(List<LineString> lineStrings, AffineTransform transform){
+        List<IGeometry> geometries = new ArrayList<>();
+        for(LineString g : lineStrings){
+            geometries.add(GeometryUtils.fromLineStrings(g, transform));
+        }
+        return geometries;
     }
 
     public static IGeometry fromLineStrings(LineString string, AffineTransform transform){

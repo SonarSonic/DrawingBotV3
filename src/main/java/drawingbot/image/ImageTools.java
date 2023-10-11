@@ -151,6 +151,12 @@ public class ImageTools {
         return freshImage;
     }
 
+    /**
+     * The pre-crop refers to crops made to the image before it is filtered / used.
+     * @param image the source image to be cropped
+     * @param crop the crop rectangle representing the size of the new image in pixels.
+     * @return the cropped image, matching the size of the given crop rectangle.
+     */
     public static BufferedImage applyPreCrop(BufferedImage image, Rectangle2D crop){
         if(crop.getX() == 0 && crop.getY() == 0 && crop.getWidth() == image.getWidth() && crop.getHeight() == image.getHeight()){
             return image;

@@ -122,6 +122,12 @@ public interface IPlottingTools {
 
     void addGeometry(IGeometry geometry);
 
+    default void addGeometries(List<IGeometry> geometries){
+        for(IGeometry geometry : geometries){
+            addGeometry(geometry);
+        }
+    }
+
     IGeometry getLastGeometry();
 
     void clearDrawing();

@@ -17,6 +17,7 @@ import drawingbot.utils.MetadataMap;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import org.jetbrains.annotations.Nullable;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -629,6 +630,15 @@ public class PlottedDrawing {
         }
     }
 
+    public boolean contains(Coordinate coord) {
+        for(IGeometry geometry : geometries){
+            if(geometry.getAWTShape().contains(coord.x, coord.y)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static class Squiggle{
         public double totalLuminance = 0;
         public List<IGeometry> geometries = new ArrayList<>();
@@ -803,4 +813,8 @@ public class PlottedDrawing {
         return getMetadata(Register.INSTANCE.DRAWING_STATS);
     }
 
+    @Override
+    public String toString() {
+        return "Drawing: %s %s x %s %s, Shapes: %s".formatted(canvas.getWidth(), canvas.getUnits().getSuffix(), canvas.getHeight(), canvas.getUnits().getSuffix(), getGeometryCount());
+    }
 }

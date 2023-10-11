@@ -90,18 +90,11 @@ public class GeometryOperationOptimize extends AbstractGeometryOperation{
         if(geometries.isEmpty()){
             return new ArrayList<>();
         }
-        List<LineString> lineStrings = new ArrayList<>();
-        for(IGeometry g : geometries){
-            GeometryUtils.toLineStrings(g, toJTS, lineStrings);
-        }
+        List<LineString> lineStrings = GeometryUtils.toLineStrings(geometries, toJTS);
 
         lineStrings = optimiseJTSGeometry(lineStrings, progressCallback, pfmFlags);
 
-        List<IGeometry> optimised = new ArrayList<>();
-        for(LineString g : lineStrings){
-            optimised.add(GeometryUtils.fromLineStrings(g, fromJTS));
-        }
-        return optimised;
+        return GeometryUtils.fromLineStrings(lineStrings, fromJTS);
     }
 
 

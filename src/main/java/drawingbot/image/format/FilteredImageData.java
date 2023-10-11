@@ -213,6 +213,12 @@ public class FilteredImageData implements IProperties {
         destCanvas = preCropCanvas;
     }
 
+    /**
+     * Creates a transform for converting from original image space -> canvas space
+     * The transform handles crops + rotations + scaling
+     * @param settings the image settings to generate the transform from
+     * @return the canvas transform as an AWT transform
+     */
     public AffineTransform getCanvasTransform(ImageFilterSettings settings){
         lastFilterSettings = settings;
         AffineTransform transform = new AffineTransform();
@@ -240,12 +246,19 @@ public class FilteredImageData implements IProperties {
 
     ///////////////////////////////////////
 
+    /**
+     * Crops the image to the pre-crop see {@link ImageTools#applyPreCrop(BufferedImage, Rectangle2D)}
+     * @param src the image to crop
+     * @param crop the crop rectangle
+     * @return the cropped image
+     */
     public static BufferedImage applyPreCropping(BufferedImage src, Rectangle2D crop){
         if(crop == null){
             return src;
         }
         return ImageTools.applyPreCrop(src, crop);
     }
+
 
     public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
         src = ImageTools.rotateImage(src, imageRotation, flipHorizontal, flipVertical);
