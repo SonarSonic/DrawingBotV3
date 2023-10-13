@@ -123,7 +123,9 @@ public class FXHelper {
             fileChooser.getExtensionFilters().addAll(filters);
             fileChooser.setSelectedExtensionFilter(filters[0]);
             fileChooser.setTitle(title);
-            fileChooser.setInitialDirectory(initialDirectory);
+            if(initialDirectory.exists()) {
+                fileChooser.setInitialDirectory(initialDirectory);
+            }
             File file = fileChooser.showOpenDialog(null);
             if(file != null){
                 context.project().updateImportDirectoryFromFile(file);
@@ -145,7 +147,9 @@ public class FXHelper {
             fileChooser.getExtensionFilters().addAll(filters);
             fileChooser.setSelectedExtensionFilter(selectedFilter);
             fileChooser.setTitle(title);
-            fileChooser.setInitialDirectory(initialDirectory);
+            if(initialDirectory.exists()){
+                fileChooser.setInitialDirectory(initialDirectory);
+            }
             fileChooser.setInitialFileName(initialFileName);
 
             File file = fileChooser.showSaveDialog(null);
@@ -334,7 +338,9 @@ public class FXHelper {
         Platform.runLater(() -> {
             DirectoryChooser d = new DirectoryChooser();
             d.setTitle(title);
-            d.setInitialDirectory(initialDirectory);
+            if(initialDirectory.exists()) {
+                d.setInitialDirectory(initialDirectory);
+            }
             File file = d.showDialog(null);
             if(file != null){
                 callback.accept(file);

@@ -618,15 +618,24 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public File getImportDirectory(){
         if(lastImportDirectory.get() != null && !lastImportDirectory.get().isEmpty()){
-            return new File(lastImportDirectory.get());
+            File importDirectory = new File(lastImportDirectory.get());
+            if(importDirectory.exists()){
+                return importDirectory;
+            }
         }
         if(DBPreferences.INSTANCE.defaultImportDirectory.get() != null && !DBPreferences.INSTANCE.defaultImportDirectory.get().isEmpty()){
-            return new File(DBPreferences.INSTANCE.defaultImportDirectory.get());
+            File importDirectory = new File(DBPreferences.INSTANCE.defaultImportDirectory.get());
+            if(importDirectory.exists()){
+                return importDirectory;
+            }
         }
         return new File(FileUtils.getUserHomeDirectory());
     }
 
     public void updateImportDirectory(File directory){
+        if(!directory.exists()){
+            return;
+        }
         lastImportDirectory.set(directory.toString());
     }
 
@@ -639,15 +648,24 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public File getExportDirectory(){
         if(lastExportDirectory.get() != null && !lastExportDirectory.get().isEmpty()){
-            return new File(lastExportDirectory.get());
+            File exportDirectory = new File(lastExportDirectory.get());
+            if(exportDirectory.exists()){
+                return exportDirectory;
+            }
         }
         if(DBPreferences.INSTANCE.defaultExportDirectory.get() != null && !DBPreferences.INSTANCE.defaultExportDirectory.get().isEmpty()){
-            return new File(DBPreferences.INSTANCE.defaultExportDirectory.get());
+            File exportDirectory = new File(DBPreferences.INSTANCE.defaultExportDirectory.get());
+            if(exportDirectory.exists()){
+                return exportDirectory;
+            }
         }
         return new File(FileUtils.getUserHomeDirectory());
     }
 
     public void updateExportDirectory(File directory){
+        if(!directory.exists()){
+            return;
+        }
         lastExportDirectory.set(directory.toString());
     }
 
