@@ -64,6 +64,11 @@ public class FXApplication extends Application {
     public static void main(String[] args) {
         launchArgs = args;
 
+        if(Utils.getOS().isMac()){
+            // Disable LCD Font Smoothing on MacOS, before JavaFX is initialised
+            System.setProperty("prism.lcdtext", "false");
+        }
+
         // Setup console / file logging
         LoggingHandler.init();
 
@@ -132,11 +137,6 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.info("DrawingBotV3: Registering Missing Presets");
             MasterRegistry.INSTANCE.registerMissingDefaultPFMPresets();
-
-            if(Utils.getOS().isMac()){
-                //JavaFX LCD Font Smoothing looks good on windows, but bad on MacOS, so disable it.
-                System.setProperty("prism.lcdtext", "false");
-            }
 
             DrawingBotV3.logger.info("DrawingBotV3: Loading User Interface");
             CountDownLatch latchA = new CountDownLatch(1);
