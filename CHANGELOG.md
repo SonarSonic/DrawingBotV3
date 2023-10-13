@@ -1,3 +1,13 @@
+### [v1.6.8-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.8-beta-free)
+- Improved: Initial start speed of LBG PFMs
+- Improved: MacOS - OpenGL Renderer Quality/Speed Improvements
+- Improved: HPGL / GCode Export error reporting
+- Fixed: PFMs Failing to run in some situations with "could not initialize class" errors
+- Fixed: MacOS OpenGL Renderer not initializing on some operating systems.
+- Fixed: OpenGL Renderer failing to initialize in Full Screen
+- Fixed: Import/Export Dialogs not appearing when the previous location is unavailable.
+- Fixed: HPGL / GCode Export failing to start in some situations on MacOS
+
 ### [v1.6.7-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.7-beta-free)
 - Added: **Group** option for Masks, right-click a mask in the table with multiple selected to create a new grouped mask.
 - Added: **Link Square Paths** & **Link Circle Paths** to Pen Calibration PFM, reducing pen lifts when running tests.
