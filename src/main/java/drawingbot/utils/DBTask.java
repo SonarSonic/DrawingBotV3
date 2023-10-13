@@ -33,9 +33,11 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IE
     @Override
     public void setException(Throwable t) {
         super.setException(t);
-        DrawingBotV3.logger.log(Level.SEVERE, "TASK FAILED", t);
-        setError(t.getMessage());
-        updateProgress(-1, 1);
+        if(t != null){
+            DrawingBotV3.logger.log(Level.SEVERE, "TASK FAILED", t);
+            setError(t.getMessage());
+            updateProgress(-1, 1);
+        }
     }
 
     @Override
