@@ -1,6 +1,7 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.FXApplication;
 import drawingbot.api.ICustomPen;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.DrawingStats;
@@ -35,6 +36,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ExportTask extends DBTask<Boolean> {
@@ -126,27 +129,22 @@ public class ExportTask extends DBTask<Boolean> {
     }
 
     @Override
-    protected Boolean call() throws InterruptedException {
+    protected Boolean call() throws InterruptedException, ExecutionException {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
 
         if(!isSubTask){
             updateTitle(exportHandler.description + ": " + saveLocation.getPath());
             //show confirmation dialog, for special formats
             if(exportHandler.confirmDialog != null){
-                CountDownLatch latch = new CountDownLatch(1);
-                AtomicReference<Boolean> result = new AtomicReference<>(false);
-                Platform.runLater(() -> {
+                FutureTask<Boolean> task = new FutureTask<>(() -> {
                     Dialog<Boolean> confirmDialog = exportHandler.confirmDialog.apply(this);
-                    confirmDialog.resultProperty().addListener((observable, oldValue, newValue) -> {
-                        result.set(newValue);
-                        latch.countDown();
-                    });
-                    confirmDialog.show();
+                    confirmDialog.initOwner(FXApplication.primaryStage);
+                    return confirmDialog.showAndWait().orElse(false);
                 });
 
-                latch.await();
+                Platform.runLater(task);
 
-                if(!result.get()){
+                if(!task.get()){
                     updateMessage("Cancelled");
                     DrawingBotV3.logger.info("Export Task: Cancelled " + saveLocation.getPath());
                     updateProgress(0,1);
@@ -195,20 +193,15 @@ public class ExportTask extends DBTask<Boolean> {
             case PER_N_PENS:
                 activePens = filterActivePens(plottedDrawing.getGlobalRenderOrder(), false);
 
-                CountDownLatch latch = new CountDownLatch(1);
-                AtomicReference<Integer> result = new AtomicReference<>(-1);
-                Platform.runLater(() -> {
+                FutureTask<Integer> task = new FutureTask<>(() -> {
                     Dialog<Integer> nPenDialog = new DialogExportNPens(activePens);
-                    nPenDialog.resultProperty().addListener((observable, oldValue, newValue) -> {
-                        result.set(newValue);
-                        latch.countDown();
-                    });
-                    nPenDialog.show();
+                    nPenDialog.initOwner(FXApplication.primaryStage);
+                    return nPenDialog.showAndWait().orElse(-1);
                 });
 
-                latch.await();
+                Platform.runLater(task);
 
-                int nPens = result.get();
+                int nPens = task.get();
                 if(nPens != -1){
                     for(int i = 0; i < activePens.size(); i+=nPens){
                         List<ObservableDrawingPen> nextPens = new ArrayList<>();

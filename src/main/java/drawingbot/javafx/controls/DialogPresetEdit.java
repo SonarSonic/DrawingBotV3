@@ -1,5 +1,6 @@
 package drawingbot.javafx.controls;
 
+import drawingbot.FXApplication;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.editors.Editors;
@@ -23,6 +24,7 @@ public class DialogPresetEdit<O> extends DialogScrollPane {
         GenericPreset<O> copy = new GenericPreset<>(preset);
         List<Consumer<GenericPreset<O>>> callbacks = new ArrayList<>();
         DialogPresetEdit<O> dialog = new DialogPresetEdit<>(copy, callbacks);
+        dialog.initOwner(FXApplication.primaryStage);
         Optional<Boolean> result = dialog.showAndWait();
         if(result.isPresent() && !result.get()){
             return false;

@@ -126,7 +126,7 @@ public class FXHelper {
             if(initialDirectory.exists()) {
                 fileChooser.setInitialDirectory(initialDirectory);
             }
-            File file = fileChooser.showOpenDialog(null);
+            File file = fileChooser.showOpenDialog(FXApplication.primaryStage);
             if(file != null){
                 context.project().updateImportDirectoryFromFile(file);
                 callback.accept(file, fileChooser);
@@ -152,7 +152,7 @@ public class FXHelper {
             }
             fileChooser.setInitialFileName(initialFileName);
 
-            File file = fileChooser.showSaveDialog(null);
+            File file = fileChooser.showSaveDialog(FXApplication.primaryStage);
             if(file != null){
                 //LINUX FIX
                 String extension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0).substring(1);
@@ -341,7 +341,7 @@ public class FXHelper {
             if(initialDirectory.exists()) {
                 d.setInitialDirectory(initialDirectory);
             }
-            File file = d.showDialog(null);
+            File file = d.showDialog(FXApplication.primaryStage);
             if(file != null){
                 callback.accept(file);
             }
@@ -685,6 +685,7 @@ public class FXHelper {
             ObservableImageFilter original = new ObservableImageFilter(filter);
 
             DialogImageFilter dialog = new DialogImageFilter(filter);
+            dialog.initOwner(FXApplication.primaryStage);
             Optional<Boolean> result = dialog.showAndWait();
             if(result.isPresent() && !result.get()){ //if the dialog was cancelled copy the settings of the original
                 GenericSetting.applySettings(original.filterSettings, filter.filterSettings);
@@ -695,6 +696,7 @@ public class FXHelper {
 
     public static void openRenameDialog(Supplier<StringProperty> propertySupplier){
         DialogGenericRename dialog = new DialogGenericRename(() -> propertySupplier.get().get());
+        dialog.initOwner(FXApplication.primaryStage);
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(s -> propertySupplier.get().set(s));
     }

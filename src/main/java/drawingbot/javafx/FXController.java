@@ -1112,7 +1112,7 @@ public class FXController extends AbstractFXController {
 
     public static void showPremiumFeatureDialog(){
         DialogPremiumFeature premiumFeature = new DialogPremiumFeature();
-
+        premiumFeature.initOwner(FXApplication.primaryStage);
         Optional<Boolean> upgrade = premiumFeature.showAndWait();
         if(upgrade.isPresent() && upgrade.get()){
             FXHelper.openURL(DBConstants.URL_UPGRADE);

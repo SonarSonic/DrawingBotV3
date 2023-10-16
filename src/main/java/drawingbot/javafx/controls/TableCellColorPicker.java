@@ -1,5 +1,6 @@
 package drawingbot.javafx.controls;
 
+import drawingbot.FXApplication;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 
@@ -16,7 +17,7 @@ public class TableCellColorPicker<T> extends TableCell<T, Color> {
             tableView.getSelectionModel().select(getTableRow().getIndex());
             tableView.edit(tableView.getSelectionModel().getSelectedIndex(), column);       
         });
-        this.colorPicker.setOnHiding(event -> {
+        this.colorPicker.setOnHidden(event -> {
             if (isEditing()) {
                 commitEdit(this.colorPicker.getValue());
             }
