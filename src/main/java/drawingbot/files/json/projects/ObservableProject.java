@@ -726,6 +726,9 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     @Override
     public void setRenderedTask(PFMTask task) {
+        if(renderedTask.isBound()){
+            return;
+        }
         renderedTask.set(task);
     }
 
@@ -742,6 +745,9 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     @Override
     public void setCurrentDrawing(PlottedDrawing drawing) {
+        if(currentDrawing.isBound()){
+            return;
+        }
         currentDrawing.set(drawing);
     }
 
