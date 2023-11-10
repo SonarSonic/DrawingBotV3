@@ -340,7 +340,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         currentDrawing.addListener((observable, oldValue, newValue) -> {
             //Clear up the old drawing.
             if(oldValue != null){
-                oldValue.reset();
+                //oldValue.reset(); TODO - DO WE NEED THIS?
             }
             setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
         });
@@ -350,7 +350,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
                 setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
             }
         });
-        displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get()==Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
+        displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
 
 
         InvalidationListener imagePropertyListener = observable -> onCanvasChanged();
