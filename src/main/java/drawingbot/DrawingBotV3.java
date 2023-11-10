@@ -242,7 +242,10 @@ public class DrawingBotV3 {
         }
 
         if(oldValue == null || newValue.getRenderer() != oldValue.getRenderer()){
-            newValue.getRenderer().switchToRenderer();
+            if(oldValue != null){
+                oldValue.getRenderer().stopRenderer();
+            }
+            newValue.getRenderer().startRenderer();
         }
 
         newValue.applySettings();

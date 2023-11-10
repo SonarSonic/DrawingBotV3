@@ -36,8 +36,13 @@ public class OpenGLRendererImpl implements IRenderer {
     }
 
     @Override
-    public void switchToRenderer() {
-        DrawingBotV3.RENDERER.switchToRenderer();
+    public void startRenderer() {
+        DrawingBotV3.RENDERER.startRenderer();
+    }
+
+    @Override
+    public void stopRenderer() {
+
     }
 
     @Override

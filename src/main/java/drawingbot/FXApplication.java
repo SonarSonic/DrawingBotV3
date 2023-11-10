@@ -177,9 +177,12 @@ public class FXApplication extends Application {
             Platform.runLater(() -> {
                 DrawingBotV3.logger.info("Renderers: Init JFX Renderer");
                 DrawingBotV3.RENDERER.init();
+                DrawingBotV3.RENDERER.startRenderer();
 
+                /*
                 DrawingBotV3.logger.info("Renderers: Init OpenGL Renderer");
                 DrawingBotV3.OPENGL_RENDERER.init();
+                 */
 
                 DrawingBotV3.logger.info("Renderers: Load Display Mode");
                 DrawingBotV3.INSTANCE.displayMode.get().applySettings();

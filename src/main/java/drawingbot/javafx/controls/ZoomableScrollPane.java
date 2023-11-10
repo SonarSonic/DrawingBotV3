@@ -33,7 +33,7 @@ public class ZoomableScrollPane extends ScrollPane {
         this.target = target;
         this.zoomNode = new Group(target);
         setContent(outerNode(zoomNode));
-        setScale(1);
+        setScale(scale.get());
     }
 
     ////////////////////////////////////////////////////////
@@ -56,15 +56,6 @@ public class ZoomableScrollPane extends ScrollPane {
     ////////////////////////////////////////////////////////
 
     public SimpleDoubleProperty scale = new SimpleDoubleProperty(1D);
-    {
-        scale.addListener((observable, oldValue, newValue) -> {
-            if(!DrawingBotV3.project().displayMode.get().getRenderer().isOpenGL()){
-                target.setScaleX(scale.get());
-                target.setScaleY(scale.get());
-                DrawingBotV3.RENDERER.updateCanvasScaling();
-            }
-        });
-    }
 
     public double getScale() {
         return scale.get();

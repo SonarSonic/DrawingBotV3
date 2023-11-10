@@ -17,7 +17,9 @@ public interface IRenderer {
 
     void postRender();
 
-    void switchToRenderer();
+    void startRenderer();
+
+    void stopRenderer();
 
     double rendererToSceneScale();
 

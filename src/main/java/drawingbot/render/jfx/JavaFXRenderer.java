@@ -3,6 +3,7 @@ package drawingbot.render.jfx;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.image.ImageFilteringTask;
+import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.IRenderer;
@@ -196,7 +197,7 @@ public class JavaFXRenderer implements IRenderer {
         updateCanvasScaling();
 
         updateCanvasPosition();
-        DrawingBotV3.project().resetView();
+        DrawingBotV3.project().resetView(); //reset the view if the canvas changed size
         clearCanvas();//wipe the canvas
         DrawingBotV3.project().setRenderFlag(Flags.FORCE_REDRAW, true);
     }
@@ -266,10 +267,18 @@ public class JavaFXRenderer implements IRenderer {
     }
 
     @Override
-    public void switchToRenderer() {
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.init(DrawingBotV3.RENDERER.pane);
-        DrawingBotV3.INSTANCE.controller.viewportScrollPane.layout();
+    public void startRenderer() {
+        ZoomableScrollPane zoomableScrollPane = DrawingBotV3.INSTANCE.controller.viewportScrollPane;
+        zoomableScrollPane.init(DrawingBotV3.RENDERER.pane);
+        DrawingBotV3.RENDERER.pane.scaleXProperty().unbind();
+        DrawingBotV3.RENDERER.pane.scaleYProperty().unbind();
+        DrawingBotV3.RENDERER.pane.scaleXProperty().bind(zoomableScrollPane.scaleProperty());
+        DrawingBotV3.RENDERER.pane.scaleYProperty().bind(zoomableScrollPane.scaleProperty());
+        zoomableScrollPane.layout();
     }
+
+    @Override
+    public void stopRenderer() {}
 
     @Override
     public double rendererToSceneScale() {
