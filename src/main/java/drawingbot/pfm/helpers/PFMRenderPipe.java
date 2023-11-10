@@ -1,8 +1,8 @@
 package drawingbot.pfm.helpers;
 
-import drawingbot.api.IPixelConsumer;
 import drawingbot.api.IPixelData;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.image.PixelDataAdditiveComposite;
 import drawingbot.image.PixelDataComposite;
 import drawingbot.image.PixelDataGraphicsComposite;
 import drawingbot.javafx.preferences.DBPreferences;
@@ -35,6 +35,13 @@ public class PFMRenderPipe {
     }
 
     public Color getDefaultEraseColor(int adjust){
+        if(defaultColor == null || defaultColor.getRed() != adjust){
+            defaultColor = new Color(adjust, adjust, adjust, 255);
+        }
+        return defaultColor;
+    }
+
+    public Color getDefaultEraseColorAlpha(int adjust){
         if(defaultColor == null || defaultColor.getAlpha() != adjust){
             defaultColor = new Color(255, 255, 255, adjust);
         }
@@ -48,13 +55,12 @@ public class PFMRenderPipe {
 
     public int eraseGeometry(IPixelData pixelData, IPixelData reference, IGeometry geometry, int adjust, float lineWidth, PixelDataComposite.ICompositeFunction function){
         int colourSamples = -1;
-        if(pixelData instanceof PixelDataGraphicsComposite){
+        if(pixelData instanceof PixelDataGraphicsComposite data){
             //HQ method: using Graphics2D implementation, slower but supports anti aliased lines and lineWidth.
-            PixelDataGraphicsComposite data = (PixelDataGraphicsComposite) pixelData;
             Graphics2D graphics2D = data.getGraphics2D();
             data.enableBlending(function);
             graphics2D.setStroke(getDefaultStroke(lineWidth));
-            graphics2D.setColor(getDefaultEraseColor(adjust));
+            graphics2D.setColor(getDefaultEraseColorAlpha(adjust));
             graphics2D.draw(geometry.getAWTShape());
             data.disableBlending();
 
@@ -62,6 +68,18 @@ public class PFMRenderPipe {
             sampleTest.resetColourSamples(0); //make sure we don't alter the pixel data twice
             sampleTest.setPixelDataTargets(reference, null);
             bresenhamHelper.plotShape(geometry.getAWTShape(), sampleTest);//Erase the geometry and gather colour samples
+            colourSamples = sampleTest.getCurrentAverage();
+        }else if(pixelData instanceof PixelDataAdditiveComposite data) {
+            // Setup color samples, with this method, we perform both simultaneously erasing/sampling together
+            sampleTest.resetColourSamples(0); //make sure we don't alter the pixel data twice
+            sampleTest.setPixelDataTargets(reference, null);
+
+            data.preDraw();
+            data.getCacheGraphics().setStroke(getDefaultStroke(lineWidth));
+            data.getCacheGraphics().setColor(getDefaultEraseColor(adjust));
+            data.getCacheGraphics().draw(geometry.getAWTShape());
+            data.postDraw(sampleTest);
+
             colourSamples = sampleTest.getCurrentAverage();
         }else{
             //original method: using bresenham, fast but with non-anti aliased lines and no support for lineWidth.

@@ -12,8 +12,8 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
     public IPlottingTools tools;
     public IPixelData data;
 
-    private final int sampleWidth = 10;
-    private final int sampleHeight = 10;
+    private int sampleWidth = 10;
+    private int sampleHeight = 10;
 
     private int totalSamplesX;
     private int totalSamplesY;
@@ -28,6 +28,10 @@ public class PixelTargetDarkestArea extends PixelTargetCache implements RawData.
     }
 
     private void createTiles(){
+
+        sampleWidth = Math.max(10, getWidth()/200);
+        sampleHeight = Math.max(10, getHeight()/200);
+
         totalSamplesX = Math.max(1, getWidth()/getSampleWidth());
         totalSamplesY = Math.max(1, getHeight()/getSampleHeight());
 

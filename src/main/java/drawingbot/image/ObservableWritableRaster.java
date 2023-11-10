@@ -27,15 +27,15 @@ public class ObservableWritableRaster extends WritableRaster {
         return bufferedImage;
     }
 
-    public ObservableWritableRaster(SampleModel sampleModel, Point origin) {
+    private ObservableWritableRaster(SampleModel sampleModel, Point origin) {
         super(sampleModel, origin);
     }
 
-    public ObservableWritableRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
+    private ObservableWritableRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
         super(sampleModel, dataBuffer, origin);
     }
 
-    public ObservableWritableRaster(SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point sampleModelTranslate, WritableRaster parent) {
+    private ObservableWritableRaster(SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point sampleModelTranslate, WritableRaster parent) {
         super(sampleModel, dataBuffer, aRegion, sampleModelTranslate, parent);
     }
 

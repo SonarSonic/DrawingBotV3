@@ -4,10 +4,7 @@ import drawingbot.api.IPixelData;
 import drawingbot.geom.easing.EasingUtils;
 import drawingbot.geom.shapes.GLine;
 import drawingbot.geom.shapes.IGeometry;
-import drawingbot.image.PixelDataARGBY;
-import drawingbot.image.PixelDataGraphicsComposite;
-import drawingbot.image.PixelTargetCache;
-import drawingbot.image.PixelTargetDarkestArea;
+import drawingbot.image.*;
 import drawingbot.pfm.helpers.PFMRenderPipe;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
@@ -86,7 +83,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     @Override
     public IPixelData createPixelData(int width, int height) {
         if(radiusMin != radiusMax || tools.getCanvas().getRenderedPenWidth() != 1F){
-            return PixelDataGraphicsComposite.create(width, height);
+            return PixelDataAdditiveComposite.create(width, height);
         }
         return new PixelDataARGBY(width, height);
     }
