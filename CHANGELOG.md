@@ -1,3 +1,13 @@
+### [v1.6.9-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.9-beta-free)
+- Added: "High Quality Mode DPI" setting to preferences, creating greater consistency of style between High/Low Quality input images and different page sizes
+- Improved: Tone/Contrast consistency between High Quality / Normal Quality + better shadow detail in High Quality mode.
+- Improved: OpenGL Renderer will now initialize silently at runtime
+- Improved: Switching between Drawing and Drawing (Hardware Accelerated) will maintain the original viewport position.
+- Fixed: Pop-Ups/Dialogs appearing on a different desktop/screen and sometimes crashing the application.
+- Fixed: Pop-Ups/Dialogs minimizing/hiding the main window in some situations.
+- Fixed: High Quality mode producing lower quality results when using high resolution images.
+- Fixed: Export failures when creating drawings with Adaptive Letters and Grid Letters
+
 ### [v1.6.8-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.8-beta-free)
 - Improved: Initial start speed of LBG PFMs
 - Improved: MacOS - OpenGL Renderer Quality/Speed Improvements
