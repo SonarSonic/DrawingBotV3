@@ -14,7 +14,7 @@ public class SoftwareDBV3Free extends AbstractSoftware {
     public static final SoftwareDBV3Free INSTANCE = new SoftwareDBV3Free();
 
     public static final String displayName = "DrawingBotV3 Free";
-    public static final String rawVersion = "1.6.8";
+    public static final String rawVersion = "1.6.9";
     public static final String releaseType = "Beta";
     public static final String displayVersion = rawVersion + " " + releaseType;
 
