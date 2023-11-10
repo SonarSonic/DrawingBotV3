@@ -81,6 +81,13 @@ public class DBPreferences implements ISettings {
 
     ///////////////////////////////////////////////
 
+    //// ADVANCED \\\\
+
+    public final DoubleSetting<?> importDPI = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "importDPI", 150D, 1D, Short.MAX_VALUE)).setDisplaySlider(false);
+
+
+    ///////////////////////////////////////////////
+
     //// FILES \\\\
     public final StringSetting<?> defaultImportDirectory = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultImportDirectory", ""));
     public final StringSetting<?> defaultExportDirectory = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportDirectory", ""));

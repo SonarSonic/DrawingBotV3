@@ -2,6 +2,7 @@ package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.EnumClippingMode;
 import drawingbot.utils.EnumCroppingMode;
 import drawingbot.utils.EnumRescaleMode;
@@ -107,8 +108,7 @@ public class ImageCanvas implements ICanvas {
             return imageCanvas.getPlottingScale();
         }
         if(getRescaleMode().isHighQuality() || !getRescaleMode().shouldRescale() && getUnits() != UnitsLength.PIXELS){
-            int[] imageSize = ImageTools.getEffectiveImageSize(targetCanvas, (int)getImageWidth(), (int)getImageHeight());
-
+            int[] imageSize = ImageTools.getEffectiveImageSize(targetCanvas, (int)(getDrawingWidth(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()), (int)(getDrawingHeight(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()));
             float currentRatio = (float) imageSize[0] / (float)imageSize[1];
             float targetRatio = getDrawingWidth() / getDrawingHeight();
 
