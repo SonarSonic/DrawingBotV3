@@ -1,8 +1,6 @@
 package drawingbot.plotting;
 
-import com.itextpdf.text.pdf.parser.BezierCurve;
 import drawingbot.geom.shapes.*;
-import drawingbot.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -227,11 +225,11 @@ public class PathBuilder {
     }
 
     public float[] P0 = null, P1 = null, P2 = null;
-    public boolean buildingCurveSegments;
+    public boolean buildingSegments;
 
     public void startSegments(){
         P0 = P1 = P2 = null;
-        buildingCurveSegments = true;
+        buildingSegments = true;
     }
 
     public GLine addLineSegment(float x, float y){
@@ -275,7 +273,7 @@ public class PathBuilder {
     }
 
     public void endSegments(){
-        buildingCurveSegments = false;
+        buildingSegments = false;
         P0 = null;
         P1 = null;
         P2 = null;
