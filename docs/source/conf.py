@@ -14,8 +14,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-from m2r import MdInclude
-
 # -- Project information -----------------------------------------------------
 
 project = 'Drawing Bot V3'
@@ -23,7 +21,7 @@ copyright = '2021-2023, Ollie Lansdell'
 author = 'Ollie Lansdell'
 
 # The full version, including alpha/beta/rc tags
-release = '1.6.0'
+release = '1.6.9'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
@@ -31,11 +29,10 @@ master_doc = 'index'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-import sphinx_rtd_theme
-
 extensions = [
     "sphinx_rtd_theme",
-    'recommonmark',
+    'myst_parser',
+    'sphinx.ext.intersphinx',
     'sphinxcontrib.youtube'
 ]
 
@@ -61,12 +58,3 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 html_css_files = []
-
-
-def setup(app):
-    # from m2r to make `mdinclude` work
-    app.add_config_value('no_underscore_emphasis', False, 'env')
-    app.add_config_value('m2r_parse_relative_links', False, 'env')
-    app.add_config_value('m2r_anonymous_references', False, 'env')
-    app.add_config_value('m2r_disable_inline_math', False, 'env')
-    app.add_directive('mdinclude', MdInclude)
