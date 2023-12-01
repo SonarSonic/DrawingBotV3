@@ -208,12 +208,17 @@ public class FXHelper {
         if(originalFile == null){
             originalFile = new File(FileUtils.getUserDataDirectory() + File.separator + fallbackFileName);
         }
-
         String saveLocation = getSaveLocation(context, originalFile.getName(), suffix, exportHandler.filters);
-        exportFile(context, (file, chooser) -> {
-            exportHandler.selectedFilter = chooser.getSelectedExtensionFilter();
-            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
-        }, exportHandler.filters, exportHandler.selectedFilter, exportHandler.getDialogTitle(), saveLocation);
+
+        if(exportHandler.requiresSaveLocation(exportMode)) {
+            exportFile(context, (file, chooser) -> {
+                exportHandler.selectedFilter = chooser.getSelectedExtensionFilter();
+                DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
+            }, exportHandler.filters, exportHandler.selectedFilter, exportHandler.getDialogTitle(), saveLocation);
+        }else{
+            //Only used by vpype export, which doesn't always require an Export Destination, we pass a usable one anyway to avoid throwing other things off
+            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, "", new File(context.project().getExportDirectory(), saveLocation), false);
+        }
     }
 
     public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
@@ -342,6 +347,20 @@ public class FXHelper {
                 d.setInitialDirectory(initialDirectory);
             }
             File file = d.showDialog(FXApplication.primaryStage);
+            if(file != null){
+                callback.accept(file);
+            }
+        });
+    }
+
+    public static void selectFile(String title, File initialDirectory, Consumer<File> callback){
+        Platform.runLater(() -> {
+            FileChooser d = new FileChooser();
+            d.setTitle(title);
+            if(initialDirectory.exists()) {
+                d.setInitialDirectory(initialDirectory);
+            }
+            File file = d.showOpenDialog(FXApplication.primaryStage);
             if(file != null){
                 callback.accept(file);
             }

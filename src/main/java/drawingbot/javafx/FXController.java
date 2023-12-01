@@ -10,8 +10,6 @@ import drawingbot.files.UpdateChecker;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.integrations.vpype.FXVPypeController;
-import drawingbot.integrations.vpype.VpypeHelper;
 import drawingbot.javafx.controllers.*;
 import drawingbot.javafx.controls.ContextMenuObservableProject;
 import drawingbot.javafx.controls.DialogPremiumFeature;
@@ -125,9 +123,6 @@ public class FXController extends AbstractFXController {
         JFXShapeManager.INSTANCE.activeShapeList.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.maskingSettings.get().shapeList));
     }
 
-    public Stage vpypeSettingsStage;
-    public FXVPypeController vpypeController;
-
 
     public Stage taskMonitorStage;
     public FXTaskMonitorController taskMonitorController;
@@ -142,7 +137,6 @@ public class FXController extends AbstractFXController {
     public FXDocumentation documentationController;
 
     public void initSeparateStages() {
-        vpypeController = FXHelper.initSeparateStage("/drawingbot/javafx/vpypesettings.fxml", vpypeSettingsStage = new Stage(), "vpype Settings", Modality.APPLICATION_MODAL);
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
         projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
         preferencesController = FXHelper.initSeparateStage("/drawingbot/javafx/preferences.fxml", preferencesStage = new Stage(), "Preferences", Modality.APPLICATION_MODAL);
@@ -285,17 +279,8 @@ public class FXController extends AbstractFXController {
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
+        // Load special file menu options via Hooks
         Hooks.runHook(Hooks.FILE_MENU, menuFile);
-
-        MenuItem menuExportToVPype = new MenuItem("Export to " + VpypeHelper.VPYPE_NAME);
-        menuExportToVPype.setOnAction(e -> {
-            if(DrawingBotV3.project().getCurrentDrawing() != null){
-                vpypeSettingsStage.show();
-            }
-        });
-        menuExportToVPype.disableProperty().bind(Bindings.isNull(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(project -> project.currentDrawing)));
-
-        menuFile.getItems().add(menuExportToVPype);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 

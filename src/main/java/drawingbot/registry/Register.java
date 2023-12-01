@@ -23,7 +23,7 @@ import drawingbot.geom.converters.*;
 import drawingbot.geom.shapes.*;
 import drawingbot.image.ImageTools;
 import drawingbot.image.filters.*;
-import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
+import drawingbot.integrations.vpype.VpypePlugin;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogScrollPane;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -80,9 +80,6 @@ public class Register implements IPlugin {
 
     public static PresetType PRESET_TYPE_GCODE_SETTINGS;
     public static PresetGCodeSettingsLoader PRESET_LOADER_GCODE_SETTINGS;
-
-    public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
-    public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
 
 
     //// PFM TYPES \\\\
@@ -148,6 +145,8 @@ public class Register implements IPlugin {
 
     @Override
     public void registerPlugins(List<IPlugin> newPlugins) {
+        newPlugins.add(VpypePlugin.INSTANCE);
+        
         newPlugins.add(new BicPensPlugin());
         newPlugins.add(new CopicPenPlugin());
         newPlugins.add(new DiamineInkPlugin());
@@ -173,7 +172,6 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen", "Drawing Pen Preset"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area", "Drawing Area Preset"));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings", "GCode Preset"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings", "VPype Preset"));
 
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_APPLICATION_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
@@ -184,7 +182,6 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_PENS = new PresetDrawingPenLoader(PRESET_TYPE_DRAWING_PENS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_AREA = new PresetDrawingAreaLoader(PRESET_TYPE_DRAWING_AREA));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_GCODE_SETTINGS = new PresetGCodeSettingsLoader(PRESET_TYPE_GCODE_SETTINGS));
-        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
 
         PresetProjectSettingsManager.registerDefaultDataLoaders();
 

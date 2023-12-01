@@ -8,27 +8,29 @@ import java.util.List;
 
 public class FileUtils {
 
+    public static final List<FileChooser.ExtensionFilter> SINGLE_FILTERS = new ArrayList<>();
+
     public static final FileChooser.ExtensionFilter IMPORT_IMAGES = new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.jif", "*.jfif", "*.tif", "*.tiff", "*.tga", "*.gif", "*.bmp", "*.wbmp");
     public static final FileChooser.ExtensionFilter IMPORT_VIDEOS = new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.mov", "*.avi");
     public static final FileChooser.ExtensionFilter IMPORT_VECTORS = new FileChooser.ExtensionFilter("Vector Files", "*.svg");
 
-    public static final FileChooser.ExtensionFilter FILTER_ALL_FILES = new FileChooser.ExtensionFilter("All Files", "*.*");
-    public static final FileChooser.ExtensionFilter FILTER_JSON = new FileChooser.ExtensionFilter("JSON - JavaScript Object Notation", "*.json");
-    public static final FileChooser.ExtensionFilter FILTER_PROJECT = new FileChooser.ExtensionFilter("DrawingBotV3 - Project File", "*.drawingbotv3");
+    public static final FileChooser.ExtensionFilter FILTER_ALL_FILES = new FileChooser.ExtensionFilter("All Files", "*");
+    public static final FileChooser.ExtensionFilter FILTER_JSON = registerSingleExtensionFilter("JSON - JavaScript Object Notation", "*.json");
+    public static final FileChooser.ExtensionFilter FILTER_PROJECT = registerSingleExtensionFilter("DrawingBotV3 - Project File", "*.drawingbotv3");
 
-    public static final FileChooser.ExtensionFilter FILTER_TIF = new FileChooser.ExtensionFilter("TIF - Tagged Image File", "*.tif");
-    public static final FileChooser.ExtensionFilter FILTER_TGA = new FileChooser.ExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");
-    public static final FileChooser.ExtensionFilter FILTER_PNG = new FileChooser.ExtensionFilter("PNG - Portable Network Graphics", "*.png");
-    public static final FileChooser.ExtensionFilter FILTER_JPG = new FileChooser.ExtensionFilter("JPG - Joint Photographic Experts Group", "*.jpg");
-    public static final FileChooser.ExtensionFilter FILTER_WEBP = new FileChooser.ExtensionFilter("WEBP - Google WebP", "*.webp");
-    public static final FileChooser.ExtensionFilter FILTER_MP4 = new FileChooser.ExtensionFilter("MP4 - MPEG-4", "*.mp4");
-    public static final FileChooser.ExtensionFilter FILTER_MOV = new FileChooser.ExtensionFilter("MOV - QuickTime File Format", "*.mov");
+    public static final FileChooser.ExtensionFilter FILTER_TIF = registerSingleExtensionFilter("TIF - Tagged Image File", "*.tif");
+    public static final FileChooser.ExtensionFilter FILTER_TGA = registerSingleExtensionFilter("TGA - Truevision Advanced Raster Graphics Adapter", "*.tga");
+    public static final FileChooser.ExtensionFilter FILTER_PNG = registerSingleExtensionFilter("PNG - Portable Network Graphics", "*.png");
+    public static final FileChooser.ExtensionFilter FILTER_JPG = registerSingleExtensionFilter("JPG - Joint Photographic Experts Group", "*.jpg");
+    public static final FileChooser.ExtensionFilter FILTER_WEBP = registerSingleExtensionFilter("WEBP - Google WebP", "*.webp");
+    public static final FileChooser.ExtensionFilter FILTER_MP4 = registerSingleExtensionFilter("MP4 - MPEG-4", "*.mp4");
+    public static final FileChooser.ExtensionFilter FILTER_MOV = registerSingleExtensionFilter("MOV - QuickTime File Format", "*.mov");
 
-    public static final FileChooser.ExtensionFilter FILTER_PDF = new FileChooser.ExtensionFilter("PDF - Portable Document Format", "*.pdf");
-    public static final FileChooser.ExtensionFilter FILTER_SVG = new FileChooser.ExtensionFilter("SVG", "*.svg");
-    public static final FileChooser.ExtensionFilter FILTER_GCODE = new FileChooser.ExtensionFilter("GCODE", "*.gcode");
-    public static final FileChooser.ExtensionFilter FILTER_HPGL = new FileChooser.ExtensionFilter("HPGL", "*.hpgl");
-    public static final FileChooser.ExtensionFilter FILTER_TXT = new FileChooser.ExtensionFilter("Text File", "*.txt");
+    public static final FileChooser.ExtensionFilter FILTER_PDF = registerSingleExtensionFilter("PDF - Portable Document Format", "*.pdf");
+    public static final FileChooser.ExtensionFilter FILTER_SVG = registerSingleExtensionFilter("SVG", "*.svg");
+    public static final FileChooser.ExtensionFilter FILTER_GCODE = registerSingleExtensionFilter("GCODE", "*.gcode");
+    public static final FileChooser.ExtensionFilter FILTER_HPGL = registerSingleExtensionFilter("HPGL", "*.hpgl");
+    public static final FileChooser.ExtensionFilter FILTER_TXT = registerSingleExtensionFilter("Text File", "*.txt");
 
     public static final FileChooser.ExtensionFilter IMPORT_ALL;
 
@@ -38,6 +40,12 @@ public class FileUtils {
         filters.addAll(IMPORT_VIDEOS.getExtensions());
         filters.addAll(IMPORT_VECTORS.getExtensions());
         IMPORT_ALL = new FileChooser.ExtensionFilter("Supported Files", filters);
+    }
+
+    public static FileChooser.ExtensionFilter registerSingleExtensionFilter(String description, String... extensions){
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(description, extensions);
+        SINGLE_FILTERS.add(filter);
+        return filter;
     }
 
     public static File removeExtension(File file){
@@ -65,6 +73,26 @@ public class FileUtils {
     public static boolean hasExtension(String string){
         int begin = string.lastIndexOf(".");
         return begin != -1;
+    }
+
+    public static FileChooser.ExtensionFilter findMatchingExtensionFilter(String extension){
+        return findMatchingExtensionFilter(extension, SINGLE_FILTERS);
+    }
+
+    public static FileChooser.ExtensionFilter findMatchingExtensionFilter(String extension, List<FileChooser.ExtensionFilter> filters){
+        if(extension.isEmpty() || filters.isEmpty()){
+            return null;
+        }
+
+        extension = extension.replaceAll("[*.]", "");
+        for(FileChooser.ExtensionFilter filter : filters){
+            for(String toMatch : filter.getExtensions()){
+                if(extension.equals(toMatch.replaceAll("[*.]", ""))){
+                    return filter;
+                }
+            }
+        }
+        return null;
     }
 
     public static boolean matchesExtensionFilter(String extension, FileChooser.ExtensionFilter extensionFilter){

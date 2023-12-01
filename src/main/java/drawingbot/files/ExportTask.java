@@ -35,21 +35,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ExportTask extends DBTask<Boolean> {
 
     public final DrawingExportHandler exportHandler;
     public final Mode exportMode;
-    public final String extension;
-    public final PlottedDrawing plottedDrawing;
-    public final IGeometryFilter geometryFilter;
-    public final File saveLocation;
-    public final boolean overwrite;
-    public final boolean forceBypassOptimisation;
+    public String extension;
+    public PlottedDrawing plottedDrawing;
+    public IGeometryFilter geometryFilter;
+    public File saveLocation;
+    public boolean overwrite;
+    public boolean forceBypassOptimisation;
     public final boolean isSubTask;
 
     public Map<ObservableDrawingPen, Integer> originalPenStats;
@@ -138,6 +136,10 @@ public class ExportTask extends DBTask<Boolean> {
             if(exportHandler.confirmDialog != null){
                 FutureTask<Boolean> task = new FutureTask<>(() -> {
                     Dialog<Boolean> confirmDialog = exportHandler.confirmDialog.apply(this);
+                    if(confirmDialog == null){
+                        //If the export handler returns no dialog, assume none was required
+                        return true;
+                    }
                     confirmDialog.initOwner(FXApplication.primaryStage);
                     return confirmDialog.showAndWait().orElse(false);
                 });
@@ -153,6 +155,8 @@ public class ExportTask extends DBTask<Boolean> {
             }
             clearExportedDrawings();
         }
+
+        exportHandler.setupExport(this);
 
         originalPenStats = PlottedDrawing.getPerPenGeometryStats(plottedDrawing);
         File baseSaveLocation = FileUtils.removeExtension(saveLocation);
@@ -232,7 +236,7 @@ public class ExportTask extends DBTask<Boolean> {
             NotificationOverlays.INSTANCE.showWithSubtitle("WARNING", "Export Failed", error);
         }else{
             updateMessage("Finished");
-            if(!isSubTask){
+            if(!isSubTask && saveLocation.exists()){
                 NotificationOverlays.INSTANCE.showWithSubtitle("File Exported", saveLocation.getPath(), new Action("Open File", e -> FXHelper.openFolder(saveLocation)), new Action("Open Folder", e -> FXHelper.openFolder(saveLocation.getParentFile())));
             }
         }

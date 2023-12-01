@@ -5,15 +5,10 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controllers.AbstractFXController;
 import drawingbot.javafx.controls.ComboCellPreset;
-import drawingbot.registry.Register;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 
-import java.io.File;
-import java.nio.file.Files;
-
 public class FXVPypeController extends AbstractFXController {
-
 
     public void initialize(){
         initVPypeSettingsPane();
@@ -22,51 +17,39 @@ public class FXVPypeController extends AbstractFXController {
     public final SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset = new SimpleObjectProperty<>();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////VPYPE OPTIMISATION
 
     public ComboBox<GenericPreset<PresetVpypeSettings>> comboBoxVPypePreset = null;
     public MenuButton menuButtonVPypePresets = null;
     public TextArea textAreaVPypeCommand = null;
     public CheckBox checkBoxBypassPathOptimisation = null;
     public TextField textBoxVPypeExecutablePath = null;
+    public Button buttonAutoDetectPath = null;
     public Button buttonVPypeExecutablePath = null;
 
     public Label labelWildcard = null;
-    public Button buttonCancel = null;
-    public Button buttonSendCommand = null;
-
 
     public void initVPypeSettingsPane(){
-        selectedVPypePreset.setValue(Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
+        selectedVPypePreset.setValue(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
         selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false);
+                VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false);
             }
         });
 
-        comboBoxVPypePreset.setItems(Register.PRESET_LOADER_VPYPE_SETTINGS.presets);
+        comboBoxVPypePreset.setItems(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.presets);
         comboBoxVPypePreset.valueProperty().bindBidirectional(selectedVPypePreset);
         comboBoxVPypePreset.setCellFactory(f -> new ComboCellPreset<>());
 
-        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, Register.PRESET_LOADER_VPYPE_SETTINGS, Register.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, false, selectedVPypePreset);
+        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS, VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, false, selectedVPypePreset);
 
-        textAreaVPypeCommand.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeCommand);
+        textAreaVPypeCommand.textProperty().bindBidirectional(VpypePlugin.INSTANCE.vpypeSettings.vpypeCommand);
 
         labelWildcard.setText(VpypeHelper.OUTPUT_FILE_WILDCARD);
 
-        checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeBypassOptimisation);
+        checkBoxBypassPathOptimisation.selectedProperty().bindBidirectional(VpypePlugin.INSTANCE.vpypeSettings.vpypeBypassOptimisation);
 
-        textBoxVPypeExecutablePath.textProperty().bindBidirectional(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable);
-        buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable(DrawingBotV3.INSTANCE.vpypeSettings));
-
-        buttonCancel.setOnAction(e -> DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.hide());
-        buttonSendCommand.setOnAction(e -> {
-            if(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable.getValue().isEmpty() || Files.notExists(new File(DrawingBotV3.INSTANCE.vpypeSettings.vPypeExecutable.getValue()).toPath())){
-                textBoxVPypeExecutablePath.requestFocus();
-            }else{
-                DrawingBotV3.INSTANCE.controller.vpypeSettingsStage.hide();
-                VpypeHelper.exportToVpype(DrawingBotV3.INSTANCE.vpypeSettings);
-            }
-        });
+        textBoxVPypeExecutablePath.textProperty().bindBidirectional(VpypePlugin.INSTANCE.vpypeSettings.vpypeExecutable);
+        buttonAutoDetectPath.setOnAction(e -> VpypeHelper.autoDetectVpype(VpypePlugin.INSTANCE.vpypeSettings));
+        buttonVPypeExecutablePath.setOnAction(e -> VpypeHelper.choosePathToExecutable(VpypePlugin.INSTANCE.vpypeSettings));
     }
 }

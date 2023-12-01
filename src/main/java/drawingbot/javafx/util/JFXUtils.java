@@ -4,8 +4,11 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.fxmisc.easybind.Subscription;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 public class JFXUtils {
 
@@ -32,6 +35,17 @@ public class JFXUtils {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Nullable
+    public static <V> V runTaskNow(FutureTask<V> task){
+        runNowOrLater(task);
+        try {
+            return task.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static <T> Subscription subscribeListener(ObservableValue<T> observable, ChangeListener<? super T> subscriber) {

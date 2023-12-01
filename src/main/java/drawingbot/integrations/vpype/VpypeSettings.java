@@ -9,10 +9,9 @@ import javafx.collections.ObservableList;
 
 public class VpypeSettings implements IProperties {
 
-    public final SimpleStringProperty vPypeExecutable = new SimpleStringProperty("");
-    public final SimpleStringProperty vPypePresetName = new SimpleStringProperty("");
-    public final SimpleStringProperty vPypeCommand = new SimpleStringProperty("");
-    public final SimpleBooleanProperty vPypeBypassOptimisation = new SimpleBooleanProperty();
+    public final SimpleStringProperty vpypeExecutable = new SimpleStringProperty("");
+    public final SimpleStringProperty vpypeCommand = new SimpleStringProperty("");
+    public final SimpleBooleanProperty vpypeBypassOptimisation = new SimpleBooleanProperty();
 
     ///////////////////////////
 
@@ -21,7 +20,7 @@ public class VpypeSettings implements IProperties {
     @Override
     public ObservableList<Observable> getPropertyList() {
         if(propertyList == null){
-            propertyList = PropertyUtil.createPropertiesList(vPypeExecutable, vPypeCommand, vPypeBypassOptimisation);
+            propertyList = PropertyUtil.createPropertiesList(vpypeExecutable, vpypeCommand, vpypeBypassOptimisation);
         }
         return propertyList;
     }

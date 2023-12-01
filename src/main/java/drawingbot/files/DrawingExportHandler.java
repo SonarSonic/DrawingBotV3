@@ -42,6 +42,18 @@ public class DrawingExportHandler {
         return this;
     }
 
+    public void setupExport(ExportTask task){
+
+    }
+
+    /**
+     * Currently only used by the vpype exporter, as sometimes now output is specified by the command
+     * @param exportMode
+     */
+    public boolean requiresSaveLocation(ExportTask.Mode exportMode){
+        return true;
+    }
+
     public String getDefaultExtension(){
         return selectedFilter.getExtensions().get(0).substring(1);
     }
@@ -63,7 +75,8 @@ public class DrawingExportHandler {
         SVG,
         IMAGE,
         VECTOR,
-        ANIMATION
+        ANIMATION,
+        SPECIAL
     }
 
     @FunctionalInterface

@@ -8,6 +8,7 @@ import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.exporters.GCodeBuilder;
 import drawingbot.files.json.PresetData;
+import drawingbot.integrations.vpype.VpypePlugin;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controllers.AbstractFXController;
@@ -61,6 +62,12 @@ public class FXPreferences extends AbstractFXController {
                                     comboBoxPFM.setOnAction(e -> {
                                         settings.defaultPFM.setValue(comboBoxPFM.getValue().getRegistryName());
                                     });
+                                    settings.defaultPFM.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                        PFMFactory<?> pfmFactory = MasterRegistry.INSTANCE.getPFMFactory(newValue);
+                                        if(comboBoxPFM.getValue() != pfmFactory){
+                                            comboBoxPFM.setValue(pfmFactory);
+                                        }
+                                    });
                                     return comboBoxPFM;
                                 }
                             },
@@ -76,11 +83,14 @@ public class FXPreferences extends AbstractFXController {
                                 javafx.scene.control.Button button = new javafx.scene.control.Button("Reset All");
                                 button.setOnAction(e -> {
                                     settings.defaultPFM.resetSetting();
+                                    settings.autoRunPFM.resetSetting();
                                     settings.defaultPenWidth.resetSetting();
                                     settings.defaultRescalingMode.resetSetting();
                                     settings.defaultCanvasColour.resetSetting();
                                     settings.defaultBackgroundColour.resetSetting();
                                     settings.defaultClippingMode.resetSetting();
+                                    settings.defaultBlendMode.resetSetting();
+                                    settings.defaultRangeExport.resetSetting();
                                 });
                                 return button;
                             }),
@@ -113,7 +123,7 @@ public class FXPreferences extends AbstractFXController {
                             new LabelNode("Drawing Area", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_DRAWING_AREA)),
                             new LabelNode("Image Processing", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_FILTERS)),
                             new LabelNode("GCode Settings", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_GCODE_SETTINGS)),
-                            new LabelNode("vPype Settings", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_VPYPE_SETTINGS)),
+                            new LabelNode("vPype Settings", () -> Editors.createDefaultPresetComboBox(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS)),
                             new LabelNode("Default Pen Set", () -> {
                                 ComboBox<String> comboBoxSetType = new ComboBox<>();
                                 ComboBox<IDrawingSet<IDrawingPen>> comboBoxDrawingSet = new ComboBox<>();
@@ -190,7 +200,8 @@ public class FXPreferences extends AbstractFXController {
                                 button.setOnAction(e -> {
                                     settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_AREA.type.id);
                                     settings.clearDefaultPreset(Register.PRESET_LOADER_FILTERS.type.id);
-                                    settings.clearDefaultPreset(Register.PRESET_LOADER_VPYPE_SETTINGS.type.id);
+                                    settings.clearDefaultPreset(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.type.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_GCODE_SETTINGS.type.id);
                                     settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_SET.type.id);
                                     settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_PENS.type.id);
                                 });

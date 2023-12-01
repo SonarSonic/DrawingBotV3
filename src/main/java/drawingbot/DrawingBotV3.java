@@ -18,7 +18,6 @@ import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
-import drawingbot.integrations.vpype.VpypeSettings;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.ITaskManager;
@@ -78,8 +77,6 @@ public class DrawingBotV3 {
     public final SimpleObjectProperty<UnitsLength> relativeMouseUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     //VPYPE SETTINGS
-    public final VpypeSettings vpypeSettings = new VpypeSettings();
-
     // WINDOW TITLES \\
     public final StringProperty projectName = new SimpleStringProperty();
 

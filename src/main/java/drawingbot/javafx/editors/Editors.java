@@ -186,6 +186,22 @@ public class Editors {
         return hBox;
     }
 
+    public static Node createDefaultFilePicker(String title, Supplier<File> initialDirectory, Property<String> stringProperty){
+        HBox hBox = new HBox();
+        hBox.setSpacing(8);
+
+        Button configure = new Button("Select File");
+        configure.setOnAction(e -> FXHelper.selectFile(title, initialDirectory.get(), file -> stringProperty.setValue(file.toString())));
+        hBox.getChildren().add(configure);
+
+        Label fileLabel = new Label();
+        fileLabel.textProperty().bind(stringProperty);
+        hBox.getChildren().add(fileLabel);
+        fileLabel.setMaxWidth(275);
+        fileLabel.setWrapText(true);
+        return hBox;
+    }
+
     @Nullable
     public static Node createNodeEditorGroupSetting(List<GenericSetting<?, ?>> settings){
         if(settings.isEmpty()){
