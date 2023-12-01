@@ -70,6 +70,9 @@ public class GCodeBuilder {
         output.close();
     }
 
+    /**
+     * Adds the PEN UP command, if the pen is already raised the command won't be added.
+     */
     public void movePenUp() {
         if (isPenDown) {
             output.println(settings.gcodePenUpCode.getValue());
@@ -78,6 +81,10 @@ public class GCodeBuilder {
         }
     }
 
+
+    /**
+     * Adds the PEN DOWN command, if the pen is already lowered the command won't be added.
+     */
     public void movePenDown() {
         if (!isPenDown) {
             output.println(settings.gcodePenDownCode.getValue());
@@ -87,11 +94,13 @@ public class GCodeBuilder {
     }
 
     public void startLayer(String layerName) {
+        movePenUp();
         output.println(settings.gcodeStartLayerCode.getValue().replace(WILDCARD_LAYER_NAME, layerName));
     }
 
 
     public void endLayer(String layerName) {
+        movePenUp();
         output.println(settings.gcodeEndLayerCode.getValue().replace(WILDCARD_LAYER_NAME, layerName));
     }
 

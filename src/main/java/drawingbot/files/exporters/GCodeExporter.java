@@ -93,11 +93,14 @@ public class GCodeExporter {
                         iterator = geometry.getAWTShape().getPathIterator(transform);
                     }
 
+                    builder.movePenUp(); //Check the pen is raised before we start drawing, the command will only be added if needed
                     while (!iterator.isDone()) {
                         int type = iterator.currentSegment(coords);
                         builder.move(coords, type);
                         iterator.next();
                     }
+                    builder.movePenUp(); //Raise the pen once we've finished drawing, the command will only be added if needed
+
                     exportTask.onGeometryExported();
                 }
             }
