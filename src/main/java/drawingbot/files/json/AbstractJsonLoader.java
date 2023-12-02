@@ -145,13 +145,18 @@ public abstract class AbstractJsonLoader<O> {
         return fromJsonElement(gson, preset, toJsonElement(gson, preset));
     }
 
+    private boolean queuedUpdate = false;
+
     public final void queueJsonUpdate() {
         //run later to prevent json update happen before services have been created
         Platform.runLater(this::doJsonUpdate);
     }
 
     public final void doJsonUpdate() {
-        DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
+        if(!queuedUpdate){
+            queuedUpdate = true;
+            DrawingBotV3.INSTANCE.backgroundService.submit(this::saveToJSON);
+        }
     }
 
     public void loadFromJSON(){
@@ -161,6 +166,7 @@ public abstract class AbstractJsonLoader<O> {
     }
 
     public void saveToJSON(){
+        queuedUpdate = false;
         try {
             Gson gson = JsonLoaderManager.createDefaultGson();
             PresetContainerJsonFile<O> userPFMPresets = new PresetContainerJsonFile(getUserCreatedPresets());
