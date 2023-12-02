@@ -8,6 +8,7 @@ import drawingbot.image.*;
 import drawingbot.pfm.helpers.PFMRenderPipe;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PlottingTools;
+import drawingbot.utils.Utils;
 
 import java.util.function.BiConsumer;
 
@@ -246,7 +247,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
      * Erases the Geometry on the provided pixel data, allows you to provide custom erasing values
      */
     public int eraseGeometry(IPixelData pixelData, IGeometry geometry, float radiusMin, float radiusMax, float eraseMin, float eraseMax){
-        int luminance = !tools.getPixelData().withinXY(context.getX(), context.getY()) ? 255 : tools.getPixelData().getLuminance(context.getX(), context.getY());
+        int luminance = !pixelData.withinXY(context.getX(), context.getY()) ? 255 : pixelData.getLuminance(context.getX(), context.getY());
         double xProgress = luminance/255D;
         double yProgress = (EasingUtils.easeInCubic(xProgress)*(tone)) + (xProgress*(1-tone));
 

@@ -407,11 +407,13 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     public void addSubTask(PFMTask task){
         subTasks.add(task);
         addSubDrawing(task.drawing);
+        task.setHostTask(this);
     }
 
     public void removeSubTask(PFMTask task){
         subTasks.remove(task);
         removeSubDrawing(task.drawing);
+        task.setHostTask(null);
     }
 
     public void addSubDrawing(PlottedDrawing drawing){
