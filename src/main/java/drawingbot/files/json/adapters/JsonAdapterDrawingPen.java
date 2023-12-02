@@ -5,6 +5,8 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.CustomPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.GsonHelper;
+import drawingbot.image.ImageTools;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
 
@@ -38,17 +40,17 @@ public class JsonAdapterDrawingPen implements JsonSerializer<IDrawingPen>, JsonD
         DrawingPen drawingPen = new DrawingPen();
         drawingPen.type = GsonHelper.getStringOrDefault(jsonObject, "type", DBConstants.PRESET_MISSING_NAME);
         drawingPen.name = GsonHelper.getStringOrDefault(jsonObject, "name", DBConstants.PRESET_MISSING_NAME);
-        drawingPen.argb = jsonObject.get("argb").getAsInt();
-        drawingPen.distributionWeight = jsonObject.has("distributionWeight") ? jsonObject.get("distributionWeight").getAsInt() : 100;
-        drawingPen.strokeSize = jsonObject.has("strokeSize") ? jsonObject.get("strokeSize").getAsFloat() : 1F;
-        drawingPen.isEnabled = !jsonObject.has("isEnabled") || jsonObject.get("isEnabled").getAsBoolean();
+        drawingPen.argb = GsonHelper.getIntOrDefault(jsonObject, "argb", ImageTools.getARGB(255, 0, 0, 0));
+        drawingPen.distributionWeight = GsonHelper.getIntOrDefault(jsonObject, "distributionWeight", 100);
+        drawingPen.strokeSize = GsonHelper.getFloatOrDefault(jsonObject,"strokeSize", 1F);
+        drawingPen.isEnabled = GsonHelper.getBooleanOrDefault(jsonObject, "isEnabled", true);
 
         if(jsonObject.has("colorSplitMultiplier")){
             drawingPen.hasColourSplitterData = true;
-            drawingPen.colorSplitMultiplier = jsonObject.get("colorSplitMultiplier").getAsFloat();
-            drawingPen.colorSplitOpacity = jsonObject.get("colorSplitOpacity").getAsFloat();
-            drawingPen.colorSplitOffsetX = jsonObject.get("colorSplitOffsetX").getAsFloat();
-            drawingPen.colorSplitOffsetY = jsonObject.get("colorSplitOffsetY").getAsFloat();
+            drawingPen.colorSplitMultiplier = GsonHelper.getFloatOrDefault(jsonObject,"colorSplitMultiplier", DBPreferences.INSTANCE.defaultColorSplitterPenMultiplier.get());
+            drawingPen.colorSplitOpacity = GsonHelper.getFloatOrDefault(jsonObject,"colorSplitOpacity", DBPreferences.INSTANCE.defaultColorSplitterPenOpacity.get());
+            drawingPen.colorSplitOffsetX = GsonHelper.getFloatOrDefault(jsonObject,"colorSplitOffsetX", 0F);
+            drawingPen.colorSplitOffsetY = GsonHelper.getFloatOrDefault(jsonObject,"colorSplitOffsetY", 0F);
         }
 
         DrawingPen actualPen = MasterRegistry.INSTANCE.getDrawingPenFromRegistryName(drawingPen.getCodeName());
