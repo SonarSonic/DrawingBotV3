@@ -66,8 +66,8 @@ public class SimpleLineSampler {
             float deltaAngle = shading ? drawingDeltaAngle : drawingDeltaAngle / (float) maxTests;
             for (int d = 0; d < (shading ? 2 : maxTests); d ++) {
                 double angle = Math.toRadians((deltaAngle * d) + startAngle);
-                int x1 = (int)Math.round((Math.cos(angle)*maxLength) + startX);
-                int y1 = (int)Math.round((Math.sin(angle)*maxLength) + startY);
+                int x1 = (int)((Math.cos(angle)*maxLength) + startX);
+                int y1 = (int)((Math.sin(angle)*maxLength) + startY);
                 consumer.setPixel(x1, y1);
             }
         }
