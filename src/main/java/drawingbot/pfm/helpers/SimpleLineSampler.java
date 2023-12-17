@@ -4,6 +4,8 @@ import drawingbot.api.IPixelData;
 import drawingbot.plotting.PlottingTools;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 
 /**
  * A class which passes back options for the available lines given a point and parameters
@@ -64,11 +66,15 @@ public class SimpleLineSampler {
             tools.bresenham.plotCircle(startX, startY, maxLength, consumer);
         }else{
             float deltaAngle = shading ? drawingDeltaAngle : drawingDeltaAngle / (float) maxTests;
-            for (int d = 0; d < (shading ? 2 : maxTests); d ++) {
-                double angle = Math.toRadians((deltaAngle * d) + startAngle);
-                int x1 = (int)((Math.cos(angle)*maxLength) + startX);
-                int y1 = (int)((Math.sin(angle)*maxLength) + startY);
-                consumer.setPixel(x1, y1);
+            AffineTransform transform = new AffineTransform();
+            Point2D originalPoint = new Point2D.Double(startX, startY);
+            Point2D transformedPoint = new Point2D.Double();
+            for (int d = 0; d < (shading ? 2 : maxTests); d++) {
+                double angleDegrees = startAngle + (deltaAngle * d);
+                transform.setToRotation(Math.toRadians(angleDegrees), startX, startY);
+                transform.translate(maxLength, 0);
+                transform.transform(originalPoint, transformedPoint);
+                consumer.setPixel((int) transformedPoint.getX(), (int) transformedPoint.getY());
             }
         }
     }
