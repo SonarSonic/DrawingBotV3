@@ -46,7 +46,7 @@ public class ImageCanvas implements ICanvas {
         if(getCroppingMode() == EnumCroppingMode.SCALE_TO_FIT){
             float currentRatio = getImageWidth() / getImageHeight();
             float targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
-            float targetWidth = Math.round(targetCanvas.getDrawingHeight() * currentRatio);
+            float targetWidth = targetCanvas.getDrawingHeight() * currentRatio;
 
             imageOffsetX = currentRatio < targetRatio ? targetCanvas.getDrawingWidth()/2 - targetWidth/2F: 0;
         }
@@ -58,7 +58,7 @@ public class ImageCanvas implements ICanvas {
         if(getCroppingMode() == EnumCroppingMode.SCALE_TO_FIT){
             float currentRatio = getImageWidth() / getImageHeight();
             float targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
-            float targetHeight = Math.round(getDrawingWidth() / currentRatio);
+            float targetHeight = targetCanvas.getDrawingWidth() / currentRatio;
 
             imageOffsetY = currentRatio < targetRatio ? 0: targetCanvas.getDrawingHeight()/2 - targetHeight/2F;
         }
