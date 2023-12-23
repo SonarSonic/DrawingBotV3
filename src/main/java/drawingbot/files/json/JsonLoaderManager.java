@@ -9,6 +9,7 @@ import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingSet;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.adapters.*;
 import drawingbot.javafx.GenericPreset;
@@ -60,6 +61,7 @@ public class JsonLoaderManager {
         builder.registerTypeAdapter(AffineTransform.class, new JsonAdapterAffineTransform());
         builder.registerTypeAdapter(MetadataMap.class, new JsonAdapterMetadataMap());
         builder.registerTypeAdapter(DrawingSet.class, new JsonAdapterDrawingSet());
+        builder.registerTypeAdapter(DrawingSets.class, new JsonAdapterDrawingSets());
         Hooks.runHook(Hooks.GSON_BUILDER_INIT_POST, builder);
         }
     };
