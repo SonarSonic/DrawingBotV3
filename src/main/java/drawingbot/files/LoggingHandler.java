@@ -51,7 +51,7 @@ public class LoggingHandler {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static FileHandler fileHandler;
-    public static String logPrefix = "DBV3_Log_";
+    public static String logPrefix = "_Log_";
     public static int logFileCount = 10; //How many log files to keep before deleting them
 
     public static void setupConsoleOutputFile(){
@@ -65,7 +65,7 @@ public class LoggingHandler {
             DrawingBotV3.logger.addHandler(consoleHandler);
 
 
-            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + logPrefix + "*.txt");
+            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + FXApplication.getSoftware().getShortName() + logPrefix + "*.txt");
             List<File> files = Files.list(new File(FileUtils.getUserLogsDirectory()).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> pathMatcher.matches(p.getFileName())).map(Path::toFile).sorted(Comparator.comparingLong(File::lastModified)).collect(Collectors.toList());
 
             for(int i = 0; i < files.size()-logFileCount; i++){

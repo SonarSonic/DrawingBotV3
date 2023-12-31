@@ -8,6 +8,8 @@ public abstract class AbstractSoftware {
 
     public abstract String getDisplayName();
 
+    public abstract String getShortName();
+
     public abstract String getRawVersion();
 
     public abstract String getDisplayVersion();
