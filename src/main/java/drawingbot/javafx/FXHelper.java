@@ -136,6 +136,9 @@ public class FXHelper {
 
     public static void exportFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName) {
         exportFile((file, fileChooser) -> {
+            if(file == null){
+                return;
+            }
             context.project().updateExportDirectoryFromFile(file);
             callback.accept(file, fileChooser);
         }, context.project().getExportDirectory(), filters, selectedFilter, title, initialFileName);
@@ -164,6 +167,8 @@ public class FXHelper {
                 }
 
                 callback.accept(new File(fileName), fileChooser);
+            }else{
+                callback.accept(null, fileChooser);
             }
         });
     }
@@ -295,6 +300,9 @@ public class FXHelper {
         }
 
         exportFile((file, chooser) -> {
+            if(file == null){
+                return;
+            }
             context.project.file.set(file);
             context.project.name.set(FileUtils.removeExtension(file.getName()));
             DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
