@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 public class GeometryUtils {
 
-    public static GeometryFactory factory = new GeometryFactory();
+    public static GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING_SINGLE));
 
     public static PlottedDrawing getOptimisedPlottedDrawing(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
 
@@ -386,6 +386,19 @@ public class GeometryUtils {
     public static boolean hasSegments(Shape shape){
         PathIterator iterator = shape.getPathIterator(null);
         return !iterator.isDone();
+    }
+
+    public static boolean hasCurveSegments(Shape shape){
+        PathIterator iterator = shape.getPathIterator(null);
+        double[] coords = new double[6];
+        while(!iterator.isDone()){
+            int segType = iterator.currentSegment(coords);
+            if(segType == PathIterator.SEG_QUADTO || segType == PathIterator.SEG_CUBICTO){
+                return true;
+            }
+            iterator.next();
+        }
+        return false;
     }
 
     @Deprecated

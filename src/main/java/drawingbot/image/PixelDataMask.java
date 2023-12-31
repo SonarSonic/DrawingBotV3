@@ -21,15 +21,19 @@ public class PixelDataMask extends PixelDataLuminance implements Shape {
 
     public Rectangle bounds;
 
-    public PixelDataMask(int width, int height, Shape maskShape) {
+    public PixelDataMask(int width, int height) {
         super(width, height);
         this.bounds = new Rectangle(0, 0, width, height);
+
+    }
+
+    public PixelDataMask(int width, int height, Shape maskShape) {
+        this(width, height);
         updateDataFromShapeMask(maskShape);
     }
 
     public PixelDataMask(int width, int height, List<Shape> masks) {
-        super(width, height);
-        this.bounds = new Rectangle(0, 0, width, height);
+        this(width, height);
         updateDataFromShapeMasks(masks);
     }
 
