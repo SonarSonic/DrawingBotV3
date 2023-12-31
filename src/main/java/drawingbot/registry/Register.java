@@ -348,7 +348,7 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(GaussianFilter.class, "Premultiply", true, GaussianFilter::setPremultiplyAlpha));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BLUR, GlowFilter.class, "Glow", GlowFilter::new, false); //extends Gaussian Blur
-        MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(GlowFilter.class, "Premultiply", true, GlowFilter::setPremultiplyAlpha));
+        //MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createBooleanSetting(GlowFilter.class, "Premultiply", true, GlowFilter::setPremultiplyAlpha));
 
         MasterRegistry.INSTANCE.registerImageFilter(EnumFilterTypes.BLUR, HighPassFilter.class, "High Pass", HighPassFilter::new, false);
         MasterRegistry.INSTANCE.registerImageFilterSetting(GenericSetting.createRangedFloatSetting(HighPassFilter.class, "Softness", 0, 0, 100, HighPassFilter::setRadius));
