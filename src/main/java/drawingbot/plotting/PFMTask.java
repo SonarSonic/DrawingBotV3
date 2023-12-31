@@ -226,7 +226,6 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         DrawingBotV3.logger.info(stage.toString());
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             cancel();
-            shouldDestroy = true;
         }else if(stage == EnumTaskStage.DO_PROCESS){
             finishEarly = true;
         }
@@ -268,7 +267,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 context.taskManager.setCurrentDrawing(drawing);
             });
         }
-        destroy();
+        //destroy();
         return drawing;
     }
 
@@ -280,17 +279,8 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         return isCancelled() || finishEarly;
     }
 
-    @Override
-    protected void failed() {
-        super.failed();
-        tryDestroy();
-    }
-
     public void destroy(){
 
-        /*
-         * Note: we don't destroy anything which could be used as an output of the task: e.g. the Drawing, reference images, plotted images
-         */
         subTasks.forEach(PFMTask::destroy);
         subTasks.clear();
 
@@ -305,6 +295,8 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         if(tools != null){
             tools.destroy();
         }
+
+        drawing.reset();
     }
 
     //// CALLBACKS \\\\

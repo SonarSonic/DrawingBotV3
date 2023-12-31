@@ -88,13 +88,22 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IE
         super.updateTitle(title);
     }
 
-    public boolean shouldDestroy = false;
-
     public void tryDestroy(){
         if(!isRunning()){
             destroy();
         }
-        shouldDestroy = true;
+    }
+
+    @Override
+    protected void cancelled() {
+        super.cancelled();
+        tryDestroy();
+    }
+
+    @Override
+    protected void failed() {
+        super.failed();
+        tryDestroy();
     }
 
     /**
