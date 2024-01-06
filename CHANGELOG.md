@@ -1,3 +1,24 @@
+### [v1.6.10-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.10-beta-free)
+- Added: **3 New Streamlines PFMS** Streamline PFMs generate streamlines to represent an image which are driven by the direction from a vector field. The streamlines are spaced according to the brightness of the image without overlapping. The underlying vector field can be altered dramatically to create many different styles which still remaining faithful to the original images brightness. This makes them very versatile for creating stylised wave like patterns which can be highly customised.
+  - **Streamlines Edge Field** - Generates streamlines which follow the natural direction of the image, derived from an Edge Tangent Field
+  - **Streamlines Flow Field** - Generates streamlines which follow a Flow Field
+  - **Streamlines Superformula** - Generates streamlines which follow a Superformula
+- Added: Support for "Export to vpype" when using Batch Processing / Video Processing and in all default export modes "per/pen, per/n pens" etc.
+- Improved: Quality and tone retention when using CMYK
+- Improved: Line Accuracy of Sketch PFMs
+- Improved: SVG Converter - Overall speed especially when Shape Clipping is enabled.
+- Improved: SVG Converter - Quality of hatch fills on curved shapes
+- Improved: SVG Converter - Handling of compound paths and filling shapes with holes
+- Improved: SVG Converter - SVG Dimension interpretation when no dimensions are specified
+- Improved: Colour Match pen comparison speed
+- Improved: Added more detailed progress bar to Adaptive PFMs
+- Changed: CMYK / CMYK (Extended) now use a default Clean Black & Clean White of 0
+- Fixed: Sketch PFMs drawing multiple straight lines in dark areas when using Unlimited Tests.
+- Fixed: Incorrect canvas alignment when using "Crop to fit" with inches/cm
+- Fixed: GCode Export - missing pen up commands at the start/end of layers
+- Fixed: Failed start-ups in situations where OpenCV libraries failed to load
+- Fixed: Batch/Video Processing failing to draw the current task
+
 ### [v1.6.9-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.9-beta-free)
 - Added: "High Quality Mode DPI" setting to preferences, creating greater consistency of style between High/Low Quality input images and different page sizes
 - Improved: Tone/Contrast consistency between High Quality / Normal Quality + better shadow detail in High Quality mode.

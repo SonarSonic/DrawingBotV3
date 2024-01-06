@@ -21,7 +21,7 @@ copyright = '2021-2023, Ollie Lansdell'
 author = 'Ollie Lansdell'
 
 # The full version, including alpha/beta/rc tags
-release = '1.6.9'
+release = '1.6.10'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
