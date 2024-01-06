@@ -122,7 +122,12 @@ You can choose from the following installers
 - Sketch Shapes PFM
 - Sketch Sobel Edges PFM
 - Sketch Waves PFM
+- Sketch Flow Field
+- Sketch Superformula
 - Sketch Sweeping Curves
+- Streamlines Edge Field
+- Streamlines Flow Field
+- Streamlines Superformula
 - ECS Drawing
 - Spiral Sawtooth
 - Spiral Circular Scribbles

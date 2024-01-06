@@ -34,6 +34,6 @@ There are a number of presets already included which cover typical paper sizes, 
 - **Background Colour:** Used for changing the background colour of the viewport area.
 - **Clipping Modes:** Allows you to choose if shapes should overflow the edges of the drawing/page or not, this will only have an effect on some PFMS, as some PFMS only work within the image provided anyway. You have three options
 
-    - **Drawing**: Clip the geometries to the drawings edges
-    - **Page**: Clip the geometries to the page’s edges
+    - **Drawing**: Clip the geometries to the drawings edges, this will prevent any shapes overlapping the edges of the drawing.
+    - **Page**: Clip the geometries to the page’s edges, this will allow shapes to overlap into the padding area of the drawing, this can create a more organic style as the drawing will have a less distinct border.
     - **None**: Allow geometries to overflow the page and drawing

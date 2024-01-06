@@ -94,13 +94,13 @@ Distribution Type
 Affects how the shapes in the drawing are divided between all of the pens in the drawing set.
 The best choice is chosen by the PFM when it is first run, but it can be changed to create unique styles.
 
-**Even**: All active pens will draw the same amount of shapes, the shapes are divided between pens in the order of the specified *Distribution Order*
-
 **Even Weighted**: All active pens will draw a percentage of shapes relative to their current *weight*, the shapes are divided between pens in the order of the specified *Distribution Order*
 
-**Random**: All active pens will draw the same amount of shapes, the shapes are divided between pens randomly ignores *Distribution Order*
-
 **Random Weighted**: All active pens will draw a percentage of shapes relative to their current *weight*, the shapes are divided between pens randomly ignoring *Distribution Order*
+
+**Random Squiggles**: Unlike classic *Random Weighted* distribution, random squiggles will only change pen when a *Squiggle* (continuous path without pen lifts) is finished, hence reducing plotting time.
+
+**Luminance Weighted**: Distributes pens according to each shape's luminance in the original image, works especially well with non-Sketch PFMs by reintroducing multiple pens to the plot in a more aesthetically pleasing way than alternative distribution types.
 
 **Preconfigured**: Pens are distributed by the :ref:`Path Finding Module <pfms>`. Used by :ref:`cmyk-separation` & :ref:`colour-match` and some specialist PFMs.
 
