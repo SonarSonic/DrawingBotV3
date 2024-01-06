@@ -279,6 +279,12 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         return isCancelled() || finishEarly;
     }
 
+    public void tryDestroy(){
+        if(hostTask == null){ //the host task is responsible for destroying it's own sub tasks
+            super.tryDestroy();
+        }
+    }
+
     public void destroy(){
 
         subTasks.forEach(PFMTask::destroy);
