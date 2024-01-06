@@ -81,6 +81,12 @@ public class SimpleLineSampler {
             endY = edgePixel[1];
         }
         luminanceTest.resetSamples();
+
+        //prevents digital-like artifacts when unlimited tests is enabled and when travelling through full black areas, by slightly favouring lines which are not exactly horizontal / vertical
+        if(luminanceTest.getCurrentSample() <= 50 && startX == endX || startY == endY){
+            luminanceTest.luminanceSum+=1;
+        }
+
         tools.bresenham.plotLine(startX, startY, endX, endY, (xT, yT) -> luminanceTest.addSample(pixels, xT, yT));
     }
 }
