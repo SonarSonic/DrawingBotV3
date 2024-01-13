@@ -83,7 +83,7 @@ public class SimpleLineSampler {
         luminanceTest.resetSamples();
 
         //prevents digital-like artifacts when unlimited tests is enabled and when travelling through full black areas, by slightly favouring lines which are not exactly horizontal / vertical
-        if(luminanceTest.getCurrentSample() <= 50 && startX == endX || startY == endY){
+        if(startX == endX || startY == endY){
             luminanceTest.luminanceSum+=1;
         }
 
