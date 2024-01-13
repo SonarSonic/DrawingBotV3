@@ -70,6 +70,8 @@ public class ImageRenderer {
 
             activeImage = new BufferedImage(scaledWidth, scaledHeight, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
             graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, !useAlphaChannel);
+
+            graphics.scale(scale, scale);
         }
     }
 
