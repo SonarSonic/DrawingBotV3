@@ -21,6 +21,7 @@ import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -290,35 +291,34 @@ public class DBPreferences implements ISettings {
     }
 
     public void postInit(){
-        defaultCanvasColour.addListener(observable -> {
+        defaultCanvasColour.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().getDrawingArea().canvasColor.set(defaultCanvasColour.getValue());
         });
-        defaultBackgroundColour.addListener(observable -> {
+        defaultBackgroundColour.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().getDrawingArea().backgroundColor.set(defaultBackgroundColour.getValue());
         });
-        defaultPenWidth.addListener(observable -> {
+        defaultPenWidth.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().getDrawingArea().targetPenWidth.set(defaultPenWidth.getValue());
         });
-        defaultClippingMode.addListener(observable -> {
+        defaultClippingMode.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().getDrawingArea().clippingMode.set(defaultClippingMode.getValue());
         });
-        defaultRescalingMode.addListener(observable -> {
+        defaultRescalingMode.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().getDrawingArea().rescaleMode.set(defaultRescalingMode.getValue());
         });
-        defaultBlendMode.addListener(observable -> {
+        defaultBlendMode.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().blendMode.set(defaultBlendMode.getValue());
         });
-        defaultRangeExport.addListener(observable -> {
+        defaultRangeExport.valueProperty().addListener((observable, oldValue, newValue) -> {
             DrawingBotV3.project().exportRange.set(defaultRangeExport.getValue());
         });
 
-        InvalidationListener imageStatsListener = observable -> updateImageSequenceStats();
-        exportDPI.addListener(imageStatsListener);
-        framesPerSecond.addListener(imageStatsListener);
-        duration.addListener(imageStatsListener);
-        frameHoldStart.addListener(imageStatsListener);
-        frameHoldEnd.addListener(imageStatsListener);
-        durationUnits.addListener(imageStatsListener);
+        exportDPI.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
+        framesPerSecond.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
+        duration.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
+        frameHoldStart.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
+        frameHoldEnd.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
+        durationUnits.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
         updateImageSequenceStats();
 
         selectedGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
@@ -328,10 +328,10 @@ public class DBPreferences implements ISettings {
             }
         });
 
-        uiWindowSize.addListener(observable -> {
+        uiWindowSize.valueProperty().addListener((observable, oldValue, newValue) -> {
             uiWindowSize.get().setupStage(FXApplication.primaryStage);
         });
-        darkTheme.addListener(observable -> {
+        darkTheme.valueProperty().addListener((observable, oldValue, newValue) -> {
             FXApplication.applyCurrentTheme();
         });
     }
