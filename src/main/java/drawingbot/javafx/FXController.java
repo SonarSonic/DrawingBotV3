@@ -140,11 +140,29 @@ public class FXController extends AbstractFXController {
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
         projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
         preferencesController = FXHelper.initSeparateStage("/drawingbot/javafx/preferences.fxml", preferencesStage = new Stage(), "Preferences", Modality.APPLICATION_MODAL);
-        documentationController = FXHelper.initSeparateStage("/drawingbot/javafx/documentation.fxml", documentationStage = new Stage(), "Documentation", Modality.NONE);
-
-        documentationStage.setResizable(true);
 
         FXHelper.initSeparateStageWithController("/drawingbot/javafx/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
+    }
+
+    //Lazy Load the documentation window to prevent crashes on boot with MacOS High Sierra: https://bugs.openjdk.org/browse/JDK-8305197
+    private boolean initDocumentationStage;
+
+    public boolean isDocumentationAvailable(){
+        return initDocumentationStage;
+    }
+
+    public void initDocumentationStage(){
+        if(initDocumentationStage) {
+            return;
+        }
+        if(Utils.getOS().isMac() && Utils.compareVersion(System.getProperty("os.version"), "11", 1) < 0){
+            DrawingBotV3.logger.warning("Documentation Integration: Disabled on " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
+            return;
+        }
+
+        documentationController = FXHelper.initSeparateStage("/drawingbot/javafx/documentation.fxml", documentationStage = new Stage(), "Documentation", Modality.NONE);
+        documentationStage.setResizable(true);
+        initDocumentationStage = true;
     }
 
 

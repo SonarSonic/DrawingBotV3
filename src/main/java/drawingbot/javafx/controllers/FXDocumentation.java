@@ -80,6 +80,9 @@ public class FXDocumentation extends AbstractFXController{
     }
 
     public static void onPFMSettingSelected(GenericSetting<?, ?> pfmSetting){
+        if(!DrawingBotV3.INSTANCE.controller.isDocumentationAvailable()){
+            return;
+        }
         if(DrawingBotV3.INSTANCE.controller.documentationStage.isShowing() && getLocation() != null && getLocation().startsWith(DBConstants.URL_READ_THE_DOCS_PFMS)){
             openPFMSetting(pfmSetting);
         }
@@ -107,8 +110,14 @@ public class FXDocumentation extends AbstractFXController{
     }
 
     public static void navigate(String url){
-        DrawingBotV3.INSTANCE.controller.documentationController.load(url);
-        DrawingBotV3.INSTANCE.controller.documentationStage.show();
+        DrawingBotV3.INSTANCE.controller.initDocumentationStage();
+
+        if(DrawingBotV3.INSTANCE.controller.isDocumentationAvailable()){
+            DrawingBotV3.INSTANCE.controller.documentationController.load(url);
+            DrawingBotV3.INSTANCE.controller.documentationStage.show();
+        }else{
+            FXHelper.openURL(url);
+        }
     }
 
     public static String getLocation(){
