@@ -273,6 +273,29 @@ public class Utils {
         return dst;
     }
 
+    public static float[][] convertArray1Dto2D(int width, int height, float[] src, float[][] dst){
+        int index = 0;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                dst[x][y] = src[index];
+                index ++;
+            }
+        }
+        return dst;
+
+    }
+
+    public static float[] convertArray2Dto1D(int width, int height, float[][] src, float[] dst){
+        int index = 0;
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                dst[index] = src[x][y];
+                index++;
+            }
+        }
+        return dst;
+    }
+
 
     public enum OS {
         WINDOWS, LINUX, MAC, SOLARIS;
