@@ -84,7 +84,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     @Override
     public IPixelData createPixelData(int width, int height) {
         if(radiusMin != radiusMax || tools.getCanvas().getRenderedPenWidth() != 1F){
-            return PixelDataAdditiveComposite.create(width, height);
+            return new PixelDataAdditiveComposite(width, height);
         }
         return new PixelDataARGBY(width, height);
     }

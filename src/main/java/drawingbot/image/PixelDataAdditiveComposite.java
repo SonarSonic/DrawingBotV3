@@ -1,5 +1,6 @@
 package drawingbot.image;
 
+import drawingbot.api.IPixelData;
 import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.utils.Utils;
 
@@ -18,27 +19,22 @@ public class PixelDataAdditiveComposite extends PixelDataARGBY{
     public Rectangle2D cacheRect;
     public boolean isDrawing = false;
 
-    private PixelDataAdditiveComposite(int width, int height) {
+    public PixelDataAdditiveComposite(int width, int height) {
         super(width, height);
-    }
-
-    public static PixelDataAdditiveComposite create(int width, int height){
-        PixelDataAdditiveComposite graphicsComposite = new PixelDataAdditiveComposite(width, height);
 
         BufferedImage cacheImage = ObservableWritableRaster.createObservableBufferedImage(width, height, (x, y) -> {
-            if(!graphicsComposite.isDrawing){
+            if(!isDrawing){
                 return;
             }
-            if(graphicsComposite.cacheRect == null || graphicsComposite.cacheRect.isEmpty()){
-                graphicsComposite.cacheRect = new Rectangle2D.Double(x, y, 1, 1);
+            if(this.cacheRect == null || this.cacheRect.isEmpty()){
+                this.cacheRect = new Rectangle2D.Double(x, y, 1, 1);
             }
-            graphicsComposite.cacheRect.add(x, y);
+            this.cacheRect.add(x, y);
         });
-        graphicsComposite.cacheImage = cacheImage;
-        graphicsComposite.cacheGraphics = cacheImage.createGraphics();
-        graphicsComposite.cacheGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphicsComposite.cacheGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        return graphicsComposite;
+        this.cacheImage = cacheImage;
+        this.cacheGraphics = cacheImage.createGraphics();
+        this.cacheGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        this.cacheGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     }
 
     public Graphics2D getCacheGraphics(){
@@ -67,11 +63,7 @@ public class PixelDataAdditiveComposite extends PixelDataARGBY{
 
                 if(cacheAlpha != 0){ // Check we've drawn something
 
-                    int red = (int) Utils.clamp(getRed(x, y) + (cacheRed * (cacheAlpha/255F)), 0, 255);
-                    int green = (int) Utils.clamp(getGreen(x, y) + (cacheGreen * (cacheAlpha/255F)), 0, 255);
-                    int blue = (int) Utils.clamp(getBlue(x, y) + (cacheBlue * (cacheAlpha/255F)), 0, 255);
-                    int alpha = getAlpha(x, y);
-                    setARGB(x, y, alpha, red, green, blue);
+                    doAdditiveBlend(x, y, (int)(cacheRed * (cacheAlpha/255F)), (int)(cacheGreen * (cacheAlpha/255F)), (int)(cacheBlue * (cacheAlpha/255F)));
 
                     if(callback != null){
                         callback.setPixel(x, y);
@@ -82,6 +74,18 @@ public class PixelDataAdditiveComposite extends PixelDataARGBY{
         //Clean Up - Remove any changes to prepare for the next draw
         cacheGraphics.setBackground(new Color(0, 0, 0, 0));
         cacheGraphics.clearRect((int) cacheRect.getMinX(), (int) cacheRect.getMinY(), (int) cacheRect.getWidth()+1, (int) cacheRect.getHeight()+1);
+    }
+
+    public void doAdditiveBlend(int x, int y, int addR, int addG, int addB){
+        doAdditiveBlend(this, x, y, addR, addG, addB);
+    }
+
+    public static void doAdditiveBlend(IPixelData pixelData, int x, int y, int addR, int addG, int addB){
+        int red = Utils.clamp(pixelData.getRed(x, y) + addR, 0, 255);
+        int green = Utils.clamp(pixelData.getGreen(x, y) + addG, 0, 255);
+        int blue = Utils.clamp(pixelData.getBlue(x, y) + addB, 0, 255);
+        int alpha = pixelData.getAlpha(x, y);
+        pixelData.setARGB(x, y, alpha, red, green, blue);
     }
 
     @Override
