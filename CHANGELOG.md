@@ -1,3 +1,17 @@
+### [v1.6.11-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.11-beta-free)
+- Added: "Advanced Settings" to preferences, allowing you to specify which OpenCL device to use for acceleration, use with default settings unless you have issues.
+- Improved: Colour Accuracy and Line Quality of Colour Match when using Sketch PFMs
+- Improved: Speed of the "Refine ETF" stage of Streamlines Edge Field
+- Improved: Speed of the "Comparing Pens" stage when using Colour Match
+- Fixed: Crash on load on MacOS High Sierra / Disable Documentation Integration for MacOs pre Big Sur
+- Fixed: Crash when using Streamlines Edge Field / Colour Match on more recent GPU/CPU Combinations
+- Fixed: Some preferences auto-applying when other settings change
+- Fixed: Export Image using the incorrect scaling when using High Quality Mode in some configurations
+- Fixed: Sketch PFMs creating digital-like artifacts in dark areas when using Unlimited Tests
+- Fixed: Mosaic Custom using the incorrect scaling when the mask and image size didn't match
+- Fixed: Hardware Accelerated Renderer canvas positioning when first loaded
+- Note: Switched from Aparapi to JOCL for OpenCL Integration
+
 ### [v1.6.10-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.10-beta-free)
 - Added: **3 New Streamlines PFMS** Streamline PFMs generate streamlines to represent an image which are driven by the direction from a vector field. The streamlines are spaced according to the brightness of the image without overlapping. The underlying vector field can be altered dramatically to create many different styles which still remaining faithful to the original images brightness. This makes them very versatile for creating stylised wave like patterns which can be highly customised.
   - **Streamlines Edge Field** - Generates streamlines which follow the natural direction of the image, derived from an Edge Tangent Field
