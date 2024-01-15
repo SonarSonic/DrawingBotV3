@@ -1,3 +1,6 @@
+### [v1.6.12-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.12-beta-free)
+- Fixed: OpenCL Integration on MacOS and other configurations where OpenCL 2.0 is unavailable.
+
 ### [v1.6.11-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.11-beta-free)
 - Added: "Advanced Settings" to preferences, allowing you to specify which OpenCL device to use for acceleration, use with default settings unless you have issues.
 - Improved: Colour Accuracy and Line Quality of Colour Match when using Sketch PFMs
