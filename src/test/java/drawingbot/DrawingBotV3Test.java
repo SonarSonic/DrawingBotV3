@@ -55,7 +55,7 @@ public class DrawingBotV3Test  {
             testRunnerName = prop == null ? Utils.getOS().getShortName() : prop;
         }
         return testRunnerName;
-    };
+    }
 
     public static String getImageTestsDirectory() {
         return FileUtils.getTestDirectory() + "filter" + File.separator;
@@ -168,7 +168,7 @@ public class DrawingBotV3Test  {
             AtomicReference<Task<?>> exportTask = new AtomicReference<>();
 
             Platform.runLater(() -> {
-                exportTask.set(DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, pfmTask.get().drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".png", new File(getPFMTestsDirectory(), "pfm_%s_%s.png".formatted(factory.getRegistryName().toLowerCase().replace("", "_"), getTestRunnerName())), false));
+                exportTask.set(DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, pfmTask.get().drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".png", new File(getPFMTestsDirectory(), "pfm_%s_%s.png".formatted(factory.getRegistryName().toLowerCase().replace(" ", "_"), getTestRunnerName())), false));
                 exportTask.get().stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED || newValue == Worker.State.SUCCEEDED) {
                         exportTaskLatch.countDown();

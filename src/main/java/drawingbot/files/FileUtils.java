@@ -118,6 +118,10 @@ public class FileUtils {
         return System.getProperty("java.io.tmpdir");
     }
 
+    public static String getWorkingDirectory() {
+        return System.getProperty("user.dir");
+    }
+
     public static String getUserHomeDirectory() {
         return System.getProperty("user.home");
     }
@@ -139,7 +143,7 @@ public class FileUtils {
     }
 
     public static String getTestDirectory() {
-        return getUserDataDirectory() + "tests" + File.separator;
+        return getWorkingDirectory() + File.separator + "tests" + File.separator;
     }
 
     public static String createPathMatcherGlob(FileChooser.ExtensionFilter ...filters){
