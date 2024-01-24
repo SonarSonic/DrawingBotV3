@@ -1,6 +1,7 @@
 package drawingbot.image.format;
 
 import drawingbot.api.ICanvas;
+import drawingbot.api.IProgressCallback;
 import drawingbot.api.IProperties;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
@@ -23,8 +24,8 @@ import java.io.File;
 
 public class FilteredImageData implements IProperties {
 
-    private final File sourceFile;
-    private final ICanvas targetCanvas;
+    public final File sourceFile;
+    public final ICanvas targetCanvas;
 
     public ICanvas sourceCanvas;
     public BufferedImage sourceImage;
@@ -266,7 +267,7 @@ public class FilteredImageData implements IProperties {
     }
 
     public static BufferedImage applyFilters(BufferedImage src, boolean forceUpdate, ImageFilterSettings imgFilterSettings){
-        return ImageTools.applyCurrentImageFilters(src, imgFilterSettings, forceUpdate, null);
+        return ImageTools.applyCurrentImageFilters(src, imgFilterSettings, forceUpdate, IProgressCallback.NULL);
     }
 
     ///////////////////////////////////////
@@ -279,6 +280,15 @@ public class FilteredImageData implements IProperties {
             propertyList = PropertyUtil.createPropertiesList(imageRotation, imageFlipHorizontal, imageFlipVertical, cropStartX, cropStartY, cropWidth, cropHeight);
         }
         return propertyList;
+    }
+
+    @Override
+    public String toString() {
+        return "Filtered Image Data: Source Image: %s x %s (%s)".formatted(sourceImage.getWidth(), sourceImage.getHeight(), sourceFile == null ? "Internal" : sourceFile);
+    }
+
+    public String getPropertiesString(){
+        return "Properties: Rotation: %s, Flip Horizontal: %s, Flip Vertical: %s, Crops: %s %s %s %s".formatted(imageRotation.get().name(), imageFlipHorizontal.get(), imageFlipVertical.get(), cropStartX.get(), cropStartY.get(), cropWidth.get(), cropHeight.get());
     }
 
 }

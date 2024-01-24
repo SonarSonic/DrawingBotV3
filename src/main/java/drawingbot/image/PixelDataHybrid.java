@@ -112,4 +112,9 @@ public class PixelDataHybrid extends PixelDataARGB {
         brightness.destroy();
         luminance.destroy();
     }
+
+    @Override
+    public String getType() {
+        return "Hybrid ARGBHSBL";
+    }
 }

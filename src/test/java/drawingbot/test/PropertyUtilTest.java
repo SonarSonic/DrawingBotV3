@@ -1,4 +1,4 @@
-package drawingbot.javafx.util;
+package drawingbot.test;
 
 import drawingbot.api.IProperties;
 import drawingbot.plotting.canvas.ObservableCanvas;

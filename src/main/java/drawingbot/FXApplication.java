@@ -18,6 +18,7 @@ import drawingbot.render.overlays.*;
 import drawingbot.utils.AbstractSoftware;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
+import drawingbot.utils.LazyTimerUtils;
 import drawingbot.utils.Utils;
 import drawingbot.utils.flags.Flags;
 import javafx.animation.AnimationTimer;
@@ -55,6 +56,7 @@ public class FXApplication extends Application {
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
+    public static boolean isUnitTesting;
 
     public static SimpleBooleanProperty isLoaded = new SimpleBooleanProperty(false);
     public static MouseMonitor mouseMonitor;
@@ -63,6 +65,7 @@ public class FXApplication extends Application {
 
     public static void main(String[] args) {
         launchArgs = args;
+        LazyTimerUtils.startTimer("launch");
 
         if(Utils.getOS().isMac()){
             // Disable LCD Font Smoothing on MacOS, before JavaFX is initialised
@@ -92,28 +95,28 @@ public class FXApplication extends Application {
 
             ///// PRE INIT \\\\\\
 
-            DrawingBotV3.logger.info("Plugins: Finding Plugins");
+            DrawingBotV3.logger.config("Plugins: Finding Plugins");
             MasterRegistry.findPlugins();
 
-            DrawingBotV3.logger.info("Plugins: Found " + MasterRegistry.PLUGINS.size() + " Plugins");
-            MasterRegistry.PLUGINS.forEach(plugin -> DrawingBotV3.logger.info("Plugin: " + plugin.getPluginName()));
+            DrawingBotV3.logger.config("Plugins: Found " + MasterRegistry.PLUGINS.size() + " Plugins");
+            MasterRegistry.PLUGINS.forEach(plugin -> DrawingBotV3.logger.config("Plugin: " + plugin.getPluginName()));
 
-            DrawingBotV3.logger.info("Plugins: Pre-Init");
+            DrawingBotV3.logger.config("Plugins: Pre-Init");
             MasterRegistry.PLUGINS.forEach(IPlugin::preInit);
 
-            DrawingBotV3.logger.info("Json Loaders: Init");
+            DrawingBotV3.logger.config("Json Loaders: Init");
             MasterRegistry.INSTANCE.presetLoaders.forEach(AbstractJsonLoader::init);
 
-            DrawingBotV3.logger.info("DrawingBotV3: Loading Configuration");
+            DrawingBotV3.logger.config("DrawingBotV3: Loading Configuration");
             JsonLoaderManager.loadConfigFiles();
 
-            DrawingBotV3.logger.info("DrawingBotV3: Loading API");
+            DrawingBotV3.logger.config("DrawingBotV3: Loading API");
             API.INSTANCE = new DrawingBotV3API();
 
-            DrawingBotV3.logger.info("Master Registry: Init");
+            DrawingBotV3.logger.config("Master Registry: Init");
             MasterRegistry.init();
 
-            DrawingBotV3.logger.info("Renderers: Pre-Init");
+            DrawingBotV3.logger.config("Renderers: Pre-Init");
             DrawingBotV3.RENDERER = new JavaFXRenderer(Screen.getPrimary().getBounds());
             DrawingBotV3.OPENGL_RENDERER = new OpenGLRendererImpl(Screen.getPrimary().getBounds());
 
@@ -121,24 +124,24 @@ public class FXApplication extends Application {
 
             ///// INIT \\\\\
 
-            DrawingBotV3.logger.info("DrawingBotV3: Init");
+            DrawingBotV3.logger.config("DrawingBotV3: Init");
             DrawingBotV3.INSTANCE = new DrawingBotV3();
             DrawingBotV3.INSTANCE.init();
 
-            DrawingBotV3.logger.info("DrawingBotV3: Loading Dummy Project");
+            DrawingBotV3.logger.config("DrawingBotV3: Loading Dummy Project");
             DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
             DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
 
             MasterRegistry.postInit();
             DBPreferences.INSTANCE.postInit();
 
-            DrawingBotV3.logger.info("Json Loader: Load JSON Files");
+            DrawingBotV3.logger.config("Json Loader: Load JSON Files");
             JsonLoaderManager.loadJSONFiles();
 
-            DrawingBotV3.logger.info("DrawingBotV3: Registering Missing Presets");
+            DrawingBotV3.logger.config("DrawingBotV3: Registering Missing Presets");
             MasterRegistry.INSTANCE.registerMissingDefaultPFMPresets();
 
-            DrawingBotV3.logger.info("DrawingBotV3: Loading User Interface");
+            DrawingBotV3.logger.config("DrawingBotV3: Loading User Interface");
             CountDownLatch latchA = new CountDownLatch(1);
             Platform.runLater(() -> {
                 FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml"));
@@ -175,7 +178,7 @@ public class FXApplication extends Application {
 
             CountDownLatch latchB = new CountDownLatch(1);
             Platform.runLater(() -> {
-                DrawingBotV3.logger.info("Renderers: Init JFX Renderer");
+                DrawingBotV3.logger.config("Renderers: Init JFX Renderer");
                 DrawingBotV3.RENDERER.init();
                 DrawingBotV3.RENDERER.startRenderer();
 
@@ -184,7 +187,7 @@ public class FXApplication extends Application {
                 DrawingBotV3.OPENGL_RENDERER.init();
                  */
 
-                DrawingBotV3.logger.info("Renderers: Load Display Mode");
+                DrawingBotV3.logger.config("Renderers: Load Display Mode");
                 DrawingBotV3.INSTANCE.displayMode.get().applySettings();
                 DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
                     if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer()){
@@ -196,7 +199,7 @@ public class FXApplication extends Application {
                     DrawingBotV3.INSTANCE.onDisplayModeChanged(oldValue, newValue);
                 });
 
-                DrawingBotV3.logger.info("Renderers: Load Overlays");
+                DrawingBotV3.logger.config("Renderers: Load Overlays");
                 MasterRegistry.INSTANCE.overlays.forEach(AbstractOverlay::init);
 
                 //FXProgramSettings.init();
@@ -204,23 +207,23 @@ public class FXApplication extends Application {
                 //save the default UI State before applying the users own defaults
                 FXHelper.saveDefaultUIStates();
 
-                DrawingBotV3.logger.info("Json Loader: Load Defaults");
+                DrawingBotV3.logger.config("Json Loader: Load Defaults");
                 JsonLoaderManager.loadDefaults();
                 latchB.countDown();
             });
             latchB.await();
 
-            DrawingBotV3.logger.info("Plugins: Post Init");
+            DrawingBotV3.logger.config("Plugins: Post Init");
             MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
 
             if(!isHeadless){
                 CountDownLatch latchC = new CountDownLatch(1);
-                DrawingBotV3.logger.info("Plugins: Load JFX Stages");
+                DrawingBotV3.logger.config("Plugins: Load JFX Stages");
                 Platform.runLater(() -> {
                     for(IPlugin plugin : MasterRegistry.PLUGINS){
                         plugin.loadJavaFXStages();
                     }
-                    DrawingBotV3.logger.info("DrawingBotV3: Loading Event Handlers");
+                    DrawingBotV3.logger.config("DrawingBotV3: Loading Event Handlers");
                     FXApplication.primaryScene.addEventHandler(MouseEvent.MOUSE_MOVED, mouseMonitor = new MouseMonitor());
 
                     latchC.countDown();
@@ -230,7 +233,7 @@ public class FXApplication extends Application {
             }
 
             if(!isHeadless) {
-                DrawingBotV3.logger.info("DrawingBotV3: Loading User Interface");
+                DrawingBotV3.logger.config("DrawingBotV3: Loading User Interface");
                 CountDownLatch latchD = new CountDownLatch(1);
                 Platform.runLater(() -> {
 
@@ -269,8 +272,10 @@ public class FXApplication extends Application {
                 }
             }
 
-            DrawingBotV3.logger.info("DrawingBotV3: Loaded");
+            String loadTime = LazyTimerUtils.finishTimer("launch").getElapsedTimeFormatted();
+            DrawingBotV3.logger.config("DrawingBotV3: Loaded %s".formatted(loadTime));
             SplashScreen.stopPreloader(FXApplication.INSTANCE);
+
             isLoaded.set(true);
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,7 @@
-package drawingbot.javafx;
+package drawingbot.test;
 
 import com.google.gson.JsonObject;
+import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.*;
 import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;

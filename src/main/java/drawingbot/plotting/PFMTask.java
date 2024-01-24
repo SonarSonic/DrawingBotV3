@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenable<PFMTask.Listener> {
 
@@ -76,6 +77,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         switch (stage){
             case QUEUED:
                 startTime = System.currentTimeMillis();
+                logStart();
                 finishStage();
                 break;
             case PRE_PROCESSING:
@@ -101,10 +103,12 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 }
 
                 if(!isSubTask && drawing.getMetadata(Register.INSTANCE.SOFT_CLIP_SHAPE) != null){
+                    DrawingBotV3.logger.fine("PFM - Using Soft Clipping");
                     tools.setSoftClip(drawing.getMetadata(Register.INSTANCE.SOFT_CLIP_SHAPE), pfmFactory);
                 }
 
                 if(!isSubTask && drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE) != null){
+                    DrawingBotV3.logger.fine( "PFM - Using Clipping Shape");
                     tools.setClippingShape(drawing.getMetadata(Register.INSTANCE.CLIPPING_SHAPE));
                 }
 
@@ -126,7 +130,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 tools.currentGroup.setPFMFactory(pfmFactory);
 
                 DrawingBotV3.logger.fine("PFM - Pre-Process");
-                updateMessage("Pre-Processing - PFM");
+                updateMessage("Setup");
 
                 sendListenerEvent(l -> l.preSetupPFM(this, pfm));
                 pfm.setup();
@@ -212,6 +216,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
 
     public void finishStage(){
         if(!isSubTask){
+            DrawingBotV3.logger.finer("Finished Stage " + stage.name());
             context.taskManager.onPlottingTaskStageFinished(this, stage);
         }
         stage = EnumTaskStage.values()[stage.ordinal()+1];
@@ -452,5 +457,21 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
 
     public boolean isColourMatchTask(){
         return false;
+    }
+
+    //// LOGGING \\\\
+
+    public void logStart(){
+        DrawingBotV3.logger.config("STARTING %s: %s, Sub Task: %s".formatted(getTaskName(), pfmFactory.getRegistryName(), isSubTask));
+        DrawingBotV3.logger.config("Canvas: %s".formatted(drawing.getCanvas()));
+    }
+
+    @Override
+    public String getTaskType() {
+        return "PFMTask";
+    }
+
+    public String getTaskName(){
+        return hostTask == null ? super.getTaskName() : "%s: %s".formatted(hostTask.getTaskName(), super.getTaskName());
     }
 }

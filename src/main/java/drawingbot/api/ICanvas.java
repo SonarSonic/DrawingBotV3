@@ -131,22 +131,7 @@ public interface ICanvas {
     }
 
     default String asString(){
-        return """
-               Units: %s"
-               Original Sizing: %s
-               Width: %s
-               Height: %s
-               Drawing Width: %s
-               Drawing Height: %s
-               Drawing Offset X: %s
-               Drawing Offset Y: %s
-               Plotting Scale: %s
-               Canvas Scale: %s
-               Pen Target Width: %s
-               Cropping Mode: %s"
-               Clipping Mode: %s"
-               Rescale Mode: %s"
-               """.formatted(getUnits(), useOriginalSizing(), getWidth(), getHeight(), getDrawingWidth(), getDrawingHeight(), getDrawingOffsetX(), getDrawingOffsetY(), getPlottingScale(), getCanvasScale(), getTargetPenWidth(), getCroppingMode(), getClippingMode(), getRescaleMode());
+        return "Units: %s, Original Sizing: %s, Width: %s, Height: %s, Drawing Width: %s, Drawing Height: %s, Drawing Offset X: %s, Drawing Offset Y: %s, Plotting Scale: %s, Canvas Scale: %s, Pen Target Width: %s, Cropping Mode: %s, Clipping Mode: %s, Rescale Mode: %s".formatted(getUnits(), useOriginalSizing(), getWidth(), getHeight(), getDrawingWidth(), getDrawingHeight(), getDrawingOffsetX(), getDrawingOffsetY(), getPlottingScale(), getCanvasScale(), getTargetPenWidth(), getCroppingMode(), getClippingMode(), getRescaleMode());
     }
 
 }

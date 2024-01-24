@@ -169,5 +169,10 @@ public abstract class PixelDataAbstract implements IPixelData {
         prevARGB = null;
         cacheARGB = new int[4];
     }
+
+    @Override
+    public String toString() {
+        return asString();
+    }
 }
 

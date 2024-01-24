@@ -529,8 +529,12 @@ public class BresenhamHelper {
         double ab, ac, bc, cb, xx, xy, yy, dx, dy, ex, EP = 0.01, pxy;
         /* check for curve restrains */
         /* slope P0-P1 == P2-P3    and  (P0-P3 == P1-P2      or   no slope change) */
-        assert((x1-x0)*(x2-x3) < EP && ((x3-x0)*(x1-x2) < EP || xb*xb < xa*xc+EP));
-        assert((y1-y0)*(y2-y3) < EP && ((y3-y0)*(y1-y2) < EP || yb*yb < ya*yc+EP));
+        if(!((x1-x0)*(x2-x3) < EP && ((x3-x0)*(x1-x2) < EP || xb*xb < xa*xc+EP))){
+            return;
+        }
+        if(!((y1-y0)*(y2-y3) < EP && ((y3-y0)*(y1-y2) < EP || yb*yb < ya*yc+EP))){
+            return;
+        }
 
         if (xa == 0 && ya == 0) {                              /* quadratic Bezier */
             sx = (int) floor((3*x1-x0+1)/2); sy = (int) floor((3*y1-y0+1)/2);   /* new midpoint */

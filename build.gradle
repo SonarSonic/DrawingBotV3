@@ -171,3 +171,17 @@ task rezipWindowsImage(type: Zip){
 
     from "$buildDir/jpackage/$app_name"
 }
+
+////
+
+task regressionTest(type:Test){
+    filter{
+        includeTestsMatching "drawingbot.DrawingBotV3Test"
+    }
+}
+
+test{
+    filter{
+        excludeTestsMatching "drawingbot.DrawingBotV3Test"
+    }
+}

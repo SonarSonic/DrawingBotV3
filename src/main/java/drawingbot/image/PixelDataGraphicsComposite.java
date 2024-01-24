@@ -34,4 +34,9 @@ public class PixelDataGraphicsComposite extends PixelDataComposite<PixelDataARGB
         super.destroy();
         graphics2D.dispose();
     }
+
+    @Override
+    public String getType() {
+        return "Graphics Composite: B %s F %s".formatted(background.getType(), foreground.getType());
+    }
 }

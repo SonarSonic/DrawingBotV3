@@ -151,4 +151,9 @@ public class PixelDataARGB extends PixelDataAbstract implements IPixelDataHSB {
         green.destroy();
         blue.destroy();
     }
+
+    @Override
+    public String getType() {
+        return "ARGB";
+    }
 }

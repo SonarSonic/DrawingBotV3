@@ -157,4 +157,9 @@ public class PixelDataBufferedImage extends PixelDataAbstract implements IPixelL
         image.flush();
         image = null;
     }
+
+    @Override
+    public String getType() {
+        return "WrappedBufferedImage";
+    }
 }

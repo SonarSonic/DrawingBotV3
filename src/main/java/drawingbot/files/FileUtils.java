@@ -1,6 +1,7 @@
 package drawingbot.files;
 
 import javafx.stage.FileChooser;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -135,6 +136,10 @@ public class FileUtils {
 
     public static String getUserLogsDirectory() {
         return getUserDataDirectory() + "logs" + File.separator;
+    }
+
+    public static String getTestDirectory() {
+        return getUserDataDirectory() + "tests" + File.separator;
     }
 
     public static String createPathMatcherGlob(FileChooser.ExtensionFilter ...filters){

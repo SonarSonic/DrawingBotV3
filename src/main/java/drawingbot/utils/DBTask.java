@@ -6,9 +6,15 @@ import drawingbot.api.IProgressCallback;
 import drawingbot.files.json.projects.DBTaskContext;
 import javafx.concurrent.Task;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IExceptionCallback {
+
+    public static final AtomicInteger idCounter = new AtomicInteger(0);
+    public final int id = idCounter.addAndGet(1);
+
 
     public final DBTaskContext context;
     public boolean updateProgressInstantly = true;
@@ -20,6 +26,18 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IE
 
     public DBTask(DBTaskContext context){
         this.context = context;
+    }
+
+    public int getTaskID(){
+        return id;
+    }
+
+    public String getTaskType(){
+        return "DBTask";
+    }
+
+    public String getTaskName(){
+        return "%s #%s".formatted(getTaskType(), getTaskID());
     }
 
     public boolean isPlottingTask(){

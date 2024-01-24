@@ -135,4 +135,9 @@ public class PixelDataMask extends PixelDataLuminance implements Shape {
     public PathIterator getPathIterator(AffineTransform at, double flatness) {
         throw new UnsupportedOperationException("Pixel Data Mask: Doesn't support Path Iterators");
     }
+
+    @Override
+    public String getType() {
+        return "Mask L";
+    }
 }

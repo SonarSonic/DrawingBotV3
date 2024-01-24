@@ -266,7 +266,7 @@ public class MasterRegistry {
     }
 
     public <C extends IPFM> PFMFactory<C> registerPFM(Class<C> pfmClass, String name, String category, Supplier<C> create){
-        DrawingBotV3.logger.fine("Registering PFM: " + name);
+        DrawingBotV3.logger.config("Registering PFM: " + name);
         PFMFactory<C> factory = new PFMFactory<C>(pfmClass, name, category, create);
         pfmFactories.add(factory);
         if(!pfmCategories.contains(category)){
@@ -276,7 +276,7 @@ public class MasterRegistry {
     }
 
     public <C, V> void registerPFMSetting(GenericSetting<C, V> setting){
-        DrawingBotV3.logger.fine("Registering PFM Setting: " + setting.getKey());
+        DrawingBotV3.logger.config("Registering PFM Setting: " + setting.getKey());
         for(PFMFactory<?> factory : pfmFactories){
             if(setting.isAssignableFrom(factory.getInstanceClass())){
                 GenericSetting<C,V> copy = setting.copy();
@@ -416,7 +416,7 @@ public class MasterRegistry {
     }
 
     public void unregisterDrawingPen(DrawingPen pen){
-        DrawingBotV3.logger.finest("Unregistering Drawing Pen: " + pen.getCodeName());
+        DrawingBotV3.logger.info("Unregistering Drawing Pen: " + pen.getCodeName());
         ObservableList<DrawingPen> pens = registeredPens.get(pen.getType());
         pens.remove(pen);
         if(pens.isEmpty()){
@@ -534,7 +534,7 @@ public class MasterRegistry {
     }
 
     public <I extends BufferedImageOp> void registerImageFilter(EnumFilterTypes filterType, Class<I> filterClass, String name, Supplier<I> create, boolean isHidden){
-        DrawingBotV3.logger.fine("Registering Image Filter: " + name);
+        DrawingBotV3.logger.config("Registering Image Filter: " + name);
         imgFilterFactories.putIfAbsent(filterType, FXCollections.observableArrayList());
         imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
     }
@@ -618,7 +618,7 @@ public class MasterRegistry {
     public ObservableList<IDisplayMode> displayModes = FXCollections.observableArrayList();
 
     public IDisplayMode registerDisplayMode(IDisplayMode displayMode){
-        DrawingBotV3.logger.fine("Registering Display Mode: " + displayMode.getName());
+        DrawingBotV3.logger.config("Registering Display Mode: " + displayMode.getName());
         this.displayModes.add(displayMode);
         return displayMode;
     }
@@ -629,7 +629,7 @@ public class MasterRegistry {
     public ObservableList<AbstractOverlay> overlays = FXCollections.observableArrayList();
 
     public AbstractOverlay registerOverlay(AbstractOverlay displayMode){
-        DrawingBotV3.logger.fine("Registering Overlay: " + displayMode.getName());
+        DrawingBotV3.logger.config("Registering Overlay: " + displayMode.getName());
         this.overlays.add(displayMode);
         return displayMode;
     }
@@ -649,7 +649,7 @@ public class MasterRegistry {
     }
 
     public IFileLoaderFactory registerFileLoaderFactory(IFileLoaderFactory exportHandler){
-        DrawingBotV3.logger.fine("Registering File Loader: " + exportHandler.getName());
+        DrawingBotV3.logger.config("Registering File Loader: " + exportHandler.getName());
         this.fileLoaderFactories.add(exportHandler);
         return exportHandler;
     }
@@ -670,7 +670,7 @@ public class MasterRegistry {
     public Map<String, DrawingExportHandler> drawingExportHandlers = new LinkedHashMap<>();
 
     public DrawingExportHandler registerDrawingExportHandler(DrawingExportHandler exportHandler){
-        DrawingBotV3.logger.fine("Registering Export Handler: " + exportHandler.getRegistryName() + " " + exportHandler.description);
+        DrawingBotV3.logger.config("Registering Export Handler: " + exportHandler.getRegistryName() + " " + exportHandler.description);
         if(drawingExportHandlers.containsKey(exportHandler.getRegistryName())){
             DrawingBotV3.logger.severe("Duplicate Export Handler: " + exportHandler.getRegistryName());
             return exportHandler;
@@ -685,7 +685,7 @@ public class MasterRegistry {
     public ObservableList<ColorSeparationHandler> colourSplitterHandlers = FXCollections.observableArrayList();
 
     public ColorSeparationHandler registerColourSplitter(ColorSeparationHandler colourSplitter){
-        DrawingBotV3.logger.fine("Registering Colour Splitter: " + colourSplitter.name);
+        DrawingBotV3.logger.config("Registering Colour Splitter: " + colourSplitter.name);
         this.colourSplitterHandlers.add(colourSplitter);
         return colourSplitter;
     }
@@ -706,13 +706,13 @@ public class MasterRegistry {
     public List<AbstractJsonLoader<?>> presetLoaders = new ArrayList<>();
 
     public AbstractJsonLoader<?> registerPresetLoaders(AbstractJsonLoader<?> presetLoader){
-        DrawingBotV3.logger.fine("Registering Preset Loader: " + presetLoader.type.id);
+        DrawingBotV3.logger.config("Registering Preset Loader: " + presetLoader.type.id);
         this.presetLoaders.add(presetLoader);
         return presetLoader;
     }
 
     public PresetType registerPresetType(PresetType presetType){
-        DrawingBotV3.logger.fine("Registering Json Type: " + presetType.id);
+        DrawingBotV3.logger.config("Registering Json Type: " + presetType.id);
         this.presetTypes.add(presetType);
         return presetType;
     }
@@ -736,7 +736,7 @@ public class MasterRegistry {
         if(projectDataLoadersMap.containsKey(loader.getKey())){
             DrawingBotV3.logger.severe("DUPLICATE PROJECT DATA LOADER KEY: " + loader.getKey());
         }else{
-            DrawingBotV3.logger.fine("Registering Project Data Loader: " + loader.getKey());
+            DrawingBotV3.logger.config("Registering Project Data Loader: " + loader.getKey());
             projectDataLoadersMap.put(loader.getKey(), loader);
         }
     }
@@ -764,7 +764,7 @@ public class MasterRegistry {
     public Map<String, Supplier<IGeometry>> geometryFactories = new HashMap<>();
 
     public void registerGeometryType(String name, Class<? extends IGeometry> geometryType, Supplier<IGeometry> factory){
-        DrawingBotV3.logger.fine("Registering Geometry Type: " + name);
+        DrawingBotV3.logger.config("Registering Geometry Type: " + name);
         this.geometryNames.put(geometryType, name);
         this.geometryTypes.put(name, geometryType);
         this.geometryFactories.put(name, factory);
@@ -796,7 +796,7 @@ public class MasterRegistry {
 
     public void registerMetadataType(Metadata<?> metadata){
         if(metadata == null){
-            DrawingBotV3.logger.info("Passed NULL Metadata");
+            DrawingBotV3.logger.warning("Passed NULL Metadata");
             return;
         }
         if(metadataTypes.get(metadata.key) != null){

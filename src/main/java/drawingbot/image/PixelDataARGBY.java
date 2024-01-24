@@ -89,4 +89,9 @@ public class PixelDataARGBY extends PixelDataARGB implements IPixelListenable {
         super.destroy();
         luminance.destroy();
     }
+
+    @Override
+    public String getType() {
+        return "ARGBY";
+    }
 }

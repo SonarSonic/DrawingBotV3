@@ -82,10 +82,12 @@ public class PFMTaskImage extends PFMTask {
         pixelDataReference = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
         pixelDataReference.loadData(imgPlotting);
         this.drawing.setMetadata(Register.INSTANCE.REFERENCE_IMAGE, imgPlotting);
+        DrawingBotV3.logger.config( "Reference Image: " + pixelDataReference.asString());
 
-        DrawingBotV3.logger.fine("Creating Plotting Image");
+        DrawingBotV3.logger.finer("Creating Plotting Image");
         imgPlotting = pfm().preFilter(imgPlotting);
         pixelDataPlotting = pfm().createPixelData(imgPlotting.getWidth(), imgPlotting.getHeight());
+        DrawingBotV3.logger.config("Plotting Image: " + pixelDataPlotting.asString());
 
         // Add the fast pixel clip mask, if there is a soft clip, it's best to do it here before we load the data
         if(tools.getSoftClip() != null){
@@ -165,4 +167,11 @@ public class PFMTaskImage extends PFMTask {
         return drawing.getPlottingImage();
     }
 
+    @Override
+    public void logStart() {
+        super.logStart();
+        DrawingBotV3.logger.config("Image: %s".formatted(imageData));
+        DrawingBotV3.logger.config("Image Sizing: %s".formatted(imageData.getPropertiesString()));
+        DrawingBotV3.logger.config("%s".formatted(imgFilterSettings));
+    }
 }

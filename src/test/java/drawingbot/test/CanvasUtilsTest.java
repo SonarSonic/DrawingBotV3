@@ -1,6 +1,10 @@
-package drawingbot.plotting.canvas;
+package drawingbot.test;
 
 import drawingbot.api.ICanvas;
+import drawingbot.plotting.canvas.CanvasUtils;
+import drawingbot.plotting.canvas.ImageCanvas;
+import drawingbot.plotting.canvas.ObservableCanvas;
+import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.utils.EnumCroppingMode;
 import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;

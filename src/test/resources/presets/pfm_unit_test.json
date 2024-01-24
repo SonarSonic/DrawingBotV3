@@ -1,0 +1,447 @@
+{
+  "jsonMap": [
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Shapes",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Triangulation",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Tree",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Stippling",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Dashes",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Letters",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi Diagram",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Voronoi TSP",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Voronoi Iterations": "2"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Mosaic Triangulation",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Plotting Resolution": "1.0",
+          "Draw Outlines": "true",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "50.0",
+                  "Start Angle Min": "-72",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Erase Radius Max": "1.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "40",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "-52",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Erase Radius Min": "1.0",
+                  "Shading": "false",
+                  "Squiggle Max Length": "500",
+                  "Clarity": "0.0",
+                  "Directionality": "0.0",
+                  "Angle Tests": "20",
+                  "Tone": "50.0",
+                  "Line Min Length": "2",
+                  "Erase Max": "125",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Squares PFM",
+                "pfm": "Sketch Squares PFM",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Start Angle": "45",
+                  "Erase Radius Min": "1.0",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Squiggle Max Length": "500",
+                  "Erase Radius Max": "1.0",
+                  "Sobel Power": "0.0",
+                  "Clarity": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "30",
+                  "Directionality": "0.0",
+                  "Line Max Limit": "-1",
+                  "Angle Tests": "4",
+                  "Luminance Power": "100.0",
+                  "Tone": "50.0",
+                  "Line Min Length": "2",
+                  "Erase Max": "125",
+                  "Angularity": "0.0",
+                  "Squiggle Min Length": "25",
+                  "Random Seed": "0",
+                  "Line Density": "75.0",
+                  "Squiggle Max Deviation": "25.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Offset Cells": "1.0",
+          "Tile Count": "400",
+          "Density Power": "5",
+          "Luminance Power": "5",
+          "Voronoi Style": "Classic",
+          "Triangulate Corners": "true",
+          "Random Seed": "0",
+          "Voronoi Iterations": "50"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Mosaic Segments",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Plotting Resolution": "1.0",
+          "Draw Outlines": "true",
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Grid Dashes",
+                "pfm": "Grid Dashes",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Brightness": "1.0",
+                  "Min Rotation": "0.0",
+                  "Distortion": "0.0",
+                  "Uniform Spacing": "true",
+                  "Contrast": "1.25",
+                  "Convergence": "0.0",
+                  "Grid X Spacing": "6.0",
+                  "Rand Offset Y": "0.0",
+                  "Rand Offset X": "0.0",
+                  "Threshold Feather": "20.0",
+                  "Grid Y Spacing": "6.0",
+                  "Shape Scale": "3.0",
+                  "Fill Size": "100.0",
+                  "Interleave": "true",
+                  "Random Seed": "0",
+                  "Align Rotation": "true",
+                  "Max Rotation": "360.0",
+                  "Threshold": "80.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Squares PFM",
+                "pfm": "Sketch Squares PFM",
+                "settings": {
+                  "Plotting Resolution": "1.0",
+                  "Start Angle": "45",
+                  "Erase Radius Min": "1.0",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Squiggle Max Length": "500",
+                  "Erase Radius Max": "1.0",
+                  "Sobel Power": "0.0",
+                  "Clarity": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "30",
+                  "Directionality": "0.0",
+                  "Line Max Limit": "-1",
+                  "Angle Tests": "4",
+                  "Luminance Power": "100.0",
+                  "Tone": "50.0",
+                  "Line Min Length": "2",
+                  "Erase Max": "125",
+                  "Angularity": "0.0",
+                  "Squiggle Min Length": "25",
+                  "Random Seed": "0",
+                  "Line Density": "75.0",
+                  "Squiggle Max Deviation": "25.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Lines PFM",
+                "pfm": "Sketch Lines PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "50.0",
+                  "Start Angle Min": "-72",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Erase Radius Max": "1.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "40",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "-52",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Erase Radius Min": "1.0",
+                  "Shading": "false",
+                  "Squiggle Max Length": "500",
+                  "Clarity": "0.0",
+                  "Directionality": "0.0",
+                  "Angle Tests": "20",
+                  "Tone": "50.0",
+                  "Line Min Length": "2",
+                  "Erase Max": "125",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Offset Cells": "1.0",
+          "Compactness": "40",
+          "Segments": "400",
+          "Iterations": "1",
+          "Random Seed": "0"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.1",
+      "presetSubType": "Layers PFM",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Drawing Styles": {
+            "styles": [
+              {
+                "enabled": true,
+                "name": "Sketch Curves",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "0.0",
+                  "Start Angle Min": "-35",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Erase Radius Max": "12.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "40",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "-65",
+                  "Curve Tension": "0.5",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Erase Radius Min": "1.0",
+                  "Shading": "true",
+                  "Squiggle Max Length": "500",
+                  "Clarity": "25.0",
+                  "Directionality": "25.0",
+                  "Angle Tests": "50",
+                  "Tone": "100.0",
+                  "Line Min Length": "5",
+                  "Erase Max": "125",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              },
+              {
+                "enabled": true,
+                "name": "Sketch Curves",
+                "pfm": "Sketch Curves PFM",
+                "settings": {
+                  "Shading Delta Angle": "180.0",
+                  "Shading Threshold": "0.0",
+                  "Start Angle Min": "35",
+                  "Erase Min": "50",
+                  "Distortion": "0.0",
+                  "Edge Power": "0.0",
+                  "Erase Radius Max": "12.0",
+                  "Sobel Power": "0.0",
+                  "Should Lift Pen": "true",
+                  "Line Max Length": "40",
+                  "Line Max Limit": "-1",
+                  "Drawing Delta Angle": "360.0",
+                  "Luminance Power": "100.0",
+                  "Start Angle Max": "65",
+                  "Curve Tension": "0.5",
+                  "Angularity": "0.0",
+                  "Random Seed": "0",
+                  "Unlimited Tests": "false",
+                  "Squiggle Max Deviation": "25.0",
+                  "Plotting Resolution": "1.0",
+                  "Erase Radius Min": "1.0",
+                  "Shading": "true",
+                  "Squiggle Max Length": "500",
+                  "Clarity": "25.0",
+                  "Directionality": "25.0",
+                  "Angle Tests": "50",
+                  "Tone": "100.0",
+                  "Line Min Length": "5",
+                  "Erase Max": "125",
+                  "Squiggle Min Length": "25",
+                  "Line Density": "75.0"
+                },
+                "weight": 100,
+                "argb": -1,
+                "drawingSetSlot": 0
+              }
+            ]
+          },
+          "Layer Distribution": "Ordered",
+          "Keep Lightened Image": "true"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Sketch Cubic Beziers PFM",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Curve Tests": "10"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "Sketch Quad Beziers PFM",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Curve Tests": "10"
+        }
+      }
+    }
+  ]
+}

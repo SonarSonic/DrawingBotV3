@@ -51,13 +51,9 @@ public class ImageTools {
                 filter.dirty.set(false);
             }
             filterCount++;
-            if(callback != null){
-                callback.updateProgress(filterCount, settings.currentFilters.get().size());
-            }
+            callback.updateProgress(filterCount, settings.currentFilters.get().size());
         }
-        if(callback != null) {
-            callback.updateProgress(1, 1);
-        }
+        callback.updateProgress(1, 1);
         return image;
     }
 

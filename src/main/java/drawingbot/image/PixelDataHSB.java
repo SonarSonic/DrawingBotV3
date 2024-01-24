@@ -134,4 +134,9 @@ public class PixelDataHSB extends PixelDataAbstract implements IPixelDataHSB {
         saturation.destroy();
         brightness.destroy();
     }
+
+    @Override
+    public String getType() {
+        return "HSB";
+    }
 }

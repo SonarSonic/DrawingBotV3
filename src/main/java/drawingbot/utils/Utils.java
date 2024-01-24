@@ -298,7 +298,13 @@ public class Utils {
 
 
     public enum OS {
-        WINDOWS, LINUX, MAC, SOLARIS;
+        WINDOWS("win"), LINUX("linux"), MAC("mac"), SOLARIS("solaris");
+
+        String shortName;
+
+        OS(String shortName) {
+            this.shortName = shortName;
+        }
 
         public boolean isMac(){
             return this == MAC;
@@ -314,6 +320,10 @@ public class Utils {
 
         public boolean isSolaris(){
             return this == SOLARIS;
+        }
+
+        public String getShortName(){
+            return shortName;
         }
     }
 

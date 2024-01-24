@@ -130,7 +130,7 @@ public class ExportTask extends DBTask<Boolean> {
     protected Boolean call() throws InterruptedException, ExecutionException {
         DrawingBotV3.logger.info("Export Task: Started " + saveLocation.getPath());
 
-        if(!isSubTask){
+        if(!isSubTask && !FXApplication.isUnitTesting){
             updateTitle(exportHandler.description + ": " + saveLocation.getPath());
             //show confirmation dialog, for special formats
             if(exportHandler.confirmDialog != null){

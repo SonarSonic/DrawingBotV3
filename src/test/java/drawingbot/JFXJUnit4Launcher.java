@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  * This is the application which starts JavaFx.  It is controlled through the startJavaFx() method.
  * src: http://awhite.blogspot.com/2013/04/javafx-junit-testing.html
  */
-public class JavaFxJUnit4Application{
+public class JFXJUnit4Launcher {
 
     /** The lock that guarantees that only one JavaFX thread will be started. */
     private static final ReentrantLock LOCK = new ReentrantLock();
@@ -18,7 +18,7 @@ public class JavaFxJUnit4Application{
     /** Started flag. */
     private static final AtomicBoolean started = new AtomicBoolean();
 
-    public static final Consumer<String[]> launchMethod = Launcher::main;
+    public static Consumer<String[]> launchMethod = Launcher::main;
 
     /**
      * Start JavaFx.
@@ -35,7 +35,7 @@ public class JavaFxJUnit4Application{
             {
                 // start the JavaFX application
                 final ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(JavaFxJUnit4Application::launch);
+                executor.execute(JFXJUnit4Launcher::launch);
 
                 while (!started.get())
                 {
@@ -58,6 +58,8 @@ public class JavaFxJUnit4Application{
                 started.set(true);
             }
         });
+        FXApplication.isUnitTesting = true;
+
         launchMethod.accept(new String[0]);
     }
 }

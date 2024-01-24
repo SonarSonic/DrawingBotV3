@@ -39,6 +39,26 @@ public class ImageFilterSettings extends SpecialListenable<ImageFilterSettings.L
         return propertyList;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Image Filters: ");
+
+        if(currentFilters.get().isEmpty()){
+            builder.append("None");
+        }
+
+        for(int i = 0; i < currentFilters.get().size(); i++){
+            ObservableImageFilter filter = currentFilters.get().get(i);
+            builder.append(i == 0 ? "" : ", ");
+            builder.append(filter.name.get());
+            if(!filter.enable.get()){
+                builder.append("(Disabled)");
+            }
+        }
+        return builder.toString();
+    }
+
     ///////////////////////////
 
     public interface Listener extends ObservableImageFilter.Listener {

@@ -93,4 +93,9 @@ public class PixelDataComposite<B extends IPixelData & IPixelListenable, F exten
         background.destroy();
         foreground.destroy();
     }
+
+    @Override
+    public String getType() {
+        return "Composite: B %s F %s".formatted(background.getType(), foreground.getType());
+    }
 }

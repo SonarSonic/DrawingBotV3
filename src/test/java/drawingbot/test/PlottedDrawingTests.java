@@ -1,13 +1,14 @@
-package drawingbot.plotting;
+package drawingbot.test;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.JavaFxJUnit4ClassRunner;
+import drawingbot.JFXJUnit4ClassRunner;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.operation.GeometryOperationOptimize;
 import drawingbot.geom.operation.GeometryOperationSimplify;
 import drawingbot.geom.operation.GeometryOperationUnsimplify;
 import drawingbot.geom.shapes.*;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import org.junit.Assert;
@@ -15,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(JavaFxJUnit4ClassRunner.class)
+@RunWith(JFXJUnit4ClassRunner.class)
 public class PlottedDrawingTests {
 
     PlottedDrawing toCopy;

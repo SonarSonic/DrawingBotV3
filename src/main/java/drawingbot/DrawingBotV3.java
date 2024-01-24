@@ -374,7 +374,6 @@ public class DrawingBotV3 {
         if(task == task.context.taskManager().getRenderedTask()){
             context.project().setRenderFlag(Flags.ACTIVE_TASK_CHANGED_STATE, true);
         }
-        logger.info("Plotting Task: Finished Stage " + stage.name());
     }
 
 

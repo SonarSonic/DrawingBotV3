@@ -341,4 +341,12 @@ public interface IPixelData {
         return withinX(x) && withinY(y);
     }
 
+    default String getType(){
+        return "IPixelData";
+    }
+
+    default String asString(){
+        return "IPixelData: %s x %s (%s)".formatted(getWidth(), getHeight(), getType());
+    }
+
 }

@@ -9,6 +9,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -107,10 +112,11 @@ public class LoggingHandler {
     }
 
     public static void logApplicationStatus(){
-        DrawingBotV3.logger.info("Java Home: " + System.getProperty("java.home"));
-        DrawingBotV3.logger.info("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
-        DrawingBotV3.logger.info("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
-        DrawingBotV3.logger.info("Running: " + FXApplication.getSoftware().getDisplayName() + " " + FXApplication.getSoftware().getDisplayVersion());
+        DrawingBotV3.logger.config("Date: " + new Date(System.currentTimeMillis()));
+        DrawingBotV3.logger.config("Java Home: " + System.getProperty("java.home"));
+        DrawingBotV3.logger.config("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
+        DrawingBotV3.logger.config("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
+        DrawingBotV3.logger.config("Running: " + FXApplication.getSoftware().getDisplayName() + " " + FXApplication.getSoftware().getDisplayVersion());
     }
 
 
@@ -118,9 +124,10 @@ public class LoggingHandler {
 
     ///copy of java.util.logging.SimpleFormatter with custom format to fit logs onto one line
     public static class OutputFormat extends Formatter {
-        private static final String formatWithoutThrowable = "%1$tc: %4$s - %2$s - %5$s%n";
-        private static final String formatWithThrowable = "%1$tc: %4$s - %2$s - %5$s%n%6$s%n";
-        private final Date dat = new Date();
+        private static final String formatWithoutThrowable = "%1$tY.%1$tm.%1$td %1$tl:%1$tM:%1$tS %1$Tp: %4$s - %2$s - %5$s%n";
+        private static final String formatWithThrowable = "%1$tY.%1$tm.%1$td %1$tl:%1$tM:%1$tS %1$Tp: %4$s - %2$s - %5$s%n%6$s%n";
+
+        private static final String formatConfigData = "%1$tY.%1$tm.%1$td %1$tl:%1$tM:%1$tS %1$Tp: %2$s - %3$s%n";
 
         @Override
         public String formatMessage(LogRecord record) {
@@ -129,16 +136,7 @@ public class LoggingHandler {
 
         @Override
         public synchronized String format(LogRecord record) {
-            dat.setTime(record.getMillis());
-            String source;
-            if (record.getSourceClassName() != null) {
-                source = record.getSourceClassName();
-                if (record.getSourceMethodName() != null) {
-                    source += " " + record.getSourceMethodName();
-                }
-            } else {
-                source = record.getLoggerName();
-            }
+            ZonedDateTime zdt = ZonedDateTime.ofInstant(record.getInstant(), ZoneId.systemDefault());
             String message = formatMessage(record);
             String throwable = "";
             if (record.getThrown() != null) {
@@ -149,7 +147,18 @@ public class LoggingHandler {
                 pw.close();
                 throwable = sw.toString();
             }
-            return String.format(throwable.isEmpty() ? formatWithoutThrowable : formatWithThrowable, dat, source, record.getLoggerName(), record.getLevel().getName(), message, throwable);
+
+            String source;
+            if (record.getSourceClassName() != null) {
+                source = record.getSourceClassName();
+                if (record.getSourceMethodName() != null) {
+                    source += " " + record.getSourceMethodName();
+                }
+            } else {
+                source = record.getLoggerName();
+            }
+
+            return String.format(throwable.isEmpty() ? formatWithoutThrowable : formatWithThrowable, zdt, source, record.getLoggerName(), record.getLevel().getName(), message, throwable);
         }
     }
 }

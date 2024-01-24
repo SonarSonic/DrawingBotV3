@@ -93,4 +93,9 @@ public class PixelDataAdditiveComposite extends PixelDataARGBY{
         super.destroy();
         cacheGraphics.dispose();
     }
+
+    @Override
+    public String getType() {
+        return "ARGBY: Additive Composite";
+    }
 }

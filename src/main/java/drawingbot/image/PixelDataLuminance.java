@@ -90,4 +90,9 @@ public class PixelDataLuminance extends PixelDataAbstract {
     public void destroy() {
         luminance.destroy();
     }
+
+    @Override
+    public String getType() {
+        return "L";
+    }
 }

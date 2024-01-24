@@ -1,0 +1,155 @@
+{
+  "presetType": "image_filters",
+  "version": "1.12",
+  "presetSubType": "User",
+  "presetName": "filter_unit_test",
+  "userCreated": true,
+  "data": {
+    "filters": [
+      {
+        "isEnabled": false,
+        "type": "Adjust HSB",
+        "settings": {
+          "Brightness": "-0.2",
+          "Saturation": "-0.2",
+          "Hue": "0.5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Adjust RGB",
+        "settings": {
+          "Red": "0.25",
+          "Blue": "0.5",
+          "Green": "-0.5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Contrast",
+        "settings": {
+          "Brightness": "0.85",
+          "Contrast": "1.5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Exposure",
+        "settings": {
+          "Exposure": "2.5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Gain",
+        "settings": {
+          "Bias": "0.277",
+          "Gain": "0.655"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Gamma",
+        "settings": {
+          "Gamma": "1.5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Levels",
+        "settings": {
+          "Low Output Level": "0.0",
+          "High Output Level": "0.5",
+          "High Level": "1.0",
+          "Low Level": "0.2"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Mix Channels",
+        "settings": {
+          "Blue/Green": "255",
+          "Into Red": "255",
+          "Green/Red": "103",
+          "Red/Blue": "127",
+          "Into Green": "184",
+          "Into Blue": "174"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Posterize",
+        "settings": {
+          "Posterize": "5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Quantize",
+        "settings": {
+          "Dither": "true",
+          "Number of Colours": "18",
+          "Serpentine": "true"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Rescale",
+        "settings": {
+          "Number of Colours": "0.5"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Transparency",
+        "settings": {
+          "Opacity": "75"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Clean Black",
+        "settings": {
+          "Tolerance": "0.257"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Dirty Border",
+        "settings": {
+          "Type": "8"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Box Blur",
+        "settings": {
+          "V Radius": "54.762",
+          "Premultiply": "true",
+          "H Radius": "5.556",
+          "Iterations": "1"
+        }
+      },
+      {
+        "isEnabled": false,
+        "type": "Motion Blur - Fast",
+        "settings": {
+          "Centre X": "0.5",
+          "Angle": "0",
+          "Centre Y": "0.5",
+          "Zoom": "0.3",
+          "Rotation": "1",
+          "Distance": "0.2"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Gaussian Blur",
+        "settings": {
+          "Radius": "35.0",
+          "Premultiply": "true"
+        }
+      }
+    ]
+  }
+}

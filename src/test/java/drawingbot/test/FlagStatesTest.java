@@ -1,5 +1,7 @@
-package drawingbot.utils.flags;
+package drawingbot.test;
 
+import drawingbot.utils.flags.FlagStates;
+import drawingbot.utils.flags.Flags;
 import junit.framework.TestCase;
 
 public class FlagStatesTest extends TestCase {

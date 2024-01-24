@@ -1,5 +1,7 @@
 package drawingbot.utils;
 
+import drawingbot.DrawingBotV3;
+
 /**
  * A lazy way to time things when debugging --todo use DATES?
  */
@@ -33,7 +35,7 @@ public class LazyTimer {
      * Prints out the finishing time
      */
     public static String getElapsedTimeFormatted(long elapsedTime){
-        int seconds = (int) (elapsedTime / 1000) % 60 ;
+        int seconds = (int) (elapsedTime / 1000) % 60;
         int minutes = (int) ((elapsedTime / (1000*60)) % 60);
         int hours = (int) ((elapsedTime / (1000*60*60)) % 24);
 
@@ -52,5 +54,8 @@ public class LazyTimer {
         return hours + " h " + minutes + " m " + seconds + " s";
     }
 
+    public void logSimple(String message){
+        DrawingBotV3.logger.config(message + ": " + getElapsedTimeFormatted());
+    }
 
 }
