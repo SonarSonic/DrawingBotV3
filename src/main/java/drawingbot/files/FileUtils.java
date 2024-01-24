@@ -75,6 +75,10 @@ public class FileUtils {
         return begin != -1;
     }
 
+    public static String getSafeFileName(String filename){
+        return filename.replaceAll("[<>:\"\\\\/|?*]", "_").replace('\\', '_');
+    }
+
     public static FileChooser.ExtensionFilter findMatchingExtensionFilter(String extension){
         return findMatchingExtensionFilter(extension, SINGLE_FILTERS);
     }
