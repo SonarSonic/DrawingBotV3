@@ -3,6 +3,126 @@
     {
       "presetType": "pfm_settings",
       "version": "1.12",
+      "presetSubType": "LBG Shapes",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Triangulation",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Tree",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Stippling",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Dashes",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Letters",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Diagram",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG TSP",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Quad Tiles",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "LBG Circular Scribbles",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Cache Result": "false"
+        }
+      }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
       "presetSubType": "Voronoi Shapes",
       "presetName": "pfm_unit_test",
       "userCreated": false,
