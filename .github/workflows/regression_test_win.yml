@@ -8,9 +8,10 @@ jobs:
 # RUN WINDOWS TEST
   test_windows:
     runs-on: windows-latest 
-    steps:
+    steps:    
+    - uses: actions/checkout@v3
     - name: Checkout DrawingBotV3
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
           repository: SonarSonic/DrawingBotV3
           path: DrawingBotV3-Free
