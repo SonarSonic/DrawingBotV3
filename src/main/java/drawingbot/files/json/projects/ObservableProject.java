@@ -27,6 +27,7 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.plotting.ITaskManager;
 import drawingbot.plotting.PFMTask;
+import drawingbot.plotting.PFMTaskBuilder;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.ObservableCanvas;
@@ -50,7 +51,6 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Tab;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -129,6 +129,10 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         return pfmSettings.get();
     }
 
+    public PFMFactory<?> getPFMFactory() {
+        return getPFMSettings().getPFMFactory();
+    }
+
     public SimpleObjectProperty<PFMSettings> pfmSettingsProperty() {
         return pfmSettings;
     }
@@ -137,6 +141,9 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         this.pfmSettings.set(pfmSettings);
     }
 
+    public List<GenericSetting<?, ?>> getPFMSettings(PFMFactory<?> factory){
+        return MasterRegistry.INSTANCE.getObservablePFMSettingsList(factory);
+    }
     /**
      * Drawing Sets
      */
@@ -144,6 +151,10 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public DrawingSets getDrawingSets(){
         return drawingSets.get();
+    }
+
+    public ObservableDrawingSet getActiveDrawingSet() {
+        return getDrawingSets().getActiveDrawingSet();
     }
 
     public SimpleObjectProperty<DrawingSets> drawingSetsProperty() {
@@ -207,6 +218,25 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         this.displayMode.set(displayMode);
     }
 
+
+    /**
+     * Open Image
+     */
+
+    public final ObjectProperty<FilteredImageData> openImage = new SimpleObjectProperty<>(null);
+
+    public FilteredImageData getOpenImage() {
+        return openImage.get();
+    }
+
+    public ObjectProperty<FilteredImageData> openImageProperty() {
+        return openImage;
+    }
+
+    public void setOpenImage(FilteredImageData openImage) {
+        this.openImage.set(openImage);
+    }
+
     public final SimpleBooleanProperty dpiScaling = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<EnumBlendMode> blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
     public final SimpleObjectProperty<Bounds> canvasBoundsInScene = new SimpleObjectProperty<>(new BoundingBox(0, 0, 0, 0));
@@ -215,7 +245,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
 
     // TASKS \\
-    public final ObjectProperty<FilteredImageData> openImage = new SimpleObjectProperty<>(null);
     public final ObjectProperty<DBTask<?>> activeTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PFMTask> renderedTask = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PlottedDrawing> currentDrawing = new SimpleObjectProperty<>(null);
@@ -227,11 +256,11 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     public MetadataMap metadata = new MetadataMap(new LinkedHashMap<>());
     //public FlagStates projectFlags = new FlagStates(Flags.PROJECT_CATEGORY);
 
-    public final DBTaskContext context = new DBTaskContext(this, this);
-
     // EXTRA DATA \\
     public final SimpleStringProperty lastExportDirectory = new SimpleStringProperty("");
     public final SimpleStringProperty lastImportDirectory = new SimpleStringProperty("");
+
+    public final DBTaskContext context = new DBTaskContext(this, this);
 
     public ObservableProject(){
         this(DEFAULT_NAME, null);
@@ -701,13 +730,8 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     @Override
-    public PFMTask initPFMTask(DBTaskContext context, ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask) {
-        return DrawingBotV3.INSTANCE.initPFMTask(context, canvas, pfmFactory, pfmSettings, drawingPenSet, imageData, isSubTask);
-    }
-
-    @Override
-    public PFMTask initPFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask) {
-        return DrawingBotV3.INSTANCE.initPFMTask(context, drawing, pfmFactory, settings, drawingPenSet, imageData, isSubTask);
+    public PFMTaskBuilder createPFMTaskBuilder() {
+        return PFMTaskBuilder.create(context);
     }
 
     @Override
@@ -771,6 +795,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     public PlottedDrawing getDisplayedDrawing() {
         return displayedDrawing.get();
     }
+
 
     @Override
     public void clearDrawingRender(EnumRendererType rendererType){

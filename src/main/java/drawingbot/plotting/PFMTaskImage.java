@@ -32,6 +32,10 @@ public class PFMTaskImage extends PFMTask {
     public ImageFilterSettings imgFilterSettings;
     public boolean enableImageFiltering = true;
 
+    public PFMTaskImage(PFMTaskBuilder builder){
+        this(builder.context, builder.drawing, builder.pfmFactory, builder.activeSet, builder.pfmSettings, builder.imageSettings, builder.imageData);
+    }
+
     public PFMTaskImage(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, List<GenericSetting<?, ?>> pfmSettings, @Nullable ImageFilterSettings imgFilterSettings, FilteredImageData imageData){
         super(context, drawing, pfmFactory, drawingPenSet, pfmSettings);
         this.imgFilterSettings = imgFilterSettings;

@@ -1,6 +1,8 @@
 package drawingbot.test;
 
 import drawingbot.api.IProperties;
+import drawingbot.javafx.util.PropertyChangeListener;
+import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.utils.*;
 import javafx.beans.Observable;
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+/*
 public class PropertyUtilTest extends TestCase {
 
     public ObservableCanvas canvas;
@@ -24,7 +27,6 @@ public class PropertyUtilTest extends TestCase {
     private final AtomicReference<Observable> current = new AtomicReference<>();
     private final AtomicBoolean received = new AtomicBoolean(false);
 
-    /*
     private void setupGenericObservableTest(IProperties properties){
 
         PropertyUtil.createPropertyChangeListener(properties, (value, changed) -> {
@@ -157,5 +159,6 @@ public class PropertyUtilTest extends TestCase {
         canvas.canvasColor.set(Color.ALICEBLUE);
         assertTrue(received.get());
     }
-    */
 }
+
+ */

@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class Hooks {
 
+    public static final String NEW_PFM_TASK_BUILDER = "NEW_PFM_TASK_BUILDER";
     public static final String NEW_PLOTTING_TASK = "NEW_PLOTTING_TASK";
     public static final String NEW_EXPORT_TASK = "NEW_EXPORT_TASK";
 

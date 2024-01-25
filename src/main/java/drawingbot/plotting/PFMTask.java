@@ -54,6 +54,10 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     public int parallelPlots = 3;
     public boolean enablePlottingResolution = true;
 
+    public PFMTask(PFMTaskBuilder builder){
+        this(builder.context, builder.drawing, builder.pfmFactory, builder.activeSet, builder.pfmSettings);
+    }
+
     public PFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
         super(context);
         updateTitle("Plotting Image (" + pfmFactory.getRegistryName() + ")");
@@ -359,6 +363,8 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         default void preSetupPFM(PFMTask task, IPFM pfm){}
 
         default void postSetupPFM(PFMTask task, IPFM pfm){}
+
+        default void onPlottingTaskStageFinished(PFMTask task, EnumTaskStage stage){}
     }
 
 

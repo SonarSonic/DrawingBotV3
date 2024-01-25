@@ -5,7 +5,6 @@
 package drawingbot;
 
 import java.io.File;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -20,21 +19,16 @@ import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.plotting.ITaskManager;
+import drawingbot.plotting.*;
 import drawingbot.javafx.*;
-import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.files.*;
 import drawingbot.javafx.observables.ObservableVersion;
-import drawingbot.pfm.PFMFactory;
-import drawingbot.plotting.PFMTaskImage;
-import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.utils.*;
-import drawingbot.plotting.PFMTask;
 import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
@@ -48,7 +42,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import org.fxmisc.easybind.EasyBind;
 import org.fxmisc.easybind.monadic.MonadicBinding;
-import org.jetbrains.annotations.Nullable;
 
 public class DrawingBotV3 {
 
@@ -250,40 +243,12 @@ public class DrawingBotV3 {
 
     //// PLOTTING TASKS
 
-    public PlottedDrawing createNewPlottedDrawing() {
-        return new PlottedDrawing(project().getDrawingArea(), project().getDrawingSets());
-    }
-
-    public PFMTask initPFMTask(DBTaskContext context, ICanvas canvas, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> pfmSettings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask) {
-        if(imageData != null){
-            imageData.updateAll(context.project.imageSettings.get());
-            canvas = imageData.getDestCanvas();
-        }
-        return initPFMTask(context, new PlottedDrawing(canvas, project().getDrawingSets()), pfmFactory, pfmSettings, drawingPenSet, imageData, isSubTask);
-    }
-
-    public PFMTask initPFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, @Nullable List<GenericSetting<?, ?>> settings, ObservableDrawingSet drawingPenSet, @Nullable FilteredImageData imageData, boolean isSubTask){
-        if(settings == null){
-            settings = MasterRegistry.INSTANCE.getObservablePFMSettingsList(pfmFactory);
-        }
-        PFMTask task;
-        if(!pfmFactory.isGenerativePFM()){
-            task = new PFMTaskImage(context, drawing, pfmFactory, drawingPenSet, settings, context.project.imageSettings.get(), imageData);
-        }else{
-            task = new PFMTask(context, drawing, pfmFactory, drawingPenSet, settings);
-        }
-        Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
-        task = (PFMTask) hookReturn[0];
-        task.isSubTask = isSubTask;
-        return task;
-    }
-
     public void startPlotting(DBTaskContext context){
         if(context.project().activeTask.get() != null){
             context.project().activeTask.get().cancel();
         }
         if(context.project().openImage.get() != null || context.project.getPFMSettings().factory.get().isGenerativePFM()){
-            taskMonitor.queueTask(initPFMTask(context(), context.project.getDrawingArea().copy(), context.project.getPFMSettings().factory.get(), null, context.project.getDrawingSets().activeDrawingSet.get(), context.project.openImage.get(), false));
+            taskMonitor.queueTask(PFMTaskBuilder.create(context).createPFMTask());
         }
     }
 

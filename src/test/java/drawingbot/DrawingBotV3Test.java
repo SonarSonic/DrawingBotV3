@@ -16,16 +16,17 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.JFXUtils;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PFMTask;
+import drawingbot.plotting.PFMTaskBuilder;
+import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.plugins.PremiumPluginDummy;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.registry.Register;
-import drawingbot.utils.Utils;
+import drawingbot.utils.*;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,24 +39,27 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-//https://github.com/reg-viz/reg-actions
 @RunWith(JFXJUnit4ClassRunner.class)
-public class DrawingBotV3Test  {
+public class DrawingBotV3Test {
 
     private static String testRunnerName = null;
 
-    public static String getTestRunnerName(){
-        if(testRunnerName == null){
+    public static String getTestRunnerName() {
+        if (testRunnerName == null) {
             String prop = System.getProperty("drawingbotv3_testrunner");
             testRunnerName = prop == null ? Utils.getOS().getShortName() : prop;
         }
         return testRunnerName;
+    }
+
+    public static String lazyFormat(String string) {
+        return FileUtils.getSafeFileName(string.toLowerCase().replace(" ", "_").replace(".", "_"));
     }
 
     public static String getImageTestsDirectory() {
@@ -64,6 +68,10 @@ public class DrawingBotV3Test  {
 
     public static String getPFMTestsDirectory() {
         return FileUtils.getTestDirectory() + "pfm" + File.separator;
+    }
+
+    public static String getCanvasTestsDirectory() {
+        return FileUtils.getTestDirectory() + "canvas" + File.separator;
     }
 
     public static String getExportTestsDirectory() {
@@ -85,6 +93,9 @@ public class DrawingBotV3Test  {
         File testPFMDir = new File(getPFMTestsDirectory());
         assert testPFMDir.exists() || testPFMDir.mkdirs();
 
+        File canvasTestDir = new File(getCanvasTestsDirectory());
+        assert canvasTestDir.exists() || canvasTestDir.mkdirs();
+
         File testExportDir = new File(getExportTestsDirectory());
         assert testExportDir.exists() || testExportDir.mkdirs();
 
@@ -105,8 +116,8 @@ public class DrawingBotV3Test  {
         GenericPreset<PresetImageFilters> imageFilterPreset = JsonLoaderManager.importPresetFile(stream, null);
         assert imageFilterPreset != null;
 
-        for(List<GenericFactory<BufferedImageOp>> factories : MasterRegistry.INSTANCE.imgFilterFactories.values()){
-            for(GenericFactory<BufferedImageOp> factory : factories){
+        for (List<GenericFactory<BufferedImageOp>> factories : MasterRegistry.INSTANCE.imgFilterFactories.values()) {
+            for (GenericFactory<BufferedImageOp> factory : factories) {
                 System.out.println("Started Image Filter Test: " + factory.getRegistryName());
 
                 //Create the ImageFilterSettings
@@ -137,70 +148,132 @@ public class DrawingBotV3Test  {
 
     public static void testPFMS(Function<PFMFactory<?>, Boolean> filter) throws InterruptedException {
 
-        for(final PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories){
-            if(factory.getInstanceClass() == PremiumPluginDummy.DummyPFM.class || !filter.apply(factory)){
+        for (final PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories) {
+            if (factory.getInstanceClass() == PremiumPluginDummy.DummyPFM.class || !filter.apply(factory)) {
                 continue;
             }
             System.out.println("Started PFM Test: " + factory.getRegistryName());
-            GenericPreset<PresetData> preset = Register.PRESET_LOADER_PFM.getPresetsForSubType(factory.getRegistryName()).stream().filter(f -> f.getPresetName().equals("pfm_unit_test")).findFirst().orElse(null);
-
-            final CountDownLatch pfmTaskLatch = new CountDownLatch(1);
-            AtomicReference<PFMTask> pfmTask = new AtomicReference<>();
-
-            String usedMemory = Utils.defaultNF.format(Runtime.getRuntime().totalMemory());
-            String totalMemory = Utils.defaultNF.format(Runtime.getRuntime().maxMemory());
-            System.out.println("Heap Usage: " + usedMemory + " / " + totalMemory);
-
-            // Create a PFM Task
-            Platform.runLater(() -> {
-                DrawingBotV3.project().getPFMSettings().setPFMFactory(factory);
-                if(preset != null){
-                    Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(DrawingBotV3.context(), preset, false);
-                }
-                DrawingBotV3.project().setRenderedTask(null);
-                DrawingBotV3.project().setActiveTask(null);
-                pfmTask.set(DrawingBotV3.taskManager().initPFMTask(DrawingBotV3.context(), DrawingBotV3.project().getDrawingArea().copy(), factory, null, DrawingBotV3.project().getDrawingSets().activeDrawingSet.get(), DrawingBotV3.project().openImage.get(), false));
-                pfmTask.get().stateProperty().addListener((observable, oldValue, newValue) -> {
-                    if(newValue == Worker.State.FAILED || newValue == Worker.State.SUCCEEDED){
-                        pfmTaskLatch.countDown();
-                    }
-                });
-                DrawingBotV3.INSTANCE.taskMonitor.queueTask(pfmTask.get());
-            });
-            pfmTaskLatch.await();
-
-            Assert.assertNotNull(pfmTask.get());
-            Assert.assertSame(Future.State.SUCCESS, pfmTask.get().state());
-
             // Create an Export Task
-
-            final CountDownLatch exportTaskLatch = new CountDownLatch(1);
-            AtomicReference<Task<?>> exportTask = new AtomicReference<>();
-
-            Platform.runLater(() -> {
-                exportTask.set(DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, pfmTask.get().drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".png", new File(getPFMTestsDirectory(), "pfm_%s_%s.png".formatted(factory.getRegistryName().toLowerCase().replace(" ", "_"), getTestRunnerName())), false));
-                exportTask.get().stateProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue == Worker.State.FAILED || newValue == Worker.State.SUCCEEDED) {
-                        exportTaskLatch.countDown();
-                        DrawingBotV3.project().setActiveTask(null);
-                        DrawingBotV3.project().setRenderedTask(null);
-                        //Force: Destroy the task to prevent OutOfMemory errors
-                        pfmTask.get().tryDestroy();
-                    }
-                });
-            });
-            exportTaskLatch.await();
-
-            Assert.assertSame(Future.State.SUCCESS, exportTask.get().state());
+            PFMTask pfmTask = PFMTestRunner.runPFMTest(PFMTaskBuilder.create(DrawingBotV3.context(), factory).createPFMTask());
+            PFMTestRunner.exportPFMTest(pfmTask, new File(getPFMTestsDirectory(), "pfm_%s_%s.png".formatted(factory.getRegistryName().toLowerCase().replace(" ", "_"), getTestRunnerName())), true);
 
             System.out.println("Finished PFM Test: " + factory.getRegistryName());
         }
     }
 
     @Test
-    public void testPresets(){
-        for(AbstractJsonLoader<?> loader : MasterRegistry.INSTANCE.presetLoaders){
-            for(GenericPreset<?> preset : loader.getAllPresets()){
+    public void testPreCropping() {
+
+        DrawingBotV3.project().getOpenImage().cropStartX.set(305);
+        DrawingBotV3.project().getOpenImage().cropStartY.set(25);
+        DrawingBotV3.project().getOpenImage().cropWidth.set(250);
+        DrawingBotV3.project().getOpenImage().cropHeight.set(250);
+
+        PFMFactory<?> factory = MasterRegistry.INSTANCE.getPFMFactory("Sketch Lines PFM");
+        PFMTask pfmTask = PFMTestRunner.runPFMTest(PFMTaskBuilder.create(DrawingBotV3.context(), factory).createPFMTask());
+        PFMTestRunner.exportPFMTest(pfmTask, new File(getCanvasTestsDirectory(), "%s_%s.png".formatted("precrop", getTestRunnerName())), true);
+
+        DrawingBotV3.project().getOpenImage().resetCrop();
+    }
+
+    @Test
+    public void testDistributionType() {
+        PFMFactory<?> factory = MasterRegistry.INSTANCE.getPFMFactory("Sketch Lines PFM");
+        PFMTask pfmTask = PFMTestRunner.runPFMTest(PFMTaskBuilder.create(DrawingBotV3.context(), factory).createPFMTask());
+
+        for(EnumDistributionType type : EnumDistributionType.values()){
+            for(EnumDistributionOrder order : EnumDistributionOrder.values()) {
+                JFXUtils.runNow(() -> {
+                    DrawingBotV3.project().getActiveDrawingSet().distributionType.set(type);
+                    DrawingBotV3.project().getActiveDrawingSet().distributionOrder.set(order);
+                });
+                PFMTestRunner.exportPFMTest(pfmTask, new File(getCanvasTestsDirectory(), "distribute_%s_%s_%s.png".formatted(lazyFormat(type.displayName), lazyFormat(order.name()), getTestRunnerName())), false);
+            }
+        }
+    }
+
+    @Test
+    public void testCanvasSetups() {
+
+        PFMFactory<?> factory = MasterRegistry.INSTANCE.getPFMFactory("Sketch Lines PFM");
+
+        for (EnumRescaleMode rescaleMode : EnumRescaleMode.values()) {
+            for (float target : List.of(0.3F, 0.7F, 1F, 1.3F)) {
+                testCanvas("rescale_%s_%s".formatted(lazyFormat(rescaleMode.displayName), lazyFormat(String.valueOf(target))), factory, List.of("A4 Paper"), canvas -> {
+                    canvas.rescaleMode.set(rescaleMode);
+                    canvas.orientation.set(EnumOrientation.LANDSCAPE);
+                    canvas.targetPenWidth.set(target);
+                });
+            }
+        }
+
+
+        for (EnumCroppingMode croppingMode : EnumCroppingMode.values()) {
+            for (EnumOrientation orientation : EnumOrientation.values()) {
+                testCanvas("crop_%s_%s".formatted(lazyFormat(croppingMode.name()), lazyFormat(orientation.name())), factory, List.of("A5 Paper"), canvas -> {
+                    canvas.croppingMode.set(croppingMode);
+                    canvas.orientation.set(orientation);
+                    canvas.targetPenWidth.set(0.3F);
+                    canvas.drawingAreaPaddingLeft.set(10);
+                });
+            }
+        }
+
+        for (UnitsLength units : UnitsLength.values()) {
+            for (EnumRescaleMode rescaleMode : EnumRescaleMode.values()) {
+                testCanvas("units_%s_%s".formatted(lazyFormat(units.getSuffix()), lazyFormat(rescaleMode.name())), factory, List.of("A5 Paper"), canvas -> {
+                    canvas.inputUnits.set(units);
+                    canvas.rescaleMode.set(rescaleMode);
+                    canvas.targetPenWidth.set(0.3F);
+                    canvas.drawingAreaPaddingLeft.set(0);
+                });
+            }
+        }
+
+        testCanvas("offset_padding", factory, List.of("A4 Paper"), canvas -> {
+            canvas.orientation.set(EnumOrientation.LANDSCAPE);
+            canvas.drawingAreaGangPadding.set(false);
+            canvas.drawingAreaPaddingLeft.set(10);
+            canvas.drawingAreaPaddingRight.set(50);
+            canvas.drawingAreaPaddingBottom.set(5);
+            canvas.drawingAreaPaddingTop.set(15);
+        });
+
+        testCanvas("original", factory, List.of("Original Sizing"), canvas -> {
+            canvas.useOriginalSizing.set(true);
+        });
+    }
+
+    public static void testCanvas(String testID, PFMFactory<?> factory, List<String> testPresetNames, Consumer<ObservableCanvas> setup) {
+
+        for (String presetName : testPresetNames) {
+            final CountDownLatch latch = new CountDownLatch(1);
+            Platform.runLater(() -> {
+
+                //Apply the Drawing Area Preset
+                GenericPreset<PresetData> drawingAreaPreset = Register.PRESET_LOADER_DRAWING_AREA.findPreset(presetName);
+                Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), drawingAreaPreset);
+
+                setup.accept(DrawingBotV3.project().getDrawingArea());
+                latch.countDown();
+            });
+
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                Assert.fail();
+            }
+
+            PFMTask pfmTask = PFMTestRunner.runPFMTest(PFMTaskBuilder.create(DrawingBotV3.context(), factory).createPFMTask());
+            PFMTestRunner.exportPFMTest(pfmTask, new File(getCanvasTestsDirectory(), "%s_%s_%s.png".formatted(testID, lazyFormat(presetName), getTestRunnerName())), true);
+
+        }
+    }
+
+    @Test
+    public void testPresets() {
+        for (AbstractJsonLoader<?> loader : MasterRegistry.INSTANCE.presetLoaders) {
+            for (GenericPreset<?> preset : loader.getAllPresets()) {
                 String original = JsonLoaderManager.createDefaultGson().toJson(preset);
                 String fromJSON = JsonLoaderManager.createDefaultGson().toJson(JsonLoaderManager.createDefaultGson().fromJson(original, GenericPreset.class));
                 Assert.assertEquals(original, fromJSON);
@@ -217,12 +290,12 @@ public class DrawingBotV3Test  {
             DrawingBotV3.INSTANCE.startPlotting(DrawingBotV3.context());
 
             DrawingBotV3.INSTANCE.taskMonitor.processingCount.addListener((observable, oldValue, newValue) -> {
-                if(newValue.intValue() == 0){ //when the value changes we add export tasks for every type
-                    if(triggered.get()){
+                if (newValue.intValue() == 0) { //when the value changes we add export tasks for every type
+                    if (triggered.get()) {
                         latch.countDown();
-                    }else{
-                        for(DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers.values()){
-                            if(format.category == DrawingExportHandler.Category.ANIMATION || format.category == DrawingExportHandler.Category.SPECIAL){
+                    } else {
+                        for (DrawingExportHandler format : MasterRegistry.INSTANCE.drawingExportHandlers.values()) {
+                            if (format.category == DrawingExportHandler.Category.ANIMATION || format.category == DrawingExportHandler.Category.SPECIAL) {
                                 continue;
                             }
                             String extension = format.getDefaultExtension();
