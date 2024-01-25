@@ -42,6 +42,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 //https://github.com/reg-viz/reg-actions
 @RunWith(JFXJUnit4ClassRunner.class)
@@ -131,9 +132,13 @@ public class DrawingBotV3Test  {
 
     @Test
     public void testPathFindingModules() throws InterruptedException {
+        testPFMS(pfm -> true);
+    }
+
+    public static void testPFMS(Function<PFMFactory<?>, Boolean> filter) throws InterruptedException {
 
         for(final PFMFactory<?> factory : MasterRegistry.INSTANCE.pfmFactories){
-            if(factory.getInstanceClass() == PremiumPluginDummy.DummyPFM.class){
+            if(factory.getInstanceClass() == PremiumPluginDummy.DummyPFM.class || !filter.apply(factory)){
                 continue;
             }
             System.out.println("Started PFM Test: " + factory.getRegistryName());
