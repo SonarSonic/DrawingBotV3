@@ -173,28 +173,27 @@ task rezipWindowsImage(type: Zip){
 }
 
 ////
+class SimpleTestType extends Test {
+    SimpleTestType() {
+        systemProperty "drawingbotv3_testrunner", System.getProperty("drawingbotv3_testrunner")
 
-test{
-    testLogging.showStandardStreams = true
-    beforeTest { descriptor ->
-        logger.lifecycle("Running test: " + descriptor)
+        testLogging.showStandardStreams = true
+        beforeTest { descriptor ->
+            logger.lifecycle("Running test: " + descriptor)
+        }
+        onOutput { descriptor, event ->
+            logger.lifecycle("Test: " + descriptor + " " + event.message)
+        }
     }
-    onOutput { descriptor, event ->
-        logger.lifecycle("Test: " + descriptor + " " + event.message )
-    }
+}
+
+task testAll(type:SimpleTestType){
     filter{
         excludeTestsMatching "drawingbot.DrawingBotV3Test"
     }
 }
 
-task regressionTest(type:Test){
-    testLogging.showStandardStreams = true
-    beforeTest { descriptor ->
-        logger.lifecycle("Running test: " + descriptor)
-    }
-    onOutput { descriptor, event ->
-        logger.lifecycle("Test: " + descriptor + "" + event.message )
-    }
+task regressionTest(type:SimpleTestType){
     filter{
         includeTestsMatching "drawingbot.DrawingBotV3Test"
     }
