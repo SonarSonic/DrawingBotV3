@@ -272,7 +272,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 context.taskManager.setCurrentDrawing(drawing);
             });
         }
-        //destroy();
+        safeDestroy();
         return drawing;
     }
 
@@ -290,22 +290,33 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         }
     }
 
-    public void destroy(){
-
-        subTasks.forEach(PFMTask::destroy);
-        subTasks.clear();
-
-        comments.clear();
+    /**
+     * Releases any objects which are only required while the PFM is running
+     */
+    public void safeDestroy(){
+        subTasks.forEach(PFMTask::safeDestroy);
 
         if(pfm != null){
             pfm.onStopped();
             pfm = null;
         }
-        finishEarly = false;
 
         if(tools != null){
             tools.destroy();
         }
+    }
+
+    /**
+     * Releases all objects relating to the PFMTask including all generated outputs
+     */
+    public void destroy(){
+        safeDestroy();
+
+        subTasks.forEach(PFMTask::destroy);
+        subTasks.clear();
+
+        comments.clear();
+        finishEarly = false;
 
         drawing.reset();
     }

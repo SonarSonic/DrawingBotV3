@@ -327,7 +327,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         // Task / Drawing render bindings / listeners
         activeTask.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null && renderedTask.get() != oldValue){
-                oldValue.tryDestroy();
+                oldValue.tryDestroy(); //TODO PROPER HANDLING OF DESTROYING TASKS / DRAWINGS
             }
             setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
         });

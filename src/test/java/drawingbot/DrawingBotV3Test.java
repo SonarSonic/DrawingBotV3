@@ -51,7 +51,7 @@ public class DrawingBotV3Test  {
 
     public static String getTestRunnerName(){
         if(testRunnerName == null){
-            String prop = System.getProperty("drawingbotv3.testrunner");
+            String prop = System.getProperty("drawingbotv3_testrunner");
             testRunnerName = prop == null ? Utils.getOS().getShortName() : prop;
         }
         return testRunnerName;
@@ -142,12 +142,17 @@ public class DrawingBotV3Test  {
             final CountDownLatch pfmTaskLatch = new CountDownLatch(1);
             AtomicReference<PFMTask> pfmTask = new AtomicReference<>();
 
+            String usedMemory = Utils.defaultNF.format(Runtime.getRuntime().totalMemory());
+            String totalMemory = Utils.defaultNF.format(Runtime.getRuntime().maxMemory());
+            System.out.println("Heap Usage: " + usedMemory + " / " + totalMemory);
+
             // Create a PFM Task
             Platform.runLater(() -> {
                 DrawingBotV3.project().getPFMSettings().setPFMFactory(factory);
                 if(preset != null){
                     Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(DrawingBotV3.context(), preset, false);
                 }
+                DrawingBotV3.project().setRenderedTask(null);
                 DrawingBotV3.project().setActiveTask(null);
                 pfmTask.set(DrawingBotV3.taskManager().initPFMTask(DrawingBotV3.context(), DrawingBotV3.project().getDrawingArea().copy(), factory, null, DrawingBotV3.project().getDrawingSets().activeDrawingSet.get(), DrawingBotV3.project().openImage.get(), false));
                 pfmTask.get().stateProperty().addListener((observable, oldValue, newValue) -> {
@@ -172,6 +177,10 @@ public class DrawingBotV3Test  {
                 exportTask.get().stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED || newValue == Worker.State.SUCCEEDED) {
                         exportTaskLatch.countDown();
+                        DrawingBotV3.project().setActiveTask(null);
+                        DrawingBotV3.project().setRenderedTask(null);
+                        //Force: Destroy the task to prevent OutOfMemory errors
+                        pfmTask.get().tryDestroy();
                     }
                 });
             });

@@ -118,8 +118,8 @@ public class PFMTaskImage extends PFMTask {
      * Ensure the pixel data has been destroyed, as {@link #postProcessImages()} might not have run
      */
     @Override
-    public void destroy(){
-        super.destroy();
+    public void safeDestroy(){
+        super.safeDestroy();
 
         if(pixelDataPlotting != null){
             this.pixelDataPlotting.destroy();
