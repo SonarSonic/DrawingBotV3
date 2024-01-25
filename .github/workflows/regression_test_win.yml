@@ -1,0 +1,46 @@
+name: Regression Test - Win Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+# RUN WINDOWS TEST
+  test_windows:
+    runs-on: windows-latest 
+    steps:
+    - name: Checkout DrawingBotV3
+      uses: actions/checkout@v2
+      with:
+          repository: SonarSonic/DrawingBotV3
+          path: DrawingBotV3-Free
+          ref: testing-overhaul    
+        
+#SETUP JAVA 19
+    - name: Set up JDK 19
+      uses: actions/setup-java@v2
+      with:
+        java-version: '19'
+        distribution: 'temurin'    
+              
+# ADD PERMISSION FOR GRADLE
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew    
+        
+# ADD GRADLE CACHING
+    - name: Setup Gradle Caching
+      uses: gradle/gradle-build-action@v2
+   
+#Test Regresson
+    - name: Run Regression Test
+      run: ./gradlew regressionTest
+        
+#UPLOAD Regresson Test Results
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v2
+      with:
+        name: Windows-Tests
+        path: |
+          DrawingBotV3-Free/tests/*
+          tests/*
+        retention-days: 1
