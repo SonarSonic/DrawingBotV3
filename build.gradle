@@ -174,14 +174,28 @@ task rezipWindowsImage(type: Zip){
 
 ////
 
-task regressionTest(type:Test){
+test{
+    testLogging.showStandardStreams = true
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+    onOutput { descriptor, event ->
+        logger.lifecycle("Test: " + descriptor + " " + event.message )
+    }
     filter{
-        includeTestsMatching "drawingbot.DrawingBotV3Test"
+        excludeTestsMatching "drawingbot.DrawingBotV3Test"
     }
 }
 
-test{
+task regressionTest(type:Test){
+    testLogging.showStandardStreams = true
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+    onOutput { descriptor, event ->
+        logger.lifecycle("Test: " + descriptor + "" + event.message )
+    }
     filter{
-        excludeTestsMatching "drawingbot.DrawingBotV3Test"
+        includeTestsMatching "drawingbot.DrawingBotV3Test"
     }
 }
