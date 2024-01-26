@@ -27,10 +27,12 @@ import drawingbot.javafx.GenericFactory;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
 import javafx.application.Platform;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -181,8 +183,8 @@ public class DrawingBotV3Test {
         PFMFactory<?> factory = MasterRegistry.INSTANCE.getPFMFactory("Sketch Lines PFM");
         PFMTask pfmTask = PFMTestRunner.runPFMTest(PFMTaskBuilder.create(DrawingBotV3.context(), factory).createPFMTask());
 
-        for(EnumDistributionType type : EnumDistributionType.values()){
-            for(EnumDistributionOrder order : EnumDistributionOrder.values()) {
+        for (EnumDistributionType type : EnumDistributionType.values()) {
+            for (EnumDistributionOrder order : EnumDistributionOrder.values()) {
                 JFXUtils.runNow(() -> {
                     DrawingBotV3.project().getActiveDrawingSet().distributionType.set(type);
                     DrawingBotV3.project().getActiveDrawingSet().distributionOrder.set(order);
@@ -190,7 +192,12 @@ public class DrawingBotV3Test {
                 PFMTestRunner.exportPFMTest(pfmTask, new File(getCanvasTestsDirectory(), "distribute_%s_%s_%s.png".formatted(lazyFormat(type.displayName), lazyFormat(order.name()), getTestRunnerName())), false);
             }
         }
+        JFXUtils.runNow(() -> {
+            DrawingBotV3.project().getActiveDrawingSet().distributionType.set(EnumDistributionType.EVEN_WEIGHTED);
+            DrawingBotV3.project().getActiveDrawingSet().distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
+        });
     }
+
 
     @Test
     public void testCanvasSetups() {
@@ -242,6 +249,9 @@ public class DrawingBotV3Test {
         testCanvas("original", factory, List.of("Original Sizing"), canvas -> {
             canvas.useOriginalSizing.set(true);
         });
+        JFXUtils.runNow(() -> {
+            Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
+        });
     }
 
     public static void testCanvas(String testID, PFMFactory<?> factory, List<String> testPresetNames, Consumer<ObservableCanvas> setup) {
@@ -268,6 +278,13 @@ public class DrawingBotV3Test {
             PFMTestRunner.exportPFMTest(pfmTask, new File(getCanvasTestsDirectory(), "%s_%s_%s.png".formatted(testID, lazyFormat(presetName), getTestRunnerName())), true);
 
         }
+    }
+
+    @Test
+    public void testHeapSize() {
+        String usedMemory = Utils.defaultNF.format(Runtime.getRuntime().totalMemory());
+        String totalMemory = Utils.defaultNF.format(Runtime.getRuntime().maxMemory());
+        System.out.println("Heap Usage: " + usedMemory + " / " + totalMemory);
     }
 
     @Test

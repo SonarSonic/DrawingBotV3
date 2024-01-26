@@ -175,6 +175,9 @@ task rezipWindowsImage(type: Zip){
 ////
 class SimpleTestType extends Test {
     SimpleTestType() {
+        minHeapSize = "128m"
+        maxHeapSize = "4g"
+
         systemProperty "drawingbotv3_testrunner", System.getProperty("drawingbotv3_testrunner")
 
         testLogging.showStandardStreams = true
@@ -196,5 +199,11 @@ task testAll(type:SimpleTestType){
 task regressionTest(type:SimpleTestType){
     filter{
         includeTestsMatching "drawingbot.DrawingBotV3Test"
+    }
+}
+
+task testHeap(type:SimpleTestType){
+    filter{
+        includeTest "drawingbot.DrawingBotV3Test", "testHeapSize"
     }
 }
