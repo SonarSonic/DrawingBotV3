@@ -73,7 +73,7 @@ jobs:
         - name: Download Windows Tests
           uses: actions/download-artifact@v2
           with:
-            name: Windows-Tests
+            name: reg-windows-latest
             path: tests/images
             
         - name: Generate Windows Regression Tests
