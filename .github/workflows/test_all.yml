@@ -46,9 +46,39 @@ jobs:
           reporter: java-junit
 
       - name: Generate ${{ matrix.os }} Regression Test Reports
-        if: success() || failure()
+        if: ${{ (!startsWith(matrix.os, 'windows'))  && (success() || failure()) }}
         uses: reg-viz/reg-actions@v2
         with:
           github-token: "${{ secrets.ACCESS_TOKEN }}"
           image-directory-path: "./tests/images/"
           artifact-name: "reg-${{ matrix.os }}"
+
+
+      - name: Upload Windows Test Results
+        if: ${{ startsWith(matrix.os, 'windows')  && (success() || failure()) }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows-Tests
+          path: |
+            tests/*
+          retention-days: 1
+
+  #reg-viz fails on Windows, use Ubuntu instead
+  windows_reg:
+        if: success() || failure()
+        runs-on: ubuntu-latest
+        needs: [test_all]
+        
+        steps:
+        - name: Download Windows Tests
+          uses: actions/download-artifact@v2
+          with:
+            name: Windows-Tests
+            path: DrawingBotV3-Free/tests/
+            
+        - name: Generate Windows Regression Tests
+          uses: reg-viz/reg-actions@v2
+          with:
+            github-token: "${{ secrets.ACCESS_TOKEN }}"
+            image-directory-path: "./tests/images/"
+      
