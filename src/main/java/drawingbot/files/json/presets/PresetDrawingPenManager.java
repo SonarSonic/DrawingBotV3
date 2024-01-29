@@ -39,7 +39,7 @@ public abstract class PresetDrawingPenManager extends AbstractPresetManager<Draw
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<DrawingPen> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<DrawingPen> preset, boolean changesOnly, boolean loadingProject) {
         //nothing to apply
     }
 

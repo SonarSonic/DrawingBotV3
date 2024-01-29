@@ -89,7 +89,7 @@ public class FXImageFilters extends AbstractFXController {
         selectedImagePreset.setValue(Register.PRESET_LOADER_FILTERS.getDefaultPreset());
         selectedImagePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getImageFiltersPresetManager().applyPreset(DrawingBotV3.context(), newValue, false);
+                getImageFiltersPresetManager().applyPreset(DrawingBotV3.context(), newValue, false, false);
             }
         });
 

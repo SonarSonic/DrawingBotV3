@@ -28,7 +28,7 @@ public abstract class AbstractPresetLoader<O> extends AbstractJsonLoader<O>{
         GenericPreset<O> defaultPreset = getDefaultPreset();
         AbstractPresetManager<O> presetManager = getDefaultManager();
         if(defaultPreset != null && presetManager != null){
-            presetManager.applyPreset(DrawingBotV3.context(), defaultPreset, false);
+            presetManager.applyPreset(DrawingBotV3.context(), defaultPreset, false, false);
         }
     }
 

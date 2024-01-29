@@ -142,7 +142,7 @@ public class FXPFMControls extends AbstractFXController {
         selectedPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
         selectedPFMPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), newValue, false);
+                pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), newValue, false, false);
             }
         });
 
@@ -235,7 +235,7 @@ public class FXPFMControls extends AbstractFXController {
             if(comboBoxPFMPreset.getValue() == null){
                 GenericSetting.resetSettings(pfmSettings.get().settings.get());
             }else{
-                pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), comboBoxPFMPreset.getValue(), false);
+                pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), comboBoxPFMPreset.getValue(), false, false);
             }
             DrawingBotV3.project().onPFMSettingsUserEdited();
         });

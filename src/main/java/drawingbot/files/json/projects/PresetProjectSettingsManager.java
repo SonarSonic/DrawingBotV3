@@ -76,7 +76,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean changesOnly, boolean loadingProject) {
         applyPreset(context, preset, loadingProject, MasterRegistry.INSTANCE.projectDataLoaders);
     }
 

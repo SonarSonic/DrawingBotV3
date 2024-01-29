@@ -38,7 +38,7 @@ public abstract class PresetDrawingSetManager extends AbstractPresetManager<Draw
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<DrawingSet> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<DrawingSet> preset, boolean changesOnly, boolean loadingProject) {
         //TODO REMOVE ME!
         context.project().getDrawingSets().changeDrawingSet(preset.data);
     }

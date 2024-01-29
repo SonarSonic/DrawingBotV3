@@ -17,15 +17,14 @@ public abstract class PresetDrawingAreaManager extends DefaultPresetManager<Pres
 
     public PresetDrawingAreaManager(PresetDrawingAreaLoader presetLoader) {
         super(presetLoader);
-        changesOnly = true;
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean changesOnly, boolean loadingProject) {
         ObservableCanvas canvas = getInstance(context);
         if(canvas != null){
             EnumOrientation orientation = canvas.orientation.get();
-            super.applyPreset(context, preset, loadingProject);
+            super.applyPreset(context, preset, changesOnly, loadingProject);
             if(!loadingProject && canvas.orientation.get() != orientation){
                 canvas.orientation.set(orientation);
             }

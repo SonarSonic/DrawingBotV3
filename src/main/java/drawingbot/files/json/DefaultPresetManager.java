@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 public abstract class DefaultPresetManager<O extends PresetData, I> extends AbstractPresetManager<O> {
 
     private final List<GenericSetting<?, ?>> settings = new ArrayList<>();
-    public boolean changesOnly;
 
     public List<PresetDataLoader<O>> presetDataLoaders = new ArrayList<>();
 
@@ -66,7 +65,7 @@ public abstract class DefaultPresetManager<O extends PresetData, I> extends Abst
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject) {
+    public void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean changesOnly, boolean loadingProject) {
         I instance = getInstance(context);
         if(instance != null) {
             GenericSetting.applySettings(preset.data.settings, settings);

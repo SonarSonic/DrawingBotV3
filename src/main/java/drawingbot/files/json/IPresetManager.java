@@ -14,5 +14,5 @@ public interface IPresetManager<O> {
     /**
      * applies the presets settings
      */
-    void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject);
+    void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean changesOnly, boolean loadingProject);
 }

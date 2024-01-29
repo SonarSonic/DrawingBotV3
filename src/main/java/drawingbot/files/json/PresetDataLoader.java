@@ -85,7 +85,7 @@ public abstract class PresetDataLoader<MASTER extends PresetData> {
         public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<MASTER> preset) {
             GenericPreset<SUB> data = gson.fromJson(element, type);
             if(data != null){
-                manager.getDefaultManager().applyPreset(context, data, preset.data instanceof PresetProjectSettings);
+                manager.getDefaultManager().applyPreset(context, data, false, preset.data instanceof PresetProjectSettings);
             }
         }
 

@@ -102,9 +102,9 @@ class PresetProjectSettingsManagerLegacy {
     public static void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
         PresetProjectSettingsLegacy presetData = (PresetProjectSettingsLegacy) preset.data;
 
-        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().applyPreset(context, presetData.drawingArea, false);
-        Register.PRESET_LOADER_FILTERS.getDefaultManager().applyPreset(context, presetData.imageFilters, false);
-        Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(context, presetData.pfmSettings, false);
+        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().applyPreset(context, presetData.drawingArea, false, false);
+        Register.PRESET_LOADER_FILTERS.getDefaultManager().applyPreset(context, presetData.imageFilters, false, false);
+        Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(context, presetData.pfmSettings, false, false);
 
         /*
         DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.set(presetData.imageRotation);

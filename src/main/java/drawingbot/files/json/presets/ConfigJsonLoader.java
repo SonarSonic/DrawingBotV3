@@ -39,10 +39,10 @@ public class ConfigJsonLoader extends AbstractJsonLoader<PresetData> {
             }
 
             @Override
-            public void applyPreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean loadingProject) {
+            public void applyPreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean changesOnly, boolean loadingProject) {
                 IPresetManager<PresetData> manager = presetManagers.get(preset.getPresetSubType());
                 if(manager != null){
-                    manager.applyPreset(null, preset, false);
+                    manager.applyPreset(null, preset, false, false);
                 }
             }
         });
@@ -99,7 +99,7 @@ public class ConfigJsonLoader extends AbstractJsonLoader<PresetData> {
                 getDefaultManager().updatePreset(null, preset, false);
                 registerPreset(preset);
             }else{
-                getDefaultManager().applyPreset(null, preset, false);
+                getDefaultManager().applyPreset(null, preset, false, false);
             }
         }
         loading = false;

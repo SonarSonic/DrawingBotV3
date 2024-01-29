@@ -33,7 +33,7 @@ public class ProjectFileLoader extends AbstractFileLoader{
             if(preset != null){
                 ObservableProject project = new ObservableProject(FileUtils.removeExtension(file.getName()), file);
 
-                Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(project.context, preset, false);
+                Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(project.context, preset, false, false);
 
                 DrawingBotV3.INSTANCE.activeProjects.add(project);
                 DrawingBotV3.INSTANCE.activeProject.set(project);

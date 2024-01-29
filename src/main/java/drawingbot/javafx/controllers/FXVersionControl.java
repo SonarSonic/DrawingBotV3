@@ -104,7 +104,7 @@ public class FXVersionControl extends AbstractFXController {
         buttonDeleteVersion.setTooltip(new Tooltip("Remove selected version"));
         buttonDeleteVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
 
-        buttonLoadVersion.setOnAction(e -> Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(DrawingBotV3.context(), tableViewVersions.getSelectionModel().getSelectedItem().getPreset(), false));
+        buttonLoadVersion.setOnAction(e -> Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(DrawingBotV3.context(), tableViewVersions.getSelectionModel().getSelectedItem().getPreset(), false, false));
         buttonLoadVersion.setTooltip(new Tooltip("Load the selected version"));
         buttonLoadVersion.disableProperty().bind(tableViewVersions.getSelectionModel().selectedItemProperty().isNull());
 

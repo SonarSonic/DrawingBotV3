@@ -32,7 +32,7 @@ public class FXVPypeController extends AbstractFXController {
         selectedVPypePreset.setValue(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
         selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false);
+                VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false, false);
             }
         });
 

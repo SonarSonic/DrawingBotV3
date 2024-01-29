@@ -234,7 +234,7 @@ public class FXHelper {
                 AbstractPresetManager<Object> manager = loader == null ? null : loader.getDefaultManager();
 
                 if(manager != null){
-                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset, false)));
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset, false, false)));
                 }else{
                     NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString());
                 }

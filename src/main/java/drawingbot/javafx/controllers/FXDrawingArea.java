@@ -117,7 +117,7 @@ public class FXDrawingArea extends AbstractFXController {
         selectedDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
         selectedDrawingAreaPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue, false);
+                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue, true, false);
             }
         });
 

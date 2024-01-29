@@ -34,7 +34,7 @@ public abstract class AbstractPresetManager<O> implements IPresetManager<O> {
     /**
      * applies the presets settings
      */
-    public abstract void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject);
+    public abstract void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean changesOnly, boolean loadingProject);
 
 
     public final GenericPreset<O> tryUpdatePreset(DBTaskContext context, GenericPreset<O> preset) {
@@ -49,7 +49,7 @@ public abstract class AbstractPresetManager<O> implements IPresetManager<O> {
     }
 
     public final void tryApplyPreset(DBTaskContext context, GenericPreset<O> preset) {
-        applyPreset(context, preset, false);
+        applyPreset(context, preset, false, false);
     }
 
     public boolean isSubTypeEditable(){
