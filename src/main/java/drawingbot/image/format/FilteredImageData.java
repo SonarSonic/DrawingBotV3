@@ -266,17 +266,7 @@ public class FilteredImageData implements IProperties {
             preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageRotation.get().flipAxis);
             cropped = applyCropping(preCrop, preCropCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
         }else{
-            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), preCrop, imageRotation.get().flipAxis);
-        }
-
-        //If we are dealing with an SVG we should maintain the correct units and not use PIXELS as the unit type, so we must alter the canvas created
-        if(sourceCanvas.getUnits() != UnitsLength.PIXELS){
-            Rectangle2D crop = getCrop();
-            double width = crop.getWidth() / sourceCanvas.getPlottingScale();
-            double height = crop.getHeight() / sourceCanvas.getPlottingScale();
-            SimpleCanvas copy = new SimpleCanvas((float)width, (float)height, sourceCanvas.getUnits());
-            copy.scale = sourceCanvas.getPlottingScale();
-            preCropCanvas = new ImageCanvas(new SimpleCanvas(getTargetCanvas()), copy, imageRotation.get().flipAxis);
+            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageRotation.get().flipAxis);
         }
 
         filteredImage = applyFilters(cropped, updateType.updateAllFilters(), settings);

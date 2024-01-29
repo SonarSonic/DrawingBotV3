@@ -222,38 +222,18 @@ public class ImageTools {
                 int height = crops[1];
                 int cropX = crops[2];
                 int cropY = crops[3];
-                if(destCanvas.getRescaleMode().shouldRescale()) {
-                    tx.scale(destCanvas.getScaledDrawingWidth() / width, destCanvas.getScaledDrawingHeight() / height);
-                }
+                tx.scale(destCanvas.getScaledDrawingWidth() / width, destCanvas.getScaledDrawingHeight() / height);
                 tx.translate(-cropX, -cropY);
             }
             case SCALE_TO_FIT -> {
-                if(destCanvas.getRescaleMode().shouldRescale()) {
-                    double widthScale = destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth();
-                    double heightScale = destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight();
-                    double rescale = Math.min(widthScale, heightScale);
+                double widthScale = destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth();
+                double heightScale = destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight();
+                double rescale = Math.min(widthScale, heightScale);
 
-                    tx.scale(rescale, rescale);
-
-                }
+                tx.scale(rescale, rescale);
             }
             case STRETCH_TO_FIT -> {
-                if(destCanvas.getRescaleMode().shouldRescale()) {
-                    tx.scale(destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth(), destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight());
-                }else{
-                    double currentRatio = sourceCanvas.getScaledWidth() / sourceCanvas.getScaledHeight();
-                    double targetRatio = destCanvas.getDrawingWidth() / destCanvas.getDrawingHeight();
-
-                    double scaleX = 1;
-                    double scaleY = 1;
-
-                    if(targetRatio < currentRatio){
-                        scaleY = currentRatio / targetRatio;
-                    }else{
-                        scaleX = targetRatio / currentRatio;
-                    }
-                    tx.scale(scaleX, scaleY);
-                }
+                tx.scale(destCanvas.getScaledDrawingWidth() / sourceCanvas.getScaledDrawingWidth(), destCanvas.getScaledDrawingHeight() / sourceCanvas.getScaledDrawingHeight());
             }
         }
         return tx;

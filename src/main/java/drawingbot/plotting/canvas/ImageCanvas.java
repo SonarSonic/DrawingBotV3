@@ -107,9 +107,9 @@ public class ImageCanvas implements ICanvas {
         if(useOriginalSizing()){
             return imageCanvas.getPlottingScale();
         }
-        if((getRescaleMode().isHighQuality() && imageCanvas.getUnits() == UnitsLength.PIXELS)){
-            int[] imageSize = ImageTools.getEffectiveImageSize(targetCanvas, (int)(getDrawingWidth(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()), (int)(getDrawingHeight(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()));
-            float currentRatio = (float) imageSize[0] / (float)imageSize[1];
+        if (getRescaleMode().isHighQuality()) {
+            int[] imageSize = ImageTools.getEffectiveImageSize(targetCanvas, (int) (getDrawingWidth(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()), (int) (getDrawingHeight(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()));
+            float currentRatio = (float) imageSize[0] / (float) imageSize[1];
             float targetRatio = getDrawingWidth() / getDrawingHeight();
 
             float scale = currentRatio < targetRatio ? imageSize[1] / getDrawingHeight(UnitsLength.PIXELS) : imageSize[0] / getDrawingWidth(UnitsLength.PIXELS);
