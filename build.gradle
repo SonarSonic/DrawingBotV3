@@ -45,6 +45,7 @@ dependencies {
     implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
     implementation "org.fxmisc.easybind:easybind:${easy_bind_version}"
     implementation "org.apache.commons:commons-lang3:${apache_commons_lang3}"
+    implementation "org.apache.commons:commons-compress:${apache_compress}"
 
     //// JOGL
     implementation "org.jogamp.gluegen:gluegen-rt-main:${jogl_version}"
