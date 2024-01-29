@@ -42,14 +42,20 @@ public class FXPreferences extends AbstractFXController {
 
     public TreeNode root = null;
 
-    public static PageNode gcodePage;
-    public static PageNode imageAnimationPage;
+    public static PageNode pageGeneral;
+    public static PageNode pageExportGeneral;
+    public static PageNode pageExportPathOptimisation;
+    public static PageNode pageSVG;
+    public static PageNode pageGCode;
+    public static PageNode pageImageAndAnimation;
+    public static PageNode pageUserInterface;
 
     public static void registerDefaults(){
         DBPreferences settings = DBPreferences.INSTANCE;
 
 
-        MasterRegistry.INSTANCE.registerPreferencesPage(Editors.page("General", builder -> {
+        MasterRegistry.INSTANCE.registerPreferencesPage(
+                pageGeneral = Editors.page("General", builder -> {
                     builder.addAll(
                             new LabelNode("Defaults").setTitleStyling(),
                             new SettingNode("Path Finding Module", settings.defaultPFM) {
@@ -242,10 +248,10 @@ public class FXPreferences extends AbstractFXController {
                 }
         ));
         MasterRegistry.INSTANCE.registerPreferencesPage(Editors.node("Export Settings",
-                Editors.page("General",
+                pageExportGeneral = Editors.page("General",
                         new SettingNode("Show Exported Drawing", settings.showExportedDrawing).setTitleStyling().setHideFromTree(true)
                 ),
-                Editors.page("Path Optimisation",
+                pageExportPathOptimisation = Editors.page("Path Optimisation",
                         new SettingNode("Enabled", settings.pathOptimisationEnabled).setTitleStyling().setHideFromTree(true),
                         new LabelNode("Vector outputs (e.g. svg, pdf, gcode, hpgl) will be optimised before being exported, reducing plotting time.").setSubtitleStyling(),
 
@@ -275,7 +281,7 @@ public class FXPreferences extends AbstractFXController {
                         new SettingNode("Passes", settings.multipassCount).setDisabledProperty(settings.multipassEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not()))
 
                 ),
-                Editors.page("SVG",
+                pageSVG = Editors.page("SVG",
                         new LabelNode("General").setTitleStyling(),
                         new SettingNode("Export Background Layer", settings.exportSVGBackground),
                         new SettingNode("Save Drawing Stats to SVG", settings.svgDrawingStatsComment),
@@ -294,7 +300,7 @@ public class FXPreferences extends AbstractFXController {
                             }
                         }
                 ),
-                gcodePage = Editors.page("GCode",
+                pageGCode = Editors.page("GCode",
                         new PropertyNode("GCode Preset", settings.selectedGCodePreset, GenericPreset.class){
                             @Override
                             public Node createEditor() {
@@ -362,7 +368,7 @@ public class FXPreferences extends AbstractFXController {
                             }
                         }
                 ),
-                imageAnimationPage = Editors.page("Image & Animation",
+                pageImageAndAnimation = Editors.page("Image & Animation",
                         new LabelNode("Resolution").setTitleStyling(),
                         new SettingNode("Export DPI", settings.exportDPI),
                         new SettingNode("Export Transparent PNGs", settings.transparentPNG),
@@ -378,25 +384,26 @@ public class FXPreferences extends AbstractFXController {
                         new PropertyNode("Vertices per frame", settings.animationVerticesPFrame, String.class).setEditable(false)
                 )
         ));
-                MasterRegistry.INSTANCE.registerPreferencesPage(Editors.page("User Interface",
-                        new LabelNode("General").setTitleStyling(),
-                        new SettingNode("Dark Theme", settings.darkTheme),
-                        new SettingNode("Default Window Size", settings.uiWindowSize),
-                        new SettingNode("Restore Last Layout", settings.restoreLayout),
-                        new SettingNode("Restore Project Layout", settings.restoreProjectLayout),
+        MasterRegistry.INSTANCE.registerPreferencesPage(
+                pageUserInterface = Editors.page("User Interface",
+                    new LabelNode("General").setTitleStyling(),
+                    new SettingNode("Dark Theme", settings.darkTheme),
+                    new SettingNode("Default Window Size", settings.uiWindowSize),
+                    new SettingNode("Restore Last Layout", settings.restoreLayout),
+                    new SettingNode("Restore Project Layout", settings.restoreProjectLayout),
 
-                        new LabelNode("Rulers").setTitleStyling(),
-                        new SettingNode("Enabled", settings.rulersEnabled),
+                    new LabelNode("Rulers").setTitleStyling(),
+                    new SettingNode("Enabled", settings.rulersEnabled),
 
-                        new LabelNode("Drawing Borders").setTitleStyling(),
-                        new SettingNode("Enabled", settings.drawingBordersEnabled),
-                        new SettingNode( "Colour", settings.drawingBordersColor).setDisabledProperty(settings.drawingBordersEnabled.asBooleanProperty().not()),
+                    new LabelNode("Drawing Borders").setTitleStyling(),
+                    new SettingNode("Enabled", settings.drawingBordersEnabled),
+                    new SettingNode( "Colour", settings.drawingBordersColor).setDisabledProperty(settings.drawingBordersEnabled.asBooleanProperty().not()),
 
-                        new LabelNode("Notifications").setTitleStyling(),
-                        new SettingNode("Enabled", settings.notificationsEnabled),
-                        new SettingNode("Screen Time", settings.notificationsScreenTime).setDisabledProperty(settings.notificationsEnabled.asBooleanProperty().not()),
-                        new LabelNode("Set this value to 0 if you don't want notifications to disappear").setSubtitleStyling()
-                ));
+                    new LabelNode("Notifications").setTitleStyling(),
+                    new SettingNode("Enabled", settings.notificationsEnabled),
+                    new SettingNode("Screen Time", settings.notificationsScreenTime).setDisabledProperty(settings.notificationsEnabled.asBooleanProperty().not()),
+                    new LabelNode("Set this value to 0 if you don't want notifications to disappear").setSubtitleStyling()
+        ));
     }
 
     @FXML
