@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 public class GeometryUtils {
 
-    public static GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING_SINGLE));
+    public static GeometryFactory factory = new GeometryFactory(new PrecisionModel(1000));
 
     public static PlottedDrawing getOptimisedPlottedDrawing(ExportTask task, IGeometryFilter filter, boolean forceBypassOptimisation){
 

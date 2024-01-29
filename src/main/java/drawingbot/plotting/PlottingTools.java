@@ -369,7 +369,7 @@ public class PlottingTools implements IPlottingTools {
         }
 
         if(clippingShape != null && GeometryClipping.shouldClip(clippingShape, geometry, false)){
-            List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry, false);
+            List<IGeometry> geometries = GeometryClipping.clip(clippingShape, geometry, 0.5D, false);
             geometries.forEach(g -> {
                 if(hostTaskTransform != null){
                     g = g.transformGeometry(hostTaskTransform);
