@@ -7,29 +7,40 @@ import drawingbot.DrawingBotV3;
  */
 public class LazyTimer {
 
-    public long startTime;
-    public long endTime;
-
+    private long startTime = -1;
+    private long endTime = -1;
 
     public LazyTimer(){}
 
     /**
-     * Also works as a reset
+     * Called to mark the start of the event/code to be timed. It resets the timer if it has already been called.
      */
     public void start(){
         startTime = System.currentTimeMillis();
+        endTime = -1;
     }
 
+    /**
+     * Called to mark the finish of the event/code to be timed.
+     */
     public void finish(){
         endTime = System.currentTimeMillis();
     }
 
+    public boolean hasStarted(){
+        return startTime != -1;
+    }
+
+    public boolean hasFinished(){
+        return endTime != -1;
+    }
+
     public long getElapsedTime(){
-        return endTime - startTime;
+        return (endTime == -1 ? System.currentTimeMillis() : endTime) - startTime;
     }
 
     public String getElapsedTimeFormatted(){
-        return getElapsedTimeFormatted(endTime - startTime);
+        return getElapsedTimeFormatted(getElapsedTime());
     }
     /**
      * Prints out the finishing time

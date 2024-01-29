@@ -18,6 +18,12 @@ public interface IPlottingTools {
     /**
      * The {@link IPFM} should check this value during {@link IPFM#run()}.
      * If the plotting task is finished the {@link IPFM} should end the process prematurely.
+     *<p>A typical usage might look something like this
+     * <pre><code>
+     * while(!tools.isFinished()){
+     *      //part of a long running process
+     * }
+     * </code></pre>
      * @return if the task has been finished by the user.
      */
     boolean isFinished();

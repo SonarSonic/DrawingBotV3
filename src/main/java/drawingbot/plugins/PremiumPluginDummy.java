@@ -182,7 +182,7 @@ public class PremiumPluginDummy implements IPlugin {
 
     public static class DummyPFM implements IPFM {
         @Override
-        public void init(IPlottingTools tools) {}
+        public void setPlottingTools(IPlottingTools tools) {}
 
         @Override
         public void run() {}

@@ -38,7 +38,11 @@ public class PFMTaskBuilder {
     public FilteredImageData imageData;
     public boolean useImageCanvas = true;
 
+    /** If the tasks lifecycle is controlled by another task */
     public boolean isSubTask;
+
+    /** Set to true if you wish to bypass any external custom task suppliers / setup, e.g. if using a PFM inside another PFM and not in an external task this should be set to true */
+    public boolean useInternalBuilder;
 
     // Special \\
     public Consumer<PFMTaskBuilder> preSetup;
@@ -83,7 +87,9 @@ public class PFMTaskBuilder {
             pfmSettings = context.project().getPFMSettings(pfmFactory);
         }
 
-        Hooks.runHook(Hooks.NEW_PFM_TASK_BUILDER, this);
+        if(!useInternalBuilder){
+            Hooks.runHook(Hooks.NEW_PFM_TASK_BUILDER, this);
+        }
 
         if(preSetup != null){
             preSetup.accept(this);
@@ -93,14 +99,17 @@ public class PFMTaskBuilder {
         drawing = new PlottedDrawing(canvas, drawingSets);
 
         PFMTask task;
-        if(customTaskSupplier != null){
+        if(!useInternalBuilder && customTaskSupplier != null){
             task = customTaskSupplier.apply(this);
         }else{
             task = createPFMTaskInternal();
         }
 
-        Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
-        task = (PFMTask) hookReturn[0];
+        if(!useInternalBuilder) {
+            Object[] hookReturn = Hooks.runHook(Hooks.NEW_PLOTTING_TASK, task);
+            task = (PFMTask) hookReturn[0];
+        }
+
         task.isSubTask = isSubTask;
 
         if(postSetup != null){
@@ -159,8 +168,13 @@ public class PFMTaskBuilder {
         return this;
     }
 
-    public PFMTaskBuilder setSubTask(boolean subTask) {
-        isSubTask = subTask;
+    public PFMTaskBuilder setSubTask(boolean isSubTask) {
+        this.isSubTask = isSubTask;
+        return this;
+    }
+
+    public PFMTaskBuilder setUseInternalBuilder(boolean useInternalBuilder) {
+        this.useInternalBuilder = useInternalBuilder;
         return this;
     }
 

@@ -6,11 +6,7 @@ package drawingbot.api;
 public interface IPFM {
 
 
-    void init(IPlottingTools tools);
-
-    default void onSettingsApplied(){
-
-    }
+    void setPlottingTools(IPlottingTools tools);
 
     /**
      * Called immediately after the {@link IPFM}'s settings have been set.
@@ -18,6 +14,11 @@ public interface IPFM {
      * Shouldn't be used for initial calculations the {@link IPlottingTools#getPixelData()} and {@link IPlottingTools#getReferencePixelData()} ()} will be initialized but the pixel data will not have been set
      *
      */
+    default void onSettingsApplied(){
+
+    }
+
+
     default void setup(){}
 
     /**

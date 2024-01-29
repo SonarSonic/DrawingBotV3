@@ -22,7 +22,7 @@ public abstract class DrawingJFXDisplayMode extends AbstractJFXDisplayMode{
     public void preRender(JavaFXRenderer jfr) {
         super.preRender(jfr);
         //setup the canvas
-        if(!(this instanceof ExportedDrawing) && DrawingBotV3.taskManager().getRenderedTask() != null && DrawingBotV3.taskManager().getRenderedTask().stage != EnumTaskStage.FINISHED){
+        if(!(this instanceof ExportedDrawing) && DrawingBotV3.taskManager().getRenderedTask() != null && DrawingBotV3.taskManager().getRenderedTask().stage != EnumTaskStage.FINISH){
             jfr.setupCanvasSize(DrawingBotV3.taskManager().getRenderedTask().drawing.getCanvas());
         }else if(getCurrentDrawing() != null){
             jfr.setupCanvasSize(getCurrentDrawing().getCanvas());

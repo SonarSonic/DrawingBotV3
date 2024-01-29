@@ -8,7 +8,6 @@ import javafx.concurrent.Task;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IExceptionCallback {
 
@@ -32,10 +31,16 @@ public abstract class DBTask<V> extends Task<V> implements IProgressCallback, IE
         return id;
     }
 
+    /**
+     * @return a simple type identifier, typically matching the name of the class, note we don't use {@link Class#getSimpleName()} due to obfuscation
+     */
     public String getTaskType(){
         return "DBTask";
     }
 
+    /**
+     * @return A simple task name which includes a unique task id, which is increments as the program runs
+     */
     public String getTaskName(){
         return "%s #%s".formatted(getTaskType(), getTaskID());
     }

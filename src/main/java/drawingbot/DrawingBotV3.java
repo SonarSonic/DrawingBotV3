@@ -119,7 +119,6 @@ public class DrawingBotV3 {
                 newValue.reRender();
             }
         });
-
     }
 
     public static ObservableProject project(){
@@ -321,7 +320,7 @@ public class DrawingBotV3 {
 
     public static void onPlottingTaskStageFinished(DBTaskContext context, PFMTask task, EnumTaskStage stage){
         switch (stage){
-            case QUEUED:
+            case START:
                 break;
             case PRE_PROCESSING:
                 Platform.runLater(() -> {
@@ -333,9 +332,7 @@ public class DrawingBotV3 {
             case DO_PROCESS:
                 break;
             case POST_PROCESSING:
-            case FINISHING:
-                break;
-            case FINISHED:
+            case FINISH:
                 DrawingBotV3.INSTANCE.saveLastRun(context);
                 break;
         }

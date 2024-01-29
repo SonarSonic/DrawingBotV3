@@ -11,7 +11,7 @@ public abstract class AbstractPFM implements IPFM {
     public PlottingTools tools;
 
     @Override
-    public void init(IPlottingTools tools) {
+    public final void setPlottingTools(IPlottingTools tools) {
         this.tools = (PlottingTools)tools;
     }
 
