@@ -60,7 +60,7 @@ jobs:
         with:
           name: Windows-Tests
           path: |
-            tests/*
+            tests/images/*
           retention-days: 1
 
   #reg-viz fails on Windows, use Ubuntu instead
@@ -74,7 +74,7 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: Windows-Tests
-            path: DrawingBotV3-Free/tests/
+            path: tests/images
             
         - name: Generate Windows Regression Tests
           uses: reg-viz/reg-actions@v2
