@@ -24,6 +24,7 @@ import org.junit.Assert;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -137,12 +138,13 @@ public class TestUtils {
         });
         try {
             pfmTaskLatch.await();
-        } catch (InterruptedException e) {
+            task.get();
+        } catch (InterruptedException | ExecutionException e) {
             Assert.fail();
         }
 
         Assert.assertNotNull(task);
-        Assert.assertSame(Future.State.SUCCESS, task.state());
+        Assert.assertNotEquals(Future.State.FAILED, task.state());
 
         return task;
     }
@@ -168,11 +170,12 @@ public class TestUtils {
         });
         try {
             exportTaskLatch.await();
-        } catch (InterruptedException e) {
+            exportTask.get().get();
+        } catch (InterruptedException | ExecutionException e) {
             Assert.fail();
         }
 
-        Assert.assertSame(Future.State.SUCCESS, exportTask.get().state());
+        Assert.assertNotEquals(Future.State.FAILED, exportTask.get().state());
     }
 
     public static void resetProject(){
