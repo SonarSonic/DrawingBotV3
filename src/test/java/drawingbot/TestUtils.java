@@ -44,7 +44,7 @@ public class TestUtils {
     public static String getTestRunnerName() {
         if (testRunnerName == null) {
             String prop = System.getProperty("drawingbotv3_testrunner");
-            testRunnerName = prop == null ? Utils.getOS().getShortName() : prop;
+            testRunnerName = prop == null || prop.isEmpty() ? Utils.getOS().getShortName() : prop;
         }
         return testRunnerName;
     }
