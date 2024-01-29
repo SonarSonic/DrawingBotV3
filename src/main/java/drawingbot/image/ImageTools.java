@@ -16,10 +16,13 @@ import drawingbot.utils.UnitsLength;
 import javafx.scene.paint.Color;
 import org.imgscalr.Scalr;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.function.Function;
 
 public class ImageTools {
@@ -146,6 +149,15 @@ public class ImageTools {
         graphics2D.dispose();
         return freshImage;
     }
+
+    public static void lazyPNGExport(BufferedImage image, File file){
+        try {
+            ImageIO.write(image, "png", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * The pre-crop refers to crops made to the image before it is filtered / used.
