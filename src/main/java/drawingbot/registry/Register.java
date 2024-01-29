@@ -147,14 +147,14 @@ public class Register implements IPlugin {
     public void registerPlugins(List<IPlugin> newPlugins) {
         newPlugins.add(VpypePlugin.INSTANCE);
         
-        newPlugins.add(new BicPensPlugin());
-        newPlugins.add(new CopicPenPlugin());
-        newPlugins.add(new DiamineInkPlugin());
-        newPlugins.add(new SakuraPenPlugin());
-        newPlugins.add(new SpecialPenPlugin());
-        newPlugins.add(new StabiloPensPlugin());
-        newPlugins.add(new StaedtlerPenPlugin());
-        newPlugins.add(new WinsorNewtonPenPlugin());
+        newPlugins.add(BicPensPlugin.INSTANCE);
+        newPlugins.add(CopicPenPlugin.INSTANCE);
+        newPlugins.add(DiamineInkPlugin.INSTANCE);
+        newPlugins.add(SakuraPenPlugin.INSTANCE);
+        newPlugins.add(SpecialPenPlugin.INSTANCE);
+        newPlugins.add(StabiloPensPlugin.INSTANCE);
+        newPlugins.add(StaedtlerPenPlugin.INSTANCE);
+        newPlugins.add(WinsorNewtonPenPlugin.INSTANCE);
     }
 
     @Override

@@ -7,7 +7,7 @@ import drawingbot.registry.MasterRegistry;
 public class Launcher {
 
     public static void main(String[] args) {
-        MasterRegistry.PLUGINS.add(new PremiumPluginDummy());
+        MasterRegistry.PLUGINS.add(PremiumPluginDummy.INSTANCE);
         FXApplication.setSoftware(SoftwareDBV3Free.INSTANCE);
         FXApplication.main(args);
     }

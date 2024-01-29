@@ -6,6 +6,10 @@ import drawingbot.registry.MasterRegistry;
 
 public class StabiloPensPlugin extends AbstractPenPlugin {
 
+    public static final StabiloPensPlugin INSTANCE = new StabiloPensPlugin();
+
+    private StabiloPensPlugin() {}
+
     @Override
     public String getPluginName() {
         return "Stabilo Pens Plugin";

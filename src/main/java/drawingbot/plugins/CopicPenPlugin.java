@@ -6,6 +6,10 @@ import drawingbot.registry.MasterRegistry;
 
 public class CopicPenPlugin extends AbstractPenPlugin {
 
+    public static final CopicPenPlugin INSTANCE = new CopicPenPlugin();
+
+    private CopicPenPlugin() {}
+
     @Override
     public String getPluginName() {
         return "Copic Pen Plugin";
