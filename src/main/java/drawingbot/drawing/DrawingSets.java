@@ -4,8 +4,10 @@ import drawingbot.api.Hooks;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IProperties;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.plotting.PlottedDrawing;
 import drawingbot.utils.SpecialListenable;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -68,6 +70,29 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
         });
     }
 
+    /**
+     * Updates the Geometry Stats, the '%' and 'Shapes' displayed columns for all of the {@link drawingbot.javafx.observables.ObservableDrawingPen}s within this collection of {@link ObservableDrawingSet}s
+     * @param drawing the drawing to query for per/pen stats
+     */
+    public void updatePerPenStats(PlottedDrawing drawing){
+
+        //Reset all the geometry stats
+        drawingSetSlots.forEach(set -> set.pens.forEach(ObservableDrawingPen::resetGeometryStats));
+
+        //If available read the geometry stats from the drawing
+        if(drawing != null){
+            PlottedDrawing.updatePerPenGeometryStats(drawing);
+        }
+    }
+
+    public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
+        if(set != null){
+            activeDrawingSet.get().loadDrawingSet(set);
+
+            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set, this);
+        }
+    }
+
     public int getActiveSetSlot(){
         return getDrawingSetSlot(activeDrawingSet.get());
     }
@@ -91,14 +116,6 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
             }
         }
         return null;
-    }
-
-    public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
-        if(set != null){
-            activeDrawingSet.get().loadDrawingSet(set);
-
-            Hooks.runHook(Hooks.CHANGE_DRAWING_SET, set, this);
-        }
     }
 
     public DrawingSets copy(){

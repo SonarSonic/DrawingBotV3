@@ -17,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
+import java.text.NumberFormat;
 
 @JsonAdapter(JsonAdapterObservableDrawingPen.class)
 public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen.Listener> implements IDrawingPen, ICustomPen, IProperties {
@@ -29,8 +30,8 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
     public final SimpleObjectProperty<Color> javaFXColour = new SimpleObjectProperty<>(Color.BLACK); //rgb pen colour
     public final SimpleIntegerProperty distributionWeight = new SimpleIntegerProperty(); //weight
     public final SimpleFloatProperty strokeSize = new SimpleFloatProperty(); //stroke size
-    public final transient SimpleStringProperty currentPercentage = new SimpleStringProperty(); //percentage
-    public final transient SimpleIntegerProperty currentGeometries = new SimpleIntegerProperty(); //geometries
+    public final transient SimpleStringProperty currentPercentage = new SimpleStringProperty("0%"); //percentage
+    public final transient SimpleIntegerProperty currentGeometries = new SimpleIntegerProperty(0); //geometries
     public final SimpleBooleanProperty forceOverlap = new SimpleBooleanProperty(false);
 
     //// COLOUR SPLITTER DATA \\\\
@@ -76,6 +77,16 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
         this.colorSplitOpacity.addListener(observable -> refreshAWTColor());
         this.finalJFXColor.bind(Bindings.createObjectBinding(() -> new Color(javaFXColour.get().getRed(), javaFXColour.get().getGreen(), javaFXColour.get().getBlue(),  useColorSplitOpacity.get() ? javaFXColour.get().getOpacity()  * colorSplitOpacity.get() : javaFXColour.get().getOpacity()), javaFXColour, colorSplitOpacity, useColorSplitOpacity));
 
+    }
+
+    public void resetGeometryStats(){
+        this.currentPercentage.set("0%");
+        this.currentGeometries.set(0);
+    }
+
+    public void setGeometryStats(int count, int max){
+        this.currentPercentage.set(NumberFormat.getPercentInstance().format((float)count/max));
+        this.currentGeometries.set(count);
     }
 
     @Override
@@ -228,7 +239,7 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
     @Override
     public ObservableList<Observable> getPropertyList() {
         if(propertyList == null){
-            propertyList = PropertyUtil.createPropertiesList(penNumber, enable, type, name, javaFXColour, distributionWeight, strokeSize, forceOverlap, colorSplitMultiplier, colorSplitOffsetX, colorSplitOffsetY, colorSplitOpacity);
+            propertyList = PropertyUtil.createPropertiesList(penNumber, enable, type, name, javaFXColour, distributionWeight, strokeSize, forceOverlap, useColorSplitOpacity, colorSplitMultiplier, colorSplitOffsetX, colorSplitOffsetY, colorSplitOpacity);
         }
         return propertyList;
     }

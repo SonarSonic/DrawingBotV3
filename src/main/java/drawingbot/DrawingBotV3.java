@@ -184,7 +184,10 @@ public class DrawingBotV3 {
                 if(drawing != null){
                     drawing.updatePenDistribution();
                 }
-                Platform.runLater(() -> project().reRender());
+                Platform.runLater(() -> {
+                    project().reRender();
+                    project().getDrawingSets().updatePerPenStats(project().getDisplayedDrawing());
+                });
             });
         }
 

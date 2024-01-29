@@ -8,6 +8,7 @@ import drawingbot.geom.shapes.IGeometry;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.util.JFXUtils;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.Register;
@@ -41,6 +42,8 @@ public class PlottedDrawing {
     public int displayedShapeMax = -1;
     public long displayedVertexCount = -1;
     public boolean ignoreWeightedDistribution = false; //used for disabling distributions within sub tasks, will use the pfms default
+
+    private Map<ObservableDrawingPen, Integer> perPenGeometryStats;
 
     public PlottedDrawing(ICanvas canvas, DrawingSets drawingSets){
         this(canvas, drawingSets, true);
@@ -302,10 +305,18 @@ public class PlottedDrawing {
                     g.onDistributionChanged();
                     g.needsDistribution = false;
                 });
-            }
 
-            Platform.runLater(() -> updatePerPenGeometryStats(this, getPerPenGeometryStats(this)));
+                //Force refresh the geometry stats
+                perPenGeometryStats = getPerPenGeometryStats(this);
+            }
         }
+    }
+
+    public Map<ObservableDrawingPen, Integer> getPerPenGeometryStats(){
+        if(perPenGeometryStats == null){
+            perPenGeometryStats = getPerPenGeometryStats(this);
+        }
+        return perPenGeometryStats;
     }
 
     public List<ObservableDrawingPen> getAllPens(){
@@ -394,7 +405,6 @@ public class PlottedDrawing {
         }
     }
 
-
     public static Map<ObservableDrawingPen, Integer> getPerPenGeometryStats(PlottedDrawing plottedDrawing){
         Map<PlottedGroup, Map<Integer, Integer>> perGroupStats = new HashMap<>();
         Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
@@ -436,12 +446,14 @@ public class PlottedDrawing {
         return perPenStats;
     }
 
-    public static void updatePerPenGeometryStats(PlottedDrawing plottedDrawing, Map<ObservableDrawingPen, Integer> perPenStats){
-        //apply the stats to the pen
-        for(Map.Entry<ObservableDrawingPen, Integer> groupStats : perPenStats.entrySet()){
-            groupStats.getKey().currentGeometries.set(groupStats.getValue());
-            groupStats.getKey().currentPercentage.set(NumberFormat.getPercentInstance().format((float)groupStats.getValue() / plottedDrawing.geometries.size()));
-        }
+    /**
+     * Applies the Geometry Stats from this {@link PlottedDrawing} to all of the {@link ObservableDrawingPen}s in use
+     * @param drawing the drawing to take the geometry stats from
+     */
+    public static void updatePerPenGeometryStats(PlottedDrawing drawing){
+        drawing.getPerPenGeometryStats().forEach((pen, count) -> {
+            pen.setGeometryStats(count, drawing.getGeometryCount());
+        });
     }
 
     public static boolean preDistributionSetup(DistributionSet set){
@@ -699,38 +711,38 @@ public class PlottedDrawing {
     }
 
     public static void updatePreConfiguredPenDistribution(DistributionSet set){
+
         updatePenNumbers(set);
 
         for(PlottedGroup group : set.plottedGroups){
 
             Map<Integer, Integer> remapIndexMap = new LinkedHashMap<>();
-            int index = 0;
-            pens: for(ObservableDrawingPen drawingPen : group.originalDrawingSetOrder){
-                int currentIndex = group.drawingSet.pens.indexOf(drawingPen);
+            pens: for(Map.Entry<Integer, ObservableDrawingPen> entry : group.originalDrawingSetOrder.entrySet()){
+                int originalIndex = entry.getKey();
+                int currentIndex = group.drawingSet.pens.indexOf(entry.getValue());
                 if(currentIndex != -1){
-                    remapIndexMap.put(index, currentIndex);
-                    return;
+                    remapIndexMap.put(originalIndex, currentIndex);
+                    continue ;
                 }
 
                 //The pen doesn't exist anymore so lets try and find the most suitable match from it's code name
-                List<ObservableDrawingPen> matches = group.drawingSet.getMatchingPens(drawingPen);
+                List<ObservableDrawingPen> matches = group.drawingSet.getMatchingPens(entry.getValue());
                 if(matches.isEmpty()){
-                    remapIndexMap.put(index, -1);
+                    remapIndexMap.put(originalIndex, -1);
                     continue;
                 }
                 if(matches.size() > 1) {
                     //if there are multiple matches, see if the original index still exists
                     for (ObservableDrawingPen pen : matches) {
-                        if (pen.getPenNumber() == index) {
+                        if (pen.getPenNumber() == originalIndex) {
                             continue pens;
                         }
                     }
                 }
                 int newIndex = matches.get(0).getPenNumber();
-                if(index != newIndex){
-                    remapIndexMap.put(index, newIndex);
+                if(originalIndex != newIndex){
+                    remapIndexMap.put(originalIndex, newIndex);
                 }
-                index++;
             }
 
             for(IGeometry geometry : group.geometries){
@@ -739,7 +751,6 @@ public class PlottedDrawing {
                 geometry.setPenIndex(currentIndex);
             }
         }
-
 
     }
 

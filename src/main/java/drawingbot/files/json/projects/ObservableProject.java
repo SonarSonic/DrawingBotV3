@@ -381,6 +381,9 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         });
         displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
 
+        displayedDrawing.addListener((observable, oldValue, newValue) -> {
+            getDrawingSets().updatePerPenStats(newValue);
+        });
 
         InvalidationListener imagePropertyListener = observable -> onCanvasChanged();
         openImage.addListener((observable, oldValue, newValue) -> {

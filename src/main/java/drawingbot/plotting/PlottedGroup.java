@@ -25,7 +25,7 @@ public class PlottedGroup {
 
     public long vertexCount;
     public List<IGeometry> geometries;
-    public List<ObservableDrawingPen> originalDrawingSetOrder;
+    public Map<Integer, ObservableDrawingPen> originalDrawingSetOrder;
 
     public boolean needsDistribution = true;
     public EnumDistributionType overrideDistributionType = null;
@@ -40,7 +40,7 @@ public class PlottedGroup {
         this.pfmFactory = toCopy.pfmFactory;
         this.vertexCount = 0;
         this.geometries = new ArrayList<>();
-        this.originalDrawingSetOrder = List.copyOf(toCopy.originalDrawingSetOrder);
+        this.originalDrawingSetOrder = Map.copyOf(toCopy.originalDrawingSetOrder);
         this.needsDistribution = toCopy.needsDistribution;
         this.overrideDistributionType = toCopy.overrideDistributionType;
         this.groupType = toCopy.groupType;
@@ -51,7 +51,8 @@ public class PlottedGroup {
         this.drawingSet = drawingSet;
         this.pfmFactory = pfmFactory;
         this.geometries = new ArrayList<>();
-        this.originalDrawingSetOrder = List.copyOf(drawingSet.pens);
+        this.originalDrawingSetOrder = new HashMap<>();
+        this.drawingSet.pens.forEach(pen -> originalDrawingSetOrder.put(pen.getPenNumber(), pen));
         this.vertexCount = 0;
     }
 
