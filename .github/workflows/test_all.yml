@@ -50,5 +50,5 @@ jobs:
         uses: reg-viz/reg-actions@v2
         with:
           github-token: "${{ secrets.ACCESS_TOKEN }}"
-          image-directory-path: "./DrawingBotV3-Free/tests/images/"
+          image-directory-path: "./tests/images/"
           artifact-name: "reg-${{ matrix.os }}"
