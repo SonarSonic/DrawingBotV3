@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listener> implements ICanvas, IProperties {
 
-    private static final float defaultWidth = 210, defaultHeight = 297; //DEFAULT - A4 Paper
+    private static final float defaultWidthMM = 210, defaultHeightMM = 297; //DEFAULT - A4 Paper
 
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumCroppingMode> croppingMode = new SimpleObjectProperty<>(EnumCroppingMode.CROP_TO_FIT);
@@ -191,7 +191,7 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
         if(width.getValue() > 0){
             return width.getValue();
         }
-        return defaultWidth;
+        return UnitsLength.convert(defaultWidthMM, UnitsLength.MILLIMETRES, getUnits());
     }
 
     @Override
@@ -199,7 +199,7 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
         if(height.getValue() > 0){
             return height.getValue();
         }
-        return defaultHeight;
+        return UnitsLength.convert(defaultHeightMM, UnitsLength.MILLIMETRES, getUnits());
     }
 
     @Override
