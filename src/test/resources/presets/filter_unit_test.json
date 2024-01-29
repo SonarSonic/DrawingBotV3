@@ -7,7 +7,7 @@
   "data": {
     "filters": [
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Adjust HSB",
         "settings": {
           "Brightness": "-0.2",
@@ -16,7 +16,7 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Adjust RGB",
         "settings": {
           "Red": "0.25",
@@ -25,7 +25,7 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Contrast",
         "settings": {
           "Brightness": "0.85",
@@ -33,14 +33,14 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Exposure",
         "settings": {
           "Exposure": "2.5"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Gain",
         "settings": {
           "Bias": "0.277",
@@ -48,14 +48,14 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Gamma",
         "settings": {
           "Gamma": "1.5"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Levels",
         "settings": {
           "Low Output Level": "0.0",
@@ -65,7 +65,7 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Mix Channels",
         "settings": {
           "Blue/Green": "255",
@@ -77,14 +77,14 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Posterize",
         "settings": {
           "Posterize": "5"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Quantize",
         "settings": {
           "Dither": "true",
@@ -93,35 +93,35 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Rescale",
         "settings": {
           "Number of Colours": "0.5"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Transparency",
         "settings": {
           "Opacity": "75"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Clean Black",
         "settings": {
           "Tolerance": "0.257"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Dirty Border",
         "settings": {
           "Type": "8"
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Box Blur",
         "settings": {
           "V Radius": "54.762",
@@ -131,7 +131,7 @@
         }
       },
       {
-        "isEnabled": false,
+        "isEnabled": true,
         "type": "Motion Blur - Fast",
         "settings": {
           "Centre X": "0.5",
@@ -148,6 +148,137 @@
         "settings": {
           "Radius": "35.0",
           "Premultiply": "true"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "High Pass",
+        "settings": {
+          "Radius": "25.0",
+          "Premultiply": "true",
+          "Softness": "50.0"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Motion Blur Slow",
+        "settings": {
+          "Wrap Edges": "false",
+          "Angle": "45",
+          "Zoom": "20.0",
+          "Rotation": "10.0",
+          "Distance": "100.0"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Smart Blur",
+        "settings": {
+          "V Radius": "15",
+          "H Radius": "15",
+          "Threshold": "20"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Unsharp Mask",
+        "settings": {
+          "Radius": "10.0",
+          "Premultiply": "true",
+          "Amount": "0.5",
+          "Threshold": "1"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Shear",
+        "settings": {
+          "Y Angle": "5.0",
+          "X Angle": "0.0",
+          "Edges": "Wrap"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Swim",
+        "settings": {
+          "Turbulence": "1.0",
+          "Angle": "0",
+          "Amount": "69.255",
+          "Stretch": "1.0",
+          "Scale": "32.0",
+          "Time": "0.0",
+          "Edges": "Wrap"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Feedback",
+        "settings": {
+          "Centre X": "0.5",
+          "Angle": "270",
+          "Centre Y": "0.5",
+          "Start Alpha": "0.413",
+          "Zoom": "-0.27",
+          "Iterations": "4",
+          "Rotation": "88",
+          "End Alpha": "1.0",
+          "Distance": "22.222"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Glint",
+        "settings": {
+          "Glint Only": "false",
+          "Length": "3",
+          "Amount": "0.436",
+          "Blur": "0.0",
+          "Threshold": "0.771"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Chroma Key",
+        "settings": {
+          "H Tolerance": "0.127",
+          "B Tolerance": "0.928",
+          "Color": "-11704628",
+          "S Tolerance": "0.254"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Scratches",
+        "settings": {
+          "Angle Variation": "0.5",
+          "Length": "0.135",
+          "Seed": "33",
+          "Density": "0.702",
+          "Width": "0.325",
+          "Colour": "-1684147"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Dissolve",
+        "settings": {
+          "Softness": "0.587",
+          "Density": "0.627"
+        }
+      },
+      {
+        "isEnabled": true,
+        "type": "Flare",
+        "settings": {
+          "Radius": "269.84",
+          "Y Position": "0.5",
+          "Ring": "1.0",
+          "Ring Width": "8.267",
+          "X Position": "0.5",
+          "Ray": "1.0",
+          "Base": "1.0",
+          "Colour": "-1"
         }
       }
     ]
