@@ -192,18 +192,18 @@ class SimpleTestType extends Test {
 
 task testAll(type:SimpleTestType){
     filter{
-        excludeTestsMatching "drawingbot.DrawingBotV3Test"
+        excludeTestsMatching "*Regression*"
     }
 }
 
 task regressionTest(type:SimpleTestType){
     filter{
-        includeTestsMatching "drawingbot.DrawingBotV3Test"
+        includeTestsMatching "*Regression*"
     }
 }
 
-task testHeap(type:SimpleTestType){
+task imageFilterTest(type:SimpleTestType){
     filter{
-        includeTest "drawingbot.DrawingBotV3Test", "testHeapSize"
+        includeTestsMatching "*ImageFilterRegressionTest*"
     }
 }
