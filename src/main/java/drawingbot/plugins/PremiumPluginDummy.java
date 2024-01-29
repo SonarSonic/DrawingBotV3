@@ -22,6 +22,10 @@ import javafx.scene.control.MenuItem;
 
 public class PremiumPluginDummy implements IPlugin {
 
+    public static final PremiumPluginDummy INSTANCE = new PremiumPluginDummy();
+
+    private PremiumPluginDummy() {}
+
     @Override
     public String getPluginName() {
         return "Free";
@@ -54,7 +58,7 @@ public class PremiumPluginDummy implements IPlugin {
             }
 
             @Override
-            public String toString(){
+            public String toString() {
                 return getName();
             }
 
@@ -123,8 +127,8 @@ public class PremiumPluginDummy implements IPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Pen Calibration", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
     }
 
-    public Object[] disableBatchProcessingUI(Object...objects){
-        FXController controller = (FXController)objects[0];
+    public Object[] disableBatchProcessingUI(Object... objects) {
+        FXController controller = (FXController) objects[0];
         controller.batchProcessingController.vboxBatchProcessing.setDisable(true);
         controller.titledPaneBatchProcessing.setText(controller.titledPaneBatchProcessing.getText() + " (Premium)");
         controller.batchProcessingController.vboxBatchProcessing.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
@@ -132,7 +136,7 @@ public class PremiumPluginDummy implements IPlugin {
         return objects;
     }
 
-    public Object[] disableColourSplitterUI(Object...objects) {
+    public Object[] disableColourSplitterUI(Object... objects) {
         FXController controller = (FXController) objects[0];
         controller.drawingSetsController.buttonConfigureSplitter.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
         controller.drawingSetsController.comboBoxColourSeperation.setOnMouseClicked(e -> FXController.showPremiumFeatureDialog());
@@ -147,10 +151,10 @@ public class PremiumPluginDummy implements IPlugin {
         return objects;
     }
 
-    public Object[] disableOpenGL(Object...values) {
+    public Object[] disableOpenGL(Object... values) {
         FXController controller = (FXController) values[0];
         controller.choiceBoxDisplayMode.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null && newValue.getRenderer() != null && !newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled){
+            if (newValue != null && newValue.getRenderer() != null && !newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled) {
                 FXController.showPremiumFeatureDialog();
                 Platform.runLater(() -> DrawingBotV3.project().displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));
             }
@@ -158,7 +162,7 @@ public class PremiumPluginDummy implements IPlugin {
         return values;
     }
 
-    public Object[] initMenuOption(Object...values){
+    public Object[] initMenuOption(Object... values) {
         Menu menuFile = (Menu) values[0];
         MenuItem serialPortExport = new MenuItem("Connect to Plotter / Serial Port (Premium)");
         serialPortExport.setOnAction(e -> FXController.showPremiumFeatureDialog());
@@ -169,10 +173,14 @@ public class PremiumPluginDummy implements IPlugin {
 
     @Override
     public void registerDrawingExportHandlers() {
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264","Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MP4)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422","Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_MOV)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {
+        }, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> {
+        }, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264", "Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> {
+        }, FileUtils.FILTER_MP4)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422", "Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> {
+        }, FileUtils.FILTER_MOV)).setPremium();
     }
 
     @Override
@@ -182,10 +190,12 @@ public class PremiumPluginDummy implements IPlugin {
 
     public static class DummyPFM implements IPFM {
         @Override
-        public void setPlottingTools(IPlottingTools tools) {}
+        public void setPlottingTools(IPlottingTools tools) {
+        }
 
         @Override
-        public void run() {}
+        public void run() {
+        }
     }
 
 }

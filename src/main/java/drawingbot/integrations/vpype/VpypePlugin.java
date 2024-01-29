@@ -17,6 +17,7 @@ import drawingbot.javafx.editors.TreeNode;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.settings.StringSetting;
 import drawingbot.javafx.util.PropertyUtil;
+import drawingbot.plugins.AbstractPlugin;
 import drawingbot.registry.MasterRegistry;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,12 +30,9 @@ import org.fxmisc.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VpypePlugin implements IPlugin {
+public class VpypePlugin extends AbstractPlugin {
 
     public static final VpypePlugin INSTANCE = new VpypePlugin();
-
-    public final List<GenericSetting<?, ?>> settings = new ArrayList<>();
-    public final ObservableList<GenericSetting<?, ?>> observableList;
 
     public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
     public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
@@ -51,14 +49,7 @@ public class VpypePlugin implements IPlugin {
     public final StringSetting<?> vpypeExecutable = register(GenericSetting.createStringSetting(DBPreferences.class, "vpype", "vpypeExecutable", ""));
 
     private VpypePlugin(){
-        observableList = PropertyUtil.createPropertiesList(settings);
         vpypeExecutable.valueProperty().bindBidirectional(vpypeSettings.vpypeExecutable);
-    }
-
-    public <T extends GenericSetting<?, ?>> T register(T add){
-        settings.add(add);
-        add.createDefaultGetterAndSetter();
-        return add;
     }
 
     @Override
@@ -68,6 +59,7 @@ public class VpypePlugin implements IPlugin {
 
     @Override
     public void preInit() {
+        super.preInit();
 
         settings.forEach(setting -> MasterRegistry.INSTANCE.registerApplicationSetting(setting));
 

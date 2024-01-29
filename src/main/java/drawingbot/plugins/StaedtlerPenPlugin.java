@@ -7,6 +7,10 @@ import drawingbot.registry.MasterRegistry;
 
 public class StaedtlerPenPlugin extends AbstractPenPlugin {
 
+    public static final StaedtlerPenPlugin INSTANCE = new StaedtlerPenPlugin();
+
+    private StaedtlerPenPlugin() {}
+
     @Override
     public String getPluginName() {
         return "Staedtler Pen Plugin";
@@ -121,7 +125,7 @@ public class StaedtlerPenPlugin extends AbstractPenPlugin {
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 36 x Pen Set", getDrawingPensFromCodes(1, 101, 2, 20, 201, 21, 221, 23, 260, 29, 3, 30, 301, 34, 37, 4, 401, 43, 5, 501, 51, 53, 54, 55, 57, 6, 61, 62, 63, 69, 7, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 40 x Pen Set", getDrawingPensFromCodes(1, 101, 110, 2, 20, 201, 21, 221, 222, 23, 24, 260, 29, 3, 30, 301, 34, 36, 37, 4, 401, 5, 501, 51, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 42 x Pen Set", getDrawingPensFromCodes(1, 101, 110, 2, 20, 201, 21, 221, 222, 23, 260, 29, 3, 30, 301, 34, 36, 37, 4, 401, 43, 48, 5, 501, 51, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 50 x Pen Set", getDrawingPensFromCodes(1, 10, 101, 110, 16, 2, 20 ,201, 21, 221, 222, 23, 24, 260, 29, 3, 30, 301, 34, 36, 37, 38, 4, 401, 43, 430, 48, 5, 501, 51, 52, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 50 x Pen Set", getDrawingPensFromCodes(1, 10, 101, 110, 16, 2, 20, 201, 21, 221, 222, 23, 24, 260, 29, 3, 30, 301, 34, 36, 37, 38, 4, 401, 43, 430, 48, 5, 501, 51, 52, 53, 54, 55, 550, 57, 6, 61, 62, 63, 69, 7, 73, 76, 77, 8, 82, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Fineliner 334 - 60 x Pen Set", getDrawingPensFromCodes(1, 10, 101, 110, 13, 14, 16, 2, 20, 201, 21, 221, 222, 23, 24, 26, 260, 28, 29, 3, 30, 301, 32, 34, 36, 37, 38, 4, 401, 43, 430, 450, 48, 5, 501, 51, 52, 53, 54, 55, 550, 57, 59, 6, 61, 62, 63, 68, 69, 7, 73, 75, 76, 77, 8, 82, 83, 85, 86, 9)));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Ball 4320M - 8 x Pen Set", getDrawingPensFromCodes("M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Staedtler", "Ball 4320M - 10 x Pen Set", getDrawingPensFromCodes("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10")));
