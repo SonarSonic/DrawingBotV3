@@ -1,17 +1,21 @@
 package drawingbot.utils;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.JUnitDBV3ClassRunner;
 import drawingbot.javafx.util.JFXUtils;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.plotting.PFMTask;
 import drawingbot.plotting.PFMTaskBuilder;
 import drawingbot.registry.MasterRegistry;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 
 import static drawingbot.TestUtils.*;
 
+
+@RunWith(JUnitDBV3ClassRunner.class)
 public class DistributionTypeRegressionTest {
 
     @Test

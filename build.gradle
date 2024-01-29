@@ -201,3 +201,9 @@ task regressionTest(type:SimpleTestType){
         includeTestsMatching "*Regression*"
     }
 }
+
+task imageFilterTest(type:SimpleTestType){
+    filter{
+        includeTestsMatching "*ImageFilterRegressionTest*"
+    }
+}

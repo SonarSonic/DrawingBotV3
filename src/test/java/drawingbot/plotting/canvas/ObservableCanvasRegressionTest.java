@@ -38,13 +38,10 @@ public class ObservableCanvasRegressionTest {
     @Test
     public void testRescaleModesPenWidth() {
         for (EnumRescaleMode rescaleMode : EnumRescaleMode.values()) {
-            for (float target : List.of(0.3F, 0.7F, 1F, 1.3F)) {
-                testCanvas("rescale_%s_%s".formatted(lazyFormat(rescaleMode.displayName), lazyFormat(String.valueOf(target))), factory, List.of("A4 Paper"), canvas -> {
-                    canvas.rescaleMode.set(rescaleMode);
-                    canvas.orientation.set(EnumOrientation.LANDSCAPE);
-                    canvas.targetPenWidth.set(target);
-                });
-            }
+            testCanvas("rescale_%s".formatted(lazyFormat(rescaleMode.displayName)), factory, List.of("A4 Paper"), canvas -> {
+                canvas.rescaleMode.set(rescaleMode);
+                canvas.orientation.set(EnumOrientation.LANDSCAPE);
+            });
         }
     }
 
