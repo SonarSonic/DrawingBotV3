@@ -32,6 +32,7 @@ public class FileUtils {
     public static final FileChooser.ExtensionFilter FILTER_GCODE = registerSingleExtensionFilter("GCODE", "*.gcode");
     public static final FileChooser.ExtensionFilter FILTER_HPGL = registerSingleExtensionFilter("HPGL", "*.hpgl");
     public static final FileChooser.ExtensionFilter FILTER_TXT = registerSingleExtensionFilter("Text File", "*.txt");
+    public static final FileChooser.ExtensionFilter FILTER_ZIP = registerSingleExtensionFilter("ZIP Archive", "*.zip");
 
     public static final FileChooser.ExtensionFilter IMPORT_ALL;
 

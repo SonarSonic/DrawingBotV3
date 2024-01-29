@@ -3,17 +3,17 @@ package drawingbot.files;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.utils.Utils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -58,6 +58,7 @@ public class LoggingHandler {
     public static FileHandler fileHandler;
     public static String logPrefix = "_Log_";
     public static int logFileCount = 10; //How many log files to keep before deleting them
+    public static File currentLogFile;
 
     public static void setupConsoleOutputFile(){
         try {
@@ -68,7 +69,6 @@ public class LoggingHandler {
 
             DrawingBotV3.logger.setUseParentHandlers(false);
             DrawingBotV3.logger.addHandler(consoleHandler);
-
 
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + FXApplication.getSoftware().getShortName() + logPrefix + "*.txt");
             List<File> files = Files.list(new File(FileUtils.getUserLogsDirectory()).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> pathMatcher.matches(p.getFileName())).map(Path::toFile).sorted(Comparator.comparingLong(File::lastModified)).collect(Collectors.toList());
@@ -82,7 +82,8 @@ public class LoggingHandler {
             }
 
             // Send the loggers output to the latest_log.txt file
-            FileHandler fileHandler = new FileHandler(FileUtils.getUserLogsDirectory() + File.separator + logPrefix + Utils.getDateAndTimeSafe()+ "_%g" + ".txt");
+            currentLogFile = new File(FileUtils.getUserLogsDirectory() + File.separator + FXApplication.getSoftware().getShortName() + logPrefix + Utils.getDateAndTimeSafe() + "_%g" + ".txt");
+            FileHandler fileHandler = new FileHandler(currentLogFile.toString());
             fileHandler.setLevel(Level.ALL);
             fileHandler.setFormatter(new OutputFormat());
             DrawingBotV3.logger.addHandler(fileHandler);
@@ -96,6 +97,15 @@ public class LoggingHandler {
         deleteLegacyFile(new File(FileUtils.getUserDataDirectory(), "prev_log.txt"));
         deleteLegacyFile(new File(FileUtils.getUserDataDirectory(), "latest_output.txt"));
         deleteLegacyFile(new File(FileUtils.getUserDataDirectory(), "prev_output.txt"));
+
+        try {
+            // Delete old log files which were missing the correct prefix, pre-1.6.12
+            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + logPrefix + "*.txt");
+            Files.list(new File(FileUtils.getUserLogsDirectory()).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> pathMatcher.matches(p.getFileName())).forEach(path -> deleteLegacyFile(path.toFile()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void deleteLegacyFile(File file){
@@ -117,8 +127,49 @@ public class LoggingHandler {
         DrawingBotV3.logger.config("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
         DrawingBotV3.logger.config("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
         DrawingBotV3.logger.config("Running: " + FXApplication.getSoftware().getDisplayName() + " " + FXApplication.getSoftware().getDisplayVersion());
+        DrawingBotV3.logger.config("Working Directory: " + FileUtils.getWorkingDirectory());
+        DrawingBotV3.logger.config("Data Directory: " + FileUtils.getUserDataDirectory());
+
     }
 
+    public static boolean createReportZip(String zipFilePath){
+        try {
+            try (ZipArchiveOutputStream zip = new ZipArchiveOutputStream(new FileOutputStream(zipFilePath))) {
+                addFilteredFilesToZip(zip, FileUtils.getUserLogsDirectory(), "logs/", "glob:" + FXApplication.getSoftware().getShortName() + logPrefix + "*.txt");
+                addFilteredFilesToZip(zip, FileUtils.getWorkingDirectory(), "crashes/", "glob:" + "hs_err*.log");
+                addFilteredFilesToZip(zip, FileUtils.getUserDataDirectory(), "", "glob:" + "config_settings.json");
+                zip.finish();
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void addFilteredFilesToZip(ZipArchiveOutputStream zip, String sourceDir, String destDir, String filter) throws IOException{
+        File sourceDirFile = new File(sourceDir);
+        if(!sourceDirFile.exists()){
+            return;
+        }
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(filter);
+        List<File> files = Files.list(sourceDirFile.toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> pathMatcher.matches(p.getFileName())).map(Path::toFile).collect(Collectors.toList());
+
+        if(files.isEmpty()){
+            return;
+        }
+
+        for (File f : files) {
+            ZipArchiveEntry entry = zip.createArchiveEntry(f, destDir + f.getName());
+            zip.putArchiveEntry(entry);
+            if (f.isFile()) {
+                try (InputStream i = Files.newInputStream(f.toPath())) {
+                    IOUtils.copy(i, zip);
+                }
+            }
+            zip.closeArchiveEntry();
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
