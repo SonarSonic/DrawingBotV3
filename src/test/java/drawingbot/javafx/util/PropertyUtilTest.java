@@ -1,4 +1,4 @@
-package drawingbot.test;
+package drawingbot.javafx.util;
 
 import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyChangeListener;

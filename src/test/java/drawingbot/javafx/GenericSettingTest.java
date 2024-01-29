@@ -1,4 +1,4 @@
-package drawingbot.test;
+package drawingbot.javafx;
 
 import com.google.gson.JsonObject;
 import drawingbot.javafx.GenericSetting;

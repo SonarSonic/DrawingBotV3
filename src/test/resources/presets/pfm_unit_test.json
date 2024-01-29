@@ -562,6 +562,31 @@
           "Curve Tests": "10"
         }
       }
+    },
+    {
+      "presetType": "pfm_settings",
+      "version": "1.12",
+      "presetSubType": "SVG Converter",
+      "presetName": "pfm_unit_test",
+      "userCreated": false,
+      "data": {
+        "settings": {
+          "Plotting Resolution": "1.0",
+          "Draw Outlines": "true",
+          "Shape Clipping": "false",
+          "Derive Drawing Set": "true",
+          "Crosshatch": "true",
+          "Min Rotation": "0.0",
+          "Spacing": "4.0",
+          "Link Ends": "true",
+          "SVG Path": "",
+          "Draw Fills": "false",
+          "Colour Match": "true",
+          "Angle Match": "true",
+          "Random Seed": "0",
+          "Max Rotation": "360.0"
+        }
+      }
     }
   ]
 }

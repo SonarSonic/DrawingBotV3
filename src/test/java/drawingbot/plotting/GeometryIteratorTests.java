@@ -1,12 +1,8 @@
-package drawingbot.test;
+package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.JFXJUnit4ClassRunner;
+import drawingbot.JUnitDBV3ClassRunner;
 import drawingbot.geom.shapes.IGeometry;
-import drawingbot.plotting.AsynchronousGeometryIterator;
-import drawingbot.plotting.DrawingGeometryIterator;
-import drawingbot.plotting.DrawingVertexPathIterator;
-import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import javafx.application.Platform;
 import org.junit.Assert;
@@ -19,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-@RunWith(JFXJUnit4ClassRunner.class)
+@RunWith(JUnitDBV3ClassRunner.class)
 public class GeometryIteratorTests {
 
     PlottedDrawing drawing;

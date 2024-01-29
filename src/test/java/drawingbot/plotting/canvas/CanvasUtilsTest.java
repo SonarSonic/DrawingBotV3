@@ -1,4 +1,4 @@
-package drawingbot.test;
+package drawingbot.plotting.canvas;
 
 import drawingbot.api.ICanvas;
 import drawingbot.plotting.canvas.CanvasUtils;
@@ -9,6 +9,8 @@ import drawingbot.utils.EnumCroppingMode;
 import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 import junit.framework.TestCase;
+import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 
 public class CanvasUtilsTest extends TestCase {
 

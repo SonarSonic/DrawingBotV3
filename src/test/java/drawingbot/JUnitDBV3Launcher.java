@@ -5,12 +5,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * This is the application which starts JavaFx.  It is controlled through the startJavaFx() method.
  * src: http://awhite.blogspot.com/2013/04/javafx-junit-testing.html
  */
-public class JFXJUnit4Launcher {
+public class JUnitDBV3Launcher {
 
     /** The lock that guarantees that only one JavaFX thread will be started. */
     private static final ReentrantLock LOCK = new ReentrantLock();
@@ -19,6 +20,8 @@ public class JFXJUnit4Launcher {
     private static final AtomicBoolean started = new AtomicBoolean();
 
     public static Consumer<String[]> launchMethod = Launcher::main;
+
+    public static Supplier<Boolean> postLaunchMethod = () -> true;
 
     /**
      * Start JavaFx.
@@ -35,7 +38,7 @@ public class JFXJUnit4Launcher {
             {
                 // start the JavaFX application
                 final ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(JFXJUnit4Launcher::launch);
+                executor.execute(JUnitDBV3Launcher::launch);
 
                 while (!started.get())
                 {
@@ -55,6 +58,7 @@ public class JFXJUnit4Launcher {
     protected static void launch(){
         FXApplication.isLoaded.addListener((observable, oldValue, newValue) -> {
             if(newValue){
+                assert postLaunchMethod.get();
                 started.set(true);
             }
         });

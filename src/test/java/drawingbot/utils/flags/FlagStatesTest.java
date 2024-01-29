@@ -1,4 +1,4 @@
-package drawingbot.test;
+package drawingbot.utils.flags;
 
 import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
@@ -20,29 +20,23 @@ public class FlagStatesTest extends TestCase {
     }
 
     public void testAnyMatchTrue(){
-        flagStates.setFlag(Flags.FORCE_REDRAW, false);
-        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, false);
+        flagStates.setFlags(false, Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED);
         flagStates.setFlag(Flags.CLEAR_DRAWING_JFX, true);
         assertTrue(flagStates.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING_JFX));
     }
 
     public void testAnyMatchFalse(){
-        flagStates.setFlag(Flags.FORCE_REDRAW, false);
-        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, false);
-        flagStates.setFlag(Flags.CLEAR_DRAWING_JFX, false);
+        flagStates.setFlags(false, Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING_JFX);
         assertFalse(flagStates.anyMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING_JFX));
     }
 
     public void testAllMatchTrue(){
-        flagStates.setFlag(Flags.FORCE_REDRAW, true);
-        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, true);
-        flagStates.setFlag(Flags.CLEAR_DRAWING_JFX, true);
+        flagStates.setFlags(true, Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING_JFX);
         assertTrue(flagStates.allMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING_JFX));
     }
 
     public void testAllMatchFalse(){
-        flagStates.setFlag(Flags.FORCE_REDRAW, true);
-        flagStates.setFlag(Flags.ACTIVE_TASK_CHANGED, true);
+        flagStates.setFlags(true, Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED);
         flagStates.setFlag(Flags.CLEAR_DRAWING_JFX, false);
         assertFalse(flagStates.allMatch(Flags.FORCE_REDRAW, Flags.ACTIVE_TASK_CHANGED, Flags.CLEAR_DRAWING_JFX));
     }
@@ -71,6 +65,11 @@ public class FlagStatesTest extends TestCase {
         flagStates.setFlag(Flags.CLEAR_DRAWING_JFX, true);
         flagStates.reset();
         assertFalse(flagStates.getFlag(Flags.CLEAR_DRAWING_JFX));
+    }
+
+    public void testFlagCategoryMatch(){
+        Flags.FlagCategory testCategory = new Flags.FlagCategory("GLOBAL");
+        assertEquals(Flags.GLOBAL_CATEGORY, testCategory);
     }
 
 }
