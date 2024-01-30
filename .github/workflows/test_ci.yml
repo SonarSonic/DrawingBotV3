@@ -1,7 +1,7 @@
 name: Test CI
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Note: Visual regression tests require a PR or Commit
   push:
   pull_request:
 
@@ -26,13 +26,15 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Setup Gradle Caching
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Run ${{ matrix.os }} General Tests - Headless
         uses: coactions/setup-xvfb@v1
         with:
           run: ./gradlew testAll
+
+      - name: Run ${{ matrix.os }} Regression Tests - Headless
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: ./gradlew regressionTest
 
       - name: Generate ${{ matrix.os }} JUnit Test Reports
         uses: dorny/test-reporter@v1
@@ -41,3 +43,12 @@ jobs:
           name: ${{ matrix.os }} Tests
           path: '**/build/test-results/**/TEST-*.xml'
           reporter: java-junit
+
+      - name: Generate ${{ matrix.os }} Regression Test Reports
+        if: success() || failure()
+        uses: reg-viz/reg-actions@v2
+        with:
+          github-token: "${{ secrets.ACCESS_TOKEN }}"
+          image-directory-path: "./tests/images/"
+          artifact-name: "reg-${{ matrix.os }}"
+
