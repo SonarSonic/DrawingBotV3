@@ -1,3 +1,20 @@
+### [v1.6.13-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.13-stable-free)
+- Added: SVG Converter - Support for SVG Gradients when Colour Match is enabled
+- Added: Extra options for SVG Converter; 'Shape Outlines', 'Gradient Angle Match' and 'Gradient Colour Match'
+- Added: 'Export Logs / Crash Reports' to the help menu, to simplify providing support / debugging
+- Added: 'Switch to SVG Converter on SVG Import' option to SVG Preferences 
+- Improved: Reduced memory usage over application lifetime
+- Improved: Speed of clipping when using Masks / SVG Converter
+- Fixed: Crash on load when OpenCL Native Library is unavailable
+- Fixed: OpenGL Renderer attempting to load on devices without OpenGL 3.3+ support.
+- Fixed: SVG Converter - Using incorrect scaling in some situations
+- Fixed: Export per/pens failing when the pen names contain special characters
+- Fixed: SVG Converter - Shape clipping failing on complex SVGs
+- Fixed: Freeze/hang when switching to cm/inches when the drawing width or height is 0.0
+- Fixed: PFM not running when the drawing width/height is 0.0, now runs with default sizing: A4 paper
+- Fixed: Occasional momentary hang after a PFM has finished processing
+- Fixed: Renamed the Stabilo pen presets to match correct pen naming conventions / no special characters
+
 ### [v1.6.12-beta](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.12-beta-free)
 - Fixed: OpenCL Integration on MacOS and other configurations where OpenCL 2.0 is unavailable.
 
