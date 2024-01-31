@@ -363,7 +363,7 @@ public class FXController extends AbstractFXController {
             }else{
                 scrollPaneSettingsRight.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
                 scrollPaneSettingsRight.setMaxWidth(-1);
-                scrollPaneSettingsRight.setPrefWidth(420);
+                scrollPaneSettingsRight.setPrefWidth(-1);
                 vBoxRightContainer.setMaxWidth(-1);
                 splitPane.setDividerPositions(0, 1);
             }
@@ -379,7 +379,7 @@ public class FXController extends AbstractFXController {
             }else{
                 scrollPaneSettingsLeft.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
                 scrollPaneSettingsLeft.setMaxWidth(-1);
-                scrollPaneSettingsLeft.setPrefWidth(420);
+                scrollPaneSettingsLeft.setPrefWidth(-1);
                 vBoxLeftContainer.setMaxWidth(-1);
                 splitPane.setDividerPositions(0, 1);
             }
