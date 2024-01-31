@@ -1,15 +1,23 @@
 package drawingbot;
 
 import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.utils.AbstractSoftware;
+import drawingbot.plugins.PremiumPluginDummy;
+import drawingbot.registry.Register;
+import drawingbot.software.IComponent;
+import drawingbot.software.ISoftware;
 import drawingbot.utils.DBConstants;
+import javafx.application.Preloader;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.InputStream;
+import java.util.List;
+import java.util.logging.Logger;
 
-public class SoftwareDBV3Free extends AbstractSoftware {
+public class SoftwareDBV3Free implements ISoftware {
 
     public static final SoftwareDBV3Free INSTANCE = new SoftwareDBV3Free();
 
@@ -19,19 +27,26 @@ public class SoftwareDBV3Free extends AbstractSoftware {
     public static final String releaseType = "Beta";
     public static final String displayVersion = rawVersion + " " + releaseType;
 
+    public final BooleanProperty enabled = new SimpleBooleanProperty(true);
+
     @Override
     public String getDisplayName() {
         return displayName;
     }
 
     @Override
-    public String getShortName() {
+    public String getRegistryName() {
         return shortName;
     }
 
     @Override
-    public String getRawVersion() {
+    public String getVersion() {
         return rawVersion;
+    }
+
+    @Override
+    public BooleanProperty enabledProperty() {
+        return enabled;
     }
 
     @Override
@@ -57,6 +72,11 @@ public class SoftwareDBV3Free extends AbstractSoftware {
     }
 
     @Override
+    public Class<? extends Preloader> getSplashScreenClass() {
+        return SplashScreen.class;
+    }
+
+    @Override
     public void applyThemeToStage(Stage primaryStage){
         Image image = getLogoImage();
         if(image != null){
@@ -72,5 +92,15 @@ public class SoftwareDBV3Free extends AbstractSoftware {
         } else {
             scene.getRoot().setStyle("");
         }
+    }
+
+    @Override
+    public Logger getLogger() {
+        return DrawingBotV3.logger;
+    }
+
+    @Override
+    public List<IComponent> getSubComponents() {
+        return List.of(Register.INSTANCE, PremiumPluginDummy.INSTANCE);
     }
 }

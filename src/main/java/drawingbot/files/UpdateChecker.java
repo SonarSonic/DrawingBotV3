@@ -75,7 +75,7 @@ public class UpdateChecker {
             if(matcher.find()){
                 String fullVersion = matcher.group(0).replace("[", "").replace("]", "");
                 String rawVersion = matcher.group(1);
-                int result = Utils.compareVersion(FXApplication.getSoftware().getRawVersion(), rawVersion, 3);
+                int result = Utils.compareVersion(FXApplication.getSoftware().getVersion(), rawVersion, 3);
                 return new UpdateCheckerResult(result == -1 ? UpdateStatus.OUTDATED : UpdateStatus.LATEST, fullVersion);
             }
             return new UpdateCheckerResult(UpdateStatus.UNAVAILABLE, "");

@@ -33,6 +33,7 @@ import java.util.List;
 public class VpypePlugin extends AbstractPlugin {
 
     public static final VpypePlugin INSTANCE = new VpypePlugin();
+    public static final String VERSION = "1.0.0";
 
     public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
     public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
@@ -52,8 +53,14 @@ public class VpypePlugin extends AbstractPlugin {
         vpypeExecutable.valueProperty().bindBidirectional(vpypeSettings.vpypeExecutable);
     }
 
+
     @Override
-    public String getPluginName() {
+    public String getVersion() {
+        return VERSION;
+    }
+
+    @Override
+    public String getDisplayName() {
         return "vpype Plugin";
     }
 

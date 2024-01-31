@@ -1,12 +1,12 @@
 package drawingbot.api;
 
-import java.util.List;
+import drawingbot.software.SoftwareManager;
+import drawingbot.software.IComponent;
 
-public interface IPlugin {
-
-    String getPluginName();
-
-    default void registerPlugins(List<IPlugin> newPlugins){}
+/**
+ * A plugin is a component which receives {@link SoftwareManager} events
+ */
+public interface IPlugin extends IComponent {
 
     default void tick(){}
 
@@ -33,4 +33,5 @@ public interface IPlugin {
     default void registerPreferencePages() {}
 
     default void shutdown() {}
+
 }

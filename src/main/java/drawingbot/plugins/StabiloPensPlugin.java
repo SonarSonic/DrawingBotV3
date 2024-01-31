@@ -7,12 +7,17 @@ import drawingbot.registry.MasterRegistry;
 public class StabiloPensPlugin extends AbstractPenPlugin {
 
     public static final StabiloPensPlugin INSTANCE = new StabiloPensPlugin();
+    public static final String VERSION = "1.0.0";
 
     private StabiloPensPlugin() {}
 
+    public String getPenManufacturer() {
+        return "Stabilo";
+    }
+
     @Override
-    public String getPluginName() {
-        return "Stabilo Pens Plugin";
+    public String getVersion() {
+        return VERSION;
     }
 
     @Override

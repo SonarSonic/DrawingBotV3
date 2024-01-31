@@ -1,7 +1,7 @@
 package drawingbot.files;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
+import drawingbot.software.ISoftware;
+import drawingbot.software.SoftwareManager;
 import drawingbot.utils.Utils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -22,32 +22,40 @@ import java.util.stream.Collectors;
 
 public class LoggingHandler {
 
+    public static Logger logger(){
+        return SoftwareManager.getSoftware().getLogger();
+    }
+    
+    public static ISoftware software(){
+        return SoftwareManager.getSoftware();
+    }
+    
     public static void init() {
         //create the user data directory
         File userDir = new File(FileUtils.getUserDataDirectory());
         if(!userDir.exists() && !userDir.mkdirs()){
-            DrawingBotV3.logger.severe("Failed to create User Data Directory");
+            logger().severe("Failed to create User Data Directory");
         }
 
         //create the thumbnail directory
         File userThumbsDir = new File(FileUtils.getUserThumbnailDirectory());
         if(!userThumbsDir.exists() && !userThumbsDir.mkdirs()){
-            DrawingBotV3.logger.severe("Failed to create User Thumbnail Directory");
+            logger().severe("Failed to create User Thumbnail Directory");
         }
 
         //create the fonts directory
         File userFontDir = new File(FileUtils.getUserFontsDirectory());
         if(!userFontDir.exists() && !userFontDir.mkdirs()){
-            DrawingBotV3.logger.severe("Failed to create User Fonts Directory");
+            logger().severe("Failed to create User Fonts Directory");
         }
 
         //create the logs directory
         File userLogsDir = new File(FileUtils.getUserLogsDirectory());
         if(!userLogsDir.exists() && !userLogsDir.mkdirs()){
-            DrawingBotV3.logger.severe("Failed to create User Logs Directory");
+            logger().severe("Failed to create User Logs Directory");
         }
 
-        DrawingBotV3.logger.setLevel(Level.FINE);
+        logger().setLevel(Level.FINE);
         setupConsoleOutputFile();
         logApplicationStatus();
         deleteLegacyFiles();
@@ -67,28 +75,28 @@ public class LoggingHandler {
             consoleHandler.setFormatter(new OutputFormat());
             consoleHandler.setLevel(Level.ALL);
 
-            DrawingBotV3.logger.setUseParentHandlers(false);
-            DrawingBotV3.logger.addHandler(consoleHandler);
+            logger().setUseParentHandlers(false);
+            logger().addHandler(consoleHandler);
 
-            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + FXApplication.getSoftware().getShortName() + logPrefix + "*.txt");
+            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + software().getRegistryName() + logPrefix + "*.txt");
             List<File> files = Files.list(new File(FileUtils.getUserLogsDirectory()).toPath()).filter(Files::isRegularFile).filter(Files::isReadable).filter(p -> pathMatcher.matches(p.getFileName())).map(Path::toFile).sorted(Comparator.comparingLong(File::lastModified)).collect(Collectors.toList());
 
             for(int i = 0; i < files.size()-logFileCount; i++){
                 File file = files.get(i);
                 if(!file.delete()){
-                    DrawingBotV3.logger.log(Level.WARNING, "Failed to delete old log files");
+                    logger().log(Level.WARNING, "Failed to delete old log files");
                     break;
                 }
             }
 
             // Send the loggers output to the latest_log.txt file
-            currentLogFile = new File(FileUtils.getUserLogsDirectory() + File.separator + FXApplication.getSoftware().getShortName() + logPrefix + Utils.getDateAndTimeSafe() + "_%g" + ".txt");
+            currentLogFile = new File(FileUtils.getUserLogsDirectory() + File.separator + software().getRegistryName() + logPrefix + Utils.getDateAndTimeSafe() + "_%g" + ".txt");
             FileHandler fileHandler = new FileHandler(currentLogFile.toString());
             fileHandler.setLevel(Level.ALL);
             fileHandler.setFormatter(new OutputFormat());
-            DrawingBotV3.logger.addHandler(fileHandler);
+            logger().addHandler(fileHandler);
         } catch (Exception e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error setting up console output");
+            logger().log(Level.WARNING, e, () -> "Error setting up console output");
         }
     }
 
@@ -110,7 +118,7 @@ public class LoggingHandler {
 
     public static void deleteLegacyFile(File file){
         if(file.exists() && file.delete()){
-            DrawingBotV3.logger.info("Deleted Legacy File " + file.toString());
+            logger().info("Deleted Legacy File " + file.toString());
         }
     }
 
@@ -122,20 +130,20 @@ public class LoggingHandler {
     }
 
     public static void logApplicationStatus(){
-        DrawingBotV3.logger.config("Date: " + new Date(System.currentTimeMillis()));
-        DrawingBotV3.logger.config("Java Home: " + System.getProperty("java.home"));
-        DrawingBotV3.logger.config("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
-        DrawingBotV3.logger.config("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
-        DrawingBotV3.logger.config("Running: " + FXApplication.getSoftware().getDisplayName() + " " + FXApplication.getSoftware().getDisplayVersion());
-        DrawingBotV3.logger.config("Working Directory: " + FileUtils.getWorkingDirectory());
-        DrawingBotV3.logger.config("Data Directory: " + FileUtils.getUserDataDirectory());
+        logger().config("Date: " + new Date(System.currentTimeMillis()));
+        logger().config("Java Home: " + System.getProperty("java.home"));
+        logger().config("Java Version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
+        logger().config("Operating System: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
+        logger().config("Running: " + software().getDisplayName() + " " + software().getDisplayVersion());
+        logger().config("Working Directory: " + FileUtils.getWorkingDirectory());
+        logger().config("Data Directory: " + FileUtils.getUserDataDirectory());
 
     }
 
     public static boolean createReportZip(String zipFilePath){
         try {
             try (ZipArchiveOutputStream zip = new ZipArchiveOutputStream(new FileOutputStream(zipFilePath))) {
-                addFilteredFilesToZip(zip, FileUtils.getUserLogsDirectory(), "logs/", "glob:" + FXApplication.getSoftware().getShortName() + logPrefix + "*.txt");
+                addFilteredFilesToZip(zip, FileUtils.getUserLogsDirectory(), "logs/", "glob:" + software().getRegistryName() + logPrefix + "*.txt");
                 addFilteredFilesToZip(zip, FileUtils.getWorkingDirectory(), "crashes/", "glob:" + "hs_err*.log");
                 addFilteredFilesToZip(zip, FileUtils.getUserDataDirectory(), "", "glob:" + "config_settings.json");
                 zip.finish();

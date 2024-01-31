@@ -28,6 +28,7 @@ import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
 import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.software.SoftwareManager;
 import drawingbot.utils.*;
 import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
@@ -170,7 +171,7 @@ public class DrawingBotV3 {
         taskMonitor.tick();
 
         // Tick all plugins
-        MasterRegistry.PLUGINS.forEach(IPlugin::tick);
+        SoftwareManager.getLoadedPlugins().forEach(IPlugin::tick);
 
         // Tick all open projects
         DrawingBotV3.INSTANCE.activeProjects.forEach(ObservableProject::tick);

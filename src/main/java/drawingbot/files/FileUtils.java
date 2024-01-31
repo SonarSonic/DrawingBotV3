@@ -1,5 +1,6 @@
 package drawingbot.files;
 
+import drawingbot.utils.Utils;
 import javafx.stage.FileChooser;
 import org.apache.commons.io.FilenameUtils;
 
@@ -78,7 +79,7 @@ public class FileUtils {
     }
 
     public static String getSafeFileName(String filename){
-        return filename.replaceAll("[<>:\"\\\\/|?*]", "_").replace('\\', '_');
+        return Utils.getSafeString(filename);
     }
 
     public static FileChooser.ExtensionFilter findMatchingExtensionFilter(String extension){

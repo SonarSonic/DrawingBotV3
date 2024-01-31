@@ -8,12 +8,17 @@ import drawingbot.registry.MasterRegistry;
 public class StaedtlerPenPlugin extends AbstractPenPlugin {
 
     public static final StaedtlerPenPlugin INSTANCE = new StaedtlerPenPlugin();
+    public static final String VERSION = "1.0.0";
 
     private StaedtlerPenPlugin() {}
 
+    public String getPenManufacturer() {
+        return "Staedtler";
+    }
+
     @Override
-    public String getPluginName() {
-        return "Staedtler Pen Plugin";
+    public String getVersion() {
+        return VERSION;
     }
 
     @Override

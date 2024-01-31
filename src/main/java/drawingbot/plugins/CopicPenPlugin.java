@@ -7,12 +7,17 @@ import drawingbot.registry.MasterRegistry;
 public class CopicPenPlugin extends AbstractPenPlugin {
 
     public static final CopicPenPlugin INSTANCE = new CopicPenPlugin();
+    public static final String VERSION = "1.0.0";
 
     private CopicPenPlugin() {}
 
+    public String getPenManufacturer() {
+        return "Copic";
+    }
+
     @Override
-    public String getPluginName() {
-        return "Copic Pen Plugin";
+    public String getVersion() {
+        return VERSION;
     }
 
     @Override

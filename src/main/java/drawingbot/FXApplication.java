@@ -15,7 +15,8 @@ import drawingbot.render.IDisplayMode;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
 import drawingbot.render.overlays.*;
-import drawingbot.utils.AbstractSoftware;
+import drawingbot.software.ISoftware;
+import drawingbot.software.SoftwareManager;
 import drawingbot.utils.LazyTimer;
 import drawingbot.javafx.util.MouseMonitor;
 import drawingbot.utils.LazyTimerUtils;
@@ -35,6 +36,7 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -42,17 +44,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class FXApplication extends Application {
 
     public static FXApplication INSTANCE;
-    public static AbstractSoftware software;
     public static String[] launchArgs = new String[0];
+
     public static Stage primaryStage;
     public static Scene primaryScene;
     public static List<Stage> childStages = new ArrayList<>();
+
     public static DrawTimer drawTimer;
     public static boolean isPremiumEnabled;
     public static boolean isHeadless;
@@ -75,9 +77,39 @@ public class FXApplication extends Application {
         // Setup console / file logging
         LoggingHandler.init();
 
-        SplashScreen.initPreloader();
+        SplashScreen.initPreloader(SoftwareManager.getSoftware().getSplashScreenClass());
         launch(args);
     }
+
+    ////////////////////////////////////////////////////////
+
+    public static Scene getPrimaryScene(){
+        return primaryScene;
+    }
+
+    public static Stage getPrimaryStage(){
+        return primaryStage;
+    }
+
+    public static List<Stage> getChildStages(){
+        return childStages;
+    }
+
+    ////////////////////////////////////////////////////////
+
+    public static void applyTheme(Stage primaryStage){
+        ISoftware software = SoftwareManager.getSoftware();
+        software.applyThemeToStage(primaryStage);
+        software.applyThemeToScene(primaryStage.getScene());
+    }
+
+    public static void applyCurrentTheme(){
+        ISoftware software = SoftwareManager.getSoftware();
+        software.applyThemeToScene(FXApplication.getPrimaryScene());
+        FXApplication.getChildStages().forEach(stage -> software.applyThemeToScene(stage.getScene()));
+    }
+
+    ////////////////////////////////////////////////////////
 
     public static class InitialLoadTask extends Task<Boolean> {
 
@@ -95,14 +127,14 @@ public class FXApplication extends Application {
 
             ///// PRE INIT \\\\\\
 
-            DrawingBotV3.logger.config("Plugins: Finding Plugins");
-            MasterRegistry.findPlugins();
+            DrawingBotV3.logger.config("Components: Finding Components");
+            SoftwareManager.INSTANCE.findComponents();
 
-            DrawingBotV3.logger.config("Plugins: Found " + MasterRegistry.PLUGINS.size() + " Plugins");
-            MasterRegistry.PLUGINS.forEach(plugin -> DrawingBotV3.logger.config("Plugin: " + plugin.getPluginName()));
+            DrawingBotV3.logger.config("Components: Found %s Components".formatted(SoftwareManager.getLoadedComponents().size()));
+            SoftwareManager.getLoadedComponents().forEach(component -> DrawingBotV3.logger.config("Component: %s [%s]".formatted(component.getDisplayName(), component.getDisplayVersion())));
 
             DrawingBotV3.logger.config("Plugins: Pre-Init");
-            MasterRegistry.PLUGINS.forEach(IPlugin::preInit);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::preInit);
 
             DrawingBotV3.logger.config("Json Loaders: Init");
             MasterRegistry.INSTANCE.presetLoaders.forEach(AbstractJsonLoader::init);
@@ -114,7 +146,17 @@ public class FXApplication extends Application {
             API.INSTANCE = new DrawingBotV3API();
 
             DrawingBotV3.logger.config("Master Registry: Init");
-            MasterRegistry.init();
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::init);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerPFMS);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerPFMSettings);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerDrawingTools);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerImageFilters);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerDrawingExportHandlers);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerColourSplitterHandlers);
+
+            //Sort the PFM settings
+            MasterRegistry.INSTANCE.sortPFMSettings();
+            MasterRegistry.INSTANCE.sortDataLoaders();
 
             DrawingBotV3.logger.config("Renderers: Pre-Init");
             DrawingBotV3.RENDERER = new JavaFXRenderer(Screen.getPrimary().getBounds());
@@ -132,7 +174,7 @@ public class FXApplication extends Application {
             DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
             DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
 
-            MasterRegistry.postInit();
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::registerPreferencePages);
             DBPreferences.INSTANCE.postInit();
 
             DrawingBotV3.logger.config("Json Loader: Load JSON Files");
@@ -144,6 +186,7 @@ public class FXApplication extends Application {
             DrawingBotV3.logger.config("DrawingBotV3: Loading User Interface");
             CountDownLatch latchA = new CountDownLatch(1);
             Platform.runLater(() -> {
+
                 FXMLLoader loader = new FXMLLoader(FXApplication.class.getResource("userinterface.fxml"));
                 Parent root = null;
                 try {
@@ -166,6 +209,7 @@ public class FXApplication extends Application {
             });
 
             latchA.await();
+
 
             //// ADD ACCELERATORS \\\\
             int keypad = 1;
@@ -214,17 +258,19 @@ public class FXApplication extends Application {
             latchB.await();
 
             DrawingBotV3.logger.config("Plugins: Post Init");
-            MasterRegistry.PLUGINS.forEach(IPlugin::postInit);
+            SoftwareManager.getLoadedPlugins().forEach(IPlugin::postInit);
 
             if(!isHeadless){
                 CountDownLatch latchC = new CountDownLatch(1);
                 DrawingBotV3.logger.config("Plugins: Load JFX Stages");
                 Platform.runLater(() -> {
-                    for(IPlugin plugin : MasterRegistry.PLUGINS){
-                        plugin.loadJavaFXStages();
-                    }
+                    SoftwareManager.getLoadedPlugins().forEach(IPlugin::loadJavaFXStages);
                     DrawingBotV3.logger.config("DrawingBotV3: Loading Event Handlers");
                     FXApplication.primaryScene.addEventHandler(MouseEvent.MOUSE_MOVED, mouseMonitor = new MouseMonitor());
+
+                    // set up main drawing loop
+                    drawTimer = new DrawTimer(FXApplication.INSTANCE);
+                    drawTimer.start();
 
                     latchC.countDown();
                 });
@@ -251,10 +297,6 @@ public class FXApplication extends Application {
                     applyTheme(primaryStage);
                     primaryStage.show();
                     latchD.countDown();
-
-                    // set up main drawing loop
-                    drawTimer = new DrawTimer(FXApplication.INSTANCE);
-                    drawTimer.start();
                 });
 
                 latchD.await();
@@ -299,22 +341,8 @@ public class FXApplication extends Application {
         SplashScreen.startPreloader(this);
     }
 
-    public static AbstractSoftware getSoftware(){
-        return software;
-    }
-
-    public static void setSoftware(AbstractSoftware theme){
-        software = theme;
-    }
-
-    public static void applyTheme(Stage primaryStage){
-        software.applyThemeToStage(primaryStage);
-        software.applyThemeToScene(primaryStage.getScene());
-    }
-
-    public static void applyCurrentTheme(){
-        software.applyThemeToScene(primaryScene);
-        childStages.forEach(stage -> software.applyThemeToScene(stage.getScene()));
+    public static ISoftware getSoftware(){
+        return SoftwareManager.getSoftware();
     }
 
     public void onFirstTick(){
@@ -327,7 +355,7 @@ public class FXApplication extends Application {
         DrawingBotV3.logger.info("Starting Shutdown");
 
         DrawingBotV3.logger.info("Stopping Plugins");
-        MasterRegistry.PLUGINS.forEach(IPlugin::shutdown);
+        SoftwareManager.getLoadedPlugins().forEach(IPlugin::shutdown);
 
         DrawingBotV3.logger.info("Saving Config Files");
         Register.PRESET_LOADER_CONFIGS.onShutdown();
@@ -352,7 +380,7 @@ public class FXApplication extends Application {
         @Override
         public void handle(long now) {
             if(isFirstTick){
-                DrawingBotV3.INSTANCE.resetView();
+                //DrawingBotV3.INSTANCE.resetView();
                 isFirstTick = false;
                 fxApplication.onFirstTick();
                 return;

@@ -1,6 +1,7 @@
 package drawingbot;
 
-import drawingbot.utils.AbstractSoftware;
+import drawingbot.software.ISoftware;
+import drawingbot.software.SoftwareManager;
 import javafx.application.Application;
 import javafx.application.Preloader;
 import javafx.geometry.Pos;
@@ -22,12 +23,11 @@ import java.util.logging.LogRecord;
 
 public class SplashScreen extends Preloader {
 
-    public static String preloaderKey = "javafx.preloader";
-    public static String preloaderValue = SplashScreen.class.getName();
+    public static final String preloaderKey = "javafx.preloader";
     public static PreloaderNotificationHandler notificationHandler;
 
-    public static void initPreloader(){
-        System.setProperty(preloaderKey, preloaderValue);
+    public static void initPreloader(Class<? extends Preloader> preloaderClass){
+        System.setProperty(preloaderKey, preloaderClass.getName());
     }
 
     public static void startPreloader(Application app){
@@ -53,7 +53,7 @@ public class SplashScreen extends Preloader {
         vBox.setAlignment(Pos.CENTER);
         vBox.setPrefSize(500, 250);
 
-        AbstractSoftware software = FXApplication.getSoftware();
+        ISoftware software = FXApplication.getSoftware();
 
         Image splashImage = software.getSplashImage();
         if(splashImage != null){

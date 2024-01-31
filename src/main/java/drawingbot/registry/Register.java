@@ -2,6 +2,8 @@ package drawingbot.registry;
 
 import com.jhlabs.image.*;
 import drawingbot.FXApplication;
+import drawingbot.SoftwareDBV3Free;
+import drawingbot.api.IPFM;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingPen;
@@ -38,7 +40,9 @@ import drawingbot.render.IDisplayMode;
 import drawingbot.render.modes.DrawingJFXDisplayMode;
 import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.render.overlays.*;
+import drawingbot.software.IComponent;
 import drawingbot.utils.*;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -81,6 +85,11 @@ public class Register implements IPlugin {
     public static PresetType PRESET_TYPE_GCODE_SETTINGS;
     public static PresetGCodeSettingsLoader PRESET_LOADER_GCODE_SETTINGS;
 
+
+    //// PFM FACTORIES \\\\
+    public PFMFactory<? extends IPFM> PFM_SKETCH_LINES;
+    public PFMFactory<? extends IPFM> PFM_SKETCH_SQUARES;
+    public PFMFactory<? extends IPFM> PFM_SPIRAL_SAWTOOTH;
 
     //// PFM TYPES \\\\
     public static final String PFM_TYPE_SPIRAL = "Spiral";
@@ -139,22 +148,38 @@ public class Register implements IPlugin {
     public ObservableDrawingSet EXPORT_PATH_DRAWING_SET;
 
     @Override
-    public String getPluginName() {
+    public String getRegistryName() {
+        return "Register";
+    }
+
+    @Override
+    public String getVersion() {
+        return SoftwareDBV3Free.rawVersion;
+    }
+
+    @Override
+    public BooleanProperty enabledProperty() {
+        return null;
+    }
+
+    @Override
+    public String getDisplayName() {
         return "Default";
     }
 
     @Override
-    public void registerPlugins(List<IPlugin> newPlugins) {
-        newPlugins.add(VpypePlugin.INSTANCE);
-        
-        newPlugins.add(BicPensPlugin.INSTANCE);
-        newPlugins.add(CopicPenPlugin.INSTANCE);
-        newPlugins.add(DiamineInkPlugin.INSTANCE);
-        newPlugins.add(SakuraPenPlugin.INSTANCE);
-        newPlugins.add(SpecialPenPlugin.INSTANCE);
-        newPlugins.add(StabiloPensPlugin.INSTANCE);
-        newPlugins.add(StaedtlerPenPlugin.INSTANCE);
-        newPlugins.add(WinsorNewtonPenPlugin.INSTANCE);
+    public List<IComponent> getSubComponents() {
+        return List.of(
+                VpypePlugin.INSTANCE,
+                BicPensPlugin.INSTANCE,
+                CopicPenPlugin.INSTANCE,
+                DiamineInkPlugin.INSTANCE,
+                SakuraPenPlugin.INSTANCE,
+                SpecialPenPlugin.INSTANCE,
+                StabiloPensPlugin.INSTANCE,
+                StaedtlerPenPlugin.INSTANCE,
+                WinsorNewtonPenPlugin.INSTANCE
+        );
     }
 
     @Override
@@ -237,10 +262,9 @@ public class Register implements IPlugin {
     @Override
     public void registerPFMS() {
         if(!FXApplication.isPremiumEnabled){ //swap out the basic PFMS for the premium ones
-            MasterRegistry.INSTANCE.registerPFM(PFMSketchLinesBasic.class, "Sketch Lines PFM", PFM_TYPE_SKETCH, PFMSketchLinesBasic::new).setDisplayName("Sketch Lines").hasSampledARGB(true).setLineOptimisation(true).setSupportsSoftClip(true);
-            MasterRegistry.INSTANCE.registerPFM(PFMSketchSquaresBasic.class, "Sketch Squares PFM", PFM_TYPE_SKETCH, PFMSketchSquaresBasic::new).setDisplayName("Sketch Squares").hasSampledARGB(true).setLineOptimisation(true).setSupportsSoftClip(true);
-            MasterRegistry.INSTANCE.registerPFM(PFMSpiralBasic.class, "Spiral PFM", PFM_TYPE_SPIRAL, PFMSpiralBasic::new).setDistributionType(EnumDistributionType.SINGLE_PEN).setTransparentCMYK(false).setDisplayName("Spiral Sawtooth").setSupportsSoftClip(true);
-
+            PFM_SKETCH_LINES = MasterRegistry.INSTANCE.registerPFM(PFMSketchLinesBasic.class, "Sketch Lines PFM", PFM_TYPE_SKETCH, PFMSketchLinesBasic::new).setDisplayName("Sketch Lines").hasSampledARGB(true).setLineOptimisation(true).setSupportsSoftClip(true);
+            PFM_SKETCH_SQUARES = MasterRegistry.INSTANCE.registerPFM(PFMSketchSquaresBasic.class, "Sketch Squares PFM", PFM_TYPE_SKETCH, PFMSketchSquaresBasic::new).setDisplayName("Sketch Squares").hasSampledARGB(true).setLineOptimisation(true).setSupportsSoftClip(true);
+            PFM_SPIRAL_SAWTOOTH = MasterRegistry.INSTANCE.registerPFM(PFMSpiralBasic.class, "Spiral PFM", PFM_TYPE_SPIRAL, PFMSpiralBasic::new).setDistributionType(EnumDistributionType.SINGLE_PEN).setTransparentCMYK(false).setDisplayName("Spiral Sawtooth").setSupportsSoftClip(true);
         }
     }
 

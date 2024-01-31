@@ -56,6 +56,14 @@ public class Utils {
         return dateFormatSafe.format(date);
     }
 
+    public static String getSafeString(String input){
+        return input.replaceAll("[<>:\"\\\\/|?*]", "_").replace('\\', '_');
+    }
+
+    public static String getSafeRegistryName(String input){
+        return getSafeString(input).toLowerCase().replace(' ', '_');
+    }
+
     /**
      * Compares two version strings, can work as a comparator
      * -1 = version1 < version2

@@ -4,16 +4,22 @@ import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
+import javafx.beans.property.BooleanProperty;
 
 public class BicPensPlugin extends AbstractPenPlugin {
 
     public static final BicPensPlugin INSTANCE = new BicPensPlugin();
+    public static final String VERSION = "1.0.0";
 
     private BicPensPlugin() {}
 
+    public String getPenManufacturer() {
+        return "Bic";
+    }
+
     @Override
-    public String getPluginName() {
-        return "Bic Plugin";
+    public String getVersion() {
+        return VERSION;
     }
 
     @Override

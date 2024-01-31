@@ -7,12 +7,15 @@ import drawingbot.drawing.DrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
+import drawingbot.utils.Utils;
+import javafx.beans.property.BooleanProperty;
 
 import java.util.List;
 
-public class SpecialPenPlugin implements IPlugin {
+public class SpecialPenPlugin extends AbstractPlugin {
 
     public static final SpecialPenPlugin INSTANCE = new SpecialPenPlugin();
+    public static final String VERSION = "1.0.0";
 
     public static DrawingPen ORIGINAL_COLOUR_PEN;
     public static DrawingPen ORIGINAL_GRAYSCALE_PEN;
@@ -32,12 +35,22 @@ public class SpecialPenPlugin implements IPlugin {
     private SpecialPenPlugin() {}
 
     @Override
-    public String getPluginName() {
+    public String getDisplayName() {
         return "Special Pen Plugin";
     }
 
     @Override
-    public void registerDrawingTools() {
+    public String getRegistryName() {
+        return Utils.getSafeRegistryName(getDisplayName());
+    }
+
+    @Override
+    public String getVersion() {
+        return VERSION;
+    }
+
+    @Override
+    public void init() {
 
         //// ORIGINAL COLOURS \\\\
 

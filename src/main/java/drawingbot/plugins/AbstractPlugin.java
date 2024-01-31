@@ -4,6 +4,9 @@ import drawingbot.api.IPlugin;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.Utils;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
@@ -30,4 +33,25 @@ public abstract class AbstractPlugin implements IPlugin {
     public void preInit() {
         settings.forEach(setting -> MasterRegistry.INSTANCE.registerApplicationSetting(setting));
     }
+
+
+    ////////////////////////////////////////////////////////
+
+    @Override
+    public abstract String getDisplayName();
+
+    @Override
+    public String getRegistryName() {
+        return Utils.getSafeRegistryName(getDisplayName());
+    }
+
+    ////////////////////////////////////////////////////////
+
+    public final BooleanProperty enabled = new SimpleBooleanProperty(true);
+
+    @Override
+    public BooleanProperty enabledProperty() {
+        return enabled;
+    }
+
 }

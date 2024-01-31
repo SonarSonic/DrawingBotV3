@@ -5,7 +5,6 @@ import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
 import drawingbot.api.IPFM;
 import drawingbot.api.IPlottingTools;
-import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.FileUtils;
@@ -14,20 +13,26 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.IRenderer;
+import drawingbot.SoftwareDBV3Free;
 import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
-public class PremiumPluginDummy implements IPlugin {
+public class PremiumPluginDummy extends AbstractPlugin {
 
     public static final PremiumPluginDummy INSTANCE = new PremiumPluginDummy();
 
     private PremiumPluginDummy() {}
 
     @Override
-    public String getPluginName() {
+    public String getVersion() {
+        return SoftwareDBV3Free.rawVersion;
+    }
+
+    @Override
+    public String getDisplayName() {
         return "Free";
     }
 
@@ -172,30 +177,21 @@ public class PremiumPluginDummy implements IPlugin {
 
 
     @Override
-    public void registerDrawingExportHandlers() {
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {
-        }, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> {
-        }, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264", "Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> {
-        }, FileUtils.FILTER_MP4)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422", "Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> {
-        }, FileUtils.FILTER_MOV)).setPremium();
-    }
+    public void init() {
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264", "Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_MP4)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422", "Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_MOV)).setPremium();
 
-    @Override
-    public void registerColourSplitterHandlers() {
         MasterRegistry.INSTANCE.registerColourSplitter(new ColorSeparationHandler("CMYK"));
     }
 
     public static class DummyPFM implements IPFM {
         @Override
-        public void setPlottingTools(IPlottingTools tools) {
-        }
+        public void setPlottingTools(IPlottingTools tools) {}
 
         @Override
-        public void run() {
-        }
+        public void run() {}
     }
 
 }

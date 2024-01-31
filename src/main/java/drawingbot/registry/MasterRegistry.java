@@ -50,54 +50,6 @@ public class MasterRegistry {
 
     public static MasterRegistry INSTANCE = new MasterRegistry();
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// PLUGINS \\\\
-    public static List<IPlugin> PLUGINS = new ArrayList<>(List.of(Register.INSTANCE));
-
-    public static void findPlugins(){
-        findPlugins(PLUGINS);
-    }
-
-    private static void findPlugins(List<IPlugin> plugins){
-        List<IPlugin> newPlugins = new ArrayList<>();
-        for(IPlugin plugin : plugins){
-            plugin.registerPlugins(newPlugins);
-        }
-        if(!newPlugins.isEmpty()){
-            PLUGINS.addAll(newPlugins);
-            findPlugins(newPlugins);
-        }
-    }
-
-    private static boolean init = false;
-
-    public static void init(){
-        if(init){
-            return;
-        }
-
-        PLUGINS.forEach(IPlugin::init);
-        PLUGINS.forEach(IPlugin::registerPFMS);
-        PLUGINS.forEach(IPlugin::registerPFMSettings);
-
-        INSTANCE.sortPFMSettings();
-        INSTANCE.sortDataLoaders();
-
-        PLUGINS.forEach(IPlugin::registerDrawingTools);
-        PLUGINS.forEach(IPlugin::registerImageFilters);
-        PLUGINS.forEach(IPlugin::registerDrawingExportHandlers);
-        PLUGINS.forEach(IPlugin::registerColourSplitterHandlers);
-
-        init = true;
-    }
-
-    public static void postInit(){
-        PLUGINS.forEach(IPlugin::registerPreferencePages);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
     //// PRESETS \\\\
 
     @Nullable
