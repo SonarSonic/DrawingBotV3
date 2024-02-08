@@ -120,7 +120,7 @@ public class ObservableCanvasRegressionTest {
 
             //Reset the canvas to default settings
             JFXUtils.runNow(() -> {
-                Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
+                Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset().applyPreset(DrawingBotV3.context());
             });
         }
     }

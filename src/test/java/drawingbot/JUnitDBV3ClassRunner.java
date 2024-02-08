@@ -2,6 +2,7 @@ package drawingbot;
 
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.JFXUtils;
 import javafx.application.Platform;
 import org.junit.Assert;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -25,8 +26,10 @@ public class JUnitDBV3ClassRunner extends BlockJUnit4ClassRunner {
 
     public static boolean setupTestDBV3Free(){
         TestUtils.lazySetupDirectories();
-        DBPreferences.INSTANCE.autoRunPFM.set(false);
-        JsonLoaderManager.loadDefaultPresetContainerJSON("pfm_unit_test.json");
+        JFXUtils.runNow(() -> {
+            DBPreferences.INSTANCE.autoRunPFM.set(false);
+            JsonLoaderManager.loadDefaultPresetContainerJSON("pfm_unit_test.json");
+        });
 
         //Load the default test image
         TestUtils.loadDefaultTestImage();

@@ -11,6 +11,7 @@ import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -118,7 +119,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
         if(!isLoading()){
             markDirty();
-            sendListenerEvent(listener -> listener.onPresetAdded(preset));
+            Platform.runLater(() -> sendListenerEvent(listener -> listener.onPresetAdded(preset)));
         }
     }
 
@@ -139,7 +140,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
         if(!isLoading()){
             markDirty();
-            sendListenerEvent(listener -> listener.onPresetRemoved(preset));
+            Platform.runLater(() -> sendListenerEvent(listener -> listener.onPresetRemoved(preset)));
         }
 
     }
@@ -185,8 +186,8 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         }
 
         //Send out listener events and mark the presets as dirty
-        sendListenerEvent(listener -> listener.onPresetEdited(editPreset));
         markDirty();
+        Platform.runLater(() -> sendListenerEvent(listener -> listener.onPresetEdited(editPreset)));
         return result;
     }
 
@@ -298,7 +299,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
             JsonLoaderManager.INSTANCE.markDirty(this);
 
             //run later to prevent json update happen before services have been created
-            sendListenerEvent(Listener::onMarkDirty);
+            Platform.runLater(() -> sendListenerEvent(Listener::onMarkDirty));
         }
     }
 
