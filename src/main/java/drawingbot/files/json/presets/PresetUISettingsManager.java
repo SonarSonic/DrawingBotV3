@@ -9,21 +9,21 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.preferences.DBPreferences;
 import javafx.collections.FXCollections;
 
-public class PresetUISettingsManager extends DefaultPresetManager<PresetData, ObservableProject> {
+public class PresetUISettingsManager extends DefaultPresetManager<ObservableProject, PresetData> {
 
     public PresetUISettingsManager(PresetUISettingsLoader presetLoader) {
-        super(presetLoader);
+        super(presetLoader, ObservableProject.class);
     }
 
     @Override
     public void registerDataLoaders() {
-        registerSetting(GenericSetting.createOptionSetting(ObservableProject.class, EnumBlendMode.class, "blendMode", FXCollections.observableArrayList(EnumBlendMode.values()), EnumBlendMode.NORMAL, i -> i.blendMode));
-        registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "canvasColor", DBPreferences.INSTANCE.defaultCanvasColour.get(), i -> i.drawingArea.get().canvasColor));
-        registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "backgroundColor", DBPreferences.INSTANCE.defaultBackgroundColour.get(), i -> i.drawingArea.get().backgroundColor));
+        registerSetting(GenericSetting.createOptionSetting(ObservableProject.class, EnumBlendMode.class, "blendMode", FXCollections.observableArrayList(EnumBlendMode.values()), EnumBlendMode.NORMAL, project -> project.blendMode));
+        registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "canvasColor", DBPreferences.INSTANCE.defaultCanvasColour.get(), project -> project.drawingArea.get().canvasColor));
+        registerSetting(GenericSetting.createColourSetting(ObservableProject.class, "backgroundColor", DBPreferences.INSTANCE.defaultBackgroundColour.get(), project -> project.drawingArea.get().backgroundColor));
     }
 
     @Override
-    public ObservableProject getInstance(DBTaskContext context) {
+    public ObservableProject getTargetFromContext(DBTaskContext context) {
         return context.project();
     }
 }

@@ -5,14 +5,9 @@ import drawingbot.FXApplication;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IPFM;
-import drawingbot.api.IPlugin;
 import drawingbot.drawing.ColorSeparationHandler;
-import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.json.AbstractJsonLoader;
-import drawingbot.files.json.PresetData;
-import drawingbot.files.json.PresetDataLoader;
-import drawingbot.files.json.PresetType;
+import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
@@ -35,7 +30,6 @@ import drawingbot.utils.Metadata;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import org.fxmisc.easybind.EasyBind;
 import org.jetbrains.annotations.Nullable;
@@ -53,29 +47,110 @@ public class MasterRegistry {
     //// PRESETS \\\\
 
     @Nullable
-    public String getDefaultPresetName(PresetType presetType, String presetSubType){
-        return DBPreferences.INSTANCE.getDefaultPreset(presetType.defaultsPerSubType ? presetType.id + ":" + presetSubType : presetType.id);
+    public String getDefaultPresetName(PresetType presetType){
+        return DBPreferences.INSTANCE.getDefaultPreset(presetType.id);
+    }
+    @Nullable
+    public <DATA> GenericPreset<DATA> getDefaultPreset(IPresetLoader<DATA> loader){
+        String name = getDefaultPresetName(loader.getPresetType());
+        if(name != null && !name.isEmpty()){
+
+            //Attempt 1: Try to find the preset from code name, which is more accurate and likely to match the correct prest
+            if(name.contains(":")){
+                String[] parts = name.split(":");
+                GenericPreset<DATA> preset = loader.findPreset(name);
+                preset = loader.findPreset(parts[0], parts[1]);
+                if(preset != null){
+                    return preset;
+                }
+            }
+
+            //Attempt 2: Try the find the preset from just it's name, for legacy support
+            return loader.findPreset(name);
+        }
+        return null;
     }
 
     @Nullable
-    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String fallbackName){
-        return getDefaultPreset(jsonLoader, "", fallbackName, "", true);
+    public <O> GenericPreset<O> getDefaultPreset(IPresetLoader<O> jsonLoader, String fallbackName){
+        return getDefaultPresetWithFallback(jsonLoader, "", fallbackName, true);
     }
 
     @Nullable
-    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName){
-        return getDefaultPreset(jsonLoader, presetSubType, fallbackName, presetSubType, true);
+    public <DATA> GenericPreset<DATA> getDefaultPresetWithFallback(IPresetLoader<DATA> loader, String fallbackSubType, String fallbackName, boolean orFirst){
+        //Attempt 1: Find the registered default preset, or global default
+        GenericPreset<DATA> defaultPreset = getDefaultPreset(loader);
+        if(defaultPreset != null){
+            return defaultPreset;
+        }
+        //Attempt 2: Find the registered default preset by the fallback sub type, different from the global default
+        GenericPreset<DATA> defaultPresetFromSubType = getDefaultPresetForSubType(loader, fallbackSubType);
+        if(defaultPresetFromSubType != null){
+            return defaultPresetFromSubType;
+        }
+        //Attempt 3: Switch to finding the fallback from sub type and name
+        if(!fallbackSubType.isEmpty() && !fallbackName.isEmpty()){
+            GenericPreset<DATA> fallbackPreset = loader.findPreset(fallbackSubType, fallbackName);
+            if(fallbackPreset != null){
+                return fallbackPreset;
+            }
+        }
+        //Attempt 4: Switch to finding the fallback from name only
+        if(!fallbackName.isEmpty()){
+            GenericPreset<DATA> fallbackPreset = loader.findPreset(fallbackName);
+            if(fallbackPreset != null){
+                return fallbackPreset;
+            }
+        }
+        //Attempt 5: Use the first preset found
+        if(orFirst && !loader.getPresets().isEmpty()){
+            return loader.getPresets().get(0);
+        }
+        //Fail: No suitable preset found
+        return null;
     }
 
     @Nullable
-    public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, boolean orFirst){
-        return getDefaultPreset(jsonLoader, presetSubType, fallbackName, presetSubType, orFirst);
+    public String getDefaultPresetNameForSubType(PresetType presetType, String presetSubType){
+        return DBPreferences.INSTANCE.getDefaultPreset(presetType.id + ":" + presetSubType);
     }
+
+    @Nullable
+    public <DATA> GenericPreset<DATA> getDefaultPresetForSubType(IPresetLoader<DATA> loader, String presetSubType){
+        String name = getDefaultPresetNameForSubType(loader.getPresetType(), presetSubType);
+        if(name != null && !name.isEmpty()){
+            return loader.findPreset(presetSubType, name);
+        }
+        return null;
+    }
+
+    @Nullable
+    public <DATA> GenericPreset<DATA> getDefaultPresetForSubTypeWithFallback(IPresetLoader<DATA> loader, String presetSubType, String fallbackName, boolean orFirst){
+        //Attempt 1: Find the registered default preset
+        GenericPreset<DATA> defaultPreset = getDefaultPresetForSubType(loader, presetSubType);
+        if(defaultPreset != null){
+            return defaultPreset;
+        }
+        //Attempt 2: Switch to the fallback default
+        GenericPreset<DATA> fallbackPreset = loader.findPreset(presetSubType, fallbackName);
+        if(fallbackPreset != null){
+            return fallbackPreset;
+        }
+        //Attempt 3: Use the first preset found
+        if(orFirst && !loader.getPresetsForSubType(presetSubType).isEmpty()){
+            return loader.getPresetsForSubType(presetSubType).get(0);
+        }
+        //Fail: No suitable preset found
+        return null;
+    }
+
+
+    /*
 
     @Nullable
     public <O> GenericPreset<O> getDefaultPreset(AbstractJsonLoader<O> jsonLoader, String presetSubType, String fallbackName, String fallbackSubType, boolean orFirst){
-        Collection<GenericPreset<O>> presets = jsonLoader.type.defaultsPerSubType ? jsonLoader.getPresetsForSubType(presetSubType) : jsonLoader.getAllPresets();
-        String defaultName = getDefaultPresetName(jsonLoader.type, presetSubType);
+        Collection<GenericPreset<O>> presets = jsonLoader.presetType.defaultsPerSubType ? jsonLoader.getPresetsForSubType(presetSubType) : jsonLoader.getPresets();
+        String defaultName = getDefaultPresetNameForSubType(jsonLoader.presetType, presetSubType);
         if(defaultName != null){
             GenericPreset<O> preset = presets.stream().filter(p -> p.getPresetName().equals(defaultName) && (presetSubType.isEmpty() || p.getPresetSubType().equals(presetSubType))).findFirst().orElse(null);
             if(preset != null){
@@ -96,13 +171,7 @@ public class MasterRegistry {
         return null;
     }
 
-    public void setDefaultPreset(GenericPreset<?> preset){
-        if(preset.presetType.defaultsPerSubType){
-            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id + ":" + preset.getPresetSubType(), preset.getPresetName());
-        }else{
-            DBPreferences.INSTANCE.setDefaultPreset(preset.presetType.id, preset.getPresetName());
-        }
-    }
+     */
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -208,7 +277,7 @@ public class MasterRegistry {
     public void registerMissingDefaultPFMPresets(){
         for(PFMFactory<?> pfm : pfmFactories){
             if(getObservablePFMPresetList(pfm) == null || getObservablePFMPresetList(pfm).stream().noneMatch(preset -> preset.getPresetName().equals("Default"))){
-                Register.PRESET_LOADER_PFM.registerPreset(Register.PRESET_LOADER_PFM.createNewPreset(pfm.getRegistryName(), "Default", false));
+                Register.PRESET_LOADER_PFM.addPreset(Register.PRESET_LOADER_PFM.createNewPreset(pfm.getRegistryName(), "Default", false));
 
                 // Move the default preset to the front of the displayed list
                 ObservableList<GenericPreset<PresetData>> presets = Register.PRESET_LOADER_PFM.presetsByType.get(pfm.getRegistryName());
@@ -328,72 +397,34 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// DRAWING PENS \\\\
-    public ObservableMap<String, ObservableList<DrawingPen>> registeredPens = FXCollections.observableMap(new LinkedHashMap<>());
-    public ObservableList<String> registeredPenCategories = FXCollections.observableArrayList();
 
-    public String getDefaultPenCode(){
-        return "Copic Original:100 Black";
-    }
-
-    public DrawingPen getDefaultDrawingPen(){
-        String defaultPen = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_PENS, "");
-        if(defaultPen != null){
-            DrawingPen pen = getDrawingPenFromRegistryName(defaultPen);
-            if(pen != null){
-                return pen;
-            }
-        }
-        return getDrawingPenFromRegistryName(getDefaultPenCode());
-    }
-
-    public DrawingPen getDefaultPen(String type){
-        ObservableList<DrawingPen> pens = registeredPens.get(type);
-        return pens == null ? null : pens.stream().findFirst().orElse(null);
-    }
-
-    public void registerDrawingPen(DrawingPen pen){
+    public void registerDrawingPen(IDrawingPen pen){
         if(pen == null){
             return;
         }
-        DrawingBotV3.logger.finest("Registering Drawing Pen: " + pen.getCodeName());
-        if(registeredPens.get(pen.getName()) != null){
-            DrawingBotV3.logger.warning("DUPLICATE PEN UNIQUE ID: " + pen.getName());
-            return;
-        }
-        registeredPens.putIfAbsent(pen.getType(), FXCollections.observableArrayList());
-        registeredPens.get(pen.getType()).add(pen);
-        if(!registeredPenCategories.contains(pen.getType())){
-            registeredPenCategories.add(pen.getType());
-        }
+        Register.PRESET_LOADER_DRAWING_PENS.addDrawingPen(pen);
     }
 
-    public void unregisterDrawingPen(DrawingPen pen){
-        DrawingBotV3.logger.info("Unregistering Drawing Pen: " + pen.getCodeName());
-        ObservableList<DrawingPen> pens = registeredPens.get(pen.getType());
-        pens.remove(pen);
-        if(pens.isEmpty()){
-            registeredPens.remove(pen.getType());
-            registeredPenCategories.remove(pen.getType());
+    public void unregisterDrawingPen(IDrawingPen pen){
+        if (pen == null) {
+            return;
         }
+        Register.PRESET_LOADER_DRAWING_PENS.removeDrawingPen(pen);
     }
 
     @Nullable
-    public DrawingPen getDrawingPenFromRegistryName(String codeName){
+    public IDrawingPen getDrawingPenFromRegistryName(String codeName){
         if(!codeName.contains(":")){
             return null;
         }
         String[] split = codeName.split(":");
-        ObservableList<DrawingPen> pens = registeredPens.get(split[0]);
-        if(pens == null){
-            return null;
-        }
-        return pens.stream().filter(p -> p.getCodeName().equals(codeName)).findFirst().orElse(null);
+        return Register.PRESET_LOADER_DRAWING_PENS.findDrawingPen(split[0], split[1]);
     }
 
-    public List<DrawingPen> getDrawingPensFromRegistryNames(String[] codes){
-        List<DrawingPen> pens = new ArrayList<>();
+    public List<IDrawingPen> getDrawingPensFromRegistryNames(String[] codes){
+        List<IDrawingPen> pens = new ArrayList<>();
         for(String code : codes){
-            DrawingPen pen = getDrawingPenFromRegistryName(code);
+            IDrawingPen pen = getDrawingPenFromRegistryName(code);
             if(pen != null){
                 pens.add(pen);
             }else{
@@ -406,67 +437,28 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// DRAWING SETS \\\\
-    public ObservableMap<String, ObservableList<IDrawingSet<IDrawingPen>>> registeredSets  = FXCollections.observableMap(new LinkedHashMap<>());
-    public ObservableList<String> registeredDrawingSetCategories = FXCollections.observableArrayList();
 
-    public String getDefaultSetCode(){
-        return "Copic:Dark Greys";
+    public IDrawingSet getDefaultDrawingSet(){
+        return Register.PRESET_LOADER_DRAWING_SET.unwrapPreset(Register.PRESET_LOADER_DRAWING_SET.getDefaultPreset());
     }
 
-    public IDrawingSet<IDrawingPen> getDefaultDrawingSet(){
-        String defaultSet = getDefaultPresetName(Register.PRESET_TYPE_DRAWING_SET, "");
-        if(defaultSet != null){
-            IDrawingSet<IDrawingPen> set = getDrawingSetFromRegistryName(defaultSet);
-            if(set != null){
-                return set;
-            }
-        }
-        return getDrawingSetFromRegistryName(getDefaultSetCode());
+    public IDrawingSet getDefaultSet(String type){
+        return Register.PRESET_LOADER_DRAWING_SET.unwrapPreset(Register.PRESET_LOADER_DRAWING_SET.getDefaultPresetForSubType(type));
     }
 
-    public IDrawingSet<IDrawingPen> getDefaultSet(String type){
-        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(type);
-        return sets == null ? null : sets.stream().findFirst().orElse(null);
-    }
-
-    public void registerDrawingSet(IDrawingSet<IDrawingPen> penSet){
-        if(penSet == null){
+    public void registerDrawingSet(IDrawingSet set){
+        if(set == null){
             return;
         }
-        DrawingBotV3.logger.finest("Registering Drawing Set: " + penSet.getCodeName());
-        if(registeredSets.get(penSet.getName()) != null){
-            DrawingBotV3.logger.warning("DUPLICATE DRAWING SET NAME: " + penSet.getName());
+        Register.PRESET_LOADER_DRAWING_SET.addDrawingSet(set);
+    }
+
+    public void unregisterDrawingSet(IDrawingSet set){
+        if(set == null){
             return;
         }
-        registeredSets.putIfAbsent(penSet.getType(), FXCollections.observableArrayList());
-        registeredSets.get(penSet.getType()).add(penSet);
-        if(!registeredDrawingSetCategories.contains(penSet.getType())){
-            registeredDrawingSetCategories.add(penSet.getType());
-        }
+        Register.PRESET_LOADER_DRAWING_SET.removeDrawingSet(set);
     }
-
-    public void unregisterDrawingSet(IDrawingSet<IDrawingPen> penSet){
-        DrawingBotV3.logger.finest("Unregistering Drawing Set: " + penSet.getCodeName());
-        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(penSet.getType());
-        sets.remove(penSet);
-        if(sets.isEmpty()){
-            registeredSets.remove(penSet.getType());
-            registeredDrawingSetCategories.remove(penSet.getType());
-        }
-    }
-
-    public IDrawingSet<IDrawingPen> getDrawingSetFromRegistryName(String codeName){
-        if(!codeName.contains(":")){
-            return null;
-        }
-        String[] split = codeName.split(":");
-        ObservableList<IDrawingSet<IDrawingPen>> sets = registeredSets.get(split[0]);
-        if(sets == null){
-            return null;
-        }
-        return sets.stream().filter(s -> s.getCodeName().equals(codeName)).findFirst().orElse(null);
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -655,12 +647,19 @@ public class MasterRegistry {
 
     //// PRESET LOADERS \\\\
     public List<PresetType> presetTypes = new ArrayList<>();
-    public List<AbstractJsonLoader<?>> presetLoaders = new ArrayList<>();
+    public List<IPresetLoader<?>> presetLoaders = new ArrayList<>();
+    public List<IPresetManager<?, ?>> presetManagers = new ArrayList<>();
 
-    public AbstractJsonLoader<?> registerPresetLoaders(AbstractJsonLoader<?> presetLoader){
-        DrawingBotV3.logger.config("Registering Preset Loader: " + presetLoader.type.id);
+    public IPresetLoader<?> registerPresetLoaders(IPresetLoader<?> presetLoader){
+        DrawingBotV3.logger.config("Registering Preset Loader: " + presetLoader.getPresetType().id);
         this.presetLoaders.add(presetLoader);
         return presetLoader;
+    }
+
+    public IPresetManager<?, ?> registerPresetManager(IPresetManager<?, ?> presetManager){
+        DrawingBotV3.logger.config("Registering Preset Manager: " + presetManager.getPresetType().id + " " + presetManager.getTargetType().getSimpleName());
+        this.presetManagers.add(presetManager);
+        return presetManager;
     }
 
     public PresetType registerPresetType(PresetType presetType){
@@ -676,6 +675,49 @@ public class MasterRegistry {
             }
         }
         return null;
+    }
+
+    public <DATA> IPresetLoader<DATA> getPresetLoader(PresetType presetType){
+        return (IPresetLoader<DATA>) presetLoaders.stream().filter(loader -> loader.getPresetType() == presetType).findFirst().orElse(null);
+    }
+
+    public <TARGET, DATA> IPresetManager<TARGET, DATA> getPresetManager(PresetType presetType, TARGET target){
+        return (IPresetManager<TARGET, DATA>) presetManagers.stream().filter(manager -> manager.getPresetType() == presetType && manager.getTargetType().isInstance(target)).findFirst().orElse(null);
+    }
+
+    public IPresetManager<?, ?> getDefaultPresetManager(PresetType presetType){
+        return presetManagers.stream().filter(manager -> manager.getPresetType().equals(presetType)).findFirst().orElse(null);
+    }
+
+    public <TARGET, DATA> IPresetManager<TARGET, DATA> getDefaultPresetManager(GenericPreset<DATA> presetType){
+        return (IPresetManager<TARGET, DATA>) presetManagers.stream().filter(manager -> manager.getPresetType().equals(presetType.presetType)).findFirst().orElse(null);
+    }
+
+
+    public <DATA> GenericPreset<?> createNewPreset(PresetType type, String presetSubType, String presetName, boolean userCreated){
+        IPresetLoader<DATA> loader = getPresetLoader(type);
+        assert loader != null;
+        return loader.createNewPreset(presetSubType, presetName, userCreated);
+    }
+
+    public <TARGET, DATA> void updatePreset(DBTaskContext context, GenericPreset<DATA> preset, TARGET target){
+        IPresetManager<TARGET, DATA> manager = getPresetManager(preset.presetType, target);
+        assert manager != null;
+        manager.updatePreset(context, target, preset);
+    }
+
+    public <TARGET, DATA> void applyPresetToProject(DBTaskContext context, GenericPreset<DATA> preset, boolean changesOnly, boolean isLoading){
+        IPresetManager<TARGET, DATA> manager = getDefaultPresetManager(preset);
+        assert manager != null;
+        TARGET target = manager.getTargetFromContext(context);
+        manager.applyPreset(context, target, preset, changesOnly);
+    }
+
+    public <TARGET, DATA> void updatePresetFromProject(DBTaskContext context, GenericPreset<DATA> preset, boolean changesOnly, boolean isLoading){
+        IPresetManager<TARGET, DATA> manager = getDefaultPresetManager(preset);
+        assert manager != null;
+        TARGET target = manager.getTargetFromContext(context);
+        manager.updatePreset(context, target, preset);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

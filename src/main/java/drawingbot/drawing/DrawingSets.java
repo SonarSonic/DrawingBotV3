@@ -22,7 +22,7 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
 
     ///////////////////////////////////////////////
 
-    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>(null);
+    public SimpleObjectProperty<ObservableDrawingSet> activeDrawingSet = new SimpleObjectProperty<>(this, "activeDrawingSet", null);
 
     public ObservableDrawingSet getActiveDrawingSet() {
         return activeDrawingSet.get();
@@ -85,7 +85,7 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
         }
     }
 
-    public void changeDrawingSet(IDrawingSet<IDrawingPen> set){
+    public void changeDrawingSet(IDrawingSet set){
         if(set != null){
             activeDrawingSet.get().loadDrawingSet(set);
 

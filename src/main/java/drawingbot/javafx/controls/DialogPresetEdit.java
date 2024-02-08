@@ -1,7 +1,7 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.FXApplication;
-import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.IPresetManager;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.editors.Editors;
 
@@ -10,20 +10,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class DialogPresetEdit<O> extends DialogScrollPane {
+public class DialogPresetEdit<TARGET, DATA> extends DialogScrollPane {
 
-    private DialogPresetEdit(GenericPreset<O> preset, List<Consumer<GenericPreset<O>>> callbacks) {
+    private DialogPresetEdit(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, List<Consumer<GenericPreset<DATA>>> callbacks) {
         super("Edit " + preset.presetType.displayName, Editors.page("settings", builder -> {
-            AbstractPresetManager<O> presetManager =  preset.presetLoader.getDefaultManager();
-            presetManager.addEditDialogElements(preset, builder, callbacks);
+            manager.addEditDialogElements(preset, builder, callbacks);
         }).getContent());
 
     }
 
-    public static <O> boolean openPresetEditDialog(GenericPreset<O> preset){
-        GenericPreset<O> copy = new GenericPreset<>(preset);
-        List<Consumer<GenericPreset<O>>> callbacks = new ArrayList<>();
-        DialogPresetEdit<O> dialog = new DialogPresetEdit<>(copy, callbacks);
+    public static <DATA, TARGET> boolean openPresetEditDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> editingPreset) {
+        GenericPreset<DATA> copy = new GenericPreset<>(editingPreset);
+        List<Consumer<GenericPreset<DATA>>> callbacks = new ArrayList<>();
+        DialogPresetEdit<TARGET, DATA> dialog = new DialogPresetEdit<>(manager, copy, callbacks);
         dialog.initOwner(FXApplication.primaryStage);
         Optional<Boolean> result = dialog.showAndWait();
         if(result.isPresent() && !result.get()){
@@ -34,8 +33,7 @@ public class DialogPresetEdit<O> extends DialogScrollPane {
         callbacks.forEach(consumer -> consumer.accept(copy));
 
         //Save the changes to the actual preset
-        preset.copyData(copy);
+        editingPreset.copyData(copy);
         return true;
     }
-
 }

@@ -9,6 +9,7 @@ public class PresetType {
     public final String displayName;
     public final FileChooser.ExtensionFilter[] filters;
     public boolean defaultsPerSubType = false;
+    public boolean ignoreSubType = false;
 
     public PresetType(String id, String displayName){
         this(id, displayName, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_JSON});
@@ -25,5 +26,24 @@ public class PresetType {
         return this;
     }
 
+    public PresetType setIgnoreSubType(boolean ignoreSubType){
+        this.ignoreSubType = ignoreSubType;
+        return this;
+    }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public FileChooser.ExtensionFilter[] getFilters() {
+        return filters;
+    }
+
+    public boolean isDefaultsPerSubType() {
+        return defaultsPerSubType;
+    }
 }

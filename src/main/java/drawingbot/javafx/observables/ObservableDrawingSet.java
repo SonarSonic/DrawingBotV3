@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonAdapter(JsonAdapterObservableDrawingSet.class)
-public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet.Listener> implements IDrawingSet<ObservableDrawingPen>, IProperties, IColorManagedDrawingSet {
+public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet.Listener> implements IDrawingSet, IProperties, IColorManagedDrawingSet {
 
     public final SimpleStringProperty type = new SimpleStringProperty();
     public final SimpleStringProperty name = new SimpleStringProperty("");
@@ -50,7 +50,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         init();
     }
 
-    public ObservableDrawingSet(IDrawingSet<?> source){
+    public ObservableDrawingSet(IDrawingSet source){
         this.distributionOrder.set(EnumDistributionOrder.DARKEST_FIRST);
         this.distributionType.set(EnumDistributionType.EVEN_WEIGHTED);
         this.colorHandler.set(Register.DEFAULT_COLOUR_SPLITTER);
@@ -89,7 +89,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         PropertyUtil.addSpecialListenerWithSubList(this, pens, Listener::onDrawingPenAdded, Listener::onDrawingPenRemoved);
     }
 
-    public void loadDrawingSet(IDrawingSet<?> source){
+    public void loadDrawingSet(IDrawingSet source){
         loadingDrawingSet = true;
 
         this.pens.clear();

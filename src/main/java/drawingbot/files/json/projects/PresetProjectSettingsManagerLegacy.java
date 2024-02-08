@@ -3,10 +3,7 @@ package drawingbot.files.json.projects;
 import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
-import drawingbot.drawing.DrawingSet;
 import drawingbot.files.FileUtils;
-import drawingbot.files.json.PresetData;
-import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
@@ -32,44 +29,31 @@ import java.util.UUID;
  */
 class PresetProjectSettingsManagerLegacy {
 
-    public static GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
+    public static GenericPreset<PresetProjectSettings> updatePreset(ObservableProject project, GenericPreset<PresetProjectSettings> preset) {
 
         PresetProjectSettingsLegacy presetData = (PresetProjectSettingsLegacy) preset.data;
 
-        PlottedDrawing renderedDrawing = context.taskManager.getCurrentDrawing();
-        presetData.imagePath = context.project.openImage.get() != null && context.project.openImage.get().getSourceFile() != null ? context.project.openImage.get().getSourceFile().getPath() : "";
+        PlottedDrawing renderedDrawing = project.getCurrentDrawing();
+        presetData.imagePath = project.openImage.get() != null && project.openImage.get().getSourceFile() != null ? project.openImage.get().getSourceFile().getPath() : "";
         presetData.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
         presetData.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
-        GenericPreset<PresetData> presetDrawingArea = Register.PRESET_LOADER_DRAWING_AREA.createNewPreset();
-        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().updatePreset(context, presetDrawingArea, false);
-        presetData.drawingArea = presetDrawingArea;
-
-        GenericPreset<PresetImageFilters> presetImageFilters = Register.PRESET_LOADER_FILTERS.createNewPreset();
-        Register.PRESET_LOADER_FILTERS.getDefaultManager().updatePreset(context, presetImageFilters, false);
-        presetData.imageFilters = presetImageFilters;
-
-        GenericPreset<PresetData> presetPFMSettings = Register.PRESET_LOADER_PFM.createNewPreset();
-        Register.PRESET_LOADER_PFM.getDefaultManager().updatePreset(context, presetPFMSettings, false);
-        presetData.pfmSettings = presetPFMSettings;
-        presetData.name = presetData.pfmSettings.getPresetSubType();
-
-        GenericPreset<DrawingSet> presetDrawingSet = Register.PRESET_LOADER_DRAWING_SET.createNewPreset();
-        Register.PRESET_LOADER_DRAWING_SET.getDefaultManager().updatePreset(context, presetDrawingSet, false);
-        presetData.drawingSet = presetDrawingSet;
-
+        presetData.drawingArea = Register.PRESET_MANAGER_DRAWING_AREA.createPresetFromTarget(project.context, project.getDrawingArea());
+        presetData.imageFilters = Register.PRESET_MANAGER_FILTERS.createPresetFromTarget(project.context, project.getImageSettings());
+        presetData.pfmSettings = Register.PRESET_MANAGER_PFM.createPresetFromTarget(project.context, project.getPFMSettings());
+        presetData.drawingSet = Register.PRESET_MANAGER_DRAWING_SET.createPresetFromTarget(project.context, project.getActiveDrawingSet());
         /*
         presetData.imageRotation = DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.get();
         presetData.imageFlipHorizontal = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipHorizontal.get();
         presetData.imageFlipVertical = DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.get();
          */
 
-        presetData.optimiseForPrint = context.project.getDrawingArea().getRescaleMode().shouldRescale();
-        presetData.targetPenWidth = context.project.getDrawingArea().targetPenWidth.get();
-        presetData.colourSplitter = context.project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.get();
-        presetData.distributionType = context.project.getDrawingSets().getDrawingSetForSlot(0).distributionType.get();
-        presetData.distributionOrder = context.project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.get();
-        presetData.blendMode = context.project.blendMode.get();
+        presetData.optimiseForPrint = project.getDrawingArea().getRescaleMode().shouldRescale();
+        presetData.targetPenWidth = project.getDrawingArea().targetPenWidth.get();
+        presetData.colourSplitter = project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.get();
+        presetData.distributionType = project.getDrawingSets().getDrawingSetForSlot(0).distributionType.get();
+        presetData.distributionOrder = project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.get();
+        presetData.blendMode = project.blendMode.get();
 
         /*
         presetData.cyanMultiplier = DrawingBotV3.INSTANCE.cyanMultiplier.get();
@@ -83,28 +67,28 @@ class PresetProjectSettingsManagerLegacy {
 
         presetData.projectVersions = new ArrayList<>();
 
-        for(ObservableVersion projectVersion : context.project.getProjectVersions()){
+        for(ObservableVersion projectVersion : project.getProjectVersions()){
             if(projectVersion.getPreset().data instanceof PresetProjectSettingsLegacy){
                 presetData.projectVersions.add((PresetProjectSettingsLegacy)projectVersion.getPreset().data);
             }
         }
 
         presetData.drawingSets = new ArrayList<>();
-        for(ObservableDrawingSet drawingSet : context.project.getDrawingSets().drawingSetSlots){
+        for(ObservableDrawingSet drawingSet : project.getDrawingSets().drawingSetSlots){
             presetData.drawingSets.add(new ObservableDrawingSet(drawingSet));
         }
-        int activeSlot = presetData.drawingSets.indexOf(context.project.getDrawingSets().activeDrawingSet.get());
+        int activeSlot = presetData.drawingSets.indexOf(project.getDrawingSets().activeDrawingSet.get());
         presetData.activeDrawingSlot = activeSlot == -1 ? 0 : activeSlot;
 
         return preset;
     }
 
-    public static void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset) {
+    public static void applyPreset(ObservableProject project, GenericPreset<PresetProjectSettings> preset) {
         PresetProjectSettingsLegacy presetData = (PresetProjectSettingsLegacy) preset.data;
 
-        Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().applyPreset(context, presetData.drawingArea, false, false);
-        Register.PRESET_LOADER_FILTERS.getDefaultManager().applyPreset(context, presetData.imageFilters, false, false);
-        Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(context, presetData.pfmSettings, false, false);
+        Register.PRESET_MANAGER_DRAWING_AREA.applyPreset(project.context, project.getDrawingArea(), presetData.drawingArea, false);
+        Register.PRESET_MANAGER_FILTERS.applyPreset(project.context, project.getImageSettings(), presetData.imageFilters, false);
+        Register.PRESET_MANAGER_PFM.applyPreset(project.context, project.getPFMSettings(), presetData.pfmSettings, false);
 
         /*
         DrawingBotV3.INSTANCE.imgFilterSettings.imageRotation.set(presetData.imageRotation);
@@ -112,11 +96,11 @@ class PresetProjectSettingsManagerLegacy {
         DrawingBotV3.INSTANCE.imgFilterSettings.imageFlipVertical.set(presetData.imageFlipVertical);
          */
 
-        context.project.getDrawingArea().rescaleMode.set(presetData.optimiseForPrint ? EnumRescaleMode.HIGH_QUALITY : EnumRescaleMode.OFF);
-        context.project.getDrawingArea().targetPenWidth.set(presetData.targetPenWidth);
+        project.getDrawingArea().rescaleMode.set(presetData.optimiseForPrint ? EnumRescaleMode.HIGH_QUALITY : EnumRescaleMode.OFF);
+        project.getDrawingArea().targetPenWidth.set(presetData.targetPenWidth);
 
 
-        context.project.blendMode.set(presetData.blendMode);
+        project.blendMode.set(presetData.blendMode);
 
         /*
         DrawingBotV3.INSTANCE.cyanMultiplier.set(presetData.cyanMultiplier);
@@ -126,29 +110,29 @@ class PresetProjectSettingsManagerLegacy {
 
          */
 
-        context.project.getDrawingSets().getDrawingSetForSlot(0).loadDrawingSet(presetData.drawingSet.data);
-        context.project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.set(presetData.colourSplitter);
-        context.project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.get().applySettings(context, context.project.getDrawingSets().getActiveDrawingSet());
-        context.project.getDrawingSets().getDrawingSetForSlot(0).distributionType.set(presetData.distributionType);
-        context.project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.set(presetData.distributionOrder);
+        project.getDrawingSets().getDrawingSetForSlot(0).loadDrawingSet(presetData.drawingSet.data);
+        project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.set(presetData.colourSplitter);
+        project.getDrawingSets().getDrawingSetForSlot(0).colorHandler.get().applySettings(project.context, project.getDrawingSets().getActiveDrawingSet());
+        project.getDrawingSets().getDrawingSetForSlot(0).distributionType.set(presetData.distributionType);
+        project.getDrawingSets().getDrawingSetForSlot(0).distributionOrder.set(presetData.distributionOrder);
 
         if(presetData.drawingSets != null && !presetData.drawingSets.isEmpty()){
-            context.project.getDrawingSets().drawingSetSlots.clear();
+            project.getDrawingSets().drawingSetSlots.clear();
             for(ObservableDrawingSet drawingSet : presetData.drawingSets){
-                context.project.getDrawingSets().drawingSetSlots.add(new ObservableDrawingSet(drawingSet));
+                project.getDrawingSets().drawingSetSlots.add(new ObservableDrawingSet(drawingSet));
             }
-            int activeSlot = presetData.activeDrawingSlot < context.project.getDrawingSets().drawingSetSlots.size() ? presetData.activeDrawingSlot : 0;
-            context.project.getDrawingSets().activeDrawingSet.set(context.project.getDrawingSets().drawingSetSlots.get(activeSlot));
+            int activeSlot = presetData.activeDrawingSlot < project.getDrawingSets().drawingSetSlots.size() ? presetData.activeDrawingSlot : 0;
+            project.getDrawingSets().activeDrawingSet.set(project.getDrawingSets().drawingSetSlots.get(activeSlot));
         }
 
         if(!presetData.isSubProject){ //don't overwrite the versions if this is just a sub version
-            context.project.getProjectVersions().clear();
+            project.getProjectVersions().clear();
             if(presetData.projectVersions != null){
                 for(PresetProjectSettingsLegacy projectVersion : presetData.projectVersions){
                     GenericPreset<PresetProjectSettings> newPreset = Register.PRESET_LOADER_PROJECT.createNewPreset();
                     newPreset.version = "1";
                     newPreset.data = projectVersion;
-                    context.project.getProjectVersions().add(new ObservableVersion(newPreset, true));
+                    project.getProjectVersions().add(new ObservableVersion(newPreset, true));
                 }
             }
         }
@@ -163,35 +147,35 @@ class PresetProjectSettingsManagerLegacy {
 
         if(Utils.compareVersion(drawingVersion, "1.0.2", 3) >= 0){
             //the drawing state used the newer version of the Geometry Serializer and can be serialized separately to the image
-            context.project.openImage.set(null);
-            context.taskManager.setCurrentDrawing(null);
+            project.openImage.set(null);
+            project.context.taskManager.setCurrentDrawing(null);
             if(!presetData.imagePath.isEmpty()) {
                 AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), false, true);
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED) {
-                        FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                        FXHelper.importFile(project.context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
             }
-            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, context, presetData.drawingState));
+            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, project.context, presetData.drawingState));
         }else {
             //to support older versions of the Geometry Serializer, we need to first load the image and only when it's loaded do we try to load the drawing state
 
             if (!presetData.imagePath.isEmpty()) {
-                context.project.openImage.set(null);
-                context.taskManager.setCurrentDrawing(null);
+                project.openImage.set(null);
+                project.context.taskManager.setCurrentDrawing(null);
                 Platform.runLater(() -> {
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), false, true);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile(context, (file, chooser) -> {
+                            FXHelper.importFile(project.context, (file, chooser) -> {
                                 DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true);
-                                DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, context, presetData.drawingState));
+                                DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, project.context, presetData.drawingState));
                             }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                         }
                         if (newValue == Worker.State.SUCCEEDED) {
-                            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, context, presetData.drawingState));
+                            DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, project.context, presetData.drawingState));
                         }
                     });
                     DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);

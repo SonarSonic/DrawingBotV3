@@ -5,12 +5,12 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.glyphfont.*?>
 
+<?import drawingbot.javafx.controls.ControlPresetSelection?>
 <VBox minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageFilters">
       <children>
          <HBox prefHeight="25.0" prefWidth="412.0" spacing="4.0">
             <children>
-                <ComboBox fx:id="comboBoxImageFilterPreset" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
-                <MenuButton fx:id="menuButtonFilterPresets" mnemonicParsing="false" prefHeight="25.0" prefWidth="74.0" text="Presets" />
+                <ControlPresetSelection fx:id="controlImageFilterPreset"/>
             </children>
             <padding>
                <Insets right="10.0" />

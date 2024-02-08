@@ -1,5 +1,6 @@
 package drawingbot.plugins;
 
+import drawingbot.api.IDrawingPen;
 import drawingbot.api.IPlugin;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.registry.MasterRegistry;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public abstract class AbstractPenPlugin implements IPlugin {
 
-    public final Map<String, DrawingPen> manufacturerCodes = new LinkedHashMap<>();
+    public final Map<String, IDrawingPen> manufacturerCodes = new LinkedHashMap<>();
     public final BooleanProperty enabled = new SimpleBooleanProperty(true);
 
     public abstract String getPenManufacturer();
@@ -34,19 +35,19 @@ public abstract class AbstractPenPlugin implements IPlugin {
         return enabled;
     }
 
-    public void registerPenWithCode(String code, DrawingPen drawingPen){
+    public void registerPenWithCode(String code, IDrawingPen drawingPen){
         manufacturerCodes.put(code, drawingPen);
         MasterRegistry.INSTANCE.registerDrawingPen(drawingPen);
     }
 
-    public DrawingPen getPenFromCode(String code){
+    public IDrawingPen getPenFromCode(String code){
         return manufacturerCodes.get(code);
     }
 
-    public List<DrawingPen> getDrawingPensFromCodes(Object ...codes){
-        List<DrawingPen> drawingPenList = new ArrayList<>();
+    public List<IDrawingPen> getDrawingPensFromCodes(Object ...codes){
+        List<IDrawingPen> drawingPenList = new ArrayList<>();
         for(Object code : codes){
-            DrawingPen pen = getPenFromCode(code.toString());
+            IDrawingPen pen = getPenFromCode(code.toString());
             if(pen != null){
                 drawingPenList.add(pen);
             }

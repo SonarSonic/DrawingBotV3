@@ -10,88 +10,103 @@ import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
-import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PresetDrawingPenLoader extends AbstractPresetLoader<DrawingPen> {
+public class PresetDrawingPenLoader extends AbstractPresetLoader<IDrawingPen> {
 
     public PresetDrawingPenLoader(PresetType presetType) {
-        super(DrawingPen.class, presetType, "user_pen_presets.json");
-        setDefaultManager(new PresetDrawingPenManager(this) {
-            @Override
-            public IDrawingPen getSelectedDrawingPen() {
-                //TODO CHANGE ME???
-                return DrawingBotV3.INSTANCE.controller.drawingSetsController.getSelectedPen();
-            }
-        });
+        super(IDrawingPen.class, presetType, "user_pen_presets.json");
+    }
+
+    public void addDrawingPen(IDrawingPen pen) {
+        addPreset(wrapDrawingPen(pen, false));
+    }
+
+    public void removeDrawingPen(IDrawingPen pen){
+        if(pen.getLinkedPreset() == null){
+            DrawingBotV3.logger.severe("Unable to remove drawing pen %s, no linked preset".formatted(pen.getCodeName()));
+            return;
+        }
+        removePreset(pen.getLinkedPreset());
     }
 
     @Override
-    public DrawingPen getPresetInstance(GenericPreset<DrawingPen> preset) {
+    public void addPreset(GenericPreset<IDrawingPen> preset) {
+        super.addPreset(preset);
+        preset.data.setLinkedPreset(preset); //set transient binding
+    }
+
+    @Override
+    public void removePreset(GenericPreset<IDrawingPen> preset) {
+        super.removePreset(preset);
+        preset.data.setLinkedPreset(null); //set transient binding
+    }
+
+    @Override
+    public DrawingPen createDataInstance(GenericPreset<IDrawingPen> preset) {
         DrawingPen drawingPen = new DrawingPen();
-        drawingPen.preset = preset;
-        drawingPen.name = preset.getPresetName();
-        drawingPen.type = preset.getPresetSubType();
+        drawingPen.setLinkedPreset(preset);
         preset.data = drawingPen;
         return drawingPen;
     }
 
     @Override
-    public void registerPreset(GenericPreset<DrawingPen> preset) {
-        super.registerPreset(preset);
-        MasterRegistry.INSTANCE.registerDrawingPen(preset.data);
-        preset.data.preset = preset; //set transient binding
+    public GenericPreset<IDrawingPen> getDefaultPreset() {
+        return MasterRegistry.INSTANCE.getDefaultPresetWithFallback(this, "Copic Original", "100 Black", true);
     }
 
     @Override
-    public void unregisterPreset(GenericPreset<DrawingPen> preset) {
-        super.unregisterPreset(preset);
-        MasterRegistry.INSTANCE.unregisterDrawingPen(preset.data);
+    public GenericPreset<IDrawingPen> getDefaultPresetForSubType(String subType) {
+        return super.getDefaultPresetForSubType(subType);
     }
 
     @Override
-    public void onPresetEdited(GenericPreset<DrawingPen> preset) {
-        super.onPresetEdited(preset);
-        preset.data.type = preset.getPresetSubType();
-        preset.data.name = preset.getPresetName();
-    }
-
-    @Override
-    public GenericPreset<DrawingPen> getDefaultPreset() {
-        return MasterRegistry.INSTANCE.getDefaultPreset(this, "", "", "", true);
-    }
-
-    @Override
-    public GenericPreset<DrawingPen> createNewPreset() {
+    public GenericPreset<IDrawingPen> createNewPreset() {
         return createNewPreset(DBConstants.DRAWING_TYPE_USER, "New Preset", true);
     }
 
-    @Override
-    public List<GenericPreset<?>> getUserCreatedPresets() {
-        List<GenericPreset<?>> userCreated = new ArrayList<>();
-        for (ObservableList<DrawingPen> list : MasterRegistry.INSTANCE.registeredPens.values()) {
-            for (IDrawingPen pen : list) {
-                if (pen.isUserCreated() && pen instanceof DrawingPen) {
-                    DrawingPen userSet = (DrawingPen) pen;
-                    userCreated.add(userSet.preset);
-                }
-            }
+    public IDrawingPen unwrapPreset(GenericPreset<IDrawingPen> preset){
+        if(preset != null){
+            return preset.data;
         }
-        return userCreated;
+        return null;
+    }
+
+    public GenericPreset<IDrawingPen> wrapDrawingPen(IDrawingPen pen, boolean userCreated){
+        if(pen == null){
+            return null;
+        }
+        if(pen.getLinkedPreset() != null){
+            return pen.getLinkedPreset();
+        }
+        GenericPreset<IDrawingPen> preset = createNewPreset();
+        preset.setPresetName(pen.getName());
+        preset.setPresetSubType(pen.getType());
+        preset.data = new DrawingPen(pen);
+        preset.data.setLinkedPreset(preset);
+        preset.userCreated = userCreated;
+        return preset;
+    }
+
+    public IDrawingPen findDrawingPen(String subType, String presetName){
+        return unwrapPreset(findPreset(subType, presetName));
+    }
+
+    public IDrawingPen findDrawingPen(String presetName){
+        return unwrapPreset(findPreset(presetName));
     }
 
     @Override
-    public DrawingPen fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element) {
-        DrawingPen pen = super.fromJsonElement(gson, preset, element);
+    public IDrawingPen fromJsonElement(Gson gson, GenericPreset<?> preset, JsonElement element) {
+        IDrawingPen pen = super.fromJsonElement(gson, preset, element);
 
-        //// LEGACY PRESET FIX \\\\
-        if(pen.type.equals(DBConstants.PRESET_MISSING_NAME)){
-            pen.type = preset.getPresetSubType();
-        }
-        if(pen.name.equals(DBConstants.PRESET_MISSING_NAME)){
-            pen.name = preset.getPresetName();
+        if(pen instanceof DrawingPen drawingPen){
+            //// LEGACY PRESET FIX \\\\
+            if(drawingPen.type.equals(DBConstants.PRESET_MISSING_NAME)){
+                drawingPen.type = preset.getPresetSubType();
+            }
+            if(drawingPen.name.equals(DBConstants.PRESET_MISSING_NAME)){
+                drawingPen.name = preset.getPresetName();
+            }
         }
 
         return pen;

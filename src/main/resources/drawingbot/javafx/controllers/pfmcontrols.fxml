@@ -4,7 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
+<?import drawingbot.javafx.controls.ControlPresetSelection?>
+<VBox prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXPFMControls">
       <children>
       <HBox spacing="4.0">
          <children>
@@ -13,15 +14,7 @@
          </children>
       </HBox>
           <Separator prefHeight="3.0" prefWidth="412.0" />
-         <HBox spacing="4.0">
-            <children>
-                <ComboBox fx:id="comboBoxPFMPreset" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name">
-                  <HBox.margin>
-                     <Insets left="6.0" />
-                  </HBox.margin></ComboBox>
-                <MenuButton fx:id="menuButtonPFMPresets" mnemonicParsing="false" text="Presets" />
-            </children>
-         </HBox>
+          <ControlPresetSelection fx:id="controlPFMPreset"/>
       <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" prefWidth="311.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
         <columns>
           <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="144.0" text="Setting" />

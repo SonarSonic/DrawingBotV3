@@ -28,7 +28,7 @@ public class DrawingPen implements IDrawingPen {
 
     //// PRESET DATA \\\\
     @Nullable
-    public transient GenericPreset<DrawingPen> preset;
+    public transient GenericPreset<IDrawingPen> preset;
 
     public DrawingPen(){} //for GSON
 
@@ -81,11 +81,17 @@ public class DrawingPen implements IDrawingPen {
 
     @Override
     public String getType() {
+        if(preset != null){
+            return preset.getPresetSubType();
+        }
         return type;
     }
 
     @Override
     public String getName() {
+        if(preset != null){
+            return preset.getPresetName();
+        }
         return name;
     }
 
@@ -107,6 +113,16 @@ public class DrawingPen implements IDrawingPen {
     @Override
     public boolean isUserCreated() {
         return preset != null && preset.userCreated;
+    }
+
+    @Override
+    public GenericPreset<IDrawingPen> getLinkedPreset() {
+        return preset;
+    }
+
+    @Override
+    public void setLinkedPreset(GenericPreset<IDrawingPen> preset) {
+        this.preset = preset;
     }
 
     //// COLOUR SPLITTER DATA \\\\

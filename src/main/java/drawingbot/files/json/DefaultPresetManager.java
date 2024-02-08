@@ -13,14 +13,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class DefaultPresetManager<O extends PresetData, I> extends AbstractPresetManager<O> {
+public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> extends AbstractPresetManager<TARGET, DATA> {
 
     private final List<GenericSetting<?, ?>> settings = new ArrayList<>();
 
-    public List<PresetDataLoader<O>> presetDataLoaders = new ArrayList<>();
+    public List<PresetDataLoader<DATA>> presetDataLoaders = new ArrayList<>();
 
-    public DefaultPresetManager(AbstractJsonLoader<O> presetLoader) {
-        super(presetLoader);
+    public DefaultPresetManager(IPresetLoader<DATA> presetLoader, Class<TARGET> targetType) {
+        super(presetLoader, targetType);
         registerDataLoaders();
     }
 
@@ -38,57 +38,54 @@ public abstract class DefaultPresetManager<O extends PresetData, I> extends Abst
         settings.addAll(setting);
     }
 
-    public final void registerPresetDataLoader(PresetDataLoader<O> loader){
+    public final void registerPresetDataLoader(PresetDataLoader<DATA> loader){
         presetDataLoaders.add(loader);
     }
 
-    public abstract I getInstance(DBTaskContext context);
-
     @Override
-    public GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject) {
-        I instance = getInstance(context);
-        if(instance != null){
-            GenericSetting.updateSettingsFromInstance(settings, instance);
-            preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
-
-            Gson gson = JsonLoaderManager.createDefaultGson();
-            for(PresetDataLoader<O> loader : presetDataLoaders){
-                try {
-                    loader.save(context, gson, preset);
-                } catch (Exception exception) {
-                    DrawingBotV3.logger.severe("Failed to save project data: " + loader.getKey());
-                    exception.printStackTrace();
-                }
-            }
+    public void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset) {
+        if(target == null){
+            return;
         }
-        return preset;
-    }
+        GenericSetting.updateSettingsFromInstance(settings, target);
+        preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
 
-    @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean changesOnly, boolean loadingProject) {
-        I instance = getInstance(context);
-        if(instance != null) {
-            GenericSetting.applySettings(preset.data.settings, settings);
-            List<GenericSetting<?, ?>> toApply = settings;
-            if (changesOnly) {
-                toApply = GenericSetting.filterSettings(toApply, preset.data.settings.keySet());
-            }
-            GenericSetting.applySettingsToInstance(toApply, instance);
-
-            Gson gson = JsonLoaderManager.createDefaultGson();
-            for(PresetDataLoader<O> loader : presetDataLoaders){
-                try {
-                    loader.load(context, gson, preset);
-                } catch (Exception exception) {
-                    DrawingBotV3.logger.severe("Failed to load preset data: " + loader.getKey());
-                    exception.printStackTrace();
-                }
+        Gson gson = JsonLoaderManager.createDefaultGson();
+        for(PresetDataLoader<DATA> loader : presetDataLoaders){
+            try {
+                loader.save(context, gson, preset);
+            } catch (Exception exception) {
+                DrawingBotV3.logger.severe("Failed to save project data: " + loader.getKey());
+                exception.printStackTrace();
             }
         }
     }
 
     @Override
-    public void addEditDialogElements(GenericPreset<O> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<O>>> callbacks) {
+    public void applyPreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset, boolean changesOnly) {
+        if(target == null){
+            return;
+        }
+        GenericSetting.applySettings(preset.data.settings, settings);
+        List<GenericSetting<?, ?>> toApply = settings;
+        if (changesOnly) {
+            toApply = GenericSetting.filterSettings(toApply, preset.data.settings.keySet());
+        }
+        GenericSetting.applySettingsToInstance(toApply, target);
+
+        Gson gson = JsonLoaderManager.createDefaultGson();
+        for(PresetDataLoader<DATA> loader : presetDataLoaders){
+            try {
+                loader.load(context, gson, preset);
+            } catch (Exception exception) {
+                DrawingBotV3.logger.severe("Failed to load preset data: " + loader.getKey());
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void addEditDialogElements(GenericPreset<DATA> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<DATA>>> callbacks) {
         super.addEditDialogElements(preset, builder, callbacks);
         /* TODO - Display specific settings in the preset dialog
         builder.add(new LabelNode("Settings").setTitleStyling());

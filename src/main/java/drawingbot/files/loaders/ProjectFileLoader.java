@@ -29,11 +29,11 @@ public class ProjectFileLoader extends AbstractFileLoader{
     protected FilteredImageData call() throws Exception {
         updateTitle("Loading Project File");
         Platform.runLater(() -> {
-            GenericPreset<PresetProjectSettings> preset = FXHelper.loadPresetFile(context, Register.PRESET_LOADER_PROJECT, file, false);
+            GenericPreset<PresetProjectSettings> preset = FXHelper.loadPresetFile(context, Register.PRESET_MANAGER_PROJECT, file, false);
             if(preset != null){
                 ObservableProject project = new ObservableProject(FileUtils.removeExtension(file.getName()), file);
 
-                Register.PRESET_LOADER_PROJECT.getDefaultManager().applyPreset(project.context, preset, false, false);
+                Register.PRESET_MANAGER_PROJECT.applyPreset(project.context, project, preset, false);
 
                 DrawingBotV3.INSTANCE.activeProjects.add(project);
                 DrawingBotV3.INSTANCE.activeProject.set(project);

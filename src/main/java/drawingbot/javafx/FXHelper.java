@@ -8,15 +8,17 @@ import drawingbot.api.IGeometryFilter;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
+import drawingbot.files.LoggingHandler;
 import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
-import drawingbot.javafx.controls.DialogGenericRename;
-import drawingbot.javafx.controls.DialogImageFilter;
-import drawingbot.javafx.controls.DialogPresetEdit;
-import drawingbot.javafx.controls.ZoomableScrollPane;
+import drawingbot.integrations.vpype.PresetVpypeSettings;
+import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
+import drawingbot.integrations.vpype.PresetVpypeSettingsManager;
+import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.settings.AbstractNumberSetting;
 import drawingbot.javafx.util.PropertyAccessor;
 import drawingbot.javafx.util.PropertyAccessorAbstract;
@@ -26,9 +28,10 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.overlays.NotificationOverlays;
+import drawingbot.software.SoftwareManager;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
-import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -226,15 +229,25 @@ public class FXHelper {
         }
     }
 
+    public static void exportLogFiles(){
+        FXHelper.exportFile((file, fileChooser) -> {
+            if(file != null){
+                boolean exported = LoggingHandler.createReportZip(file.getPath());
+                if(exported){
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Logs Exported: " + file.getName(), file.toString(), new Action("Open Folder", event -> FXHelper.openFolder(file.getParentFile())));
+                }else{
+                    NotificationOverlays.INSTANCE.showWithSubtitle("WARNING", "Log Export Failed", "ZIP the logs folder manually instead", new Action("Open Logs Folder", event -> FXHelper.openFolder(new File(FileUtils.getUserLogsDirectory()))));
+                }
+            }
+        }, new File(FileUtils.getUserHomeDirectory()), new FileChooser.ExtensionFilter[]{FileUtils.FILTER_ZIP}, FileUtils.FILTER_ZIP, "Export Log Archive", "%s_logs_%s_%s.zip".formatted(SoftwareManager.getSoftware().getDisplayName().toLowerCase(), Utils.getOS().getShortName(), Utils.getDateAndTimeSafe()));
+    }
+
     public static void importPreset(DBTaskContext context, PresetType presetType, boolean apply, boolean showDialog){
         importFile(context, (file, chooser) -> {
             GenericPreset<Object> preset = loadPresetFile(context, presetType, file, apply);
             if(showDialog){
-                AbstractJsonLoader<Object> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
-                AbstractPresetManager<Object> manager = loader == null ? null : loader.getDefaultManager();
-
-                if(manager != null){
-                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> manager.applyPreset(context, preset, false, false)));
+                if(preset.presetLoader != null){
+                    NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString(), new Action("Apply Preset", event -> preset.applyPreset(context)));
                 }else{
                     NotificationOverlays.INSTANCE.showWithSubtitle("Preset Imported: " + preset.getPresetName(), file.toString());
                 }
@@ -247,11 +260,9 @@ public class FXHelper {
         GenericPreset<D> preset = JsonLoaderManager.importPresetFile(file, presetType);
         context.project().updateImportDirectoryFromFile(file);
         if(preset != null && apply){
-            AbstractJsonLoader<D> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
+            IPresetLoader<D> jsonLoader =  JsonLoaderManager.getJsonLoaderForPresetType(preset);
             if(jsonLoader != null){
-                if(jsonLoader.getDefaultManager() != null){
-                    jsonLoader.getDefaultManager().tryApplyPreset(context, preset);
-                }
+                preset.applyPreset(context);
             }else{
                 DrawingBotV3.logger.severe("Preset type is missing JsonLoader: " + presetType.id);
             }
@@ -259,15 +270,13 @@ public class FXHelper {
         return preset;
     }
 
-    public static <D> GenericPreset<D> loadPresetFile(DBTaskContext context, AbstractJsonLoader<D> loader, File file, boolean apply){
-        GenericPreset<D> preset = JsonLoaderManager.importPresetFile(file, loader.type);
+    public static <TARGET, DATA> GenericPreset<DATA> loadPresetFile(DBTaskContext context, IPresetManager<TARGET, DATA> manager, File file, boolean apply){
+        GenericPreset<DATA> preset = JsonLoaderManager.importPresetFile(file, manager.getPresetType());
 
         context.project().updateImportDirectoryFromFile(file);
 
         if(preset != null && apply){
-            if(loader.getDefaultManager() != null){
-                loader.getDefaultManager().tryApplyPreset(context, preset);
-            }
+            preset.applyPreset(context);
         }
         return preset;
     }
@@ -276,7 +285,7 @@ public class FXHelper {
         final DBTaskContext context = DrawingBotV3.context();
         if(context.project().file.get() != null){
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false);
+            Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset);
 
             JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
             NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
@@ -309,7 +318,7 @@ public class FXHelper {
                 //context.project().updateExportDirectory(file.getParentFile()); //saving our project is not "Exporting"
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false);
+                Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
                 NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
@@ -336,7 +345,7 @@ public class FXHelper {
     }
 
     public static <D> GenericPreset<D> copyPreset(GenericPreset<D> preset){
-        AbstractJsonLoader<D> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+        IPresetLoader<D> loader = JsonLoaderManager.getJsonLoaderForPresetType(preset);
         assert loader != null;
 
         Gson gson = JsonLoaderManager.createDefaultGson();
@@ -435,190 +444,93 @@ public class FXHelper {
         FXApplication.childStages.add(stage);
     }
 
-    @Deprecated
-    public static <O> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, Supplier<GenericPreset<O>> getter, Consumer<GenericPreset<O>> setter){
-
-        MenuItem newPreset = new MenuItem("New Preset");
-        newPreset.setOnAction(e -> {
-            GenericPreset<O> editingPreset = loader.createNewPreset();
-            if(editingPreset == null){
-                return;
+    public static <DATA> GenericPreset<DATA> createEditablePreset(IPresetManager<?, DATA> manager, GenericPreset<DATA> preset){
+        if(preset == null){
+            return null;
+        }
+        if(preset.isSystemPreset()){
+            boolean duplicate = DialogSystemPresetDuplicate.openSystemPresetDialog(preset);
+            if(!duplicate){
+                return null;
             }
-            editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
-            if(editingPreset != null){
-                boolean result = DialogPresetEdit.openPresetEditDialog(editingPreset);
-                if(result){
-                    loader.tryEditPreset(editingPreset);
-                    loader.trySavePreset(editingPreset);
-                    setter.accept(editingPreset);
-                }
-            }
-        });
-
-        MenuItem updatePreset = new MenuItem("Update Preset");
-        updatePreset.setOnAction(e -> {
-            GenericPreset<O> current = getter.get();
-            if(current == null){
-                return;
-            }
-            boolean isDefault = current == loader.getDefaultPreset();
-            GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
-            if(preset != null){
-                setter.accept(preset);
-                if(isDefault){
-                    MasterRegistry.INSTANCE.setDefaultPreset(preset);
-                }
-            }
-        });
-
-        MenuItem renamePreset = new MenuItem("Edit Preset");
-        renamePreset.setOnAction(e -> {
-            GenericPreset<O> current = getter.get();
-            if(current == null || !current.userCreated){
-                return;
-            }
-            boolean isDefault = current == loader.getDefaultPreset();
-            boolean result = DialogPresetEdit.openPresetEditDialog(current);
-            if(result){
-                loader.tryEditPreset(current);
-                setter.accept(current);
-                if(isDefault){
-                    MasterRegistry.INSTANCE.setDefaultPreset(current);
-                }
-            }
-        });
-
-        MenuItem deletePreset = new MenuItem("Delete Preset");
-        deletePreset.setOnAction(e -> {
-            GenericPreset<O> current = getter.get();
-            if(current == null){
-                return;
-            }
-            if(loader.tryDeletePreset(current)){
-                setter.accept(loader.getDefaultPreset());
-            }
-        });
-
-        MenuItem importPreset = new MenuItem("Import Preset");
-        importPreset.setOnAction(e -> {
-            FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
-        });
-
-        MenuItem exportPreset = new MenuItem("Export Preset");
-        exportPreset.setOnAction(e -> {
-            GenericPreset<O> current = getter.get();
-            if(current == null){
-                return;
-            }
-            FXHelper.exportPreset(DrawingBotV3.context(), current, DrawingBotV3.project().getExportDirectory(), current.getPresetName(), true);
-        });
-
-        MenuItem setDefault = new MenuItem("Set As Default");
-        setDefault.setOnAction(e -> {
-            GenericPreset<O> current = getter.get();
-            if(current != null){
-                MasterRegistry.INSTANCE.setDefaultPreset(current);
-            }
-        });
-
-        button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
+        }
+        return manager.getPresetLoader().createEditablePreset(preset);
     }
 
-    public static <O> MenuButton createPresetMenuButton(AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
-        MenuButton button = new MenuButton("Presets");
-        setupPresetMenuButton(button, loader, manager, editableCategory, property);
-        return button;
+    public static <TARGET, DATA> GenericPreset<DATA> actionNewPreset(IPresetManager<TARGET, DATA> manager, TARGET target){
+        GenericPreset<DATA> newPreset = manager.getPresetLoader().createNewPreset();
+        if(newPreset == null){
+            return null;
+        }
+        manager.updatePreset(DrawingBotV3.context(), target, newPreset);
+        boolean result = DialogPresetEdit.openPresetEditDialog(manager, newPreset);
+        if(result){
+            manager.getPresetLoader().addPreset(newPreset);
+
+            logPresetAction(newPreset, "Created");
+
+            return newPreset;
+        }
+        return null;
     }
 
 
+    public static <TARGET, DATA>  GenericPreset<DATA> actionUpdatePreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target){
+        GenericPreset<DATA> oldPreset = preset;
+        preset = createEditablePreset(manager, preset);
+        if(preset == null){
+            return null;
+        }
+        manager.updatePreset(DrawingBotV3.context(), target, preset);
 
-    public static <O> void setupPresetMenuButton(MenuButton button, AbstractPresetLoader<O> loader, Supplier<AbstractPresetManager<O>> manager, boolean editableCategory, Property<GenericPreset<O>> property){
+        GenericPreset<DATA> resultPreset = manager.getPresetLoader().editPreset(oldPreset, preset);
+        logPresetAction(resultPreset, "Updated");
 
-        MenuItem newPreset = new MenuItem("New Preset");
-        newPreset.setOnAction(e -> {
-            GenericPreset<O> editingPreset = loader.createNewPreset();
-            if(editingPreset == null){
-                return;
-            }
-            editingPreset = manager.get().tryUpdatePreset(DrawingBotV3.context(), editingPreset);
-            if(editingPreset != null){
-                boolean result = DialogPresetEdit.openPresetEditDialog(editingPreset);
-                if(result){
-                    loader.tryEditPreset(editingPreset);
-                    loader.trySavePreset(editingPreset);
-                    property.setValue(editingPreset);
-                }
-            }
-        });
+        return resultPreset;
+    }
 
-        MenuItem updatePreset = new MenuItem("Update Preset");
-        updatePreset.setOnAction(e -> {
-            GenericPreset<O> current = property.getValue();
-            if(current == null){
-                return;
-            }
-            boolean isDefault = current == loader.getDefaultPreset();
-            GenericPreset<O> preset = manager.get().tryUpdatePreset(DrawingBotV3.context(), current);
-            if(preset != null){
-                property.setValue(preset);
-                if(isDefault){
-                    MasterRegistry.INSTANCE.setDefaultPreset(preset);
-                }
-            }
-        });
+    public static <TARGET, DATA>  GenericPreset<DATA> actionEditPreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target){
+        GenericPreset<DATA> oldPreset = preset;
+        preset = createEditablePreset(manager, preset);
+        if(preset == null){
+            return null;
+        }
+        boolean result = DialogPresetEdit.openPresetEditDialog(manager, preset);
+        if(result){
+            GenericPreset<DATA> resultPreset = manager.getPresetLoader().editPreset(oldPreset, preset);
+            logPresetAction(resultPreset, "Edited");
+            return resultPreset;
+        }
+        return null;
+    }
 
-        MenuItem renamePreset = new MenuItem("Edit Preset");
-        renamePreset.setOnAction(e -> {
-            GenericPreset<O> current = property.getValue();
-            if(current == null || !current.userCreated){
-                return;
-            }
-            boolean isDefault = current == loader.getDefaultPreset();
-            boolean result = DialogPresetEdit.openPresetEditDialog(current);
-            if(result){
-                loader.tryEditPreset(current);
-                property.setValue(current);
-                if(isDefault){
-                    MasterRegistry.INSTANCE.setDefaultPreset(current);
-                }
-            }
-        });
+    public static <TARGET, DATA>  GenericPreset<DATA> actionDeletePreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target){
+        if(preset == null){
+            return preset;
+        }
+        if(preset.isSystemPreset()){
+            //System presets can't be deleted, allow hiding instead TODO
+            DialogSystemPresetDelete.openSystemPresetDeleteDialog(preset);
+            return preset;
+        }
 
-        MenuItem deletePreset = new MenuItem("Delete Preset");
-        deletePreset.setOnAction(e -> {
-            GenericPreset<O> current = property.getValue();
-            if(current == null){
-                return;
-            }
-            if(loader.tryDeletePreset(current)){
-                property.setValue(loader.getDefaultPreset());
-            }
-        });
+        manager.getPresetLoader().removePreset(preset);
+        logPresetAction(preset, "Deleted");
+        return null;
+    }
 
-        MenuItem importPreset = new MenuItem("Import Preset");
-        importPreset.setOnAction(e -> {
-            FXHelper.importPreset(DrawingBotV3.context(), loader.type, false, true);
-        });
+    public static <TARGET, DATA> GenericPreset<DATA> actionSetDefaultPreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset){
+        DBPreferences.INSTANCE.setDefaultPreset(preset);
+        logPresetAction(preset, "Set default");
+        return preset;
+    }
 
-        MenuItem exportPreset = new MenuItem("Export Preset");
-        exportPreset.setOnAction(e -> {
-            GenericPreset<O> current = property.getValue();
-            if(current == null){
-                return;
-            }
-            FXHelper.exportPreset(DrawingBotV3.context(), current, DrawingBotV3.project().getExportDirectory(), current.getPresetName(), true);
-        });
-
-        MenuItem setDefault = new MenuItem("Set As Default");
-        setDefault.setOnAction(e -> {
-            GenericPreset<O> current = property.getValue();
-            if(current == null){
-                return;
-            }
-            MasterRegistry.INSTANCE.setDefaultPreset(current);
-        });
-
-        button.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
+    public static void logPresetAction(GenericPreset<?> preset, String action){
+        if(preset.presetType.ignoreSubType){
+            NotificationOverlays.INSTANCE.showWithSubtitle("%s '%s'".formatted(action, preset.presetType.getDisplayName()), "Name: %s".formatted(preset.getPresetName()));
+        }else{
+            NotificationOverlays.INSTANCE.showWithSubtitle("%s '%s'".formatted(action, preset.presetType.getDisplayName()), "Name: %s, Category: %s".formatted(preset.getPresetName(), preset.getPresetSubType()));
+        }
     }
 
     public static <O> void addDefaultTableViewContextMenuItems(ContextMenu menu, TableRow<O> row, Supplier<ObservableList<O>> list, Function<O, O> duplicate){
@@ -790,6 +702,10 @@ public class FXHelper {
     }
 
     public static List<PropertyAccessorAbstract> nodePropertyAccessors = new ArrayList<>();
+
+    public static void setupPresetMenuButton(MenuButton menuButtonVPypePresets, PresetVpypeSettingsLoader presetLoaderVpypeSettings, PresetVpypeSettingsManager presetManagerVpypeSettings, boolean b, SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset) {
+        //TODO REMOVE ME!!!!
+    }
 
     @JsonData
     public static class SplitPaneDataFormat { //must be public static for GSON

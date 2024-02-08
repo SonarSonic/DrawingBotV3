@@ -4,15 +4,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import drawingbot.javafx.controls.ControlPresetSelection?>
 <VBox prefHeight="327.0" minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
 
         <children>
-            <HBox spacing="4.0">
-                <children>
-                    <ComboBox fx:id="comboBoxDrawingAreaPreset" prefHeight="25.0" prefWidth="305.0" promptText="New Preset Name" />
-                    <MenuButton fx:id="menuButtonDrawingAreaPresets" mnemonicParsing="false" text="Presets" />
-                </children>
-            </HBox>
+            <ControlPresetSelection fx:id="controlDrawingAreaPreset"/>
             <HBox spacing="98.0">
                 <children>
                     <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="134.0" text="Use Original Sizing">

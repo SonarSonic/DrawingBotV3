@@ -129,7 +129,7 @@ public class RulerOverlays extends AbstractOverlay {
 
     @Override
     public void doRender() {
-        if(DrawingBotV3.project().displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
+        if(wasActivated || DrawingBotV3.project().displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
             DrawingBotV3.project().displayMode.get().getRenderFlags().markForClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER);
             Point2D drawingOrigin = new Point2D(0D, 0D);
             ICanvas canvas = DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas();

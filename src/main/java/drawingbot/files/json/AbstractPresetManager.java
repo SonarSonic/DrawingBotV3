@@ -13,60 +13,57 @@ import javafx.scene.control.ComboBox;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractPresetManager<O> implements IPresetManager<O> {
+public abstract class AbstractPresetManager<TARGET, DATA> implements IPresetManager<TARGET, DATA> {
 
-    public AbstractJsonLoader<O> presetLoader;
+    public final IPresetLoader<DATA> presetLoader;
+    public final Class<TARGET> targetType;
 
-    public AbstractPresetManager(AbstractJsonLoader<O> presetLoader){
+    public AbstractPresetManager(IPresetLoader<DATA> presetLoader, Class<TARGET> targetType){
         this.presetLoader = presetLoader;
+        this.targetType = targetType;
+    }
+
+    @Override
+    public IPresetLoader<DATA> getPresetLoader() {
+        return presetLoader;
+    }
+
+    @Override
+    public Class<TARGET> getTargetType() {
+        return targetType;
     }
 
     public PresetType getPresetType(){
-        return presetLoader.type;
+        return presetLoader.getPresetType();
     }
 
     /**
      * updates the presets settings with the ones currently configured
-     * @return the preset or null if the settings couldn't be saved
      */
-    public abstract GenericPreset<O> updatePreset(DBTaskContext context, GenericPreset<O> preset, boolean loadingProject);
+    public abstract void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset);
 
     /**
      * applies the presets settings
      */
-    public abstract void applyPreset(DBTaskContext context, GenericPreset<O> preset, boolean changesOnly, boolean loadingProject);
+    public abstract void applyPreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset, boolean changesOnly);
 
 
-    public final GenericPreset<O> tryUpdatePreset(DBTaskContext context, GenericPreset<O> preset) {
-        if (preset != null && preset.userCreated) {
-            preset = updatePreset(context, preset, false);
-            if (preset != null) {
-                presetLoader.queueJsonUpdate();
-                return preset;
-            }
-        }
-        return null;
-    }
-
-    public final void tryApplyPreset(DBTaskContext context, GenericPreset<O> preset) {
-        applyPreset(context, preset, false, false);
+    //@Override TODO DELETE ME
+    public final void tryApplyPreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset) {
+        applyPreset(context, target, preset, false);
     }
 
     public boolean isSubTypeEditable(){
         return false;
     }
 
-    public ObservableList<String> getObservableCategoryList(){
-        return null;
-    }
-
-    public void addEditDialogElements(GenericPreset<O> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<O>>> callbacks) {
+    public void addEditDialogElements(GenericPreset<DATA> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<DATA>>> callbacks) {
         builder.add(new LabelNode("Preset").setTitleStyling());
         builder.add(new PropertyNode("Category", preset.presetSubTypeProperty(), String.class){
             @Override
             public Node createEditor() {
                 //Setup the special ComboBox to show a drop down for the Preset's Categories
-                ObservableList<String> categoryList = getObservableCategoryList();
+                ObservableList<String> categoryList = getPresetLoader().getPresetSubTypes();
                 if(categoryList != null && isSubTypeEditable()){
                     ComboBox<String> categoryComboBox = new ComboBox<>();
                     categoryComboBox.setEditable(true);

@@ -1,11 +1,13 @@
 package drawingbot.api;
 
+import drawingbot.javafx.GenericPreset;
+
 import java.util.List;
 
 /**
  * A collection of {@link IDrawingPen}s used when rendering the drawing
  */
-public interface IDrawingSet<P extends IDrawingPen> {
+public interface IDrawingSet {
 
     /**
      * @return the pens full name, unique to each pen
@@ -34,8 +36,16 @@ public interface IDrawingSet<P extends IDrawingPen> {
     /**
      * @return all the {@link IDrawingPen}s in the {@link IDrawingSet}
      */
-    List<P> getPens();
+    List<? extends IDrawingPen> getPens();
 
     boolean isUserCreated();
+
+    default GenericPreset<IDrawingSet> getLinkedPreset(){
+        return null;
+    }
+
+    default void setLinkedPreset(GenericPreset<IDrawingSet> preset){
+
+    }
 
 }

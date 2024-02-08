@@ -24,7 +24,9 @@ public class ComboCellPreset<D> extends ComboBoxListCell<GenericPreset<D>> {
             Node node = item.getDisplayNode();
             if(node == null){
                 HBox box = new HBox();
-                box.getChildren().add(new Label("  " + item.getDisplayName()));
+                Label nameLabel = new Label();
+                nameLabel.textProperty().bind(item.presetNameProperty());
+                box.getChildren().addAll(new Label("  "), nameLabel);
                 if(item.userCreated){
                     box.getChildren().add(createUserLabel());
                 }

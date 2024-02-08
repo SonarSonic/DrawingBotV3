@@ -32,7 +32,7 @@ public class FXVPypeController extends AbstractFXController {
         selectedVPypePreset.setValue(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
         selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false, false);
+                VpypePlugin.PRESET_MANAGER_VPYPE_SETTINGS.applyPreset(DrawingBotV3.context(), VpypePlugin.INSTANCE.vpypeSettings, newValue, false);
             }
         });
 
@@ -40,7 +40,7 @@ public class FXVPypeController extends AbstractFXController {
         comboBoxVPypePreset.valueProperty().bindBidirectional(selectedVPypePreset);
         comboBoxVPypePreset.setCellFactory(f -> new ComboCellPreset<>());
 
-        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS, VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS::getDefaultManager, false, selectedVPypePreset);
+        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS, VpypePlugin.PRESET_MANAGER_VPYPE_SETTINGS, false, selectedVPypePreset);
 
         textAreaVPypeCommand.textProperty().bindBidirectional(VpypePlugin.INSTANCE.vpypeSettings.vpypeCommand);
 

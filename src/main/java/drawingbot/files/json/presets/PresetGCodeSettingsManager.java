@@ -11,10 +11,10 @@ import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.utils.UnitsLength;
 import javafx.collections.FXCollections;
 
-public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetData, GCodeSettings> {
+public class PresetGCodeSettingsManager extends DefaultPresetManager<GCodeSettings, PresetData> {
 
     public PresetGCodeSettingsManager(PresetGCodeSettingsLoader presetLoader) {
-        super(presetLoader);
+        super(presetLoader, GCodeSettings.class);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class PresetGCodeSettingsManager extends DefaultPresetManager<PresetData,
     }
 
     @Override
-    public GCodeSettings getInstance(DBTaskContext context) {
+    public GCodeSettings getTargetFromContext(DBTaskContext context) {
         return DBPreferences.INSTANCE.gcodeSettings;
     }
 }

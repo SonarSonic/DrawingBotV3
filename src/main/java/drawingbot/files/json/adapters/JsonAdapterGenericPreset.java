@@ -1,7 +1,7 @@
 package drawingbot.files.json.adapters;
 
 import com.google.gson.*;
-import drawingbot.files.json.AbstractJsonLoader;
+import drawingbot.files.json.IPresetLoader;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.MasterRegistry;
@@ -32,7 +32,7 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
         preset.userCreated = jsonObject.get(USER_CREATED).getAsBoolean();
 
         Gson gson = JsonLoaderManager.createDefaultGson();
-        AbstractJsonLoader<Object> manager = JsonLoaderManager.getJsonLoaderForPresetType(preset);
+        IPresetLoader<Object> manager = JsonLoaderManager.getJsonLoaderForPresetType(preset);
         if(manager != null){
             preset.data = manager.fromJsonElement(gson, preset, jsonObject.get(JSON_DATA));
             preset.presetLoader = manager;
@@ -51,7 +51,7 @@ public class JsonAdapterGenericPreset implements JsonSerializer<GenericPreset<?>
         jsonObject.addProperty(USER_CREATED, src.userCreated);
 
         Gson gson = JsonLoaderManager.createDefaultGson();
-        AbstractJsonLoader<?> manager = JsonLoaderManager.getJsonLoaderForPresetType(src);
+        IPresetLoader<?> manager = JsonLoaderManager.getJsonLoaderForPresetType(src);
         if(manager != null){
             jsonObject.add(JSON_DATA, manager.toJsonElement(gson, src));
             return jsonObject;

@@ -1,13 +1,8 @@
 package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.PresetData;
-import drawingbot.files.json.presets.PresetDrawingAreaManager;
-import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.controls.ComboCellPreset;
+import drawingbot.javafx.controls.ControlPresetSelection;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
@@ -24,12 +19,13 @@ import javafx.util.converter.NumberStringConverter;
 public class FXDrawingArea extends AbstractFXController {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<GenericPreset<PresetData>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
+    //public final SimpleObjectProperty<GenericPreset<PresetData>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
-    public ComboBox<GenericPreset<PresetData>> comboBoxDrawingAreaPreset = null;
-    public MenuButton menuButtonDrawingAreaPresets = null;
+    public ControlPresetSelection<ObservableCanvas, PresetData> controlDrawingAreaPreset;
+    //public ComboBox<GenericPreset<PresetData>> comboBoxDrawingAreaPreset = null;
+    //public MenuButton menuButtonDrawingAreaPresets = null;
 
     /////SIZING OPTIONS
     public CheckBox checkBoxOriginalSizing = null;
@@ -114,18 +110,22 @@ public class FXDrawingArea extends AbstractFXController {
 
         colorPickerCanvas.setValue(Color.WHITE);
 
-        selectedDrawingAreaPreset.setValue(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
-        selectedDrawingAreaPreset.addListener((observable, oldValue, newValue) -> {
+        controlDrawingAreaPreset.setPresetManager(Register.PRESET_MANAGER_DRAWING_AREA);
+        controlDrawingAreaPreset.targetProperty().bind(drawingArea);
+        controlDrawingAreaPreset.setAvailablePresets(Register.PRESET_LOADER_DRAWING_AREA.presets);
+        controlDrawingAreaPreset.setActivePreset(Register.PRESET_LOADER_DRAWING_AREA.getDefaultPreset());
+        controlDrawingAreaPreset.activePresetProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getDrawingAreaPresetManager().applyPreset(DrawingBotV3.context(), newValue, true, false);
+                EnumOrientation orientation = drawingArea.get().orientation.get();
+
+                Register.PRESET_MANAGER_DRAWING_AREA.applyPreset(DrawingBotV3.context(), drawingArea.get(), newValue, true);
+
+                //Restore the original orientation
+                if(drawingArea.get().orientation.get() != orientation){
+                    drawingArea.get().orientation.set(orientation);
+                }
             }
         });
-
-        comboBoxDrawingAreaPreset.setItems(Register.PRESET_LOADER_DRAWING_AREA.presets);
-        comboBoxDrawingAreaPreset.valueProperty().bindBidirectional(selectedDrawingAreaPreset);
-        comboBoxDrawingAreaPreset.setCellFactory(param -> new ComboCellPreset<>());
-
-        FXHelper.setupPresetMenuButton(menuButtonDrawingAreaPresets, Register.PRESET_LOADER_DRAWING_AREA, this::getDrawingAreaPresetManager, false, selectedDrawingAreaPreset);
 
         /////SIZING OPTIONS
 
@@ -156,24 +156,6 @@ public class FXDrawingArea extends AbstractFXController {
 
         choiceBoxClippingMode.getItems().addAll(EnumClippingMode.values());
         choiceBoxClippingMode.setValue(EnumClippingMode.DRAWING);
-    }
-
-    public AbstractPresetManager<PresetData> presetManager;
-
-    public void setDrawingAreaPresetManager(AbstractPresetManager<PresetData> presetManager){
-        this.presetManager = presetManager;
-    }
-
-    public AbstractPresetManager<PresetData> getDrawingAreaPresetManager(){
-        if(presetManager == null){
-            return presetManager = new PresetDrawingAreaManager(Register.PRESET_LOADER_DRAWING_AREA) {
-                @Override
-                public ObservableCanvas getInstance(DBTaskContext context) {
-                    return drawingArea.get();
-                }
-            };
-        }
-        return presetManager;
     }
 
 }

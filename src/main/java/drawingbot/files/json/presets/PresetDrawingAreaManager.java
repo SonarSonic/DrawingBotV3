@@ -1,6 +1,7 @@
 package drawingbot.files.json.presets;
 
 import drawingbot.files.json.DefaultPresetManager;
+import drawingbot.files.json.IPresetLoader;
 import drawingbot.files.json.PresetData;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
@@ -13,23 +14,19 @@ import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.UnitsLength;
 import javafx.collections.FXCollections;
 
-public abstract class PresetDrawingAreaManager extends DefaultPresetManager<PresetData, ObservableCanvas> {
+import java.util.List;
 
-    public PresetDrawingAreaManager(PresetDrawingAreaLoader presetLoader) {
-        super(presetLoader);
+public class PresetDrawingAreaManager extends DefaultPresetManager<ObservableCanvas, PresetData> {
+
+    public PresetDrawingAreaManager(IPresetLoader<PresetData> presetLoader) {
+        super(presetLoader, ObservableCanvas.class);
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetData> preset, boolean changesOnly, boolean loadingProject) {
-        ObservableCanvas canvas = getInstance(context);
-        if(canvas != null){
-            EnumOrientation orientation = canvas.orientation.get();
-            super.applyPreset(context, preset, changesOnly, loadingProject);
-            if(!loadingProject && canvas.orientation.get() != orientation){
-                canvas.orientation.set(orientation);
-            }
-        }
+    public ObservableCanvas getTargetFromContext(DBTaskContext context) {
+        return context.project().getDrawingArea();
     }
+
 
     @Override
     public void registerDataLoaders() {

@@ -4,6 +4,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.preferences.DBPreferences;
 import javafx.beans.InvalidationListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -14,7 +15,7 @@ import javafx.scene.shape.Rectangle;
 
 import java.util.List;
 
-public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListCell<S> {
+public class ComboCellDrawingSet<S extends IDrawingSet> extends ComboBoxListCell<S> {
 
     private ObservableDrawingSet currentDrawingSet = null;
     private final InvalidationListener graphicListener = observable -> setGraphic(createStaticPenPalette(currentDrawingSet.getPens()));
@@ -22,7 +23,6 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
 
     public ComboCellDrawingSet() {
         super();
-
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ComboCellDrawingSet<S extends IDrawingSet<?>> extends ComboBoxListC
                 hBox.getChildren().add(createStaticPenPalette(item.getPens()));
                 Label displayNameLabel = new Label("  " + item.getName());
                 displayNameLabel.setPrefHeight(12);
-                displayNameLabel.setTextFill(Color.BLACK);
+                displayNameLabel.textFillProperty().bind(DBPreferences.INSTANCE.defaultThemeColor);
 
                 hBox.getChildren().add(displayNameLabel);
                 if(item.isUserCreated()){

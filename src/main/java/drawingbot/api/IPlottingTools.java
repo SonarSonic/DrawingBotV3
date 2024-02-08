@@ -216,7 +216,7 @@ public interface IPlottingTools {
 
     //// PEN TOOLS \\\\
 
-    IDrawingSet<?> getCurrentDrawingSet();
+    IDrawingSet getCurrentDrawingSet();
 
     int getCurrentPen();
 

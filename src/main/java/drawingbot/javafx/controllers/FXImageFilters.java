@@ -1,28 +1,23 @@
 package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.presets.PresetImageFilters;
-import drawingbot.files.json.presets.PresetImageFiltersManager;
-import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.controls.ComboCellPreset;
 import drawingbot.javafx.controls.ContextMenuObservableFilter;
+import drawingbot.javafx.controls.ControlPresetSelection;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.Utils;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -45,9 +40,9 @@ public class FXImageFilters extends AbstractFXController {
 
     ////////////////////////////////////////////////////////
 
-    public ComboBox<GenericPreset<PresetImageFilters>> comboBoxImageFilterPreset = null;
-
-    public MenuButton menuButtonFilterPresets = null;
+    //public ComboBox<GenericPreset<PresetImageFilters>> comboBoxImageFilterPreset = null;
+    //public MenuButton menuButtonFilterPresets = null;
+    public ControlPresetSelection<ImageFilterSettings, PresetImageFilters> controlImageFilterPreset;
 
     public TableView<ObservableImageFilter> tableViewImageFilters = null;
     public TableColumn<ObservableImageFilter, Boolean> columnEnableImageFilter = null;
@@ -89,15 +84,16 @@ public class FXImageFilters extends AbstractFXController {
         selectedImagePreset.setValue(Register.PRESET_LOADER_FILTERS.getDefaultPreset());
         selectedImagePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                getImageFiltersPresetManager().applyPreset(DrawingBotV3.context(), newValue, false, false);
+                Register.PRESET_MANAGER_FILTERS.applyPreset(DrawingBotV3.context(), settings.get(), newValue, false);
             }
         });
 
-        comboBoxImageFilterPreset.setItems(Register.PRESET_LOADER_FILTERS.presets);
-        comboBoxImageFilterPreset.valueProperty().bindBidirectional(selectedImagePreset);
-        comboBoxImageFilterPreset.setCellFactory(param -> new ComboCellPreset<>());
+        controlImageFilterPreset.setPresetManager(Register.PRESET_MANAGER_FILTERS);
+        controlImageFilterPreset.targetProperty().bind(settings);
+        controlImageFilterPreset.setAvailablePresets(Register.PRESET_LOADER_FILTERS.getPresets());
+        controlImageFilterPreset.activePresetProperty().bindBidirectional(selectedImagePreset);
 
-        FXHelper.setupPresetMenuButton(menuButtonFilterPresets, Register.PRESET_LOADER_FILTERS, this::getImageFiltersPresetManager, false, selectedImagePreset);
+        //TODO FXHelper.setupPresetMenuButton(menuButtonFilterPresets, Register.PRESET_LOADER_FILTERS, Register.PRESET_MANAGER_FILTERS, false, selectedImagePreset);
 
         tableViewImageFilters.setRowFactory(param -> {
             TableRow<ObservableImageFilter> row = new TableRow<>();
@@ -209,19 +205,6 @@ public class FXImageFilters extends AbstractFXController {
 
         checkBoxFlipY.setSelected(false);
 
-    }
-
-    ////////////////////////////////////////////////////////
-
-    public final AbstractPresetManager<PresetImageFilters> imageFiltersPresetManager = new PresetImageFiltersManager(Register.PRESET_LOADER_FILTERS) {
-        @Override
-        public Property<ObservableList<ObservableImageFilter>> imageFiltersProperty(DBTaskContext context) {
-            return settings.get().currentFilters;
-        }
-    };
-
-    public AbstractPresetManager<PresetImageFilters> getImageFiltersPresetManager(){
-        return imageFiltersPresetManager;
     }
 
 

@@ -58,32 +58,41 @@ public class Register implements IPlugin {
     public static Register INSTANCE = new Register();
 
     //// PRESET LOADERS \\\\
-    public static PresetType PRESET_TYPE_APPLICATION_SETTINGS;
-    public static ConfigJsonLoader PRESET_LOADER_CONFIGS;
+    public static PresetType PRESET_TYPE_PREFERENCES;
+    public static PresetPreferencesLoader PRESET_LOADER_PREFERENCES;
+    public static PresetPreferencesManager PRESET_MANAGER_PREFERENCES;
 
     public static PresetType PRESET_TYPE_PROJECT;
     public static PresetProjectSettingsLoader PRESET_LOADER_PROJECT;
+    public static PresetProjectSettingsManager PRESET_MANAGER_PROJECT;
 
     public static PresetType PRESET_TYPE_UI_SETTINGS;
     public static PresetUISettingsLoader PRESET_LOADER_UI_SETTINGS;
+    public static PresetUISettingsManager PRESET_MANAGER_UI_SETTINGS;
 
     public static PresetType PRESET_TYPE_PFM;
     public static PresetPFMSettingsLoader PRESET_LOADER_PFM;
+    public static PresetPFMSettingsManager PRESET_MANAGER_PFM;
 
     public static PresetType PRESET_TYPE_FILTERS;
     public static PresetImageFiltersLoader PRESET_LOADER_FILTERS;
+    public static PresetImageFiltersManager PRESET_MANAGER_FILTERS;
 
     public static PresetType PRESET_TYPE_DRAWING_SET;
     public static PresetDrawingSetLoader PRESET_LOADER_DRAWING_SET;
+    public static PresetDrawingSetManager PRESET_MANAGER_DRAWING_SET;
 
     public static PresetType PRESET_TYPE_DRAWING_PENS;
     public static PresetDrawingPenLoader PRESET_LOADER_DRAWING_PENS;
+    public static PresetDrawingPenManager PRESET_MANAGER_DRAWING_PENS;
 
     public static PresetType PRESET_TYPE_DRAWING_AREA;
     public static PresetDrawingAreaLoader PRESET_LOADER_DRAWING_AREA;
+    public static PresetDrawingAreaManager PRESET_MANAGER_DRAWING_AREA;
 
     public static PresetType PRESET_TYPE_GCODE_SETTINGS;
     public static PresetGCodeSettingsLoader PRESET_LOADER_GCODE_SETTINGS;
+    public static PresetGCodeSettingsManager PRESET_MANAGER_GCODE_SETTINGS;
 
 
     //// PFM FACTORIES \\\\
@@ -188,17 +197,17 @@ public class Register implements IPlugin {
         // Register all Application Settings
         DBPreferences.INSTANCE.settings.forEach(setting -> MasterRegistry.INSTANCE.registerApplicationSetting(setting));
 
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_APPLICATION_SETTINGS = new PresetType("config_settings", "Preferences"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", "Project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PREFERENCES = new PresetType("config_settings", "Preferences").setIgnoreSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", "Project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}).setIgnoreSubType(true));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings", "PFM Preset").setDefaultsPerSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings", "UI Preset"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters", "Image Filter Preset"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set", "Drawing Set Preset"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen", "Drawing Pen Preset"));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area", "Drawing Area Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings", "UI Preset").setIgnoreSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters", "Image Filter Preset").setIgnoreSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set", "Drawing Set Preset").setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen", "Drawing Pen Preset").setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area", "Drawing Area Preset").setIgnoreSubType(true));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings", "GCode Preset"));
 
-        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_CONFIGS = new ConfigJsonLoader(PRESET_TYPE_APPLICATION_SETTINGS));
+        MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PREFERENCES = new PresetPreferencesLoader(PRESET_TYPE_PREFERENCES));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_UI_SETTINGS = new PresetUISettingsLoader(PRESET_TYPE_UI_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PFM = new PresetPFMSettingsLoader(PRESET_TYPE_PFM));
@@ -207,6 +216,16 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_PENS = new PresetDrawingPenLoader(PRESET_TYPE_DRAWING_PENS));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_DRAWING_AREA = new PresetDrawingAreaLoader(PRESET_TYPE_DRAWING_AREA));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_GCODE_SETTINGS = new PresetGCodeSettingsLoader(PRESET_TYPE_GCODE_SETTINGS));
+
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_PREFERENCES = new PresetPreferencesManager(PRESET_LOADER_PREFERENCES));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_PROJECT = new PresetProjectSettingsManager(PRESET_LOADER_PROJECT));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_UI_SETTINGS = new PresetUISettingsManager(PRESET_LOADER_UI_SETTINGS));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_PFM = new PresetPFMSettingsManager(PRESET_LOADER_PFM));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_FILTERS = new PresetImageFiltersManager(PRESET_LOADER_FILTERS));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_DRAWING_SET = new PresetDrawingSetManager(PRESET_LOADER_DRAWING_SET));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_DRAWING_PENS = new PresetDrawingPenManager(PRESET_LOADER_DRAWING_PENS));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_DRAWING_AREA = new PresetDrawingAreaManager(PRESET_LOADER_DRAWING_AREA));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_GCODE_SETTINGS = new PresetGCodeSettingsManager(PRESET_LOADER_GCODE_SETTINGS));
 
         PresetProjectSettingsManager.registerDefaultDataLoaders();
 

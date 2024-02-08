@@ -3,6 +3,7 @@ package drawingbot.utils;
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.json.adapters.JsonAdapterMetadataMap;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonAdapter(JsonAdapterMetadataMap.class)
@@ -33,5 +34,9 @@ public class MetadataMap {
             return null;
         }
         return metadata.type.cast(obj);
+    }
+
+    public MetadataMap copy(){
+        return new MetadataMap(new HashMap<>(data));
     }
 }

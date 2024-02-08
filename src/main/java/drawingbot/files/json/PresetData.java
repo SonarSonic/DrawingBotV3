@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * A generic implementation of PresetData, which just contains a list of settings.
@@ -23,4 +24,11 @@ public class PresetData {
         this.settings = settings;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof PresetData other){
+            return settings.equals(other.settings);
+        }
+        return super.equals(obj);
+    }
 }

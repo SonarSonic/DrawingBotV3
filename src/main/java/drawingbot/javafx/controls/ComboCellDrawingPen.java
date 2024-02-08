@@ -1,8 +1,11 @@
 package drawingbot.javafx.controls;
 
+import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.preferences.DBPreferences;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,7 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
+public class ComboCellDrawingPen extends ComboBoxListCell<IDrawingPen> {
 
     public final HBox hbox;
     public final CheckBox checkBox;
@@ -54,7 +57,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
     }
 
     @Override
-    public void updateItem(DrawingPen item, boolean empty) {
+    public void updateItem(IDrawingPen item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
@@ -69,7 +72,7 @@ public class ComboCellDrawingPen extends ComboBoxListCell<DrawingPen> {
             hbox.setSpacing(4);
             hbox.setAlignment(Pos.CENTER_LEFT);
             displayNameLabel.setText("  " + item.getName());
-            displayNameLabel.setTextFill(Color.BLACK);
+            displayNameLabel.textFillProperty().bind(DBPreferences.INSTANCE.defaultThemeColor);
             colour.setFill(ImageTools.getColorFromARGB(item.getARGB()));
             String userCreatedText = "";
             if(item.isUserCreated()){

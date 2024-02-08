@@ -10,7 +10,6 @@ public class PresetGCodeSettingsLoader extends AbstractPresetLoader<PresetData> 
 
     public PresetGCodeSettingsLoader(PresetType presetType) {
         super(PresetData.class, presetType, "user_gcode_presets.json");
-        setDefaultManager(new PresetGCodeSettingsManager(this));
     }
 
     @Override
@@ -19,7 +18,7 @@ public class PresetGCodeSettingsLoader extends AbstractPresetLoader<PresetData> 
     }
 
     @Override
-    protected PresetData getPresetInstance(GenericPreset<PresetData> preset) {
+    public PresetData createDataInstance(GenericPreset<PresetData> preset) {
         return new PresetData();
     }
 }

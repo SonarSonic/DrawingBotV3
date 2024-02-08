@@ -34,30 +34,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PresetProjectSettingsManager extends AbstractPresetManager<PresetProjectSettings> {
+public class PresetProjectSettingsManager extends AbstractPresetManager<ObservableProject, PresetProjectSettings> {
 
     public PresetProjectSettingsManager(PresetProjectSettingsLoader presetLoader) {
-        super(presetLoader);
+        super(presetLoader, ObservableProject.class);
+    }
+
+    public List<PresetDataLoader<PresetProjectSettings>> getDataLoaders(){
+        return MasterRegistry.INSTANCE.projectDataLoaders;
     }
 
     @Override
-    public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject) {
-        return updatePreset(context, preset, loadingProject, MasterRegistry.INSTANCE.projectDataLoaders);
+    public ObservableProject getTargetFromContext(DBTaskContext context) {
+        return context.project();
     }
 
-    public GenericPreset<PresetProjectSettings> updatePreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject, List<PresetDataLoader<PresetProjectSettings>> dataLoaders) {
-        PlottedDrawing renderedDrawing = context.taskManager().getCurrentDrawing();
-        preset.data.imagePath = context.project.openImage.get() != null && context.project.openImage.get().getSourceFile() != null ? context.project.openImage.get().getSourceFile().getPath() : "";
+    @Override
+    public void updatePreset(DBTaskContext context, ObservableProject project, GenericPreset<PresetProjectSettings> preset) {
+        PlottedDrawing renderedDrawing = project.getCurrentDrawing();
+        preset.data.imagePath = project.openImage.get() != null && project.openImage.get().getSourceFile() != null ? project.openImage.get().getSourceFile().getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));
         preset.data.thumbnailID = renderedDrawing == null ? "" : UUID.randomUUID().toString();
 
         if(preset.data instanceof PresetProjectSettingsLegacy){
-            PresetProjectSettingsManagerLegacy.updatePreset(context, preset);
+            PresetProjectSettingsManagerLegacy.updatePreset(project, preset);
         }else{
             Gson gson = JsonLoaderManager.createDefaultGson();
-            for(PresetDataLoader<PresetProjectSettings> loader : dataLoaders){
+            for(PresetDataLoader<PresetProjectSettings> loader : getDataLoaders()){
                 try {
-                    loader.save(context, gson, preset);
+                    loader.save(project.context, gson, preset);
                 } catch (Exception exception) {
                     DrawingBotV3.logger.severe("Failed to save project data: " + loader.getKey());
                     exception.printStackTrace();
@@ -68,27 +73,22 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
         if(renderedDrawing != null){
             //run the thumbnail generation task
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
-            ExportTask task = new ExportTask(context, Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
+            ExportTask task = new ExportTask(project.context, Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
             task.exportScale = 400 / renderedDrawing.canvas.getWidth(UnitsLength.PIXELS);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }
-        return preset;
     }
 
     @Override
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean changesOnly, boolean loadingProject) {
-        applyPreset(context, preset, loadingProject, MasterRegistry.INSTANCE.projectDataLoaders);
-    }
-
-    public void applyPreset(DBTaskContext context, GenericPreset<PresetProjectSettings> preset, boolean loadingProject, List<PresetDataLoader<PresetProjectSettings>> dataLoaders) {
+    public void applyPreset(DBTaskContext context, ObservableProject project, GenericPreset<PresetProjectSettings> preset, boolean changesOnly) {
         if(preset.data instanceof PresetProjectSettingsLegacy){
-            PresetProjectSettingsManagerLegacy.applyPreset(context, preset);
+            PresetProjectSettingsManagerLegacy.applyPreset(project, preset);
             return;
         }
         Gson gson = JsonLoaderManager.createDefaultGson();
-        for(PresetDataLoader<PresetProjectSettings> loader : dataLoaders){
+        for(PresetDataLoader<PresetProjectSettings> loader : getDataLoaders()){
             try {
-                loader.load(context, gson, preset);
+                loader.load(project.context, gson, preset);
             } catch (Exception exception) {
                 DrawingBotV3.logger.severe("Failed to load project data: " + loader.getKey());
                 exception.printStackTrace();
@@ -162,11 +162,11 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
             }
         });
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_DRAWING_AREA, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_DRAWING_AREA, 0));
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_FILTERS, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_FILTERS, 0));
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class,Register.PRESET_LOADER_PFM, 0){
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_PFM, 0){
 
             @Override
             public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
@@ -181,7 +181,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<PresetPr
                 super.loadData(context, gson, element, preset);
             }
         });
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_LOADER_UI_SETTINGS, 0));
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_UI_SETTINGS, 0));
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"versions", VersionData.class, VersionData::new, 5) {
 

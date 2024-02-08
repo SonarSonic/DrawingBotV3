@@ -6,15 +6,10 @@ import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.GenericPreset;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProjectSettings> {
 
     public PresetProjectSettingsLoader(PresetType presetType) {
         super(PresetProjectSettings.class, presetType, "projects.json");
-        setDefaultManager(new PresetProjectSettingsManager(this));
     }
 
     @Override
@@ -23,7 +18,7 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
     }
 
     @Override
-    public PresetProjectSettings getPresetInstance(GenericPreset<PresetProjectSettings> preset) {
+    public PresetProjectSettings createDataInstance(GenericPreset<PresetProjectSettings> preset) {
         if(preset.version.equals("1")){
             return new PresetProjectSettingsLegacy();
         }
@@ -31,24 +26,14 @@ public class PresetProjectSettingsLoader extends AbstractPresetLoader<PresetProj
     }
 
     @Override
-    public void registerPreset(GenericPreset<PresetProjectSettings> preset) {}
+    public void addPreset(GenericPreset<PresetProjectSettings> preset) {}
 
     @Override
-    public void unregisterPreset(GenericPreset<PresetProjectSettings> preset) {}
+    public void removePreset(GenericPreset<PresetProjectSettings> preset) {}
 
     @Override
     public GenericPreset<PresetProjectSettings> getDefaultPreset() {
         return null;
-    }
-
-    @Override
-    public List<GenericPreset<?>> getUserCreatedPresets() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Collection<GenericPreset<PresetProjectSettings>> getAllPresets() {
-        return new ArrayList<>();
     }
 
     @Override

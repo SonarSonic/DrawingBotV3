@@ -5,14 +5,17 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 public abstract class AbstractOverlay {
 
+    public boolean wasActivated = false;
     public SimpleBooleanProperty active = new SimpleBooleanProperty(false){
         @Override
         protected void invalidated() {
             super.invalidated();
             if(get()){
                 activate();
+                wasActivated = true;
             }else{
                 deactivate();
+                wasActivated = false;
             }
         }
     };
@@ -35,7 +38,9 @@ public abstract class AbstractOverlay {
 
     public void doRender(){}
 
-    public void postRender(){}
+    public void postRender(){
+        wasActivated = false;
+    }
 
     protected void activate(){}
 

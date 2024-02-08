@@ -6,6 +6,7 @@ import drawingbot.api.IDrawingPen;
 import drawingbot.api.IProperties;
 import drawingbot.files.json.adapters.JsonAdapterObservableDrawingPen;
 import drawingbot.image.ImageTools;
+import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.SpecialListenable;

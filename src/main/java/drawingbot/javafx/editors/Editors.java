@@ -1,6 +1,6 @@
 package drawingbot.javafx.editors;
 
-import drawingbot.files.json.AbstractPresetLoader;
+import drawingbot.files.json.IPresetLoader;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -157,9 +157,9 @@ public class Editors {
         };
     }
 
-    public static <O> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(AbstractPresetLoader<O> loader){
+    public static <O> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(IPresetLoader<O> loader){
         ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
-        comboBox.setItems(loader.presets);
+        comboBox.setItems(loader.getPresets());
         comboBox.setValue(loader.getDefaultPreset());
         DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
             comboBox.setValue(loader.getDefaultPreset());

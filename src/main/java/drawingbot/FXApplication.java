@@ -3,7 +3,6 @@ package drawingbot;
 import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
-import drawingbot.files.json.AbstractJsonLoader;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.LoggingHandler;
 import drawingbot.files.json.JsonLoaderManager;
@@ -36,7 +35,6 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -109,6 +107,7 @@ public class FXApplication extends Application {
         FXApplication.getChildStages().forEach(stage -> software.applyThemeToScene(stage.getScene()));
     }
 
+
     ////////////////////////////////////////////////////////
 
     public static class InitialLoadTask extends Task<Boolean> {
@@ -135,9 +134,6 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.config("Plugins: Pre-Init");
             SoftwareManager.getLoadedPlugins().forEach(IPlugin::preInit);
-
-            DrawingBotV3.logger.config("Json Loaders: Init");
-            MasterRegistry.INSTANCE.presetLoaders.forEach(AbstractJsonLoader::init);
 
             DrawingBotV3.logger.config("DrawingBotV3: Loading Configuration");
             JsonLoaderManager.loadConfigFiles();
@@ -252,13 +248,15 @@ public class FXApplication extends Application {
                 FXHelper.saveDefaultUIStates();
 
                 DrawingBotV3.logger.config("Json Loader: Load Defaults");
-                JsonLoaderManager.loadDefaults();
+                JsonLoaderManager.loadDefaults(DrawingBotV3.context());
                 latchB.countDown();
             });
             latchB.await();
 
             DrawingBotV3.logger.config("Plugins: Post Init");
             SoftwareManager.getLoadedPlugins().forEach(IPlugin::postInit);
+
+            JsonLoaderManager.postInit();
 
             if(!isHeadless){
                 CountDownLatch latchC = new CountDownLatch(1);
@@ -284,8 +282,8 @@ public class FXApplication extends Application {
                 Platform.runLater(() -> {
 
                     ///////////////////////////////////////////////////////////////////////////////////////////////////////
-                    //secondary config load, shouldn't cause any clashes, ensure things like UI elements are setup correctly
-                    JsonLoaderManager.loadConfigFiles();
+                    //Re-apply the config setings, ensures the UI is loaded properly
+                    Register.PRESET_LOADER_PREFERENCES.applyConfigs();
 
                     DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_MOVED, DrawingBotV3.INSTANCE::onMouseMovedViewport);
                     DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, DrawingBotV3.INSTANCE::onMousePressedViewport);
@@ -358,7 +356,7 @@ public class FXApplication extends Application {
         SoftwareManager.getLoadedPlugins().forEach(IPlugin::shutdown);
 
         DrawingBotV3.logger.info("Saving Config Files");
-        Register.PRESET_LOADER_CONFIGS.onShutdown();
+        Register.PRESET_LOADER_PREFERENCES.onShutdown();
 
         DrawingBotV3.logger.info("Saving Logging Files");
         LoggingHandler.saveLoggingFiles();

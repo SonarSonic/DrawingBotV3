@@ -2,6 +2,7 @@ package drawingbot.api;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.files.json.adapters.JsonAdapterDrawingPen;
+import drawingbot.javafx.GenericPreset;
 
 /**
  * {@link IDrawingPen} defines a pen used when rendering the drawing
@@ -54,6 +55,14 @@ public interface IDrawingPen {
     int getDistributionWeight();
 
     boolean isUserCreated();
+
+    default GenericPreset<IDrawingPen> getLinkedPreset(){
+        return null;
+    }
+
+    default void setLinkedPreset(GenericPreset<IDrawingPen> preset){
+
+    }
 
     //// COLOR SPLITTER \\\\
 

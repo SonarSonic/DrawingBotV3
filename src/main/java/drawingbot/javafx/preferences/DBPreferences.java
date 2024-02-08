@@ -6,6 +6,7 @@ import drawingbot.api.ISettings;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.exporters.GCodeSettings;
+import drawingbot.files.json.IPresetLoader;
 import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetType;
 import drawingbot.image.blend.EnumBlendMode;
@@ -19,6 +20,7 @@ import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -121,6 +123,8 @@ public class DBPreferences implements ISettings {
     //// USER INTERFACE \\\\
     public final BooleanSetting<?> showExportedDrawing = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "showExportedDrawing", true));
     public final BooleanSetting<?> darkTheme = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "darkTheme", false));
+    public final ObjectProperty<Color> defaultThemeColor = new SimpleObjectProperty<>();
+
 
     public final OptionSetting<?, EnumWindowSize> uiWindowSize = register(createOptionSetting(DBPreferences.class, EnumWindowSize.class, CATEGORY_USER_INTERFACE, "uiWindowSize", FXCollections.observableArrayList(EnumWindowSize.values()), EnumWindowSize.DEFAULT));
     public final BooleanSetting<?> restoreLayout = register(createBooleanSetting(DBPreferences.class, CATEGORY_NOTIFICATIONS, "restoreLayout", true));
@@ -213,7 +217,7 @@ public class DBPreferences implements ISettings {
 
     public void setDefaultPreset(String key, String value){
         defaultPresets.get().put(key, value);
-        Register.PRESET_LOADER_CONFIGS.markDirty();
+        Register.PRESET_LOADER_PREFERENCES.updateConfigs();
         flagDefaultPresetChange.set(!flagDefaultPresetChange.get());
     }
 
@@ -228,7 +232,7 @@ public class DBPreferences implements ISettings {
 
     public void clearDefaultPreset(String key){
         defaultPresets.get().remove(key);
-        Register.PRESET_LOADER_CONFIGS.markDirty();
+        Register.PRESET_LOADER_PREFERENCES.updateConfigs();
         flagDefaultPresetChange.set(!flagDefaultPresetChange.get());
     }
 
@@ -322,7 +326,7 @@ public class DBPreferences implements ISettings {
         selectedGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
         selectedGCodePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), newValue);
+                Register.PRESET_MANAGER_GCODE_SETTINGS.tryApplyPreset(DrawingBotV3.context(), gcodeSettings, newValue);
             }
         });
 
@@ -332,6 +336,8 @@ public class DBPreferences implements ISettings {
         darkTheme.valueProperty().addListener((observable, oldValue, newValue) -> {
             FXApplication.applyCurrentTheme();
         });
+
+        defaultThemeColor.bind(Bindings.createObjectBinding(() -> darkTheme.get() ? Color.WHITE : Color.BLACK, darkTheme.valueProperty()));
     }
 
     @Override

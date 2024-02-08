@@ -1,5 +1,6 @@
 package drawingbot.javafx.observables;
 
+import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
@@ -52,6 +53,11 @@ public class ObservableVersion {
         updatePreset();
         return preset.get();
     }
+
+    public void loadVersion(DBTaskContext context){
+        preset.get().applyPreset(context);
+    }
+
 
     public void updatePreset(){
         preset.get().data.name = name.get();

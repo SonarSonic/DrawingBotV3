@@ -7,15 +7,12 @@ import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.exporters.GCodeBuilder;
+import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.PresetData;
 import drawingbot.integrations.vpype.VpypePlugin;
-import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controllers.AbstractFXController;
-import drawingbot.javafx.controls.ComboCellDrawingPen;
-import drawingbot.javafx.controls.ComboCellDrawingSet;
-import drawingbot.javafx.controls.ComboCellNamedSetting;
-import drawingbot.javafx.controls.ComboCellPreset;
+import drawingbot.javafx.controls.*;
 import drawingbot.javafx.editors.*;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.registry.MasterRegistry;
@@ -28,7 +25,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 
 /**
  * Note this implementation is inspired by / borrows from ControlsFX, PreferencesFX and FXSampler
@@ -131,85 +127,36 @@ public class FXPreferences extends AbstractFXController {
                             new LabelNode("GCode Settings", () -> Editors.createDefaultPresetComboBox(Register.PRESET_LOADER_GCODE_SETTINGS)),
                             new LabelNode("vPype Settings", () -> Editors.createDefaultPresetComboBox(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS)),
                             new LabelNode("Default Pen Set", () -> {
-                                ComboBox<String> comboBoxSetType = new ComboBox<>();
-                                ComboBox<IDrawingSet<IDrawingPen>> comboBoxDrawingSet = new ComboBox<>();
-                                comboBoxSetType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredSets.keySet()));
-                                comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet().getType());
-                                comboBoxSetType.setPrefWidth(100);
-                                comboBoxSetType.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                    comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(newValue));
-                                    comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.registeredSets.get(newValue).get(0));
+                                ControlPresetDrawingSet control = new ControlPresetDrawingSet();
+                                control.setDisablePresetMenu(true);
+                                control.activePresetProperty().addListener((observable, oldValue, newValue) -> {
+                                    control.getPresetLoader().setDefaultPreset(newValue);
                                 });
-                                comboBoxDrawingSet.setItems(MasterRegistry.INSTANCE.registeredSets.get(comboBoxSetType.getValue()));
-                                comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet());
-                                comboBoxDrawingSet.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                    if(newValue != null){
-                                        DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_SET.id, newValue.getCodeName());
-                                    }
-                                });
-                                comboBoxDrawingSet.setPrefWidth(250);
-                                comboBoxDrawingSet.setCellFactory(param -> new ComboCellDrawingSet<>());
-                                comboBoxDrawingSet.setButtonCell(new ComboCellDrawingSet<>());
-                                comboBoxDrawingSet.setPromptText("Select a Drawing Set");
-                                HBox hBox = new HBox();
-                                hBox.getChildren().add(comboBoxSetType);
-                                hBox.getChildren().add(comboBoxDrawingSet);
-                                hBox.setSpacing(4);
-
                                 DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
-                                    comboBoxSetType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet().getType());
-                                    comboBoxDrawingSet.setValue(MasterRegistry.INSTANCE.getDefaultDrawingSet());
+                                    control.setActivePreset(control.getPresetLoader().getDefaultPreset());
                                 });
-
-                                return hBox;
+                                return control;
                             }),
                             new LabelNode("Default Pen", () -> {
-                                ComboBox<String> comboBoxPenType = new ComboBox<>();
-                                ComboBox<DrawingPen> comboBoxDrawingPen = new ComboBox<>();
-
-                                comboBoxPenType.setItems(FXCollections.observableArrayList(MasterRegistry.INSTANCE.registeredPens.keySet()));
-                                comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());
-                                comboBoxPenType.setPrefWidth(100);
-
-                                comboBoxPenType.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                    comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(newValue));
-                                    comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultPen(newValue));
+                                ControlPresetDrawingPen control = new ControlPresetDrawingPen();
+                                control.setDisablePresetMenu(true);
+                                control.activePresetProperty().addListener((observable, oldValue, newValue) -> {
+                                    control.getPresetLoader().setDefaultPreset(newValue);
                                 });
-
-                                ComboBoxListViewSkin<DrawingPen> comboBoxDrawingPenSkin = new ComboBoxListViewSkin<>(comboBoxDrawingPen);
-                                comboBoxDrawingPenSkin.hideOnClickProperty().set(false);
-                                comboBoxDrawingPen.setSkin(comboBoxDrawingPenSkin);
-
-                                comboBoxDrawingPen.setItems(MasterRegistry.INSTANCE.registeredPens.get(comboBoxPenType.getValue()));
-                                comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
-                                comboBoxDrawingPen.setPrefWidth(250);
-                                comboBoxDrawingPen.setCellFactory(param -> new ComboCellDrawingPen(null, false));
-                                comboBoxDrawingPen.setButtonCell(new ComboCellDrawingPen(null,false));
-                                comboBoxDrawingPen.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                    if(newValue != null){
-                                        DBPreferences.INSTANCE.setDefaultPreset(Register.PRESET_TYPE_DRAWING_PENS.id, newValue.getCodeName());
-                                    }
-                                });
-                                HBox hBox = new HBox();
-                                hBox.getChildren().add(comboBoxPenType);
-                                hBox.getChildren().add(comboBoxDrawingPen);
-                                hBox.setSpacing(4);
-
                                 DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
-                                    comboBoxPenType.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen().getType());
-                                    comboBoxDrawingPen.setValue(MasterRegistry.INSTANCE.getDefaultDrawingPen());
+                                    control.setActivePreset(Register.PRESET_LOADER_DRAWING_PENS.getDefaultPreset());
                                 });
-                                return hBox;
+                                return control;
                             }),
                             new LabelNode("", () -> {
                                 javafx.scene.control.Button button = new javafx.scene.control.Button("Reset All");
                                 button.setOnAction(e -> {
-                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_AREA.type.id);
-                                    settings.clearDefaultPreset(Register.PRESET_LOADER_FILTERS.type.id);
-                                    settings.clearDefaultPreset(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.type.id);
-                                    settings.clearDefaultPreset(Register.PRESET_LOADER_GCODE_SETTINGS.type.id);
-                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_SET.type.id);
-                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_PENS.type.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_AREA.presetType.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_FILTERS.presetType.id);
+                                    settings.clearDefaultPreset(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.presetType.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_GCODE_SETTINGS.presetType.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_SET.presetType.id);
+                                    settings.clearDefaultPreset(Register.PRESET_LOADER_DRAWING_PENS.presetType.id);
                                 });
                                 return button;
                             })
@@ -222,9 +169,9 @@ public class FXPreferences extends AbstractFXController {
                                 ComboBox<GenericPreset<PresetData>> comboBox = new ComboBox<>();
                                 comboBox.setCellFactory(view -> new ComboCellPreset<>());
                                 comboBox.setItems(presets);
-                                comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default"));
+                                comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPresetWithFallback(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default", true));
                                 DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
-                                    comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPreset(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default"));
+                                    comboBox.setValue(MasterRegistry.INSTANCE.getDefaultPresetWithFallback(Register.PRESET_LOADER_PFM, factory.getRegistryName(), "Default", true));
                                 });
                                 comboBox.setOnAction(e -> {
                                     DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
@@ -304,18 +251,12 @@ public class FXPreferences extends AbstractFXController {
                         new PropertyNode("GCode Preset", settings.selectedGCodePreset, GenericPreset.class){
                             @Override
                             public Node createEditor() {
-                                HBox hBox = new HBox();
-                                ComboBox<GenericPreset<PresetData>> comboBox = new ComboBox<>();
-                                comboBox.setItems(Register.PRESET_LOADER_GCODE_SETTINGS.presets);
-                                comboBox.setCellFactory(view -> new ComboCellPreset<>());
-                                comboBox.valueProperty().bindBidirectional(settings.selectedGCodePreset);
-                                HBox.setHgrow(comboBox, Priority.ALWAYS);
-                                hBox.getChildren().add(comboBox);
-
-                                MenuButton menuButton = FXHelper.createPresetMenuButton(Register.PRESET_LOADER_GCODE_SETTINGS, Register.PRESET_LOADER_GCODE_SETTINGS::getDefaultManager, false, settings.selectedGCodePreset);
-                                HBox.setHgrow(menuButton, Priority.SOMETIMES);
-                                hBox.getChildren().add(menuButton);
-                                return hBox;
+                                ControlPresetSelection<GCodeSettings, PresetData> controlGCodePreset = new ControlPresetSelection<>();
+                                controlGCodePreset.setPresetManager(Register.PRESET_MANAGER_GCODE_SETTINGS);
+                                controlGCodePreset.setAvailablePresets(Register.PRESET_MANAGER_GCODE_SETTINGS.getPresetLoader().getPresets());
+                                controlGCodePreset.setTarget(settings.gcodeSettings);
+                                controlGCodePreset.activePresetProperty().bindBidirectional(settings.selectedGCodePreset);
+                                return controlGCodePreset;
                             }
                         }.setTitleStyling(),
                         new LabelNode("Layout").setTitleStyling(),
@@ -409,7 +350,7 @@ public class FXPreferences extends AbstractFXController {
     @FXML
     public void initialize(){
         DrawingBotV3.INSTANCE.controller.preferencesStage.setResizable(true);
-        DrawingBotV3.INSTANCE.controller.preferencesStage.setOnHidden(e -> Register.PRESET_LOADER_CONFIGS.markDirty());
+        DrawingBotV3.INSTANCE.controller.preferencesStage.setOnHidden(e -> Register.PRESET_LOADER_PREFERENCES.updateConfigs());
 
         root = MasterRegistry.INSTANCE.root;
 

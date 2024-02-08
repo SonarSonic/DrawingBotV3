@@ -31,7 +31,7 @@ public class SoftwareManager implements ISpecialListenable<SoftwareManager.Liste
 
         //Check the available components to see if they can be loaded
         for(IComponent component : available){
-            if(!component.isEnabled() || !hasRequiredDependencies(component.getOptionalComponents(), available)){
+            if(loadedComponents.contains(component) || !component.isEnabled() || !hasRequiredDependencies(component.getOptionalComponents(), available)){
                 continue;
             }
             loadedComponents.add(component);
@@ -44,7 +44,7 @@ public class SoftwareManager implements ISpecialListenable<SoftwareManager.Liste
     }
 
     private void findAvailableComponents(IComponent component, List<IComponent> available){
-        if(!component.checkAvailable()){
+        if(!component.checkAvailable() || available.contains(component)){
             return;
         }
 

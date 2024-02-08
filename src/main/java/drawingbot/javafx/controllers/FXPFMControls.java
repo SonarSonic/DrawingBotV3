@@ -3,10 +3,7 @@ package drawingbot.javafx.controllers;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.files.json.PresetData;
-import drawingbot.files.json.presets.PresetPFMSettingsManager;
-import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.FXController;
-import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.*;
@@ -15,11 +12,9 @@ import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -39,8 +34,7 @@ public class FXPFMControls extends AbstractFXController {
     public ChoiceBox<String> choiceBoxPFMCategory = null;
     public ComboBox<PFMFactory<?>> comboBoxPFM = null;
 
-    public ComboBox<GenericPreset<PresetData>> comboBoxPFMPreset = null;
-    public MenuButton menuButtonPFMPresets = null;
+    public ControlPresetSelection<PFMSettings, PresetData> controlPFMPreset;
 
     public TreeTableView<GenericSetting<?, ?>> treeTableViewPFMSettings = null;
     public TreeTableColumn<GenericSetting<?, ?>, Boolean> treeTableColumnLock = null;
@@ -59,8 +53,8 @@ public class FXPFMControls extends AbstractFXController {
             if(newValue == null){
                 pfmSettings.get().setPFMFactory(comboBoxPFM.getItems().get(0));
             }else{
-                comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
-                comboBoxPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getRegistryName()));
+                controlPFMPreset.setAvailablePresets(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue));
+                controlPFMPreset.setActivePreset(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getRegistryName()));
             }
         };
 
@@ -74,7 +68,7 @@ public class FXPFMControls extends AbstractFXController {
 
             if(newValue != null){
                 comboBoxPFM.valueProperty().bindBidirectional(newValue.factory);
-                comboBoxPFMPreset.setItems(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue.factory.get()));
+                controlPFMPreset.setAvailablePresets(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue.factory.get()));
 
                 //tableViewAdvancedPFMSettings.itemsProperty().bind(newValue.settings);
                 treeTableViewPFMSettings.rootProperty().bind(newValue.treeRoot);
@@ -142,18 +136,22 @@ public class FXPFMControls extends AbstractFXController {
         selectedPFMPreset.setValue(Register.PRESET_LOADER_PFM.getDefaultPreset());
         selectedPFMPreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), newValue, false, false);
+                Register.PRESET_MANAGER_PFM.applyPreset(DrawingBotV3.context(), pfmSettings.get(), newValue, false);
             }
         });
 
-        comboBoxPFMPreset.setItems(Register.PRESET_LOADER_PFM.presets);
-        comboBoxPFMPreset.valueProperty().bindBidirectional(selectedPFMPreset);
-        comboBoxPFMPreset.setOnAction(e -> {
-            pfmSettings.get().sendListenerEvent(l -> l.onUserChangedPFMPreset(comboBoxPFMPreset.getValue()));
+        controlPFMPreset.setPresetManager(Register.PRESET_MANAGER_PFM);
+        controlPFMPreset.targetProperty().bind(pfmSettings);
+        controlPFMPreset.setAvailablePresets(Register.PRESET_LOADER_PFM.presets);
+        controlPFMPreset.activePresetProperty().bindBidirectional(selectedPFMPreset);
+        controlPFMPreset.setComboBoxFactory(() -> {
+            ComboBox<GenericPreset<PresetData>> comboBox =  new ComboBox<>();
+            comboBox.setOnAction(e -> pfmSettings.get().sendListenerEvent(l -> l.onUserChangedPFMPreset(controlPFMPreset.getActivePreset())));
+            comboBox.setCellFactory(param -> new ComboCellPreset<>());
+            return comboBox;
         });
-        comboBoxPFMPreset.setCellFactory(param -> new ComboCellPreset<>());
 
-        FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, false, selectedPFMPreset);
+        //FXHelper.setupPresetMenuButton(menuButtonPFMPresets, Register.PRESET_LOADER_PFM, () -> pfmSettingsPresetManager, false, selectedPFMPreset);
 
         treeTableViewPFMSettings.setRowFactory(param -> {
             TreeTableRow<GenericSetting<?, ?>> row = new TreeTableRow<>();
@@ -232,10 +230,10 @@ public class FXPFMControls extends AbstractFXController {
          */
 
         buttonPFMSettingReset.setOnAction(e -> {
-            if(comboBoxPFMPreset.getValue() == null){
+            if(controlPFMPreset.getActivePreset() == null){
                 GenericSetting.resetSettings(pfmSettings.get().settings.get());
             }else{
-                pfmSettingsPresetManager.applyPreset(DrawingBotV3.context(), comboBoxPFMPreset.getValue(), false, false);
+                controlPFMPreset.applyPreset(DrawingBotV3.context());
             }
             DrawingBotV3.project().onPFMSettingsUserEdited();
         });
@@ -262,22 +260,5 @@ public class FXPFMControls extends AbstractFXController {
             pfmSettings.get().nextDistributionType.set(pfm.getDistributionType());
         }
     }
-
-    ////////////////////////////////////////////////////////
-
-    private final PresetPFMSettingsManager pfmSettingsPresetManager = new PresetPFMSettingsManager(Register.PRESET_LOADER_PFM) {
-
-        @Override
-        public Property<PFMFactory<?>> pfmProperty(DBTaskContext context) {
-            return pfmSettings.get().factory;
-        }
-
-        @Override
-        public Property<ObservableList<GenericSetting<?, ?>>> settingProperty(DBTaskContext context) {
-            return pfmSettings.get().settings;
-        }
-    };
-
-    ////////////////////////////////////////////////////////
 
 }

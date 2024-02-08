@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.*;
+import drawingbot.files.json.IPresetLoader;
+import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.json.projects.PresetProjectSettings;
@@ -170,6 +172,9 @@ public class DrawingBotV3 {
         // Tick the current tasks
         taskMonitor.tick();
 
+        // Tick the preset loaders, sending updates to the background thread
+        JsonLoaderManager.INSTANCE.tick();
+
         // Tick all plugins
         SoftwareManager.getLoadedPlugins().forEach(IPlugin::tick);
 
@@ -262,11 +267,12 @@ public class DrawingBotV3 {
     }
 
     public void saveLastRun(DBTaskContext context){
+        /* TODO FIXME! - last run is not used yet
         backgroundService.submit(() -> {
-            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_LOADER_PROJECT.getDefaultManager().updatePreset(context, preset, false); //TODO FIXME! - is last run even used ?
+            GenericPreset<PresetProjectSettings> preset = Register.PRESET_MANAGER_PROJECT.createPresetFromTarget(context, project());
             context.project().lastRun.set(new ObservableVersion(preset, true));
         });
+         */
     }
 
     public void resetPlotting(DBTaskContext context){

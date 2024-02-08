@@ -48,13 +48,11 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.RangeSlider;
-import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.fxmisc.easybind.EasyBind;
 
@@ -139,8 +137,6 @@ public class FXController extends AbstractFXController {
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
         projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
         preferencesController = FXHelper.initSeparateStage("/drawingbot/javafx/preferences.fxml", preferencesStage = new Stage(), "Preferences", Modality.APPLICATION_MODAL);
-
-        FXHelper.initSeparateStageWithController("/drawingbot/javafx/serialportsettings.fxml", (Stage) Hooks.runHook(Hooks.SERIAL_CONNECTION_STAGE, new Stage())[0], Hooks.runHook(Hooks.SERIAL_CONNECTION_CONTROLLER, new DummyController())[0], "Plotter / Serial Port Connection", Modality.NONE);
     }
 
     //Lazy Load the documentation window to prevent crashes on boot with MacOS High Sierra: https://bugs.openjdk.org/browse/JDK-8305197
@@ -463,16 +459,7 @@ public class FXController extends AbstractFXController {
         menuHelp.getItems().add(configFolder);
 
         MenuItem exportCrashReports = new MenuItem("Export Logs/Crash Reports");
-        exportCrashReports.setOnAction(e -> FXHelper.exportFile((file, fileChooser) -> {
-            if(file != null){
-                boolean exported = LoggingHandler.createReportZip(file.getPath());
-                if(exported){
-                    NotificationOverlays.INSTANCE.showWithSubtitle("Logs Exported: " + file.getName(), file.toString(), new Action("Open Folder", event -> FXHelper.openFolder(file.getParentFile())));
-                }else{
-                    NotificationOverlays.INSTANCE.showWithSubtitle("WARNING", "Log Export Failed", "ZIP the logs folder manually instead", new Action("Open Logs Folder", event -> FXHelper.openFolder(new File(FileUtils.getUserLogsDirectory()))));
-                }
-            }
-        }, new File(FileUtils.getUserHomeDirectory()), new FileChooser.ExtensionFilter[]{FileUtils.FILTER_ZIP}, FileUtils.FILTER_ZIP, "Export Log Archive", "dbv3_logs_%s_%s.zip".formatted(Utils.getOS().getShortName(), Utils.getDateAndTimeSafe())));
+        exportCrashReports.setOnAction(e -> FXHelper.exportLogFiles());
         exportCrashReports.setGraphic(fontAwesome.create(FontAwesome.Glyph.FILE_ZIP_ALT).color(Color.SLATEGRAY));
         menuHelp.getItems().add(exportCrashReports);
 

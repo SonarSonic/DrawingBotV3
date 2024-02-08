@@ -119,7 +119,7 @@ public class TestUtils {
         Platform.runLater(() -> {
             DrawingBotV3.project().getPFMSettings().setPFMFactory(task.pfmFactory);
             if(preset != null){
-                Register.PRESET_LOADER_PFM.getDefaultManager().applyPreset(DrawingBotV3.context(), preset, false, false);
+                preset.applyPreset(DrawingBotV3.context());
             }
             EnumDistributionType distributionType = EnumDistributionType.getRecommendedType(DrawingBotV3.context());
 
@@ -214,7 +214,7 @@ public class TestUtils {
     public static void applyDrawingAreaPreset(String presetName){
         JFXUtils.runNow(() -> {
             GenericPreset<PresetData> drawingAreaPreset = Register.PRESET_LOADER_DRAWING_AREA.findPreset(presetName);
-            Register.PRESET_LOADER_DRAWING_AREA.getDefaultManager().tryApplyPreset(DrawingBotV3.context(), drawingAreaPreset);
+            drawingAreaPreset.applyPreset(DrawingBotV3.context());
         });
     }
 

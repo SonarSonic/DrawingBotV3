@@ -6,16 +6,12 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.glyphfont.*?>
 
+<?import drawingbot.javafx.controls.ControlPresetDrawingPen?>
+<?import drawingbot.javafx.controls.ControlPresetDrawingSet?>
 <VBox minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingSets">
 
         <children>
-            <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
-                <children>
-                    <ComboBox fx:id="comboBoxSetType" prefHeight="25.0" prefWidth="80.0" promptText="Special" />
-                    <ComboBox fx:id="comboBoxDrawingSet" prefHeight="25.0" prefWidth="222.0" promptText="Select a drawing set!" />
-                    <MenuButton fx:id="menuButtonDrawingSetPresets" mnemonicParsing="false" text="Presets" />
-                </children>
-            </HBox>
+            <ControlPresetDrawingSet fx:id="controlDrawingSetSelection"/>
             <TableView fx:id="penTableView" editable="true" prefHeight="280.0" prefWidth="404.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="28.0" />
@@ -29,11 +25,7 @@
                 </columns>
             </TableView>
             <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
-                <children>
-                    <ComboBox fx:id="comboBoxPenType" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="124.0" promptText="Copic Original" />
-                    <ComboBox fx:id="comboBoxDrawingPen" prefHeight="25.0" prefWidth="181.0" promptText="Select a pen" />
-                    <MenuButton fx:id="menuButtonDrawingPenPresets" mnemonicParsing="false" text="Presets" />
-                </children>
+                <ControlPresetDrawingPen fx:id="controlDrawingPenSelection"/>
             </HBox>
             <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
                 <children>

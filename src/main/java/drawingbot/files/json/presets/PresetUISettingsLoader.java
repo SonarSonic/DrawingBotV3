@@ -10,7 +10,6 @@ public class PresetUISettingsLoader extends AbstractPresetLoader<PresetData> {
 
     public PresetUISettingsLoader(PresetType presetType) {
         super(PresetData.class, presetType, "ui_presets.json");
-        setDefaultManager(new PresetUISettingsManager(this));
     }
 
     @Override
@@ -19,7 +18,8 @@ public class PresetUISettingsLoader extends AbstractPresetLoader<PresetData> {
     }
 
     @Override
-    protected PresetData getPresetInstance(GenericPreset<PresetData> preset) {
+    public PresetData createDataInstance(GenericPreset<PresetData> preset) {
         return new PresetData();
     }
+
 }

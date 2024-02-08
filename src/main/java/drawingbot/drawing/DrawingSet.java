@@ -1,5 +1,6 @@
 package drawingbot.drawing;
 
+import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.files.json.JsonData;
 import drawingbot.javafx.GenericPreset;
@@ -7,13 +8,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsonData
 public class DrawingSet implements IDrawingSet, IColorManagedDrawingSet {
 
     public String type;
     public String name;
-    public List<DrawingPen> pens;
+    public List<IDrawingPen> pens;
 
     //// COLOUR SPLITTER DATA \\\\
     public ColorSeparationHandler colorHandler = null;
@@ -25,13 +27,19 @@ public class DrawingSet implements IDrawingSet, IColorManagedDrawingSet {
 
     public DrawingSet(){}
 
-    public DrawingSet(String type, String name, List<DrawingPen> pens) {
+    public DrawingSet(IDrawingSet drawingSet){
+        this.type = drawingSet.getType();
+        this.name = drawingSet.getName();
+        this.pens = drawingSet.getPens().stream().map(DrawingPen::new).collect(Collectors.toList());
+    }
+
+    public DrawingSet(String type, String name, List<IDrawingPen> pens) {
         this.type = type;
         this.name = name;
         this.pens = pens;
     }
 
-    public DrawingSet(String type, String name, List<DrawingPen> pens, ColorSeparationHandler colorHandler, ColorSeparationSettings colorSettings) {
+    public DrawingSet(String type, String name, List<IDrawingPen> pens, ColorSeparationHandler colorHandler, ColorSeparationSettings colorSettings) {
         this(type, name, pens);
         this.colorHandler = colorHandler;
         this.colorSettings = colorSettings;
@@ -39,16 +47,22 @@ public class DrawingSet implements IDrawingSet, IColorManagedDrawingSet {
 
     @Override
     public String getType() {
+        if(preset != null){
+            return preset.getPresetSubType();
+        }
         return type;
     }
 
     @Override
     public String getName() {
+        if(preset != null){
+            return preset.getPresetName();
+        }
         return name;
     }
 
     @Override
-    public List<DrawingPen> getPens() {
+    public List<IDrawingPen> getPens() {
         return pens;
     }
 
@@ -63,7 +77,7 @@ public class DrawingSet implements IDrawingSet, IColorManagedDrawingSet {
     }
 
     public DrawingSet copy(){
-        return new DrawingSet(type, name, new ArrayList<>(pens));
+        return new DrawingSet(getType(), getName(), new ArrayList<>(pens));
     }
 
     @Override

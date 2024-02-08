@@ -53,7 +53,7 @@ public class JsonAdapterDrawingPen implements JsonSerializer<IDrawingPen>, JsonD
             drawingPen.colorSplitOffsetY = GsonHelper.getFloatOrDefault(jsonObject,"colorSplitOffsetY", 0F);
         }
 
-        DrawingPen actualPen = MasterRegistry.INSTANCE.getDrawingPenFromRegistryName(drawingPen.getCodeName());
+        IDrawingPen actualPen = MasterRegistry.INSTANCE.getDrawingPenFromRegistryName(drawingPen.getCodeName());
         if(actualPen instanceof CustomPen){
             return actualPen;
         }

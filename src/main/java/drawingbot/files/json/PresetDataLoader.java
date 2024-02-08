@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.javafx.GenericPreset;
 
 import java.lang.reflect.Type;
@@ -70,29 +69,31 @@ public abstract class PresetDataLoader<MASTER extends PresetData> {
         return null;
     }
 
-    public static class Preset<SUB, MASTER extends PresetData> extends PresetDataLoader<MASTER> {
+    public static class Preset<TARGET, SUB, MASTER extends PresetData> extends PresetDataLoader<MASTER> {
 
-        public final AbstractPresetLoader<SUB> manager;
+        public final IPresetManager<TARGET, SUB> manager;
         public Type type;
 
-        public Preset(Class<MASTER> masterType, AbstractPresetLoader<SUB> manager, int order) {
-            super(masterType, manager.getDefaultManager().getPresetType().id, order);
+        public Preset(Class<MASTER> masterType, IPresetManager<TARGET, SUB> manager, int order) {
+            super(masterType, manager.getPresetType().id, order);
             this.manager = manager;
-            this.type = TypeToken.getParameterized(GenericPreset.class, manager.dataType).getType();
+            this.type = TypeToken.getParameterized(GenericPreset.class, manager.getDataType()).getType();
         }
 
         @Override
         public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<MASTER> preset) {
             GenericPreset<SUB> data = gson.fromJson(element, type);
             if(data != null){
-                manager.getDefaultManager().applyPreset(context, data, false, preset.data instanceof PresetProjectSettings);
+                TARGET target = manager.getTargetFromContext(context);
+                manager.applyPreset(context, target, data, false);
             }
         }
 
         @Override
         public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset) {
-            GenericPreset<SUB> data = manager.createNewPreset();
-            manager.getDefaultManager().updatePreset(context, data, preset.data instanceof PresetProjectSettings);
+            TARGET target = manager.getTargetFromContext(context);
+            GenericPreset<SUB> data = manager.getPresetLoader().createNewPreset();
+            manager.updatePreset(context, target, data);
             return gson.toJsonTree(data, type);
         }
     }

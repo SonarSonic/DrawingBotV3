@@ -3,7 +3,6 @@ package drawingbot.integrations.vpype;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
-import drawingbot.api.IPlugin;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
@@ -16,19 +15,14 @@ import drawingbot.javafx.editors.ControllerNode;
 import drawingbot.javafx.editors.TreeNode;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.settings.StringSetting;
-import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.plugins.AbstractPlugin;
 import drawingbot.registry.MasterRegistry;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import org.fxmisc.easybind.EasyBind;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class VpypePlugin extends AbstractPlugin {
 
@@ -37,6 +31,7 @@ public class VpypePlugin extends AbstractPlugin {
 
     public static PresetType PRESET_TYPE_VPYPE_SETTINGS;
     public static PresetVpypeSettingsLoader PRESET_LOADER_VPYPE_SETTINGS;
+    public static PresetVpypeSettingsManager PRESET_MANAGER_VPYPE_SETTINGS;
     public static DrawingExportHandler EXPORT_HANDLER_VPYPE;
 
     public final VpypeSettings vpypeSettings = new VpypeSettings();
@@ -74,6 +69,7 @@ public class VpypePlugin extends AbstractPlugin {
 
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings", "VPype Preset"));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
+        MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_VPYPE_SETTINGS = new PresetVpypeSettingsManager(PRESET_LOADER_VPYPE_SETTINGS));
 
         MasterRegistry.INSTANCE.registerDrawingExportHandler(EXPORT_HANDLER_VPYPE = new DrawingExportHandler(DrawingExportHandler.Category.SPECIAL, "vpype_export", "Export to vpype", true, (exportTask, saveLocation) -> {
 
@@ -102,7 +98,7 @@ public class VpypePlugin extends AbstractPlugin {
         selectedVPypePreset.setValue(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
         selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultManager().applyPreset(DrawingBotV3.context(), newValue, false, false);
+                PRESET_MANAGER_VPYPE_SETTINGS.applyPreset(DrawingBotV3.context(), vpypeSettings, newValue, false);
             }
         });
     }
