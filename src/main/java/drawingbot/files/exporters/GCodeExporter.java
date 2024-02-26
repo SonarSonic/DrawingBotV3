@@ -13,6 +13,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GCodeExporter {
 
@@ -33,6 +35,37 @@ public class GCodeExporter {
             """;
     public static final String defaultStartLayerCode = "";
     public static final String defaultEndLayerCode = "";
+
+
+    public static List<GCodeWildcard> wildcards = new ArrayList<>();
+    static {
+        wildcards.add(new GCodeWildcard("%PEN_NAME%") {
+            @Override
+            public String formatWildcard(GCodeBuilder builder, String string) {
+                //Legacy: fix for old wildcard ids
+                string = string.replaceAll("%LAYER_NAME%", builder.layerName);
+
+                return string.replaceAll(wildcard, builder.layerName);
+            }
+        });
+        wildcards.add(new GCodeWildcard("%PEN_ID%") {
+            @Override
+            public String formatWildcard(GCodeBuilder builder, String string) {
+                string = string.replaceAll(wildcard, "" + builder.layerID);
+
+                //TODO PARSE PLUS + MINUS
+
+                return string;
+            }
+        });
+    }
+
+    public static String replaceWildcards(GCodeBuilder builder, String command){
+        for(GCodeWildcard wildcard : GCodeExporter.wildcards){
+            command = wildcard.formatWildcard(builder, command);
+        }
+        return command;
+    }
 
 
     public static AffineTransform createGCodeTransform(ICanvas canvas, GCodeSettings settings){
@@ -78,10 +111,13 @@ public class GCodeExporter {
 
         float[] coords = new float[6];
 
+        int index = 0;
         for(ObservableDrawingPen drawingPen : exportTask.exportRenderOrder){
 
             exportTask.exportIterator.reset();
-            builder.startLayer(drawingPen.getName());
+            builder.layerName = drawingPen.getName();
+            builder.layerID = index;
+            builder.startLayer();
             while(exportTask.exportIterator.hasNext()){
                 IGeometry geometry = exportTask.exportIterator.next();
 
@@ -104,7 +140,8 @@ public class GCodeExporter {
                     exportTask.onGeometryExported();
                 }
             }
-            builder.endLayer(drawingPen.getName());
+            builder.endLayer();
+            index++;
         }
         builder.close();
         DrawingBotV3.logger.info("GCode File Created:  " +  saveLocation);
