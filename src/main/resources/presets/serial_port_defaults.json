@@ -3,7 +3,7 @@
     {
       "presetType": "serial_port_config",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Default",
       "userCreated": false,
       "data": {

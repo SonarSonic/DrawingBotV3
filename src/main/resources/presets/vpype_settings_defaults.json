@@ -3,7 +3,7 @@
     {
       "presetType": "vpype_settings",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Default",
       "userCreated": false,
       "data": {
@@ -15,7 +15,7 @@
     {
       "presetType": "vpype_settings",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Show",
       "userCreated": false,
       "data": {
@@ -27,7 +27,7 @@
     {
       "presetType": "vpype_settings",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Linesort",
       "userCreated": false,
       "data": {
@@ -39,7 +39,7 @@
     {
       "presetType": "vpype_settings",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Multipass",
       "userCreated": false,
       "data": {

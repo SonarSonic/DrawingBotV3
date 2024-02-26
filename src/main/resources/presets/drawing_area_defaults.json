@@ -3,7 +3,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Original Sizing",
       "userCreated": false,
       "data": {
@@ -15,7 +15,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A0 Paper",
       "userCreated": false,
       "data": {
@@ -30,7 +30,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A1 Paper",
       "userCreated": false,
       "data": {
@@ -45,7 +45,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A2 Paper",
       "userCreated": false,
       "data": {
@@ -60,7 +60,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A3 Paper",
       "userCreated": false,
       "data": {
@@ -75,7 +75,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A4 Paper",
       "userCreated": false,
       "data": {
@@ -90,7 +90,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A5 Paper",
       "userCreated": false,
       "data": {
@@ -105,7 +105,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A6 Paper",
       "userCreated": false,
       "data": {
@@ -120,7 +120,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A7 Paper",
       "userCreated": false,
       "data": {
@@ -135,7 +135,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A8 Paper",
       "userCreated": false,
       "data": {
@@ -150,7 +150,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A9 Paper",
       "userCreated": false,
       "data": {
@@ -165,7 +165,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "A10 Paper",
       "userCreated": false,
       "data": {
@@ -180,7 +180,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "ANSI A",
       "userCreated": false,
       "data": {
@@ -195,7 +195,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "ANSI B",
       "userCreated": false,
       "data": {
@@ -210,7 +210,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "ANSI C",
       "userCreated": false,
       "data": {
@@ -225,7 +225,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "ANSI D",
       "userCreated": false,
       "data": {
@@ -240,7 +240,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "ANSI E",
       "userCreated": false,
       "data": {
@@ -255,7 +255,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Arch A",
       "userCreated": false,
       "data": {
@@ -270,7 +270,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Arch B",
       "userCreated": false,
       "data": {
@@ -285,7 +285,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Arch C",
       "userCreated": false,
       "data": {
@@ -300,7 +300,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Arch D",
       "userCreated": false,
       "data": {
@@ -315,7 +315,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Arch E",
       "userCreated": false,
       "data": {
@@ -330,7 +330,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "Arch E1",
       "userCreated": false,
       "data": {
@@ -345,7 +345,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "US Letter",
       "userCreated": false,
       "data": {
@@ -360,7 +360,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "US Legal",
       "userCreated": false,
       "data": {
@@ -375,7 +375,7 @@
     {
       "presetType": "drawing_area",
       "version": 1,
-      "presetSubType": "User",
+      "presetSubType": "System",
       "presetName": "US Executive",
       "userCreated": false,
       "data": {

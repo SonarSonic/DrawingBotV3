@@ -3,7 +3,7 @@
     {
       "presetType": "gcode_settings",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Default",
       "userCreated": false,
       "data": {

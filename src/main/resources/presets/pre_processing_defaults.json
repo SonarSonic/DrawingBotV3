@@ -3,7 +3,7 @@
     {
       "presetType": "image_filters",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Default",
       "userCreated": false,
       "data": {
@@ -13,7 +13,7 @@
     {
       "presetType": "image_filters",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Original - Dirty Border",
       "userCreated": false,
       "data": {
@@ -34,7 +34,7 @@
     {
       "presetType": "image_filters",
       "version": 1,
-      "presetSubType": "",
+      "presetSubType": "System",
       "presetName": "Simple Unsharp Mask",
       "userCreated": false,
       "data": {
