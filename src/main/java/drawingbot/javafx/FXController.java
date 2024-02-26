@@ -3,7 +3,10 @@ package drawingbot.javafx;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
-import drawingbot.files.*;
+import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.ExportTask;
+import drawingbot.files.FileUtils;
+import drawingbot.files.UpdateChecker;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.blend.EnumBlendMode;
@@ -66,7 +69,7 @@ public class FXController extends AbstractFXController {
     public static final String STYLESHEET_VIEWPORT_OVERLAYS = "viewport-overlays.css";
 
     public FXDrawingArea drawingAreaController;
-    public FXImageFilters imageFiltersController;
+    public FXImageProcessing imageFiltersController;
     public FXPFMControls pfmSettingsController;
     public FXDrawingSets drawingSetsController;
     public FXVersionControl versionControlController;
@@ -133,10 +136,14 @@ public class FXController extends AbstractFXController {
     public Stage documentationStage;
     public FXDocumentation documentationController;
 
+    public Stage presetManagerStage;
+    public FXPresetManager presetManagerController;
+
     public void initSeparateStages() {
         taskMonitorController = FXHelper.initSeparateStage("/drawingbot/javafx/taskmonitor.fxml", taskMonitorStage = new Stage(), "Task Monitor", Modality.NONE);
         projectManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/projectmanager.fxml", projectManagerStage = new Stage(), "Project Manager", Modality.NONE);
         preferencesController = FXHelper.initSeparateStage("/drawingbot/javafx/preferences.fxml", preferencesStage = new Stage(), "Preferences", Modality.APPLICATION_MODAL);
+        presetManagerController = FXHelper.initSeparateStage("/drawingbot/javafx/presetmanager.fxml", presetManagerStage = new Stage(), "Preset Manager", Modality.APPLICATION_MODAL);
     }
 
     //Lazy Load the documentation window to prevent crashes on boot with MacOS High Sierra: https://bugs.openjdk.org/browse/JDK-8305197
@@ -302,6 +309,14 @@ public class FXController extends AbstractFXController {
             preferencesStage.show();
         });
         menuFile.getItems().add(menuPreferences);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
+        MenuItem menuPresetManager = new MenuItem("Preset Manager");
+        menuPresetManager.setOnAction(e -> {
+            presetManagerStage.show();
+        });
+        menuFile.getItems().add(menuPresetManager);
 
         menuFile.getItems().add(new SeparatorMenuItem());
 

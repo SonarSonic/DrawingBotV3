@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import drawingbot.javafx.controls.ControlPresetSelector?>
 <AnchorPane minHeight="309.0" minWidth="400.0" prefHeight="309.0" prefWidth="517.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.integrations.vpype.FXVPypeController">
     <AnchorPane minHeight="0.0" minWidth="0.0">
         <children>
@@ -14,10 +15,7 @@
                 </padding>
                 <children>
                     <HBox>
-                        <children>
-                            <ComboBox fx:id="comboBoxVPypePreset" prefHeight="25.0" prefWidth="314.0" promptText="Default" />
-                            <MenuButton fx:id="menuButtonVPypePresets" mnemonicParsing="false" text="Presets" />
-                        </children>
+                        <ControlPresetSelector fx:id="controlVpypePreset"/>
                     </HBox>
                     <TextArea fx:id="textAreaVPypeCommand" minHeight="124.0" prefHeight="124.0" prefWidth="500.0" promptText="vpype command" wrapText="true" />
                <HBox spacing="4.0">

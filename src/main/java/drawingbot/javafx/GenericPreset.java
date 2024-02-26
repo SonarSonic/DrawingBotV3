@@ -8,6 +8,7 @@ import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.INamedSetting;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.util.Objects;
@@ -20,9 +21,7 @@ public class GenericPreset<DATA> implements INamedSetting {
     public PresetType presetType; //preset type, which defines the PresetManager and IPresetData types
     public String version; //the major version of this preset
     public boolean userCreated; //if the preset should be saved to the json, if false it's assumed the preset is pre-installed
-
-    private final SimpleStringProperty presetSubType = new SimpleStringProperty(); //only needed by some presets, e.g. PFMPresets have different presets for each PFM
-    private final SimpleStringProperty presetName = new SimpleStringProperty(); //the presets name as it should show up in the user interface
+    public boolean overridesSystemPreset;
 
     public DATA data; //data this preset is bound to
 
@@ -47,8 +46,11 @@ public class GenericPreset<DATA> implements INamedSetting {
         this.presetSubType.set(copy.getPresetSubType());
         this.presetName.set(copy.getPresetName());
         this.userCreated = copy.userCreated;
+        this.overridesSystemPreset = copy.overridesSystemPreset;
         this.data = copy.presetLoader.duplicateData(JsonLoaderManager.createDefaultGson(), copy);
     }
+
+    ////////////////////////////////////////////////////////
 
     public void applyPreset(DBTaskContext context){
         MasterRegistry.INSTANCE.applyPresetToProject(context, this, false, false);
@@ -57,6 +59,51 @@ public class GenericPreset<DATA> implements INamedSetting {
     public void updatePreset(DBTaskContext context){
         MasterRegistry.INSTANCE.updatePresetFromProject(context, this, false, false);
     }
+
+    ////////////////////////////////////////////////////////
+
+    public PresetType getPresetType() {
+        return presetType;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public boolean isUserCreated() {
+        return userCreated;
+    }
+
+    public DATA getData() {
+        return data;
+    }
+
+    ////////////////////////////////////////////////////////
+
+    private final SimpleBooleanProperty enabled = new SimpleBooleanProperty(true);
+    {
+        enabled.addListener((observable, oldValue, newValue) -> {
+            if(presetLoader != null){
+                presetLoader.markDirty();
+            }
+        });
+    }
+
+    public boolean isEnabled() {
+        return enabled.get();
+    }
+
+    public SimpleBooleanProperty enabledProperty() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled.set(enabled);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    private final SimpleStringProperty presetSubType = new SimpleStringProperty(); //only needed by some presets, e.g. PFMPresets have different presets for each PFM
 
     public String getPresetSubType() {
         return presetSubType.get();
@@ -70,6 +117,10 @@ public class GenericPreset<DATA> implements INamedSetting {
         this.presetSubType.set(presetSubType);
     }
 
+    ////////////////////////////////////////////////////////
+
+    private final SimpleStringProperty presetName = new SimpleStringProperty(); //the presets name as it should show up in the user interface
+
     public String getPresetName() {
         return presetName.get();
     }
@@ -82,6 +133,44 @@ public class GenericPreset<DATA> implements INamedSetting {
         this.presetName.set(presetName);
     }
 
+    ////////////////////////////////////////////////////////
+
+    private final SimpleBooleanProperty defaultPreset = new SimpleBooleanProperty(false);
+
+    public boolean isDefaultPreset() {
+        return defaultPreset.get();
+    }
+
+    public SimpleBooleanProperty defaultPresetProperty() {
+        return defaultPreset;
+    }
+
+    public void setDefaultPreset(boolean defaultPreset) {
+        this.defaultPreset.set(defaultPreset);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    private final SimpleBooleanProperty defaultSubTypePreset = new SimpleBooleanProperty(false);
+
+    public boolean isDefaultSubTypePreset() {
+        return defaultSubTypePreset.get();
+    }
+
+    public SimpleBooleanProperty defaultSubTypePresetProperty() {
+        return defaultSubTypePreset;
+    }
+
+    public void setDefaultSubTypePreset(boolean defaultSubTypePreset) {
+        this.defaultSubTypePreset.set(defaultSubTypePreset);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    public String getPresetID(){
+        return getPresetSubType() + ":" + getPresetName();
+    }
+
     public boolean isSystemPreset(){
         return presetLoader.isSystemPreset(this);
     }
@@ -89,6 +178,8 @@ public class GenericPreset<DATA> implements INamedSetting {
     public boolean isUserPreset(){
         return presetLoader.isUserPreset(this);
     }
+
+    ////////////////////////////////////////////////////////
 
     @Override
     public String toString() {

@@ -74,7 +74,7 @@ public class StabiloPensPlugin extends AbstractPenPlugin {
     @Override
     public void registerPenSets() {
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Point 88 - Greys", getDrawingPensFromCodes("46", "98", "97", "96", "95", "94")));
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Point 88 - Blues", getDrawingPensFromCodes("46", "96", "41", "32", "11", "95", "94")));
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Point 88 - Blues / Greys", getDrawingPensFromCodes("46", "96", "41", "32", "11", "95", "94")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Point 88 - Pastel", getDrawingPensFromCodes("96", "13", "16", "11", "59", "29", "26", "24")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Point 88 - Neon", getDrawingPensFromCodes("031", "033", "024", "054", "040", "056")));
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Stabilo", "Point 88 - Basics", getDrawingPensFromCodes("46", "36", "41", "55", "58", "40")));

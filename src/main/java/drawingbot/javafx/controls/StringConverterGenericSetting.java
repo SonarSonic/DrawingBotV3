@@ -31,14 +31,14 @@ public class StringConverterGenericSetting<V> extends StringConverter<V> {
 
     public V fromString(String string) {
         GenericSetting<?, V> setting = supplier.get();
-        if(setting.hasEditableTextField()){
+        //if(setting.hasEditableTextField()){ TODO FIXME??
             try {
                 V value = setting.getStringConverter().fromString(string);
                 return setting.validate(value);
             } catch (Exception e) {
                 DrawingBotV3.logger.info("Invalid input: " + string + " for setting " + setting.getKey());
             }
-        }
+        //}
         return setting.value.get();
     }
 }

@@ -1,4 +1,4 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -45,7 +45,6 @@ public class TreeNode implements Observable {
         this.name.set(name);
         return this;
     }
-
     ////////////
 
     public final BooleanProperty hideFromTree = new SimpleBooleanProperty(false);
@@ -65,6 +64,22 @@ public class TreeNode implements Observable {
 
     public Node getContent() {
         return null;
+    }
+
+    ////////////
+
+    public final BooleanProperty disabled = new SimpleBooleanProperty(false);
+
+    public boolean isDisabled() {
+        return disabled.get();
+    }
+
+    public BooleanProperty disabledProperty() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled.set(disabled);
     }
 
     ////////////

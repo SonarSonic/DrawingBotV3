@@ -1,9 +1,9 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.api.IDrawingPen;
-import drawingbot.drawing.DrawingSets;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.preferences.DBPreferences;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -23,12 +23,12 @@ public class ComboCellPresetDrawingPen extends ComboBoxListCell<GenericPreset<ID
     public final Rectangle colour;
     public final Label displayNameLabel;
     public final Label userCreatedLabel;
-    public Property<DrawingSets> drawingSets;
+    public Property<ObservableDrawingSet> drawingSet;
     private BooleanProperty property;
 
-    public ComboCellPresetDrawingPen(Property<DrawingSets> drawingSets, boolean useCheckBox) {
+    public ComboCellPresetDrawingPen(Property<ObservableDrawingSet> drawingSet, boolean useCheckBox) {
         super();
-        this.drawingSets = drawingSets;
+        this.drawingSet = drawingSet;
         hbox = new HBox();
 
         if (useCheckBox) {
@@ -37,9 +37,9 @@ public class ComboCellPresetDrawingPen extends ComboBoxListCell<GenericPreset<ID
             checkBox.selectedProperty().bindBidirectional(property);
             checkBox.setOnAction(event -> {
                 if(checkBox.isSelected()){
-                    drawingSets.getValue().activeDrawingSet.get().addNewPen(getItem().data, true);
+                    this.drawingSet.getValue().addNewPen(getItem().data, true);
                 }else{
-                    drawingSets.getValue().activeDrawingSet.get().pens.removeIf((p) -> p.getCodeName().equals(getItem().data.getCodeName()));
+                    this.drawingSet.getValue().pens.removeIf((p) -> p.getCodeName().equals(getItem().data.getCodeName()));
                 }
             });
             hbox.setSpacing(10);
@@ -66,7 +66,7 @@ public class ComboCellPresetDrawingPen extends ComboBoxListCell<GenericPreset<ID
             setText("");
             setGraphic(hbox);
             if (checkBox != null) {
-                property.set(drawingSets.getValue().activeDrawingSet.get().containsPen(item.data));
+                property.set(drawingSet.getValue().containsPen(item.data));
             }
             hbox.setSpacing(4);
             hbox.setAlignment(Pos.CENTER_LEFT);

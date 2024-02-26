@@ -3,21 +3,21 @@ package drawingbot;
 import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
-import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.LoggingHandler;
 import drawingbot.files.json.JsonLoaderManager;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.util.MouseMonitor;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.IDisplayMode;
 import drawingbot.render.jfx.JavaFXRenderer;
 import drawingbot.render.opengl.OpenGLRendererImpl;
-import drawingbot.render.overlays.*;
+import drawingbot.render.overlays.AbstractOverlay;
 import drawingbot.software.ISoftware;
 import drawingbot.software.SoftwareManager;
 import drawingbot.utils.LazyTimer;
-import drawingbot.javafx.util.MouseMonitor;
 import drawingbot.utils.LazyTimerUtils;
 import drawingbot.utils.Utils;
 import drawingbot.utils.flags.Flags;
@@ -38,7 +38,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -175,9 +176,6 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.config("Json Loader: Load JSON Files");
             JsonLoaderManager.loadJSONFiles();
-
-            DrawingBotV3.logger.config("DrawingBotV3: Registering Missing Presets");
-            MasterRegistry.INSTANCE.registerMissingDefaultPFMPresets();
 
             DrawingBotV3.logger.config("DrawingBotV3: Loading User Interface");
             CountDownLatch latchA = new CountDownLatch(1);

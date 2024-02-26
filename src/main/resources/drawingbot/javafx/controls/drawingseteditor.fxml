@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import drawingbot.javafx.controls.ControlPresetDrawingPen?>
+<?import org.controlsfx.glyphfont.Glyph?>
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controls.ControlDrawingSetEditor">
+
+    <TableView fx:id="penTableView" editable="true" prefHeight="280.0" prefWidth="404.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="28.0" />
+            <TableColumn fx:id="penTypeColumn" prefWidth="92.0" sortable="false" text="Type" />
+            <TableColumn fx:id="penNameColumn" prefWidth="104.0" sortable="false" text="Name" />
+            <TableColumn fx:id="penColourColumn" prefWidth="108.0" text="Colour" />
+            <TableColumn fx:id="penWeightColumn" minWidth="0.0" prefWidth="66.0" sortable="false" text="Weight" />
+            <TableColumn fx:id="penStrokeColumn" minWidth="8.0" prefWidth="53.0" sortable="false" text="Stroke" />
+            <TableColumn fx:id="penPercentageColumn" editable="false" minWidth="0.0" prefWidth="46.0" sortable="false" text="\%" />
+            <TableColumn fx:id="penLinesColumn" editable="false" minWidth="0.0" prefWidth="53.0" sortable="false" text="Shape Count" />
+        </columns>
+    </TableView>
+    <HBox maxHeight="-Infinity" maxWidth="-Infinity" spacing="3.0">
+        <ControlPresetDrawingPen fx:id="controlDrawingPenSelection"/>
+    </HBox>
+    <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
+        <children>
+            <Button fx:id="buttonAddPen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonRemovePen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonDuplicatePen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="COPY" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonMoveUpPen" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="ARROW_UP" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonMoveDownPen" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttonClearDrawingSet" layoutX="320.0" layoutY="10.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                </graphic>
+            </Button>
+        </children>
+    </HBox>
+</fx:root>

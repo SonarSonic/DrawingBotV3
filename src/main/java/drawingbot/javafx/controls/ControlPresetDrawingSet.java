@@ -7,7 +7,7 @@ import javafx.scene.control.ComboBox;
 
 import java.util.function.Supplier;
 
-public class ControlPresetDrawingSet extends ControlPresetSelectionCategory<IDrawingSet, IDrawingSet> {
+public class ControlPresetDrawingSet extends ControlPresetSelectorCategory<IDrawingSet, IDrawingSet> {
 
     public static Supplier<ComboBox<GenericPreset<IDrawingSet>>> defaultDrawingSetComboBoxFactory = () -> {
         ComboBox<GenericPreset<IDrawingSet>> comboBox =  new ComboBox<>();

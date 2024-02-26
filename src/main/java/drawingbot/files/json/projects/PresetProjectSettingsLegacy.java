@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.ColorSeparationHandler;
-import drawingbot.drawing.DrawingSet;
 import drawingbot.files.json.PresetData;
 import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.image.blend.EnumBlendMode;

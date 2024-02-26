@@ -175,7 +175,7 @@ public class PFMTaskImage extends PFMTask {
     public void logStart() {
         super.logStart();
         DrawingBotV3.logger.config("Image: %s".formatted(imageData));
-        DrawingBotV3.logger.config("Image Sizing: %s".formatted(imageData.getPropertiesString()));
+        DrawingBotV3.logger.config("Image Sizing: %s".formatted(imageData.getImageCropping().toString()));
         DrawingBotV3.logger.config("%s".formatted(imgFilterSettings));
     }
 }

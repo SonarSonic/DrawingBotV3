@@ -11,9 +11,6 @@ import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.utils.EnumRotation;
 import javafx.beans.Observable;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +32,9 @@ public class FilteredImageData implements IProperties {
 
     public final File sourceFile;
     public final ICanvas targetCanvas;
+    public final ImageCropping imageCropping;
 
-    public ICanvas sourceCanvas;
+    public final ICanvas sourceCanvas;
     public BufferedImage sourceImage;
 
     public ICanvas destCanvas;
@@ -52,7 +50,7 @@ public class FilteredImageData implements IProperties {
         this.destCanvas = destCanvas;
         this.sourceCanvas = sourceCanvas;
         this.sourceImage = sourceImage;
-        this.resetCrop();
+        this.imageCropping = new ImageCropping(sourceCanvas);
     }
 
     /**
@@ -85,6 +83,13 @@ public class FilteredImageData implements IProperties {
     }
 
     /**
+     * @return The settings of the pre crop applied to the image before processing
+     */
+    public ImageCropping getImageCropping() {
+        return imageCropping;
+    }
+
+    /**
      * @return the image which should be rendered in the viewport when in Image Mode.
      */
     public BufferedImage getSourceImage() {
@@ -114,84 +119,18 @@ public class FilteredImageData implements IProperties {
 
     ///////////////////////////////////////
 
-    /**
-     * The rotation to be applied to the Rotation/Flipping stage
-     */
-    public final SimpleObjectProperty<EnumRotation> imageRotation = new SimpleObjectProperty<>(EnumRotation.R0);
-
-    public EnumRotation getImageRotation() {
-        return imageRotation.get();
-    }
-
-    public SimpleObjectProperty<EnumRotation> imageRotationProperty() {
-        return imageRotation;
-    }
-
-    public void setImageRotation(EnumRotation imageRotation) {
-        this.imageRotation.set(imageRotation);
-    }
-
-    ///////////////////////////////////////
-
-    public final SimpleBooleanProperty imageFlipHorizontal = new SimpleBooleanProperty(false);
-
-    public boolean shouldFlipHorizontal() {
-        return imageFlipHorizontal.get();
-    }
-
-    public SimpleBooleanProperty flipHorizontalProperty() {
-        return imageFlipHorizontal;
-    }
-
-    public void setFlipHorizontal(boolean flipHorizontal) {
-        this.imageFlipHorizontal.set(flipHorizontal);
-    }
-
-    ///////////////////////////////////////
-
-    public final SimpleBooleanProperty imageFlipVertical = new SimpleBooleanProperty(false);
-
-    public boolean shouldFlipVertical() {
-        return imageFlipVertical.get();
-    }
-
-    public SimpleBooleanProperty flipVerticalProperty() {
-        return imageFlipVertical;
-    }
-
-    public void setFlipVertical(boolean imageFlipVertical) {
-        this.imageFlipVertical.set(imageFlipVertical);
-    }
-
-    ///////////////////////////////////////
-
-    public final SimpleFloatProperty cropStartX = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty cropWidth = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty cropHeight = new SimpleFloatProperty(0);
-
-    public Rectangle2D getCrop(){
-        double scale = getSourceCanvas().getPlottingScale();
-        double startX = cropStartX.get() * scale;
-        double startY = cropStartY.get() * scale;
-        double width = cropWidth.get() * scale;
-        double height = cropHeight.get() * scale;
-        if(width == 0 || height == 0){
-            return new Rectangle2D.Double(0, 0, sourceCanvas.getWidth(), sourceCanvas.getHeight());
-        }
-        return new Rectangle2D.Double(startX, startY, width, height);
-    }
-
-    public void resetCrop() {
-        this.cropStartX.set(0);
-        this.cropStartY.set(0);
-        this.cropWidth.set(sourceCanvas.getWidth());
-        this.cropHeight.set(sourceCanvas.getHeight());
-    }
 
     ///////////////////////////////////////
 
     public UpdateType nextUpdate = UpdateType.FULL_UPDATE;
+
+    public void resetCrop() {
+        getImageCropping().reset(getSourceCanvas());
+    }
+
+    public Rectangle2D getCrop() {
+        return getImageCropping().getCrop(getSourceCanvas());
+    }
 
     public enum UpdateType{
         FULL_UPDATE, // The cropping of the image has changed, update canvas size, cropping and all filters
@@ -248,7 +187,7 @@ public class FilteredImageData implements IProperties {
 
     public BufferedImage createCroppedImage(ICanvas canvas, ImageFilterSettings settings){
         BufferedImage image = createPreCroppedImage();
-        return applyCropping(image, canvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
+        return applyCropping(image, canvas, imageCropping);
     }
 
     ///////////////////////////////////////
@@ -263,10 +202,10 @@ public class FilteredImageData implements IProperties {
         ImageCanvas preCropCanvas = null;
         if(cropped == null || preCrop == null || updateType.updateCropping()){
             preCrop = applyPreCropping(sourceImage, getCrop());
-            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageRotation.get().flipAxis);
-            cropped = applyCropping(preCrop, preCropCanvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
+            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageCropping.getImageRotation().flipAxis);
+            cropped = applyCropping(preCrop, preCropCanvas, imageCropping);
         }else{
-            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageRotation.get().flipAxis);
+            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageCropping.getImageRotation().flipAxis);
         }
 
         filteredImage = applyFilters(cropped, updateType.updateAllFilters(), settings);
@@ -286,15 +225,15 @@ public class FilteredImageData implements IProperties {
         ICanvas canvas = getSourceCanvas();
 
         //cropping transform
-        if(getCrop() != null){
-            Rectangle2D bounds = getCrop();
+        Rectangle2D bounds = getCrop();
+        if(bounds != null){
             transform.preConcatenate(AffineTransform.getTranslateInstance(-bounds.getX(),-bounds.getY()));
             canvas = new SimpleCanvas((float)bounds.getWidth(), (float)bounds.getHeight(), canvas.getUnits());
         }
 
         //rotation transform
         if(settings != null){
-            AffineTransform rotationTransform = ImageTools.getCanvasRotationTransform(canvas, imageRotation.get(), imageFlipHorizontal.get(), imageFlipVertical.get());
+            AffineTransform rotationTransform = ImageTools.getCanvasRotationTransform(canvas, imageCropping);
             transform.preConcatenate(rotationTransform);
         }
 
@@ -319,7 +258,12 @@ public class FilteredImageData implements IProperties {
         return ImageTools.applyPreCrop(src, crop);
     }
 
+    public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas, ImageCropping cropping){
+        src = ImageTools.rotateImage(src, cropping.getImageRotation(), cropping.shouldFlipHorizontal(), cropping.shouldFlipVertical());
+        return ImageTools.cropToCanvas(src, canvas);
+    }
 
+    @Deprecated
     public static BufferedImage applyCropping(BufferedImage src, ICanvas canvas, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
         src = ImageTools.rotateImage(src, imageRotation, flipHorizontal, flipVertical);
         return ImageTools.cropToCanvas(src, canvas);
@@ -336,7 +280,7 @@ public class FilteredImageData implements IProperties {
     @Override
     public ObservableList<Observable> getPropertyList() {
         if(propertyList == null){
-            propertyList = PropertyUtil.createPropertiesList(imageRotation, imageFlipHorizontal, imageFlipVertical, cropStartX, cropStartY, cropWidth, cropHeight);
+            propertyList = PropertyUtil.createPropertiesList(imageCropping);
         }
         return propertyList;
     }
@@ -344,10 +288,6 @@ public class FilteredImageData implements IProperties {
     @Override
     public String toString() {
         return "Filtered Image Data: Source Image: %s x %s (%s)".formatted(sourceImage.getWidth(), sourceImage.getHeight(), sourceFile == null ? "Internal" : sourceFile);
-    }
-
-    public String getPropertiesString(){
-        return "Properties: Rotation: %s, Flip Horizontal: %s, Flip Vertical: %s, Crops: %s %s %s %s".formatted(imageRotation.get().name(), imageFlipHorizontal.get(), imageFlipVertical.get(), cropStartX.get(), cropStartY.get(), cropWidth.get(), cropHeight.get());
     }
 
 }

@@ -144,17 +144,17 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
         }
 
         public static void addListeners(FilteredImageData imageData){
-            imageData.cropStartX.addListener(valueChangeListener);
-            imageData.cropStartY.addListener(valueChangeListener);
-            imageData.cropWidth.addListener(valueChangeListener);
-            imageData.cropHeight.addListener(valueChangeListener);
+            imageData.getImageCropping().cropStartX.addListener(valueChangeListener);
+            imageData.getImageCropping().cropStartY.addListener(valueChangeListener);
+            imageData.getImageCropping().cropWidth.addListener(valueChangeListener);
+            imageData.getImageCropping().cropHeight.addListener(valueChangeListener);
         }
 
         public static void removeListeners(FilteredImageData imageData){
-            imageData.cropStartX.removeListener(valueChangeListener);
-            imageData.cropStartY.removeListener(valueChangeListener);
-            imageData.cropWidth.removeListener(valueChangeListener);
-            imageData.cropHeight.removeListener(valueChangeListener);
+            imageData.getImageCropping().cropStartX.removeListener(valueChangeListener);
+            imageData.getImageCropping().cropStartY.removeListener(valueChangeListener);
+            imageData.getImageCropping().cropWidth.removeListener(valueChangeListener);
+            imageData.getImageCropping().cropHeight.removeListener(valueChangeListener);
         }
 
         public static void updateImageDataFromCrop(){
@@ -163,10 +163,10 @@ public abstract class ImageJFXDisplayMode extends AbstractJFXDisplayMode {
             float scale = imageData.getSourceCanvas().getPlottingScale();
             Rectangle2D rectangle2D = cropShape.transformed.getAWTShape().getBounds2D();
             transforming = true;
-            imageData.cropStartX.set((float) rectangle2D.getX() / scale);
-            imageData.cropStartY.set((float) rectangle2D.getY() / scale);
-            imageData.cropWidth.set((float) rectangle2D.getWidth() / scale);
-            imageData.cropHeight.set((float) rectangle2D.getHeight() / scale);
+            imageData.getImageCropping().cropStartX.set((float) rectangle2D.getX() / scale);
+            imageData.getImageCropping().cropStartY.set((float) rectangle2D.getY() / scale);
+            imageData.getImageCropping().cropWidth.set((float) rectangle2D.getWidth() / scale);
+            imageData.getImageCropping().cropHeight.set((float) rectangle2D.getHeight() / scale);
             transforming = false;
         }
 

@@ -15,9 +15,15 @@ import javafx.scene.control.Skin;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ControlPresetSelectionCategory<TARGET, DATA> extends ControlPresetSelection<TARGET, DATA>{
+/**
+ * UI control for the selection of a {@link GenericPreset} and it's preset sub type, it also provides the "presets" menu button
+ * Use the {@link #quickSetup(IPresetManager)} method to configure the preset selector easily
+ * @param <TARGET> the type of the instance to apply the preset to
+ * @param <DATA> the data type stored in the preset e.g. {@link drawingbot.files.json.PresetData}
+ */
+public class ControlPresetSelectorCategory<TARGET, DATA> extends ControlPresetSelector<TARGET, DATA> {
 
-    public ControlPresetSelectionCategory() {
+    public ControlPresetSelectorCategory() {
         super();
         activePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){

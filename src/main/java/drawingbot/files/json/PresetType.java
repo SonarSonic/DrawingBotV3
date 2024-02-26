@@ -5,20 +5,47 @@ import javafx.stage.FileChooser;
 
 public class PresetType {
 
-    public final String id;
+    public final String registryName;
     public final String displayName;
     public final FileChooser.ExtensionFilter[] filters;
     public boolean defaultsPerSubType = false;
-    public boolean ignoreSubType = false;
 
-    public PresetType(String id, String displayName){
-        this(id, displayName, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_JSON});
+    public SubTypeBehaviour subTypeBehaviour = SubTypeBehaviour.FIXED;
+
+    public boolean hidden = false;
+
+    public PresetType(String registryName, String displayName){
+        this(registryName, displayName, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_JSON});
     }
 
-    public PresetType(String id, String displayName, FileChooser.ExtensionFilter[] filters){
-        this.id = id;
+    public PresetType(String registryName, String displayName, FileChooser.ExtensionFilter[] filters){
+        this.registryName = registryName;
         this.displayName = displayName;
         this.filters = filters;
+    }
+
+    public String getRegistryName() {
+        return registryName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public FileChooser.ExtensionFilter[] getFilters() {
+        return filters;
+    }
+
+    public SubTypeBehaviour getSubTypeBehaviour() {
+        return subTypeBehaviour;
+    }
+
+    public boolean isDefaultsPerSubType() {
+        return defaultsPerSubType;
     }
 
     public PresetType setDefaultsPerSubType(boolean defaultsPerSubType){
@@ -26,24 +53,51 @@ public class PresetType {
         return this;
     }
 
-    public PresetType setIgnoreSubType(boolean ignoreSubType){
-        this.ignoreSubType = ignoreSubType;
+    public PresetType setSubTypeBehaviour(SubTypeBehaviour subTypeBehaviour){
+        this.subTypeBehaviour = subTypeBehaviour;
         return this;
     }
 
-    public String getId() {
-        return id;
+    public PresetType setHidden(boolean hidden){
+        this.hidden = hidden;
+        return this;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    @Override
+    public String toString() {
+        return getDisplayName();
     }
 
-    public FileChooser.ExtensionFilter[] getFilters() {
-        return filters;
-    }
+    ////////////////////////////////////////////////////
 
-    public boolean isDefaultsPerSubType() {
-        return defaultsPerSubType;
+    /**
+     * Defines the treatment of the {@link drawingbot.javafx.GenericPreset} sub types
+     * e.g. if they are required and if they can be edited
+     */
+    public enum SubTypeBehaviour{
+        /**
+         * Sub types can only consist of those registered by the software. e.g. PFM Presets
+         */
+        FIXED,
+        /**
+         * Sub types can be created by the user or registered by the system
+         */
+        EDITABLE,
+        /**
+         * The preset type doesn't use sub types
+         */
+        IGNORED;
+
+        public boolean isFixed() {
+            return this == FIXED;
+        }
+
+        public boolean isEditable() {
+            return this == EDITABLE;
+        }
+
+        public boolean isIgnored() {
+            return this == IGNORED;
+        }
     }
 }

@@ -9,6 +9,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 
+/**
+ * UI control providing the {@link javafx.scene.control.MenuButton} for the configuring of presets, here for re-usability, it's also used in the {@link ControlPresetSelector} and {@link ControlPresetSelectorCategory} controls
+ * @param <TARGET> the type of the instance to apply the preset to
+ * @param <DATA> the data type stored in the preset e.g. {@link drawingbot.files.json.PresetData}
+ */
 public class ControlPresetButton<TARGET, DATA> extends Control {
 
     public ControlPresetButton(){}
@@ -71,6 +76,9 @@ public class ControlPresetButton<TARGET, DATA> extends Control {
 
     ////////////////////////////////////////////////////////
 
+    /**
+     * Should be called when the associated {@link IPresetLoader} is modified, it ensures changes are reflected in the UI
+     */
     public void refresh(){
 
     }

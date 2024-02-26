@@ -1,12 +1,19 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.EditorFactoryCache;
 import javafx.scene.control.TreeTableCell;
 
-public class TreeTableCellSettingControl extends TreeTableCell<GenericSetting<?, ?>, Object> {
+public class TreeTableCellSettingControl<V> extends TreeTableCell<GenericSetting<?, ?>, V> {
+
+    public EditorFactoryCache editorCache;
+
+    public TreeTableCellSettingControl(EditorFactoryCache editorCache){
+        this.editorCache = editorCache;
+    }
 
     @Override
-    protected void updateItem(Object item, boolean empty) {
+    protected void updateItem(V item, boolean empty) {
         super.updateItem(item, empty);
         if (empty || item == null) {
             setText(null);
@@ -14,7 +21,7 @@ public class TreeTableCellSettingControl extends TreeTableCell<GenericSetting<?,
         } else {
             setText("");
             if(getTableRow() != null && getTableRow().getItem() != null){
-                setGraphic(getTableRow().getItem().getJavaFXEditor(false));
+                setGraphic(editorCache.getOrCreateEditor(getTableRow().getItem()).getNode());
             }else{
                 setGraphic(null);
             }

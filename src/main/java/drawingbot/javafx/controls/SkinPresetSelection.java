@@ -1,17 +1,19 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.javafx.GenericPreset;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.SkinBase;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-public class SkinPresetSelection<TARGET, DATA> extends SkinBase<ControlPresetSelection<TARGET, DATA>> {
+public class SkinPresetSelection<TARGET, DATA> extends SkinBase<ControlPresetSelector<TARGET, DATA>> {
 
     protected ComboBox<GenericPreset<DATA>> comboBox;
     protected MenuButton menuButton;
     protected HBox hBox;
 
-    protected SkinPresetSelection(ControlPresetSelection<TARGET, DATA> control) {
+    protected SkinPresetSelection(ControlPresetSelector<TARGET, DATA> control) {
         super(control);
         hBox = new HBox(4);
 
@@ -48,7 +50,7 @@ public class SkinPresetSelection<TARGET, DATA> extends SkinBase<ControlPresetSel
     }
 
     private void refreshComboBox(){
-        ControlPresetSelection<TARGET, DATA> control = getSkinnable();
+        ControlPresetSelector<TARGET, DATA> control = getSkinnable();
 
         ComboBox<GenericPreset<DATA>> oldComboBox = comboBox;
         ComboBox<GenericPreset<DATA>> newComboBox = createComboBox(control);
@@ -59,7 +61,7 @@ public class SkinPresetSelection<TARGET, DATA> extends SkinBase<ControlPresetSel
     }
 
 
-    private ComboBox<GenericPreset<DATA>> createComboBox(ControlPresetSelection<TARGET, DATA> control){
+    private ComboBox<GenericPreset<DATA>> createComboBox(ControlPresetSelector<TARGET, DATA> control){
         ComboBox<GenericPreset<DATA>>  comboBox = control.getComboBoxFactory() != null ? control.getComboBoxFactory().get() : new ComboBox<>();
         if(comboBox.getCellFactory() == null){
             comboBox.setCellFactory(param -> new ComboCellPreset<>());
@@ -70,14 +72,14 @@ public class SkinPresetSelection<TARGET, DATA> extends SkinBase<ControlPresetSel
         if(comboBox.getPromptText() == null){
             comboBox.setPromptText("Preset");
         }
-        comboBox.itemsProperty().bind(control.availablePresetsProperty());
+        comboBox.itemsProperty().bind(control.filteredPresetsProperty());
         comboBox.valueProperty().bindBidirectional(control.activePresetProperty());
         comboBox.setPrefWidth(300);
         HBox.setHgrow(comboBox, Priority.ALWAYS);
         return comboBox;
     }
 
-    private void destroyComboBox(ControlPresetSelection<TARGET, DATA> control, ComboBox<GenericPreset<DATA>> comboBox){
+    private void destroyComboBox(ControlPresetSelector<TARGET, DATA> control, ComboBox<GenericPreset<DATA>> comboBox){
         comboBox.valueProperty().unbindBidirectional(control.activePresetProperty());
         comboBox.itemsProperty().unbind();
     }

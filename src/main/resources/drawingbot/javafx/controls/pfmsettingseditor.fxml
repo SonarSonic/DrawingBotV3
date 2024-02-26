@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controls.ControlPFMSettingsEditor">
+
+    <TreeTableView fx:id="treeTableViewPFMSettings" editable="true" prefHeight="323.0" prefWidth="311.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+        <columns>
+            <TreeTableColumn fx:id="treeTableColumnSetting" prefWidth="144.0" text="Setting" />
+            <TreeTableColumn fx:id="treeTableColumnControl" minWidth="0.0" prefWidth="139.0" text="Control" />
+            <TreeTableColumn fx:id="treeTableColumnValue" minWidth="0.0" prefWidth="96.0" text="Value" />
+            <TreeTableColumn fx:id="treeTableColumnLock" minWidth="400.0" prefWidth="14.0" text="Randomise Exclude" visible="false" />
+        </columns>
+    </TreeTableView>
+    <HBox alignment="CENTER" prefHeight="25.0" spacing="8.0">
+        <children>
+            <Button fx:id="buttonPFMSettingReset" mnemonicParsing="false" prefHeight="25.0" prefWidth="117.0" text="Reset" />
+            <Button fx:id="buttonPFMSettingRandom" mnemonicParsing="false" prefHeight="25.0" prefWidth="129.0" text="Randomise" />
+            <Button fx:id="buttonPFMSettingHelp" mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Help"/>
+        </children>
+        <VBox.margin>
+            <Insets />
+        </VBox.margin>
+    </HBox>
+
+</fx:root>

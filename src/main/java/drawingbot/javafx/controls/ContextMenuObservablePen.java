@@ -1,9 +1,9 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.drawing.DrawingSets;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import javafx.beans.property.Property;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -12,7 +12,7 @@ import javafx.scene.control.TableRow;
 
 public class ContextMenuObservablePen extends ContextMenu {
 
-    public ContextMenuObservablePen(Property<DrawingSets> drawingSets, TableRow<ObservableDrawingPen> row) {
+    public ContextMenuObservablePen(Property<ObservableDrawingSet> drawingSet, TableRow<ObservableDrawingPen> row) {
         super();
 
         MenuItem increaseWeight = new MenuItem("Increase Weight");
@@ -36,7 +36,7 @@ public class ContextMenuObservablePen extends ContextMenu {
         getItems().add(new SeparatorMenuItem());
 
 
-        FXHelper.addDefaultTableViewContextMenuItems(this, row, () -> drawingSets.getValue().activeDrawingSet.get().pens, p -> new ObservableDrawingPen(drawingSets.getValue().activeDrawingSet.get().getPens().size(), p));
+        FXHelper.addDefaultTableViewContextMenuItems(this, row, () -> drawingSet.getValue().pens, p -> new ObservableDrawingPen(drawingSet.getValue().getPens().size(), p));
     }
 
 }

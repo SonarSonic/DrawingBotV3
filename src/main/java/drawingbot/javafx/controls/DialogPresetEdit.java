@@ -3,37 +3,47 @@ package drawingbot.javafx.controls;
 import drawingbot.FXApplication;
 import drawingbot.files.json.IPresetManager;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.editors.Editors;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
+/**
+ * UI Dialog for the on-the-fly editing of presets, uses a {@link ControlPresetEditor} to provide an instance of a {@link drawingbot.files.json.IPresetEditor}
+ */
 public class DialogPresetEdit<TARGET, DATA> extends DialogScrollPane {
 
-    private DialogPresetEdit(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, List<Consumer<GenericPreset<DATA>>> callbacks) {
-        super("Edit " + preset.presetType.displayName, Editors.page("settings", builder -> {
-            manager.addEditDialogElements(preset, builder, callbacks);
-        }).getContent());
+    public ControlPresetEditor control;
 
+    private DialogPresetEdit(String message, ControlPresetEditor control, GenericPreset<DATA> preset) {
+        super(message, control, -1, 500);
+        this.control = control;
+        this.scrollPane.setMaxHeight(500);
+        this.getDialogPane().setMaxHeight(500);
     }
 
-    public static <DATA, TARGET> boolean openPresetEditDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> editingPreset) {
-        GenericPreset<DATA> copy = new GenericPreset<>(editingPreset);
-        List<Consumer<GenericPreset<DATA>>> callbacks = new ArrayList<>();
-        DialogPresetEdit<TARGET, DATA> dialog = new DialogPresetEdit<>(manager, copy, callbacks);
+    public static <DATA, TARGET> boolean openPresetEditDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
+        return openPresetEditDialog("Edit " + selectedPreset.getPresetName(), manager, selectedPreset, isInspector);
+    }
+
+    public static <DATA, TARGET> boolean openPresetNewDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
+        return openPresetEditDialog("New " + selectedPreset.getPresetType().getDisplayName(), manager, selectedPreset, isInspector);
+    }
+
+    public static <DATA, TARGET> boolean openPresetEditDialog(String message, IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
+        ControlPresetEditor control = new ControlPresetEditor();
+        control.setDetailed(isInspector);
+        control.setSelectedPreset(selectedPreset);
+        DialogPresetEdit<TARGET, DATA> dialog = new DialogPresetEdit<>(message, control, selectedPreset);
         dialog.initOwner(FXApplication.primaryStage);
         Optional<Boolean> result = dialog.showAndWait();
         if(result.isPresent() && !result.get()){
             return false;
         }
 
-        //Copy any changes too the settings to the copy of the preset TODO should we do this for name / sub type for consistency.
-        callbacks.forEach(consumer -> consumer.accept(copy));
+        control.confirmEdit();
 
-        //Save the changes to the actual preset
-        editingPreset.copyData(copy);
+        //Ensure the the editor / ui components are disposed
+        control.setSelectedPreset(null);
+
         return true;
     }
 }

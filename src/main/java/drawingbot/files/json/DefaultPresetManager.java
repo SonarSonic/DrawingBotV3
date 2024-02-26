@@ -5,13 +5,14 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.editors.TreeNode;
-import javafx.collections.ObservableList;
+import drawingbot.javafx.preferences.items.LabelNode;
+import drawingbot.javafx.preferences.items.SettingNode;
+import drawingbot.javafx.preferences.items.TreeNode;
+import org.fxmisc.easybind.EasyBind;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> extends AbstractPresetManager<TARGET, DATA> {
 
@@ -30,8 +31,9 @@ public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> exte
         return settings;
     }
 
-    public final void registerSetting(GenericSetting<?, ?>setting){
+    public final <C,V> GenericSetting<C, V> registerSetting(GenericSetting<C, V> setting){
         settings.add(setting);
+        return setting;
     }
 
     public final void registerSettings(List<GenericSetting<?, ?>> setting){
@@ -85,18 +87,37 @@ public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> exte
     }
 
     @Override
-    public void addEditDialogElements(GenericPreset<DATA> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<DATA>>> callbacks) {
-        super.addEditDialogElements(preset, builder, callbacks);
-        /* TODO - Display specific settings in the preset dialog
-        builder.add(new LabelNode("Settings").setTitleStyling());
-        GenericSetting.applySettings(preset.data.settings, getSettings());
-        for(GenericSetting<?, ?> setting : getSettings()){
-            builder.add(new SettingNode(setting));
-        }
-        callbacks.add(save -> {
-            save.data.settings = GenericSetting.toJsonMap(getSettings(), new HashMap<>(), false);
-        });
+    public IPresetEditor<TARGET, DATA> createPresetEditor() {
+        return new DefaultPresetEditor<>(this){
 
-         */
+            public List<GenericSetting<?, ?>> editingSettings;
+
+            @Override
+            public void init(TreeNode editorNode) {
+                super.init(editorNode);
+                editingSettings = new ArrayList<>();
+                GenericSetting.copy(getSettings(), editingSettings);
+                GenericSetting.addBindings(editingSettings);
+
+                editorNode.getChildren().add(new LabelNode("Settings").setTitleStyling());
+                EasyBind.subscribe(editingPresetProperty(), preset -> {
+                    if(preset != null){
+                        GenericSetting.applySettings(preset.data.settings, editingSettings);
+                    }
+                });
+
+                for(GenericSetting<?, ?> setting : editingSettings){
+                    editorNode.getChildren().add(new SettingNode<>(setting));
+                }
+
+            }
+
+            @Override
+            public void updatePreset() {
+                super.updatePreset();
+                getEditingPreset().data.settings = GenericSetting.toJsonMap(editingSettings, new HashMap<>(), false);
+            }
+        };
     }
+
 }

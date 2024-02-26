@@ -1,11 +1,9 @@
 package drawingbot.integrations.vpype;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.GenericPreset;
+import drawingbot.files.json.PresetData;
 import drawingbot.javafx.controllers.AbstractFXController;
-import drawingbot.javafx.controls.ComboCellPreset;
-import javafx.beans.property.SimpleObjectProperty;
+import drawingbot.javafx.controls.ControlPresetSelector;
 import javafx.scene.control.*;
 
 public class FXVPypeController extends AbstractFXController {
@@ -14,12 +12,9 @@ public class FXVPypeController extends AbstractFXController {
         initVPypeSettingsPane();
     }
 
-    public final SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset = new SimpleObjectProperty<>();
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public ComboBox<GenericPreset<PresetVpypeSettings>> comboBoxVPypePreset = null;
-    public MenuButton menuButtonVPypePresets = null;
+    public ControlPresetSelector<VpypeSettings, PresetData> controlVpypePreset;
     public TextArea textAreaVPypeCommand = null;
     public CheckBox checkBoxBypassPathOptimisation = null;
     public TextField textBoxVPypeExecutablePath = null;
@@ -29,18 +24,13 @@ public class FXVPypeController extends AbstractFXController {
     public Label labelWildcard = null;
 
     public void initVPypeSettingsPane(){
-        selectedVPypePreset.setValue(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.getDefaultPreset());
-        selectedVPypePreset.addListener((observable, oldValue, newValue) -> {
+        controlVpypePreset.quickSetup(VpypePlugin.PRESET_MANAGER_VPYPE_SETTINGS);
+        controlVpypePreset.setTarget(VpypePlugin.INSTANCE.vpypeSettings);
+        controlVpypePreset.activePresetProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                VpypePlugin.PRESET_MANAGER_VPYPE_SETTINGS.applyPreset(DrawingBotV3.context(), VpypePlugin.INSTANCE.vpypeSettings, newValue, false);
+                controlVpypePreset.applyPreset(DrawingBotV3.context());
             }
         });
-
-        comboBoxVPypePreset.setItems(VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS.presets);
-        comboBoxVPypePreset.valueProperty().bindBidirectional(selectedVPypePreset);
-        comboBoxVPypePreset.setCellFactory(f -> new ComboCellPreset<>());
-
-        FXHelper.setupPresetMenuButton(menuButtonVPypePresets, VpypePlugin.PRESET_LOADER_VPYPE_SETTINGS, VpypePlugin.PRESET_MANAGER_VPYPE_SETTINGS, false, selectedVPypePreset);
 
         textAreaVPypeCommand.textProperty().bindBidirectional(VpypePlugin.INSTANCE.vpypeSettings.vpypeCommand);
 

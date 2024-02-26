@@ -4,37 +4,32 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import drawingbot.DrawingBotV3;
-import drawingbot.FXApplication;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.ColorSeparationHandler;
-import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.json.adapters.*;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.projects.ObservableProject;
+import drawingbot.image.format.ImageCropping;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.pfm.PFMSettings;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.utils.ISpecialListenable;
 import drawingbot.utils.MetadataMap;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.geom.AffineTransform;
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,6 +65,7 @@ public class JsonLoaderManager {
         builder.setExclusionStrategies(exclusionStrategy);
         builder.setPrettyPrinting();
         builder.registerTypeAdapter(GenericPreset.class, new JsonAdapterGenericPreset());
+        builder.registerTypeAdapter(PresetContainerJsonFile.class, new JsonAdapterGenericPresetContainer());
         builder.registerTypeHierarchyAdapter(ColorSeparationHandler.class, new JsonAdapterColorSeparationHandler());
         builder.registerTypeHierarchyAdapter(DrawingExportHandler.class, new JsonAdapterDrawingExportHandler());
         builder.registerTypeHierarchyAdapter(ObservableDrawingPen.class, new JsonAdapterObservableDrawingPen());
@@ -81,6 +77,8 @@ public class JsonLoaderManager {
         builder.registerTypeAdapter(MetadataMap.class, new JsonAdapterMetadataMap());
         builder.registerTypeAdapter(IDrawingSet.class, new JsonAdapterDrawingSet());
         builder.registerTypeAdapter(DrawingSets.class, new JsonAdapterDrawingSets());
+        builder.registerTypeAdapter(PFMSettings.class, new JsonAdapterPFMSettings());
+        builder.registerTypeAdapter(ImageCropping.class, new JsonAdapterImageCropping());
         Hooks.runHook(Hooks.GSON_BUILDER_INIT_POST, builder);
         }
     };
@@ -151,6 +149,9 @@ public class JsonLoaderManager {
     private final Set<IPresetLoader<?>> dirtyPresetLoaders = new HashSet<>();
 
     public void tick(){
+        if(DrawingBotV3.INSTANCE.controller.presetManagerStage.isShowing()){
+            return;
+        }
         //Do all updates at the same time / prevent multiple updates
         if(!dirtyPresetLoaders.isEmpty()){
             dirtyPresetLoaders.forEach(IPresetLoader::updateJSON);
@@ -192,41 +193,59 @@ public class JsonLoaderManager {
     public static <O> GenericPreset<O> importPresetFile(InputStream stream, PresetType targetType){
         GenericPreset<O> preset = importJsonFile(stream, GenericPreset.class);
         if(preset != null && (targetType == null || targetType == preset.presetType)){
-            IPresetLoader<O> manager = getJsonLoaderForPresetType(preset);
-            if(manager != null){
-                manager.addPreset(preset);
-            }
+            loadUnknownPreset(preset, false);
         }
         return preset;
     }
 
-    public static void loadDefaultPresetContainerJSON(String json){
+    public static List<GenericPreset<?>> loadDefaultPresetContainerJSON(String json){
         InputStream stream = JsonLoaderManager.class.getResourceAsStream("/presets/" + json);
         if(stream != null){
-            importPresetContainerFile(stream, true);
+            List<GenericPreset<?>> systemPresets = importPresetContainerFile(stream, true);
+            systemPresets.forEach(preset -> preset.userCreated = false);
+            return systemPresets;
         }else{
             DrawingBotV3.logger.warning("Missing Preset Container JSON: " + json);
+            return List.of();
         }
     }
 
-    public static void importPresetContainerFile(File file, boolean isLoading){
+    public static List<GenericPreset<?>> importPresetContainerFile(File file, boolean systemPresets){
         try {
-            importPresetContainerFile(new FileInputStream(file), isLoading);
+            return importPresetContainerFile(new FileInputStream(file), systemPresets);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return List.of();
         }
     }
 
-    public static void importPresetContainerFile(InputStream stream, boolean isLoading){
-        PresetContainerJsonFile<Object> container = importJsonFile(stream, PresetContainerJsonFile.class);
-        container.jsonMap.forEach(preset -> {
-            if(preset != null){
-                IPresetLoader<Object> manager = getJsonLoaderForPresetType(preset);
-                if(manager != null){
-                    manager.addPreset(preset);
-                }
+    public static List<GenericPreset<?>> importPresetContainerFile(InputStream stream, boolean systemPresets){
+        PresetContainerJsonFile container = importJsonFile(stream, PresetContainerJsonFile.class);
+        container.jsonMap.forEach((preset -> loadUnknownPreset(preset, systemPresets)));
+        return container.jsonMap;
+    }
+
+    public static void exportPresetContainerFile(File file, PresetContainerJsonFile container){
+        exportJsonFile(file, PresetContainerJsonFile.class, container);
+    }
+
+    public static <DATA> void loadUnknownPreset(GenericPreset<DATA> preset, boolean systemPreset){
+        if(preset != null){
+            IPresetLoader<DATA> manager = getJsonLoaderForPresetType(preset);
+            if(manager != null){
+                preset.userCreated = !systemPreset;
+                manager.addPreset(preset);
             }
-        });
+        }
+    }
+
+    /**
+     * Exports a single .json for a preset
+     * @param file the destination
+     * @param selected the preset to export
+     */
+    public static void exportPresetFile(File file, GenericPreset<?> selected){
+        exportJsonFile(file, GenericPreset.class, selected);
     }
 
     public static <T> T importJsonFile(InputStream stream, Class<T> type){
@@ -242,20 +261,15 @@ public class JsonLoaderManager {
         return file;
     }
 
-    /**
-     * Exports a single .json for a preset
-     * @param file the destination
-     * @param selected the preset to export
-     */
-    public static void exportPresetFile(File file, GenericPreset<?> selected){
+    public static <T> void exportJsonFile(File file, Class<T> type, T instance){
         try {
             Gson gson = createDefaultGson();
             JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
-            gson.toJson(selected, GenericPreset.class, writer);
+            gson.toJson(instance, type, writer);
             writer.flush();
             writer.close();
-        } catch (Exception e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error exporting preset file");
+        } catch (Throwable e) {
+            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error exporting json file");
         }
     }
 

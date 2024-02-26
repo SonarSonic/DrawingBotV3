@@ -12,6 +12,7 @@ import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageCropping;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -21,7 +22,6 @@ import drawingbot.javafx.util.UINodeState;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
 import javafx.concurrent.Worker;
 import javafx.stage.FileChooser;
@@ -109,17 +109,6 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
         public final ArrayList<ObservableDrawingSet> drawingSets = new ArrayList<>();
         public int activeSet = 0;
 
-    }
-
-    @JsonData
-    public static class ImageSettings{
-        public EnumRotation imageRotation = EnumRotation.R0;
-        public boolean imageFlipHorizontal = false;
-        public boolean imageFlipVertical = false;
-        public float cropStartX = 0;
-        public float cropStartY = 0;
-        public float cropEndX = 0;
-        public float cropEndY = 0;
     }
 
     @JsonData
@@ -225,23 +214,17 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
             }
         });
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"image_settings", ImageSettings.class, ImageSettings::new, 10) {
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"image_settings", ImageCropping.class, ImageCropping::new, 10) {
 
             @Override
-            public void saveData(DBTaskContext context, ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
-                if(context.project.openImage.get() != null){
-                    data.cropStartX = context.project.openImage.get().cropStartX.get();
-                    data.cropStartY = context.project.openImage.get().cropStartY.get();
-                    data.cropEndX = context.project.openImage.get().cropStartX.get() + context.project.openImage.get().cropWidth.get();
-                    data.cropEndY = context.project.openImage.get().cropStartY.get() + context.project.openImage.get().cropHeight.get();
-                    data.imageRotation = context.project.openImage.get().imageRotation.get();
-                    data.imageFlipHorizontal = context.project.openImage.get().imageFlipHorizontal.get();
-                    data.imageFlipVertical = context.project.openImage.get().imageFlipVertical.get();
+            public void saveData(DBTaskContext context, ImageCropping data, GenericPreset<PresetProjectSettings> preset) {
+                if(context.project().getOpenImage() != null){
+                    data.update(context.project().getOpenImage().getImageCropping());
                 }
             }
 
             @Override
-            public void loadData(DBTaskContext context, ImageSettings data, GenericPreset<PresetProjectSettings> preset) {
+            public void loadData(DBTaskContext context, ImageCropping data, GenericPreset<PresetProjectSettings> preset) {
                 if(!preset.data.imagePath.isEmpty()) {
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
@@ -251,13 +234,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
                         if(newValue == Worker.State.SUCCEEDED){
                             FilteredImageData imageData = loadingTask.getValue();
                             if(imageData != null){
-                                imageData.cropStartX.set(data.cropStartX);
-                                imageData.cropStartY.set(data.cropStartY);
-                                imageData.cropWidth.set(Math.abs(data.cropEndX-data.cropStartX));
-                                imageData.cropHeight.set(Math.abs(data.cropEndY-data.cropStartY));
-                                imageData.imageRotation.set(data.imageRotation);
-                                imageData.imageFlipHorizontal.set(data.imageFlipHorizontal);
-                                imageData.imageFlipVertical.set(data.imageFlipVertical);
+                                imageData.imageCropping.update(data);
                                 imageData.markUpdate(FilteredImageData.UpdateType.FULL_UPDATE);
                             }
                         }

@@ -18,9 +18,9 @@ import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.editors.Editors;
-import drawingbot.javafx.editors.TreeNode;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.preferences.items.EditorSheet;
+import drawingbot.javafx.preferences.items.TreeNode;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.render.IDisplayMode;
@@ -48,8 +48,9 @@ public class MasterRegistry {
 
     @Nullable
     public String getDefaultPresetName(PresetType presetType){
-        return DBPreferences.INSTANCE.getDefaultPreset(presetType.id);
+        return DBPreferences.INSTANCE.getDefaultPreset(presetType);
     }
+
     @Nullable
     public <DATA> GenericPreset<DATA> getDefaultPreset(IPresetLoader<DATA> loader){
         String name = getDefaultPresetName(loader.getPresetType());
@@ -112,7 +113,7 @@ public class MasterRegistry {
 
     @Nullable
     public String getDefaultPresetNameForSubType(PresetType presetType, String presetSubType){
-        return DBPreferences.INSTANCE.getDefaultPreset(presetType.id + ":" + presetSubType);
+        return DBPreferences.INSTANCE.getDefaultPreset(presetType, presetSubType);
     }
 
     @Nullable
@@ -260,7 +261,8 @@ public class MasterRegistry {
     }
 
     public void createSettingsList(PFMFactory<?> factory, List<GenericSetting<?, ?>> dst){
-        List<GenericSetting<?, ?>> list = GenericSetting.copy(MasterRegistry.INSTANCE.pfmSettings.get(factory), dst);
+        ObservableList<GenericSetting<?, ?>> settings = MasterRegistry.INSTANCE.pfmSettings.getOrDefault(factory, FXCollections.observableArrayList());
+        List<GenericSetting<?, ?>> list = GenericSetting.copy(settings, dst);
         GenericSetting.resetSettings(list);
         GenericPreset<PresetData> preset = Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(factory.getRegistryName());
         if(preset != null){
@@ -271,18 +273,6 @@ public class MasterRegistry {
     public void sortPFMSettings(){
         for(ObservableList<GenericSetting<?, ?>> settingsList : MasterRegistry.INSTANCE.pfmSettings.values()){
             settingsList.sort(Comparator.comparingInt(value -> -getCategoryPriority(value.getCategory())));
-        }
-    }
-
-    public void registerMissingDefaultPFMPresets(){
-        for(PFMFactory<?> pfm : pfmFactories){
-            if(getObservablePFMPresetList(pfm) == null || getObservablePFMPresetList(pfm).stream().noneMatch(preset -> preset.getPresetName().equals("Default"))){
-                Register.PRESET_LOADER_PFM.addPreset(Register.PRESET_LOADER_PFM.createNewPreset(pfm.getRegistryName(), "Default", false));
-
-                // Move the default preset to the front of the displayed list
-                ObservableList<GenericPreset<PresetData>> presets = Register.PRESET_LOADER_PFM.presetsByType.get(pfm.getRegistryName());
-                presets.add(0, presets.remove(presets.size()-1));
-            }
         }
     }
 
@@ -651,26 +641,26 @@ public class MasterRegistry {
     public List<IPresetManager<?, ?>> presetManagers = new ArrayList<>();
 
     public IPresetLoader<?> registerPresetLoaders(IPresetLoader<?> presetLoader){
-        DrawingBotV3.logger.config("Registering Preset Loader: " + presetLoader.getPresetType().id);
+        DrawingBotV3.logger.config("Registering Preset Loader: " + presetLoader.getPresetType().registryName);
         this.presetLoaders.add(presetLoader);
         return presetLoader;
     }
 
     public IPresetManager<?, ?> registerPresetManager(IPresetManager<?, ?> presetManager){
-        DrawingBotV3.logger.config("Registering Preset Manager: " + presetManager.getPresetType().id + " " + presetManager.getTargetType().getSimpleName());
+        DrawingBotV3.logger.config("Registering Preset Manager: " + presetManager.getPresetType().registryName + " " + presetManager.getTargetType().getSimpleName());
         this.presetManagers.add(presetManager);
         return presetManager;
     }
 
     public PresetType registerPresetType(PresetType presetType){
-        DrawingBotV3.logger.config("Registering Json Type: " + presetType.id);
+        DrawingBotV3.logger.config("Registering Json Type: " + presetType.registryName);
         this.presetTypes.add(presetType);
         return presetType;
     }
 
     public PresetType getPresetType(String name){
         for(PresetType presetType : presetTypes){
-            if(presetType.id.equals(name)){
+            if(presetType.registryName.equals(name)){
                 return presetType;
             }
         }
@@ -803,7 +793,7 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// PREFERENCES \\\\
-    public TreeNode root = Editors.root();
+    public TreeNode root = EditorSheet.root();
 
     public void registerPreferencesPage(TreeNode treeNode){
         registerPreferencesPage("", treeNode);
@@ -820,7 +810,7 @@ public class MasterRegistry {
                         continue pages;
                     }
                 }
-                parentPage.getChildren().add(parentPage = Editors.node(pageName));
+                parentPage.getChildren().add(parentPage = EditorSheet.node(pageName));
             }
             parentPage.getChildren().add(treeNode);
         }else{

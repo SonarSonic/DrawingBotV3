@@ -27,7 +27,9 @@ public class ComboCellPreset<D> extends ComboBoxListCell<GenericPreset<D>> {
                 Label nameLabel = new Label();
                 nameLabel.textProperty().bind(item.presetNameProperty());
                 box.getChildren().addAll(new Label("  "), nameLabel);
-                if(item.userCreated){
+                if(item.overridesSystemPreset){
+                    box.getChildren().add(createOverridesLabel());
+                } else if(item.userCreated){
                     box.getChildren().add(createUserLabel());
                 }
                 node = box;
@@ -40,6 +42,12 @@ public class ComboCellPreset<D> extends ComboBoxListCell<GenericPreset<D>> {
     public static Label createUserLabel(){
         Label userLabel = new Label(" (User)");
         userLabel.setTextFill(new Color(0/255F, 200/255F, 130/255F, 1.0));
+        return userLabel;
+    }
+
+    public static Label createOverridesLabel(){
+        Label userLabel = new Label(" (Overrides)");
+        userLabel.setTextFill(new Color(200/255F, 0/255F, 130/255F, 1.0));
         return userLabel;
     }
 }

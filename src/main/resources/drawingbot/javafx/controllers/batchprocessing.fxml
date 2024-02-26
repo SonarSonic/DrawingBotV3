@@ -4,23 +4,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="vboxBatchProcessing" minWidth="410.0" prefHeight="440.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
-   <HBox alignment="CENTER_LEFT" spacing="14.0">
-      <children>
-          <Button fx:id="buttonSelectInputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Input Folder" />
-          <Button fx:id="buttonSelectOutputFolder" mnemonicParsing="false" prefHeight="25.0" prefWidth="188.0" text="Select Output Folder" />
-      </children>
-   </HBox>
-    <Label contentDisplay="RIGHT" text="Input Folder:">
-        <graphic>
-            <Label fx:id="labelInputFolder" text="Label" />
-        </graphic>
-    </Label>
-    <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="76.0" text="Output Folder:">
-        <graphic>
-            <Label fx:id="labelOutputFolder" text="Label" />
-        </graphic>
-    </Label>
+<?import drawingbot.javafx.controls.ControlDirectoryPicker?>
+
+<VBox fx:id="vboxBatchProcessing" prefWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXBatchProcessing">
+    <HBox>
+        <Label alignment="BOTTOM_LEFT" contentDisplay="RIGHT" minHeight="20.0" minWidth="80" text="Input Folder:"/>
+        <ControlDirectoryPicker fx:id="inputFolderPicker" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <HBox>
+        <Label alignment="BOTTOM_LEFT" contentDisplay="RIGHT" minHeight="20.0" minWidth="80" text="Output Folder:" />
+        <ControlDirectoryPicker fx:id="outputFolderPicker" HBox.hgrow="ALWAYS"/>
+    </HBox>
     <Separator layoutX="14.0" layoutY="105.0" prefHeight="0.0" prefWidth="376.0" />
     <Label layoutX="14.0" layoutY="117.0" text="Export Options:" />
     <TableView fx:id="tableViewBatchExport" editable="true" layoutX="8.0" layoutY="144.0" prefHeight="189.0" prefWidth="390.0" VBox.vgrow="ALWAYS">

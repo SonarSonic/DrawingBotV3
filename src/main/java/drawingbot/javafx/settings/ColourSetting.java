@@ -2,8 +2,8 @@ package drawingbot.javafx.settings;
 
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericSetting;
-import javafx.scene.Node;
-import javafx.scene.control.ColorPicker;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
@@ -42,14 +42,8 @@ public class ColourSetting<C> extends GenericSetting<C, Color> {
     }
 
     @Override
-    public Node createJavaFXNode(boolean label) {
-        //graphics
-        ColorPicker colorPicker = new ColorPicker();
-
-        //bindings
-        colorPicker.valueProperty().bindBidirectional(value);
-        colorPicker.setOnAction(e -> sendUserEditedEvent());
-        return colorPicker;
+    public IEditorFactory<Color> defaultEditorFactory() {
+        return Editors::createColorPicker;
     }
 
     @Override

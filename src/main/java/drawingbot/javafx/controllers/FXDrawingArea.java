@@ -2,7 +2,7 @@ package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.PresetData;
-import drawingbot.javafx.controls.ControlPresetSelection;
+import drawingbot.javafx.controls.ControlPresetSelector;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.Register;
 import drawingbot.utils.*;
@@ -19,13 +19,10 @@ import javafx.util.converter.NumberStringConverter;
 public class FXDrawingArea extends AbstractFXController {
 
     public final SimpleObjectProperty<ObservableCanvas> drawingArea = new SimpleObjectProperty<>();
-    //public final SimpleObjectProperty<GenericPreset<PresetData>> selectedDrawingAreaPreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////
 
-    public ControlPresetSelection<ObservableCanvas, PresetData> controlDrawingAreaPreset;
-    //public ComboBox<GenericPreset<PresetData>> comboBoxDrawingAreaPreset = null;
-    //public MenuButton menuButtonDrawingAreaPresets = null;
+    public ControlPresetSelector<ObservableCanvas, PresetData> controlDrawingAreaPreset;
 
     /////SIZING OPTIONS
     public CheckBox checkBoxOriginalSizing = null;

@@ -1,4 +1,4 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import drawingbot.javafx.controllers.AbstractFXController;
 import javafx.fxml.FXMLLoader;

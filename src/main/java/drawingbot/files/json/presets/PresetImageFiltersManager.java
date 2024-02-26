@@ -2,6 +2,7 @@ package drawingbot.files.json.presets;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.DefaultPresetEditor;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.GenericFactory;
@@ -47,5 +48,10 @@ public class PresetImageFiltersManager extends AbstractPresetManager<ImageFilter
                 }
             }
         }
+    }
+
+    @Override
+    public DefaultPresetEditor<ImageFilterSettings, PresetImageFilters> createPresetEditor() {
+        return new PresetImageFiltersEditor(this);
     }
 }

@@ -142,6 +142,9 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     }
 
     public List<GenericSetting<?, ?>> getPFMSettings(PFMFactory<?> factory){
+        if(getPFMFactory() == factory){
+            return getPFMSettings().getSettings();
+        }
         return MasterRegistry.INSTANCE.getObservablePFMSettingsList(factory);
     }
     /**
@@ -429,7 +432,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
             @Override
             public boolean flipAxis() {
-                return openImage.get() != null && openImage.get().imageRotation.get().flipAxis;
+                return openImage.get() != null && openImage.get().getImageCropping().getImageRotation().flipAxis;
             }
         };
 

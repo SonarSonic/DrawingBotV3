@@ -75,7 +75,7 @@ public abstract class PresetDataLoader<MASTER extends PresetData> {
         public Type type;
 
         public Preset(Class<MASTER> masterType, IPresetManager<TARGET, SUB> manager, int order) {
-            super(masterType, manager.getPresetType().id, order);
+            super(masterType, manager.getPresetType().registryName, order);
             this.manager = manager;
             this.type = TypeToken.getParameterized(GenericPreset.class, manager.getDataType()).getType();
         }

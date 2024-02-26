@@ -19,7 +19,7 @@ public class DialogImportPreset extends Dialog<Boolean> {
         FXHelper.addText(flow, 14, "bold", "Successfully imported preset");
         FXHelper.addText(flow, 14, "normal", "\n" + "Preset Name: " + preset.getPresetName());
         FXHelper.addText(flow, 14, "normal", "\n" + "Preset Sub Type: " + preset.getPresetSubType());
-        FXHelper.addText(flow, 14, "normal", "\n" + "Preset Type: " + preset.presetType.id);
+        FXHelper.addText(flow, 14, "normal", "\n" + "Preset Type: " + preset.presetType.registryName);
 
         setGraphic(flow);
 

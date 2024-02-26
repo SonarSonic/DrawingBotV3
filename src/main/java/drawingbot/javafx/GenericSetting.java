@@ -5,6 +5,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.controls.StringConverterGenericSetting;
+import drawingbot.javafx.editors.EditorContext;
+import drawingbot.javafx.editors.IEditableProperty;
+import drawingbot.javafx.editors.IEditor;
+import drawingbot.javafx.editors.IEditorFactory;
 import drawingbot.javafx.settings.*;
 import drawingbot.javafx.settings.bindings.BindingFactory;
 import drawingbot.javafx.settings.bindings.SimpleBindingFactory;
@@ -15,8 +19,6 @@ import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
@@ -29,12 +31,12 @@ import java.util.function.Function;
 
 /**a simple setting which can be easily altered in java fx, which can be randomised, reset, converted to and from a string & parsed to json.
  * it can be applied to an instance when needed or permanently attached to an instance */
-public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSetting.Listener> implements Observable {
+public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSetting.Listener> implements Observable, IEditableProperty<V> {
 
     public final Class<C> clazz; //the class this setting can be applied to or belongs to
     public final Class<V> type; //the object type of the value this setting represents
 
-    protected GenericSetting(GenericSetting<C, V> toCopy, V newValue){
+    protected GenericSetting(GenericSetting<C, V> toCopy, V newValue) {
         this.clazz = toCopy.clazz;
         this.type = toCopy.type;
         this.setCategory(toCopy.category);
@@ -47,9 +49,10 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         this.setSetter(toCopy.setter);
         this.setGetter(toCopy.getter);
         this.setDefaultValue(toCopy.defaultValue);
-        this.setDisabled(toCopy.disabled.get());
+        this.setDisabled(toCopy.isDisabled());
         this.setBindingFactory(toCopy.bindingFactory);
-        this.setRandomiseExclude(toCopy.randomiseExclude.get());
+        this.setEditorFactory(toCopy.editorFactory);
+        this.setRandomiseExclude(toCopy.getRandomiseExclude());
         this.setDocURLSuffix(toCopy.docURLSuffix);
         this.setDocURL(toCopy.docURL);
         this.setValue(newValue);
@@ -104,30 +107,30 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return this;
     }
 
-    public String updateKey(String key){
-        if(key.equals(getKey())){
+    public String updateKey(String key) {
+        if (key.equals(getKey())) {
             return key;
         }
-        if(getAltKeys() != null){
-            if(getAltKeys().contains(key)){
+        if (getAltKeys() != null) {
+            if (getAltKeys().contains(key)) {
                 return getKey();
             }
         }
         return key;
     }
 
-    public boolean testKey(String key){
-        if(key.equals(getKey())){
+    public boolean testKey(String key) {
+        if (key.equals(getKey())) {
             return true;
         }
-        if(getAltKeys() != null){
+        if (getAltKeys() != null) {
             return getAltKeys().contains(key);
         }
         return false;
     }
 
-    public GenericSetting<C, V> addAltKey(String altKey){
-        if(altKeys == null){
+    public GenericSetting<C, V> addAltKey(String altKey) {
+        if (altKeys == null) {
             altKeys = new ArrayList<>();
         }
         altKeys.add(altKey);
@@ -159,11 +162,11 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return defaultValue;
     }
 
-    public final boolean isDefaultValue(){
+    public final boolean isDefaultValue() {
         return isDefaultValue(value.getValue());
     }
 
-    public boolean isDefaultValue(Object value){
+    public boolean isDefaultValue(Object value) {
         return Objects.equals(value, defaultValue);
     }
 
@@ -174,7 +177,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     ////////////////////////////////
 
-    public final SimpleObjectProperty<V> value = new SimpleObjectProperty<>(this, null){
+    public final SimpleObjectProperty<V> value = new SimpleObjectProperty<>(this, "value") {
 
         @Override
         public V get() {
@@ -192,17 +195,18 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     }
 
     public V getValue() {
-        if(validator != null){
+        if (validator != null) {
             return validate(value.getValue());
         }
         return value.getValue();
     }
 
-    public final String getValueAsString(){
+    @Override
+    public final String getValueAsString() {
         return getValueAsString(value.getValue());
     }
 
-    public String getValueAsString(V value){
+    public String getValueAsString(V value) {
         return getStringConverter().toString(value);
     }
 
@@ -210,32 +214,76 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         setValue(v);
     }
 
-    public void setValue(Object v){
+    public void setValue(Object v) {
         V cast = type.cast(v);
         value.setValue(validate(cast));
     }
 
-    public void setValueFromString(String obj){
+    public void setValueFromString(String obj) {
         value.setValue(getStringConverter().fromString(obj));
     }
-    
-    public SimpleObjectProperty<V> valueProperty(){
+
+    ////////////////////////////////
+
+    //// EDITORS \\\\
+
+    public IEditorFactory<V> editorFactory = null;
+
+    public GenericSetting<C, V> setEditorFactory(IEditorFactory<V> editorFactory) {
+        this.editorFactory = editorFactory;
+        return this;
+    }
+
+    @Override
+    public IEditorFactory<V> getEditorFactory() {
+        return editorFactory == null ? defaultEditorFactory() : editorFactory;
+    }
+
+    public IEditor<V> createEditor(EditorContext context) {
+        return getEditorFactory().createEditor(context, this);
+    }
+
+    public abstract IEditorFactory<V> defaultEditorFactory();
+
+
+    @Override
+    public SimpleObjectProperty<V> valueProperty() {
         return value;
+    }
+
+    @Override
+    public void resetValue() {
+        resetSetting();
+    }
+
+    @Override
+    public void randomiseValue() {
+        randomise(ThreadLocalRandom.current());
+    }
+
+    @Override
+    public Class<V> getType() {
+        return type;
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
     }
 
     ////////////////////////////////
 
     public ObservableList<V> recommendedValues;
 
-    public GenericSetting<C, V> addRecommendedValues(V... values){
-        if(recommendedValues == null){
+    public GenericSetting<C, V> addRecommendedValues(V... values) {
+        if (recommendedValues == null) {
             recommendedValues = FXCollections.observableArrayList();
         }
         recommendedValues.addAll(values);
         return this;
     }
 
-    public boolean hasRecommendedValues(){
+    public boolean hasRecommendedValues() {
         return recommendedValues != null && !recommendedValues.isEmpty();
     }
 
@@ -245,18 +293,23 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     ////////////////////////////////
 
-    public final SimpleBooleanProperty valueChanging = new SimpleBooleanProperty(false);
+    private static final boolean defaultValueChanging = false;
+    private BooleanProperty valueChanging = null; //should prevent randomising
 
     public boolean isValueChanging() {
-        return valueChanging.get();
+        return valueChanging == null ? defaultValueChanging : valueChanging.get();
     }
 
-    public SimpleBooleanProperty valueChangingProperty() {
+    public BooleanProperty valueChangingProperty() {
+        if (valueChanging == null) {
+            valueChanging = new SimpleBooleanProperty(defaultValueChanging);
+        }
         return valueChanging;
     }
 
-    public void setValueChanging(boolean valueChanging) {
-        this.valueChanging.set(valueChanging);
+    public GenericSetting<C, V> setValueChanging(boolean valueChanging) {
+        valueChangingProperty().set(valueChanging);
+        return this;
     }
 
     ////////////////////////////////
@@ -285,19 +338,19 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return validator;
     }
 
-    public GenericSetting<C, V> setValidator(Function<V, V> validator){
+    public GenericSetting<C, V> setValidator(Function<V, V> validator) {
         this.validator = validator;
         return this;
     }
 
-    public V validate(V value){
-        if(validator != null){
+    public V validate(V value) {
+        if (validator != null) {
             return validator.apply(value);
         }
         return defaultValidate(value);
     }
 
-    protected V defaultValidate(V value){
+    protected V defaultValidate(V value) {
         return value;
     }
 
@@ -305,26 +358,26 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     private Function<ThreadLocalRandom, V> randomiser; //optional: the randomiser returns a valid random value
 
-    public GenericSetting<C, V> setRandomiser(Function<ThreadLocalRandom, V> randomiser){
+    public GenericSetting<C, V> setRandomiser(Function<ThreadLocalRandom, V> randomiser) {
         this.randomiser = randomiser;
         return this;
     }
 
-    public void randomise(ThreadLocalRandom random){
-        if(randomiseExclude.get()){
+    public void randomise(ThreadLocalRandom random) {
+        if (getRandomiseExclude()) {
             return;
         }
-        if(randomiser != null){
-             setValue(randomiser.apply(random));
-        }else{
+        if (randomiser != null) {
+            setValue(randomiser.apply(random));
+        } else {
             V nextRandom = defaultRandomise(random);
-            if(nextRandom != null){
+            if (nextRandom != null) {
                 setValue(nextRandom);
             }
         }
     }
 
-    protected V defaultRandomise(ThreadLocalRandom random){
+    protected V defaultRandomise(ThreadLocalRandom random) {
         return null;
     }
 
@@ -333,34 +386,29 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     private StringConverter<V> stringConverter; //to convert the value to and from a string for javafx
 
     public StringConverter<V> getStringConverter() {
-        if(stringConverter != null){
+        if (stringConverter != null) {
             return stringConverter;
         }
         StringConverter<V> fallback = defaultStringConverter();
-        if(fallback == null){
+        if (fallback == null) {
             DrawingBotV3.logger.warning("Generic Setting: Missing string converter: " + getKey());
         }
         return fallback;
     }
 
-    public GenericSetting<C, V> setStringConverter(StringConverter<V> stringConverter){
+    public GenericSetting<C, V> setStringConverter(StringConverter<V> stringConverter) {
         this.stringConverter = stringConverter;
         return this;
     }
 
-    protected StringConverter<V> defaultStringConverter(){
+    protected StringConverter<V> defaultStringConverter() {
         return new StringConverterGenericSetting<>(() -> this);
     }
 
     ////////////////////////////////
 
-    private TextFormatter<V> textFormatter;
-
-    public TextFormatter<V> getTextFormatter() {
-        if (textFormatter != null) {
-            return textFormatter;
-        }
-        return textFormatter = new TextFormatter<V>(getStringConverter(), getDefaultValue());
+    public TextFormatter<V> createTextFormatter() {
+        return new TextFormatter<V>(getStringConverter(), getDefaultValue());
     }
 
     ////////////////////////////////
@@ -373,12 +421,12 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return setter;
     }
 
-    public GenericSetting<C, V> setSetter(BiConsumer<C, V> setter){
+    public GenericSetting<C, V> setSetter(BiConsumer<C, V> setter) {
         this.setter = setter;
         return this;
     }
 
-    public void createDefaultSetter(){
+    public void createDefaultSetter() {
         setSetter((C, V) -> setValue(V));
     }
 
@@ -392,18 +440,18 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return getter;
     }
 
-    public GenericSetting<C, V> setGetter(Function<C, V> getter){
+    public GenericSetting<C, V> setGetter(Function<C, V> getter) {
         this.getter = getter;
         return this;
     }
 
-    public void createDefaultGetter(){
+    public void createDefaultGetter() {
         setGetter((C) -> getValue());
     }
 
     ////////////////////////////////
 
-    public void createDefaultGetterAndSetter(){
+    public void createDefaultGetterAndSetter() {
         createDefaultSetter();
         createDefaultGetter();
     }
@@ -416,25 +464,32 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return toneMappingExclude;
     }
 
-    public GenericSetting<C, V> setToneMappingExclude(boolean exclude){
+    public GenericSetting<C, V> setToneMappingExclude(boolean exclude) {
         this.toneMappingExclude = exclude;
         return this;
     }
 
     ////////////////////////////////
 
-    public final SimpleBooleanProperty disabled = new SimpleBooleanProperty(false); //should prevent randomising
+    private static final boolean defaultDisabled = false;
+    private BooleanProperty disabled = null; //should prevent randomising
 
     public boolean isDisabled() {
-        return disabled.get();
+        return disabled == null ? defaultDisabled : disabled.get();
     }
 
-    public SimpleBooleanProperty disabledProperty() {
+    public BooleanProperty disabledProperty() {
+        if (disabled == null) {
+            disabled = new SimpleBooleanProperty(defaultDisabled);
+        }
         return disabled;
     }
 
     public GenericSetting<C, V> setDisabled(boolean disabled) {
-        this.disabled.set(disabled);
+        if (this.disabled == null && disabled == defaultDisabled) {
+            return this;
+        }
+        this.disabledProperty().set(disabled);
         return this;
     }
 
@@ -451,17 +506,17 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return this;
     }
 
-    public GenericSetting<C, V> createDisableBinding(String targetKey, boolean value){
+    public GenericSetting<C, V> createDisableBinding(String targetKey, boolean value) {
         setBindingFactory(new SimpleBindingFactory(targetKey, value));
         return this;
     }
 
-    public GenericSetting<C, V> createDisableObjectBinding(String targetKey, Object value){
+    public GenericSetting<C, V> createDisableObjectBinding(String targetKey, Object value) {
         setBindingFactory(new SimpleBindingFactory(targetKey, value));
         return this;
     }
 
-    public GenericSetting<C, V> createDisableObjectBindingNot(String targetKey, Object value){
+    public GenericSetting<C, V> createDisableObjectBindingNot(String targetKey, Object value) {
         setBindingFactory(new SimpleBindingFactory(targetKey, value).invert());
         return this;
     }
@@ -478,48 +533,55 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     }
      */
 
-    public void removeBindings(){
+    public void removeBindings() {
         disabledProperty().unbind();
         valueProperty().unbind();
     }
 
     ////////////////////////////////
 
-    public final SimpleBooleanProperty randomiseExclude = new SimpleBooleanProperty(false); //should prevent randomising
+    private static final boolean defaultRandomiseExclude = false;
+    private BooleanProperty randomiseExclude = null; //should prevent randomising
 
     public boolean getRandomiseExclude() {
-        return randomiseExclude.get();
+        return randomiseExclude == null ? defaultRandomiseExclude : randomiseExclude.get();
     }
 
-    public SimpleBooleanProperty randomiseExcludeProperty() {
+    public BooleanProperty randomiseExcludeProperty() {
+        if (randomiseExclude == null) {
+            randomiseExclude = new SimpleBooleanProperty(defaultRandomiseExclude);
+        }
         return randomiseExclude;
     }
 
-    public GenericSetting<C, V> setRandomiseExclude(boolean exclude){
-        this.randomiseExclude.set(exclude);
+    public GenericSetting<C, V> setRandomiseExclude(boolean exclude) {
+        if (this.randomiseExclude == null && exclude == defaultRandomiseExclude) {
+            return this;
+        }
+        this.randomiseExcludeProperty().set(exclude);
         return this;
     }
 
     ////////////////////////////////
 
-    public boolean isInstance(Object instance){
+    public boolean isInstance(Object instance) {
         return this.clazz.isInstance(instance);
     }
 
-    public boolean isAssignableFrom(Class<?> clazz){
+    public boolean isAssignableFrom(Class<?> clazz) {
         return this.clazz.isAssignableFrom(clazz);
     }
 
-    public JsonElement getValueAsJsonElement(){
+    public JsonElement getValueAsJsonElement() {
         return getValueAsJsonElement(value.getValue());
     }
 
-    public JsonElement getValueAsJsonElement(Object value){
+    public JsonElement getValueAsJsonElement(Object value) {
         return new JsonPrimitive(getValueAsString(type.cast(value)));
     }
 
-    public V getValueFromJsonElement(JsonElement element){
-        if(element instanceof JsonPrimitive){
+    public V getValueFromJsonElement(JsonElement element) {
+        if (element instanceof JsonPrimitive) {
             JsonPrimitive primitive = (JsonPrimitive) element;
             return getStringConverter().fromString(primitive.getAsString());
         }
@@ -527,9 +589,9 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     }
 
     @Nullable
-    public V getValueFromInstance(Object instance){
-        if(clazz.isInstance(instance)){
-            if(getter == null){
+    public V getValueFromInstance(Object instance) {
+        if (clazz.isInstance(instance)) {
+            if (getter == null) {
                 DrawingBotV3.logger.warning("Generic Setting: Missing getter: " + getKey());
                 return null;
             }
@@ -539,20 +601,20 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         return null;
     }
 
-    public void updateSetting(Object instance){
+    public void updateSetting(Object instance) {
         V value = getValueFromInstance(instance);
-        if(value != null){
+        if (value != null) {
             setValue(value);
         }
     }
 
-    public final void applySetting(Object instance){
+    public final void applySetting(Object instance) {
         applySetting(instance, value.getValue());
     }
 
-    public void applySetting(Object instance, Object value){
-        if(clazz.isInstance(instance)){
-            if(setter == null){
+    public void applySetting(Object instance, Object value) {
+        if (clazz.isInstance(instance)) {
+            if (setter == null) {
                 DrawingBotV3.logger.warning("Generic Setting: Missing setter: " + getKey());
                 return;
             }
@@ -560,75 +622,24 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         }
     }
 
-    public void resetSetting(){
+    public void resetSetting() {
         value.setValue(defaultValue);
     }
 
-    public String toSafeName(String name){
+    public String toSafeName(String name) {
         return name.replace(' ', '_').toLowerCase();
     }
 
-    public void unbind(){
+    public void unbind() {
         value.unbind();
-        randomiseExclude.unbind();
+        randomiseExcludeProperty().unbind();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //TODO make nodes unique, in this method nodes can't be placed in multiple places (they can't have multiple parent nodes), nodes need to be bi-directional and generated for their place.
-
-    public transient TextField textField;
-    public transient Node defaultNode;
-    public transient Node labelledNode;
-
-    public boolean hasEditableTextField(){
-        return true;
-    }
-
-    public boolean hasCustomEditor(){
-        return true;
-    }
-
-    public TextField getEditableTextField(){
-        if(textField == null){
-            textField = new TextField();
-            textField.setTextFormatter(getTextFormatter());
-            textField.setText(getValueAsString());
-            textField.setPrefWidth(80);
-            textField.setOnAction(e -> {
-                setValueFromString(textField.getText());
-                sendUserEditedEvent();
-            });
-            textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                //set the value when the text field is de-focused
-                if(oldValue && !newValue){
-                    setValueFromString(textField.getText());
-                }
-            });
-            value.addListener((observable, oldValue, newValue) -> textField.setText(getValueAsString()));
-        }
-        return textField;
-    }
-
-    public Node getJavaFXEditor(boolean label){
-        if(label){
-            if(labelledNode == null){
-                labelledNode = createJavaFXNode(true);
-            }
-            return labelledNode;
-        }else{
-            if(defaultNode == null){
-                defaultNode = createJavaFXNode(false);
-            }
-            return defaultNode;
-        }
-    }
-
-    protected abstract Node createJavaFXNode(boolean label);
-
     public abstract GenericSetting<C, V> copy();
 
-    public void sendUserEditedEvent(){
+    public void sendUserEditedEvent() {
         sendListenerEvent(l -> l.onSettingUserEdited(this));
     }
 
@@ -644,7 +655,8 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         /**
          * Called only when the generic setting is edited by a user.
          */
-        default void onSettingUserEdited(GenericSetting<?, ?> setting) {}
+        default void onSettingUserEdited(GenericSetting<?, ?> setting) {
+        }
 
     }
 
@@ -688,73 +700,73 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static HashMap<String, JsonElement> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, JsonElement> dst, boolean changesOnly){
+    public static HashMap<String, JsonElement> toJsonMap(List<GenericSetting<?, ?>> list, HashMap<String, JsonElement> dst, boolean changesOnly) {
         list.forEach(s -> {
-            if(!changesOnly || !s.isDefaultValue()){
+            if (!changesOnly || !s.isDefaultValue()) {
                 dst.put(s.getKey(), s.getValueAsJsonElement());
             }
         });
         return dst;
     }
 
-    public static JsonObject toJsonObject(List<GenericSetting<?, ?>> settingList, @Nullable Object instance, boolean changesOnly){
+    public static JsonObject toJsonObject(List<GenericSetting<?, ?>> settingList, @Nullable Object instance, boolean changesOnly) {
         JsonObject jsonObject = new JsonObject();
 
-        for(GenericSetting<?, ?> setting : settingList){
+        for (GenericSetting<?, ?> setting : settingList) {
             Object value = instance == null ? null : setting.getValueFromInstance(instance);
 
-            if(value == null) {
+            if (value == null) {
                 value = setting.value.getValue();
             }
 
-            if(!changesOnly || !setting.isDefaultValue(value)){
+            if (!changesOnly || !setting.isDefaultValue(value)) {
                 jsonObject.add(setting.getKey(), setting.getValueAsJsonElement(value));
             }
         }
         return jsonObject;
     }
 
-    public static <I> I fromJsonObject(JsonObject jsonObject, List<GenericSetting<?, ?>> settingList, @Nullable I instance, boolean updateSettings){
-        for(GenericSetting<?, ?> setting : settingList){
+    public static <I> I fromJsonObject(JsonObject jsonObject, List<GenericSetting<?, ?>> settingList, @Nullable I instance, boolean updateSettings) {
+        for (GenericSetting<?, ?> setting : settingList) {
             Object value = setting.getValue();
             JsonElement element = jsonObject.get(setting.getKey());
-            if(element == null && setting.getAltKeys() != null){
+            if (element == null && setting.getAltKeys() != null) {
                 //attempt to retrieve the setting using old keys
-                for(String altKey : setting.getAltKeys()){
+                for (String altKey : setting.getAltKeys()) {
                     element = jsonObject.get(altKey);
-                    if(element != null){
+                    if (element != null) {
                         break;
                     }
                 }
             }
-            if(element != null){
+            if (element != null) {
                 Object fromJson = setting.getValueFromJsonElement(element);
                 value = fromJson != null ? fromJson : value;
             }
             setting.applySetting(instance, value);
-            if(updateSettings){
+            if (updateSettings) {
                 setting.setValue(value);
             }
         }
         return instance;
     }
 
-    public static void randomiseSettings(List<GenericSetting<?, ?>> settingList){
-        for(GenericSetting<?, ?> setting : settingList){
+    public static void randomiseSettings(List<GenericSetting<?, ?>> settingList) {
+        for (GenericSetting<?, ?> setting : settingList) {
             setting.randomise(ThreadLocalRandom.current());
         }
     }
 
 
-    public static void resetSettings(List<GenericSetting<?, ?>> settingList){
-        for(GenericSetting<?, ?> setting : settingList){
+    public static void resetSettings(List<GenericSetting<?, ?>> settingList) {
+        for (GenericSetting<?, ?> setting : settingList) {
             setting.resetSetting();
         }
     }
 
-    public static GenericSetting<?, ?> findSetting(Collection<GenericSetting<?, ?>> settingList, String key){
-        for(GenericSetting<?, ?> setting : settingList){
-            if(setting.testKey(key)){
+    public static GenericSetting<?, ?> findSetting(Collection<GenericSetting<?, ?>> settingList, String key) {
+        for (GenericSetting<?, ?> setting : settingList) {
+            if (setting.testKey(key)) {
                 return setting;
             }
         }
@@ -762,96 +774,125 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     }
 
 
-    public static List<GenericSetting<?, ?>> filterSettings(List<GenericSetting<?, ?>> settingList, Collection<String> keys){
+    public static List<GenericSetting<?, ?>> filterSettings(List<GenericSetting<?, ?>> settingList, Collection<String> keys) {
         List<GenericSetting<?, ?>> filteredList = new ArrayList<>();
-        for(GenericSetting<?, ?> setting : settingList){
-            if(keys.contains(setting.getKey()) || setting.altKeys != null && !Collections.disjoint(keys, setting.altKeys)){
+        for (GenericSetting<?, ?> setting : settingList) {
+            if (keys.contains(setting.getKey()) || setting.altKeys != null && !Collections.disjoint(keys, setting.altKeys)) {
                 filteredList.add(setting);
             }
         }
         return filteredList;
     }
 
-    public static void updateSettingsFromInstance(List<GenericSetting<?, ?>> src, Object instance){
-        for(GenericSetting<?, ?> setting : src){
+    public static void updateSettingsFromInstance(List<GenericSetting<?, ?>> src, Object instance) {
+        for (GenericSetting<?, ?> setting : src) {
             setting.updateSetting(instance);
         }
     }
 
-    public static void applySettingsToInstance(List<GenericSetting<?, ?>> src, Object instance){
-        for(GenericSetting<?, ?> setting : src){
+    public static void applySettingsToInstance(List<GenericSetting<?, ?>> src, Object instance) {
+        for (GenericSetting<?, ?> setting : src) {
             setting.applySetting(instance);
         }
     }
 
-    public static void applySettings(HashMap<String, JsonElement> src, List<GenericSetting<?, ?>> dst){
-        dst: for(GenericSetting<?, ?> settingDst : dst){
-            for(Map.Entry<String, JsonElement> settingSrc : src.entrySet()){
-                if(settingDst.testKey(settingSrc.getKey())){
-                    settingDst.setValue(settingDst.getValueFromJsonElement(settingSrc.getValue()));
-                    continue dst;
-                }
-            }
-            settingDst.resetSetting(); //if the src list doesn't contain a value for the dst setting, reset it to default
+    public static void applySettings(HashMap<String, JsonElement> src, List<GenericSetting<?, ?>> dst) {
+        for (GenericSetting<?, ?> settingDst : dst) {
+            applySettings(src, settingDst);
         }
     }
 
-    public static void applySettings(List<GenericSetting<?, ?>> src, List<GenericSetting<?, ?>> dst){
-        dst: for(GenericSetting<?, ?> settingDst : dst){
-
-            for(GenericSetting<?, ?> settingSrc : src){
-                if(settingDst.testKey(settingSrc.getKey())){
-                    settingDst.setValue(settingSrc.value.getValue());
-                    continue dst;
-                }
+    public static void applySettings(HashMap<String, JsonElement> src, GenericSetting<?, ?> setting) {
+        for (Map.Entry<String, JsonElement> settingSrc : src.entrySet()) {
+            if (setting.testKey(settingSrc.getKey())) {
+                setting.setValue(setting.getValueFromJsonElement(settingSrc.getValue()));
+                return;
             }
-            settingDst.resetSetting(); //if the src list doesn't contain a value for the dst setting, reset it to default
+        }
+        setting.resetSetting(); //if the src list doesn't contain a value for the dst setting, reset it to default
+    }
+
+    public static void applySettings(List<GenericSetting<?, ?>> src, List<GenericSetting<?, ?>> dst) {
+        for (GenericSetting<?, ?> settingDst : dst) {
+            applySettings(src, settingDst);
         }
     }
 
-    public static ObservableList<GenericSetting<?, ?>> copy(ObservableList<GenericSetting<?, ?>> list, ObservableList<GenericSetting<?, ?>> dst){
+    public static void applySettings(List<GenericSetting<?, ?>> src, GenericSetting<?, ?> setting) {
+        for (GenericSetting<?, ?> settingSrc : src) {
+            if (setting.testKey(settingSrc.getKey())) {
+                setting.setValue(settingSrc.value.getValue());
+                return;
+            }
+        }
+        setting.resetSetting(); //if the src list doesn't contain a value for the dst setting, reset it to default
+    }
+
+    public static ObservableList<GenericSetting<?, ?>> copy(ObservableList<GenericSetting<?, ?>> list, ObservableList<GenericSetting<?, ?>> dst) {
         list.forEach(s -> dst.add(s.copy()));
         return dst;
     }
 
-    public static List<GenericSetting<?, ?>> copy(List<GenericSetting<?, ?>> list, List<GenericSetting<?, ?>> dst){
+    public static List<GenericSetting<?, ?>> copy(List<GenericSetting<?, ?>> list, List<GenericSetting<?, ?>> dst) {
         list.forEach(s -> dst.add(s.copy()));
         return dst;
     }
 
-    public static Map<String, String> saveValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
+    public static Map<String, String> saveValues(List<GenericSetting<?, ?>> list, Map<String, String> valueMap) {
         list.forEach(setting -> valueMap.put(setting.getKey(), setting.getValueAsString()));
         return valueMap;
     }
 
-    public static void loadValues(List<GenericSetting<?, ?>> list,  Map<String, String> valueMap){
+    public static void loadValues(List<GenericSetting<?, ?>> list, Map<String, String> valueMap) {
         list.forEach(setting -> {
             String value = valueMap.get(setting.getKey());
-            if(value == null && setting.altKeys != null){
-                for(String altKey : setting.altKeys){
+            if (value == null && setting.altKeys != null) {
+                for (String altKey : setting.altKeys) {
                     value = valueMap.get(altKey);
-                    if(value != null){
+                    if (value != null) {
                         break;
                     }
                 }
             }
-            if(value != null){
+            if (value != null) {
                 setting.setValueFromString(value);
             }
         });
     }
 
 
-    public static Map<String, String> getValueMap(List<GenericSetting<?, ?>> pfmSettings, List<GenericSetting<?, ?>> cacheSettings){
+    public static Map<String, String> getValueMap(List<GenericSetting<?, ?>> pfmSettings, List<GenericSetting<?, ?>> cacheSettings) {
         Map<String, String> valueMap = new HashMap<>();
-        for(GenericSetting<?, ?> cacheSetting : cacheSettings){
-            for(GenericSetting<?, ?> pfmSetting : pfmSettings){
-                if(pfmSetting.testKey(cacheSetting.getKey()) && Objects.equals(pfmSetting.clazz, cacheSetting.clazz)){
+        for (GenericSetting<?, ?> cacheSetting : cacheSettings) {
+            for (GenericSetting<?, ?> pfmSetting : pfmSettings) {
+                if (pfmSetting.testKey(cacheSetting.getKey()) && Objects.equals(pfmSetting.clazz, cacheSetting.clazz)) {
                     valueMap.put(pfmSetting.getKey(), pfmSetting.getValueAsString());
                 }
             }
         }
         return valueMap;
+    }
+
+    /**
+     * Generate and set any disable/value bindings for the given settings list
+     * e.g. if a property is disabled when another is also disabled, this will ensure the {@link #disabledProperty()} of the setting is bound appropriately to other settings in the list
+     */
+    public static void addBindings(List<GenericSetting<?, ?>> settings){
+        for(GenericSetting<?, ?> setting : settings){
+            if(setting.getBindingFactory() != null){
+                setting.getBindingFactory().setupBindings(setting, settings);
+            }
+        }
+    }
+
+    /**
+     * Remove any bindings generated for the {@link #addBindings(List)} method
+     * Results in the removal of all disable/value bindings from the given settings list
+     */
+    public static void removeBindings(List<GenericSetting<?, ?>> settings){
+        for(GenericSetting<?, ?> setting : settings){
+            setting.removeBindings();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

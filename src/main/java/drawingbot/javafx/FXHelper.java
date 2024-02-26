@@ -13,13 +13,8 @@ import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
-import drawingbot.integrations.vpype.PresetVpypeSettings;
-import drawingbot.integrations.vpype.PresetVpypeSettingsLoader;
-import drawingbot.integrations.vpype.PresetVpypeSettingsManager;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
-import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.javafx.settings.AbstractNumberSetting;
 import drawingbot.javafx.util.PropertyAccessor;
 import drawingbot.javafx.util.PropertyAccessorAbstract;
 import drawingbot.javafx.util.PropertyAccessorProp;
@@ -31,21 +26,16 @@ import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.software.SoftwareManager;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.DirectoryChooser;
@@ -61,7 +51,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -122,19 +111,22 @@ public class FXHelper {
 
     public static void importFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, File initialDirectory, FileChooser.ExtensionFilter[] filters, String title){
         Platform.runLater(() -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().addAll(filters);
-            fileChooser.setSelectedExtensionFilter(filters[0]);
-            fileChooser.setTitle(title);
-            if(initialDirectory.exists()) {
-                fileChooser.setInitialDirectory(initialDirectory);
-            }
+            FileChooser fileChooser = createFileChooser(title, initialDirectory, filters);
             File file = fileChooser.showOpenDialog(FXApplication.primaryStage);
             if(file != null){
                 context.project().updateImportDirectoryFromFile(file);
                 callback.accept(file, fileChooser);
             }
         });
+    }
+
+    public static FileChooser createFileChooser(String title, File initialDirectory, FileChooser.ExtensionFilter ...filters){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+        fileChooser.setInitialDirectory(initialDirectory);
+        fileChooser.getExtensionFilters().addAll(filters);
+        fileChooser.setSelectedExtensionFilter(filters[0]);
+        return fileChooser;
     }
 
     public static void exportFile(DBTaskContext context, BiConsumer<File, FileChooser> callback, FileChooser.ExtensionFilter[] filters, FileChooser.ExtensionFilter selectedFilter, String title, String initialFileName) {
@@ -264,7 +256,7 @@ public class FXHelper {
             if(jsonLoader != null){
                 preset.applyPreset(context);
             }else{
-                DrawingBotV3.logger.severe("Preset type is missing JsonLoader: " + presetType.id);
+                DrawingBotV3.logger.severe("Preset type is missing JsonLoader: " + presetType.registryName);
             }
         }
         return preset;
@@ -353,7 +345,7 @@ public class FXHelper {
 
         GenericPreset<D> copy = loader.createNewPreset(preset.getPresetSubType(), preset.getPresetName(), preset.userCreated);
         copy.data = loader.fromJsonElement(gson, copy, element);
-        return (GenericPreset<D>) copy;
+        return copy;
     }
 
     public static void selectFolder(String title, File initialDirectory, Consumer<File> callback){
@@ -449,21 +441,28 @@ public class FXHelper {
             return null;
         }
         if(preset.isSystemPreset()){
-            boolean duplicate = DialogSystemPresetDuplicate.openSystemPresetDialog(preset);
-            if(!duplicate){
-                return null;
+            switch (DialogSystemPresetDuplicate.openSystemPresetDialog(preset)){
+                case OVERRIDE -> {
+                    return manager.getPresetLoader().createOverridePreset(preset);
+                }
+                case DUPLICATE -> {
+                    return manager.getPresetLoader().createEditablePreset(preset);
+                }
+                case CANCEL -> {
+                    return null;
+                }
             }
         }
         return manager.getPresetLoader().createEditablePreset(preset);
     }
 
-    public static <TARGET, DATA> GenericPreset<DATA> actionNewPreset(IPresetManager<TARGET, DATA> manager, TARGET target){
+    public static <TARGET, DATA> GenericPreset<DATA> actionNewPreset(IPresetManager<TARGET, DATA> manager, TARGET target, boolean isInspector){
         GenericPreset<DATA> newPreset = manager.getPresetLoader().createNewPreset();
         if(newPreset == null){
             return null;
         }
         manager.updatePreset(DrawingBotV3.context(), target, newPreset);
-        boolean result = DialogPresetEdit.openPresetEditDialog(manager, newPreset);
+        boolean result = DialogPresetEdit.openPresetNewDialog(manager, newPreset, isInspector);
         if(result){
             manager.getPresetLoader().addPreset(newPreset);
 
@@ -481,7 +480,10 @@ public class FXHelper {
         if(preset == null){
             return null;
         }
-        manager.updatePreset(DrawingBotV3.context(), target, preset);
+
+        if(target != null){
+            manager.updatePreset(DrawingBotV3.context(), target, preset);
+        }
 
         GenericPreset<DATA> resultPreset = manager.getPresetLoader().editPreset(oldPreset, preset);
         logPresetAction(resultPreset, "Updated");
@@ -489,13 +491,13 @@ public class FXHelper {
         return resultPreset;
     }
 
-    public static <TARGET, DATA>  GenericPreset<DATA> actionEditPreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target){
+    public static <TARGET, DATA>  GenericPreset<DATA> actionEditPreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target, boolean isInspector){
         GenericPreset<DATA> oldPreset = preset;
         preset = createEditablePreset(manager, preset);
         if(preset == null){
             return null;
         }
-        boolean result = DialogPresetEdit.openPresetEditDialog(manager, preset);
+        boolean result = DialogPresetEdit.openPresetEditDialog(manager, preset, isInspector);
         if(result){
             GenericPreset<DATA> resultPreset = manager.getPresetLoader().editPreset(oldPreset, preset);
             logPresetAction(resultPreset, "Edited");
@@ -504,29 +506,81 @@ public class FXHelper {
         return null;
     }
 
-    public static <TARGET, DATA>  GenericPreset<DATA> actionDeletePreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target){
+    public static <DATA>  GenericPreset<DATA> actionDuplicatePreset(GenericPreset<DATA> preset){
+        if(preset == null){
+            return null;
+        }
+        IPresetLoader<DATA> loader = MasterRegistry.INSTANCE.getPresetLoader(preset.getPresetType());
+        GenericPreset<DATA> duplicatePreset = new GenericPreset<>(preset);
+        duplicatePreset.userCreated = true;
+        duplicatePreset.setPresetName(duplicatePreset.getPresetName() + " - Copy");
+        if(duplicatePreset.getPresetType().getSubTypeBehaviour().isIgnored()){
+            duplicatePreset.setPresetSubType("User");
+        }
+        loader.addPreset(duplicatePreset);
+
+        logPresetAction(preset, "Duplicated");
+        return duplicatePreset;
+    }
+
+
+    public static boolean actionDeletePresets(List<GenericPreset<?>> presets){
+        if(presets.isEmpty()){
+            return false;
+        }
+        if(presets.size() == 1){
+            GenericPreset<?> result = actionDeletePreset(presets.get(0));
+            return result == null;
+        }
+        boolean result = DialogPresetMultiDelete.openSystemPresetMultiDeleteDialog(presets);
+        if(result){
+            long count = presets.stream().filter(GenericPreset::isUserPreset).count();
+            presets.forEach(preset -> {
+                if(preset.isSystemPreset()){
+                    return;
+                }
+                IPresetLoader loader = MasterRegistry.INSTANCE.getPresetLoader(preset.getPresetType());
+                loader.removePreset(preset);
+            });
+            NotificationOverlays.INSTANCE.show("Deleted %s Presets".formatted(count));
+        }
+        return true;
+    }
+
+    public static <DATA>  GenericPreset<DATA> actionDeletePreset(GenericPreset<DATA> preset){
+        IPresetLoader<DATA> loader = MasterRegistry.INSTANCE.getPresetLoader(preset.getPresetType());
+        return actionDeletePreset(loader, preset);
+    }
+
+    public static <DATA>  GenericPreset<DATA> actionDeletePreset(IPresetLoader<DATA> loader, GenericPreset<DATA> preset){
         if(preset == null){
             return preset;
         }
         if(preset.isSystemPreset()){
             //System presets can't be deleted, allow hiding instead TODO
-            DialogSystemPresetDelete.openSystemPresetDeleteDialog(preset);
+            if(DialogSystemPresetDelete.openSystemPresetDeleteDialog(preset)){
+                preset.setEnabled(false);
+            }
             return preset;
         }
 
-        manager.getPresetLoader().removePreset(preset);
+        loader.removePreset(preset);
         logPresetAction(preset, "Deleted");
         return null;
     }
 
-    public static <TARGET, DATA> GenericPreset<DATA> actionSetDefaultPreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset){
-        DBPreferences.INSTANCE.setDefaultPreset(preset);
+    public static <DATA> GenericPreset<DATA> actionSetDefaultPreset(IPresetLoader<DATA> loader, GenericPreset<DATA> preset){
+        if(loader.getPresetType().defaultsPerSubType){
+            loader.setDefaultPresetSubType(preset);
+        }else{
+            loader.setDefaultPreset(preset);
+        }
         logPresetAction(preset, "Set default");
         return preset;
     }
 
     public static void logPresetAction(GenericPreset<?> preset, String action){
-        if(preset.presetType.ignoreSubType){
+        if(preset.presetType.getSubTypeBehaviour().isIgnored()){
             NotificationOverlays.INSTANCE.showWithSubtitle("%s '%s'".formatted(action, preset.presetType.getDisplayName()), "Name: %s".formatted(preset.getPresetName()));
         }else{
             NotificationOverlays.INSTANCE.showWithSubtitle("%s '%s'".formatted(action, preset.presetType.getDisplayName()), "Name: %s, Category: %s".formatted(preset.getPresetName(), preset.getPresetSubType()));
@@ -640,6 +694,7 @@ public class FXHelper {
         result.ifPresent(s -> propertySupplier.get().set(s));
     }
 
+    /*
     public static GridPane createSettingsGridPane(Collection<GenericSetting<?, ?>> settings, Consumer<GenericSetting<?, ?>> onChanged){
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.TOP_LEFT);
@@ -688,6 +743,8 @@ public class FXHelper {
         return gridPane;
     }
 
+     */
+
 
     public static void addText(TextFlow flow, String style, String text){
         Text textNode = new Text(text);
@@ -702,10 +759,6 @@ public class FXHelper {
     }
 
     public static List<PropertyAccessorAbstract> nodePropertyAccessors = new ArrayList<>();
-
-    public static void setupPresetMenuButton(MenuButton menuButtonVPypePresets, PresetVpypeSettingsLoader presetLoaderVpypeSettings, PresetVpypeSettingsManager presetManagerVpypeSettings, boolean b, SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset) {
-        //TODO REMOVE ME!!!!
-    }
 
     @JsonData
     public static class SplitPaneDataFormat { //must be public static for GSON

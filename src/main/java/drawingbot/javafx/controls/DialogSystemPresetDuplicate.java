@@ -7,24 +7,40 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.stage.Stage;
 
-import java.util.Optional;
+/**
+ * UI Dialog used when the user attempts to edit/update a "System Preset", allowing for either overriding the preset, duplicating it or cancelling the operation
+ */
+public class DialogSystemPresetDuplicate extends Dialog<DialogSystemPresetDuplicate.Result> {
 
-public class DialogSystemPresetDuplicate extends Dialog<Boolean> {
-    public final ButtonType duplicateButton = new ButtonType("Duplicate Preset", ButtonBar.ButtonData.YES);
+    public final ButtonType overridePreset = new ButtonType("Override Preset", ButtonBar.ButtonData.YES);
+    public final ButtonType duplicatePreset = new ButtonType("Duplicate Preset", ButtonBar.ButtonData.YES);
+
+    public enum Result{
+        OVERRIDE,
+        DUPLICATE,
+        CANCEL;
+    }
 
     public DialogSystemPresetDuplicate(GenericPreset<?> preset) {
         super();
         setTitle("System Preset");
-        setContentText("The preset '%s' can't be edited. \nWould you like to duplicate it instead?".formatted(preset.getPresetName()));
-        setResultConverter(button -> button == duplicateButton);
-        getDialogPane().getButtonTypes().addAll(duplicateButton, ButtonType.CANCEL);
+        setContentText("The preset '%s' is a System Preset. \nWould you like to override it?".formatted(preset.getPresetName()));
+        setResultConverter(button -> {
+            if(button == overridePreset){
+                return Result.OVERRIDE;
+            }
+            if(button == duplicatePreset){
+                return Result.DUPLICATE;
+            }
+            return null;
+        });
+        getDialogPane().getButtonTypes().addAll(overridePreset, duplicatePreset, ButtonType.CANCEL);
         FXApplication.applyTheme((Stage)getDialogPane().getScene().getWindow());
     }
 
-    public static boolean openSystemPresetDialog(GenericPreset<?> targetPreset) {
+    public static Result openSystemPresetDialog(GenericPreset<?> targetPreset) {
         DialogSystemPresetDuplicate dialog = new DialogSystemPresetDuplicate(targetPreset);
         dialog.initOwner(FXApplication.primaryStage);
-        Optional<Boolean> result = dialog.showAndWait();
-        return result.isPresent() && result.get();
+        return dialog.showAndWait().orElse(null);
     }
 }

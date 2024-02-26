@@ -4,8 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericSetting;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import javafx.util.StringConverter;
 
 import java.lang.reflect.Type;
@@ -42,6 +42,11 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
     }
 
     @Override
+    public IEditorFactory<ArrayList<O>> defaultEditorFactory() {
+        return Editors::createGenericDummyEditor;
+    }
+
+    @Override
     protected StringConverter<ArrayList<O>> defaultStringConverter() {
         return (StringConverter<ArrayList<O>>) stringConverter;
     }
@@ -54,11 +59,6 @@ public class ListSetting<C, O> extends GenericSetting<C, ArrayList<O>> {
     @Override
     public ArrayList<O> getValueFromJsonElement(JsonElement element) {
         return JsonLoaderManager.createDefaultGson().fromJson(element, listType);
-    }
-
-    @Override
-    protected Node createJavaFXNode(boolean label) {
-        return new Label("LIST");
     }
 
     @Override

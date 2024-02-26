@@ -1,9 +1,6 @@
 package drawingbot.files.json.presets;
 
-import drawingbot.files.json.AbstractPresetManager;
-import drawingbot.files.json.IPresetLoader;
-import drawingbot.files.json.JsonLoaderManager;
-import drawingbot.files.json.PresetData;
+import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -51,29 +48,8 @@ public class PresetPFMSettingsManager extends AbstractPresetManager<PFMSettings,
         GenericSetting.applySettings(preset.data.settings, target.getSettings());
     }
 
-    /*
     @Override
-    public void addEditDialogElements(GenericPreset<PresetData> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<PresetData>>> callbacks) {
-        super.addEditDialogElements(preset, builder, callbacks);
-
-        /*
-
-        builder.add(new LabelNode("Settings").setTitleStyling());
-        List<GenericSetting<?, ?>> tempSettings = MasterRegistry.INSTANCE.getNewPFMSettingsList(MasterRegistry.INSTANCE.getPFMFactory(preset.getPresetSubType()));
-
-        for(GenericSetting<?, ?> setting : tempSettings){
-            if(setting.getBindingFactory() != null){
-                setting.getBindingFactory().accept(setting, tempSettings);
-            }
-        }
-        GenericSetting.applySettings(preset.data.settingList, tempSettings);
-        for(GenericSetting<?, ?> setting :tempSettings){
-            builder.add(new SettingNode(setting));
-        }
-        callbacks.add(save -> {
-            save.data.settingList = GenericSetting.toJsonMap(tempSettings, new HashMap<>(), false);
-        });
-
+    public DefaultPresetEditor<PFMSettings, PresetData> createPresetEditor() {
+        return new PresetPFMSettingsEditor(this);
     }
-         */
 }

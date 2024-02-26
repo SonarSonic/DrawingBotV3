@@ -1,4 +1,4 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import drawingbot.javafx.GenericSetting;
 import javafx.beans.value.ObservableValue;
@@ -6,6 +6,7 @@ import org.controlsfx.control.PropertySheet;
 
 import java.util.Optional;
 
+@Deprecated
 public class SettingProperty implements PropertySheet.Item {
 
     public GenericSetting<?, ?> setting;

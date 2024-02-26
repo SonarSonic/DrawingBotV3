@@ -1,0 +1,411 @@
+package drawingbot.javafx.preferences.items;
+
+import drawingbot.files.json.IPresetLoader;
+import drawingbot.javafx.FXHelper;
+import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.controls.ComboCellPreset;
+import drawingbot.javafx.editors.EditorContext;
+import drawingbot.javafx.editors.EditorStyle;
+import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.settings.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.FloatStringConverter;
+import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.LongStringConverter;
+import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.ToggleSwitch;
+import org.controlsfx.property.editor.AbstractPropertyEditor;
+import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
+import org.controlsfx.property.editor.PropertyEditor;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+/**
+ * Class for creating simple editor dialogs e.g. pages of settings which can be displayed as a tree or as actual settings.
+ */
+public class EditorSheet {
+
+    public static TreeItem<TreeNode> build(TreeNode rootNode, String search){
+
+        TreeItem<TreeNode> root = recursiveBuild(rootNode);
+        prune(root, search);
+
+        //sort(root, Comparator.comparing(o -> o.getValue().getName()));
+
+        return root;
+    }
+
+    private static TreeItem<TreeNode> recursiveBuild(TreeNode rootNode){
+        TreeItem<TreeNode> root = new TreeItem<>(rootNode);
+        root.setExpanded(true);
+
+        for(TreeNode child : rootNode.getChildren()){
+            if(child.isHiddenFromTree()){
+                continue;
+            }
+            root.getChildren().add(recursiveBuild(child));
+        }
+        return root;
+    }
+
+
+    public static boolean prune(TreeItem<TreeNode> treeItem, String search){
+        if(treeItem.getValue().isHiddenFromTree()){
+            return false;
+        }
+        if(treeItem.isLeaf()){
+            return prune(treeItem.getValue(), search, true);
+        }else{
+            List<TreeItem<TreeNode>> toRemove = new ArrayList<>();
+
+            for (TreeItem<TreeNode> child : treeItem.getChildren()) {
+                boolean keep = prune(child, search);
+                if (! keep) {
+                    toRemove.add(child);
+                }
+            }
+            treeItem.getChildren().removeAll(toRemove);
+
+            return !treeItem.getChildren().isEmpty();
+        }
+    }
+
+    public static boolean prune(TreeNode treeNode, String search, boolean deep){
+        if(treeNode.getName().toLowerCase().contains(search.toLowerCase())){
+            return true;
+        }else if(deep){
+            for (TreeNode child : treeNode.getChildren()) {
+                boolean keep = prune(child, search, deep);
+                if (keep) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private static void sort(TreeItem<TreeNode> node, Comparator<TreeItem<TreeNode>> comparator) {
+        node.getChildren().sort(comparator);
+        for (TreeItem<TreeNode> child : node.getChildren()) {
+            sort(child, comparator);
+        }
+    }
+
+    public static TreeNode root(TreeNode...children){
+        return new TreeNode("root", children);
+    }
+
+    public static TreeNode node(String name, TreeNode...children){
+        return new TreeNode(name, children);
+    }
+
+    public static PageNode page(String name, TreeNode...children){
+        return new PageNode(name, children){
+
+            @Override
+            public Node buildContent() {
+                PageBuilder builder = new PageBuilder(this);
+                builder.build(this.getChildren());
+                return builder.gridPane;
+            }
+        };
+    }
+    public static PageNode page(String name, Consumer<ObservableList<TreeNode>> builder){
+        PageNode pageNode = new PageNode(name){
+
+            @Override
+            public Node buildContent() {
+                PageBuilder builder = new PageBuilder(this);
+                builder.build(this.getChildren());
+                return builder.gridPane;
+            }
+        };
+        builder.accept(pageNode.children);
+        return pageNode;
+    }
+
+    /* TODO
+    public static void property(GridPane gridPane, String displayName, Property<?> property, Class<?> type){
+        Label label = new Label(displayName);
+        gridPane.addRow(gridPane.getRowCount(), label, PropertyTree.createEditor(property, type));
+    }
+
+     */
+
+    public static void node(GridPane gridPane, Node node){
+        gridPane.add(node, 0, gridPane.getRowCount(), 2, 1);
+    }
+
+    /////////////////////////
+
+
+    public static DefaultPropertyEditorFactory defaultPropertyEditorFactory = new DefaultPropertyEditorFactory();
+
+    public static PropertyEditor<?> getPropertyEditor(PropertySheet.Item item){
+        //TODO CUSTOM EDITORS
+        if(item instanceof SettingProperty && ((SettingProperty) item).setting instanceof BooleanSetting){
+            return createSwitchEditor(item);
+        }
+        return defaultPropertyEditorFactory.call(item);
+    }
+
+    public static PropertyEditor<?> createSwitchEditor( PropertySheet.Item property) {
+
+        return new AbstractPropertyEditor<Boolean, ToggleSwitch>(property, new ToggleSwitch()) {
+
+            @Override protected BooleanProperty getObservableValue() {
+                return getEditor().selectedProperty();
+            }
+
+            @Override public void setValue(Boolean value) {
+                getEditor().setSelected(value);
+            }
+        };
+    }
+
+    public static <O> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(IPresetLoader<O> loader){
+        ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
+        comboBox.setCellFactory(view -> new ComboCellPreset<>());
+        comboBox.setItems(loader.getPresets());
+        comboBox.setValue(loader.getDefaultPreset());
+        DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
+            comboBox.setValue(loader.getDefaultPreset());
+        });
+        comboBox.setOnAction(e -> {
+            loader.setDefaultPreset(comboBox.getValue());
+        });
+        comboBox.setPrefWidth(200);
+        return comboBox;
+    }
+
+    public static <O> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(IPresetLoader<O> loader, String subtype){
+        ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
+        comboBox.setCellFactory(view -> new ComboCellPreset<>());
+        comboBox.setItems(loader.getPresetsForSubType(subtype));
+        comboBox.setValue(loader.getDefaultPresetForSubType(subtype));
+        DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
+            comboBox.setValue(loader.getDefaultPresetForSubType(subtype));
+        });
+        comboBox.setOnAction(e -> {
+            loader.setDefaultPresetSubType(comboBox.getValue());
+        });
+        comboBox.setPrefWidth(200);
+        return comboBox;
+    }
+
+    public static Node createDefaultFolderPicker(String title, Supplier<File> initialDirectory, Property<String> stringProperty){
+        HBox hBox = new HBox();
+        hBox.setSpacing(8);
+
+        Button configure = new Button("Configure");
+        configure.setOnAction(e -> FXHelper.selectFolder(title, initialDirectory.get(), file -> stringProperty.setValue(file.toString())));
+        hBox.getChildren().add(configure);
+
+        Label fileLabel = new Label();
+        fileLabel.textProperty().bind(stringProperty);
+        hBox.getChildren().add(fileLabel);
+        fileLabel.setMaxWidth(275);
+        fileLabel.setWrapText(true);
+        return hBox;
+    }
+
+    public static Node createDefaultFilePicker(String title, Supplier<File> initialDirectory, Property<String> stringProperty){
+        HBox hBox = new HBox();
+        hBox.setSpacing(8);
+
+        Button configure = new Button("Select File");
+        configure.setOnAction(e -> FXHelper.selectFile(title, initialDirectory.get(), file -> stringProperty.setValue(file.toString())));
+        hBox.getChildren().add(configure);
+
+        Label fileLabel = new Label();
+        fileLabel.textProperty().bind(stringProperty);
+        hBox.getChildren().add(fileLabel);
+        fileLabel.setMaxWidth(275);
+        fileLabel.setWrapText(true);
+        return hBox;
+    }
+
+    /*
+    TODO - REMOVE OLD SETTING EDITORS UNUSED CODE
+
+    @Nullable
+    public static Node createNodeEditorGroupSetting(List<GenericSetting<?, ?>> settings){
+        if(settings.isEmpty()){
+            return null;
+        }
+        if(settings.size() == 1){
+            return createNodeEditor(settings.get(0));
+        }
+        HBox hBox = new HBox();
+        for(GenericSetting<?, ?> setting : settings){
+            hBox.getChildren().add(createNodeEditor(setting));
+        }
+        hBox.setSpacing(4);
+        HBox.setHgrow(hBox, Priority.ALWAYS);
+        return hBox;
+    }
+
+    @Nullable
+    public static Node createNodeEditor(GenericSetting<?, ?> generic){
+        if(generic instanceof AbstractNumberSetting){
+            AbstractNumberSetting<?, ?> numberSetting = (AbstractNumberSetting<?, ?>) generic;
+            if(numberSetting.isRanged){
+                TextField textField = generic.getEditableTextField();
+                Node node = generic.getJavaFXEditor(true);
+                if(node == textField){
+                    return node;
+                }
+
+                HBox hBox = new HBox();
+                hBox.setSpacing(4);
+                hBox.getChildren().addAll(node, textField);
+                HBox.setHgrow(node, Priority.ALWAYS);
+                HBox.setHgrow(textField, Priority.ALWAYS);
+                textField.setPrefWidth(80);
+                textField.setPrefHeight(12);
+                return hBox;
+            }
+        }
+
+        if(generic.hasCustomEditor()){
+            return generic.getJavaFXEditor(true);
+        }
+        return generic.getEditableTextField();
+    }
+
+
+    public static Node createCheckboxEditor(Property<Boolean> booleanProperty){
+        CheckBox checkBox = new CheckBox();
+        checkBox.selectedProperty().bindBidirectional(booleanProperty);
+        return checkBox;
+    }
+
+    public static Node createSwitchEditor(Property<Boolean> booleanProperty){
+        ToggleSwitch toggleSwitch = new ToggleSwitch();
+        toggleSwitch.selectedProperty().bindBidirectional(booleanProperty);
+        return toggleSwitch;
+    }
+
+    public static Node createTextEditor(Property<String> booleanProperty){
+        TextField textField = new TextField();
+        textField.textProperty().bindBidirectional(booleanProperty);
+        return textField;
+    }
+
+    public static Node createDoubleTextEditor(DoubleSetting<?> doubleSetting){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), doubleSetting.getDefaultValue()));
+        textField.textProperty().bindBidirectional(doubleSetting.valueProperty(), new DoubleStringConverter());
+        return textField;
+    }
+
+    public static Node createDoubleTextEditor(Property<Double> doubleProperty){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 0D));
+        textField.textProperty().bindBidirectional(doubleProperty, new DoubleStringConverter());
+        return textField;
+    }
+
+    public static Node createFloatTextEditor(FloatSetting<?> floatProperty){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), floatProperty.getDefaultValue()));
+        textField.textProperty().bindBidirectional(floatProperty.valueProperty(), new FloatStringConverter());
+        return textField;
+    }
+
+    public static Node createFloatTextEditor(Property<Float> floatProperty){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 0F));
+        textField.textProperty().bindBidirectional(floatProperty, new FloatStringConverter());
+        return textField;
+    }
+
+    public static Node createIntegerTextEditor(IntegerSetting<?> integerSetting){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), integerSetting.getDefaultValue()));
+        textField.textProperty().bindBidirectional(integerSetting.valueProperty(), new IntegerStringConverter());
+        return textField;
+    }
+
+    public static Node createIntegerTextEditor(Property<Integer> integerProperty){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 0));
+        textField.textProperty().bindBidirectional(integerProperty, new IntegerStringConverter());
+        return textField;
+    }
+
+    public static Node createLongTextEditor(LongSetting<?> longSetting){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(longSetting.getStringConverter(), longSetting.getDefaultValue()));
+        textField.textProperty().bindBidirectional(longSetting.valueProperty(), new LongStringConverter());
+        return textField;
+    }
+
+    public static Node createLongTextEditor(Property<Long> longProperty){
+        TextField textField = new TextField();
+        textField.setTextFormatter(new TextFormatter<>(new LongStringConverter(), 0L));
+        textField.textProperty().bindBidirectional(longProperty, new LongStringConverter());
+        return textField;
+    }
+
+    public static <T> Node createChoiceEditor(OptionSetting<?, T> optionSetting){
+        ComboBox<T> comboBox = new ComboBox<>();
+        comboBox.setItems(optionSetting.getOptions());
+        comboBox.valueProperty().bindBidirectional(optionSetting.valueProperty());
+        return comboBox;
+    }
+
+    public static <T> Node createChoiceEditor(Property<T> selectProperty, ObservableList<T> options){
+        ComboBox<T> comboBox = new ComboBox<>();
+        comboBox.setItems(options);
+        comboBox.valueProperty().bindBidirectional(selectProperty);
+        return comboBox;
+    }
+
+    public static Node createColorEditor(Property<Color> selectProperty){
+        ColorPicker colorPicker = new ColorPicker();
+        colorPicker.valueProperty().bindBidirectional(selectProperty);
+        return colorPicker;
+    }
+
+    public static Node createDateEditor(Property<LocalDate> selectProperty){
+        DatePicker datePicker = new DatePicker();
+        datePicker.valueProperty().bindBidirectional(selectProperty);
+        return datePicker;
+    }
+
+    public static Node createTextAreaEditorLazy(Property<?> stringProperty){
+        return createTextAreaEditor((Property<String>)stringProperty);
+    }
+
+    public static Node createTextAreaEditor(Property<String> booleanProperty){
+        TextArea textArea = new TextArea();
+        textArea.textProperty().bindBidirectional(booleanProperty);
+        VBox.setVgrow(textArea, Priority.ALWAYS);
+        HBox.setHgrow(textArea, Priority.ALWAYS);
+        textArea.setPrefRowCount(6);
+        textArea.setMinHeight(100);
+        return textArea;
+    }
+
+     */
+}

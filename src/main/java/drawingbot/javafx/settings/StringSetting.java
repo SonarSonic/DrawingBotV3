@@ -2,11 +2,11 @@ package drawingbot.javafx.settings;
 
 import com.google.gson.JsonElement;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import drawingbot.registry.Register;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.Node;
-import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 
@@ -27,16 +27,13 @@ public class StringSetting<C> extends GenericSetting<C, String> {
     }
 
     @Override
-    protected StringConverter<String> defaultStringConverter() {
-        return stringConverter;
+    public IEditorFactory<String> defaultEditorFactory() {
+        return Editors::createGenericTextField;
     }
 
     @Override
-    public Node createJavaFXNode(boolean label) {
-        TextField textField = new TextField();
-        textField.textProperty().bindBidirectional(value);
-        textField.setOnAction(e -> sendUserEditedEvent());
-        return getEditableTextField();
+    protected StringConverter<String> defaultStringConverter() {
+        return stringConverter;
     }
 
     @Override

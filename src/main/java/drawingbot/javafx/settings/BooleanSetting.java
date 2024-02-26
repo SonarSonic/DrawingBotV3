@@ -2,10 +2,10 @@ package drawingbot.javafx.settings;
 
 import com.google.gson.JsonElement;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.util.StringConverter;
 import javafx.util.converter.BooleanStringConverter;
 
@@ -34,14 +34,8 @@ public class BooleanSetting<C> extends GenericSetting<C, Boolean> {
     }
 
     @Override
-    public Node createJavaFXNode(boolean label) {
-        //graphics
-        CheckBox checkBox = new CheckBox();
-
-        //bindings
-        checkBox.selectedProperty().bindBidirectional(value);
-        checkBox.setOnAction(e -> sendUserEditedEvent());
-        return checkBox;
+    public IEditorFactory<Boolean> defaultEditorFactory() {
+        return Editors::createCheckBox;
     }
 
     @Override

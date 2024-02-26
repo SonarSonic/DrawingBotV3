@@ -5,13 +5,14 @@ import drawingbot.FXApplication;
 import drawingbot.api.ISettings;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
+import drawingbot.files.FileUtils;
 import drawingbot.files.exporters.GCodeSettings;
-import drawingbot.files.json.IPresetLoader;
 import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetType;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.Editors;
 import drawingbot.javafx.settings.*;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.plotting.PlottedDrawing;
@@ -90,8 +91,10 @@ public class DBPreferences implements ISettings {
     ///////////////////////////////////////////////
 
     //// FILES \\\\
-    public final StringSetting<?> defaultImportDirectory = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultImportDirectory", ""));
-    public final StringSetting<?> defaultExportDirectory = register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportDirectory", ""));
+    public final StringSetting<?> defaultImportDirectory = (StringSetting<?>) register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultImportDirectory", "").setEditorFactory((context, prop) -> Editors.createDirectoryPicker(context, prop, () -> DrawingBotV3.project().getImportDirectory())));
+    public final StringSetting<?> defaultExportDirectory = (StringSetting<?>) register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportDirectory", "").setEditorFactory((context, prop) -> Editors.createDirectoryPicker(context, prop, () -> DrawingBotV3.project().getExportDirectory())));
+    public final StringSetting<?> defaultFILETEST = (StringSetting<?>) register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultfiletest", "").setEditorFactory((context, prop) -> Editors.createFilePicker(context, prop, () -> DrawingBotV3.project().getExportDirectory(), "Test", FileUtils.FILTER_HPGL)));
+
 
     ///////////////////////////////////////////////
 
@@ -100,19 +103,19 @@ public class DBPreferences implements ISettings {
     public final BooleanSetting<?> pathOptimisationEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "pathOptimisationEnabled", true));
 
     public final BooleanSetting<?> lineSimplifyEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSimplifyEnabled", true));
-    public final DoubleSetting<?> lineSimplifyTolerance = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSimplifyTolerance", 0.1D, 0.1D, 100D));
+    public final DoubleSetting<?> lineSimplifyTolerance = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSimplifyTolerance", 0.1D, 0.1D, 100D).setDisplaySlider(false));
     public final OptionSetting<?, UnitsLength> lineSimplifyUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineSimplifyUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 
     public final BooleanSetting<?> lineMergingEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineMergingEnabled", true));
-    public final DoubleSetting<?> lineMergingTolerance = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineMergingTolerance", 0.5D, 0.1D, 100D));
+    public final DoubleSetting<?> lineMergingTolerance = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineMergingTolerance", 0.5D, 0.1D, 100D).setDisplaySlider(false));
     public final OptionSetting<?, UnitsLength> lineMergingUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineMergingUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 
     public final BooleanSetting<?> lineFilteringEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineFilteringEnabled", false));
-    public final DoubleSetting<?> lineFilteringTolerance = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineFilteringTolerance", 0.5D, 0.1D, 100D));
+    public final DoubleSetting<?> lineFilteringTolerance = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineFilteringTolerance", 0.5D, 0.1D, 100D).setDisplaySlider(false));
     public final OptionSetting<?, UnitsLength> lineFilteringUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineFilteringUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 
     public final BooleanSetting<?> lineSortingEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSortingEnabled", true));
-    public final DoubleSetting<?> lineSortingTolerance = register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSortingTolerance", 1D, 0.1D, 100D));
+    public final DoubleSetting<?> lineSortingTolerance = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "lineSortingTolerance", 1D, 0.1D, 100D).setDisplaySlider(false));
     public final OptionSetting<?, UnitsLength> lineSortingUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "lineSortingUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES));
 
     public final BooleanSetting<?> multipassEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "multipassEnabled", false));
@@ -155,8 +158,8 @@ public class DBPreferences implements ISettings {
 
     //// IMAGE SETTINGS \\\\
 
-    public final DoubleSetting<?> exportDPI = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "exportDPI", 300D, 1D, Short.MAX_VALUE)).setDisplaySlider(false);
-    public final BooleanSetting<?> transparentPNG = register(createBooleanSetting(DBPreferences.class, CATEGORY_IMAGE, "transparentPNG", false));
+    public final DoubleSetting<?> exportDPI = (DoubleSetting<?>) register(createRangedDoubleSetting(DBPreferences.class, CATEGORY_IMAGE, "exportDPI", 300D, 1D, Short.MAX_VALUE)).setDisplaySlider(false).setDisplayName("Export DPI");
+    public final BooleanSetting<?> transparentPNG = (BooleanSetting<?>) register(createBooleanSetting(DBPreferences.class, CATEGORY_IMAGE, "transparentPNG", false).setDisplayName("Export Transparent PNGs"));
 
     //// GCODE SETTINGS \\\\
 
@@ -199,39 +202,35 @@ public class DBPreferences implements ISettings {
     public final FloatSetting<?> defaultColorSplitterPenOpacity = (FloatSetting<?>) register(createRangedFloatSetting(DBPreferences.class, "CMYK", "defaultColorSplitterPenOpacity", 0.25F, 0F, 1F)).setDisplayName("Generic Pen Opacity");
 
 
-    public String getDefaultPreset(String key){
-        return defaultPresets.get().get(key);
+    public String getDefaultPreset(PresetType type) {
+        return defaultPresets.get().get(type.getRegistryName());
     }
 
-    public void setDefaultPreset(GenericPreset<?> preset){
-        setDefaultPreset(preset.presetType, preset.getPresetSubType(), preset.getPresetName());
+    public void setDefaultPreset(PresetType type, GenericPreset<?> preset){
+        defaultPresets.get().put(type.getRegistryName(), preset.getPresetSubType() + ":" + preset.getPresetName());
+        onDefaultPresetsChanged();
     }
 
-    public void setDefaultPreset(PresetType type, String subtype, String value){
-        if(type.defaultsPerSubType){
-            setDefaultPreset(type.id + ":" + subtype, value);
-        }else{
-            setDefaultPreset(type.id, value);
-        }
+    public void clearDefaultPreset(PresetType type){
+        defaultPresets.get().remove(type.getRegistryName());
+        onDefaultPresetsChanged();
     }
 
-    public void setDefaultPreset(String key, String value){
-        defaultPresets.get().put(key, value);
-        Register.PRESET_LOADER_PREFERENCES.updateConfigs();
-        flagDefaultPresetChange.set(!flagDefaultPresetChange.get());
+    public String getDefaultPreset(PresetType type, String subType) {
+        return defaultPresets.get().get(type.getRegistryName() + ":" + subType);
     }
 
-    public void clearDefaultPreset(PresetType type, String subtype){
-        if(type.defaultsPerSubType){
-            clearDefaultPreset(type.id + ":" + subtype);
-        }else{
-            clearDefaultPreset(type.id);
-        }
+    public void setDefaultPresetSubType(PresetType type, GenericPreset<?> preset){
+        defaultPresets.get().put(type.getRegistryName() + ":" + preset.getPresetSubType(), preset.getPresetName());
+        onDefaultPresetsChanged();
     }
 
+    public void clearDefaultPresetSubType(PresetType type, String subType){
+        defaultPresets.get().remove(type.getRegistryName() + ":" + subType);
+        onDefaultPresetsChanged();
+    }
 
-    public void clearDefaultPreset(String key){
-        defaultPresets.get().remove(key);
+    private void onDefaultPresetsChanged(){
         Register.PRESET_LOADER_PREFERENCES.updateConfigs();
         flagDefaultPresetChange.set(!flagDefaultPresetChange.get());
     }
@@ -326,7 +325,7 @@ public class DBPreferences implements ISettings {
         selectedGCodePreset.setValue(Register.PRESET_LOADER_GCODE_SETTINGS.getDefaultPreset());
         selectedGCodePreset.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                Register.PRESET_MANAGER_GCODE_SETTINGS.tryApplyPreset(DrawingBotV3.context(), gcodeSettings, newValue);
+                Register.PRESET_MANAGER_GCODE_SETTINGS.applyPreset(DrawingBotV3.context(), gcodeSettings, newValue, false);
             }
         });
 

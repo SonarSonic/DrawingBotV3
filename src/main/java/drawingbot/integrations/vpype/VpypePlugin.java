@@ -6,14 +6,15 @@ import drawingbot.api.Hooks;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
+import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetType;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.controls.DialogScrollPane;
-import drawingbot.javafx.editors.ControllerNode;
-import drawingbot.javafx.editors.TreeNode;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.javafx.preferences.items.ControllerNode;
+import drawingbot.javafx.preferences.items.TreeNode;
 import drawingbot.javafx.settings.StringSetting;
 import drawingbot.plugins.AbstractPlugin;
 import drawingbot.registry.MasterRegistry;
@@ -36,7 +37,7 @@ public class VpypePlugin extends AbstractPlugin {
 
     public final VpypeSettings vpypeSettings = new VpypeSettings();
 
-    public final SimpleObjectProperty<GenericPreset<PresetVpypeSettings>> selectedVPypePreset = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<GenericPreset<PresetData>> selectedVPypePreset = new SimpleObjectProperty<>();
     public final SimpleBooleanProperty dialogResponse = new SimpleBooleanProperty();
 
     public static TreeNode vpypePage = null;
@@ -67,7 +68,7 @@ public class VpypePlugin extends AbstractPlugin {
 
         Hooks.addHook(Hooks.FILE_MENU, VpypePlugin::initSpecialExportButton);
 
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings", "VPype Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_VPYPE_SETTINGS = new PresetType("vpype_settings", "VPype Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_VPYPE_SETTINGS = new PresetVpypeSettingsLoader(PRESET_TYPE_VPYPE_SETTINGS));
         MasterRegistry.INSTANCE.registerPresetManager(PRESET_MANAGER_VPYPE_SETTINGS = new PresetVpypeSettingsManager(PRESET_LOADER_VPYPE_SETTINGS));
 

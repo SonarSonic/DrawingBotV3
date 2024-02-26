@@ -1,13 +1,10 @@
 package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IDrawingPen;
-import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -15,7 +12,6 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.EnumDistributionType;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -24,15 +20,10 @@ import javafx.collections.ObservableList;
 import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.paint.Color;
 import javafx.util.converter.DefaultStringConverter;
-import javafx.util.converter.FloatStringConverter;
-import javafx.util.converter.IntegerStringConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,26 +34,9 @@ public class FXDrawingSets extends AbstractFXController {
 
     ////////////////////////////////////////////////////////
 
-    public ControlPresetDrawingSet controlDrawingSetSelection;
+    public ControlPresetDrawingSet controlDrawingSetPreset;
+    public ControlDrawingSetEditor controlDrawingSetEditor;
 
-    public TableView<ObservableDrawingPen> penTableView = null;
-    public TableColumn<ObservableDrawingPen, Boolean> penEnableColumn = null;
-    public TableColumn<ObservableDrawingPen, String> penTypeColumn = null;
-    public TableColumn<ObservableDrawingPen, String> penNameColumn = null;
-    public TableColumn<ObservableDrawingPen, Color> penColourColumn = null;
-    public TableColumn<ObservableDrawingPen, Float> penStrokeColumn = null;
-    public TableColumn<ObservableDrawingPen, String> penPercentageColumn = null;
-    public TableColumn<ObservableDrawingPen, Integer> penWeightColumn = null;
-    public TableColumn<ObservableDrawingPen, Integer> penLinesColumn = null;
-
-    public ControlPresetDrawingPen controlDrawingPenSelection;
-
-    public Button buttonAddPen = null;
-    public Button buttonRemovePen = null;
-    public Button buttonDuplicatePen = null;
-    public Button buttonMoveUpPen = null;
-    public Button buttonMoveDownPen = null;
-    public Button buttonClearDrawingSet = null;
 
     public ComboBox<EnumDistributionType> comboBoxDistributionType = null;
     public ComboBox<EnumDistributionOrder> comboBoxDistributionOrder = null;
@@ -93,30 +67,7 @@ public class FXDrawingSets extends AbstractFXController {
     public void initialize(){
 
         final ChangeListener<ObservableDrawingSet> activeSetListener = (observable, oldValue, newValue) -> onChangedActiveDrawingSet(oldValue, newValue);
-        DrawingSets.Listener specialListener = new DrawingSets.Listener() {
 
-            @Override
-            public void onActiveSlotChanged(ObservableDrawingSet activeSet) {
-                controlDrawingPenSelection.refresh();
-            }
-
-            @Override
-            public void onDrawingPenPropertyChanged(ObservableDrawingPen pen, Observable property) {
-                if(property == pen.name || property == pen.type){
-                    controlDrawingPenSelection.refresh();
-                }
-            }
-
-            @Override
-            public void onDrawingPenAdded(ObservableDrawingPen pen) {
-                controlDrawingPenSelection.refresh();
-            }
-
-            @Override
-            public void onDrawingPenRemoved(ObservableDrawingPen pen) {
-                controlDrawingPenSelection.refresh();
-            }
-        };
         drawingSets.addListener((observable, oldValue, newValue) -> {
 
             if(oldValue != null){
@@ -126,8 +77,6 @@ public class FXDrawingSets extends AbstractFXController {
 
                 drawingSetTableView.setItems(FXCollections.observableArrayList());
                 comboBoxDrawingSets.setItems(FXCollections.observableArrayList());
-                oldValue.removeSpecialListener(specialListener);
-
             }
 
             if(newValue != null){
@@ -139,96 +88,17 @@ public class FXDrawingSets extends AbstractFXController {
 
                 onChangedActiveDrawingSet(null, newValue.activeDrawingSet.get());
                 newValue.activeDrawingSet.addListener(activeSetListener);
-                newValue.addSpecialListener(specialListener);
             }
         });
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        controlDrawingSetSelection.targetProperty().bind(Bindings.select(drawingSets, "activeDrawingSet"));
-        controlDrawingSetSelection.activePresetProperty().addListener((observable, oldValue, newValue) -> {
+        controlDrawingSetPreset.targetProperty().bind(Bindings.select(drawingSets, "activeDrawingSet"));
+        controlDrawingSetPreset.activePresetProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                controlDrawingSetSelection.applyPreset(DrawingBotV3.context());
+                controlDrawingSetPreset.applyPreset(DrawingBotV3.context());
             }
         });
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        penTableView.setRowFactory(param -> {
-            TableRow<ObservableDrawingPen> row = new TableRow<>();
-            row.addEventFilter(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
-                if(row.getItem() == null){
-                    event.consume();
-                }
-            });
-            row.setContextMenu(new ContextMenuObservablePen(drawingSets, row));
-            return row;
-        });
-
-
-        penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
-                DrawingBotV3.project().reRender();
-            }
-        });
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        penNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
-        penNameColumn.setCellValueFactory(param -> param.getValue().name);
-
-        penTypeColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
-        penTypeColumn.setCellValueFactory(param -> param.getValue().type);
-
-        penColourColumn.setCellFactory(TableCellColorPicker::new);
-        penColourColumn.setCellValueFactory(param -> param.getValue().javaFXColour);
-
-        penStrokeColumn.setCellFactory(param -> new TextFieldTableCell<>(new FloatStringConverter()));
-        penStrokeColumn.setCellValueFactory(param -> param.getValue().strokeSize.asObject());
-
-        penEnableColumn.setCellFactory(param -> new CheckBoxTableCell<>(index -> penEnableColumn.getCellObservableValue(index)));
-        penEnableColumn.setCellValueFactory(param -> param.getValue().enable);
-
-        penPercentageColumn.setCellValueFactory(param -> param.getValue().currentPercentage);
-
-        penWeightColumn.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
-        penWeightColumn.setCellValueFactory(param -> param.getValue().distributionWeight.asObject());
-
-        penLinesColumn.setCellValueFactory(param -> param.getValue().currentGeometries.asObject());
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        controlDrawingPenSelection.targetProperty().bind(penTableView.getSelectionModel().selectedItemProperty());
-        controlDrawingPenSelection.drawingSetsProperty().bind(drawingSets);
-        controlDrawingPenSelection.activePresetProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                controlDrawingPenSelection.applyPreset(DrawingBotV3.context());
-            }
-        });
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        buttonAddPen.setOnAction(e -> FXHelper.addItem(penTableView.getSelectionModel(), drawingSets.get().activeDrawingSet.get().pens, () -> new ObservableDrawingPen(drawingSets.get().activeDrawingSet.get().pens.size(), Register.PRESET_LOADER_DRAWING_PENS.unwrapPreset(controlDrawingPenSelection.getActivePreset()))));
-        buttonAddPen.setTooltip(new Tooltip("Add Pen"));
-
-        buttonRemovePen.setOnAction(e -> FXHelper.deleteItem(penTableView.getSelectionModel(), drawingSets.get().activeDrawingSet.get().pens));
-        buttonRemovePen.setTooltip(new Tooltip("Remove Selected Pen"));
-        buttonRemovePen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
-
-        buttonDuplicatePen.setOnAction(e -> FXHelper.duplicateItem(penTableView.getSelectionModel(), drawingSets.get().activeDrawingSet.get().pens, p -> new ObservableDrawingPen(drawingSets.get().activeDrawingSet.get().pens.size(), p)));
-        buttonDuplicatePen.setTooltip(new Tooltip("Duplicate Selected Pen"));
-        buttonDuplicatePen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
-
-        buttonMoveUpPen.setOnAction(e -> FXHelper.moveItemUp(penTableView.getSelectionModel(), drawingSets.get().activeDrawingSet.get().pens));
-        buttonMoveUpPen.setTooltip(new Tooltip("Move Selected Pen Up"));
-        buttonMoveUpPen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
-
-        buttonMoveDownPen.setOnAction(e -> FXHelper.moveItemDown(penTableView.getSelectionModel(), drawingSets.get().activeDrawingSet.get().pens));
-        buttonMoveDownPen.setTooltip(new Tooltip("Move Selected Pen Down"));
-        buttonMoveDownPen.disableProperty().bind(penTableView.getSelectionModel().selectedItemProperty().isNull());
-
-        buttonClearDrawingSet.setOnAction(e -> drawingSets.get().activeDrawingSet.get().getPens().clear());
-        buttonClearDrawingSet.setTooltip(new Tooltip("Clear Drawing Pens"));
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -321,13 +191,14 @@ public class FXDrawingSets extends AbstractFXController {
             comboBoxDistributionOrder.valueProperty().unbindBidirectional(oldValue.distributionOrder);
             comboBoxDistributionType.valueProperty().unbindBidirectional(oldValue.distributionType);
             comboBoxColourSeperation.valueProperty().unbindBidirectional(oldValue.colorHandler);
+            controlDrawingSetEditor.setDrawingSet(null);
         }
 
         if(newValue == null){
             return; //this is probably a force render update
         }
 
-        penTableView.setItems(newValue.pens);
+        controlDrawingSetEditor.setDrawingSet(newValue);
         comboBoxDistributionOrder.valueProperty().bindBidirectional(newValue.distributionOrder);
         comboBoxDistributionType.valueProperty().bindBidirectional(newValue.distributionType);
         comboBoxColourSeperation.valueProperty().bindBidirectional(newValue.colorHandler);
@@ -339,7 +210,7 @@ public class FXDrawingSets extends AbstractFXController {
 
 
     public ObservableDrawingPen getSelectedPen(){
-        return penTableView.getSelectionModel().getSelectedItem();
+        return controlDrawingSetEditor.penTableView.getSelectionModel().getSelectedItem();
     }
 
     ////////////////////////////////////////////////////////
@@ -347,7 +218,10 @@ public class FXDrawingSets extends AbstractFXController {
 
     @Override
     public List<Styleable> getPersistentNodes(){
-        return List.of(penEnableColumn, penTypeColumn, penNameColumn, penColourColumn, penColourColumn, penStrokeColumn, penPercentageColumn, penWeightColumn, penLinesColumn, drawingSetNameColumn, drawingSetPensColumn, drawingSetDistributionTypeColumn, drawingSetDistributionOrderColumn, drawingSetColourSeperatorColumn,/*drawingSetShapesColumn,*/drawingSetPercentageColumn);
+        List<Styleable> persistentNodes = new ArrayList<>();
+        persistentNodes.addAll(List.of(drawingSetNameColumn, drawingSetPensColumn, drawingSetDistributionTypeColumn, drawingSetDistributionOrderColumn, drawingSetColourSeperatorColumn,/*drawingSetShapesColumn,*/drawingSetPercentageColumn));
+        persistentNodes.addAll(controlDrawingSetEditor.getPersistentNodes());
+        return persistentNodes;
     }
 
 }

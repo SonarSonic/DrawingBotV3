@@ -6,6 +6,7 @@ import drawingbot.api.IPixelData;
 import drawingbot.api.IProgressCallback;
 import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
+import drawingbot.image.format.ImageCropping;
 import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.plotting.canvas.CanvasUtils;
@@ -177,6 +178,11 @@ public class ImageTools {
         return bufferedImage;
     }
 
+    public static AffineTransform getCanvasRotationTransform(ICanvas canvas, ImageCropping cropping){
+        return getCanvasRotationTransform(canvas, cropping.getImageRotation(), cropping.shouldFlipHorizontal(), cropping.shouldFlipVertical());
+    }
+
+    @Deprecated
     public static AffineTransform getCanvasRotationTransform(ICanvas canvas, EnumRotation imageRotation, boolean flipHorizontal, boolean flipVertical){
         AffineTransform tx = new AffineTransform();
 

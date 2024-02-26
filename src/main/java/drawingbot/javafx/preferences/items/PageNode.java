@@ -1,9 +1,9 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import javafx.scene.Node;
 
 /**
- * Can be initialized easily with {@link Editors#page(String, TreeNode...)}
+ * Can be initialized easily with {@link EditorSheet#page(String, TreeNode...)}
  * Alternatively override {@link PageNode#buildContent()} to create custom pages
  */
 public abstract class PageNode extends TreeNode {
@@ -19,10 +19,14 @@ public abstract class PageNode extends TreeNode {
     }
 
     public Node getContent() {
-        //if (content == null) {
+        if (content == null) {
             content = buildContent();
-        //}
+        }
         return content;
+    }
+
+    public Node rebuild(){
+        return content = buildContent();
     }
 
     public abstract Node buildContent();

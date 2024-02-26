@@ -2,13 +2,6 @@ package drawingbot.files.json;
 
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.editors.TreeNode;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * A preset manager handles applying preset settings to a given target or creating a preset from the target.
@@ -64,14 +57,14 @@ public interface IPresetManager<TARGET, DATA> {
      */
     void applyPreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset, boolean changesOnly);
 
-    /**
-     * Controls the additional of extra elements to the "Edit Preset" pop-up
-     * @param preset the preset which is being displayed
-     * @param builder list of nodes for elements to be displayed in the "Edit Preset" pop-up
-     * @param callbacks list of callbacks to be run after the preset has been edited
-     */
-    void addEditDialogElements(GenericPreset<DATA> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<DATA>>> callbacks);
 
+    IPresetEditor<TARGET, DATA> createPresetEditor();
+
+
+
+    default GenericPreset<DATA> cast(GenericPreset<?> preset){
+        return (GenericPreset<DATA>) preset;
+    }
 
     /////////////////////////////////////////
 

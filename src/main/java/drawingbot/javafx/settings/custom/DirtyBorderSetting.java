@@ -2,12 +2,15 @@ package drawingbot.javafx.settings.custom;
 
 import drawingbot.image.filters.SimpleBorderFilter;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.EditorSimple;
+import drawingbot.javafx.editors.IEditor;
+import drawingbot.javafx.editors.IEditorFactory;
 import drawingbot.javafx.settings.IntegerSetting;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import org.fxmisc.easybind.EasyBind;
+import org.fxmisc.easybind.Subscription;
 
 import java.awt.image.BufferedImage;
 
@@ -26,20 +29,36 @@ public class DirtyBorderSetting<C> extends IntegerSetting<C> {
     }
 
     @Override
-    public Node createJavaFXNode(boolean label) {
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(300);
-        imageView.setFitHeight(300);
-        EasyBind.subscribe(valueProperty(), v -> {
-            BufferedImage borderImage = SimpleBorderFilter.getBorderImage(v);
-            if(borderImage != null){
-                imageView.setImage(SwingFXUtils.toFXImage(borderImage, null));
+    public IEditorFactory<Integer> defaultEditorFactory() {
+        return (context, property) -> new EditorSimple<>(context, this, new VBox()) {
+
+            private IEditor<Integer> internalEditor = null;
+            private ImageView imageView = null;
+            private Subscription imageSubscription;
+
+            {
+                imageView = new ImageView();
+                imageView.setFitWidth(300);
+                imageView.setFitHeight(300);
+                imageSubscription = EasyBind.subscribe(valueProperty(), v -> {
+                    BufferedImage borderImage = SimpleBorderFilter.getBorderImage(v);
+                    if(borderImage != null){
+                        imageView.setImage(SwingFXUtils.toFXImage(borderImage, null));
+                    }
+                });
+                internalEditor = DirtyBorderSetting.super.defaultEditorFactory().createEditor(context(), DirtyBorderSetting.this);
+                node.getChildren().add(internalEditor.getNode());
+                node.getChildren().add(imageView);
+                node.setSpacing(8);
             }
-        });
-        VBox vBox = new VBox();
-        vBox.getChildren().add(super.createJavaFXNode(label));
-        vBox.getChildren().add(imageView);
-        return vBox;
+
+            @Override
+            public void dispose() {
+                imageSubscription.unsubscribe();
+                imageView.setImage(null);
+                internalEditor.dispose();
+            }
+        };
     }
 
     @Override

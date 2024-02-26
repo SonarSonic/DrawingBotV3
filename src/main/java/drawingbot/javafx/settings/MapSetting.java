@@ -5,11 +5,11 @@ import com.google.gson.JsonNull;
 import com.google.gson.reflect.TypeToken;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericSetting;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.util.StringConverter;
 
 import java.lang.reflect.Type;
@@ -72,6 +72,11 @@ public class MapSetting<C, K, V> extends GenericSetting<C, ObservableMap<K, V>> 
     }
 
     @Override
+    public IEditorFactory<ObservableMap<K, V>> defaultEditorFactory() {
+        return Editors::createGenericDummyEditor;
+    }
+
+    @Override
     protected StringConverter<ObservableMap<K, V>> defaultStringConverter() {
         return (StringConverter<ObservableMap<K, V>>) stringConverter;
     }
@@ -90,11 +95,6 @@ public class MapSetting<C, K, V> extends GenericSetting<C, ObservableMap<K, V>> 
     public ObservableMap<K, V> getValueFromJsonElement(JsonElement element) {
         HashMap<K, V> map = JsonLoaderManager.createDefaultGson().fromJson(element, mapType);
         return FXCollections.observableMap(map);
-    }
-
-    @Override
-    protected Node createJavaFXNode(boolean label) {
-        return new Label("MAP");
     }
 
     @Override

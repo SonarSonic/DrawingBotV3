@@ -1,4 +1,4 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import javafx.beans.value.ObservableValue;
 
@@ -13,8 +13,6 @@ public abstract class ElementNode extends TreeNode {
     public static final String SUBTITLE_STYLE = "preference-subtitle";
 
     public String labelStyle = DEFAULT_STYLE;
-
-    public ObservableValue<Boolean> disabled;
 
     public ElementNode(String name, TreeNode... children) {
         super(name, children);
@@ -40,7 +38,8 @@ public abstract class ElementNode extends TreeNode {
     }
 
     public ElementNode setDisabledProperty(ObservableValue<Boolean> disabled) {
-        this.disabled = disabled;
+        this.disabledProperty().unbind();
+        this.disabledProperty().bind(disabled);
         return this;
     }
 

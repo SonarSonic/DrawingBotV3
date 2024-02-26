@@ -1,4 +1,4 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import javafx.geometry.VPos;
 import javafx.scene.Node;

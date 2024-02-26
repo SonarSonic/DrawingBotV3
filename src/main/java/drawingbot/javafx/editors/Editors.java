@@ -1,438 +1,324 @@
 package drawingbot.javafx.editors;
 
-import drawingbot.files.json.IPresetLoader;
+import drawingbot.DrawingBotV3;
+import drawingbot.files.FileUtils;
+import drawingbot.image.BufferedImageLoader;
 import drawingbot.javafx.FXHelper;
-import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.preferences.DBPreferences;
-import drawingbot.javafx.settings.*;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.Property;
-import javafx.beans.value.ObservableValue;
+import drawingbot.javafx.controls.ControlDirectoryPicker;
+import drawingbot.javafx.controls.ControlFilePicker;
+import drawingbot.javafx.editors.custom.EditorRangedNumber;
+import drawingbot.javafx.editors.custom.EditorTextInputControl;
+import drawingbot.javafx.settings.AbstractNumberSetting;
+import drawingbot.javafx.settings.ImageSetting;
+import drawingbot.javafx.settings.OptionSetting;
+import drawingbot.javafx.util.JFXUtils;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.util.converter.DoubleStringConverter;
-import javafx.util.converter.FloatStringConverter;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.LongStringConverter;
-import org.controlsfx.control.PropertySheet;
-import org.controlsfx.control.ToggleSwitch;
-import org.controlsfx.property.editor.AbstractPropertyEditor;
-import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
-import org.controlsfx.property.editor.PropertyEditor;
-import org.jetbrains.annotations.Nullable;
+import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Class for creating simple editor dialogs e.g. pages of settings which can be displayed as a tree or as actual settings.
- *
+ * Contains implementations of various generic {@link IEditorFactory}s / {@link IEditor}s which are used by {@link IEditableProperty}s
  */
 public class Editors {
 
-    public static TreeItem<TreeNode> build(TreeNode rootNode, String search){
-        TreeItem<TreeNode> root = new TreeItem<>(rootNode);
-        root.setExpanded(true);
+    public static IEditor<Boolean> createCheckBox(EditorContext context, IEditableProperty<Boolean> property){
+        return new EditorSimple<>(context, property, new CheckBox()) {
 
-        for(TreeNode child : rootNode.getChildren()){
-            root.getChildren().add(build(child, search));
-        }
+            {
+                getNode().selectedProperty().bindBidirectional(property.valueProperty());
+                getNode().setOnAction(e -> getProperty().sendUserEditedEvent());
+            }
 
-        if(search != null){
-            prune(root, search);
-        }
-
-        //sort(root, Comparator.comparing(o -> o.getValue().getName()));
-
-        return root;
+            @Override
+            public void dispose() {
+                getNode().selectedProperty().unbindBidirectional(property.valueProperty());
+                getNode().setOnAction(null);
+            }
+        };
     }
 
-    public static boolean prune(TreeItem<TreeNode> treeItem, String search){
-        if(treeItem.getValue().isHiddenFromTree()){
-            return false;
-        }
-        if(treeItem.isLeaf()){
-            return treeItem.getValue().getName().toLowerCase().contains(search.toLowerCase());
-        }else{
-            List<TreeItem<TreeNode>> toRemove = new ArrayList<>();
+    public static IEditor<String> createTextField(EditorContext context, IEditableProperty<String> property){
+        return new EditorSimple<>(context, property, new TextField()) {
 
-            for (TreeItem<TreeNode> child : treeItem.getChildren()) {
-                boolean keep = prune(child, search);
-                if (! keep) {
-                    toRemove.add(child);
+            {
+                getNode().textProperty().bindBidirectional(property.valueProperty());
+                getNode().setOnAction(e -> property.sendUserEditedEvent());
+            }
+
+            @Override
+            public void dispose() {
+                getNode().textProperty().unbindBidirectional(property.valueProperty());
+                getNode().setOnAction(null);
+            }
+        };
+    }
+
+
+    public static IEditor<Color> createColorPicker(EditorContext context, IEditableProperty<Color> property){
+        return new EditorSimple<>(context, property, new ColorPicker()) {
+
+            {
+                getNode().valueProperty().bindBidirectional(property.valueProperty());
+                getNode().setOnAction(e -> getProperty().sendUserEditedEvent());
+            }
+
+            @Override
+            public void dispose() {
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
+                getNode().setOnAction(null);
+            }
+        };
+    }
+
+    public static IEditor<LocalDate> createDatePicker(EditorContext context, IEditableProperty<LocalDate> property){
+        return new EditorSimple<>(context, property, new DatePicker()) {
+
+            {
+                getNode().valueProperty().bindBidirectional(property.valueProperty());
+                getNode().setOnAction(e -> getProperty().sendUserEditedEvent());
+            }
+
+            @Override
+            public void dispose() {
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
+                getNode().setOnAction(null);
+            }
+        };
+    }
+
+    public static IEditor<String> createDirectoryPicker(EditorContext context, IEditableProperty<String> property, Supplier<File> initialDirectorySupplier){
+        return new EditorSimple<>(context, property, new ControlDirectoryPicker()) {
+
+            {
+                getNode().valueProperty().bindBidirectional(property.valueProperty());
+                getNode().initialDirectoryProperty().bind(Bindings.createObjectBinding(initialDirectorySupplier::get, property.valueProperty()));
+                getNode().setWindowTitle("Select Directory: " + property.getDisplayName());
+                getNode().setOnEdit(s -> property.sendUserEditedEvent());
+            }
+
+            @Override
+            public void dispose() {
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
+                getNode().setOnEdit(null);
+            }
+        };
+    }
+
+    public static IEditor<String> createFilePicker(EditorContext context, IEditableProperty<String> property, Supplier<File> initialDirectorySupplier, String initialFileName, FileChooser.ExtensionFilter ...filters){
+        return new EditorSimple<>(context, property, new ControlFilePicker()) {
+
+            {
+                getNode().valueProperty().bindBidirectional(property.valueProperty());
+                getNode().initialDirectoryProperty().bind(Bindings.createObjectBinding(initialDirectorySupplier::get, property.valueProperty()));
+                getNode().setWindowTitle("Select File: " + property.getDisplayName());
+                getNode().setInitialFileName(initialFileName);
+                getNode().getExtensionFilters().addAll(filters);
+                getNode().setOnEdit(s -> property.sendUserEditedEvent());
+            }
+
+            @Override
+            public void dispose() {
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
+                getNode().setOnEdit(null);
+            }
+        };
+    }
+
+    public static <V> IEditor<V> createChoiceEditor(EditorContext context, IEditableProperty<V> property){
+        return new EditorSimple<>(context, property, new ComboBox<V>()) {
+
+            {
+                getNode().valueProperty().bindBidirectional(property.valueProperty());
+                if(property instanceof OptionSetting<?, V> optionSetting){
+                    getNode().itemsProperty().set(optionSetting.getOptions());
                 }
+                getNode().setOnAction(e -> getProperty().sendUserEditedEvent());
             }
-            treeItem.getChildren().removeAll(toRemove);
-
-            return !treeItem.getChildren().isEmpty();
-        }
-    }
-
-    private static void sort(TreeItem<TreeNode> node, Comparator<TreeItem<TreeNode>> comparator) {
-        node.getChildren().sort(comparator);
-        for (TreeItem<TreeNode> child : node.getChildren()) {
-            sort(child, comparator);
-        }
-    }
-
-    public static TreeNode root(TreeNode...children){
-        return new TreeNode("root", children);
-    }
-
-    public static TreeNode node(String name, TreeNode...children){
-        return new TreeNode(name, children);
-    }
-
-    public static PageNode page(String name, TreeNode...children){
-        return new PageNode(name, children){
 
             @Override
-            public Node buildContent() {
-                PageBuilder builder = new PageBuilder();
-                builder.build(this.getChildren());
-                return builder.gridPane;
+            public void dispose() {
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
+                if(property instanceof OptionSetting<?, ?>){
+                    getNode().itemsProperty().set(null);
+                }
+                getNode().setOnAction(null);
             }
         };
     }
-    public static PageNode page(String name, Consumer<ObservableList<TreeNode>> builder){
-        PageNode pageNode = new PageNode(name){
+
+    public static <V> IEditor<V> createComboBox(EditorContext context, IEditableProperty<V> property, boolean editable, ObjectProperty<ObservableList<V>> options){
+        return new EditorSimple<>(context, property, new ComboBox<V>()) {
+
+            {
+                getNode().valueProperty().bindBidirectional(property.valueProperty());
+                getNode().itemsProperty().bind(options);
+                getNode().setOnAction(e -> getProperty().sendUserEditedEvent());
+                getNode().setEditable(true);
+            }
 
             @Override
-            public Node buildContent() {
-                PageBuilder builder = new PageBuilder();
-                builder.build(this.getChildren());
-                return builder.gridPane;
-            }
-        };
-        builder.accept(pageNode.children);
-        return pageNode;
-    }
-
-    public static void property(GridPane gridPane, String displayName, Property<?> property, Class<?> type){
-        Label label = new Label(displayName);
-        gridPane.addRow(gridPane.getRowCount(), label, Editors.createEditor(property, type));
-    }
-
-    public static void node(GridPane gridPane, Node node){
-        gridPane.add(node, 0, gridPane.getRowCount(), 2, 1);
-    }
-
-    /////////////////////////
-
-
-    public static DefaultPropertyEditorFactory defaultPropertyEditorFactory = new DefaultPropertyEditorFactory();
-
-    public static PropertyEditor<?> getPropertyEditor(PropertySheet.Item item){
-        //TODO CUSTOM EDITORS
-        if(item instanceof SettingProperty && ((SettingProperty) item).setting instanceof BooleanSetting){
-            return createSwitchEditor(item);
-        }
-        return defaultPropertyEditorFactory.call(item);
-    }
-
-    public static PropertyEditor<?> createSwitchEditor( PropertySheet.Item property) {
-
-        return new AbstractPropertyEditor<Boolean, ToggleSwitch>(property, new ToggleSwitch()) {
-
-            @Override protected BooleanProperty getObservableValue() {
-                return getEditor().selectedProperty();
-            }
-
-            @Override public void setValue(Boolean value) {
-                getEditor().setSelected(value);
+            public void dispose() {
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
+                getNode().itemsProperty().unbind();
+                getNode().setOnAction(null);
             }
         };
     }
 
-    public static <O> ComboBox<GenericPreset<O>> createDefaultPresetComboBox(IPresetLoader<O> loader){
-        ComboBox<GenericPreset<O>> comboBox = new ComboBox<>();
-        comboBox.setItems(loader.getPresets());
-        comboBox.setValue(loader.getDefaultPreset());
-        DBPreferences.INSTANCE.flagDefaultPresetChange.addListener((observable) -> {
-            comboBox.setValue(loader.getDefaultPreset());
-        });
-        comboBox.setOnAction(e -> {
-            DBPreferences.INSTANCE.setDefaultPreset(comboBox.getValue());
-        });
-        return comboBox;
-    }
-
-    public static Node createDefaultFolderPicker(String title, Supplier<File> initialDirectory, Property<String> stringProperty){
-        HBox hBox = new HBox();
-        hBox.setSpacing(8);
-
-        Button configure = new Button("Configure");
-        configure.setOnAction(e -> FXHelper.selectFolder(title, initialDirectory.get(), file -> stringProperty.setValue(file.toString())));
-        hBox.getChildren().add(configure);
-
-        Label fileLabel = new Label();
-        fileLabel.textProperty().bind(stringProperty);
-        hBox.getChildren().add(fileLabel);
-        fileLabel.setMaxWidth(275);
-        fileLabel.setWrapText(true);
-        return hBox;
-    }
-
-    public static Node createDefaultFilePicker(String title, Supplier<File> initialDirectory, Property<String> stringProperty){
-        HBox hBox = new HBox();
-        hBox.setSpacing(8);
-
-        Button configure = new Button("Select File");
-        configure.setOnAction(e -> FXHelper.selectFile(title, initialDirectory.get(), file -> stringProperty.setValue(file.toString())));
-        hBox.getChildren().add(configure);
-
-        Label fileLabel = new Label();
-        fileLabel.textProperty().bind(stringProperty);
-        hBox.getChildren().add(fileLabel);
-        fileLabel.setMaxWidth(275);
-        fileLabel.setWrapText(true);
-        return hBox;
-    }
-
-    @Nullable
-    public static Node createNodeEditorGroupSetting(List<GenericSetting<?, ?>> settings){
-        if(settings.isEmpty()){
-            return null;
+    public static <V extends Number> IEditor<V> createRangedNumberEditor(EditorContext context, IEditableProperty<V> property){
+        if(property instanceof AbstractNumberSetting<?, V> setting){
+            return new EditorRangedNumber<>(context, setting);
         }
-        if(settings.size() == 1){
-            return createNodeEditor(settings.get(0));
-        }
-        HBox hBox = new HBox();
-        for(GenericSetting<?, ?> setting : settings){
-            hBox.getChildren().add(createNodeEditor(setting));
-        }
-        hBox.setSpacing(4);
-        HBox.setHgrow(hBox, Priority.ALWAYS);
-        return hBox;
+        return createGenericTextField(context, property);
     }
 
-    @Nullable
-    public static Node createNodeEditor(GenericSetting<?, ?> generic){
-        if(generic instanceof AbstractNumberSetting){
-            AbstractNumberSetting<?, ?> numberSetting = (AbstractNumberSetting<?, ?>) generic;
-            if(numberSetting.isRanged){
-                TextField textField = generic.getEditableTextField();
-                Node node = generic.getJavaFXEditor(true);
-                if(node == textField){
-                    return node;
+    public static <V> IEditor<V> createImageSelector(EditorContext context, IEditableProperty<V> property){
+
+        if(property instanceof ImageSetting<?> setting){
+            return new EditorSimple<>(context, property, new VBox()) {
+
+                public transient ImageView imageView;
+                public transient SimpleObjectProperty<WritableImage> thumbnail;
+                public ChangeListener<? super String> valueListener;
+
+                private Button button = null;
+
+                {
+                    this.imageView = new ImageView();
+                    this.thumbnail = new SimpleObjectProperty<>(null);
+
+                    this.imageView.imageProperty().bind(thumbnail);
+                    this.imageView.preserveRatioProperty().set(true);
+                    this.imageView.setFitWidth(400);
+                    this.imageView.setFitHeight(400);
+                    //this.imageView.get().fitWidthProperty().bind(DrawingBotV3.INSTANCE.controller.versionThumbColumn.widthProperty()); //TODO CHECK ME!
+
+                    button = new Button("Select Image");
+
+                    button.setOnAction(event -> FXHelper.importFile(DrawingBotV3.context(), (file, chooser) -> setting.value.set(file.getPath()), FileUtils.IMPORT_IMAGES));
+
+                    setting.valueProperty().addListener(valueListener = (observable, oldValue, newValue) -> {
+                        BufferedImageLoader loader = new BufferedImageLoader(DrawingBotV3.context(), newValue, false);
+                        DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
+                        loader.setOnSucceeded(e -> {
+                            thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null));
+                            getProperty().sendUserEditedEvent();
+                        });
+                        loader.setOnFailed(e -> thumbnail.set(null));
+                    });
+                    node.setSpacing(4);
+                    node.getChildren().add(button);
+                    node.getChildren().add(imageView);
                 }
 
-                HBox hBox = new HBox();
-                hBox.setSpacing(4);
-                hBox.getChildren().addAll(node, textField);
-                HBox.setHgrow(node, Priority.ALWAYS);
-                HBox.setHgrow(textField, Priority.ALWAYS);
-                textField.setPrefWidth(80);
-                textField.setPrefHeight(12);
-                return hBox;
-            }
+                @Override
+                public void dispose() {
+                    this.imageView.setImage(null);
+                    this.button.setOnAction(null);
+                    setting.valueProperty().removeListener(valueListener);
+
+                }
+            };
         }
+        return createGenericTextField(context, property);
+    }
 
-        if(generic.hasCustomEditor()){
-            return generic.getJavaFXEditor(true);
+    public static <N extends Number> IEditor<N> createNumberTextField(EditorContext context, IEditableProperty<N> property){
+        return new EditorSimple<>(context, property, new TextField()) {
+
+            {
+                StringConverter<N> converter = JFXUtils.getNumberStringConverter(property.getType());
+                node.textProperty().bindBidirectional(property.valueProperty(), converter);
+                node.setTextFormatter(new TextFormatter<>(converter));
+                node.setOnAction(e -> property.sendUserEditedEvent());
+            }
+
+            @Override
+            public void dispose() {
+                node.textProperty().unbindBidirectional(property.valueProperty());
+                node.setTextFormatter(null);
+                node.setOnAction(null);
+            }
+        };
+    }
+
+    public static <V> IEditor<V> createGenericTextField(EditorContext context, IEditableProperty<V> property){
+        return new EditorTextInputControl.Field<>(context, property);
+    }
+
+    public static <V> IEditor<V> createGenericTextArea(EditorContext context, IEditableProperty<V> property){
+        return new EditorTextInputControl.Area<>(context, property);
+    }
+
+    public static <V> IEditor<V> createGenericDummyEditor(EditorContext context, IEditableProperty<V> property){
+        return new EditorSimple<>(context, property, new Label()) {
+
+            {
+                getNode().setText(property.getDisplayName());
+            }
+
+            @Override
+            public void dispose() {
+
+            }
+        };
+    }
+
+    ///////////////////////////////////////////////////
+
+    /**
+     * Utility method for creating {@link IEditableProperty} for wrapped {@link javafx.beans.property.Property}
+     * Any {@link drawingbot.javafx.GenericSetting} should provide a direct reference to a {@link IEditorFactory} rather than using this general method
+     * @param type the type of the value stored in the property
+     * @return the {@link IEditorFactory}
+     */
+    public static <V> IEditorFactory<V> getDefaultEditorFactory(Class<V> type){
+        if(type == Boolean.class){
+            return (context, property) -> castEditor(createCheckBox(context, castProperty(property)));
         }
-        return generic.getEditableTextField();
-    }
-
-    public static Node createEditor(GenericSetting<?, ?> generic){
-        /*
-        Node editor = null;
-        if(generic instanceof BooleanSetting){
-            BooleanSetting<?> setting = (BooleanSetting<?>) generic;
-            editor = createSwitchEditor(setting.valueProperty());
-        }else if(generic instanceof ColourSetting){
-            ColourSetting<?> setting = (ColourSetting<?>) generic;
-            editor = createColorEditor(setting.valueProperty());
-        }else if(generic instanceof DoubleSetting){
-            DoubleSetting<?> setting = (DoubleSetting<?>) generic;
-            editor = createDoubleTextEditor(setting);
-        }else if(generic instanceof FloatSetting){
-            FloatSetting<?> setting = (FloatSetting<?>) generic;
-            editor = createFloatTextEditor(setting);
-        }else if(generic instanceof IntegerSetting){
-            IntegerSetting<?> setting = (IntegerSetting<?>) generic;
-            editor = createIntegerTextEditor(setting);
-        }else if(generic instanceof LongSetting){
-            LongSetting<?> setting = (LongSetting<?>) generic;
-            editor = createLongTextEditor(setting);
-        }else if(generic instanceof OptionSetting){
-            OptionSetting<?, ?> setting = (OptionSetting<?, ?>) generic;
-            editor = createChoiceEditor(setting);
-        }else if(generic instanceof StringSetting){
-            StringSetting<?> setting = (StringSetting<?>) generic;
-            editor = createTextEditor(setting.valueProperty());
+        if(Number.class.isAssignableFrom(type)){
+            return (context, property) -> castEditor(createNumberTextField(context, castProperty(property)));
         }
-
-         */
-        return generic.getJavaFXEditor(true);
+        if(type == String.class){
+            return (context, property) -> castEditor(createTextField(context, castProperty(property)));
+        }
+        if(Color.class.isAssignableFrom(type)){
+            return (context, property) -> castEditor(createColorPicker(context, castProperty(property)));
+        }
+        if(type == Enum.class){
+            return Editors::createChoiceEditor;
+        }
+        DrawingBotV3.logger.warning("Missing Editor Factory for " + type);
+        return null;
     }
 
-    public static Node createEditor(Property property, Class<?> type){
-        PropertyEditor editor = defaultPropertyEditorFactory.call(new PropertySheet.Item() {
-            @Override
-            public Class<?> getType() {
-                return type;
-            }
-
-            @Override
-            public String getCategory() {
-                return "";
-            }
-
-            @Override
-            public String getName() {
-                return "";
-            }
-
-            @Override
-            public String getDescription() {
-                return "";
-            }
-
-            @Override
-            public Object getValue() {
-                return property.getValue();
-            }
-
-            @Override
-            public void setValue(Object value) {
-                property.setValue(value);
-            }
-
-            @Override
-            public Optional<ObservableValue<? extends Object>> getObservableValue() {
-                return Optional.of(property);
-            }
-        });
-        editor.setValue(property.getValue());
-        HBox.setHgrow(editor.getEditor(), Priority.ALWAYS);
-        return editor.getEditor();
+    @SuppressWarnings("unchecked")
+    public static <V> IEditableProperty<V> castProperty(IEditableProperty<?> property){
+        return (IEditableProperty<V>) property;
     }
 
-    public static Node createCheckboxEditor(Property<Boolean> booleanProperty){
-        CheckBox checkBox = new CheckBox();
-        checkBox.selectedProperty().bindBidirectional(booleanProperty);
-        return checkBox;
+    @SuppressWarnings("unchecked")
+    public static <V> IEditorFactory<V> castEditorFactory(IEditorFactory<?> factory){
+        return (IEditorFactory<V>) factory;
     }
 
-    public static Node createSwitchEditor(Property<Boolean> booleanProperty){
-        ToggleSwitch toggleSwitch = new ToggleSwitch();
-        toggleSwitch.selectedProperty().bindBidirectional(booleanProperty);
-        return toggleSwitch;
+    @SuppressWarnings("unchecked")
+    public static <V> IEditor<V> castEditor(IEditor<?> factory){
+        return (IEditor<V>) factory;
     }
 
-    public static Node createTextEditor(Property<String> booleanProperty){
-        TextField textField = new TextField();
-        textField.textProperty().bindBidirectional(booleanProperty);
-        return textField;
-    }
-
-    public static Node createDoubleTextEditor(DoubleSetting<?> doubleSetting){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), doubleSetting.getDefaultValue()));
-        textField.textProperty().bindBidirectional(doubleSetting.valueProperty(), new DoubleStringConverter());
-        return textField;
-    }
-
-    public static Node createDoubleTextEditor(Property<Double> doubleProperty){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 0D));
-        textField.textProperty().bindBidirectional(doubleProperty, new DoubleStringConverter());
-        return textField;
-    }
-
-    public static Node createFloatTextEditor(FloatSetting<?> floatProperty){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), floatProperty.getDefaultValue()));
-        textField.textProperty().bindBidirectional(floatProperty.valueProperty(), new FloatStringConverter());
-        return textField;
-    }
-
-    public static Node createFloatTextEditor(Property<Float> floatProperty){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new FloatStringConverter(), 0F));
-        textField.textProperty().bindBidirectional(floatProperty, new FloatStringConverter());
-        return textField;
-    }
-
-    public static Node createIntegerTextEditor(IntegerSetting<?> integerSetting){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), integerSetting.getDefaultValue()));
-        textField.textProperty().bindBidirectional(integerSetting.valueProperty(), new IntegerStringConverter());
-        return textField;
-    }
-
-    public static Node createIntegerTextEditor(Property<Integer> integerProperty){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 0));
-        textField.textProperty().bindBidirectional(integerProperty, new IntegerStringConverter());
-        return textField;
-    }
-
-    public static Node createLongTextEditor(LongSetting<?> longSetting){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(longSetting.getStringConverter(), longSetting.getDefaultValue()));
-        textField.textProperty().bindBidirectional(longSetting.valueProperty(), new LongStringConverter());
-        return textField;
-    }
-
-    public static Node createLongTextEditor(Property<Long> longProperty){
-        TextField textField = new TextField();
-        textField.setTextFormatter(new TextFormatter<>(new LongStringConverter(), 0L));
-        textField.textProperty().bindBidirectional(longProperty, new LongStringConverter());
-        return textField;
-    }
-
-    public static <T> Node createChoiceEditor(OptionSetting<?, T> optionSetting){
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setItems(optionSetting.getOptions());
-        comboBox.valueProperty().bindBidirectional(optionSetting.valueProperty());
-        return comboBox;
-    }
-
-    public static <T> Node createChoiceEditor(Property<T> selectProperty, ObservableList<T> options){
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setItems(options);
-        comboBox.valueProperty().bindBidirectional(selectProperty);
-        return comboBox;
-    }
-
-    public static Node createColorEditor(Property<Color> selectProperty){
-        ColorPicker colorPicker = new ColorPicker();
-        colorPicker.valueProperty().bindBidirectional(selectProperty);
-        return colorPicker;
-    }
-
-    public static Node createDateEditor(Property<LocalDate> selectProperty){
-        DatePicker datePicker = new DatePicker();
-        datePicker.valueProperty().bindBidirectional(selectProperty);
-        return datePicker;
-    }
-
-    public static Node createTextAreaEditorLazy(Property<?> stringProperty){
-        return createTextAreaEditor((Property<String>)stringProperty);
-    }
-
-    public static Node createTextAreaEditor(Property<String> booleanProperty){
-        TextArea textArea = new TextArea();
-        textArea.textProperty().bindBidirectional(booleanProperty);
-        VBox.setVgrow(textArea, Priority.ALWAYS);
-        HBox.setHgrow(textArea, Priority.ALWAYS);
-        textArea.setPrefRowCount(6);
-        textArea.setMinHeight(100);
-        return textArea;
-    }
 }

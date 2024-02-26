@@ -41,7 +41,10 @@ import drawingbot.render.modes.DrawingJFXDisplayMode;
 import drawingbot.render.modes.ImageJFXDisplayMode;
 import drawingbot.render.overlays.*;
 import drawingbot.software.IComponent;
-import drawingbot.utils.*;
+import drawingbot.utils.DBConstants;
+import drawingbot.utils.EnumDistributionType;
+import drawingbot.utils.EnumFilterTypes;
+import drawingbot.utils.Metadata;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.paint.Color;
@@ -197,15 +200,15 @@ public class Register implements IPlugin {
         // Register all Application Settings
         DBPreferences.INSTANCE.settings.forEach(setting -> MasterRegistry.INSTANCE.registerApplicationSetting(setting));
 
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PREFERENCES = new PresetType("config_settings", "Preferences").setIgnoreSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", "Project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}).setIgnoreSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PREFERENCES = new PresetType("config_settings", "Preferences").setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED).setHidden(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PROJECT = new PresetType("project", "Project", new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}).setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED).setHidden(true));
         MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_PFM = new PresetType("pfm_settings", "PFM Preset").setDefaultsPerSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings", "UI Preset").setIgnoreSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters", "Image Filter Preset").setIgnoreSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set", "Drawing Set Preset").setDefaultsPerSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen", "Drawing Pen Preset").setDefaultsPerSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area", "Drawing Area Preset").setIgnoreSubType(true));
-        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings", "GCode Preset"));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_UI_SETTINGS = new PresetType("ui_settings", "UI Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED).setHidden(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_FILTERS = new PresetType("image_filters", "Image Filter Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_SET = new PresetType("drawing_set", "Drawing Set Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.EDITABLE).setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_PENS = new PresetType("drawing_pen", "Drawing Pen Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.EDITABLE).setDefaultsPerSubType(true));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_DRAWING_AREA = new PresetType("drawing_area", "Drawing Area Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED));
+        MasterRegistry.INSTANCE.registerPresetType(PRESET_TYPE_GCODE_SETTINGS = new PresetType("gcode_settings", "GCode Preset").setSubTypeBehaviour(PresetType.SubTypeBehaviour.IGNORED));
 
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PREFERENCES = new PresetPreferencesLoader(PRESET_TYPE_PREFERENCES));
         MasterRegistry.INSTANCE.registerPresetLoaders(PRESET_LOADER_PROJECT = new PresetProjectSettingsLoader(PRESET_TYPE_PROJECT));

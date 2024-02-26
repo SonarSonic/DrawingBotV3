@@ -3,7 +3,6 @@ package drawingbot.javafx.controls;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
-import javafx.application.Platform;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -30,7 +29,7 @@ public class SkinPresetsButton<TARGET, DATA> extends SkinBase<ControlPresetButto
 
         MenuItem newPreset = new MenuItem("New Preset");
         newPreset.setOnAction(e -> {
-            GenericPreset<DATA> result = FXHelper.actionNewPreset(control.getPresetManager(), control.getTarget());
+            GenericPreset<DATA> result = FXHelper.actionNewPreset(control.getPresetManager(), control.getTarget(), false);
             if(result != null){
                 control.refresh();
                 control.setActivePreset(result);
@@ -51,7 +50,7 @@ public class SkinPresetsButton<TARGET, DATA> extends SkinBase<ControlPresetButto
 
         MenuItem renamePreset = new MenuItem("Edit Preset");
         renamePreset.setOnAction(e -> {
-            GenericPreset<DATA>  result = FXHelper.actionEditPreset(control.getPresetManager(), control.getActivePreset(), control.getTarget());
+            GenericPreset<DATA>  result = FXHelper.actionEditPreset(control.getPresetManager(), control.getActivePreset(), control.getTarget(), false);
             if(result != null){
                 control.refresh();
                 control.setActivePreset(result);
@@ -68,15 +67,15 @@ public class SkinPresetsButton<TARGET, DATA> extends SkinBase<ControlPresetButto
             }
 
             String subType = preset.getPresetSubType();
-            int oldIndex = control.getPresetType().ignoreSubType ? control.getPresetLoader().getPresets().indexOf(preset) : control.getPresetLoader().getPresetsForSubType(subType).indexOf(preset);
+            int oldIndex = control.getPresetType().getSubTypeBehaviour().isIgnored() ? control.getPresetLoader().getPresets().indexOf(preset) : control.getPresetLoader().getPresetsForSubType(subType).indexOf(preset);
 
-            GenericPreset<DATA>  result = FXHelper.actionDeletePreset(control.getPresetManager(), control.getActivePreset(), control.getTarget());
+            GenericPreset<DATA>  result = FXHelper.actionDeletePreset(control.getPresetLoader(), control.getActivePreset());
             if(result == null){
                 control.refresh();
 
                 //1. Try to set the preset to the next one down in the list in the sub type / preset list
                 int nextIndex = Math.max(0, oldIndex-1);
-                List<GenericPreset<DATA>> targetList = control.getPresetType().ignoreSubType ? control.getPresetLoader().getPresets() : control.getPresetLoader().getPresetsForSubType(subType);
+                List<GenericPreset<DATA>> targetList = control.getPresetType().getSubTypeBehaviour().isIgnored() ? control.getPresetLoader().getPresets() : control.getPresetLoader().getPresetsForSubType(subType);
                 if(!targetList.isEmpty() && nextIndex < targetList.size()){
                     GenericPreset<DATA> nextPreset = targetList.get(nextIndex);
                     if(nextPreset != null){
@@ -114,13 +113,27 @@ public class SkinPresetsButton<TARGET, DATA> extends SkinBase<ControlPresetButto
         setDefault.setOnAction(e -> {
             GenericPreset<DATA> current = control.getActivePreset();
             if(current != null){
-                FXHelper.actionSetDefaultPreset(control.getPresetManager(), current);
+                FXHelper.actionSetDefaultPreset(control.getPresetLoader(), current);
                 control.refresh();
             }
         });
         setDefault.disableProperty().bind(control.activePresetProperty().isNull());
 
-        menuButton.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset);
+        MenuItem openPresetManager = new MenuItem("Preset Manager");
+        openPresetManager.setOnAction(e -> {
+
+            GenericPreset<DATA> current = control.getActivePreset();
+            if(current != null){
+                DrawingBotV3.INSTANCE.controller.presetManagerController.type.set(current.getPresetType());
+                if(!current.getPresetType().getSubTypeBehaviour().isIgnored()){
+                    DrawingBotV3.INSTANCE.controller.presetManagerController.category.set(current.getPresetSubType());
+                }
+                DrawingBotV3.INSTANCE.controller.presetManagerController.selectPreset(current);
+            }
+            DrawingBotV3.INSTANCE.controller.presetManagerStage.show();
+        });
+
+        menuButton.getItems().addAll(newPreset, updatePreset, renamePreset, deletePreset, new SeparatorMenuItem(), setDefault, new SeparatorMenuItem(), importPreset, exportPreset, new SeparatorMenuItem(), openPresetManager);
 
         return menuButton;
     }

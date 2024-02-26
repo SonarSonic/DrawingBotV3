@@ -5,11 +5,10 @@ import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.drawing.IColorManagedDrawingSet;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.DefaultPresetEditor;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.registry.MasterRegistry;
-import javafx.collections.ObservableList;
 
 public class PresetDrawingSetManager extends AbstractPresetManager<IDrawingSet, IDrawingSet> {
 
@@ -51,7 +50,7 @@ public class PresetDrawingSetManager extends AbstractPresetManager<IDrawingSet, 
     }
 
     @Override
-    public boolean isSubTypeEditable() {
-        return true;
+    public DefaultPresetEditor<IDrawingSet, IDrawingSet> createPresetEditor() {
+        return new PresetDrawingSetEditor(this);
     }
 }

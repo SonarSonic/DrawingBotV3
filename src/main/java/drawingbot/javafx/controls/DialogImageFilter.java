@@ -2,20 +2,20 @@ package drawingbot.javafx.controls;
 
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericSetting;
-import drawingbot.javafx.editors.Editors;
-import drawingbot.javafx.editors.LabelNode;
-import drawingbot.javafx.editors.PropertyNode;
-import drawingbot.javafx.editors.SettingNode;
 import drawingbot.javafx.observables.ObservableImageFilter;
+import drawingbot.javafx.preferences.items.EditorSheet;
+import drawingbot.javafx.preferences.items.LabelNode;
+import drawingbot.javafx.preferences.items.PropertyNode;
+import drawingbot.javafx.preferences.items.SettingNode;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 
 public class DialogImageFilter extends DialogScrollPane {
 
     public DialogImageFilter(ObservableImageFilter imageFilter){
-        super(imageFilter.name.get(), Editors.page("settings", builder -> {
+        super(imageFilter.name.get(), EditorSheet.page("settings", builder -> {
 
-            builder.add(new PropertyNode("Enabled", imageFilter.enable, Boolean.class).setTitleStyling());
+            builder.add(new PropertyNode<>("Enabled", imageFilter.enable, imageFilter.enable.get(), Boolean.class).setTitleStyling());
 
             builder.add(new LabelNode("").setTitleStyling());
 

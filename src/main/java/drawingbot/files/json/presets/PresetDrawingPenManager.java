@@ -4,20 +4,10 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.AbstractPresetManager;
+import drawingbot.files.json.DefaultPresetEditor;
 import drawingbot.files.json.IPresetLoader;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.editors.PropertyNode;
-import drawingbot.javafx.editors.TreeNode;
-import drawingbot.registry.MasterRegistry;
-import drawingbot.registry.Register;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
-import javafx.scene.paint.Color;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class PresetDrawingPenManager extends AbstractPresetManager<IDrawingPen, IDrawingPen> {
 
@@ -50,21 +40,8 @@ public class PresetDrawingPenManager extends AbstractPresetManager<IDrawingPen, 
     }
 
     @Override
-    public void addEditDialogElements(GenericPreset<IDrawingPen> preset, ObservableList<TreeNode> builder, List<Consumer<GenericPreset<IDrawingPen>>> callbacks) {
-        super.addEditDialogElements(preset, builder, callbacks);
-        SimpleObjectProperty<Color> penColour = new SimpleObjectProperty<>();
-        penColour.set(ImageTools.getColorFromARGB(preset.data.getARGB()));
-        penColour.addListener((observable, oldValue, newValue) -> {
-            if(preset.data instanceof DrawingPen pen){
-
-                pen.argb = ImageTools.getARGBFromColor(newValue);
-            }
-        });
-        builder.add(new PropertyNode("Colour", penColour, Color.class));
+    public DefaultPresetEditor<IDrawingPen, IDrawingPen> createPresetEditor() {
+        return  new PresetDrawingPenEditor(this);
     }
 
-    @Override
-    public boolean isSubTypeEditable() {
-        return true;
-    }
 }

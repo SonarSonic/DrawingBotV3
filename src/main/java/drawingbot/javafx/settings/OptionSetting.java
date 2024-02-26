@@ -1,12 +1,9 @@
 package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
-import javafx.collections.FXCollections;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -48,6 +45,11 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
     }
 
     @Override
+    public IEditorFactory<V> defaultEditorFactory() {
+        return Editors::createChoiceEditor;
+    }
+
+    @Override
     protected V defaultValidate(V value) {
         if(values == null){
             return value;//avoid crash when the setting is being initialised
@@ -58,22 +60,6 @@ public class OptionSetting<C, V> extends GenericSetting<C, V> {
     @Override
     protected V defaultRandomise(ThreadLocalRandom random) {
         return values.get(random.nextInt(values.size()-1));
-    }
-
-    @Override
-    public boolean hasEditableTextField() {
-        return false;
-    }
-
-    @Override
-    protected Node createJavaFXNode(boolean label) {
-        ChoiceBox<V> choiceBox = new ChoiceBox<>();
-        choiceBox.setItems(FXCollections.observableArrayList(values));
-        choiceBox.valueProperty().bindBidirectional(value);
-        HBox.setHgrow(choiceBox, Priority.ALWAYS);
-        choiceBox.setMaxWidth(Double.MAX_VALUE);
-        choiceBox.setOnAction(e -> sendUserEditedEvent());
-        return choiceBox;
     }
 
     @Override

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.glyphfont.*?>
+
+<?import drawingbot.javafx.controls.ControlPresetSelector?>
+<?import drawingbot.javafx.controls.ControlImageFiltersEditor?>
+<VBox minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXImageProcessing">
+      <children>
+         <HBox prefHeight="25.0" prefWidth="412.0" spacing="4.0">
+            <children>
+                <ControlPresetSelector fx:id="controlImageFilterPreset"/>
+            </children>
+            <padding>
+               <Insets right="10.0" />
+            </padding>
+         </HBox>
+          <ControlImageFiltersEditor fx:id="imageFiltersControl"/>
+          <Separator prefHeight="16.0" prefWidth="378.0" />
+         <HBox layoutX="10.0" layoutY="310.0" prefHeight="30.0" prefWidth="391.0" spacing="5.0">
+            <children>
+               <ToggleButton fx:id="buttonEditCrop" contentDisplay="RIGHT" mnemonicParsing="false" prefHeight="25.0" prefWidth="57.0" text="Edit">
+                   <graphic>
+                       <Glyph fontFamily="FontAwesome" icon="CROP" />
+                   </graphic>
+                </ToggleButton>
+               <Label prefHeight="24.0" text="X" />
+               <TextField fx:id="textFieldCropStartX" prefHeight="25.0" prefWidth="54.0" promptText="left" />
+               <Label layoutX="87.0" layoutY="10.0" prefHeight="24.0" text="Y" />
+               <TextField fx:id="textFieldCropStartY" prefHeight="25.0" prefWidth="54.0" promptText="top" />
+               <Label layoutX="149.0" layoutY="10.0" prefHeight="24.0" text="W" />
+               <TextField fx:id="textFieldCropWidth" prefHeight="25.0" prefWidth="54.0" promptText="width" />
+               <Label layoutX="211.0" layoutY="10.0" prefHeight="24.0" text="H" />
+               <TextField fx:id="textFieldCropHeight" prefHeight="25.0" prefWidth="54.0" promptText="height" />
+               <Button fx:id="buttonResetCrop" layoutX="332.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0">
+                    <graphic>
+                        <Glyph fontFamily="FontAwesome" icon="ROTATE_LEFT" />
+                    </graphic>
+                </Button>
+            </children>
+         </HBox>
+         <Separator layoutX="10.0" layoutY="299.0" prefHeight="3.0" prefWidth="378.0" />
+          <HBox prefHeight="30.0" prefWidth="391.0" spacing="16.0">
+              <children>
+                  <Label contentDisplay="RIGHT" graphicTextGap="8.0" text="Rotation">
+                      <graphic>
+                          <ChoiceBox fx:id="choiceBoxRotation" prefHeight="25.0" prefWidth="79.0" />
+                      </graphic>
+                  </Label>
+                  <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" prefHeight="25.0" prefWidth="110.0" text="Flip Horizontal:">
+                      <graphic>
+                          <CheckBox fx:id="checkBoxFlipX" mnemonicParsing="false" />
+                      </graphic>
+                  </Label>
+                  <Label contentDisplay="RIGHT" graphicTextGap="8.0" layoutX="179.0" layoutY="10.0" prefHeight="25.0" prefWidth="97.0" text="Flip Vertical:">
+                      <graphic>
+                          <CheckBox fx:id="checkBoxFlipY" mnemonicParsing="false" />
+                      </graphic>
+                  </Label>
+              </children>
+          </HBox>
+      </children>
+      <padding>
+         <Insets left="8.0" right="8.0" top="10.0" />
+      </padding>
+</VBox>

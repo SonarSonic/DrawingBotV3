@@ -28,7 +28,7 @@ public abstract class AbstractConfigLoader<CONFIG, DATA> extends AbstractPresetL
         GenericPreset<DATA> preset = findPreset("config");
         if(preset == null){
             //If no preset is found then create a new default one
-            preset = createNewPreset(presetType.id, "config", false);
+            preset = createNewPreset(presetType.registryName, "config", false);
             getDefaultConfigManager().updatePreset(null, getConfig(), preset);
 
             this.addPreset(preset);

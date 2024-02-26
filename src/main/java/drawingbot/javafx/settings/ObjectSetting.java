@@ -3,8 +3,8 @@ package drawingbot.javafx.settings;
 import com.google.gson.JsonElement;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.javafx.GenericSetting;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 import javafx.util.StringConverter;
 
 public class ObjectSetting<C, O> extends GenericSetting<C, O> {
@@ -31,6 +31,11 @@ public class ObjectSetting<C, O> extends GenericSetting<C, O> {
     }
 
     @Override
+    public IEditorFactory<O> defaultEditorFactory() {
+        return Editors::createGenericDummyEditor;
+    }
+
+    @Override
     protected O defaultValidate(O value) {
         return type.isInstance(value) ? value : defaultValue;
     }
@@ -48,11 +53,6 @@ public class ObjectSetting<C, O> extends GenericSetting<C, O> {
     @Override
     public O getValueFromJsonElement(JsonElement element) {
         return JsonLoaderManager.createDefaultGson().fromJson(element, type);
-    }
-
-    @Override
-    protected Node createJavaFXNode(boolean label) {
-        return new Label("Object");
     }
 
     @Override

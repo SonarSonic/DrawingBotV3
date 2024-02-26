@@ -10,6 +10,7 @@ import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.SpecialListenable;
 import javafx.beans.Observable;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +36,22 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
 
     public void setPFMFactory(PFMFactory<?> factory) {
         this.factory.set(factory);
+    }
+
+    ///////////////////////////////////////////////
+
+    public final ObjectProperty<GenericPreset<PresetData>> selectedPreset = new SimpleObjectProperty<>();
+
+    public GenericPreset<PresetData> getSelectedPreset() {
+        return selectedPreset.get();
+    }
+
+    public ObjectProperty<GenericPreset<PresetData>> selectedPresetProperty() {
+        return selectedPreset;
+    }
+
+    public void setSelectedPreset(GenericPreset<PresetData> selectedPreset) {
+        this.selectedPreset.set(selectedPreset);
     }
 
     ///////////////////////////////////////////////
@@ -95,34 +112,19 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
         settings.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
                 treeRoot.set(null);
-                removeBindings(newValue);
+                GenericSetting.removeBindings(newValue);
             }
             if(newValue != null){
                 treeRoot.set(generateGenericSettingsTree(newValue));
-                addBindings(newValue);
+                GenericSetting.addBindings(newValue);
             }
         });
         factory.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
-                settings.set(MasterRegistry.INSTANCE.getObservablePFMSettingsList(newValue));
+                settings.set(MasterRegistry.INSTANCE.getNewObservableSettingsList(newValue));
                 sendListenerEvent(l -> l.onPFMChanged(oldValue, newValue));
             }
         });
-    }
-
-
-    public void addBindings(ObservableList<GenericSetting<?, ?>> settings){
-        for(GenericSetting<?, ?> setting : settings){
-            if(setting.getBindingFactory() != null){
-                setting.getBindingFactory().setupBindings(setting, settings);
-            }
-        }
-    }
-
-    public void removeBindings(ObservableList<GenericSetting<?, ?>> settings){
-        for(GenericSetting<?, ?> setting : settings){
-            setting.removeBindings();
-        }
     }
 
     public static TreeItem<GenericSetting<?, ?>> generateGenericSettingsTree(Collection<GenericSetting<?, ?>> settings){

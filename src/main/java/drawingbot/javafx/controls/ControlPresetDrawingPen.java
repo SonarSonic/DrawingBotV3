@@ -1,8 +1,8 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.api.IDrawingPen;
-import drawingbot.drawing.DrawingSets;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.registry.Register;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -14,7 +14,7 @@ import javafx.scene.control.skin.ComboBoxListViewSkin;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ControlPresetDrawingPen extends ControlPresetSelectionCategory<IDrawingPen, IDrawingPen> {
+public class ControlPresetDrawingPen extends ControlPresetSelectorCategory<IDrawingPen, IDrawingPen> {
 
     public static Supplier<ComboBox<GenericPreset<IDrawingPen>>> defaultDrawingPenComboBoxFactory = () -> {
         ComboBox<GenericPreset<IDrawingPen>> comboBox =  new ComboBox<>();
@@ -29,7 +29,7 @@ public class ControlPresetDrawingPen extends ControlPresetSelectionCategory<IDra
         return comboBox;
     };
 
-    public static Function<Property<DrawingSets>, ComboBox<GenericPreset<IDrawingPen>>> selectableDrawingPenComboBoxFactory = (drawingSets) -> {
+    public static Function<Property<ObservableDrawingSet>, ComboBox<GenericPreset<IDrawingPen>>> selectableDrawingPenComboBoxFactory = (drawingSets) -> {
         ComboBox<GenericPreset<IDrawingPen>> comboBox =  new ComboBox<>();
         comboBox.setCellFactory(param -> new ComboCellPresetDrawingPen(drawingSets, true));
         comboBox.setButtonCell(new ComboCellPresetDrawingPen(drawingSets, false));
@@ -50,24 +50,24 @@ public class ControlPresetDrawingPen extends ControlPresetSelectionCategory<IDra
         setCategoryComboBoxFactory(defaultCategoryComboBoxFactory);
         setActivePreset(Register.PRESET_LOADER_DRAWING_PENS.getDefaultPreset());
         comboBoxFactoryProperty().bind(Bindings.createObjectBinding(() -> {
-            if(drawingSets.get() == null){
+            if(drawingSet.get() == null){
                 return defaultDrawingPenComboBoxFactory;
             }
-            return () -> selectableDrawingPenComboBoxFactory.apply(drawingSets);
-        }, drawingSets));
+            return () -> selectableDrawingPenComboBoxFactory.apply(drawingSet);
+        }, drawingSet));
     }
 
-    public ObjectProperty<DrawingSets> drawingSets = new SimpleObjectProperty<>();
+    public ObjectProperty<ObservableDrawingSet> drawingSet = new SimpleObjectProperty<>();
 
-    public DrawingSets getDrawingSets() {
-        return drawingSets.get();
+    public ObservableDrawingSet getDrawingSet() {
+        return drawingSet.get();
     }
 
-    public ObjectProperty<DrawingSets> drawingSetsProperty() {
-        return drawingSets;
+    public ObjectProperty<ObservableDrawingSet> drawingSetProperty() {
+        return drawingSet;
     }
 
-    public void setDrawingSets(DrawingSets drawingSets) {
-        this.drawingSets.set(drawingSets);
+    public void setDrawingSet(ObservableDrawingSet drawingSet) {
+        this.drawingSet.set(drawingSet);
     }
 }

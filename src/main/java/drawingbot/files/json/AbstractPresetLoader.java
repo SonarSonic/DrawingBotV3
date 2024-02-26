@@ -7,23 +7,29 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.adapters.JsonAdapterGenericPreset;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>, IPresetLoader.Listener<DATA>  {
 
@@ -34,16 +40,39 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
     public final LinkedHashMap<Class<?>, IPresetManager<?, DATA>> presetManagers = new LinkedHashMap<>();
     public final ObservableList<GenericPreset<DATA>> presets = FXCollections.observableArrayList();
+    public final ObservableList<GenericPreset<DATA>> overriddenSystemPresets = FXCollections.observableArrayList();
     public final FilteredList<GenericPreset<DATA>> userPresets = new FilteredList<>(presets, p -> p.userCreated);
     public final ObservableList<String> subTypes = FXCollections.observableArrayList();
     public final HashMap<String, ObservableList<GenericPreset<DATA>>> presetsByType = new LinkedHashMap<>();
+
+    public final ObjectProperty<GenericPreset<DATA>> defaultPreset = new SimpleObjectProperty<>();
+    public final ObservableMap<String, GenericPreset<DATA>> defaultSubTypePreset = FXCollections.observableHashMap();
 
     public AbstractPresetLoader(Class<DATA> dataType, PresetType presetType, String configFile) {
         this.presetType = presetType;
         this.dataType = dataType;
         this.configFile = new File(FileUtils.getUserDataDirectory(), configFile);
+        this.defaultPreset.addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                oldValue.setDefaultPreset(false);
+            }
+            if(newValue != null){
+                newValue.setDefaultPreset(true);
+            }
+        });
+        this.defaultSubTypePreset.addListener((MapChangeListener<String, GenericPreset<DATA>>) change -> {
+            if (change.getValueRemoved() != null) {
+                change.getValueRemoved().setDefaultSubTypePreset(false);
+            }
+            if (change.getValueAdded() != null) {
+                change.getValueAdded().setDefaultSubTypePreset(true);
+            }
+        });
+
         addSpecialListener(this);
     }
+
+
 
     @Override
     public String getVersion(){
@@ -78,8 +107,8 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void logPresetAction(String action, GenericPreset<DATA> preset){
-        DrawingBotV3.logger.finest("%s %s: %s".formatted(action, preset.presetType.getDisplayName(), preset.getPresetName()));
+    protected void logPresetAction(Level level, String action, GenericPreset<DATA> preset){
+        DrawingBotV3.logger.log(level, "%s %s: %s:%s".formatted(action, preset.presetType.getDisplayName(), preset.getPresetSubType(), preset.getPresetName()));
     }
 
     /**
@@ -94,6 +123,35 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         }
     }
 
+    protected boolean isUniqueName(GenericPreset<?> preset){
+        return presets.stream().noneMatch(p -> p.getPresetName().equals(preset.getPresetName()) && p.getPresetType().equals(preset.getPresetType()) && p.getPresetSubType().equals(preset.getPresetSubType()));
+    }
+
+    protected boolean isUniqueName(GenericPreset<?> preset, String newName){
+        return presets.stream().noneMatch(p -> p.getPresetName().equals(newName) && p.getPresetType().equals(preset.getPresetType()) && p.getPresetSubType().equals(preset.getPresetSubType()));
+    }
+
+    protected GenericPreset<DATA> getOverriddenSystemPreset(GenericPreset<?> preset){
+        return presets.stream().filter(p -> (p.isSystemPreset() || (!isLoading() && p.overridesSystemPreset)) && p.getPresetName().equals(preset.getPresetName()) && p.getPresetType().equals(preset.getPresetType()) && p.getPresetSubType().equals(preset.getPresetSubType())).findFirst().orElse(null);
+    }
+
+    protected GenericPreset<DATA> getRestoreSystemPreset(GenericPreset<?> preset){
+        return overriddenSystemPresets.stream().filter(p -> p.getPresetName().equals(preset.getPresetName()) && p.getPresetType().equals(preset.getPresetType()) && p.getPresetSubType().equals(preset.getPresetSubType())).findFirst().orElse(null);
+    }
+
+    protected void tryRestoreSystemPresets(){
+        List<GenericPreset<DATA>> restore = overriddenSystemPresets.stream().filter(this::isUniqueName).collect(Collectors.toList());
+        restore.forEach(preset -> {
+            addPreset(preset);
+            overriddenSystemPresets.remove(preset);
+        });
+    }
+
+    protected void enforceUniqueName(GenericPreset<?> preset){
+        String uniqueName = Utils.uniqueName(preset.getPresetName(), n -> isUniqueName(preset, n));
+        preset.setPresetName(uniqueName);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
@@ -101,20 +159,57 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         if(preset == null){
             return;
         }
-        //Skip duplicate presets during load TODO deal with duplicate names properly??
-        if(isLoading() && presets.contains(preset)){
-            logPresetAction("Skipping Duplicate", preset);
-            return;
-        }
-        logPresetAction("Adding", preset);
+        GenericPreset<DATA> replacePreset = null;
 
-        presets.add(preset);
+        //Enforce unique preset names
+        if(!isUniqueName(preset)){
+            //If we can find an exact match, don't load the preset
+            if(presets.contains(preset)){
+                logPresetAction(Level.WARNING, "Skipping Identical Preset", preset);
+                return;
+            }
+            if(preset.isSystemPreset()){
+                logPresetAction(Level.WARNING,"Skipping Duplicate System Preset", preset);
+            }else{
+                replacePreset = getOverriddenSystemPreset(preset);
+                if(replacePreset != null){
+                    //If the preset is the same as a system preset we can override it
+                    preset.overridesSystemPreset = true;
+                    overriddenSystemPresets.add(replacePreset);
+                    logPresetAction(Level.WARNING,"Overriding System Preset with User Preset", preset);
+                    markDirty();
+                }else{
+                    //If the preset isn't an exact match for an existing one keep it and rename it
+                    String oldName = preset.getPresetName();
+                    enforceUniqueName(preset);
+                    logPresetAction(Level.WARNING, "Renamed Duplicate User Preset: %s -> %s".formatted(oldName, preset.getPresetName()), preset);
+                    markDirty();
+                }
+            }
+        }
+
+        if(!isLoading()){
+            logPresetAction(Level.INFO,"Adding", preset);
+        }
+
+        if(replacePreset != null){
+            presets.set(presets.indexOf(replacePreset), preset);
+        }else{
+            presets.add(preset);
+        }
 
         if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()) {
             initSubType(preset.getPresetSubType());
-            presetsByType.get(preset.getPresetSubType()).add(preset);
-        }else if(!getPresetType().ignoreSubType){
-            logPresetAction("Missing sub type", preset);
+
+            List<GenericPreset<DATA>> presetsForType = presetsByType.get(preset.getPresetSubType());
+            if(replacePreset != null){
+                presetsForType.set(presetsForType.indexOf(replacePreset), preset);
+            }else{
+                presetsForType.add(preset);
+            }
+
+        }else if(getPresetType().getSubTypeBehaviour() != PresetType.SubTypeBehaviour.IGNORED){
+            logPresetAction(Level.WARNING,"Missing sub type", preset);
         }
 
         if(!isLoading()){
@@ -128,14 +223,25 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         if(preset == null){
             return;
         }
-        logPresetAction("Removing", preset);
+        logPresetAction(Level.INFO,"Removing", preset);
+
+        GenericPreset<DATA> restorePreset = getRestoreSystemPreset(preset);
 
         //Remove the preset from the global list
-        presets.remove(preset);
+        if(restorePreset != null){
+            presets.set(presets.indexOf(preset), restorePreset);
+        }else{
+            presets.remove(preset);
+        }
 
         //Remove the preset from the sub types list
         if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()) {
-            presetsByType.get(preset.getPresetSubType()).remove(preset);
+            List<GenericPreset<DATA>> presetsForType = presetsByType.get(preset.getPresetSubType());
+            if(restorePreset != null){
+                presetsForType.set(presetsForType.indexOf(preset), restorePreset);
+            }else{
+                presetsForType.remove(preset);
+            }
         }
 
         if(!isLoading()){
@@ -146,19 +252,55 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
     }
 
     @Override
+    public boolean reorderPreset(GenericPreset<?> preset, List<GenericPreset<?>> displayedList, int shift) {
+        int index = displayedList.indexOf(preset);
+        int newIndex = Utils.clamp(index + shift, 0, displayedList.size()-1);
+
+        //if the preset is at the start or end of the displayedList don't move it in the global lists
+        if(index == newIndex){
+            return false;
+        }
+
+        //find the position of the preset which comes before in the list, the displayed list must therefore respect the order
+        GenericPreset<?> shiftPreset = displayedList.get(newIndex);
+
+        //check the preset is actually loaded by this IPresetLoader
+        if(!canLoadPreset(preset) || !canLoadPreset(shiftPreset)){
+            return false;
+        }
+
+        int oldGlobalIndex = presets.indexOf(preset);
+        int newGlobalIndex = presets.indexOf(shiftPreset);
+
+        presets.remove(preset);
+        presets.add(newGlobalIndex < oldGlobalIndex ? newGlobalIndex : newGlobalIndex, cast(preset));
+
+        //Recreate the sub type list, to match the new order of the presets
+        if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()) {
+            List<GenericPreset<DATA>> subTypePresets = presetsByType.get(preset.getPresetSubType());
+            subTypePresets.clear();
+            presets.stream().filter(p -> p.getPresetSubType().equals(preset.getPresetSubType())).forEach(subTypePresets::add);
+
+        }
+        markDirty();
+        return true;
+    }
+
+    @Override
     public GenericPreset<DATA> editPreset(GenericPreset<DATA> oldPreset, GenericPreset<DATA> editPreset){
         if(editPreset == null){
             return oldPreset;
         }
 
-        //If the edited preset was a system default we can't override it so just registered the edited version instead
+        //If the edited preset was a system default try to override it
         if(oldPreset.isSystemPreset()){
+            editPreset.overridesSystemPreset = true;
             addPreset(editPreset);
             return editPreset;
         }
 
-        logPresetAction("Replacing", oldPreset);
-        logPresetAction("Editing", editPreset);
+        logPresetAction(Level.INFO,"Replacing", oldPreset);
+        logPresetAction(Level.INFO,"Editing", editPreset);
 
         boolean isMainDefault = oldPreset == getDefaultPreset();
         boolean isSubTypeDefault = presetType.defaultsPerSubType && oldPreset == getDefaultPresetForSubType(oldPreset.getPresetSubType());
@@ -199,7 +341,6 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         return presets;
     }
 
-
     @Override
     public final ObservableList<GenericPreset<DATA>> getUserCreatedPresets(){
         return userPresets;
@@ -232,7 +373,8 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         if(preset == null){
             return;
         }
-        DBPreferences.INSTANCE.setDefaultPreset(getPresetType().id, preset.getPresetSubType() + ":" + preset.getPresetName());
+        DBPreferences.INSTANCE.setDefaultPreset(getPresetType(), preset);
+        updateDefaultPresetProperties();
     }
 
     @Override
@@ -240,24 +382,33 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         if(preset == null){
             return;
         }
-        DBPreferences.INSTANCE.setDefaultPreset(getPresetType().id + ":" + preset.getPresetSubType(), preset.getPresetName());
+        DBPreferences.INSTANCE.setDefaultPresetSubType(getPresetType(), preset);
+        updateDefaultPresetProperties();
     }
 
     @Override
     public void resetDefaultPreset(){
-        DBPreferences.INSTANCE.clearDefaultPreset(getPresetType().id);
+        DBPreferences.INSTANCE.clearDefaultPreset(getPresetType());
+        updateDefaultPresetProperties();
     }
 
     @Override
     public void resetDefaultPresetSubType(String subType){
-        DBPreferences.INSTANCE.clearDefaultPreset(getPresetType().id + ":" + subType);
+        DBPreferences.INSTANCE.clearDefaultPresetSubType(getPresetType(), subType);
+        updateDefaultPresetProperties();
+    }
+
+    public void updateDefaultPresetProperties(){
+        this.defaultPreset.set(getDefaultPreset());
+        this.subTypes.forEach(type -> defaultSubTypePreset.put(type, getDefaultPresetForSubType(type)));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public GenericPreset<DATA> createNewPreset(){
-        return createNewPreset("User", "New Preset", true);
+        String subType = getPresetType().getSubTypeBehaviour().isFixed() ? getDefaultPreset().getPresetSubType() : "User";
+        return createNewPreset(subType, "New Preset", true);
     }
 
     @Override
@@ -272,9 +423,15 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
     public GenericPreset<DATA> createEditablePreset(GenericPreset<DATA> preset) {
         GenericPreset<DATA> duplicatePreset = new GenericPreset<>(preset);
         duplicatePreset.userCreated = true;
-        if(preset.isSystemPreset()){ //don't override system presets
-            duplicatePreset.setPresetName(preset.getPresetName() + " - Copy");
-        }
+        enforceUniqueName(preset);
+        return duplicatePreset;
+    }
+
+    @Override
+    public GenericPreset<DATA> createOverridePreset(GenericPreset<DATA> systemPreset) {
+        GenericPreset<DATA> duplicatePreset = new GenericPreset<>(systemPreset);
+        duplicatePreset.userCreated = true;
+        duplicatePreset.overridesSystemPreset = true;
         return duplicatePreset;
     }
 
@@ -295,6 +452,8 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         if (!isDirty()) {
             dirty.set(true);
 
+            updateDefaultPresetProperties();
+
             //mark this preset loader as dirty so updates will be saved on the next tick
             JsonLoaderManager.INSTANCE.markDirty(this);
 
@@ -313,25 +472,53 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
     }
 
     @Override
-    public void loadFromJSON(){
-        PresetContainerJsonFile<DATA> presets = JsonLoaderManager.getOrCreateJSONFile(PresetContainerJsonFile.class, configFile, c -> new PresetContainerJsonFile<DATA>());
-        presets.jsonMap.forEach(preset -> {
-            if(preset != null && preset.data != null){
-                addPreset(preset);
+    public void loadFromJSON() {
+        PresetLoaderDataFile dataFile = JsonLoaderManager.getOrCreateJSONFile(PresetLoaderDataFile.class, configFile, c -> new PresetLoaderDataFile());
+        dataFile.jsonMap.forEach(preset -> {
+            if (preset != null && preset.data != null && canLoadPreset(preset)) {
+                preset.userCreated = true;
+                addPreset(cast(preset));
             }
         });
+
         onJSONLoaded();
-        DrawingBotV3.logger.info("Loaded JSON: %s, loaded %s presets".formatted(configFile.getName(), getPresets().size()));
+
+        //Sort the presets according to the saved order
+        if (!dataFile.presetOrder.isEmpty()) {
+            Comparator<GenericPreset<DATA>> comparator = Comparator.comparingInt(p -> {
+                int index = dataFile.presetOrder.indexOf(p.getPresetID());
+                if (index == -1) {
+                    //If the preset is new or hasn't been sorted, or is a new System Preset sort it by it's place in the loaded list
+                    return presets.indexOf(p);
+                }
+                return index;
+            });
+            presets.sort(comparator);
+            presetsByType.values().forEach(list -> list.sort(comparator));
+        }
+
+        //Hide system presets
+        if(!dataFile.hiddenSystemPresets.isEmpty()){
+            dataFile.hiddenSystemPresets.forEach(presetID -> {
+                GenericPreset<?> preset = findPresetFromID(presetID);
+                if(preset != null && preset.isSystemPreset()){
+                    preset.setEnabled(false);
+                }
+            });
+        }
     }
 
     @Override
     public void saveToJSON(){
         try {
-            List<GenericPreset<DATA>> presets = getSaveablePresets();
             Gson gson = JsonLoaderManager.createDefaultGson();
-            PresetContainerJsonFile<DATA> presetContainer = new PresetContainerJsonFile<>(presets);
+            PresetLoaderDataFile dateFile = new PresetLoaderDataFile();
+            dateFile.jsonMap = (List<GenericPreset<?>>)(Object)getSaveablePresets();
+            dateFile.presetOrder = getPresets().stream().map(GenericPreset::getPresetID).collect(Collectors.toList());
+            dateFile.hiddenSystemPresets = getPresets().stream().filter(f -> f.isSystemPreset() && !f.isEnabled()).map(GenericPreset::getPresetID).collect(Collectors.toList());
+
             JsonWriter writer = gson.newJsonWriter(new FileWriter(configFile));
-            gson.toJson(presetContainer, PresetContainerJsonFile.class, writer);
+            gson.toJson(dateFile, PresetLoaderDataFile.class, writer);
             writer.flush();
             writer.close();
             DrawingBotV3.logger.info("Updated JSON: %s, saved %s presets".formatted(configFile.getName(), presets.size()));
@@ -344,7 +531,9 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
     /**
      * called once all jsons have been loaded during the applications init
      */
-    protected void onJSONLoaded() {}
+    protected void onJSONLoaded() {
+        updateDefaultPresetProperties();
+    }
 
 
 

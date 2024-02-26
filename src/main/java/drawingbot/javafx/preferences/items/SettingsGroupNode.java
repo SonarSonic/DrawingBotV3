@@ -1,4 +1,4 @@
-package drawingbot.javafx.editors;
+package drawingbot.javafx.preferences.items;
 
 import drawingbot.javafx.GenericSetting;
 import javafx.beans.Observable;
@@ -17,6 +17,7 @@ import java.util.List;
  * A {@link ElementNode} which wraps around a DrawingBotV3 {@link GenericSetting}
  * It will take the settings names and editors which edit the values live (e.g. sliders) will notify the setting when the value is changing with {@link GenericSetting#setValueChanging(boolean)}
  */
+@Deprecated
 public class SettingsGroupNode extends ElementNode {
 
     public List<GenericSetting<?, ?>> settings = new ArrayList<>();
@@ -27,7 +28,7 @@ public class SettingsGroupNode extends ElementNode {
     }
 
     public Node createEditor() {
-        return Editors.createNodeEditorGroupSetting(settings);
+        return null;//PropertyTree.createNodeEditorGroupSetting(settings); FIXME
     }
 
     public void addElement(PageBuilder builder) {

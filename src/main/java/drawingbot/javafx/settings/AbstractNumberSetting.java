@@ -1,9 +1,8 @@
 package drawingbot.javafx.settings;
 
 import drawingbot.javafx.GenericSetting;
-import drawingbot.utils.Utils;
-import javafx.scene.Node;
-import javafx.scene.control.Slider;
+import drawingbot.javafx.editors.Editors;
+import drawingbot.javafx.editors.IEditorFactory;
 
 public abstract class AbstractNumberSetting<C, V extends Number> extends GenericSetting<C, V> {
 
@@ -18,6 +17,7 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
     public boolean snapToTicks;
 
     public boolean displaySlider = true;
+    public boolean labelledSlider = true;
 
     protected AbstractNumberSetting(AbstractNumberSetting<C, V> toCopy, V newValue) {
         super(toCopy, newValue);
@@ -60,78 +60,22 @@ public abstract class AbstractNumberSetting<C, V extends Number> extends Generic
         return this;
     }
 
+    public AbstractNumberSetting<C, V> setLabelledSlider(boolean labelledSlider) {
+        this.labelledSlider = labelledSlider;
+        return this;
+    }
+
     public AbstractNumberSetting<C, V> setDisplaySlider(boolean displaySlider) {
         this.displaySlider = displaySlider;
         return this;
     }
 
     @Override
-    public boolean hasCustomEditor() {
-        return isRanged; //Only show the slider for ranged Number Settings
-    }
-
-    @Override
-    public Node createJavaFXNode(boolean label) {
+    public IEditorFactory<V> defaultEditorFactory() {
         if(!isRanged || !displaySlider){
-            return getEditableTextField();
+            return Editors::createGenericTextField; //TODO USE NUMBER TEXT FIELD?
         }
-
-        //graphics
-        Slider slider = new Slider();
-        slider.setMin(safeMinValue.doubleValue());
-        slider.setMax(safeMaxValue.doubleValue());
-        slider.setValue(value.getValue().doubleValue());
-
-        double[] initialValue = new double[1];
-        boolean[] outOfRange = new boolean[1];
-        outOfRange[0] = !Utils.within(value.getValue().doubleValue(), safeMinValue.doubleValue(), safeMaxValue.doubleValue());
-
-        //bindings
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            //If the value isn't at the maximum extent of the slider, then the slider has been moved and is no longer out of range
-            if(!outOfRange[0] || (newValue.doubleValue() != safeMaxValue.doubleValue() && newValue.doubleValue() != safeMinValue.doubleValue())){
-                setValue(fromNumber(newValue));
-
-                //If the user clicks on the slider but doesn't drag it.
-                if(!isValueChanging()){
-                    sendUserEditedEvent();
-                }
-            }
-        });
-        slider.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
-            setValueChanging(newValue);
-            if(!oldValue && newValue){
-                initialValue[0] = slider.getValue();
-            }
-            if(!newValue && oldValue){
-                double finalValue = slider.getValue();
-                setValue(fromNumber(finalValue));
-                sendUserEditedEvent();
-            }
-        });
-        value.addListener((observable, oldValue, newValue) -> {
-            //if(!slider.isValueChanging()){
-            outOfRange[0] = !Utils.within(newValue.doubleValue(), safeMinValue.doubleValue(), safeMaxValue.doubleValue());
-            if(!outOfRange[0]){
-                slider.setValue(newValue.doubleValue());
-            }else{
-                slider.setValue(newValue.doubleValue() >= safeMaxValue.doubleValue() ? safeMaxValue.doubleValue() : safeMinValue.doubleValue());
-
-                //The slider won't send edit events if the value is out of the safe range
-                sendUserEditedEvent();
-            }
-            //}
-        });
-
-        if(label){
-            //show markings
-            slider.setMajorTickUnit(majorTick == null ? Math.min(Integer.MAX_VALUE, Math.abs(safeMaxValue.doubleValue()-safeMinValue.doubleValue())) : majorTick.doubleValue());
-            slider.setShowTickLabels(true);
-            slider.setShowTickMarks(true);
-            slider.setSnapToTicks(snapToTicks);
-        }
-
-        return slider;
+        return Editors::createRangedNumberEditor;
     }
 
     public abstract V fromNumber(Number number);

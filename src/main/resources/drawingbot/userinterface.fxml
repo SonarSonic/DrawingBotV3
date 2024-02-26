@@ -34,7 +34,7 @@
                                    <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />
                               </TitledPane>
                               <TitledPane fx:id="titledPaneImageProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
-                                   <fx:include fx:id="imageFilters" source="javafx/controllers/imagefilters.fxml" />
+                                   <fx:include fx:id="imageFilters" source="javafx/controllers/imageprocessing.fxml" />
                               </TitledPane>
                               <TitledPane fx:id="titledPanePathFindingControls" expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
                                    <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml" />

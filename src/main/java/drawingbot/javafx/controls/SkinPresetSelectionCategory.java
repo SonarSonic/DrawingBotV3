@@ -5,21 +5,22 @@ import javafx.scene.control.SkinBase;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-public class SkinPresetSelectionCategory<TARGET, DATA> extends SkinBase<ControlPresetSelectionCategory<TARGET, DATA>> {
+public class SkinPresetSelectionCategory<TARGET, DATA> extends SkinBase<ControlPresetSelectorCategory<TARGET, DATA>> {
 
     protected HBox hBox;
     protected ComboBox<String> comboBox;
-    protected ControlPresetSelection<TARGET, DATA> internalPresetSelection;
+    protected ControlPresetSelector<TARGET, DATA> internalPresetSelection;
 
-    protected SkinPresetSelectionCategory(ControlPresetSelectionCategory<TARGET, DATA> control) {
+    protected SkinPresetSelectionCategory(ControlPresetSelectorCategory<TARGET, DATA> control) {
         super(control);
 
         comboBox = createComboBox(control);
 
-        internalPresetSelection = new ControlPresetSelection<>();
+        internalPresetSelection = new ControlPresetSelector<>();
         internalPresetSelection.presetManagerProperty().bind(control.presetManagerProperty());
         internalPresetSelection.activePresetProperty().bindBidirectional(control.activePresetProperty()); //bi-directional to allow selection
         internalPresetSelection.availablePresetsProperty().bind(control.categoryPresetListProperty());
+        internalPresetSelection.presetFilterProperty().bind(control.presetFilterProperty());
         internalPresetSelection.targetProperty().bind(control.targetProperty());
         internalPresetSelection.comboBoxFactoryProperty().bind(control.comboBoxFactoryProperty());
         internalPresetSelection.disablePresetMenuProperty().bind(control.disablePresetMenuProperty());
@@ -36,7 +37,7 @@ public class SkinPresetSelectionCategory<TARGET, DATA> extends SkinBase<ControlP
     }
 
     private void refreshComboBox(){
-        ControlPresetSelectionCategory<TARGET, DATA> control = getSkinnable();
+        ControlPresetSelectorCategory<TARGET, DATA> control = getSkinnable();
         ComboBox<String> oldComboBox = comboBox;
         ComboBox<String> newComboBox = createComboBox(control);
 
@@ -45,7 +46,7 @@ public class SkinPresetSelectionCategory<TARGET, DATA> extends SkinBase<ControlP
         comboBox = newComboBox;
     }
 
-    private ComboBox<String> createComboBox(ControlPresetSelectionCategory<TARGET, DATA> control){
+    private ComboBox<String> createComboBox(ControlPresetSelectorCategory<TARGET, DATA> control){
         ComboBox<String> categoryComboBox = control.getCategoryComboBoxFactory() != null ? control.getCategoryComboBoxFactory().get() : new ComboBox<>();
         if(categoryComboBox.getPromptText() == null){
             categoryComboBox.setPromptText("Category");
@@ -58,7 +59,7 @@ public class SkinPresetSelectionCategory<TARGET, DATA> extends SkinBase<ControlP
         return categoryComboBox;
     }
 
-    private void destroyComboBox(ControlPresetSelectionCategory<TARGET, DATA> control, ComboBox<String> comboBox){
+    private void destroyComboBox(ControlPresetSelectorCategory<TARGET, DATA> control, ComboBox<String> comboBox){
         comboBox.valueProperty().unbindBidirectional(control.activeCategoryProperty());
         comboBox.itemsProperty().unbind();
     }
