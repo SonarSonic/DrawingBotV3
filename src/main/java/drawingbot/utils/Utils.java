@@ -6,6 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -106,6 +109,32 @@ public class Utils {
                 .replace("\f", "\\f")
                 .replace("\'", "\\'")
                 .replace("\"", "\\\"");
+    }
+
+    public static String uniqueName(String name, Function<String, Boolean> isUnique){
+        if(isUnique.apply(name)){
+            return name;
+        }
+        String baseName = name;
+        int tryNumber = 1;
+
+        //Check if the name already contains a trailing number, in which case start incrementing from there
+        Pattern pattern = Pattern.compile("(\\d*)");
+        Matcher match = pattern.matcher(baseName);
+        if(match.matches()){
+            String lastGroup = match.group(match.groupCount());
+            tryNumber = Integer.parseInt(lastGroup);
+            baseName = baseName.substring(0, match.start(match.groupCount()));
+        }else{
+            baseName = baseName + " ";
+        }
+        String testName;
+        for (;; tryNumber++){
+            testName = baseName + tryNumber;
+            if(isUnique.apply(testName)){
+                return testName;
+            }
+        }
     }
 
     public static <T> void addAllReverse(List<T> src, List<T> dst, boolean reverse){
