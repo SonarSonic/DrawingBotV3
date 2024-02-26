@@ -61,7 +61,7 @@ project.setApplicationName(app_name)
 application {
     mainClassName  = 'drawingbot.Launcher'
     applicationName = 'drawingbot'
-    applicationDefaultJvmArgs = ["-Dprism.verbose=true", "-Dprism.maxvram=1G", "-Xmx16G", "-Dprism.maxTextureSize=0"]
+    applicationDefaultJvmArgs = ["-Dprism.verbose=true", "-Dprism.maxTextureSize=0"]
 }
 
 runtime {
