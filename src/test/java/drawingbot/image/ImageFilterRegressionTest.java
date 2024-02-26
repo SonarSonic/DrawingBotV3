@@ -66,10 +66,10 @@ public class ImageFilterRegressionTest {
     @Test
     public void testPreCropping() {
 
-        DrawingBotV3.project().getOpenImage().cropStartX.set(305);
-        DrawingBotV3.project().getOpenImage().cropStartY.set(25);
-        DrawingBotV3.project().getOpenImage().cropWidth.set(250);
-        DrawingBotV3.project().getOpenImage().cropHeight.set(250);
+        DrawingBotV3.project().getOpenImage().getImageCropping().setCropStartX(305);
+        DrawingBotV3.project().getOpenImage().getImageCropping().setCropStartY(25);
+        DrawingBotV3.project().getOpenImage().getImageCropping().setCropWidth(250);
+        DrawingBotV3.project().getOpenImage().getImageCropping().setCropHeight(250);
 
         PFMFactory<?> factory = MasterRegistry.INSTANCE.getPFMFactory("Sketch Lines PFM");
         PFMTask pfmTask = runPFMTest(PFMTaskBuilder.create(DrawingBotV3.context(), factory).createPFMTask());

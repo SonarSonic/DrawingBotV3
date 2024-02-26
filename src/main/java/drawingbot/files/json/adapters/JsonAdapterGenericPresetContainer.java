@@ -7,6 +7,7 @@ import drawingbot.javafx.GenericPreset;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 
 public class JsonAdapterGenericPresetContainer  implements JsonSerializer<PresetContainerJsonFile>, JsonDeserializer<PresetContainerJsonFile> {
 
@@ -30,6 +31,7 @@ public class JsonAdapterGenericPresetContainer  implements JsonSerializer<Preset
             }
         }else if(jsonObject.has("jsonMap")){
             containerJsonFile.jsonMap = context.deserialize(jsonObject.get("jsonMap"), presetsType);
+            containerJsonFile.jsonMap.removeIf(Objects::isNull);
         }
         return containerJsonFile;
     }
