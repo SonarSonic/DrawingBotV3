@@ -72,6 +72,9 @@ public class FXPFMControls extends AbstractFXController {
             }
 
             if(newValue != null){
+                if(newValue.selectedPreset.get() == null){
+                    newValue.setSelectedPreset(Register.PRESET_LOADER_PFM.getDefaultPresetForSubType(newValue.getPFMFactory().getRegistryName()));
+                }
                 comboBoxPFM.valueProperty().bindBidirectional(newValue.factory);
                 controlPFMPreset.setAvailablePresets(MasterRegistry.INSTANCE.getObservablePFMPresetList(newValue.factory.get()));
                 controlPFMPreset.activePresetProperty().bindBidirectional(newValue.selectedPresetProperty());

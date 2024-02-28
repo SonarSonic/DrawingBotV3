@@ -172,7 +172,7 @@ public class DefaultPresetEditor<TARGET, DATA> implements IPresetEditor<TARGET, 
     }
 
     @Override
-    public final GenericPreset<?> confirmEdit(){
+    public final GenericPreset<?> confirmEdit(boolean newPreset){
         updatePreset();
         if(selectedPreset.get().isSystemPreset()){
             DialogSystemPresetDuplicate.Result result = DialogSystemPresetDuplicate.openSystemPresetDialog(selectedPreset.get());
@@ -192,9 +192,16 @@ public class DefaultPresetEditor<TARGET, DATA> implements IPresetEditor<TARGET, 
             }
             return null;
         }
-        GenericPreset<?> resultPreset = manager.getPresetLoader().editPreset(selectedPreset.get(), new GenericPreset<>(editingPreset.get()));
-        FXHelper.logPresetAction(resultPreset, "Edited");
-        return resultPreset;
+        if(newPreset){
+            GenericPreset<DATA> resultPreset = new GenericPreset<>(editingPreset.get());
+            manager.getPresetLoader().addPreset(resultPreset);
+            FXHelper.logPresetAction(resultPreset, "Created");
+            return resultPreset;
+        }else{
+            GenericPreset<?> resultPreset = manager.getPresetLoader().editPreset(selectedPreset.get(), new GenericPreset<>(editingPreset.get()));
+            FXHelper.logPresetAction(resultPreset, "Edited");
+            return resultPreset;
+        }
     }
 
     @Override

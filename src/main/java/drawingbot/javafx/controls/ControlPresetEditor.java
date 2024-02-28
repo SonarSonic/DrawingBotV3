@@ -33,7 +33,7 @@ public class ControlPresetEditor extends Control {
                 //Prevent clashes with the existing editor
                 setEditingPreset(null);
 
-                if(getEditor() == null || getEditor().getPresetType() != newValue.getPresetType()){
+                if(!hasCustomEditor() && (getEditor() == null || getEditor().getPresetType() != newValue.getPresetType())){
                     IPresetManager<?, ?> manager = MasterRegistry.INSTANCE.getDefaultPresetManager(newValue);
                     IPresetEditor<?, ?> editor = manager.createPresetEditor();
                     setEditor(editor);
@@ -41,7 +41,9 @@ public class ControlPresetEditor extends Control {
 
                 updateEditingPreset(newValue);
             }else{
-                setEditor(null);
+                if(!hasCustomEditor()){
+                    setEditor(null);
+                }
                 setEditingPreset(null);
             }
         });
@@ -86,9 +88,9 @@ public class ControlPresetEditor extends Control {
         updateEditingPreset(getSelectedPreset());
     }
 
-    public GenericPreset<?> confirmEdit(){
+    public GenericPreset<?> confirmEdit(boolean newPreset){
         if(getEditor() != null){
-            return getEditor().confirmEdit();
+            return getEditor().confirmEdit(newPreset);
         }
         return null;
     }
@@ -149,12 +151,29 @@ public class ControlPresetEditor extends Control {
         return editor.get();
     }
 
-    public ObjectProperty<IPresetEditor<?, ?>> editorProperty() {
+    public ReadOnlyObjectProperty<IPresetEditor<?, ?>> editorProperty() {
         return editor;
     }
 
-    public void setEditor(IPresetEditor<?, ?> editor) {
+    private void setEditor(IPresetEditor<?, ?> editor) {
         this.editor.set(editor);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    public BooleanProperty customEditor = new SimpleBooleanProperty(false);
+
+    public boolean hasCustomEditor() {
+        return customEditor.get();
+    }
+
+    public BooleanProperty customEditorProperty() {
+        return customEditor;
+    }
+
+    public void setCustomEditor(IPresetEditor<?, ?> customEditor) {
+        this.customEditor.set(true);
+        this.editor.set(customEditor);
     }
 
     ////////////////////////////////////////////////////////

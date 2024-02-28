@@ -58,9 +58,7 @@ public class MasterRegistry {
 
             //Attempt 1: Try to find the preset from code name, which is more accurate and likely to match the correct prest
             if(name.contains(":")){
-                String[] parts = name.split(":");
-                GenericPreset<DATA> preset = loader.findPreset(name);
-                preset = loader.findPreset(parts[0], parts[1]);
+                GenericPreset<DATA> preset = loader.findPresetFromID(name);
                 if(preset != null){
                     return preset;
                 }

@@ -462,15 +462,7 @@ public class FXHelper {
             return null;
         }
         manager.updatePreset(DrawingBotV3.context(), target, newPreset);
-        boolean result = DialogPresetEdit.openPresetNewDialog(manager, newPreset, isInspector);
-        if(result){
-            manager.getPresetLoader().addPreset(newPreset);
-
-            logPresetAction(newPreset, "Created");
-
-            return newPreset;
-        }
-        return null;
+        return DialogPresetEdit.openPresetNewDialog(manager, newPreset, isInspector);
     }
 
 
@@ -492,18 +484,7 @@ public class FXHelper {
     }
 
     public static <TARGET, DATA>  GenericPreset<DATA> actionEditPreset(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> preset, TARGET target, boolean isInspector){
-        GenericPreset<DATA> oldPreset = preset;
-        preset = createEditablePreset(manager, preset);
-        if(preset == null){
-            return null;
-        }
-        boolean result = DialogPresetEdit.openPresetEditDialog(manager, preset, isInspector);
-        if(result){
-            GenericPreset<DATA> resultPreset = manager.getPresetLoader().editPreset(oldPreset, preset);
-            logPresetAction(resultPreset, "Edited");
-            return resultPreset;
-        }
-        return null;
+        return DialogPresetEdit.openPresetEditDialog(manager, preset, isInspector);
     }
 
     public static <DATA>  GenericPreset<DATA> actionDuplicatePreset(GenericPreset<DATA> preset){

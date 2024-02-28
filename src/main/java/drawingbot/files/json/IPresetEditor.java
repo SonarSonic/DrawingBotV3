@@ -54,7 +54,7 @@ public interface IPresetEditor<TARGET, DATA> {
 
     void setDetailed(boolean detailed);
 
-    GenericPreset<?> confirmEdit();
+    GenericPreset<?> confirmEdit(boolean newPreset);
 
     void updatePreset();
 }

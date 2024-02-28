@@ -10,6 +10,7 @@ import drawingbot.javafx.controls.ControlPFMSettingsEditor;
 import drawingbot.javafx.editors.EditorContext;
 import drawingbot.javafx.preferences.items.AbstractPropertyNode;
 import drawingbot.javafx.preferences.items.TreeNode;
+import drawingbot.javafx.util.JFXUtils;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.registry.MasterRegistry;
 import javafx.beans.Observable;
@@ -31,9 +32,6 @@ public class PresetPFMSettingsEditor extends DefaultPresetEditor<PFMSettings, Pr
     @Override
     public void init(TreeNode editorNode) {
         super.init(editorNode);
-        if (!isDetailed()) {
-            return;
-        }
         ChangeListener<String> subTypeChangeListener = (observable, oldValue, newValue) -> {
             //Save the current preset settings
             HashMap<String, JsonElement> map = GenericSetting.toJsonMap(pfmSettings.getSettings(), new HashMap<>(), false);
@@ -44,7 +42,7 @@ public class PresetPFMSettingsEditor extends DefaultPresetEditor<PFMSettings, Pr
             GenericSetting.applySettings(map, pfmSettings.getSettings());
         };
 
-        editingPresetProperty().addListener((observable, oldValue, newValue) -> {
+        JFXUtils.subscribeListener(editingPresetProperty(), (observable, oldValue, newValue) -> {
             if(oldValue != null){
                 oldValue.presetSubTypeProperty().removeListener(subTypeChangeListener);
             }
@@ -53,6 +51,11 @@ public class PresetPFMSettingsEditor extends DefaultPresetEditor<PFMSettings, Pr
                 newValue.presetSubTypeProperty().addListener(subTypeChangeListener);
             }
         });
+
+        if (!isDetailed()) {
+            return;
+        }
+
         controlPFMSettingsEditor = new ControlPFMSettingsEditor();
         controlPFMSettingsEditor.pfmSettingsProperty().set(pfmSettings);
         controlPFMSettingsEditor.activePresetProperty().bind(selectedPresetProperty());

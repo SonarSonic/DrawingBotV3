@@ -264,10 +264,11 @@ public class FXPreferences extends AbstractFXController {
                                 }
                             }.setTitleStyling());
 
-                            PresetEditorNode presetEditorNode = new PresetEditorNode("GCode Editor");
                             PresetGCodeSettingsEditor editor = Register.PRESET_MANAGER_GCODE_SETTINGS.createPresetEditor();
                             editor.target.set(settings.gcodeSettings);
-                            presetEditorNode.getPresetEditor().setEditor(editor);
+
+                            PresetEditorNode presetEditorNode = new PresetEditorNode("GCode Editor");
+                            presetEditorNode.getPresetEditor().setCustomEditor(editor);
                             presetEditorNode.getPresetEditor().selectedPresetProperty().bind(settings.selectedGCodePreset);
                             builder.add(presetEditorNode);
                     }

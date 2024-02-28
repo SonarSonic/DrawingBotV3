@@ -20,15 +20,15 @@ public class DialogPresetEdit<TARGET, DATA> extends DialogScrollPane {
         this.getDialogPane().setMaxHeight(500);
     }
 
-    public static <DATA, TARGET> boolean openPresetEditDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
-        return openPresetEditDialog("Edit " + selectedPreset.getPresetName(), manager, selectedPreset, isInspector);
+    public static <DATA, TARGET> GenericPreset<DATA> openPresetEditDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
+        return openPresetEditDialog("Edit " + selectedPreset.getPresetName(), manager, selectedPreset, isInspector, false);
     }
 
-    public static <DATA, TARGET> boolean openPresetNewDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
-        return openPresetEditDialog("New " + selectedPreset.getPresetType().getDisplayName(), manager, selectedPreset, isInspector);
+    public static <DATA, TARGET> GenericPreset<DATA> openPresetNewDialog(IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
+        return openPresetEditDialog("New " + selectedPreset.getPresetType().getDisplayName(), manager, selectedPreset, isInspector, true);
     }
 
-    public static <DATA, TARGET> boolean openPresetEditDialog(String message, IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector) {
+    public static <DATA, TARGET> GenericPreset<DATA> openPresetEditDialog(String message, IPresetManager<TARGET, DATA> manager, GenericPreset<DATA> selectedPreset, boolean isInspector, boolean isNewPreset) {
         ControlPresetEditor control = new ControlPresetEditor();
         control.setDetailed(isInspector);
         control.setSelectedPreset(selectedPreset);
@@ -36,14 +36,14 @@ public class DialogPresetEdit<TARGET, DATA> extends DialogScrollPane {
         dialog.initOwner(FXApplication.primaryStage);
         Optional<Boolean> result = dialog.showAndWait();
         if(result.isPresent() && !result.get()){
-            return false;
+            return null;
         }
 
-        control.confirmEdit();
+        GenericPreset<?> resultPreset = control.confirmEdit(isNewPreset);
 
         //Ensure the the editor / ui components are disposed
         control.setSelectedPreset(null);
 
-        return true;
+        return (GenericPreset<DATA>) resultPreset;
     }
 }

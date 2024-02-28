@@ -31,7 +31,6 @@ import javafx.util.converter.DefaultStringConverter;
 import org.controlsfx.control.action.Action;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -168,7 +167,7 @@ public class FXPresetManager extends AbstractFXController{
 
         buttonSaveChanges.setOnAction(e -> {
             GenericPreset<?> selected = controlPresetEditor.getSelectedPreset();
-            GenericPreset<?> preset = controlPresetEditor.confirmEdit();
+            GenericPreset<?> preset = controlPresetEditor.confirmEdit(false);
             if(preset == null || selected == preset){
                 return;
             }
@@ -342,7 +341,7 @@ public class FXPresetManager extends AbstractFXController{
         if(type.get() != null){
             IPresetLoader loader = MasterRegistry.INSTANCE.getPresetLoader(type.get());
             if(loader != null){
-                if(category.get() != null){
+                if(category.get() != null && !category.get().isEmpty()){
                     return loader.getPresetsForSubType(category.get());
                 }
                 return loader.getPresets();
