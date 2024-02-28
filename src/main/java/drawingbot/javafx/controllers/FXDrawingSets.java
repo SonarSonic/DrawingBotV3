@@ -71,6 +71,7 @@ public class FXDrawingSets extends AbstractFXController {
         drawingSets.addListener((observable, oldValue, newValue) -> {
 
             if(oldValue != null){
+                controlDrawingSetPreset.targetProperty().unbind();
                 comboBoxDrawingSets.valueProperty().unbindBidirectional(oldValue.activeDrawingSet);
                 onChangedActiveDrawingSet(oldValue.activeDrawingSet.get(), null);
                 oldValue.activeDrawingSet.removeListener(activeSetListener);
@@ -80,6 +81,7 @@ public class FXDrawingSets extends AbstractFXController {
             }
 
             if(newValue != null){
+                controlDrawingSetPreset.targetProperty().bind(newValue.activeDrawingSetProperty());
                 comboBoxDrawingSets.setItems(newValue.drawingSetSlots);
                 drawingSetTableView.setItems(drawingSets.get().drawingSetSlots);
 
@@ -93,7 +95,6 @@ public class FXDrawingSets extends AbstractFXController {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        controlDrawingSetPreset.targetProperty().bind(Bindings.select(drawingSets, "activeDrawingSet"));
         controlDrawingSetPreset.activePresetProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 controlDrawingSetPreset.applyPreset(DrawingBotV3.context());
