@@ -74,6 +74,7 @@ public class FXPresetManager extends AbstractFXController{
     public MenuItem menuButtonExportSelectedPresets;
     public Menu menuExportPerType;
     public MenuItem menuButtonExportAll;
+    public MenuButton menuButtonSortPresets;
 
     public enum FilterState{
         ALL(filter -> true),
@@ -212,6 +213,12 @@ public class FXPresetManager extends AbstractFXController{
             List<GenericPreset<?>> presets = types.stream().mapMulti((BiConsumer<PresetType, ? super Consumer<GenericPreset<?>>>)(type, consumer) -> MasterRegistry.INSTANCE.getPresetLoader(type).getSaveablePresets().forEach(consumer)).collect(Collectors.toList());
             actionExportPresets(presets);
         });
+
+        for(PresetSorting.SortOperations sortOperation : PresetSorting.SortOperations.values()){
+            MenuItem menuItem = new MenuItem(sortOperation.displayName);
+            menuItem.setOnAction(e -> sortOperation.sortPresets(MasterRegistry.INSTANCE.getPresetLoader(type.get()), filteredPresets.get()));
+            menuButtonSortPresets.getItems().add(menuItem);
+        }
 
     }
 

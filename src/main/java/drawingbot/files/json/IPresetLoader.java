@@ -7,7 +7,9 @@ import drawingbot.javafx.GenericPreset;
 import drawingbot.utils.ISpecialListenable;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -86,6 +88,7 @@ public interface IPresetLoader<DATA> extends ISpecialListenable<IPresetLoader.Li
      */
     ObservableList<GenericPreset<DATA>> getPresetsForSubType(String subType);
 
+
     /**
      * INTERNAL USE: Marks the presets as changed. Called by the {@link #addPreset(GenericPreset)}, {@link #removePreset(GenericPreset)} and {@link #editPreset(GenericPreset, GenericPreset)} methods.
      * Avoid calling from outside of the preset manager to prevent excessive json updates     *
@@ -157,7 +160,6 @@ public interface IPresetLoader<DATA> extends ISpecialListenable<IPresetLoader.Li
 
 
     ////////////////////////////
-
     /**
      * @return the current 'global' default preset, e.g. if a control provides the means to select the preset, this preset should be selected by default
      */
@@ -197,6 +199,10 @@ public interface IPresetLoader<DATA> extends ISpecialListenable<IPresetLoader.Li
      * @param project
      */
     void loadDefaults(DBTaskContext project);
+
+    void restoreDefaultOrder(@Nullable List<GenericPreset<?>> displayedList);
+
+    void sortPresets(Comparator<GenericPreset<?>> comparator, @Nullable List<GenericPreset<?>> displayedList);
 
     ////////////////////////////
 

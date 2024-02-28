@@ -21,13 +21,11 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -47,6 +45,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
     public final ObjectProperty<GenericPreset<DATA>> defaultPreset = new SimpleObjectProperty<>();
     public final ObservableMap<String, GenericPreset<DATA>> defaultSubTypePreset = FXCollections.observableHashMap();
+    private List<String> loadedOrder = new ArrayList<>();
 
     public AbstractPresetLoader(Class<DATA> dataType, PresetType presetType, String configFile) {
         this.presetType = presetType;
@@ -276,12 +275,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         presets.add(newGlobalIndex < oldGlobalIndex ? newGlobalIndex : newGlobalIndex, cast(preset));
 
         //Recreate the sub type list, to match the new order of the presets
-        if(preset.getPresetSubType() != null && !preset.getPresetSubType().isEmpty()) {
-            List<GenericPreset<DATA>> subTypePresets = presetsByType.get(preset.getPresetSubType());
-            subTypePresets.clear();
-            presets.stream().filter(p -> p.getPresetSubType().equals(preset.getPresetSubType())).forEach(subTypePresets::add);
-
-        }
+        refreshSubTypeListOrder(preset.getPresetSubType());
         markDirty();
         return true;
     }
@@ -333,6 +327,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         return result;
     }
 
+
     /**
      * @return all registered presets
      */
@@ -354,6 +349,18 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
     @Override
     public ObservableList<GenericPreset<DATA>> getPresetsForSubType(String subType){
         return presetsByType.getOrDefault(subType, FXCollections.observableArrayList());
+    }
+
+    public void refreshSubTypeListOrder(){
+        subTypes.forEach(this::refreshSubTypeListOrder);
+    }
+
+    public void refreshSubTypeListOrder(String subType){
+        if(subType != null && !subType.isEmpty()) {
+            List<GenericPreset<DATA>> subTypePresets = presetsByType.get(subType);
+            subTypePresets.clear();
+            presets.stream().filter(p -> p.getPresetSubType().equals(subType)).forEach(subTypePresets::add);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -483,18 +490,40 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
         onJSONLoaded();
 
+        loadedOrder = getPresets().stream().map(GenericPreset::getPresetID).collect(Collectors.toList());
+
         //Sort the presets according to the saved order
         if (!dataFile.presetOrder.isEmpty()) {
-            Comparator<GenericPreset<DATA>> comparator = Comparator.comparingInt(p -> {
-                int index = dataFile.presetOrder.indexOf(p.getPresetID());
-                if (index == -1) {
-                    //If the preset is new or hasn't been sorted, or is a new System Preset sort it by it's place in the loaded list
-                    return presets.indexOf(p);
+
+            List<GenericPreset<DATA>> orderedPresets = dataFile.presetOrder.stream().map(this::findPresetFromID).filter(Objects::nonNull).collect(Collectors.toList());
+
+            //Find all unordered presets we should place them in a logical position
+            for(GenericPreset<DATA> preset : presets){
+                if(!orderedPresets.contains(preset)){
+                    List<GenericPreset<DATA>> subTypeOrder = orderedPresets.stream().filter(p -> p.getPresetSubType().equals(preset.getPresetSubType())).collect(Collectors.toList());
+
+                    if(subTypeOrder.isEmpty()){
+                        //No matches, place it at the end of the list
+                        orderedPresets.add(preset);
+                    }else{
+                        //Attempt to place the system preset AFTER all original system presets
+                        if(preset.overridesSystemPreset && preset.isSystemPreset()){
+                            List<GenericPreset<DATA>> subTypeOrderSystem = subTypeOrder.stream().filter(p -> (p.isSystemPreset() || p.overridesSystemPreset)).collect(Collectors.toList());
+                            if(!subTypeOrderSystem.isEmpty()){
+                                orderedPresets.add(orderedPresets.indexOf(subTypeOrderSystem.get(subTypeOrderSystem.size()-1))+1, preset);
+                                continue;
+                            }
+                        }
+                        //Attempt to place the preset AFTER all presets with the same sub type
+                        orderedPresets.add(orderedPresets.indexOf(subTypeOrder.get(subTypeOrder.size()-1))+1, preset);
+                    }
                 }
-                return index;
-            });
-            presets.sort(comparator);
-            presetsByType.values().forEach(list -> list.sort(comparator));
+            }
+
+            //Apply the correct order to the preset list
+            presets.clear();
+            presets.addAll(orderedPresets);
+            refreshSubTypeListOrder();
         }
 
         //Hide system presets
@@ -527,6 +556,53 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
         }
     }
 
+    @Override
+    public void restoreDefaultOrder(@Nullable List<GenericPreset<?>> displayedList){
+        List<GenericPreset<DATA>> originalOrder = loadedOrder.stream().map(this::findPresetFromID).collect(Collectors.toList());
+
+        List<GenericPreset<DATA>> newOrder = new ArrayList<>();
+
+        for(String subType : getPresetSubTypes()){
+            //Add all system presets from the sub type in their loaded order
+            originalOrder.stream().filter(p -> (p.overridesSystemPreset || p.isSystemPreset()) && p.getPresetSubType().equals(subType)).forEach(newOrder::add);
+
+            //Add any user presets in their current order
+            getPresetsForSubType(subType).stream().filter(p -> !newOrder.contains(p)).forEach(newOrder::add);
+        }
+
+        if(displayedList == null){
+            getPresets().clear();
+            getPresets().addAll(newOrder);
+            refreshSubTypeListOrder();
+        }else{
+            List<GenericPreset<DATA>> newDisplayedOrder = newOrder.stream().filter(displayedList::contains).collect(Collectors.toList());
+
+            for(int i = 0; i < displayedList.size(); i++){
+                getPresets().set(getPresets().indexOf(displayedList.get(i)), cast(newDisplayedOrder.get(i)));
+            }
+
+            refreshSubTypeListOrder();
+        }
+        markDirty();
+    }
+
+    @Override
+    public void sortPresets(Comparator<GenericPreset<?>> comparator, @Nullable List<GenericPreset<?>> displayedList) {
+        if(displayedList == null){
+            getPresets().sort(comparator);
+            refreshSubTypeListOrder();
+        }else{
+            List<GenericPreset<?>> sorted = new ArrayList<>(displayedList);
+            sorted.sort(comparator);
+
+            for(int i = 0; i < displayedList.size(); i++){
+                getPresets().set(getPresets().indexOf(displayedList.get(i)), cast(sorted.get(i)));
+            }
+
+            refreshSubTypeListOrder();
+        }
+        markDirty();
+    }
 
     /**
      * called once all jsons have been loaded during the applications init

@@ -61,6 +61,11 @@
                                    <Glyph fontFamily="FontAwesome" icon="ARROW_DOWN" />
                                </graphic>
                            </Button>
+                           <MenuButton fx:id="menuButtonSortPresets" mnemonicParsing="false" prefHeight="24.0" prefWidth="70.0">
+                               <graphic>
+                                   <Glyph fontFamily="FontAwesome" icon="SORT" />
+                               </graphic>
+                           </MenuButton>
                        </children>
                      <padding>
                         <Insets left="4.0" right="4.0" />

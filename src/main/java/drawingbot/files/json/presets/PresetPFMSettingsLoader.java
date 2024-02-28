@@ -34,6 +34,10 @@ public class PresetPFMSettingsLoader extends AbstractPresetLoader<PresetData> {
             }
             return MasterRegistry.INSTANCE.pfmFactories.indexOf(factory);
         }));
+
+        presets.sort(Comparator.comparingInt(preset -> {
+            return subTypes.indexOf(preset.getPresetSubType());
+        }));
     }
 
 
