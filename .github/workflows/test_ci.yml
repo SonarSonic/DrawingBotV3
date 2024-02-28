@@ -1,9 +1,6 @@
 name: Test CI
 
-on:
-  workflow_dispatch: # Note: Visual regression tests require a PR or Commit
-  push:
-  pull_request:
+on: [push, pull_request] # Note: Visual regression tests require a PR or Commit
 
 jobs:
 
