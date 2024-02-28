@@ -5,7 +5,6 @@ import drawingbot.FXApplication;
 import drawingbot.api.ISettings;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
-import drawingbot.files.FileUtils;
 import drawingbot.files.exporters.GCodeSettings;
 import drawingbot.files.json.PresetData;
 import drawingbot.files.json.PresetType;
@@ -93,8 +92,6 @@ public class DBPreferences implements ISettings {
     //// FILES \\\\
     public final StringSetting<?> defaultImportDirectory = (StringSetting<?>) register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultImportDirectory", "").setEditorFactory((context, prop) -> Editors.createDirectoryPicker(context, prop, () -> DrawingBotV3.project().getImportDirectory())));
     public final StringSetting<?> defaultExportDirectory = (StringSetting<?>) register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultExportDirectory", "").setEditorFactory((context, prop) -> Editors.createDirectoryPicker(context, prop, () -> DrawingBotV3.project().getExportDirectory())));
-    public final StringSetting<?> defaultFILETEST = (StringSetting<?>) register(createStringSetting(DBPreferences.class, CATEGORY_GENERAL, "defaultfiletest", "").setEditorFactory((context, prop) -> Editors.createFilePicker(context, prop, () -> DrawingBotV3.project().getExportDirectory(), "Test", FileUtils.FILTER_HPGL)));
-
 
     ///////////////////////////////////////////////
 

@@ -130,7 +130,6 @@ public class FXPreferences extends AbstractFXController {
                             new LabelNode("Default Folders").setTitleStyling(),
                             new SettingNode<>("Import Folder", settings.defaultImportDirectory),
                             new SettingNode<>("Export Folder", settings.defaultExportDirectory),
-                            new SettingNode<>("FILE TEST", settings.defaultFILETEST),
                             new LabelNode("Advanced").setTitleStyling(),
                             new SettingNode<>("High Quality Mode DPI", settings.importDPI),
 

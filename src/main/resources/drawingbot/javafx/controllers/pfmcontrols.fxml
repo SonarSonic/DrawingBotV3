@@ -10,8 +10,8 @@
       <children>
       <HBox spacing="4.0">
          <children>
-            <ChoiceBox fx:id="choiceBoxPFMCategory" prefWidth="150.0" />
-                  <ComboBox fx:id="comboBoxPFM" prefHeight="25.0" prefWidth="246.0" visibleRowCount="100" />
+            <ChoiceBox fx:id="choiceBoxPFMCategory" prefWidth="100.0" />
+            <ComboBox fx:id="comboBoxPFM" prefHeight="25.0" prefWidth="246.0" visibleRowCount="100" />
          </children>
       </HBox>
           <Separator prefHeight="3.0" prefWidth="412.0" />

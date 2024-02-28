@@ -76,7 +76,7 @@ public class JFXUtils {
             if(oldValue != null){
                 Property<VALUE> oldTarget = select.apply(oldValue);
                 if(oldTarget != null){
-                    property.bindBidirectional(oldTarget);
+                    property.unbindBidirectional(oldTarget);
                 }
             }
             if(newValue != null){
