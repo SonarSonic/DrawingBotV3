@@ -305,10 +305,10 @@ public class PlottedDrawing {
                     g.onDistributionChanged();
                     g.needsDistribution = false;
                 });
-
-                //Force refresh the geometry stats
-                perPenGeometryStats = getPerPenGeometryStats(this);
             }
+
+            //Force refresh the geometry stats
+            perPenGeometryStats = getPerPenGeometryStats(this);
         }
     }
 
