@@ -136,7 +136,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         return pfmSettings;
     }
 
-    public void setPfmSettings(PFMSettings pfmSettings) {
+    public void setPFMSettings(PFMSettings pfmSettings) {
         this.pfmSettings.set(pfmSettings);
     }
 

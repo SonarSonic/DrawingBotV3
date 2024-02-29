@@ -2,6 +2,7 @@ package drawingbot.files.json.adapters;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import drawingbot.DrawingBotV3;
 import drawingbot.files.json.GsonHelper;
 import drawingbot.files.json.PresetData;
 import drawingbot.javafx.GenericPreset;
@@ -33,6 +34,14 @@ public class JsonAdapterPFMSettings implements JsonSerializer<PFMSettings>, Json
     public PFMSettings deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
         PFMSettings pfmSettings = new PFMSettings();
+
+        //Legacy: old PFMSettings were just saved as a PFM Preset
+        if(jsonObject.has(JsonAdapterGenericPreset.PRESET_TYPE) && jsonObject.has(JsonAdapterGenericPreset.PRESET_NAME)){
+            GenericPreset<PresetData> pfmPreset = context.deserialize(jsonObject, GenericPreset.class);
+            Register.PRESET_MANAGER_PFM.applyPreset(DrawingBotV3.context(), pfmSettings, pfmPreset, false);
+            return pfmSettings;
+        }
+        
         pfmSettings.setPFMFactory(GsonHelper.getObjectOrDefault(jsonObject, context, "pfmFactory", PFMFactory.class, MasterRegistry.INSTANCE.getDefaultPFM()));
 
         GenericPreset<PresetData> selectedPreset = null;
@@ -43,6 +52,7 @@ public class JsonAdapterPFMSettings implements JsonSerializer<PFMSettings>, Json
 
         HashMap<String, JsonElement> savedSettings = context.deserialize(jsonObject.getAsJsonObject("pfmSettings"), settingsMap);
         GenericSetting.applySettings(savedSettings, pfmSettings.getSettings());
+
         return pfmSettings;
     }
 

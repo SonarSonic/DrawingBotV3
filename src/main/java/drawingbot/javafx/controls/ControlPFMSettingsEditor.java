@@ -117,7 +117,7 @@ public class ControlPFMSettingsEditor extends VBox implements ISpecialListenable
             }
 
             if(newValue != null){
-                treeTableViewPFMSettings.rootProperty().bind(newValue.treeRoot);
+                treeTableViewPFMSettings.rootProperty().bind(newValue.treeRootProperty());
             }
         });
 

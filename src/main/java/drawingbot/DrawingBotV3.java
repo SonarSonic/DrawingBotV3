@@ -255,7 +255,7 @@ public class DrawingBotV3 {
         if(context.project().activeTask.get() != null){
             context.project().activeTask.get().cancel();
         }
-        if(context.project().openImage.get() != null || context.project.getPFMSettings().factory.get().isGenerativePFM()){
+        if(context.project().openImage.get() != null || context.project().getPFMFactory().isGenerativePFM()){
             taskMonitor.queueTask(PFMTaskBuilder.create(context).createPFMTask());
         }
     }

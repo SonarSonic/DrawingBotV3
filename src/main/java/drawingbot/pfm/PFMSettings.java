@@ -89,18 +89,33 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
     ///////////////////////////////////////////////
 
 
-    public final SimpleObjectProperty<TreeItem<GenericSetting<?, ?>>> treeRoot = new SimpleObjectProperty<>();
+    private SimpleObjectProperty<TreeItem<GenericSetting<?, ?>>> treeRoot;
 
     public TreeItem<GenericSetting<?, ?>> getTreeRoot() {
-        return treeRoot.get();
+        return treeRoot == null ? null : treeRoot.get();
     }
 
     public SimpleObjectProperty<TreeItem<GenericSetting<?, ?>>> treeRootProperty() {
+        if(treeRoot == null){
+            treeRoot = new SimpleObjectProperty<>();
+            treeRoot.set(generateGenericSettingsTree(settings.get()));
+            settings.addListener((observable, oldValue, newValue) -> {
+                if(oldValue != null){
+                    treeRoot.set(null);
+                }
+                if(newValue != null) {
+                    treeRoot.set(generateGenericSettingsTree(newValue));
+                }
+            });
+        }
         return treeRoot;
     }
 
     public void setTreeRoot(TreeItem<GenericSetting<?, ?>> treeRoot) {
-        this.treeRoot.set(treeRoot);
+        if(this.treeRoot == null && treeRoot == null){
+            return;
+        }
+        this.treeRootProperty().set(treeRoot);
     }
 
     ///////////////////////////////////////////////
@@ -108,14 +123,11 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
     {
         PropertyUtil.addSpecialListenerWithSubList(this, settings, (listener, val) -> {}, (listener, val) -> {});
 
-        treeRoot.set(generateGenericSettingsTree(settings.get()));
         settings.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
-                treeRoot.set(null);
                 GenericSetting.removeBindings(newValue);
             }
             if(newValue != null){
-                treeRoot.set(generateGenericSettingsTree(newValue));
                 GenericSetting.addBindings(newValue);
             }
         });

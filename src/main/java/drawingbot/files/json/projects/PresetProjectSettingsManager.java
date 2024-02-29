@@ -20,6 +20,7 @@ import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.UINodeState;
+import drawingbot.pfm.PFMSettings;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
@@ -141,21 +142,19 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_FILTERS, 0));
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_PFM, 0){
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader<>(PresetProjectSettings.class,"pfm_settings", 0) {
 
             @Override
             public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
-                if(preset.data.name == null || preset.data.name.isEmpty()){
-                    preset.data.name = context.project.getPFMSettings().getPFMFactory().getDisplayName();
-                }
-                return super.saveData(context, gson, preset);
+                return gson.toJsonTree(context.project().getPFMSettings(), PFMSettings.class);
             }
 
             @Override
             public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
-                super.loadData(context, gson, element, preset);
+                context.project().setPFMSettings(gson.fromJson(element, PFMSettings.class));
             }
         });
+
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_UI_SETTINGS, 0));
 
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader<>(PresetProjectSettings.class,"versions", 5) {
