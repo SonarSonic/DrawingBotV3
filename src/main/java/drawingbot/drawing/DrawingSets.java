@@ -1,7 +1,6 @@
 package drawingbot.drawing;
 
 import drawingbot.api.Hooks;
-import drawingbot.api.IDrawingPen;
 import drawingbot.api.IDrawingSet;
 import drawingbot.api.IProperties;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -17,6 +16,7 @@ import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DrawingSets extends SpecialListenable<DrawingSets.Listener> implements IProperties {
 
@@ -55,6 +55,12 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
             drawingSetSlots.addAll(sets);
             activeDrawingSet.set(sets.get(0));
         }
+        init();
+    }
+
+    public DrawingSets(DrawingSets toCopy){
+        drawingSetSlots.setAll(toCopy.getDrawingSetSlots().stream().map(ObservableDrawingSet::copy).collect(Collectors.toList()));
+        activeDrawingSet.set(getDrawingSetForSlot(toCopy.getActiveSetSlot()));
         init();
     }
 
@@ -119,21 +125,13 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
     }
 
     public DrawingSets copy(){
-        DrawingSets copy = new DrawingSets();
-        drawingSetSlots.forEach(set -> {
-            ObservableDrawingSet setCopy = new ObservableDrawingSet(set);
-            copy.drawingSetSlots.add(setCopy);
-            if(set.equals(activeDrawingSet.get())){
-                copy.activeDrawingSet.set(setCopy);
-            }
-        });
-        return copy;
+        return new DrawingSets(this);
     }
 
 
     ///////////////////////////////////////////////
 
-    private ObservableList<Observable> propertyList = null;
+    private transient ObservableList<Observable> propertyList = null;
 
     @Override
     public ObservableList<Observable> getPropertyList() {

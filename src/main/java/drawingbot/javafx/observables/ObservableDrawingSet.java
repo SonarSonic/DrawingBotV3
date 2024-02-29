@@ -263,6 +263,10 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         }
     }
 
+    public static ObservableDrawingSet copy(ObservableDrawingSet toCopy) {
+        return new ObservableDrawingSet(toCopy);
+    }
+
     ///////////////////////////
 
     public interface Listener extends ObservableDrawingPen.Listener {

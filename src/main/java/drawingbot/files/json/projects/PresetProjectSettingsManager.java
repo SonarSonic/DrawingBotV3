@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
+import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
 import drawingbot.files.VersionControl;
@@ -97,14 +98,6 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
     }
 
     @JsonData
-    public static class DrawingSetData {
-
-        public final ArrayList<ObservableDrawingSet> drawingSets = new ArrayList<>();
-        public int activeSet = 0;
-
-    }
-
-    @JsonData
     public static class UIGlobalState {
 
         public ArrayList<UINodeState> nodes = new ArrayList<>();
@@ -184,22 +177,16 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
             }
         });
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"drawing_sets", DrawingSetData.class, DrawingSetData::new, 0) {
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader<>(PresetProjectSettings.class,"drawing_sets", 0) {
 
             @Override
-            public void saveData(DBTaskContext context, DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
-                data.drawingSets.addAll(context.project().getDrawingSets().getDrawingSetSlots());
-                data.activeSet = context.project().getDrawingSets().getActiveSetSlot();
+            public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
+                return gson.toJsonTree(context.project().getDrawingSets(), DrawingSets.class);
             }
 
             @Override
-            public void loadData(DBTaskContext context, DrawingSetData data, GenericPreset<PresetProjectSettings> preset) {
-                context.project().getDrawingSets().getDrawingSetSlots().clear();
-                context.project().getDrawingSets().getDrawingSetSlots().addAll(data.drawingSets);
-
-                //set to the first set first, so the fallback from getDrawingSetForSlot is safe.
-                context.project().getDrawingSets().setActiveDrawingSet(data.drawingSets.get(0));
-                context.project().getDrawingSets().setActiveDrawingSet(context.project().getDrawingSets().getDrawingSetForSlot(data.activeSet));
+            public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
+                context.project().setDrawingSets(gson.fromJson(element, DrawingSets.class));
             }
         });
 
