@@ -2,10 +2,12 @@ package drawingbot.files.json.projects;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
+import drawingbot.files.VersionControl;
 import drawingbot.files.json.AbstractPresetManager;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
@@ -15,8 +17,6 @@ import drawingbot.image.format.FilteredImageData;
 import drawingbot.image.format.ImageCropping;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
-import drawingbot.javafx.observables.ObservableDrawingSet;
-import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.UINodeState;
 import drawingbot.plotting.PlottedDrawing;
@@ -97,13 +97,6 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
     }
 
     @JsonData
-    public static class VersionData {
-
-        public final ArrayList<GenericPreset<PresetProjectSettings>> versions = new ArrayList<>();
-
-    }
-
-    @JsonData
     public static class DrawingSetData {
 
         public final ArrayList<ObservableDrawingSet> drawingSets = new ArrayList<>();
@@ -172,26 +165,22 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
         });
         MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.Preset<>(PresetProjectSettings.class, Register.PRESET_MANAGER_UI_SETTINGS, 0));
 
-        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader.DataInstance<>(PresetProjectSettings.class,"versions", VersionData.class, VersionData::new, 5) {
+        MasterRegistry.INSTANCE.registerProjectDataLoader(new PresetDataLoader<>(PresetProjectSettings.class,"versions", 5) {
 
             @Override
-            public void saveData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
-                if(!preset.data.isSubProject) { //no need to save sub versions
-                    for (ObservableVersion projectVersion : context.project().getProjectVersions()) {
-                        projectVersion.updatePreset();
-                        data.versions.add(projectVersion.getPreset());
-                    }
+            public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<PresetProjectSettings> preset) {
+                if(preset.data.isSubProject) { //no need to save sub versions
+                    return new JsonObject();
                 }
+                return gson.toJsonTree(context.project().getVersionControl(), VersionControl.class);
             }
 
             @Override
-            public void loadData(DBTaskContext context, VersionData data, GenericPreset<PresetProjectSettings> preset) {
-                if(!preset.data.isSubProject){ //no need to save sub versions
-                    context.project().getProjectVersions().clear();
-                    for(GenericPreset<PresetProjectSettings> version : data.versions){
-                        context.project().getProjectVersions().add(new ObservableVersion(version, true));
-                    }
+            public void loadData(DBTaskContext context, Gson gson, JsonElement element, GenericPreset<PresetProjectSettings> preset) {
+                if(preset.data.isSubProject) { //no need to save sub versions
+                    return;
                 }
+                context.project().setVersionControl(gson.fromJson(element, VersionControl.class));
             }
         });
 

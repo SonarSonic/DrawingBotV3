@@ -1,6 +1,7 @@
 package drawingbot.javafx.controllers;
 
 import drawingbot.DrawingBotV3;
+import drawingbot.files.VersionControl;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.controls.ContextMenuObservableProjectSettings;
 import drawingbot.javafx.controls.TableCellImage;
@@ -46,13 +47,18 @@ public class FXProjectManagerController extends AbstractFXController {
             return row;
         });
         tableViewProjects.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            projectPreviewImageView.setImage(newValue == null ? null : newValue.thumbnail.get());
+            if(oldValue != null){
+                projectPreviewImageView.imageProperty().unbind();
+            }
+            if(newValue != null){
+                projectPreviewImageView.imageProperty().bind(newValue.thumbnailProperty());
+            }
         });
 
-        tableViewProjects.itemsProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(ObservableProject::projectVersionsProperty));
+        tableViewProjects.itemsProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(ObservableProject::versionControlProperty).selectObject(VersionControl::projectVersionsProperty));
 
         projectThumbColumn.setCellFactory(param -> new TableCellImage<>());
-        projectThumbColumn.setCellValueFactory(param -> param.getValue().thumbnail);
+        projectThumbColumn.setCellValueFactory(param -> param.getValue().thumbnailProperty());
 
         projectNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         projectNameColumn.setCellValueFactory(param -> param.getValue().name);

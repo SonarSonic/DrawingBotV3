@@ -119,7 +119,7 @@ public class FXController extends AbstractFXController {
         imageFiltersController.image.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.openImage));
         pfmSettingsController.pfmSettings.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.pfmSettings));
         drawingSetsController.drawingSets.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.drawingSets));
-        versionControlController.projectVersions.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.projectVersions));
+        versionControlController.versionControl.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.versionControl));
         JFXShapeManager.INSTANCE.activeShapeList.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.maskingSettings.get().shapeList));
     }
 

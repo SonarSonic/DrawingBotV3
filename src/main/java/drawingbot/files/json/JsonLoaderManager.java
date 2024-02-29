@@ -11,12 +11,14 @@ import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.DrawingExportHandler;
+import drawingbot.files.VersionControl;
 import drawingbot.files.json.adapters.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.format.ImageCropping;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.observables.ObservableDrawingSet;
+import drawingbot.javafx.observables.ObservableVersion;
 import drawingbot.pfm.PFMFactory;
 import drawingbot.pfm.PFMSettings;
 import drawingbot.plotting.canvas.SimpleCanvas;
@@ -79,6 +81,8 @@ public class JsonLoaderManager {
         builder.registerTypeAdapter(DrawingSets.class, new JsonAdapterDrawingSets());
         builder.registerTypeAdapter(PFMSettings.class, new JsonAdapterPFMSettings());
         builder.registerTypeAdapter(ImageCropping.class, new JsonAdapterImageCropping());
+        builder.registerTypeAdapter(VersionControl.class, new JsonAdapterVersionControl());
+        builder.registerTypeAdapter(ObservableVersion.class, new JsonAdapterObservableVersion());
         Hooks.runHook(Hooks.GSON_BUILDER_INIT_POST, builder);
         }
     };

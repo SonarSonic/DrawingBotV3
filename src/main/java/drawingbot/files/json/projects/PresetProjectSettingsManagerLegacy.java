@@ -67,7 +67,7 @@ class PresetProjectSettingsManagerLegacy {
 
         presetData.projectVersions = new ArrayList<>();
 
-        for(ObservableVersion projectVersion : project.getProjectVersions()){
+        for(ObservableVersion projectVersion : project.getVersionControl().getProjectVersions()){
             if(projectVersion.getPreset().data instanceof PresetProjectSettingsLegacy){
                 presetData.projectVersions.add((PresetProjectSettingsLegacy)projectVersion.getPreset().data);
             }
@@ -126,13 +126,13 @@ class PresetProjectSettingsManagerLegacy {
         }
 
         if(!presetData.isSubProject){ //don't overwrite the versions if this is just a sub version
-            project.getProjectVersions().clear();
+            project.getVersionControl().getProjectVersions().clear();
             if(presetData.projectVersions != null){
                 for(PresetProjectSettingsLegacy projectVersion : presetData.projectVersions){
                     GenericPreset<PresetProjectSettings> newPreset = Register.PRESET_LOADER_PROJECT.createNewPreset();
                     newPreset.version = "1";
                     newPreset.data = projectVersion;
-                    project.getProjectVersions().add(new ObservableVersion(newPreset, true));
+                    project.getVersionControl().getProjectVersions().add(new ObservableVersion(newPreset, true));
                 }
             }
         }

@@ -7,9 +7,9 @@ import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.files.FileUtils;
+import drawingbot.files.VersionControl;
 import drawingbot.files.json.PresetData;
 import drawingbot.geom.MaskingSettings;
-import drawingbot.image.BufferedImageLoader;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.format.FilteredImageData;
@@ -47,7 +47,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Tab;
@@ -57,7 +56,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class ObservableProject implements ITaskManager, DrawingSets.Listener, ImageFilterSettings.Listener, ObservableCanvas.Listener, PFMSettings.Listener  {
+public class ObservableProject implements ITaskManager, DrawingSets.Listener, ImageFilterSettings.Listener, ObservableCanvas.Listener, PFMSettings.Listener, VersionControl.Listener  {
 
     public static final String DEFAULT_NAME = "Untitled Project";
 
@@ -171,21 +170,19 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     /**
      * Version Control
      */
-    public final SimpleObjectProperty<ObservableList<ObservableVersion>> projectVersions = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public final ObjectProperty<VersionControl> versionControl = new SimpleObjectProperty<>(new VersionControl());
 
-    public ObservableList<ObservableVersion> getProjectVersions() {
-        return projectVersions.get();
+    public VersionControl getVersionControl() {
+        return versionControl.get();
     }
 
-    public SimpleObjectProperty<ObservableList<ObservableVersion>> projectVersionsProperty() {
-        return projectVersions;
+    public ObjectProperty<VersionControl> versionControlProperty() {
+        return versionControl;
     }
 
-    public void setProjectVersions(ObservableList<ObservableVersion> projectVersions) {
-        this.projectVersions.set(projectVersions);
+    public void setVersionControl(VersionControl versionControl) {
+        this.versionControl.set(versionControl);
     }
-
-    public final SimpleObjectProperty<ObservableVersion> lastRun = new SimpleObjectProperty<>();
 
     /**
      * Masking Settings
@@ -289,6 +286,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         imageSettings.set(project.getImageSettings().copy());
         pfmSettings.set(project.getPFMSettings().copy());
         drawingSets.set(project.getDrawingSets().copy());
+        versionControl.set(project.getVersionControl().copy());
 
         displayMode.set(project.getDisplayMode());
         dpiScaling.set(project.dpiScaling.get());
@@ -297,11 +295,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         exportRange.set(project.exportRange.get());
         displayGrid.set(project.displayGrid.get());
 
-        project.projectVersions.get().forEach(version -> projectVersions.get().add(version.copy()));
-
-        if(lastRun.get() != null){
-            lastRun.set(project.lastRun.get().copy());
-        }
         if(openImage.get() != null){
             DrawingBotV3.INSTANCE.openFile(context, openImage.get().getSourceFile(), false, true);
         }
@@ -329,17 +322,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         PropertyUtil.addSpecialListener(pfmSettings, this);
 
         // Listener to automate version thumbnail Loading
-        PropertyUtil.addSimpleListListener(projectVersions, c -> {
-            while(c.next()){
-                for(ObservableVersion added : c.getAddedSubList()){
-                    if(!added.thumbnailID.get().isEmpty() && added.thumbnail.get() == null){
-                        BufferedImageLoader loader = new BufferedImageLoader(DrawingBotV3.context(), FileUtils.getUserThumbnailDirectory() + added.thumbnailID.get() + ".jpg", false);
-                        DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, loader);
-                        loader.setOnSucceeded(e -> added.thumbnail.set(SwingFXUtils.toFXImage(loader.getValue(), null)));
-                    }
-                }
-            }
-        });
+        PropertyUtil.addSpecialListener(versionControl, this);
 
         // Set the default PMF
         pfmSettings.get().factory.set(MasterRegistry.INSTANCE.getDefaultPFM());
@@ -555,6 +538,18 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     @Override
     public void onUserChangedPFMPreset(GenericPreset<PresetData> pfmPreset) {
         //onPFMSettingsUserEdited(); If we've just created a new Preset we don't want to fire the event, as no settings will have changed, on onSettingUserEdited will fire it anyway.
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void onVersionAdded(ObservableVersion version) {
+
+    }
+
+    @Override
+    public void onVersionRemoved(ObservableVersion version) {
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

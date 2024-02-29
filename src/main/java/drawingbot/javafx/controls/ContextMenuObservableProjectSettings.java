@@ -3,7 +3,6 @@ package drawingbot.javafx.controls;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableVersion;
-import drawingbot.registry.Register;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -28,17 +27,17 @@ public class ContextMenuObservableProjectSettings extends ContextMenu {
         getItems().add(new SeparatorMenuItem());
 
         MenuItem menuMoveUp = new MenuItem("Move Up");
-        menuMoveUp.setOnAction(e -> FXHelper.moveItemUp(row.getTableView().getSelectionModel(), DrawingBotV3.project().getProjectVersions()));
+        menuMoveUp.setOnAction(e -> FXHelper.moveItemUp(row.getTableView().getSelectionModel(), DrawingBotV3.project().getVersionControl().getProjectVersions()));
         getItems().add(menuMoveUp);
 
         MenuItem menuMoveDown = new MenuItem("Move Down");
-        menuMoveDown.setOnAction(e -> FXHelper.moveItemDown(row.getTableView().getSelectionModel(), DrawingBotV3.project().getProjectVersions()));
+        menuMoveDown.setOnAction(e -> FXHelper.moveItemDown(row.getTableView().getSelectionModel(), DrawingBotV3.project().getVersionControl().getProjectVersions()));
         getItems().add(menuMoveDown);
 
         getItems().add(new SeparatorMenuItem());
 
         MenuItem menuDelete = new MenuItem("Delete");
-        menuDelete.setOnAction(e -> FXHelper.deleteItem(row.getTableView().getSelectionModel(), DrawingBotV3.project().getProjectVersions()));
+        menuDelete.setOnAction(e -> FXHelper.deleteItem(row.getTableView().getSelectionModel(), DrawingBotV3.project().getVersionControl().getProjectVersions()));
         getItems().add(menuDelete);
     }
 
