@@ -1,15 +1,12 @@
 package drawingbot.utils.flags;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FlagStates {
 
     public Map<Flags.Flag<?>, Object> STATE_MAP = new HashMap<>();
-    public List<Flags.Flag<?>> toClear = new ArrayList<>();
-    public List<Flags.Flag<?>> toReset = new ArrayList<>();
+    public Set<Flags.Flag<?>> toClear = new HashSet<>();
+    public Set<Flags.Flag<?>> toReset = new HashSet<>();
 
     public FlagStates(Flags.FlagCategory category){
         for(Flags.Flag<?> flag : Flags.ALL_FLAGS.get(category)){
@@ -53,6 +50,14 @@ public class FlagStates {
         return false;
     }
 
+    public boolean anyMatchAndClearOnMatch(Flags.BooleanFlag ...flags){
+        boolean match = anyMatch(flags);
+        if(match){
+            markForClear(flags);
+        }
+        return match;
+    }
+
     public boolean anyMatchAndMarkClear(Flags.BooleanFlag ...flags){
         boolean match = anyMatch(flags);
         markForClear(flags);
@@ -85,19 +90,11 @@ public class FlagStates {
 
 
     public void markForClear(Flags.Flag<?>...flags){
-        for(Flags.Flag<?> flag : flags){
-            if(!toClear.contains(flag)){
-                toClear.add(flag);
-            }
-        }
+        toClear.addAll(Arrays.asList(flags));
     }
 
     public void markForReset(Flags.Flag<?>...flags){
-        for(Flags.Flag<?> flag : flags){
-            if(!toReset.contains(flag)){
-                toReset.add(flag);
-            }
-        }
+        toReset.addAll(Arrays.asList(flags));
     }
 
 }
