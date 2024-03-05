@@ -36,8 +36,8 @@ public class ExportTaskRegressionTest{
                             }
                             String extension = format.getDefaultExtension();
                             String regressionDir = format.category == DrawingExportHandler.Category.IMAGE ? getRegressionImagesDirectory() : getRegressionFilesDirectory();
-                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_DRAWING, DrawingBotV3.taskManager().getCurrentDrawing(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(regressionDir, format.getRegistryName() + " " + getTestRunnerName() + extension), false);
-                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_PEN, DrawingBotV3.taskManager().getCurrentDrawing(), IGeometryFilter.DEFAULT_EXPORT_FILTER, extension, new File(regressionDir, format.getRegistryName() + " " + getTestRunnerName() + extension), false);
+                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_DRAWING, DrawingBotV3.taskManager().getCurrentDrawing(), IGeometryFilter.DEFAULT_FILTER, extension, new File(regressionDir, format.getRegistryName() + " " + getTestRunnerName() + extension), false);
+                            DrawingBotV3.INSTANCE.createExportTask(format, ExportTask.Mode.PER_PEN, DrawingBotV3.taskManager().getCurrentDrawing(), IGeometryFilter.DEFAULT_FILTER, extension, new File(regressionDir, format.getRegistryName() + " " + getTestRunnerName() + extension), false);
                         }
                         triggered.set(true);
                     }

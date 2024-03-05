@@ -155,7 +155,7 @@ public class TestUtils {
         AtomicReference<Task<?>> exportTask = new AtomicReference<>();
 
         Platform.runLater(() -> {
-            exportTask.set(DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, pfmTask.drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".png", saveLocation, false));
+            exportTask.set(DrawingBotV3.INSTANCE.createExportTask(Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, pfmTask.drawing, pfmTask.context.project().getExportGeometryFilter(), ".png", saveLocation, false));
             exportTask.get().stateProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == Worker.State.FAILED || newValue == Worker.State.SUCCEEDED) {
                     exportTaskLatch.countDown();

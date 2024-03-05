@@ -75,7 +75,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
         if(renderedDrawing != null){
             //run the thumbnail generation task
             File saveLocation = new File(FileUtils.getUserThumbnailDirectory() + preset.data.thumbnailID + ".jpg");
-            ExportTask task = new ExportTask(project.context, Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, ".jpg", saveLocation, true, true, true);
+            ExportTask task = new ExportTask(project.context, Register.EXPORT_IMAGE, ExportTask.Mode.PER_DRAWING, renderedDrawing, project.getExportGeometryFilter(), ".jpg", saveLocation, true, true, true);
             task.exportScale = 400 / renderedDrawing.canvas.getWidth(UnitsLength.PIXELS);
             DrawingBotV3.INSTANCE.startTask(DrawingBotV3.INSTANCE.backgroundService, task);
         }

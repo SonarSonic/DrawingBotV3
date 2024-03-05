@@ -213,11 +213,11 @@ public class FXHelper {
         if(exportHandler.requiresSaveLocation(exportMode)) {
             exportFile(context, (file, chooser) -> {
                 exportHandler.selectedFilter = chooser.getSelectedExtensionFilter();
-                DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, FileUtils.getExtension(file.toString()), file, false);
+                DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, context.project().getExportGeometryFilter(), FileUtils.getExtension(file.toString()), file, false);
             }, exportHandler.filters, exportHandler.selectedFilter, exportHandler.getDialogTitle(), saveLocation);
         }else{
             //Only used by vpype export, which doesn't always require an Export Destination, we pass a usable one anyway to avoid throwing other things off
-            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, IGeometryFilter.DEFAULT_EXPORT_FILTER, "", new File(context.project().getExportDirectory(), saveLocation), false);
+            DrawingBotV3.INSTANCE.createExportTask(exportHandler, exportMode, drawing, context.project().getExportGeometryFilter(), "", new File(context.project().getExportDirectory(), saveLocation), false);
         }
     }
 

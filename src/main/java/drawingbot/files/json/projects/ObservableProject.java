@@ -442,6 +442,12 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public IGeometryFilter getExportGeometryFilter(){
+        return exportRange.get() ? IGeometryFilter.DEFAULT_VIEW_FILTER : IGeometryFilter.DEFAULT_FILTER;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     //// DRAWING SET EVENTS \\\\
 
     @Override
