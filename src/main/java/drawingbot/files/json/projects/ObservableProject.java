@@ -398,12 +398,12 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         //generate the target canvas, which will always display the correct Plotting Resolution
         targetCanvas = new ImageCanvas(drawingArea.get(), new SimpleCanvas(0, 0){
             @Override
-            public float getWidth() {
+            public double getWidth() {
                 return openImage.get() != null ? openImage.get().getSourceCanvas().getWidth() : 0;
             }
 
             @Override
-            public float getHeight() {
+            public double getHeight() {
                 return openImage.get() != null ? openImage.get().getSourceCanvas().getHeight() : 0;
             }
 

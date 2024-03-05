@@ -27,12 +27,12 @@ public class CanvasUtils {
         return new SimpleCanvas(units, canvas.getCroppingMode(), canvas.getClippingMode(), canvas.getRescaleMode(), canvas.useOriginalSizing(), canvas.getTargetPenWidth(), canvas.getPlottingScale(), UnitsLength.convert(canvas.getWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingWidth(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingHeight(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetX(), canvas.getUnits(), units), UnitsLength.convert(canvas.getDrawingOffsetY(), canvas.getUnits(), units), canvas.getCanvasScale());
     }
 
-    public static SimpleCanvas rescaleCanvas(ICanvas canvas, float rescale){
-        return new SimpleCanvas(canvas.getUnits(), canvas.getCroppingMode(), canvas.getClippingMode(), canvas.getRescaleMode(), canvas.useOriginalSizing(), canvas.getTargetPenWidth(), 1F, canvas.getWidth()*rescale, canvas.getHeight()*rescale, canvas.getDrawingWidth()*rescale, canvas.getDrawingHeight()*rescale, canvas.getDrawingOffsetX()*rescale, canvas.getDrawingOffsetY()*rescale, rescale);
+    public static SimpleCanvas rescaleCanvas(ICanvas canvas, double rescale){
+        return new SimpleCanvas(canvas.getUnits(), canvas.getCroppingMode(), canvas.getClippingMode(), canvas.getRescaleMode(), canvas.useOriginalSizing(), canvas.getTargetPenWidth(), 1D, canvas.getWidth()*rescale, canvas.getHeight()*rescale, canvas.getDrawingWidth()*rescale, canvas.getDrawingHeight()*rescale, canvas.getDrawingOffsetX()*rescale, canvas.getDrawingOffsetY()*rescale, rescale);
     }
 
     public static SimpleCanvas normalisedCanvas(ICanvas canvas){
-        return new SimpleCanvas(UnitsLength.PIXELS, canvas.getCroppingMode(), canvas.getClippingMode(), canvas.getRescaleMode(), canvas.useOriginalSizing(), canvas.getTargetPenWidth(), 1F, canvas.getScaledWidth(), canvas.getScaledHeight(), canvas.getScaledDrawingWidth(), canvas.getScaledDrawingHeight(), canvas.getScaledDrawingOffsetX(), canvas.getScaledDrawingOffsetY(), canvas.getCanvasScale());
+        return new SimpleCanvas(UnitsLength.PIXELS, canvas.getCroppingMode(), canvas.getClippingMode(), canvas.getRescaleMode(), canvas.useOriginalSizing(), canvas.getTargetPenWidth(), 1D, canvas.getScaledWidth(), canvas.getScaledHeight(), canvas.getScaledDrawingWidth(), canvas.getScaledDrawingHeight(), canvas.getScaledDrawingOffsetX(), canvas.getScaledDrawingOffsetY(), canvas.getCanvasScale());
     }
 
     /**
@@ -43,7 +43,7 @@ public class CanvasUtils {
             return new int[]{sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight};
         }
 
-        double currentRatio = (float) sourceWidth / sourceHeight;
+        double currentRatio = (double) sourceWidth / (double) sourceHeight;
         double targetRatio = canvas.getDrawingWidth() / canvas.getDrawingHeight();
 
         int imageCropWidth = sourceWidth;

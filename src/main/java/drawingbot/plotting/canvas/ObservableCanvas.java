@@ -7,9 +7,7 @@ import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 
@@ -17,24 +15,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listener> implements ICanvas, IProperties {
 
-    private static final float defaultWidthMM = 210, defaultHeightMM = 297; //DEFAULT - A4 Paper
+    public static final double defaultWidthMM = 210, defaultHeightMM = 297; //DEFAULT - A4 Paper
 
     public final SimpleBooleanProperty useOriginalSizing = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumCroppingMode> croppingMode = new SimpleObjectProperty<>(EnumCroppingMode.CROP_TO_FIT);
     public final SimpleObjectProperty<EnumClippingMode> clippingMode = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultClippingMode.get());
     public final SimpleObjectProperty<UnitsLength> inputUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
-    public final SimpleFloatProperty width = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty height = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty drawingAreaPaddingLeft = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty drawingAreaPaddingRight = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty drawingAreaPaddingTop = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty drawingAreaPaddingBottom = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty drawingAreaPaddingGangedValue = new SimpleFloatProperty(0);
+    public final DoubleProperty width = new SimpleDoubleProperty(0);
+    public final DoubleProperty height = new SimpleDoubleProperty(0);
+    public final DoubleProperty drawingAreaPaddingLeft = new SimpleDoubleProperty(0);
+    public final DoubleProperty drawingAreaPaddingRight = new SimpleDoubleProperty(0);
+    public final DoubleProperty drawingAreaPaddingTop = new SimpleDoubleProperty(0);
+    public final DoubleProperty drawingAreaPaddingBottom = new SimpleDoubleProperty(0);
+    public final DoubleProperty drawingAreaPaddingGangedValue = new SimpleDoubleProperty(0);
     public final SimpleBooleanProperty drawingAreaGangPadding = new SimpleBooleanProperty(true);
     public final SimpleObjectProperty<EnumOrientation> orientation = new SimpleObjectProperty<>(EnumOrientation.PORTRAIT);
 
-    public final SimpleFloatProperty targetPenWidth = new SimpleFloatProperty(DBPreferences.INSTANCE.defaultPenWidth.get());
+    public final DoubleProperty targetPenWidth = new SimpleDoubleProperty(DBPreferences.INSTANCE.defaultPenWidth.get());
 
     public final SimpleObjectProperty<EnumRescaleMode> rescaleMode = new SimpleObjectProperty<>(DBPreferences.INSTANCE.defaultRescalingMode.get());
 
@@ -84,8 +82,8 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
             }
             if(newValue != null){
                 internalChange.set(true);
-                float newWidth = getHeight();
-                float newHeight = getWidth();
+                double newWidth = getHeight();
+                double newHeight = getWidth();
                 width.set(newWidth);
                 height.set(newHeight);
                 internalChange.set(false);
@@ -116,22 +114,22 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
         //keep the ganged value updated so it always matches the last entered value
         drawingAreaPaddingLeft.addListener((observable, oldValue, newValue) -> {
             if(!internalChange.get() && !drawingAreaGangPadding.get()){
-                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+                drawingAreaPaddingGangedValue.set(newValue.doubleValue());
             }
         });
         drawingAreaPaddingRight.addListener((observable, oldValue, newValue) -> {
             if(!internalChange.get() && !drawingAreaGangPadding.get()){
-                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+                drawingAreaPaddingGangedValue.set(newValue.doubleValue());
             }
         });
         drawingAreaPaddingTop.addListener((observable, oldValue, newValue) -> {
             if(!internalChange.get() && !drawingAreaGangPadding.get()){
-                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+                drawingAreaPaddingGangedValue.set(newValue.doubleValue());
             }
         });
         drawingAreaPaddingBottom.addListener((observable, oldValue, newValue) -> {
             if(!internalChange.get() && !drawingAreaGangPadding.get()){
-                drawingAreaPaddingGangedValue.set(newValue.floatValue());
+                drawingAreaPaddingGangedValue.set(newValue.doubleValue());
             }
         });
     }
@@ -172,12 +170,12 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
     }
 
     @Override
-    public float getPlottingScale(){
+    public double getPlottingScale(){
         return getRescaleMode().shouldRescale() ? 1F / getTargetPenWidth() : 1F;
     }
 
     @Override
-    public float getTargetPenWidth() {
+    public double getTargetPenWidth() {
         return targetPenWidth.get() == 0 ? 1F : targetPenWidth.get();
     }
 
@@ -187,7 +185,7 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
     }
 
     @Override
-    public float getWidth(){
+    public double getWidth(){
         if(width.getValue() > 0){
             return width.getValue();
         }
@@ -195,7 +193,7 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
     }
 
     @Override
-    public float getHeight(){
+    public double getHeight(){
         if(height.getValue() > 0){
             return height.getValue();
         }
@@ -203,22 +201,22 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
     }
 
     @Override
-    public float getDrawingWidth(){
+    public double getDrawingWidth(){
         return getWidth() - drawingAreaPaddingLeft.get() - drawingAreaPaddingRight.get();
     }
 
     @Override
-    public float getDrawingHeight(){
+    public double getDrawingHeight(){
         return getHeight() - drawingAreaPaddingTop.get() - drawingAreaPaddingBottom.get();
     }
 
     @Override
-    public float getDrawingOffsetX(){
+    public double getDrawingOffsetX(){
         return drawingAreaPaddingLeft.get();
     }
 
     @Override
-    public float getDrawingOffsetY(){
+    public double getDrawingOffsetY(){
         return drawingAreaPaddingTop.get();
     }
 
@@ -248,6 +246,29 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
         return copy;
     }
 
+    public void loadSimpleCanvas(ICanvas simpleCanvas) {
+        useOriginalSizing.set(simpleCanvas.useOriginalSizing());
+        croppingMode.set(simpleCanvas.getCroppingMode());
+        clippingMode.set(simpleCanvas.getClippingMode());
+        inputUnits.set(simpleCanvas.getUnits());
+
+        width.set(simpleCanvas.getWidth());
+        height.set(simpleCanvas.getHeight());
+        orientation.set(EnumOrientation.getType(simpleCanvas.getWidth(), simpleCanvas.getHeight()));
+
+        drawingAreaGangPadding.set(false);
+        drawingAreaPaddingLeft.set(0);
+        drawingAreaPaddingRight.set(0);
+        drawingAreaPaddingTop.set(0);
+        drawingAreaPaddingBottom.set(0);
+
+        rescaleMode.set(simpleCanvas.getRescaleMode());
+        targetPenWidth.set(simpleCanvas.getTargetPenWidth());
+        canvasColor.set(DBPreferences.INSTANCE.defaultCanvasColour.get());
+        backgroundColor.set(DBPreferences.INSTANCE.defaultBackgroundColour.get());
+    }
+
+
     ///////////////////////////
 
     private ObservableList<Observable> propertyList = null;
@@ -259,7 +280,6 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
         }
         return propertyList;
     }
-
     ///////////////////////////
 
     public interface Listener {

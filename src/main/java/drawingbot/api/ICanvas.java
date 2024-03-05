@@ -19,37 +19,38 @@ public interface ICanvas {
 
     boolean useOriginalSizing();
 
-    float getPlottingScale();
+    double getPlottingScale();
 
-    float getWidth();
+    double getWidth();
 
-    float getHeight();
+    double getHeight();
 
-    float getDrawingWidth();
+    double getDrawingWidth();
 
-    float getDrawingHeight();
+    double getDrawingHeight();
 
-    float getDrawingOffsetX();
+    double getDrawingOffsetX();
 
-    float getDrawingOffsetY();
+    double getDrawingOffsetY();
 
     /**
      * @return the user's desired pen width size in mm, (e.g. 0.3, 0.5, 0.7)
      * <br>
      * See: {@link #getRenderedPenWidth()}
      */
-    default float getTargetPenWidth(){
-        return 1F;
+    default double getTargetPenWidth(){
+        return 1D;
     }
 
     /**
      * Used internally by PFMs, when they should factor in the pen width into calculations
      * Typically the image is scaled so that 1 px = 1 pen width, so in most situations this value is 1.
      * However, when High Quality mode is enabled, the image size may be higher resolution
+     * @return
      */
     default float getRenderedPenWidth(){
         if(!useOriginalSizing() && getRescaleMode().isHighQuality()){
-            return getTargetPenWidth() * getPlottingScale();
+            return (float) (getTargetPenWidth() * getPlottingScale());
         }
         return 1F;
     }
@@ -61,55 +62,55 @@ public interface ICanvas {
         return strokeSize;
     }
 
-    default float getCanvasScale(){
-        return 1F;
+    default double getCanvasScale(){
+        return 1D;
     }
 
-    default float getWidth(UnitsLength format){
+    default double getWidth(UnitsLength format){
         return UnitsLength.convert(getWidth(), getUnits(), format);
     }
 
-    default float getHeight(UnitsLength format){
+    default double getHeight(UnitsLength format){
         return UnitsLength.convert(getHeight(), getUnits(), format);
     }
 
-    default float getDrawingWidth(UnitsLength format){
+    default double getDrawingWidth(UnitsLength format){
         return UnitsLength.convert(getDrawingWidth(), getUnits(), format);
     }
 
-    default float getDrawingHeight(UnitsLength format){
+    default double getDrawingHeight(UnitsLength format){
         return UnitsLength.convert(getDrawingHeight(), getUnits(), format);
     }
 
-    default float getDrawingOffsetX(UnitsLength format){
+    default double getDrawingOffsetX(UnitsLength format){
         return UnitsLength.convert(getDrawingOffsetX(), getUnits(), format);
     }
 
-    default float getDrawingOffsetY(UnitsLength format){
+    default double getDrawingOffsetY(UnitsLength format){
         return UnitsLength.convert(getDrawingOffsetY(), getUnits(), format);
     }
 
-    default float getScaledWidth(){
+    default double getScaledWidth(){
         return getWidth(UnitsLength.PIXELS) * getPlottingScale();
     }
 
-    default float getScaledHeight(){
+    default double getScaledHeight(){
         return getHeight(UnitsLength.PIXELS) * getPlottingScale();
     }
 
-    default float getScaledDrawingWidth(){
+    default double getScaledDrawingWidth(){
         return getDrawingWidth(UnitsLength.PIXELS) * getPlottingScale();
     }
 
-    default float getScaledDrawingHeight(){
+    default double getScaledDrawingHeight(){
         return getDrawingHeight(UnitsLength.PIXELS) * getPlottingScale();
     }
 
-    default float getScaledDrawingOffsetX(){
+    default double getScaledDrawingOffsetX(){
         return getDrawingOffsetX(UnitsLength.PIXELS) * getPlottingScale();
     }
 
-    default float getScaledDrawingOffsetY(){
+    default double getScaledDrawingOffsetY(){
         return getDrawingOffsetY(UnitsLength.PIXELS) * getPlottingScale();
     }
 

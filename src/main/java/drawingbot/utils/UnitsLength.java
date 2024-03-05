@@ -2,16 +2,16 @@ package drawingbot.utils;
 
 public enum UnitsLength {
 
-    MILLIMETRES("mm", "mm", 1F),
-    CENTIMETRES("cm", "cm", 10F),
-    INCHES("inches", "in", 25.4F),
-    PIXELS("pixels", "px", 1F);
+    MILLIMETRES("mm", "mm", 1D),
+    CENTIMETRES("cm", "cm", 10D),
+    INCHES("inches", "in", 25.4D),
+    PIXELS("pixels", "px", 1D);
 
     public String displayName;
     public String suffix;
-    public float convertToMM;
+    public double convertToMM;
 
-    UnitsLength(String displayName, String suffix, float convertToMM) {
+    UnitsLength(String displayName, String suffix, double convertToMM) {
         this.displayName = displayName;
         this.suffix = suffix;
         this.convertToMM = convertToMM;
@@ -26,15 +26,8 @@ public enum UnitsLength {
         return suffix;
     }
 
-    public float toMM(float value){
+    public double toMM(double value){
         return value * convertToMM;
-    }
-
-    public static float convert(float value, UnitsLength from, UnitsLength to){
-        if(from == to){
-            return value;
-        }
-        return (value * from.convertToMM) / to.convertToMM;
     }
 
     public static double convert(double value, UnitsLength from, UnitsLength to){
@@ -42,13 +35,6 @@ public enum UnitsLength {
             return value;
         }
         return (value * from.convertToMM) / to.convertToMM;
-    }
-
-    public static float convert(float value, float toConvertToMM, float fromConvertToMM){
-        if(toConvertToMM == fromConvertToMM){
-            return value;
-        }
-        return (value * fromConvertToMM) / toConvertToMM;
     }
 
     public static double convert(double value, double toConvertToMM, double fromConvertToMM){

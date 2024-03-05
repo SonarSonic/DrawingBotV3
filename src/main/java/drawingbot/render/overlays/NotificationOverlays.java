@@ -3,6 +3,7 @@ package drawingbot.render.overlays;
 import drawingbot.DrawingBotV3;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.JFXUtils;
+import drawingbot.render.viewport.Viewport;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -22,21 +23,23 @@ import org.controlsfx.control.action.Action;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 
-public class NotificationOverlays extends AbstractOverlay{
+//TODO MAKE INSTANCEABLE
+public class NotificationOverlays extends ViewportOverlayBase {
 
     public static final NotificationOverlays INSTANCE = new NotificationOverlays();
+
+    private NotificationOverlays(){}
 
     public NotificationPane notificationPane;
 
     @Override
-    public void init() {
+    public void initOverlay() {
         notificationPane = new NotificationPane();
         notificationPane.setManaged(false);
         notificationPane.setShowFromTop(false);
         notificationPane.setPickOnBounds(false);
         notificationPane.resize(600, 70);
         notificationPane.getStylesheets().add(NotificationOverlays.class.getResource("/drawingbot/notifications.css").toExternalForm());
-        activeProperty().bindBidirectional(DBPreferences.INSTANCE.notificationsEnabled.asBooleanProperty());
 
 
         JFXUtils.subscribeListener(target, (observable, oldValue, newValue) -> {
@@ -54,20 +57,22 @@ public class NotificationOverlays extends AbstractOverlay{
     }
 
     @Override
-    protected void activate() {
+    public void activateViewportOverlay(Viewport viewport) {
+        super.activateViewportOverlay(viewport);
         notificationPane.setVisible(true);
     }
 
     @Override
-    protected void deactivate() {
+    public void deactivateViewportOverlay(Viewport viewport) {
+        super.deactivateViewportOverlay(viewport);
         notificationPane.setVisible(false);
         notificationPane.hide();
         notificationPane.setMouseTransparent(true);
     }
 
     @Override
-    public void doRender() {
-        super.doRender();
+    public void onRenderTick() {
+        super.onRenderTick();
 
         if((displayMS == 0 && notificationPane.isShowing()) || System.currentTimeMillis() - startTime > displayMS){
             displayMS = 0;
@@ -98,7 +103,7 @@ public class NotificationOverlays extends AbstractOverlay{
     }
 
     public void showIconTextSubtitle(Node icon, String text, String subtitle, final Action... actions){
-        if(!isActive()){
+        if(!getEnabled()){
             return;
         }
         if(!Platform.isFxApplicationThread()){
@@ -146,7 +151,7 @@ public class NotificationOverlays extends AbstractOverlay{
             HBox.setHgrow(vBox, Priority.NEVER);
             HBox.setHgrow(buttonBar, Priority.SOMETIMES);
             parent = hBox;
-        };
+        }
 
         notificationPane.getActions().clear();
         notificationPane.setMouseTransparent(false);
@@ -157,14 +162,14 @@ public class NotificationOverlays extends AbstractOverlay{
     }
 
     public void show(final String text) {
-        if(!isActive()){
+        if(!getEnabled()){
             return;
         }
         showWithSubtitle(text, "");
     }
 
     public void show(final String text, final Node graphic) {
-        if(!isActive()){
+        if(!getEnabled()){
             return;
         }
         if(!Platform.isFxApplicationThread()){
@@ -181,7 +186,7 @@ public class NotificationOverlays extends AbstractOverlay{
     }
 
     public void show(final String text, final Node graphic, final Action... actions) {
-        if(!isActive()){
+        if(!getEnabled()){
             return;
         }
         if(!Platform.isFxApplicationThread()){

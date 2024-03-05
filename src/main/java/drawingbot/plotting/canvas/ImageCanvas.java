@@ -29,11 +29,11 @@ public class ImageCanvas implements ICanvas {
         this.flipAxis = flipAxis;
     }
 
-    public float getImageWidth(){
+    public double getImageWidth(){
         return flipAxis ? imageCanvas.getHeight() : imageCanvas.getWidth();
     }
 
-    public float getImageHeight(){
+    public double getImageHeight(){
         return flipAxis ? imageCanvas.getWidth() : imageCanvas.getHeight();
     }
 
@@ -41,26 +41,26 @@ public class ImageCanvas implements ICanvas {
         return flipAxis;
     }
 
-    public float getImageOffsetX(){
-        float imageOffsetX = 0;
+    public double getImageOffsetX(){
+        double imageOffsetX = 0;
         if(getCroppingMode() == EnumCroppingMode.SCALE_TO_FIT){
-            float currentRatio = getImageWidth() / getImageHeight();
-            float targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
-            float targetWidth = targetCanvas.getDrawingHeight() * currentRatio;
+            double currentRatio = getImageWidth() / getImageHeight();
+            double targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
+            double targetWidth = targetCanvas.getDrawingHeight() * currentRatio;
 
             imageOffsetX = currentRatio < targetRatio ? targetCanvas.getDrawingWidth()/2 - targetWidth/2F: 0;
         }
         return imageOffsetX;
     }
 
-    public float getImageOffsetY(){
-        float imageOffsetY = 0;
+    public double getImageOffsetY(){
+        double imageOffsetY = 0;
         if(getCroppingMode() == EnumCroppingMode.SCALE_TO_FIT){
-            float currentRatio = getImageWidth() / getImageHeight();
-            float targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
-            float targetHeight = targetCanvas.getDrawingWidth() / currentRatio;
+            double currentRatio = getImageWidth() / getImageHeight();
+            double targetRatio = targetCanvas.getDrawingWidth() / targetCanvas.getDrawingHeight();
+            double targetHeight = targetCanvas.getDrawingWidth() / currentRatio;
 
-            imageOffsetY = currentRatio < targetRatio ? 0: targetCanvas.getDrawingHeight()/2 - targetHeight/2F;
+            imageOffsetY = currentRatio < targetRatio ? 0: targetCanvas.getDrawingHeight()/2D - targetHeight/2D;
         }
         return imageOffsetY;
     }
@@ -103,24 +103,24 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getPlottingScale() {
+    public double getPlottingScale() {
         if(useOriginalSizing()){
             return imageCanvas.getPlottingScale();
         }
         if (getRescaleMode().isHighQuality()) {
             int[] imageSize = ImageTools.getEffectiveImageSize(targetCanvas, (int) (getDrawingWidth(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()), (int) (getDrawingHeight(UnitsLength.INCHES) * DBPreferences.INSTANCE.importDPI.get()));
-            float currentRatio = (float) imageSize[0] / (float) imageSize[1];
-            float targetRatio = getDrawingWidth() / getDrawingHeight();
+            double currentRatio = (double) imageSize[0] / (double) imageSize[1];
+            double targetRatio = getDrawingWidth() / getDrawingHeight();
 
-            float scale = currentRatio < targetRatio ? imageSize[1] / getDrawingHeight(UnitsLength.PIXELS) : imageSize[0] / getDrawingWidth(UnitsLength.PIXELS);
-            float target = targetCanvas.getPlottingScale();
+            double scale = currentRatio < targetRatio ? imageSize[1] / getDrawingHeight(UnitsLength.PIXELS) : imageSize[0] / getDrawingWidth(UnitsLength.PIXELS);
+            double target = targetCanvas.getPlottingScale();
             return Math.max(scale, target);
         }
         return targetCanvas.getPlottingScale();
     }
 
     @Override
-    public float getTargetPenWidth() {
+    public double getTargetPenWidth() {
         if(useOriginalSizing()){
             return 1F;
         }
@@ -128,12 +128,12 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getCanvasScale(){
+    public double getCanvasScale(){
         return 1F;
     }
 
     @Override
-    public float getWidth() {
+    public double getWidth() {
         if(useOriginalSizing()){
             return getImageWidth();
         }
@@ -141,7 +141,7 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getHeight() {
+    public double getHeight() {
         if(useOriginalSizing()){
             return getImageHeight();
         }
@@ -149,7 +149,7 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getDrawingWidth() {
+    public double getDrawingWidth() {
         if(useOriginalSizing()){
             return getImageWidth();
         }
@@ -157,7 +157,7 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getDrawingHeight() {
+    public double getDrawingHeight() {
         if(useOriginalSizing()){
             return getImageHeight();
         }
@@ -165,7 +165,7 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getDrawingOffsetX() {
+    public double getDrawingOffsetX() {
         if(useOriginalSizing()){
             return flipAxis() ? imageCanvas.getDrawingOffsetX() : imageCanvas.getDrawingOffsetY();
         }
@@ -173,7 +173,7 @@ public class ImageCanvas implements ICanvas {
     }
 
     @Override
-    public float getDrawingOffsetY() {
+    public double getDrawingOffsetY() {
         if(useOriginalSizing()){
             return flipAxis() ? imageCanvas.getDrawingOffsetY() : imageCanvas.getDrawingOffsetX();
         }

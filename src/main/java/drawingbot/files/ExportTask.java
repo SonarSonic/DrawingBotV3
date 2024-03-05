@@ -54,7 +54,7 @@ public class ExportTask extends DBTask<Boolean> {
 
     public int renderedGeometries;
 
-    public float exportScale = 1F;
+    public double exportScale = 1D;
     public PlottedDrawing exportDrawing;
     public List<ObservableDrawingPen> exportRenderOrder;
     public DrawingGeometryIterator exportIterator;
@@ -96,8 +96,8 @@ public class ExportTask extends DBTask<Boolean> {
         exportRenderOrder = filterActivePens(exportDrawing.getGlobalRenderOrder(), true);
         exportIterator = new DrawingGeometryIterator(exportDrawing, exportRenderOrder);
 
-        if(exportScale != 1F){
-            float previousScale = exportDrawing.canvas.getPlottingScale();
+        if(exportScale != 1D){
+            double previousScale = exportDrawing.canvas.getPlottingScale();
             exportDrawing.canvas = CanvasUtils.normalisedCanvas(exportDrawing.canvas);
             exportDrawing.canvas = CanvasUtils.rescaleCanvas(exportDrawing.canvas, exportScale / previousScale);
         }

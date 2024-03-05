@@ -4,16 +4,13 @@ import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.Observable;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 
 public class GCodeSettings implements IProperties {
 
-    public final SimpleFloatProperty gcodeOffsetX = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty gcodeOffsetY = new SimpleFloatProperty(0);
+    public final DoubleProperty gcodeOffsetX = new SimpleDoubleProperty(0);
+    public final DoubleProperty gcodeOffsetY = new SimpleDoubleProperty(0);
     public final SimpleObjectProperty<UnitsLength> gcodeUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
     public final SimpleStringProperty gcodeStartCode = new SimpleStringProperty(GCodeExporter.defaultStartCode);
     public final SimpleStringProperty gcodeEndCode = new SimpleStringProperty(GCodeExporter.defaultEndCode);
@@ -21,16 +18,16 @@ public class GCodeSettings implements IProperties {
     public final SimpleStringProperty gcodePenUpCode = new SimpleStringProperty(GCodeExporter.defaultPenUpCode);
     public final SimpleStringProperty gcodeStartLayerCode = new SimpleStringProperty(GCodeExporter.defaultStartLayerCode);
     public final SimpleStringProperty gcodeEndLayerCode = new SimpleStringProperty(GCodeExporter.defaultEndLayerCode);
-    public final SimpleFloatProperty gcodeCurveFlatness = new SimpleFloatProperty(0.1F);
+    public final DoubleProperty gcodeCurveFlatness = new SimpleDoubleProperty(0.1F);
     public final SimpleBooleanProperty gcodeEnableFlattening = new SimpleBooleanProperty(true);
     public final SimpleBooleanProperty gcodeCenterZeroPoint = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<GCodeBuilder.CommentType> gcodeCommentType = new SimpleObjectProperty<>(GCodeBuilder.CommentType.BRACKETS);
 
-    public float getGCodeXOffset(){
+    public double getGCodeXOffset(){
         return gcodeUnits.get().toMM(gcodeOffsetX.get());
     }
 
-    public float getGCodeYOffset(){
+    public double getGCodeYOffset(){
         return gcodeUnits.get().toMM(gcodeOffsetY.get());
     }
 

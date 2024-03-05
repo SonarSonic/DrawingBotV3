@@ -14,10 +14,10 @@ import javafx.collections.FXCollections;
 
 public class PresetGCodeSettingsManager extends DefaultPresetManager<GCodeSettings, PresetData> {
 
-    public GenericSetting<GCodeSettings, Float> gcodeOffsetX = registerSetting(GenericSetting.createFloatSetting(GCodeSettings.class, "gcodeOffsetX", 0F, i -> i.gcodeOffsetX));
-    public GenericSetting<GCodeSettings, Float> gcodeOffsetY = registerSetting(GenericSetting.createFloatSetting(GCodeSettings.class, "gcodeOffsetY", 0F, i -> i.gcodeOffsetY));
+    public GenericSetting<GCodeSettings, Double> gcodeOffsetX = registerSetting(GenericSetting.createDoubleSetting(GCodeSettings.class, "gcodeOffsetX", 0D, i -> i.gcodeOffsetX));
+    public GenericSetting<GCodeSettings, Double> gcodeOffsetY = registerSetting(GenericSetting.createDoubleSetting(GCodeSettings.class, "gcodeOffsetY", 0D, i -> i.gcodeOffsetY));
     public GenericSetting<GCodeSettings, UnitsLength> gcodeUnits = registerSetting(GenericSetting.createOptionSetting(GCodeSettings.class, UnitsLength.class, "gcodeUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES, i -> i.gcodeUnits));
-    public GenericSetting<GCodeSettings, Float> gcodeCurveFlatness = registerSetting(GenericSetting.createFloatSetting(GCodeSettings.class, "gcodeCurveFlatness", 0.1F, i -> i.gcodeCurveFlatness).setValidator(Math::abs).createDisableBinding("gcodeEnableFlattening", false));
+    public GenericSetting<GCodeSettings, Double> gcodeCurveFlatness = registerSetting(GenericSetting.createDoubleSetting(GCodeSettings.class, "gcodeCurveFlatness", 0.1D, i -> i.gcodeCurveFlatness).setValidator(Math::abs).createDisableBinding("gcodeEnableFlattening", false));
     public GenericSetting<GCodeSettings, Boolean> gcodeEnableFlattening = registerSetting(GenericSetting.createBooleanSetting(GCodeSettings.class, "gcodeEnableFlattening", true, i -> i.gcodeEnableFlattening));
     public GenericSetting<GCodeSettings, Boolean> gcodeCenterZeroPoint = registerSetting(GenericSetting.createBooleanSetting(GCodeSettings.class, "gcodeCenterZeroPoint", false, i -> i.gcodeCenterZeroPoint));
     public GenericSetting<GCodeSettings, GCodeBuilder.CommentType> gcodeCommentType = registerSetting(GenericSetting.createOptionSetting(GCodeSettings.class, GCodeBuilder.CommentType.class, "gcodeCommentType", FXCollections.observableArrayList(GCodeBuilder.CommentType.values()), GCodeBuilder.CommentType.BRACKETS, i -> i.gcodeCommentType));

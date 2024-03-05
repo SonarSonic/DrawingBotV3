@@ -132,10 +132,10 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                     switch (drawing.canvas.getClippingMode()){
                         case NONE -> {}
                         case DRAWING -> {
-                            tools.setClippingShape(new Rectangle2D.Float(0, 0, drawing.canvas.getScaledDrawingWidth(), drawing.canvas.getScaledDrawingHeight()));
+                            tools.setClippingShape(new Rectangle2D.Double(0, 0, drawing.canvas.getScaledDrawingWidth(), drawing.canvas.getScaledDrawingHeight()));
                         }
                         case PAGE -> {
-                            tools.setClippingShape(new Rectangle2D.Float(-drawing.canvas.getScaledDrawingOffsetX(), -drawing.canvas.getScaledDrawingOffsetY(), drawing.canvas.getScaledWidth(), drawing.canvas.getScaledHeight()));                        }
+                            tools.setClippingShape(new Rectangle2D.Double(-drawing.canvas.getScaledDrawingOffsetX(), -drawing.canvas.getScaledDrawingOffsetY(), drawing.canvas.getScaledWidth(), drawing.canvas.getScaledHeight()));                        }
                     }
                 }
 
@@ -206,7 +206,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
 
                 //Setup the PFMTask so it is visible in the viewport
                 context.taskManager.setActiveTask(this);
-                context.taskManager.setRenderedTask(null);
+                context.taskManager.setRenderedTask(this);
                 context.taskManager.setCurrentDrawing(null);
 
                 //only update the distribution type the first time the PFM is changed, also only trigger the update when Start Plotting is hit again, so the current drawing doesn't get re-rendered

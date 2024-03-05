@@ -28,10 +28,10 @@ public class JsonAdapterImageCropping  implements JsonSerializer<ImageCropping>,
         imageCropping.setImageRotation(context.deserialize(jsonObject.get("imageRotation"), EnumRotation.class));
         imageCropping.setFlipHorizontal(jsonObject.get("imageFlipHorizontal").getAsBoolean());
         imageCropping.setFlipVertical(jsonObject.get("imageFlipVertical").getAsBoolean());
-        imageCropping.setCropStartX(jsonObject.get("cropStartX").getAsFloat());
-        imageCropping.setCropStartY(jsonObject.get("cropStartY").getAsFloat());
-        imageCropping.setCropWidth(jsonObject.get("cropEndX").getAsFloat());
-        imageCropping.setCropHeight(jsonObject.get("cropEndY").getAsFloat());
+        imageCropping.setCropStartX(jsonObject.get("cropStartX").getAsDouble());
+        imageCropping.setCropStartY(jsonObject.get("cropStartY").getAsDouble());
+        imageCropping.setCropWidth(jsonObject.get("cropEndX").getAsDouble());
+        imageCropping.setCropHeight(jsonObject.get("cropEndY").getAsDouble());
         return imageCropping;
     }
 

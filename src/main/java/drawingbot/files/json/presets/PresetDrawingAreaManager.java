@@ -34,14 +34,14 @@ public class PresetDrawingAreaManager extends DefaultPresetManager<ObservableCan
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, UnitsLength.class, Register.CATEGORY_UNIQUE, "inputUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.MILLIMETRES, i -> i.inputUnits).setDisplayName("Input Units"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumCroppingMode.class, Register.CATEGORY_UNIQUE, "scalingMode", FXCollections.observableArrayList(EnumCroppingMode.values()), EnumCroppingMode.CROP_TO_FIT, i -> i.croppingMode).setDisplayName("Cropping Mode"));
         registerSetting(GenericSetting.createOptionSetting(ObservableCanvas.class, EnumRescaleMode.class, Register.CATEGORY_UNIQUE, "rescaleMode", FXCollections.observableArrayList(EnumRescaleMode.values()), EnumRescaleMode.HIGH_QUALITY, i -> i.rescaleMode).setDisplayName("Rescale Mode"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaWidth", 0F, i -> i.width).setValidator(Math::abs).setDisplayName("Width"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaHeight", 0F, i -> i.height).setValidator(Math::abs).setDisplayName("Height"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaWidth", 0D, i -> i.width).setValidator(Math::abs).setDisplayName("Width"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaHeight", 0D, i -> i.height).setValidator(Math::abs).setDisplayName("Height"));
         registerSetting(GenericSetting.createBooleanSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaGang", true, i -> i.drawingAreaGangPadding).setDisplayName("Gang Padding"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingLeft", 0F, i -> i.drawingAreaPaddingLeft).setValidator(Math::abs).setDisplayName("Padding Left"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingRight", 0F, i -> i.drawingAreaPaddingRight).setValidator(Math::abs).setDisplayName("Padding Right"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingTop", 0F, i -> i.drawingAreaPaddingTop).setValidator(Math::abs).setDisplayName("Padding Top"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingBottom", 0F, i -> i.drawingAreaPaddingBottom).setValidator(Math::abs).setDisplayName("Padding Bottom"));
-        registerSetting(GenericSetting.createFloatSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "targetPenWidth", 0.3F, i -> i.targetPenWidth).setValidator(Math::abs).setDisplayName("Target pen width"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingLeft", 0, i -> i.drawingAreaPaddingLeft).setValidator(Math::abs).setDisplayName("Padding Left"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingRight", 0D, i -> i.drawingAreaPaddingRight).setValidator(Math::abs).setDisplayName("Padding Right"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingTop", 0D, i -> i.drawingAreaPaddingTop).setValidator(Math::abs).setDisplayName("Padding Top"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "drawingAreaPaddingBottom", 0D, i -> i.drawingAreaPaddingBottom).setValidator(Math::abs).setDisplayName("Padding Bottom"));
+        registerSetting(GenericSetting.createDoubleSetting(ObservableCanvas.class, Register.CATEGORY_UNIQUE, "targetPenWidth", 0.3D, i -> i.targetPenWidth).setValidator(Math::abs).setDisplayName("Target pen width"));
     }
 
 }

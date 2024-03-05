@@ -31,7 +31,7 @@ public class PresetProjectSettingsLegacy extends PresetProjectSettings {
     public boolean imageFlipVertical = false;
 
     public boolean optimiseForPrint;
-    public float targetPenWidth;
+    public double targetPenWidth;
 
     public GenericPreset<IDrawingSet> drawingSet; //legacy
     public ColorSeparationHandler colourSplitter;

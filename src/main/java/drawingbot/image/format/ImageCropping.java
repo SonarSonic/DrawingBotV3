@@ -5,9 +5,7 @@ import drawingbot.api.IProperties;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.EnumRotation;
 import javafx.beans.Observable;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 
 import java.awt.geom.Rectangle2D;
@@ -91,65 +89,65 @@ public class ImageCropping implements IProperties {
 
     ///////////////////////////////////////
 
-    public final SimpleFloatProperty cropStartX = new SimpleFloatProperty(0);
+    public final DoubleProperty cropStartX = new SimpleDoubleProperty(0);
 
-    public float getCropStartX() {
+    public double getCropStartX() {
         return cropStartX.get();
     }
 
-    public SimpleFloatProperty cropStartXProperty() {
+    public DoubleProperty cropStartXProperty() {
         return cropStartX;
     }
 
-    public void setCropStartX(float cropStartX) {
+    public void setCropStartX(double cropStartX) {
         this.cropStartX.set(cropStartX);
     }
 
     ///////////////////////////////////////
 
-    public final SimpleFloatProperty cropStartY = new SimpleFloatProperty(0);
+    public final DoubleProperty cropStartY = new SimpleDoubleProperty(0);
 
-    public float getCropStartY() {
+    public double getCropStartY() {
         return cropStartY.get();
     }
 
-    public SimpleFloatProperty cropStartYProperty() {
+    public DoubleProperty cropStartYProperty() {
         return cropStartY;
     }
 
-    public void setCropStartY(float cropStartY) {
+    public void setCropStartY(double cropStartY) {
         this.cropStartY.set(cropStartY);
     }
 
     ///////////////////////////////////////
 
-    public final SimpleFloatProperty cropWidth = new SimpleFloatProperty(0);
+    public final DoubleProperty cropWidth = new SimpleDoubleProperty(0);
 
-    public float getCropWidth() {
+    public double getCropWidth() {
         return cropWidth.get();
     }
 
-    public SimpleFloatProperty cropWidthProperty() {
+    public DoubleProperty cropWidthProperty() {
         return cropWidth;
     }
 
-    public void setCropWidth(float cropWidth) {
+    public void setCropWidth(double cropWidth) {
         this.cropWidth.set(cropWidth);
     }
 
     ///////////////////////////////////////
 
-    public final SimpleFloatProperty cropHeight = new SimpleFloatProperty(0);
+    public final DoubleProperty cropHeight = new SimpleDoubleProperty(0);
 
-    public float getCropHeight() {
+    public double getCropHeight() {
         return cropHeight.get();
     }
 
-    public SimpleFloatProperty cropHeightProperty() {
+    public DoubleProperty cropHeightProperty() {
         return cropHeight;
     }
 
-    public void setCropHeight(float cropHeight) {
+    public void setCropHeight(double cropHeight) {
         this.cropHeight.set(cropHeight);
     }
 
