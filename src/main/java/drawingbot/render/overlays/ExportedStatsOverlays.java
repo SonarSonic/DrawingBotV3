@@ -6,7 +6,8 @@ import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.image.ImageTools;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.observables.ObservableDrawingStats;
-import drawingbot.registry.Register;
+import drawingbot.javafx.util.JFXUtils;
+import drawingbot.render.viewport.Viewport;
 import drawingbot.utils.UnitsLength;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
@@ -27,9 +28,13 @@ import javafx.scene.text.TextFlow;
 
 import java.util.Map;
 
-public class ExportStatsOverlays extends AbstractOverlay {
+/**
+ * Viewport overlay for adding the export stats of the exported drawing
+ * e.g. shows page size, pen travel, pen order etc.
+ */
+public class ExportedStatsOverlays extends ViewportOverlayBase {
 
-    public static final ExportStatsOverlays INSTANCE = new ExportStatsOverlays();
+    private ScrollPane scrollPane;
 
     public final ObservableDrawingStats preStats = new ObservableDrawingStats();
     public final ObservableDrawingStats postStats = new ObservableDrawingStats();
@@ -52,14 +57,12 @@ public class ExportStatsOverlays extends AbstractOverlay {
     }
 
     @Override
-    public void init() {
-        exportEntries.bind(DrawingBotV3.INSTANCE.exportedDrawingsBinding);
-        activeProperty().bind(DrawingBotV3.INSTANCE.displayMode.isEqualTo(Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING));
+    public void initOverlay() {
 
-        ScrollPane scrollPane = new ScrollPane();
+        scrollPane = new ScrollPane();
         AnchorPane.setLeftAnchor(scrollPane, 8D);
         AnchorPane.setTopAnchor(scrollPane, 8D);
-        scrollPane.visibleProperty().bind(activeProperty());
+        scrollPane.visibleProperty().bind(enabledProperty());
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setBorder(Border.EMPTY);
         scrollPane.setBackground(Background.EMPTY);
@@ -148,14 +151,26 @@ public class ExportStatsOverlays extends AbstractOverlay {
 
         TextFlow statPenFlow = new TextFlow();
         vBox.getChildren().add(statPenFlow);
-        postStats.penStats.addListener((observable, oldValue, newValue) -> updatePenColours(statPenFlow, newValue));
+        JFXUtils.subscribeListener(postStats.penStats, (observable, oldValue, newValue) -> updatePenColours(statPenFlow, newValue));
 
         ////////
 
         stackPane.getChildren().add(vBox);
         scrollPane.setContent(stackPane);
+    }
 
-        DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane.getChildren().add(scrollPane);
+    @Override
+    public void activateViewportOverlay(Viewport viewport) {
+        super.activateViewportOverlay(viewport);
+
+        viewport.getForegroundOverlayNodes().add(scrollPane);
+    }
+
+    @Override
+    public void deactivateViewportOverlay(Viewport viewport) {
+        super.deactivateViewportOverlay(viewport);
+
+        viewport.getForegroundOverlayNodes().remove(scrollPane);
     }
 
     public void addGroupHeader(GridPane gridPane, String name){

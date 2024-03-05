@@ -11,16 +11,12 @@ import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.MouseMonitor;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.render.IDisplayMode;
-import drawingbot.render.jfx.JavaFXRenderer;
-import drawingbot.render.opengl.OpenGLRendererImpl;
-import drawingbot.render.overlays.AbstractOverlay;
+import drawingbot.render.modes.DisplayModeBase;
 import drawingbot.software.ISoftware;
 import drawingbot.software.SoftwareManager;
 import drawingbot.utils.LazyTimer;
 import drawingbot.utils.LazyTimerUtils;
 import drawingbot.utils.Utils;
-import drawingbot.utils.flags.Flags;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -155,10 +151,6 @@ public class FXApplication extends Application {
             MasterRegistry.INSTANCE.sortPFMSettings();
             MasterRegistry.INSTANCE.sortDataLoaders();
 
-            DrawingBotV3.logger.config("Renderers: Pre-Init");
-            DrawingBotV3.RENDERER = new JavaFXRenderer(Screen.getPrimary().getBounds());
-            DrawingBotV3.OPENGL_RENDERER = new OpenGLRendererImpl(Screen.getPrimary().getBounds());
-
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
             ///// INIT \\\\\
@@ -207,8 +199,8 @@ public class FXApplication extends Application {
 
             //// ADD ACCELERATORS \\\\
             int keypad = 1;
-            for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
-                FXApplication.primaryScene.getAccelerators().put(KeyCombination.valueOf("Shift + " + keypad), () -> DrawingBotV3.INSTANCE.displayMode.set(displayMode));
+            for(DisplayModeBase displayMode : MasterRegistry.INSTANCE.displayModes){
+                FXApplication.primaryScene.getAccelerators().put(KeyCombination.valueOf("Shift + " + keypad), () -> DrawingBotV3.project().displayMode.set(displayMode));
                 keypad++;
             }
 
@@ -216,32 +208,6 @@ public class FXApplication extends Application {
 
             CountDownLatch latchB = new CountDownLatch(1);
             Platform.runLater(() -> {
-                DrawingBotV3.logger.config("Renderers: Init JFX Renderer");
-                DrawingBotV3.RENDERER.init();
-                DrawingBotV3.RENDERER.startRenderer();
-
-                /*
-                DrawingBotV3.logger.info("Renderers: Init OpenGL Renderer");
-                DrawingBotV3.OPENGL_RENDERER.init();
-                 */
-
-                DrawingBotV3.logger.config("Renderers: Load Display Mode");
-                DrawingBotV3.INSTANCE.displayMode.get().applySettings();
-                DrawingBotV3.INSTANCE.displayMode.addListener((observable, oldValue, newValue) -> {
-                    if(oldValue == null || newValue.getRenderer() == oldValue.getRenderer()){
-                        DrawingBotV3.project().setRenderFlag(Flags.FORCE_REDRAW, true);
-                    }
-                    if(oldValue == null || newValue.getRenderer() != oldValue.getRenderer()){
-                        DrawingBotV3.project().setRenderFlag(Flags.CHANGED_RENDERER, true);
-                    }
-                    DrawingBotV3.INSTANCE.onDisplayModeChanged(oldValue, newValue);
-                });
-
-                DrawingBotV3.logger.config("Renderers: Load Overlays");
-                MasterRegistry.INSTANCE.overlays.forEach(AbstractOverlay::init);
-
-                //FXProgramSettings.init();
-
                 //save the default UI State before applying the users own defaults
                 FXHelper.saveDefaultUIStates();
 
@@ -283,12 +249,8 @@ public class FXApplication extends Application {
                     //Re-apply the config setings, ensures the UI is loaded properly
                     Register.PRESET_LOADER_PREFERENCES.applyConfigs();
 
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_MOVED, DrawingBotV3.INSTANCE::onMouseMovedViewport);
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, DrawingBotV3.INSTANCE::onMousePressedViewport);
-                    DrawingBotV3.INSTANCE.controller.viewportScrollPane.addEventHandler(KeyEvent.KEY_PRESSED, DrawingBotV3.INSTANCE::onKeyPressedViewport);
-                    DrawingBotV3.INSTANCE.projectName.set("Untitled");
                     DrawingBotV3.INSTANCE.resetView();
-                    primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> FXApplication.getSoftware().getDisplayName() + ", Version: " + FXApplication.getSoftware().getDisplayVersion() + ", " + "'" + DrawingBotV3.INSTANCE.projectNameBinding.get() + "'", DrawingBotV3.INSTANCE.projectNameBinding));
+                    primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> FXApplication.getSoftware().getDisplayName() + ", Version: " + FXApplication.getSoftware().getDisplayVersion() + ", " + "'" + DrawingBotV3.INSTANCE.projectName.get() + "'", DrawingBotV3.INSTANCE.projectName));
                     primaryStage.setResizable(true);
                     applyTheme(primaryStage);
                     primaryStage.show();
@@ -383,35 +345,10 @@ public class FXApplication extends Application {
             }
 
             timer.start();
-            DrawingBotV3.project().displayMode.get().getRenderer().preRender();
-            MasterRegistry.INSTANCE.overlays.forEach(o -> {
-                if(o.isActive()){
-                    o.preRender();
-                }
-            });
-
-            DrawingBotV3.project().displayMode.get().getRenderer().doRender();
-            MasterRegistry.INSTANCE.overlays.forEach(o -> {
-                if(o.isActive()){
-                    o.doRender();
-                }
-            });
 
             DrawingBotV3.INSTANCE.tick();
 
-            DrawingBotV3.project().displayMode.get().getRenderer().postRender();
-            MasterRegistry.INSTANCE.overlays.forEach(o -> {
-                if(o.isActive()){
-                    o.postRender();
-                }
-            });
-
-
             timer.finish();
-
-            if(!DrawingBotV3.project().displayMode.get().getRenderer().isOpenGL() && timer.getElapsedTime() > 1000/60){
-                DrawingBotV3.logger.finest("RENDERER TOOK: " + timer.getElapsedTimeFormatted() + " milliseconds" + " expected " + 1000/60);
-            }
         }
     }
 }

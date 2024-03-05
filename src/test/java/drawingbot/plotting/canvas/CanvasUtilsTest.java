@@ -42,10 +42,10 @@ public class CanvasUtilsTest extends TestCase {
         SimpleCanvas canvas = new SimpleCanvas(reference);
         canvas.useOriginalSizing = true;
         ImageCanvas imageCanvas = new ImageCanvas(canvas, new SimpleCanvas(800, 400), false);
-        assertEquals(imageCanvas.getWidth(), 800F);
-        assertEquals(imageCanvas.getHeight(), 400F);
-        assertEquals(imageCanvas.getDrawingOffsetX(), 0F);
-        assertEquals(imageCanvas.getDrawingOffsetY(), 0F);
+        assertEquals(imageCanvas.getWidth(), 800D);
+        assertEquals(imageCanvas.getHeight(), 400D);
+        assertEquals(imageCanvas.getDrawingOffsetX(), 0D);
+        assertEquals(imageCanvas.getDrawingOffsetY(), 0D);
     }
 
     public void testRetargetCanvas(){

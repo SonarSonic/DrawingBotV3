@@ -13,27 +13,25 @@ import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.controllers.*;
 import drawingbot.javafx.controls.ContextMenuObservableProject;
 import drawingbot.javafx.controls.DialogPremiumFeature;
-import drawingbot.javafx.controls.ZoomableScrollPane;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
 import drawingbot.javafx.util.JFXUtils;
+import drawingbot.registry.Register;
+import drawingbot.render.modes.DisplayModeBase;
+import drawingbot.render.overlays.*;
+import drawingbot.render.viewport.Viewport;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.render.IDisplayMode;
-import drawingbot.render.overlays.NotificationOverlays;
-import drawingbot.render.shapes.JFXShapeManager;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.Utils;
-import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -66,8 +64,6 @@ import java.util.logging.Level;
 
 public class FXController extends AbstractFXController {
 
-    public static final String STYLESHEET_VIEWPORT_OVERLAYS = "viewport-overlays.css";
-
     public FXDrawingArea drawingAreaController;
     public FXImageProcessing imageFiltersController;
     public FXPFMControls pfmSettingsController;
@@ -93,9 +89,6 @@ public class FXController extends AbstractFXController {
             initProgressBar();
             //initPFMControls();
             Hooks.runHook(Hooks.FX_CONTROLLER_POST_INIT, this);
-
-            viewportScrollPane.setHvalue(0.5);
-            viewportScrollPane.setVvalue(0.5);
 
         }catch (Exception e){
             DrawingBotV3.logger.log(Level.SEVERE, "Failed to initialize JAVA FX", e);
@@ -566,12 +559,15 @@ public class FXController extends AbstractFXController {
     //// VIEWPORT PANE
 
     ////VIEWPORT WINDOW
+    public Viewport viewport = null;
     public VBox vBoxViewportContainer = null;
     public NotificationPane notificationPane = null;
 
-    public VBox viewport = null;
-    public ZoomableScrollPane viewportScrollPane = null;
-    public AnchorPane viewportOverlayAnchorPane = null;
+    public RulerOverlays rulerOverlays = null;
+    public BorderOverlays borderOverlays = null;
+    public ExportedStatsOverlays exportStatsOverlays = null;
+    public NotificationOverlays notificationOverlays = null;
+    public ScaledNodeOverlays shapeOverlaysTest = null;
 
     ////VIEWPORT SETTINGS
     public RangeSlider rangeSliderDisplayedLines = null;
@@ -580,7 +576,7 @@ public class FXController extends AbstractFXController {
 
     public CheckBox checkBoxApplyToExport = null;
 
-    public ChoiceBox<IDisplayMode> choiceBoxDisplayMode = null;
+    public ChoiceBox<DisplayModeBase> choiceBoxDisplayMode = null;
     public ComboBox<EnumBlendMode> comboBoxBlendMode = null;
     public ToggleButton toggleDPIScaling = null;
     public Button buttonResetView = null;
@@ -659,96 +655,48 @@ public class FXController extends AbstractFXController {
             }
         });
 
-        JFXUtils.subscribeListener(DrawingBotV3.INSTANCE.activeProject, (observable, oldValue, newValue) -> {
-            if(oldValue != null){
-                checkBoxApplyToExport.selectedProperty().unbindBidirectional(oldValue.exportRange);
-                comboBoxBlendMode.valueProperty().unbindBidirectional(oldValue.blendMode);
-                toggleDPIScaling.selectedProperty().unbindBidirectional(oldValue.dpiScaling);
-            }
-            if(newValue != null){
-                checkBoxApplyToExport.selectedProperty().bindBidirectional(newValue.exportRange);
-                comboBoxBlendMode.valueProperty().bindBidirectional(newValue.blendMode);
-                toggleDPIScaling.selectedProperty().bindBidirectional(newValue.dpiScaling);
-            }
-        });
-
         choiceBoxDisplayMode.getItems().addAll(MasterRegistry.INSTANCE.displayModes.filtered(d->!d.isHidden()));
-        choiceBoxDisplayMode.valueProperty().bindBidirectional(DrawingBotV3.INSTANCE.displayMode);
 
         comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
-        viewportScrollPane = new ZoomableScrollPane();
+        viewport = new Viewport();
+        viewport.viewportBackgroundColorProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.backgroundColor));
 
-        viewportScrollPane.setFitToWidth(true);
-        viewportScrollPane.setFitToHeight(true);
-        viewportScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        viewportScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        viewportScrollPane.setVvalue(0.5);
-        viewportScrollPane.setHvalue(0.5);
-        viewportScrollPane.setMaxWidth(Double.MAX_VALUE);
-        viewportScrollPane.setMaxHeight(Double.MAX_VALUE);
-        viewportScrollPane.setPannable(true);
-        viewportScrollPane.setId("viewportScrollPane");
-        viewportScrollPane.scale.addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
-        viewportScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> DrawingBotV3.project().setRenderFlag(Flags.CANVAS_MOVED));
+        //Register mouse handlers for the colour picker
+        viewport.addEventFilter(MouseEvent.MOUSE_MOVED, this::onMouseMovedColourPicker);
+        viewport.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMousePressedColourPicker);
+        viewport.addEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressedColourPicker);
 
-        viewportScrollPane.contentProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                ObservableObjectValue<Color> backgroundColor = EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.backgroundColor);
-                newValue.styleProperty().unbind();
-                newValue.styleProperty().bind(Bindings.createStringBinding(() -> {
-                    Color c = backgroundColor.get();
+        //Create bindings for the mouses position in the viewport
+        DrawingBotV3.INSTANCE.relativeMousePosX.bind(viewport.relativeMouseXProperty());
+        DrawingBotV3.INSTANCE.relativeMousePosY.bind(viewport.relativeMouseYProperty());
+        DrawingBotV3.INSTANCE.relativeMouseUnits.bind(viewport.canvasUnitsProperty());
 
-                    return "-fx-background-color: rgb(%s,%s,%s,%s)".formatted((int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255), c.getOpacity());
-                }, backgroundColor));
-            }
-        });
-
-        VBox.setVgrow(viewportScrollPane, Priority.ALWAYS);
-        HBox.setHgrow(viewportScrollPane, Priority.ALWAYS);
-
-        /*
-        viewportStackPane = new Pane();
-        viewportStackPane.getChildren().add(viewportScrollPane);
-        VBox.setVgrow(viewportStackPane, Priority.ALWAYS);
-        HBox.setHgrow(viewportStackPane, Priority.ALWAYS);
-        vBoxViewportContainer.getChildren().add(viewportStackPane);
-
-         */
-
-        viewportOverlayAnchorPane = new AnchorPane();
-        viewportOverlayAnchorPane.setPickOnBounds(false);
-        Rectangle overlayClip = new Rectangle(0, 0,0,0);
-        overlayClip.widthProperty().bind(viewportScrollPane.widthProperty().subtract(14)); //14 = subtract the scrollbars
-        overlayClip.heightProperty().bind(viewportScrollPane.heightProperty().subtract(14));
-        viewportOverlayAnchorPane.layoutXProperty().bind(viewportScrollPane.layoutXProperty());
-        viewportOverlayAnchorPane.layoutYProperty().bind(viewportScrollPane.layoutYProperty());
-        viewportOverlayAnchorPane.setManaged(false);
-        viewportOverlayAnchorPane.setClip(overlayClip);
-        viewportOverlayAnchorPane.getStylesheets().add(FXController.class.getResource(STYLESHEET_VIEWPORT_OVERLAYS).toExternalForm());
-
-        //Wrap the viewport & overlay
-        viewport = new VBox();
-        VBox.setVgrow(viewport, Priority.ALWAYS);
-        HBox.setHgrow(viewport, Priority.ALWAYS);
-
-        VBox.setVgrow(viewportScrollPane, Priority.ALWAYS);
-        HBox.setHgrow(viewportScrollPane, Priority.ALWAYS);
-
-        viewport.getChildren().add(viewportScrollPane);
-        viewport.getChildren().add(viewportOverlayAnchorPane);
         vBoxViewportContainer.getChildren().add(viewport);
 
-        viewportScrollPane.setOnDragEntered(onDragEntered(viewportScrollPane));
-        viewportScrollPane.setOnDragExited(onDragExited(viewportScrollPane));
-        viewportScrollPane.setOnDragDone(onDragDone(viewportScrollPane));
+        rulerOverlays = new RulerOverlays();
+        rulerOverlays.enabledProperty().bindBidirectional(DBPreferences.INSTANCE.rulersEnabled.asBooleanProperty());
+        viewport.getViewportOverlays().add(rulerOverlays);
 
-        EventHandler<? super DragEvent> onPaneOver = onDragOver(viewportScrollPane);
-        viewportScrollPane.setOnDragOver(event -> {
+        borderOverlays = new BorderOverlays();
+        borderOverlays.enabledProperty().bindBidirectional(DBPreferences.INSTANCE.drawingBordersEnabled.valueProperty());
+        borderOverlays.borderColour.bindBidirectional(DBPreferences.INSTANCE.drawingBordersColor.valueProperty());
+        viewport.getViewportOverlays().add(borderOverlays);
+
+        exportStatsOverlays = new ExportedStatsOverlays();
+        exportStatsOverlays.enabledProperty().bind(viewport.displayModeProperty().isEqualTo(Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING));
+        viewport.getViewportOverlays().add(exportStatsOverlays);
+        notificationOverlays = NotificationOverlays.INSTANCE;
+        notificationOverlays.enabledProperty().bindBidirectional(DBPreferences.INSTANCE.notificationsEnabled.asBooleanProperty());
+        viewport.getViewportOverlays().add(notificationOverlays);
+
+        viewport.setOnDragEntered(onDragEntered(viewport));
+        viewport.setOnDragExited(onDragExited(viewport));
+        viewport.setOnDragDone(onDragDone(viewport));
+
+        EventHandler<? super DragEvent> onPaneOver = onDragOver(viewport);
+        viewport.setOnDragOver(event -> {
 
             if (event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.LINK);
@@ -760,8 +708,8 @@ public class FXController extends AbstractFXController {
             event.consume();
         });
 
-        EventHandler<? super DragEvent> onPaneDropped = onDragDropped(viewportScrollPane);
-        viewportScrollPane.setOnDragDropped(event -> {
+        EventHandler<? super DragEvent> onPaneDropped = onDragDropped(viewport);
+        viewport.setOnDragDropped(event -> {
 
             Dragboard db = event.getDragboard();
             boolean success = false;
@@ -778,6 +726,34 @@ public class FXController extends AbstractFXController {
             }
             event.setDropCompleted(success);
             event.consume();
+        });
+
+
+        JFXUtils.subscribeListener(DrawingBotV3.INSTANCE.activeProject, (observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                checkBoxApplyToExport.selectedProperty().unbindBidirectional(oldValue.exportRange);
+                comboBoxBlendMode.valueProperty().unbindBidirectional(oldValue.blendMode);
+                toggleDPIScaling.selectedProperty().unbindBidirectional(oldValue.dpiScaling);
+                choiceBoxDisplayMode.valueProperty().unbindBidirectional(oldValue.displayMode);
+                exportStatsOverlays.exportEntries.unbindBidirectional(oldValue.exportedDrawings);
+                exportStatsOverlays.selectedEntry.unbindBidirectional(oldValue.selectedExportedDrawing);
+
+                viewport.displayModeProperty().unbindBidirectional(oldValue.displayMode);
+                viewport.rendererBlendModeProperty().unbindBidirectional(oldValue.blendMode);
+                viewport.useDPIScalingProperty().unbindBidirectional(oldValue.dpiScaling);
+            }
+            if(newValue != null){
+                checkBoxApplyToExport.selectedProperty().bindBidirectional(newValue.exportRange);
+                comboBoxBlendMode.valueProperty().bindBidirectional(newValue.blendMode);
+                toggleDPIScaling.selectedProperty().bindBidirectional(newValue.dpiScaling);
+                choiceBoxDisplayMode.valueProperty().bindBidirectional(newValue.displayMode);
+                exportStatsOverlays.exportEntries.bindBidirectional(newValue.exportedDrawings);
+                exportStatsOverlays.selectedEntry.bindBidirectional(newValue.selectedExportedDrawing);
+
+                viewport.displayModeProperty().bindBidirectional(newValue.displayMode);
+                viewport.rendererBlendModeProperty().bindBidirectional(newValue.blendMode);
+                viewport.useDPIScalingProperty().bindBidirectional(newValue.dpiScaling);
+            }
         });
 
         labelElapsedTime.textProperty().bind(Bindings.createStringBinding(() -> {
@@ -806,18 +782,18 @@ public class FXController extends AbstractFXController {
     public void startColourPick(ObservableDrawingPen pen){
         penForColourPicker = pen;
         colourPickerActive = true;
-        viewportScrollPane.setCursor(Cursor.CROSSHAIR);
+        viewport.setCursor(Cursor.CROSSHAIR);
         colourPickerRectangle.setVisible(true);
         colourPickerRectangle.setFill(pen.javaFXColour.get());
     }
 
     public void doColourPick(MouseEvent event, boolean update){
-        Point2D localPoint = viewportScrollPane.getParent().sceneToLocal(event.getSceneX(), event.getSceneY());
+        Point2D localPoint = viewport.getParent().sceneToLocal(event.getSceneX(), event.getSceneY());
 
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setViewport(new Rectangle2D(localPoint.getX(), localPoint.getY(), 1, 1));
 
-        viewportScrollPane.snapshot((result) -> setPickResult(result, update), parameters, snapshotImage);
+        viewport.snapshot((result) -> setPickResult(result, update), parameters, snapshotImage);
     }
 
     public Void setPickResult(SnapshotResult result, boolean update){
@@ -832,7 +808,7 @@ public class FXController extends AbstractFXController {
     }
 
     public void endColourPick(){
-        viewportScrollPane.setCursor(Cursor.DEFAULT);
+        viewport.setCursor(Cursor.DEFAULT);
         penForColourPicker = null;
         colourPickerActive = false;
         colourPickerRectangle.setVisible(false);
@@ -1022,7 +998,7 @@ public class FXController extends AbstractFXController {
                             dstParent.getChildren().add(source);
                             success = true;
                         }
-                    }else if(target == viewportScrollPane || target == vBoxViewportContainer){
+                    }else if(target instanceof Viewport || target == vBoxViewportContainer){
                         undockTitlePane(source);
                         success = true;
                     }else if(target == hiddenDragRectangleRight || target == hiddenDragRectangleLeft){

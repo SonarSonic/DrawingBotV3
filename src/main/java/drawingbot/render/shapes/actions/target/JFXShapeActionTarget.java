@@ -3,7 +3,6 @@ package drawingbot.render.shapes.actions.target;
 import drawingbot.api.actions.IActionTarget;
 import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeList;
-import drawingbot.render.shapes.JFXShapeManager;
 
 import java.util.UUID;
 
@@ -23,6 +22,6 @@ public class JFXShapeActionTarget implements IActionTarget<JFXShape> {
 
     @Override
     public JFXShape getTarget() {
-        return JFXShapeManager.getShape(listUUID, shapeUUID);
+        return JFXShapeList.getShape(listUUID, shapeUUID);
     }
 }

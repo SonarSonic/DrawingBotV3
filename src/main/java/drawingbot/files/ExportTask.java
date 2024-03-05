@@ -18,7 +18,6 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.Register;
-import drawingbot.render.overlays.ExportStatsOverlays;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
 import javafx.application.Platform;
@@ -269,14 +268,14 @@ public class ExportTask extends DBTask<Boolean> {
         ExportedDrawingEntry entry = new ExportedDrawingEntry(exportPathsDrawing, saveLocation, preStats, postStats);
 
         context.project().getExportedDrawings().add(entry);
-        Platform.runLater(() -> ExportStatsOverlays.INSTANCE.selectedEntry.set(entry));
+        Platform.runLater(() -> context.project().selectedExportedDrawing.set(entry));
 
         // Custom pens can't be optimised fully, so don't show their export output.
         boolean customPens = drawing.getAllPens().stream().anyMatch(pen -> pen.source instanceof ICustomPen && !((ICustomPen) pen.source).canOptimisePenPaths());
 
         if(DBPreferences.INSTANCE.showExportedDrawing.get() && exportHandler.isVector && !customPens && !shownExportPage){
             Platform.runLater(() -> {
-                DrawingBotV3.INSTANCE.displayMode.set(Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING);
+                context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING);
             });
             shownExportPage = true;
         }

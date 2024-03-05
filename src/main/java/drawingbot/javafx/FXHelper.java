@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.api.IGeometryFilter;
 import drawingbot.files.DrawingExportHandler;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
@@ -23,6 +22,7 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
 import drawingbot.render.overlays.NotificationOverlays;
+import drawingbot.render.viewport.Viewport;
 import drawingbot.software.SoftwareManager;
 import drawingbot.utils.Utils;
 import javafx.application.Platform;
@@ -759,7 +759,7 @@ public class FXHelper {
 
         nodePropertyAccessors.add(new PropertyAccessorProp<>(TitledPane.class, "expanded", Boolean.class, TitledPane::expandedProperty));
         nodePropertyAccessors.add(new PropertyAccessorProp<>(TableColumnBase.class, "visible", Boolean.class, TableColumnBase::visibleProperty));
-        nodePropertyAccessors.add(new PropertyAccessorProp<>(ZoomableScrollPane.class, "scale", Number.class, ZoomableScrollPane::scaleProperty));
+        nodePropertyAccessors.add(new PropertyAccessorProp<>(Viewport.class, "scale", Number.class, Viewport::zoomProperty));
         nodePropertyAccessors.add(new PropertyAccessor<>(SplitPane.class, SplitPaneDataFormat.class, "dividers"){
 
             @Override

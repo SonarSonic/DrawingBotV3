@@ -36,10 +36,7 @@ import drawingbot.javafx.settings.ImageSetting;
 import drawingbot.javafx.settings.custom.DirtyBorderSetting;
 import drawingbot.pfm.*;
 import drawingbot.plugins.*;
-import drawingbot.render.IDisplayMode;
-import drawingbot.render.modes.DrawingJFXDisplayMode;
-import drawingbot.render.modes.ImageJFXDisplayMode;
-import drawingbot.render.overlays.*;
+import drawingbot.render.modes.*;
 import drawingbot.software.IComponent;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.EnumDistributionType;
@@ -129,15 +126,15 @@ public class Register implements IPlugin {
 
 
     //// DISPLAY MODES \\\\
-    public IDisplayMode DISPLAY_MODE_IMAGE;
-    public IDisplayMode DISPLAY_MODE_DRAWING;
-    public IDisplayMode DISPLAY_MODE_ORIGINAL;
-    public IDisplayMode DISPLAY_MODE_REFERENCE;
-    public IDisplayMode DISPLAY_MODE_LIGHTENED;
-    public IDisplayMode DISPLAY_MODE_TONE_MAP;
-    public IDisplayMode DISPLAY_MODE_SELECTED_PEN;
-    public IDisplayMode DISPLAY_MODE_IMAGE_CROPPING;
-    public IDisplayMode DISPLAY_MODE_EXPORT_DRAWING;
+    public DisplayModeBase DISPLAY_MODE_IMAGE;
+    public DisplayModeBase DISPLAY_MODE_DRAWING;
+    public DisplayModeBase DISPLAY_MODE_ORIGINAL;
+    public DisplayModeBase DISPLAY_MODE_REFERENCE;
+    public DisplayModeBase DISPLAY_MODE_LIGHTENED;
+    public DisplayModeBase DISPLAY_MODE_TONE_MAP;
+    public DisplayModeBase DISPLAY_MODE_SELECTED_PEN;
+    public DisplayModeBase DISPLAY_MODE_IMAGE_CROPPING;
+    public DisplayModeBase DISPLAY_MODE_EXPORT_DRAWING;
 
     //// DRAWING METADATA \\\\
     public Metadata<File> ORIGINAL_FILE;
@@ -250,21 +247,24 @@ public class Register implements IPlugin {
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_UNIQUE, 5);
         MasterRegistry.INSTANCE.registerSettingCategory(CATEGORY_GENERIC, 0);
 
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE = new ImageJFXDisplayMode.Image());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_DRAWING = new DrawingJFXDisplayMode.Drawing());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_ORIGINAL = new ImageJFXDisplayMode.Original());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_REFERENCE = new ImageJFXDisplayMode.Reference());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new ImageJFXDisplayMode.Lightened());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new ImageJFXDisplayMode.ToneMap());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new DrawingJFXDisplayMode.SelectedPen());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new ImageJFXDisplayMode.Cropping());
-        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_EXPORT_DRAWING = new DrawingJFXDisplayMode.ExportedDrawing());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE = new JFXFilteredImageDisplayMode());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_DRAWING = new JFXDrawingDisplayMode.Drawing());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_ORIGINAL = new JFXImageDisplayMode.Original());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_REFERENCE = new JFXImageDisplayMode.Reference());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_LIGHTENED = new JFXImageDisplayMode.Lightened());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_TONE_MAP = new JFXImageDisplayMode.ToneMap());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_SELECTED_PEN = new JFXDrawingDisplayMode.SelectedPen());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_IMAGE_CROPPING = new JFXCroppingDisplayMode());
+        MasterRegistry.INSTANCE.registerDisplayMode(DISPLAY_MODE_EXPORT_DRAWING = new JFXDrawingDisplayMode.ExportedDrawing());
 
+        /*
         MasterRegistry.INSTANCE.registerOverlay(RulerOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(DrawingBorderOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(NotificationOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(ShapeOverlays.INSTANCE);
         MasterRegistry.INSTANCE.registerOverlay(ExportStatsOverlays.INSTANCE);
+        
+         */
 
         MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_FILE = new Metadata<>("original_file", File.class, false));
         MasterRegistry.INSTANCE.registerMetadataType(ORIGINAL_IMAGE = new Metadata<>("original_image", BufferedImage.class, false));

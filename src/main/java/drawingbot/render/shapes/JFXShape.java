@@ -5,7 +5,6 @@ import drawingbot.geom.shapes.GPath;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.javafx.JFXAWTUtils;
 import drawingbot.registry.MasterRegistry;
-import drawingbot.render.overlays.ShapeOverlays;
 import drawingbot.utils.Utils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
@@ -56,8 +55,7 @@ public class JFXShape {
         GeometryUtils.copyGeometryData(this.transformed, geometry);
 
         this.jfxShape = (Path) MasterRegistry.INSTANCE.getFallbackJFXGeometryConverter().convert(geometry);//GeometryUtils.convertGeometryToJFXShape(transformed);
-        this.jfxShape.getTransforms().add(ShapeOverlays.INSTANCE.globalTransform);
-        this.jfxShape.strokeWidthProperty().bind(ShapeOverlays.INSTANCE.relativeStrokeSize);
+
 
         if(useFastScaling){
             this.jfxShape.getTransforms().add(jfxTransform);
@@ -71,7 +69,6 @@ public class JFXShape {
         this.drawingProperty().addListener(observable -> updatePseudoClassState());
         this.jfxShape.mouseTransparentProperty().bind(drawingProperty());
 
-        JFXShapeManager.INSTANCE.initJFXGeometry(this);
         updatePseudoClassState();
     }
 
@@ -127,8 +124,7 @@ public class JFXShape {
 
     //TODO UPDATE AWT PATH AT THE END IF IT'S BEING EDITED
     public void addElement(PathElement element){
-        if(geometry instanceof GPath && jfxShape != null){
-            GPath gPath = (GPath) geometry;
+        if(jfxShape != null && geometry instanceof GPath gPath){
             Path jfxPath = jfxShape;
 
             jfxPath.getElements().add(element);
@@ -226,7 +222,7 @@ public class JFXShape {
 
     ////////////////////////////
 
-    public SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
+    public SimpleBooleanProperty selected = new SimpleBooleanProperty(this, "selected", false);
 
     public boolean isSelected() {
         return selected.get();
@@ -242,7 +238,7 @@ public class JFXShape {
 
     ////////////////////////////
 
-    public SimpleBooleanProperty displayed = new SimpleBooleanProperty(true);
+    public SimpleBooleanProperty displayed = new SimpleBooleanProperty(this, "displayed", true);
 
     public boolean isDisplayed() {
         return displayed.get();

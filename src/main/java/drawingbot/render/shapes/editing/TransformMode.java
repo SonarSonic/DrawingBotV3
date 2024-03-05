@@ -1,4 +1,4 @@
-package drawingbot.render.shapes;
+package drawingbot.render.shapes.editing;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -6,54 +6,58 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.shape.Rectangle;
 
-public enum TransformModes {
+public enum TransformMode {
 
-    NW_RESIZE(JFXShapeManager.SCALE, Cursor.NW_RESIZE),
-    NE_RESIZE(JFXShapeManager.SCALE, Cursor.NE_RESIZE),
-    SW_RESIZE(JFXShapeManager.SCALE, Cursor.SW_RESIZE),
-    SE_RESIZE(JFXShapeManager.SCALE, Cursor.SE_RESIZE),
-    N_RESIZE(JFXShapeManager.SCALE, Cursor.N_RESIZE),
-    W_RESIZE(JFXShapeManager.SCALE, Cursor.W_RESIZE),
-    E_RESIZE(JFXShapeManager.SCALE, Cursor.E_RESIZE),
-    S_RESIZE(JFXShapeManager.SCALE, Cursor.S_RESIZE),
+    NW_RESIZE(TransformModeType.SCALE, Cursor.NW_RESIZE),
+    NE_RESIZE(TransformModeType.SCALE, Cursor.NE_RESIZE),
+    SW_RESIZE(TransformModeType.SCALE, Cursor.SW_RESIZE),
+    SE_RESIZE(TransformModeType.SCALE, Cursor.SE_RESIZE),
+    N_RESIZE(TransformModeType.SCALE, Cursor.N_RESIZE),
+    W_RESIZE(TransformModeType.SCALE, Cursor.W_RESIZE),
+    E_RESIZE(TransformModeType.SCALE, Cursor.E_RESIZE),
+    S_RESIZE(TransformModeType.SCALE, Cursor.S_RESIZE),
 
-    NW_ROTATE(JFXShapeManager.ROTATE, Cursor.NE_RESIZE),
-    NE_ROTATE(JFXShapeManager.ROTATE, Cursor.SE_RESIZE),
-    SW_ROTATE(JFXShapeManager.ROTATE, Cursor.SE_RESIZE),
-    SE_ROTATE(JFXShapeManager.ROTATE, Cursor.NE_RESIZE),
+    NW_ROTATE(TransformModeType.ROTATE, Cursor.NE_RESIZE),
+    NE_ROTATE(TransformModeType.ROTATE, Cursor.SE_RESIZE),
+    SW_ROTATE(TransformModeType.ROTATE, Cursor.SE_RESIZE),
+    SE_ROTATE(TransformModeType.ROTATE, Cursor.NE_RESIZE),
 
-    N_SKEW(JFXShapeManager.SKEW, Cursor.E_RESIZE),
-    E_SKEW(JFXShapeManager.SKEW, Cursor.N_RESIZE),
-    S_SKEW(JFXShapeManager.SKEW, Cursor.W_RESIZE),
-    W_SKEW(JFXShapeManager.SKEW, Cursor.N_RESIZE),
+    N_SKEW(TransformModeType.SKEW, Cursor.E_RESIZE),
+    E_SKEW(TransformModeType.SKEW, Cursor.N_RESIZE),
+    S_SKEW(TransformModeType.SKEW, Cursor.W_RESIZE),
+    W_SKEW(TransformModeType.SKEW, Cursor.N_RESIZE),
 
-    MOVE(JFXShapeManager.TRANSLATE, Cursor.MOVE);
+    MOVE(TransformModeType.TRANSLATE, Cursor.MOVE);
 
     public Cursor cursor;
-    public int type;
+    public TransformModeType type;
 
-    TransformModes(int type, Cursor cursor) {
+    TransformMode(TransformModeType type, Cursor cursor) {
         this.type = type;
         this.cursor = cursor;
     }
 
+    public TransformModeType getType(){
+        return type;
+    }
+
     public boolean isTranslation() {
-        return type == JFXShapeManager.TRANSLATE;
+        return type == TransformModeType.TRANSLATE;
     }
 
     public boolean isRotation() {
-        return type == JFXShapeManager.ROTATE;
+        return type == TransformModeType.ROTATE;
     }
 
     public boolean isSkew() {
-        return type == JFXShapeManager.SKEW;
+        return type == TransformModeType.SKEW;
     }
 
     public boolean isScale() {
-        return type == JFXShapeManager.SCALE;
+        return type == TransformModeType.SCALE;
     }
 
-    public TransformModes opposite() {
+    public TransformMode opposite() {
         return switch (this) {
             case NW_RESIZE -> SE_RESIZE;
             case NE_RESIZE -> SW_RESIZE;

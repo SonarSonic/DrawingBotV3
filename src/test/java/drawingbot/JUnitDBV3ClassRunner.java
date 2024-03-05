@@ -28,6 +28,7 @@ public class JUnitDBV3ClassRunner extends BlockJUnit4ClassRunner {
         TestUtils.lazySetupDirectories();
         JFXUtils.runNow(() -> {
             DBPreferences.INSTANCE.autoRunPFM.set(false);
+            //TODO FIX TEST PRESET LOADING
             JsonLoaderManager.loadDefaultPresetContainerJSON("pfm_unit_test.json");
         });
 

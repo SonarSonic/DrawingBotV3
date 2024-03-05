@@ -135,9 +135,6 @@ public class FXDrawingSets extends AbstractFXController {
         });
 
         drawingSetTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
-                DrawingBotV3.project().reRender();
-            }
             drawingSets.get().activeDrawingSet.set(newValue);
         });
 

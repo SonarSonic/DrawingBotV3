@@ -3,6 +3,7 @@ package drawingbot.files.json.projects;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.api.ICanvas;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.ColorSeparationHandler;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportedDrawingEntry;
@@ -34,7 +35,7 @@ import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.render.IDisplayMode;
+import drawingbot.render.modes.DisplayModeBase;
 import drawingbot.utils.*;
 import drawingbot.utils.flags.Flags;
 import javafx.application.Platform;
@@ -47,8 +48,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import javafx.scene.control.Tab;
 
 import java.io.File;
@@ -204,17 +203,17 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     /**
      * Display Settings
      */
-    public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<DisplayModeBase> displayMode = new SimpleObjectProperty<>();
 
-    public IDisplayMode getDisplayMode() {
+    public DisplayModeBase getDisplayMode() {
         return displayMode.get();
     }
 
-    public SimpleObjectProperty<IDisplayMode> displayModeProperty() {
+    public SimpleObjectProperty<DisplayModeBase> displayModeProperty() {
         return displayMode;
     }
 
-    public void setDisplayMode(IDisplayMode displayMode) {
+    public void setDisplayMode(DisplayModeBase displayMode) {
         this.displayMode.set(displayMode);
     }
 
@@ -345,7 +344,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         });
         renderedTask.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null && activeTask.get() != oldValue){
-                oldValue.tryDestroy();
+                oldValue.tryDestroy(); //TODO PROPER HANDLING OF DESTROYING TASKS / DRAWINGS
             }
             setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
         });
@@ -561,18 +560,14 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         if(!isLoaded()){
             return;
         }
-        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
-            displayMode.getRenderFlags().setFlag(flag, true);
-        }
+        DrawingBotV3.INSTANCE.setRenderFlag(flag);
     }
 
     public <T> void setRenderFlag(Flags.Flag<T> flag, T value){
         if(!isLoaded()){
             return;
         }
-        for(IDisplayMode displayMode : MasterRegistry.INSTANCE.displayModes){
-            displayMode.getRenderFlags().setFlag(flag, value);
-        }
+        DrawingBotV3.INSTANCE.setRenderFlag(flag, value);
     }
 
     public void reRender(){

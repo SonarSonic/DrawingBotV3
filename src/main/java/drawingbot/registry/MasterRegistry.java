@@ -23,8 +23,7 @@ import drawingbot.javafx.preferences.items.EditorSheet;
 import drawingbot.javafx.preferences.items.TreeNode;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.pfm.PFMFactory;
-import drawingbot.render.IDisplayMode;
-import drawingbot.render.overlays.AbstractOverlay;
+import drawingbot.render.modes.DisplayModeBase;
 import drawingbot.utils.EnumFilterTypes;
 import drawingbot.utils.Metadata;
 import javafx.beans.property.ObjectProperty;
@@ -547,22 +546,11 @@ public class MasterRegistry {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //// DISPLAY MODES \\\\
-    public ObservableList<IDisplayMode> displayModes = FXCollections.observableArrayList();
+    public ObservableList<DisplayModeBase> displayModes = FXCollections.observableArrayList();
 
-    public IDisplayMode registerDisplayMode(IDisplayMode displayMode){
+    public DisplayModeBase registerDisplayMode(DisplayModeBase displayMode){
         DrawingBotV3.logger.config("Registering Display Mode: " + displayMode.getName());
         this.displayModes.add(displayMode);
-        return displayMode;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //// OVERLAYS \\\\
-    public ObservableList<AbstractOverlay> overlays = FXCollections.observableArrayList();
-
-    public AbstractOverlay registerOverlay(AbstractOverlay displayMode){
-        DrawingBotV3.logger.config("Registering Overlay: " + displayMode.getName());
-        this.overlays.add(displayMode);
         return displayMode;
     }
 

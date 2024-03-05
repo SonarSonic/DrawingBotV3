@@ -40,7 +40,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 //TODO DRAWING AREA - THE A4 PRESETS ACTUALLY EXCLUDE SOME SETTINGS, SO THEY SHOULD BE NOT VISIBLE!!
-//ONLY COMMIT DIRTY CHANGES ONCE CLOSED
 public class FXPresetManager extends AbstractFXController{
 
     public ObjectProperty<ObservableList<GenericPreset<?>>> presets = new SimpleObjectProperty<>();
@@ -361,9 +360,6 @@ public class FXPresetManager extends AbstractFXController{
         if(!state.get().filter.test(preset)){
             return false;
         }
-        if(!search.get().isEmpty() && !preset.getPresetName().toLowerCase().contains(search.get().toLowerCase())){
-            return false;
-        }
-        return true;
+        return search.get().isEmpty() || preset.getPresetName().toLowerCase().contains(search.get().toLowerCase());
     }
 }

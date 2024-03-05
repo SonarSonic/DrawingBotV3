@@ -1,39 +1,37 @@
 package drawingbot.render.overlays;
 
-import drawingbot.DrawingBotV3;
-import drawingbot.api.ICanvas;
-import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.render.viewport.Viewport;
+import drawingbot.render.viewport.ViewportSkin;
 import drawingbot.utils.Utils;
 import drawingbot.utils.flags.Flags;
-import javafx.geometry.Insets;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.TextAlignment;
 
 import java.util.function.Function;
 
-public class RulerOverlays extends AbstractOverlay {
+/**
+ * Responsible for adding the rulers to the left and top of the viewport
+ */
+public class RulerOverlays extends ViewportOverlayBase {
 
-    public static final RulerOverlays INSTANCE = new RulerOverlays();
-
-    public Separator separator;
     public Label viewportAxisUnits;
+
     public AnchorPane anchorPaneXAxisWrapper;
     public NumberAxis xAxis;
-    public HBox hBoxXAxisWrapper;
     public AnchorPane anchorPaneYAxisWrapper;
     public NumberAxis yAxis;
-    public HBox hBoxYAxisWrapper;
 
-    private RulerOverlays(){}
+    public DoubleProperty xAxisRulerHeight = new SimpleDoubleProperty(25);
+    public DoubleProperty yAxisRulerWidth = new SimpleDoubleProperty(30);
+
+    public RulerOverlays(){}
 
     @Override
     public String getName() {
@@ -41,23 +39,28 @@ public class RulerOverlays extends AbstractOverlay {
     }
 
     @Override
-    public void init(){
-        separator = new Separator();
+    public void initOverlay(){
 
         viewportAxisUnits = new Label();
-        viewportAxisUnits.setMaxWidth(30);
-        viewportAxisUnits.setMinWidth(30);
-        viewportAxisUnits.setPrefWidth(30);
-        viewportAxisUnits.setTextAlignment(TextAlignment.CENTER);
-        HBox.setMargin(viewportAxisUnits, new Insets(0, -4, 0, 4));
-
+        viewportAxisUnits.setManaged(false);
+        viewportAxisUnits.resize(yAxisRulerWidth.get(), xAxisRulerHeight.get());
+        viewportAxisUnits.setAlignment(Pos.CENTER);
 
         xAxis = new NumberAxis();
         xAxis.setAnimated(false);
         xAxis.setManaged(false);
         xAxis.setAutoRanging(false);
+        xAxis.prefHeightProperty().bind(xAxisRulerHeight);
         xAxis.setSide(Side.TOP);
         xAxis.setTickLabelGap(0);
+        xAxis.setTickLength(10);
+        xAxis.setMinorTickLength(6);
+
+        anchorPaneXAxisWrapper = new AnchorPane(xAxis);
+        anchorPaneXAxisWrapper.maxHeightProperty().bind(xAxisRulerHeight);
+        anchorPaneXAxisWrapper.minHeightProperty().bind(xAxisRulerHeight);
+        anchorPaneXAxisWrapper.prefHeightProperty().bind(xAxisRulerHeight);
+        HBox.setHgrow(anchorPaneXAxisWrapper, Priority.ALWAYS);
 
         yAxis = new NumberAxis();
         yAxis.setAnimated(false);
@@ -65,84 +68,63 @@ public class RulerOverlays extends AbstractOverlay {
         yAxis.setRotate(180);
         yAxis.setTickLabelRotation(180);
         yAxis.setAutoRanging(false);
-        yAxis.setPrefWidth(30);
+        yAxis.prefWidthProperty().bind(yAxisRulerWidth);
         yAxis.setSide(Side.RIGHT);
         yAxis.setTickLabelGap(1.0);
-        yAxis.setLayoutY(2);
+        yAxis.setTickLength(10);
+        yAxis.setMinorTickLength(6);
 
-        anchorPaneXAxisWrapper = new AnchorPane();
-        anchorPaneXAxisWrapper.getChildren().add(xAxis);
-        anchorPaneXAxisWrapper.setMaxHeight(20);
-        anchorPaneXAxisWrapper.setMinHeight(20);
-        anchorPaneXAxisWrapper.setPrefHeight(20);
-        HBox.setHgrow(anchorPaneXAxisWrapper, Priority.ALWAYS);
+        anchorPaneYAxisWrapper = new AnchorPane(yAxis);
+        anchorPaneYAxisWrapper.maxWidthProperty().bind(yAxisRulerWidth);
+        anchorPaneYAxisWrapper.minWidthProperty().bind(yAxisRulerWidth);
+        anchorPaneYAxisWrapper.prefWidthProperty().bind(yAxisRulerWidth);
+        VBox.setVgrow(anchorPaneYAxisWrapper, Priority.ALWAYS);
 
-        hBoxXAxisWrapper = new HBox();
-        hBoxXAxisWrapper.getChildren().add(viewportAxisUnits);
-        hBoxXAxisWrapper.getChildren().add(anchorPaneXAxisWrapper);
-
-        anchorPaneYAxisWrapper = new AnchorPane();
-        anchorPaneYAxisWrapper.getChildren().add(yAxis);
-        anchorPaneYAxisWrapper.setMaxWidth(30);
-        anchorPaneYAxisWrapper.setMinWidth(30);
-        anchorPaneYAxisWrapper.setPrefWidth(30);
-        VBox.setVgrow(anchorPaneXAxisWrapper, Priority.ALWAYS);
-
-        hBoxYAxisWrapper = new HBox();
-        VBox.setVgrow(hBoxYAxisWrapper, Priority.ALWAYS);
-        hBoxYAxisWrapper.getChildren().add(anchorPaneYAxisWrapper);
-
-        Rectangle xAxisClip = new Rectangle(0, 0, 200, 25);
-        xAxisClip.widthProperty().bind(DrawingBotV3.INSTANCE.controller.viewportScrollPane.widthProperty());
+        Rectangle xAxisClip = new Rectangle();
+        xAxisClip.xProperty().bind(yAxisRulerWidth);
+        xAxisClip.widthProperty().bind(getViewport().widthProperty());
+        xAxisClip.heightProperty().bind(xAxisRulerHeight);
         anchorPaneXAxisWrapper.setClip(xAxisClip);
 
-        Rectangle yAxisClip = new Rectangle(0, 0, 30, 200);
-        yAxisClip.heightProperty().bind(DrawingBotV3.INSTANCE.controller.viewportScrollPane.heightProperty());
+        Rectangle yAxisClip = new Rectangle();
+        yAxisClip.widthProperty().bind(yAxisRulerWidth);
+        yAxisClip.heightProperty().bind(getViewport().heightProperty());
         anchorPaneYAxisWrapper.setClip(yAxisClip);
-
-        activeProperty().bindBidirectional(DBPreferences.INSTANCE.rulersEnabled.asBooleanProperty());
     }
 
     @Override
-    protected void activate() {
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(separator);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(hBoxXAxisWrapper);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(hBoxYAxisWrapper);
-        hBoxYAxisWrapper.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
-        hBoxYAxisWrapper.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
+    public void activateViewportOverlay(Viewport viewport) {
+        super.activateViewportOverlay(viewport);
+        if(getViewport().getSkin() instanceof ViewportSkin skin){
+            skin.rulerBorderPane.setLeft(anchorPaneYAxisWrapper);
+            skin.rulerBorderPane.setTop(anchorPaneXAxisWrapper);
+            skin.getChildren().add(viewportAxisUnits);
+        }
     }
 
     @Override
-    protected void deactivate() {
-
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(separator);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(hBoxXAxisWrapper);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().remove(hBoxYAxisWrapper);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
-        DrawingBotV3.INSTANCE.controller.viewport.getChildren().add(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
-        hBoxYAxisWrapper.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportScrollPane);
-        hBoxYAxisWrapper.getChildren().remove(DrawingBotV3.INSTANCE.controller.viewportOverlayAnchorPane);
-
+    public void deactivateViewportOverlay(Viewport viewport) {
+        if(getViewport().getSkin() instanceof ViewportSkin skin){
+            skin.rulerBorderPane.setLeft(null);
+            skin.rulerBorderPane.setTop(null);
+            skin.getChildren().remove(viewportAxisUnits);
+        }
+        super.deactivateViewportOverlay(viewport);
     }
 
     @Override
-    public void doRender() {
-        if(wasActivated || DrawingBotV3.project().displayMode.get().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
-            DrawingBotV3.project().displayMode.get().getRenderFlags().markForClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER);
+    public void onRenderTick() {
+        if(getViewport().getRenderFlags().anyMatchAndMarkClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
             Point2D drawingOrigin = new Point2D(0D, 0D);
-            ICanvas canvas = DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas();
+            Point2D drawingEnd = new Point2D(getViewport().getCanvasWidth(), getViewport().getCanvasHeight());
 
-            Point2D viewportOrigin = DrawingBotV3.INSTANCE.controller.viewportScrollPane.localToScene(0, 0);
+            Point2D drawingOriginScene = getViewport().getCanvasToSceneTransform().transform(drawingOrigin).subtract(getViewport().getViewportX(), getViewport().getViewportY());
+            Point2D drawingEndScene = getViewport().getCanvasToSceneTransform().transform(drawingEnd).subtract(getViewport().getViewportX(), getViewport().getViewportY());
 
-            Point2D drawingOriginScene = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(drawingOrigin).subtract(viewportOrigin);
-            Point2D drawingEndScene = DrawingBotV3.project().displayMode.get().getRenderer().rendererToScene(new Point2D(canvas.getScaledWidth(), canvas.getScaledHeight())).subtract(viewportOrigin);
-
-            double drawingEndX = canvas.getWidth();
-            double drawingEndY = canvas.getHeight();
-            double drawingWidthVP = drawingEndScene.getX() - drawingOriginScene.getX();
-            double drawingHeightVP = drawingEndScene.getY() - drawingOriginScene.getY();
+            double drawingEndX = drawingEnd.getX();
+            double drawingEndY = drawingEnd.getY();
+            double drawingWidthVP = Math.abs(drawingEndScene.getX() - drawingOriginScene.getX());
+            double drawingHeightVP = Math.abs(drawingEndScene.getY() - drawingOriginScene.getY());
 
 
             Function<Double, Double> sceneToDrawingX = V -> Utils.mapDouble(V, drawingOriginScene.getX(), drawingEndScene.getX(), drawingOrigin.getX(), drawingEndX);
@@ -194,8 +176,8 @@ public class RulerOverlays extends AbstractOverlay {
                 drawingWidthVP = drawingEndScene.getX() - lowerBoundXVP;
             }
 
-            if(upperBoundXVP > DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth()){
-                upperBoundX = Math.min(drawingEndX, Utils.roundToMultiple(sceneToDrawingX.apply(DrawingBotV3.INSTANCE.controller.viewportScrollPane.getWidth())+(tickUnit*2), tickUnit));
+            if(upperBoundXVP > getViewport().getViewportWidth()){
+                upperBoundX = Math.min(drawingEndX, Utils.roundToMultiple(sceneToDrawingX.apply(getViewport().getViewportWidth())+(tickUnit*2), tickUnit));
                 upperBoundXVP = drawingToSceneX.apply(upperBoundX);
                 drawingWidthVP = drawingWidthVP - (drawingEndScene.getX() - upperBoundXVP);
             }
@@ -212,34 +194,27 @@ public class RulerOverlays extends AbstractOverlay {
                 drawingHeightVP = drawingEndScene.getY() - lowerBoundYVP;
             }
 
-            if(upperBoundYVP > DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight()){
-                upperBoundY = Math.min(drawingEndY, Utils.roundToMultiple(sceneToDrawingY.apply(DrawingBotV3.INSTANCE.controller.viewportScrollPane.getHeight())+(tickUnit*2), tickUnit));
+            if(upperBoundYVP > getViewport().getViewportHeight()){
+                upperBoundY = Math.min(drawingEndY, Utils.roundToMultiple(sceneToDrawingY.apply(getViewport().getViewportHeight())+(tickUnit*2), tickUnit));
                 upperBoundYVP = drawingToSceneY.apply(upperBoundY);
                 drawingHeightVP = drawingHeightVP - (drawingEndScene.getY() - upperBoundYVP);
             }
 
-
             xAxis.setTickUnit(tickUnit);
             xAxis.setMinorTickCount(minorTickCount);
-            xAxis.setMinorTickLength(9);
-            xAxis.setTickLength(12);
 
             yAxis.setTickUnit(tickUnit);
             yAxis.setMinorTickCount(minorTickCount);
-            yAxis.setMinorTickLength(8);
-            yAxis.setTickLength(8);
-
-
 
             xAxis.setLowerBound(lowerBoundX);
             xAxis.setUpperBound(upperBoundX);
-            xAxis.resizeRelocate(lowerBoundXVP, 0, drawingWidthVP, 25);
+            xAxis.resizeRelocate(lowerBoundXVP + yAxisRulerWidth.get(), 0, drawingWidthVP, xAxisRulerHeight.get());
 
             yAxis.setLowerBound(lowerBoundY);
             yAxis.setUpperBound(upperBoundY);
-            yAxis.resizeRelocate(0, lowerBoundYVP, 30, drawingHeightVP);
+            yAxis.resizeRelocate(0, lowerBoundYVP, yAxisRulerWidth.get(), drawingHeightVP);
 
-            viewportAxisUnits.setText(canvas.getUnits().getSuffix());
+            viewportAxisUnits.setText(getViewport().getCanvasUnits().getSuffix());
         }
     }
 }

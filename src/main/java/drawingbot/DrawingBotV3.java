@@ -12,24 +12,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import drawingbot.api.*;
-import drawingbot.files.json.IPresetLoader;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
-import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.image.format.FilteredImageData;
 import drawingbot.javafx.FXController;
+import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.*;
 import drawingbot.javafx.*;
 import drawingbot.files.*;
-import drawingbot.javafx.observables.ObservableVersion;
+import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.render.IDisplayMode;
-import drawingbot.render.IRenderer;
-import drawingbot.render.jfx.JavaFXRenderer;
+import drawingbot.render.modes.DisplayModeBase;
+import drawingbot.render.renderer.JFXRenderer;
 import drawingbot.software.SoftwareManager;
 import drawingbot.utils.*;
 import drawingbot.utils.flags.FlagStates;
@@ -42,7 +40,6 @@ import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Screen;
 import org.fxmisc.easybind.EasyBind;
 import org.fxmisc.easybind.monadic.MonadicBinding;
 
@@ -51,10 +48,8 @@ public class DrawingBotV3 {
     public static final Logger logger = Logger.getLogger("DrawingBotV3");
     public static DrawingBotV3 INSTANCE;
 
-    public static JavaFXRenderer RENDERER;
-    public static IRenderer OPENGL_RENDERER;
-
     // DISPLAY \\
+    public final ObjectProperty<DisplayModeBase> projectDisplayMode = new SimpleObjectProperty<>();
     public final IntegerProperty geometryCount = new SimpleIntegerProperty(0);
     public final LongProperty vertexCount = new SimpleLongProperty(0L);
     public final LongProperty elapsedTimeMS = new SimpleLongProperty(0L);
@@ -247,22 +242,6 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    ////// EVENTS
-
-    public void onDisplayModeChanged(IDisplayMode oldValue, IDisplayMode newValue){
-        if(oldValue != null){
-            oldValue.resetSettings();
-        }
-
-        if(oldValue == null || newValue.getRenderer() != oldValue.getRenderer()){
-            if(oldValue != null){
-                oldValue.getRenderer().stopRenderer();
-            }
-            newValue.getRenderer().startRenderer();
-        }
-
-        newValue.applySettings();
-    }
 
     //// PLOTTING TASKS
 
@@ -345,7 +324,8 @@ public class DrawingBotV3 {
                 break;
             case PRE_PROCESSING:
                 Platform.runLater(() -> {
-                    if(task.context.project().getDisplayMode().getRenderer() != OPENGL_RENDERER || !FXApplication.isPremiumEnabled){
+                    //TODO CHANGE ME ?
+                    if(task.context.project().getDisplayMode().getRendererFactory() == JFXRenderer.JFX_RENDERER_FACTORY || !FXApplication.isPremiumEnabled){
                         task.context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_DRAWING);
                     }
                 });
@@ -362,6 +342,20 @@ public class DrawingBotV3 {
         }
     }
 
+    public <T> void setRenderFlag(Flags.BooleanFlag flag){
+        if(controller == null || controller.viewport == null){
+            return;
+        }
+        controller.viewport.getRenderFlags().setFlag(flag, true);
+    }
+
+    public <T> void setRenderFlag(Flags.Flag<T> flag, T value){
+        if(controller == null || controller.viewport == null){
+            return;
+        }
+        controller.viewport.getRenderFlags().setFlag(flag, value);
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -376,72 +370,8 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //// MOUSE EVENTS
-
     public void resetView(){
-        controller.viewportScrollPane.setHvalue(0.5);
-        controller.viewportScrollPane.setVvalue(0.5);
-        controller.viewportScrollPane.setScale(project().dpiScaling.get() ? getDPIScaleFactor() / DrawingBotV3.RENDERER.canvasScaling : 1);
-        displayMode.get().getRenderer().updateCanvasPosition();
-        controller.viewportScrollPane.layout();
-        controller.viewportScrollPane.setHvalue(0.5);
-        controller.viewportScrollPane.setVvalue(0.5);
-    }
-
-    public double getDPIScaleFactor(){
-        ICanvas canvas = DrawingBotV3.project().displayMode.get().getRenderer().getRefCanvas();
-        if(canvas == null || canvas.getUnits()==UnitsLength.PIXELS){
-            return 1;
-        }
-        double screenDPI = Screen.getPrimary().getDpi();
-        double widthPixels = canvas.getWidth(UnitsLength.INCHES) * screenDPI;
-        double normalWidth = canvas.getScaledWidth();
-        return (widthPixels/normalWidth);
-    }
-
-    /**
-     * The viewport centre relative to the scene
-     */
-    public Point2D getViewportCentre(){
-
-        return controller.viewportScrollPane.localToScene(
-                controller.viewportScrollPane.getWidth()/2,
-                controller.viewportScrollPane.getHeight()/2);
-    }
-
-    public void onMouseMovedViewport(MouseEvent event){
-        controller.onMouseMovedColourPicker(event);
-        Point2D mouse = new Point2D(event.getSceneX(), event.getSceneY());
-        Point2D position = project().displayMode.get().getRenderer().sceneToRenderer(mouse);
-
-        if(project().getDrawingArea().useOriginalSizing.get()){
-            relativeMousePosX.set((int)position.getX());
-            relativeMousePosY.set((int)position.getY());
-            relativeMouseUnits.set(UnitsLength.PIXELS);
-        }else{
-            double printScale = 1;
-
-            if(project().displayMode.get() != Register.INSTANCE.DISPLAY_MODE_IMAGE && context().taskManager().getCurrentDrawing() != null){
-                printScale = context().taskManager().getCurrentDrawing().getCanvas().getPlottingScale();
-            }
-            if(project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_IMAGE && project().openImage.get() != null){
-                printScale = project().openImage.get().getTargetCanvas().getPlottingScale();
-            }
-
-            position = position.multiply(1F/printScale);
-
-            relativeMousePosX.set((int)position.getX());
-            relativeMousePosY.set((int)position.getY());
-            relativeMouseUnits.set(UnitsLength.MILLIMETRES);
-        }
-    }
-
-    public void onMousePressedViewport(MouseEvent event){
-        controller.onMousePressedColourPicker(event);
-    }
-
-    public void onKeyPressedViewport(KeyEvent event){
-        controller.onKeyPressedColourPicker(event);
+        controller.viewport.resetView();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

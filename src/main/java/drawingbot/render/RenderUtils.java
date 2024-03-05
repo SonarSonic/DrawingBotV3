@@ -2,16 +2,32 @@ package drawingbot.render;
 
 import drawingbot.api.IGeometryFilter;
 import drawingbot.geom.shapes.IGeometry;
+import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.observables.ObservableDrawingPen;
+import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.AbstractGeometryIterator;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.PlottedGroup;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 
 import java.awt.*;
 import java.awt.geom.PathIterator;
 
 public class RenderUtils {
+
+    ///
+
+    public static int vertexRenderLimitNormal = 0; //20000;
+    public static int vertexRenderLimitBlendMode = 5000;
+
+    public static int vertexRenderTimeOutNormal = (int)((1000F/60F)/4F);
+    public static int vertexRenderTimeOutBlendMode = 0;
+
+    public static int defaultMinTextureSize = 2048;
+    public static int defaultMaxTextureSize = 4096;
+
+    ///
 
     public interface IRenderFunction<R> {
         void renderGeometry(R renderer, IGeometry geometry, PlottedDrawing drawing, PlottedGroup group, ObservableDrawingPen pen);

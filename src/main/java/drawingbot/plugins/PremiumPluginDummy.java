@@ -11,11 +11,11 @@ import drawingbot.files.FileUtils;
 import drawingbot.javafx.FXController;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
-import drawingbot.render.IDisplayMode;
-import drawingbot.render.IRenderer;
 import drawingbot.SoftwareDBV3Free;
-import drawingbot.utils.flags.FlagStates;
-import drawingbot.utils.flags.Flags;
+import drawingbot.render.renderer.RendererFactory;
+import drawingbot.render.renderer.JFXRenderer;
+import drawingbot.render.modes.DisplayModeBase;
+import drawingbot.render.viewport.Viewport;
 import javafx.application.Platform;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -43,9 +43,21 @@ public class PremiumPluginDummy extends AbstractPlugin {
         Hooks.addHook(Hooks.FX_CONTROLLER_POST_INIT, this::disableOpenGL);
         Hooks.addHook(Hooks.FILE_MENU, this::initMenuOption);
 
-        MasterRegistry.INSTANCE.registerDisplayMode(new IDisplayMode() {
+        MasterRegistry.INSTANCE.registerDisplayMode(new DisplayModeBase() {
 
-            final FlagStates renderFlags = new FlagStates(Flags.RENDER_CATEGORY);
+            @Override
+            public void activateDisplayMode(Viewport viewport) {
+                super.activateDisplayMode(viewport);
+                canvasProperty().bind(DrawingBotV3.INSTANCE.projectDrawingArea);
+                FXController.showPremiumFeatureDialog();
+                Platform.runLater(() -> getViewport().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_DRAWING));
+            }
+
+            @Override
+            public void deactivateDisplayMode(Viewport viewport) {
+                super.deactivateDisplayMode(viewport);
+                canvasProperty().unbind();
+            }
 
             @Override
             public String getName() {
@@ -53,13 +65,8 @@ public class PremiumPluginDummy extends AbstractPlugin {
             }
 
             @Override
-            public IRenderer getRenderer() {
-                return DrawingBotV3.OPENGL_RENDERER;
-            }
-
-            @Override
-            public FlagStates getRenderFlags() {
-                return renderFlags;
+            public RendererFactory getRendererFactory() {
+                return JFXRenderer.JFX_RENDERER_FACTORY;
             }
 
             @Override
@@ -159,7 +166,7 @@ public class PremiumPluginDummy extends AbstractPlugin {
     public Object[] disableOpenGL(Object... values) {
         FXController controller = (FXController) values[0];
         controller.choiceBoxDisplayMode.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue.getRenderer() != null && !newValue.getRenderer().isDefaultRenderer() && !FXApplication.isPremiumEnabled) {
+            if (newValue != null && newValue.getRendererFactory() != null && newValue.getRendererFactory() != JFXRenderer.JFX_RENDERER_FACTORY && !FXApplication.isPremiumEnabled) {
                 FXController.showPremiumFeatureDialog();
                 Platform.runLater(() -> DrawingBotV3.project().displayMode.set(Register.INSTANCE.DISPLAY_MODE_DRAWING));
             }
