@@ -55,38 +55,35 @@ public class DrawingBotV3 {
     public static IRenderer OPENGL_RENDERER;
 
     // DISPLAY \\
-    public final SimpleObjectProperty<IDisplayMode> displayMode = new SimpleObjectProperty<>();
-    public final SimpleIntegerProperty geometryCount = new SimpleIntegerProperty(0);
-    public final SimpleLongProperty vertexCount = new SimpleLongProperty(0L);
-    public final SimpleLongProperty elapsedTimeMS = new SimpleLongProperty(0L);
+    public final IntegerProperty geometryCount = new SimpleIntegerProperty(0);
+    public final LongProperty vertexCount = new SimpleLongProperty(0L);
+    public final LongProperty elapsedTimeMS = new SimpleLongProperty(0L);
 
-    public final SimpleFloatProperty imageResolutionWidth = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty imageResolutionHeight = new SimpleFloatProperty(0);
-    public final SimpleObjectProperty<UnitsLength> imageResolutionUnits = new SimpleObjectProperty<>(UnitsLength.PIXELS);
+    public final DoubleProperty imageResolutionWidth = new SimpleDoubleProperty(0);
+    public final DoubleProperty imageResolutionHeight = new SimpleDoubleProperty(0);
+    public final ObjectProperty<UnitsLength> imageResolutionUnits = new SimpleObjectProperty<>(UnitsLength.PIXELS);
 
-    public final SimpleFloatProperty plottingResolutionWidth = new SimpleFloatProperty(0);
-    public final SimpleFloatProperty plottingResolutionHeight = new SimpleFloatProperty(0);
-    public final SimpleObjectProperty<UnitsLength> plottingResolutionUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
+    public final DoubleProperty plottingResolutionWidth = new SimpleDoubleProperty(0);
+    public final DoubleProperty plottingResolutionHeight = new SimpleDoubleProperty(0);
+    public final ObjectProperty<UnitsLength> plottingResolutionUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
-    public final SimpleIntegerProperty relativeMousePosX = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty relativeMousePosY = new SimpleIntegerProperty(0);
-    public final SimpleObjectProperty<UnitsLength> relativeMouseUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
-
-    //VPYPE SETTINGS
-    // WINDOW TITLES \\
-    public final StringProperty projectName = new SimpleStringProperty();
+    public final IntegerProperty relativeMousePosX = new SimpleIntegerProperty(0);
+    public final IntegerProperty relativeMousePosY = new SimpleIntegerProperty(0);
+    public final ObjectProperty<UnitsLength> relativeMouseUnits = new SimpleObjectProperty<>(UnitsLength.MILLIMETRES);
 
     // PROJECTS \\
-    public final SimpleObjectProperty<ObservableProject> activeProject = new SimpleObjectProperty<>();
+    public final ObjectProperty<ObservableProject> activeProject = new SimpleObjectProperty<>();
     public final ObservableList<ObservableProject> activeProjects = FXCollections.observableArrayList();
 
     // BINDINGS \\
-    public final MonadicBinding<String> projectNameBinding = EasyBind.select(activeProject).selectObject(project -> project.name);
-    public final MonadicBinding<FilteredImageData> imageBinding = EasyBind.select(activeProject).selectObject(project -> project.openImage);
-    public final MonadicBinding<PlottedDrawing> drawingBinding = EasyBind.select(activeProject).selectObject(project -> project.currentDrawing);
-    public final MonadicBinding<DBTask<?>> activeTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.activeTask);
-    public final MonadicBinding<PFMTask> renderedTaskBinding = EasyBind.select(activeProject).selectObject(project -> project.renderedTask);
-    public final MonadicBinding<ObservableList<ExportedDrawingEntry>> exportedDrawingsBinding = EasyBind.select(activeProject).selectObject(project -> project.exportedDrawings);
+    public final StringProperty projectName = new SimpleStringProperty();
+    public final ObjectProperty<DBTask<?>> projectActiveTask = new SimpleObjectProperty<>();
+    public final ObjectProperty<PFMTask> projectRenderedTask = new SimpleObjectProperty<>();
+    public final ObjectProperty<PlottedDrawing> projectCurrentDrawing = new SimpleObjectProperty<>();
+    public final ObjectProperty<PlottedDrawing> projectExportedDrawing = new SimpleObjectProperty<>();
+    public final ObjectProperty<ObservableCanvas> projectDrawingArea = new SimpleObjectProperty<>();
+    public final ObjectProperty<FilteredImageData> projectOpenImage = new SimpleObjectProperty<>();
+    public final ObjectProperty<ObservableList<ObservableDrawingPen>> projectSelectedPens = new SimpleObjectProperty<>();
 
     // VIEWPORT SETTINGS \\
     public static int SVG_DPI = 96;
@@ -113,11 +110,29 @@ public class DrawingBotV3 {
     public void init(){
         activeProject.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
-                displayMode.unbindBidirectional(oldValue.displayModeProperty());
+                projectName.unbindBidirectional(oldValue.name);
+                projectDisplayMode.unbindBidirectional(oldValue.displayModeProperty());
+                projectActiveTask.unbindBidirectional(oldValue.activeTask);
+                projectRenderedTask.unbindBidirectional(oldValue.renderedTask);
+                projectCurrentDrawing.unbindBidirectional(oldValue.currentDrawing);
+                projectDrawingArea.unbindBidirectional(oldValue.drawingArea);
+                projectOpenImage.unbindBidirectional(oldValue.openImage);
+                projectExportedDrawing.unbindBidirectional(oldValue.exportDrawing);
+                projectSelectedPens.unbindBidirectional(oldValue.selectedPens);
+
                 oldValue.setLoaded(false);
             }
             if(newValue != null){
-                displayMode.bindBidirectional(newValue.displayModeProperty());
+                projectName.bindBidirectional(newValue.name);
+                projectDisplayMode.bindBidirectional(newValue.displayModeProperty());
+                projectActiveTask.bindBidirectional(newValue.activeTask);
+                projectRenderedTask.bindBidirectional(newValue.renderedTask);
+                projectCurrentDrawing.bindBidirectional(newValue.currentDrawing);
+                projectDrawingArea.bindBidirectional(newValue.drawingArea);
+                projectOpenImage.bindBidirectional(newValue.openImage);
+                projectExportedDrawing.bindBidirectional(newValue.exportDrawing);
+                projectSelectedPens.bindBidirectional(newValue.selectedPens);
+
                 newValue.setLoaded(true);
                 newValue.reRender();
             }
@@ -318,7 +333,6 @@ public class DrawingBotV3 {
             if(!isSubTask && e.getSource().getValue() != null){
                 context.project.openImage.set((FilteredImageData) e.getSource().getValue());
                 Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
-                projectName.set(file.getName());
             }
             loadingTask.onFileLoaded();
         });

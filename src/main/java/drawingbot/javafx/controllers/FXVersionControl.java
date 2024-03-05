@@ -94,7 +94,7 @@ public class FXVersionControl extends AbstractFXController {
          */
 
         buttonAddVersion.setOnAction(e -> saveVersion());
-        buttonAddVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.drawingBinding.getValue() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.drawingBinding));
+        buttonAddVersion.disableProperty().bind(Bindings.createBooleanBinding(() -> DrawingBotV3.INSTANCE.taskMonitor.isPlotting.get() || DrawingBotV3.INSTANCE.projectCurrentDrawing.getValue() == null, DrawingBotV3.INSTANCE.taskMonitor.isPlotting, DrawingBotV3.INSTANCE.projectCurrentDrawing));
         buttonAddVersion.setTooltip(new Tooltip("Save Version"));
 
         buttonDeleteVersion.setOnAction(e -> FXHelper.deleteItem(tableViewVersions.getSelectionModel(), getVersionControl().getProjectVersions()));

@@ -239,10 +239,9 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public final SimpleBooleanProperty dpiScaling = new SimpleBooleanProperty(false);
     public final SimpleObjectProperty<EnumBlendMode> blendMode = new SimpleObjectProperty<>(EnumBlendMode.NORMAL);
-    public final SimpleObjectProperty<Bounds> canvasBoundsInScene = new SimpleObjectProperty<>(new BoundingBox(0, 0, 0, 0));
 
     public final SimpleBooleanProperty exportRange = new SimpleBooleanProperty(DBPreferences.INSTANCE.defaultRangeExport.get());
-    public final SimpleBooleanProperty displayGrid = new SimpleBooleanProperty(false);
+    public final ObjectProperty<ObservableList<ObservableDrawingPen>> selectedPens = new SimpleObjectProperty<>();
 
     // TASKS \\
     public final ObjectProperty<DBTask<?>> activeTask = new SimpleObjectProperty<>(null);
@@ -250,11 +249,11 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
     public final ObjectProperty<PlottedDrawing> currentDrawing = new SimpleObjectProperty<>(null);
     public final ObjectProperty<PlottedDrawing> exportDrawing = new SimpleObjectProperty<>(null);
     public final ObjectProperty<ObservableList<ExportedDrawingEntry>> exportedDrawings = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    public final ObjectProperty<ExportedDrawingEntry> selectedExportedDrawing = new SimpleObjectProperty<>();
     public final ObjectProperty<PlottedDrawing> displayedDrawing = new SimpleObjectProperty<>(null);
 
     // ADDITIONAL DATA \\
     public MetadataMap metadata = new MetadataMap(new LinkedHashMap<>());
-    //public FlagStates projectFlags = new FlagStates(Flags.PROJECT_CATEGORY);
 
     // EXTRA DATA \\
     public final SimpleStringProperty lastExportDirectory = new SimpleStringProperty("");
@@ -291,9 +290,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         displayMode.set(project.getDisplayMode());
         dpiScaling.set(project.dpiScaling.get());
         blendMode.set(project.blendMode.get());
-        canvasBoundsInScene.set(project.canvasBoundsInScene.get());
         exportRange.set(project.exportRange.get());
-        displayGrid.set(project.displayGrid.get());
 
         if(openImage.get() != null){
             DrawingBotV3.INSTANCE.openFile(context, openImage.get().getSourceFile(), false, true);

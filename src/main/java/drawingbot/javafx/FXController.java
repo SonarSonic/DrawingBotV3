@@ -114,13 +114,31 @@ public class FXController extends AbstractFXController {
     }
 
     public void setupBindings(){
-        drawingAreaController.drawingArea.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.drawingArea));
-        imageFiltersController.settings.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.imageSettings));
-        imageFiltersController.image.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.openImage));
-        pfmSettingsController.pfmSettings.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.pfmSettings));
-        drawingSetsController.drawingSets.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.drawingSets));
-        versionControlController.versionControl.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.versionControl));
-        JFXShapeManager.INSTANCE.activeShapeList.bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).selectObject(p -> p.maskingSettings.get().shapeList));
+
+        JFXUtils.subscribeListener(DrawingBotV3.INSTANCE.activeProject, (observable, oldValue, newValue) -> {
+            if(oldValue != null){
+                drawingAreaController.drawingArea.unbind();
+                imageFiltersController.settings.unbind();
+                imageFiltersController.image.unbind();
+                pfmSettingsController.pfmSettings.unbind();
+                drawingSetsController.drawingSets.unbind();
+                versionControlController.versionControl.unbind();
+
+                newValue.selectedPens.set(FXCollections.observableArrayList());
+            }
+
+            if(newValue != null){
+                drawingAreaController.drawingArea.bind(newValue.drawingArea);
+                imageFiltersController.settings.bind(newValue.imageSettings);
+                imageFiltersController.image.bind(newValue.openImage);
+                pfmSettingsController.pfmSettings.bind(newValue.pfmSettings);
+                drawingSetsController.drawingSets.bind(newValue.drawingSets);
+                versionControlController.versionControl.bind(newValue.versionControl);
+
+                newValue.selectedPens.set(drawingSetsController.controlDrawingSetEditor.penTableView.getSelectionModel().getSelectedItems());
+            }
+
+        });
     }
 
 
