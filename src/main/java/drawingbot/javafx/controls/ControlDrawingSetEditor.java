@@ -43,6 +43,10 @@ public class ControlDrawingSetEditor extends VBox {
     public TableColumn<ObservableDrawingPen, String> penPercentageColumn = null;
     public TableColumn<ObservableDrawingPen, Integer> penWeightColumn = null;
     public TableColumn<ObservableDrawingPen, Integer> penLinesColumn = null;
+    public TableColumn<ObservableDrawingPen, Float> penOpacityColumn = null;
+    public TableColumn<ObservableDrawingPen, Float> penMultiplierColumn = null;
+    public TableColumn<ObservableDrawingPen, Float> penOffsetXColumn = null;
+    public TableColumn<ObservableDrawingPen, Float> penOffsetYColumn = null;
 
     public ControlPresetDrawingPen controlDrawingPenSelection;
 
@@ -134,13 +138,6 @@ public class ControlDrawingSetEditor extends VBox {
             return row;
         });
 
-
-        penTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(DrawingBotV3.project().displayMode.get() == Register.INSTANCE.DISPLAY_MODE_SELECTED_PEN){
-                DrawingBotV3.project().reRender();
-            }
-        });
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         penNameColumn.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
@@ -164,6 +161,22 @@ public class ControlDrawingSetEditor extends VBox {
         penWeightColumn.setCellValueFactory(param -> param.getValue().distributionWeight.asObject());
 
         penLinesColumn.setCellValueFactory(param -> param.getValue().currentGeometries.asObject());
+
+        penMultiplierColumn.setCellFactory(param -> new TextFieldTableCell<>(new FloatStringConverter()));
+        penMultiplierColumn.setCellValueFactory(param -> param.getValue().colorSplitMultiplier.asObject());
+        penMultiplierColumn.setVisible(false);
+
+        penOpacityColumn.setCellFactory(param -> new TextFieldTableCell<>(new FloatStringConverter()));
+        penOpacityColumn.setCellValueFactory(param -> param.getValue().colorSplitOpacity.asObject());
+        penOpacityColumn.setVisible(false);
+
+        penOffsetXColumn.setCellFactory(param -> new TextFieldTableCell<>(new FloatStringConverter()));
+        penOffsetXColumn.setCellValueFactory(param -> param.getValue().colorSplitOffsetX.asObject());
+        penOffsetXColumn.setVisible(false);
+
+        penOffsetYColumn.setCellFactory(param -> new TextFieldTableCell<>(new FloatStringConverter()));
+        penOffsetYColumn.setCellValueFactory(param -> param.getValue().colorSplitOffsetY.asObject());
+        penOffsetYColumn.setVisible(false);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
