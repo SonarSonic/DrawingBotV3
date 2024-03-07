@@ -10,6 +10,7 @@ import drawingbot.javafx.preferences.items.*;
 import drawingbot.registry.Register;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import org.fxmisc.easybind.EasyBind;
 
@@ -66,7 +67,7 @@ public class PresetGCodeSettingsEditor extends DefaultPresetEditor<GCodeSettings
 
 
         InvalidationListener genericListener = observable -> {
-            if(observable instanceof GenericSetting<?, ?> setting){
+            if (observable instanceof Property<?> prop && prop.getBean() instanceof GenericSetting<?, ?> setting) {
                 setting.applySetting(target.get());
             }
         };
