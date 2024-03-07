@@ -197,11 +197,9 @@ public class Viewport extends Control {
                 viewportOverlays.forEach(o -> {
                     if(o.getEnabled()){
                         o.activateViewportOverlay(this);
-                        o.onRenderTick();
                     }
                 });
             }
-            resetView();
         });
 
         //When using "DPI Scaling" we disable the zoom functionality and bind it too the "DPI Scaling" instead
@@ -238,7 +236,7 @@ public class Viewport extends Control {
         // Viewport scaling change listeners
         displayedWidthProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
         displayedHeightProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
-        scaleToFitProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
+        //scaleToFitProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
     }
 
     /**
@@ -321,10 +319,7 @@ public class Viewport extends Control {
             return;
         }
         performanceTimer.start();
-
-        updateCanvasToViewportTransforms();
-        updateSceneToCanvasTransform();
-        updateCanvasToSceneTransform();
+        updateTransforms();
 
         getRenderer().doRender();
         viewportOverlays.forEach(o -> {
@@ -345,41 +340,35 @@ public class Viewport extends Control {
 
     ////////////////////////////////////////////////////////
 
+    protected void updateTransforms(){
+        updateCanvasToViewportTransforms();
+        updateSceneToCanvasTransform();
+        updateCanvasToSceneTransform();
+    }
+
     /**
      * The scaling taken directly from the {@link #getCanvasToViewportTransform()}, used by masks to keep their stroke-width consistent
      */
-    private DoubleProperty canvasToViewportScale;
+    private final DoubleProperty canvasToViewportScale = new SimpleDoubleProperty();
 
     public double getCanvasToViewportScale() {
         return canvasToViewportScaleProperty().get();
     }
 
     public ReadOnlyDoubleProperty canvasToViewportScaleProperty() {
-        if(canvasToViewportScale == null){
-            canvasToViewportScale = new SimpleDoubleProperty();
-            getCanvasToViewportTransform(); //init the transform
-            updateCanvasToViewportTransforms();
-        }
         return canvasToViewportScale;
     }
 
-    private Affine canvasToViewportTransform;
+    private final Affine canvasToViewportTransform = new Affine();
 
     /**
      * @return JavaFX transform which converts from canvas space to scene space, used by masks to position them relative to the renderer
      */
     public Affine getCanvasToViewportTransform() {
-        if(canvasToViewportTransform == null){
-            canvasToViewportTransform = new Affine();
-            updateCanvasToViewportTransforms();
-        }
         return canvasToViewportTransform;
     }
 
     private void updateCanvasToViewportTransforms() {
-        if(canvasToViewportTransform == null){
-            return;
-        }
         if(getRenderer() == null || getCanvas() == null){
             canvasToViewportTransform.setToIdentity();
             return;
@@ -396,23 +385,16 @@ public class Viewport extends Control {
 
     ////////////////////////////////////////////////////////
 
-    private Affine sceneToCanvasTransform;
+    private final Affine sceneToCanvasTransform = new Affine();
 
     /**
      * @return JavaFX transform which converts from scene space to canvas space, the values returned will be in the units of the canvas
      */
     public Affine getSceneToCanvasTransform(){
-        if(sceneToCanvasTransform == null){
-            sceneToCanvasTransform = new Affine();
-            updateSceneToCanvasTransform();
-        }
         return sceneToCanvasTransform;
     }
 
     private void updateSceneToCanvasTransform(){
-        if(sceneToCanvasTransform == null){
-            return;
-        }
         if(getRenderer() == null || getCanvas() == null) {
             sceneToCanvasTransform.setToIdentity();
             return;
@@ -425,23 +407,16 @@ public class Viewport extends Control {
 
     ////////////////////////////////////////////////////////
 
-    private Affine canvasToSceneTransform;
+    private final Affine canvasToSceneTransform = new Affine();
 
     /**
      * @return JavaFX transform which converts from scene space to canvas space, from canvas position in it's own input units
      */
     public Affine getCanvasToSceneTransform(){
-        if(canvasToSceneTransform == null){
-            canvasToSceneTransform = new Affine();
-            updateCanvasToSceneTransform();
-        }
         return canvasToSceneTransform;
     }
 
     private void updateCanvasToSceneTransform(){
-        if(canvasToSceneTransform == null){
-            return;
-        }
         if(getRenderer() == null || getCanvas() == null) {
             canvasToSceneTransform.setToIdentity();
             return;
