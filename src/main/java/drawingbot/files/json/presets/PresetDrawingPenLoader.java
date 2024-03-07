@@ -4,12 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.IDrawingPen;
+import drawingbot.api.IDrawingSet;
 import drawingbot.drawing.DrawingPen;
+import drawingbot.drawing.DrawingSet;
 import drawingbot.files.json.AbstractPresetLoader;
 import drawingbot.files.json.PresetType;
+import drawingbot.image.ImageTools;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.utils.DBConstants;
+import javafx.scene.paint.Color;
 
 public class PresetDrawingPenLoader extends AbstractPresetLoader<IDrawingPen> {
 
@@ -31,16 +36,66 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<IDrawingPen> {
 
     @Override
     public void addPreset(GenericPreset<IDrawingPen> preset) {
+        IDrawingPen previousData = findDrawingPen(preset.getPresetSubType(), preset.getPresetName());
+
         super.addPreset(preset);
         preset.data.setLinkedPreset(preset); //set transient binding
+
+        if(previousData != null){
+            updateDrawingSetData(previousData, preset.getData());
+        }
     }
 
     @Override
     public void removePreset(GenericPreset<IDrawingPen> preset) {
+        IDrawingPen previousData = preset.getData();
+
         super.removePreset(preset);
         preset.data.setLinkedPreset(null); //set transient binding
+
+        IDrawingPen newData = findDrawingPen(preset.getPresetSubType(), preset.getPresetName());
+        if(previousData != null && newData != null){
+            updateDrawingSetData(previousData, newData);
+        }
     }
 
+    @Override
+    public GenericPreset<IDrawingPen> editPreset(GenericPreset<IDrawingPen> oldPreset, GenericPreset<IDrawingPen> editPreset) {
+
+        //Copy the previous data
+        IDrawingPen previousData = new DrawingPen(oldPreset.getData());
+
+        //Perform the edit to the preset
+        GenericPreset<IDrawingPen> result = super.editPreset(oldPreset, editPreset);
+
+        //Update the drawing set data
+        updateDrawingSetData(previousData, result.getData());
+
+        return result;
+    }
+
+    public void updateDrawingSetData(IDrawingPen previousData, IDrawingPen newData){
+        //Iterate through all existing drawing set presets for matches and replace them
+        boolean foundMatch = false;
+        for(GenericPreset<IDrawingSet> preset : Register.PRESET_LOADER_DRAWING_SET.presets){
+            if(preset.getData() instanceof DrawingSet drawingSet){
+                if(!drawingSet.getPens().contains(previousData)){
+                    continue;
+                }
+                foundMatch = true;
+                for(int i = 0; i < drawingSet.getPens().size(); i++){
+                    IDrawingPen currentPen = drawingSet.getPens().get(i);
+                    if(currentPen != null && currentPen.equals(previousData)){
+                        drawingSet.getPens().set(i, new DrawingPen(newData));
+                    }
+                }
+                Register.PRESET_LOADER_DRAWING_SET.sendListenerEvent(e -> e.onPresetEdited(preset));
+            }
+        }
+        if(foundMatch){
+            Register.PRESET_LOADER_DRAWING_SET.markDirty();
+        }
+    }
     @Override
     public DrawingPen createDataInstance(GenericPreset<IDrawingPen> preset) {
         DrawingPen drawingPen = new DrawingPen(preset.getPresetSubType(), preset.getPresetName(), ImageTools.getARGBFromColor(Color.BLACK));
