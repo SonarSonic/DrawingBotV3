@@ -1,22 +1,28 @@
 package drawingbot.javafx.controls;
 
+import drawingbot.javafx.GenericPreset;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SkinBase;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-public class SkinPresetSelectionCategory<TARGET, DATA> extends SkinBase<ControlPresetSelectorCategory<TARGET, DATA>> {
+public class SkinPresetSelectorCategory<TARGET, DATA> extends SkinBase<ControlPresetSelectorCategory<TARGET, DATA>> {
 
     protected HBox hBox;
     protected ComboBox<String> comboBox;
     protected ControlPresetSelector<TARGET, DATA> internalPresetSelection;
 
-    protected SkinPresetSelectionCategory(ControlPresetSelectorCategory<TARGET, DATA> control) {
+    protected SkinPresetSelectorCategory(ControlPresetSelectorCategory<TARGET, DATA> control) {
         super(control);
 
         comboBox = createComboBox(control);
 
-        internalPresetSelection = new ControlPresetSelector<>();
+        internalPresetSelection = new ControlPresetSelector<>(){
+            @Override
+            public GenericPreset<DATA> createNewPresetInstance() {
+                return control.createNewPresetInstance();
+            }
+        };
         internalPresetSelection.presetManagerProperty().bind(control.presetManagerProperty());
         internalPresetSelection.activePresetProperty().bindBidirectional(control.activePresetProperty()); //bi-directional to allow selection
         internalPresetSelection.availablePresetsProperty().bind(control.categoryPresetListProperty());

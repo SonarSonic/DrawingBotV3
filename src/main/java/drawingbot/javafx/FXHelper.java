@@ -456,8 +456,8 @@ public class FXHelper {
         return manager.getPresetLoader().createEditablePreset(preset);
     }
 
-    public static <TARGET, DATA> GenericPreset<DATA> actionNewPreset(IPresetManager<TARGET, DATA> manager, TARGET target, boolean isInspector){
-        GenericPreset<DATA> newPreset = manager.getPresetLoader().createNewPreset();
+    public static <TARGET, DATA> GenericPreset<DATA> actionNewPreset(IPresetManager<TARGET, DATA> manager, @Nullable GenericPreset<DATA> newInstance, TARGET target, boolean isInspector){
+        GenericPreset<DATA> newPreset = newInstance == null ? manager.getPresetLoader().createNewPreset() : newInstance;
         if(newPreset == null){
             return null;
         }

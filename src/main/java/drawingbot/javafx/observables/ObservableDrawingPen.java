@@ -77,7 +77,6 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
 
         this.colorSplitOpacity.addListener(observable -> refreshAWTColor());
         this.finalJFXColor.bind(Bindings.createObjectBinding(() -> new Color(javaFXColour.get().getRed(), javaFXColour.get().getGreen(), javaFXColour.get().getBlue(),  useColorSplitOpacity.get() ? javaFXColour.get().getOpacity()  * colorSplitOpacity.get() : javaFXColour.get().getOpacity()), javaFXColour, colorSplitOpacity, useColorSplitOpacity));
-
     }
 
     public void resetGeometryStats(){

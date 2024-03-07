@@ -41,7 +41,7 @@ public class PresetDrawingPenManager extends AbstractPresetManager<IDrawingPen, 
 
     @Override
     public DefaultPresetEditor<IDrawingPen, IDrawingPen> createPresetEditor() {
-        return  new PresetDrawingPenEditor(this);
+        return new PresetDrawingPenEditor(this);
     }
 
 }

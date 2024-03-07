@@ -43,10 +43,16 @@ public class PresetDrawingPenLoader extends AbstractPresetLoader<IDrawingPen> {
 
     @Override
     public DrawingPen createDataInstance(GenericPreset<IDrawingPen> preset) {
-        DrawingPen drawingPen = new DrawingPen();
+        DrawingPen drawingPen = new DrawingPen(preset.getPresetSubType(), preset.getPresetName(), ImageTools.getARGBFromColor(Color.BLACK));
         drawingPen.setLinkedPreset(preset);
         preset.data = drawingPen;
         return drawingPen;
+    }
+
+    @Override
+    public IDrawingPen duplicateData(Gson gson, GenericPreset<IDrawingPen> preset) {
+        //Important: the JSON adapter actually returns instance from the current preset so we must provide a new instance instead
+        return new DrawingPen(preset.getData());
     }
 
     @Override

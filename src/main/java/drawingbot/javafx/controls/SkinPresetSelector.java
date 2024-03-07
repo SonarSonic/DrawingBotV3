@@ -7,13 +7,13 @@ import javafx.scene.control.SkinBase;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-public class SkinPresetSelection<TARGET, DATA> extends SkinBase<ControlPresetSelector<TARGET, DATA>> {
+public class SkinPresetSelector<TARGET, DATA> extends SkinBase<ControlPresetSelector<TARGET, DATA>> {
 
     protected ComboBox<GenericPreset<DATA>> comboBox;
     protected MenuButton menuButton;
     protected HBox hBox;
 
-    protected SkinPresetSelection(ControlPresetSelector<TARGET, DATA> control) {
+    protected SkinPresetSelector(ControlPresetSelector<TARGET, DATA> control) {
         super(control);
         hBox = new HBox(4);
 

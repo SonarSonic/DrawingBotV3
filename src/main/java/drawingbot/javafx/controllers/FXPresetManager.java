@@ -263,7 +263,7 @@ public class FXPresetManager extends AbstractFXController{
     public void actionAdd(){
         if(type.get() != null){
             IPresetManager<?, ?> manager = MasterRegistry.INSTANCE.getDefaultPresetManager(type.get());
-            GenericPreset<?> preset = FXHelper.actionNewPreset(manager, null, true);
+            GenericPreset<?> preset = FXHelper.actionNewPreset(manager, null, null, true);
             selectPreset(preset);
         }
     }

@@ -176,7 +176,7 @@ public class ControlPresetSelectorCategory<TARGET, DATA> extends ControlPresetSe
 
     @Override
     public void refresh(){
-        if(getSkin() instanceof SkinPresetSelectionCategory<?, ?> skin){
+        if(getSkin() instanceof SkinPresetSelectorCategory<?, ?> skin){
             skin.refresh();
         }
     }
@@ -185,6 +185,6 @@ public class ControlPresetSelectorCategory<TARGET, DATA> extends ControlPresetSe
 
     @Override
     protected Skin<?> createDefaultSkin() {
-        return new SkinPresetSelectionCategory<>(this);
+        return new SkinPresetSelectorCategory<>(this);
     }
 }

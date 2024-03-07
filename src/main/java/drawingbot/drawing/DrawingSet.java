@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @JsonData
@@ -30,7 +31,7 @@ public class DrawingSet implements IDrawingSet, IColorManagedDrawingSet {
     public DrawingSet(IDrawingSet drawingSet){
         this.type = drawingSet.getType();
         this.name = drawingSet.getName();
-        this.pens = drawingSet.getPens().stream().map(DrawingPen::new).collect(Collectors.toList());
+        this.pens = drawingSet.getPens().stream().filter(Objects::nonNull).map(DrawingPen::new).collect(Collectors.toList());
     }
 
     public DrawingSet(String type, String name, List<IDrawingPen> pens) {

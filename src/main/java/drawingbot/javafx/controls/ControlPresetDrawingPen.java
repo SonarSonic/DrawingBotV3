@@ -20,12 +20,14 @@ public class ControlPresetDrawingPen extends ControlPresetSelectorCategory<IDraw
         ComboBox<GenericPreset<IDrawingPen>> comboBox =  new ComboBox<>();
         comboBox.setCellFactory(param -> new ComboCellPresetDrawingPen(null, false));
         comboBox.setButtonCell(new ComboCellPresetDrawingPen(null, false));
+        comboBox.setVisibleRowCount(16);
         return comboBox;
     };
 
     public static Supplier<ComboBox<String>> defaultCategoryComboBoxFactory = () -> {
         ComboBox<String> comboBox = new ComboBox<>();
         comboBox.setMaxWidth(124);
+        comboBox.setVisibleRowCount(16);
         return comboBox;
     };
 
@@ -33,11 +35,12 @@ public class ControlPresetDrawingPen extends ControlPresetSelectorCategory<IDraw
         ComboBox<GenericPreset<IDrawingPen>> comboBox =  new ComboBox<>();
         comboBox.setCellFactory(param -> new ComboCellPresetDrawingPen(drawingSets, true));
         comboBox.setButtonCell(new ComboCellPresetDrawingPen(drawingSets, false));
+        comboBox.setVisibleRowCount(16);
+        comboBox.setMaxWidth(180);
 
         ComboBoxListViewSkin<GenericPreset<IDrawingPen>> comboBoxDrawingPenSkin = new ComboBoxListViewSkin<>(comboBox);
         comboBoxDrawingPenSkin.hideOnClickProperty().set(false);
         comboBox.setSkin(comboBoxDrawingPenSkin);
-        comboBox.setMaxWidth(180);
         return comboBox;
     };
 
@@ -55,6 +58,11 @@ public class ControlPresetDrawingPen extends ControlPresetSelectorCategory<IDraw
             }
             return () -> selectableDrawingPenComboBoxFactory.apply(drawingSet);
         }, drawingSet));
+    }
+
+    @Override
+    public GenericPreset<IDrawingPen> createNewPresetInstance() {
+        return Register.PRESET_MANAGER_DRAWING_PENS.getPresetLoader().createNewPreset(getActiveCategory(), "Custom Pen", true);
     }
 
     public ObjectProperty<ObservableDrawingSet> drawingSet = new SimpleObjectProperty<>();

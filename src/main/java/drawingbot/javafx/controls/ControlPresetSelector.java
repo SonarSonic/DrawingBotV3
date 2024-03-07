@@ -41,7 +41,7 @@ public class ControlPresetSelector<TARGET, DATA> extends ControlPresetButton<TAR
                 newValue.getPresetLoader().addSpecialListener(loaderListener);
             }
         });
-        filteredPresetsProperty().bind(Bindings.createObjectBinding(() -> getAvailablePresets() == null ? null : getPresetFilter() == null ? getAvailablePresets() : new FilteredList<>(getAvailablePresets(), getPresetFilter()), availablePresetsProperty(), presetFilterProperty(), updatedFilteredListFlag));
+        filteredPresetsProperty().bind(Bindings.createObjectBinding(() -> getAvailablePresets() == null ? null : getPresetFilter() == null ? getAvailablePresets() : new FilteredList<>(getAvailablePresets(), getPresetFilter()), availablePresetsProperty(), presetFilterProperty()));
     }
 
     public void quickSetup(IPresetManager<TARGET, DATA> manager){
@@ -68,7 +68,6 @@ public class ControlPresetSelector<TARGET, DATA> extends ControlPresetButton<TAR
 
     ////////////////////////////////////////////////////////
 
-    protected BooleanProperty updatedFilteredListFlag = new SimpleBooleanProperty(false);
     protected ObjectProperty<ObservableList<GenericPreset<DATA>>> filteredPresets = new SimpleObjectProperty<>();
 
     public ObservableList<GenericPreset<DATA>> getFilteredPresets() {
@@ -137,8 +136,7 @@ public class ControlPresetSelector<TARGET, DATA> extends ControlPresetButton<TAR
 
     @Override
     public void refresh(){
-        updatedFilteredListFlag.set(!updatedFilteredListFlag.get());
-        if(getSkin() instanceof SkinPresetSelection<?, ?> skin){
+        if(getSkin() instanceof SkinPresetSelector<?, ?> skin){
             skin.refresh();
         }
     }
@@ -147,6 +145,6 @@ public class ControlPresetSelector<TARGET, DATA> extends ControlPresetButton<TAR
 
     @Override
     protected Skin<?> createDefaultSkin() {
-        return new SkinPresetSelection<>(this);
+        return new SkinPresetSelector<>(this);
     }
 }

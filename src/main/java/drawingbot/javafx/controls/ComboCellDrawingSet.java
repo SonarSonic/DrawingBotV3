@@ -77,7 +77,9 @@ public class ComboCellDrawingSet<S extends IDrawingSet> extends ComboBoxListCell
         int renderWidth = fullRenderWidth / Math.max(1, renderTotal);
         for (int i = 0; i < renderTotal; i++) {
             IDrawingPen pen = drawingPens.get(i);
-            box.getChildren().add(new Rectangle(renderWidth, 12, ImageTools.getColorFromARGB(pen.getARGB())));
+            if(pen != null){
+                box.getChildren().add(new Rectangle(renderWidth, 12, ImageTools.getColorFromARGB(pen.getARGB())));
+            }
         }
         int remainder = fullRenderWidth - (renderWidth * renderTotal);
         if (remainder != 0) { //add spacer

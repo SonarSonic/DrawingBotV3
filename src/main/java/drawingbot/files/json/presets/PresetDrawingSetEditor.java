@@ -27,9 +27,6 @@ public class PresetDrawingSetEditor extends DefaultPresetEditor<IDrawingSet, IDr
     @Override
     public void init(TreeNode editorNode) {
         super.init(editorNode);
-        if (!isDetailed()) {
-            return;
-        }
         editingPresetProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 manager.applyPreset(DrawingBotV3.context(), drawingSet, newValue, false);

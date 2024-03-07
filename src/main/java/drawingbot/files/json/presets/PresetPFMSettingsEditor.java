@@ -52,10 +52,6 @@ public class PresetPFMSettingsEditor extends DefaultPresetEditor<PFMSettings, Pr
             }
         });
 
-        if (!isDetailed()) {
-            return;
-        }
-
         controlPFMSettingsEditor = new ControlPFMSettingsEditor();
         controlPFMSettingsEditor.pfmSettingsProperty().set(pfmSettings);
         controlPFMSettingsEditor.activePresetProperty().bind(selectedPresetProperty());
