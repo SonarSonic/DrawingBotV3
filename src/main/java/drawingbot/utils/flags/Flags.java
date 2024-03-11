@@ -20,6 +20,7 @@ public class Flags {
 
     public final static Flags.BooleanFlag IMAGE_FILTERS_PARTIAL_UPDATE = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("IMAGE_FILTERS_PARTIAL_UPDATE", false, false));
     public final static Flags.BooleanFlag IMAGE_FILTERS_FULL_UPDATE = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("IMAGE_FILTERS_FULL_UPDATE", false, false));
+    public final static Flags.BooleanFlag CROPPING_CHANGED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CROPPING_CHANGED", false, false));
     public final static Flags.BooleanFlag CANVAS_CHANGED = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CANVAS_CHANGED", false, false));
     public final static Flags.BooleanFlag CLEAR_DRAWING_JFX = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CLEAR_DRAWING_JFX", false, false));
     public final static Flags.BooleanFlag CLEAR_DRAWING_OPENGL = Flags.addBooleanFlag(RENDER_CATEGORY, new Flags.BooleanFlag("CLEAR_DRAWING_OPENGL", false, false));

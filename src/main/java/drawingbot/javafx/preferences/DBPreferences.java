@@ -274,9 +274,10 @@ public class DBPreferences implements ISettings {
             frameCount = (int) drawing.getVertexCount();
         }
 
-        if(DrawingBotV3.project().openImage.get() != null){
-            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.project().openImage.get().getTargetCanvas(), exportDPI.get(), false);
-            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.project().openImage.get().getTargetCanvas(), exportDPI.get(), false);
+        if(DrawingBotV3.project().getOpenImage() != null){
+
+            int exportWidth = CanvasUtils.getRasterExportWidth(DrawingBotV3.project().getDrawingArea(), exportDPI.get(), false);
+            int exportHeight = CanvasUtils.getRasterExportHeight(DrawingBotV3.project().getDrawingArea(), exportDPI.get(), false);
             DBPreferences.INSTANCE.imageExportSize.set(exportWidth + " x " + exportHeight);
 
         }else{
@@ -311,6 +312,7 @@ public class DBPreferences implements ISettings {
             DrawingBotV3.project().exportRange.set(defaultRangeExport.getValue());
         });
 
+        //TODO BINDINGS
         exportDPI.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
         framesPerSecond.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());
         duration.valueProperty().addListener((observable, oldValue, newValue) -> updateImageSequenceStats());

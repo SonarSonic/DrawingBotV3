@@ -1,7 +1,7 @@
 package drawingbot.files.loaders;
 
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
 
@@ -10,7 +10,7 @@ import java.io.File;
 /**
  * Some file loaders may return null FilteredImageData, e.g. Project Loaders
  */
-public abstract class AbstractFileLoader extends DBTask<FilteredImageData> {
+public abstract class AbstractFileLoader extends DBTask<ImageData> {
 
     public File file;
     public boolean internal;

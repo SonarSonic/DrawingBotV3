@@ -1,6 +1,7 @@
 package drawingbot.javafx.observables;
 
 import drawingbot.api.IProperties;
+import drawingbot.image.BufferedImageOpFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.util.PropertyUtil;
@@ -17,7 +18,7 @@ import javafx.collections.ObservableList;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 
-public class ObservableImageFilter extends SpecialListenable<ObservableImageFilter.Listener> implements IProperties {
+public class ObservableImageFilter extends SpecialListenable<ObservableImageFilter.Listener> implements IProperties, BufferedImageOpFactory {
 
     public final SimpleBooleanProperty enable;
     public final SimpleStringProperty name;
@@ -75,6 +76,13 @@ public class ObservableImageFilter extends SpecialListenable<ObservableImageFilt
 
     public ObservableImageFilter copy(){
         return new ObservableImageFilter(this);
+    }
+
+    @Override
+    public BufferedImageOp getBufferedImageOp() {
+        BufferedImageOp imageOp = filterFactory.instance();
+        filterSettings.forEach(setting -> setting.applySetting(imageOp));
+        return imageOp;
     }
 
     ///////////////////////////

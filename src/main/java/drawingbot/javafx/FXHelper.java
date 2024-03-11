@@ -663,7 +663,6 @@ public class FXHelper {
             Optional<Boolean> result = dialog.showAndWait();
             if(result.isPresent() && !result.get()){ //if the dialog was cancelled copy the settings of the original
                 GenericSetting.applySettings(original.filterSettings, filter.filterSettings);
-                DrawingBotV3.project().onImageFilterChanged(filter);
             }
         }
     }

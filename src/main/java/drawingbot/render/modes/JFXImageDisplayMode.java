@@ -12,8 +12,8 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
 public abstract class JFXImageDisplayMode extends DisplayModeImage implements IJFXDisplayMode{
 
-    private WritableImage cacheImage = null;
-    private boolean imageChanged = false;
+    protected WritableImage cacheImage = null;
+    protected boolean imageChanged = false;
 
     @Override
     public RendererFactory getRendererFactory() {
@@ -34,18 +34,21 @@ public abstract class JFXImageDisplayMode extends DisplayModeImage implements IJ
 
     @Override
     public void doRender(JFXRenderer jfr) {
-        if (getViewport().getRenderFlags().anyMatchAndMarkClear(Flags.FORCE_REDRAW)) {
-            jfr.clearCanvas();
-            if(getDisplayedImage() != null){
-                if(imageChanged || cacheImage == null){
-                    cacheImage = SwingFXUtils.toFXImage(getDisplayedImage(), cacheImage);
-                    imageChanged = false;
-                }
-                jfr.graphicsFX.scale(jfr.getRenderScale(), jfr.getRenderScale());
-                jfr.graphicsFX.translate(getCanvas().getScaledDrawingOffsetX(), getCanvas().getScaledDrawingOffsetY());
-                jfr.graphicsFX.drawImage(cacheImage, 0, 0);
+        jfr.clearCanvas();
+        if(getDisplayedImage() != null){
+            if(imageChanged || cacheImage == null){
+                cacheImage = SwingFXUtils.toFXImage(getDisplayedImage(), cacheImage);
+                imageChanged = false;
             }
+            jfr.graphicsFX.scale(jfr.getRenderScale(), jfr.getRenderScale());
+            jfr.graphicsFX.translate(getCanvas().getScaledDrawingOffsetX(), getCanvas().getScaledDrawingOffsetY());
+            jfr.graphicsFX.drawImage(cacheImage, 0, 0);
         }
+    }
+
+    @Override
+    public boolean isRenderDirty(JFXRenderer jfr) {
+        return getViewport().getRenderFlags().anyMatch(Flags.FORCE_REDRAW);
     }
 
     ////////////////////////////////////////////////////////

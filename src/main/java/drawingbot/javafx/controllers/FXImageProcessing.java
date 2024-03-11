@@ -4,7 +4,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.json.presets.PresetImageFilters;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.image.ImageFilterSettings;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.controls.ControlImageFiltersEditor;
 import drawingbot.javafx.controls.ControlPresetSelector;
@@ -25,7 +25,7 @@ import java.util.List;
 public class FXImageProcessing extends AbstractFXController {
 
     public final SimpleObjectProperty<ImageFilterSettings> settings = new SimpleObjectProperty<>();
-    public final SimpleObjectProperty<FilteredImageData> image = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ImageData> image = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<GenericPreset<PresetImageFilters>> selectedImagePreset = new SimpleObjectProperty<>();
 
     ////////////////////////////////////////////////////////

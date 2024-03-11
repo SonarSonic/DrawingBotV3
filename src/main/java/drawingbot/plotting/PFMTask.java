@@ -26,12 +26,11 @@ import java.util.function.Consumer;
 
 public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenable<PFMTask.Listener> {
 
-    public final ICanvas refCanvas;
+    public final PlottedDrawing drawing;
     public final ObservableDrawingSet refPenSet;
 
     public PFMFactory<?> pfmFactory;
     public List<GenericSetting<?, ?>> pfmSettings;
-    public PlottedDrawing drawing;
 
     // STATUS \\
     public EnumTaskStage stage = EnumTaskStage.START;
@@ -70,7 +69,6 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     public PFMTask(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet refPenSet, List<GenericSetting<?, ?>> pfmSettings){
         super(context);
         updateTitle("Plotting Image (" + pfmFactory.getRegistryName() + ")");
-        this.refCanvas = drawing.getCanvas();
         this.refPenSet = refPenSet;
         this.pfmSettings = pfmSettings;
         this.pfmFactory = pfmFactory;
@@ -344,7 +342,8 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
      * Releases any objects which are only required while the PFM is running, to allow the objects to be garbage collected earlier if required
      */
     public void safeDestroy(){
-        subTasks.forEach(PFMTask::safeDestroy);
+        subTasks.forEach(PFMTask::destroy);
+        subTasks.clear();
 
         if(pfm != null){
             pfm.onStopped();
@@ -361,9 +360,6 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
      */
     public void destroy(){
         safeDestroy();
-
-        subTasks.forEach(PFMTask::destroy);
-        subTasks.clear();
 
         comments.clear();
         finishEarly = false;

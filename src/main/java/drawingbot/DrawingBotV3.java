@@ -16,7 +16,8 @@ import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.loaders.AbstractFileLoader;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.ImageFilterSettings;
+import drawingbot.image.format.ImageData;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
@@ -37,11 +38,6 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.geometry.Point2D;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import org.fxmisc.easybind.EasyBind;
-import org.fxmisc.easybind.monadic.MonadicBinding;
 
 public class DrawingBotV3 {
 
@@ -77,7 +73,8 @@ public class DrawingBotV3 {
     public final ObjectProperty<PlottedDrawing> projectCurrentDrawing = new SimpleObjectProperty<>();
     public final ObjectProperty<PlottedDrawing> projectExportedDrawing = new SimpleObjectProperty<>();
     public final ObjectProperty<ObservableCanvas> projectDrawingArea = new SimpleObjectProperty<>();
-    public final ObjectProperty<FilteredImageData> projectOpenImage = new SimpleObjectProperty<>();
+    public final ObjectProperty<ImageData> projectOpenImage = new SimpleObjectProperty<>();
+    public final ObjectProperty<ImageFilterSettings> projectImageSettings = new SimpleObjectProperty<>();
     public final ObjectProperty<ObservableList<ObservableDrawingPen>> projectSelectedPens = new SimpleObjectProperty<>();
 
     // VIEWPORT SETTINGS \\
@@ -112,6 +109,7 @@ public class DrawingBotV3 {
                 projectCurrentDrawing.unbindBidirectional(oldValue.currentDrawing);
                 projectDrawingArea.unbindBidirectional(oldValue.drawingArea);
                 projectOpenImage.unbindBidirectional(oldValue.openImage);
+                projectImageSettings.unbindBidirectional(oldValue.imageSettings);
                 projectExportedDrawing.unbindBidirectional(oldValue.exportDrawing);
                 projectSelectedPens.unbindBidirectional(oldValue.selectedPens);
 
@@ -125,6 +123,7 @@ public class DrawingBotV3 {
                 projectCurrentDrawing.bindBidirectional(newValue.currentDrawing);
                 projectDrawingArea.bindBidirectional(newValue.drawingArea);
                 projectOpenImage.bindBidirectional(newValue.openImage);
+                projectImageSettings.bindBidirectional(newValue.imageSettings);
                 projectExportedDrawing.bindBidirectional(newValue.exportDrawing);
                 projectSelectedPens.bindBidirectional(newValue.selectedPens);
 
@@ -177,7 +176,7 @@ public class DrawingBotV3 {
         // Update the latest shapes/vertices counts from the active task
         PFMTask renderedTask = context().taskManager().getRenderedTask();
         PlottedDrawing currentDrawing = context().taskManager().getCurrentDrawing();
-        FilteredImageData openImage = project().openImage.get();
+        ImageData openImage = project().openImage.get();
 
         // Tick the current tasks
         taskMonitor.tick();
@@ -310,7 +309,7 @@ public class DrawingBotV3 {
 
         loadingTask.setOnSucceeded(e -> {
             if(!isSubTask && e.getSource().getValue() != null){
-                context.project.openImage.set((FilteredImageData) e.getSource().getValue());
+                context.project.openImage.set((ImageData) e.getSource().getValue());
                 Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
             }
             loadingTask.onFileLoaded();

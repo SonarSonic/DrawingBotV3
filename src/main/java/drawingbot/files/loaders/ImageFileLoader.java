@@ -2,8 +2,9 @@ package drawingbot.files.loaders;
 
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.BufferedImageLoader;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 
+import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -19,7 +20,7 @@ public class ImageFileLoader extends AbstractFileLoader {
     }
 
     @Override
-    protected FilteredImageData call() throws Exception {
+    protected ImageData call() throws Exception {
 
         updateProgress(-1, 1);
         updateTitle("Importing Image: " + file.toString());
@@ -27,13 +28,10 @@ public class ImageFileLoader extends AbstractFileLoader {
         updateMessage("Loading");
         BufferedImage source = BufferedImageLoader.loadImage(file.toString(), internal);
 
-        updateMessage("Filtering");
-        FilteredImageData filtered = new FilteredImageData(file, context.project.getDrawingArea(), source);
-        filtered.updateAll(context.project.getImageSettings());
 
         updateMessage("Finished");
         updateProgress(1, 1);
-        return filtered;
+        return new ImageData(file, source);
     }
 
     @Override

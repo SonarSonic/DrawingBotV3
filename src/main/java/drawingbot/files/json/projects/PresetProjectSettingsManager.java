@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import drawingbot.DrawingBotV3;
-import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.ExportTask;
 import drawingbot.files.FileUtils;
@@ -14,7 +13,7 @@ import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.image.format.ImageCropping;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
@@ -207,10 +206,9 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
                             FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
-                            FilteredImageData imageData = loadingTask.getValue();
+                            ImageData imageData = loadingTask.getValue();
                             if(imageData != null){
                                 imageData.imageCropping.update(data);
-                                imageData.markUpdate(FilteredImageData.UpdateType.FULL_UPDATE);
                             }
                         }
                     });

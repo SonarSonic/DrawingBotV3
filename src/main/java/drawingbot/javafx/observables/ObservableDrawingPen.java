@@ -214,8 +214,8 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
         return finalJFXColor.get();
     }
 
-    public Color getFXColor(Integer pfmARGB){
-        if(pfmARGB != null && source instanceof ICustomPen){
+    public Color getFXColor(int pfmARGB){
+        if(source instanceof ICustomPen){
             return ImageTools.getColorFromARGB(((ICustomPen) source).getCustomARGB(pfmARGB));
         }
         return finalJFXColor.get();

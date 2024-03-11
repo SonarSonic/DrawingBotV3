@@ -89,19 +89,27 @@ public class JFXRenderer extends RendererBase {
 
     @Override
     public void doRender() {
+        //If the renderer is invisible, don't render anything
         if(pane.getParent() == null){
             return;
         }
-        graphicsFX.setGlobalBlendMode(BlendMode.SRC_OVER);
-        graphicsFX.save();
 
         if(displayMode.get() instanceof IJFXDisplayMode jfxDisplayMode){
-            jfxDisplayMode.preRender(this);
-            jfxDisplayMode.doRender(this);
-            jfxDisplayMode.postRender(this);
+
+            //Update the state of the display mode
+            jfxDisplayMode.onRenderTick(this);
+
+            //Re-Render the canvas if the Display Mode is dirty
+            if(jfxDisplayMode.isRenderDirty(this)){
+                graphicsFX.setGlobalBlendMode(BlendMode.SRC_OVER);
+                graphicsFX.save();
+                jfxDisplayMode.preRender(this);
+                jfxDisplayMode.doRender(this);
+                jfxDisplayMode.postRender(this);
+                graphicsFX.restore();
+            }
         }
 
-        graphicsFX.restore();
     }
 
     public void clearCanvas(){

@@ -6,7 +6,7 @@ import drawingbot.api.IPixelData;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.ImageTools;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.javafx.observables.ObservableImageFilter;
@@ -26,7 +26,7 @@ public class PFMTaskImage extends PFMTask {
     public IPixelData pixelDataReference;
     public IPixelData pixelDataPlotting;
 
-    public FilteredImageData imageData;
+    public ImageData imageData;
 
     @Nullable
     public ImageFilterSettings imgFilterSettings;
@@ -36,7 +36,7 @@ public class PFMTaskImage extends PFMTask {
         this(builder.context, builder.drawing, builder.pfmFactory, builder.activeSet, builder.pfmSettings, builder.imageSettings, builder.imageData);
     }
 
-    public PFMTaskImage(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, List<GenericSetting<?, ?>> pfmSettings, @Nullable ImageFilterSettings imgFilterSettings, FilteredImageData imageData){
+    public PFMTaskImage(DBTaskContext context, PlottedDrawing drawing, PFMFactory<?> pfmFactory, ObservableDrawingSet drawingPenSet, List<GenericSetting<?, ?>> pfmSettings, @Nullable ImageFilterSettings imgFilterSettings, ImageData imageData){
         super(context, drawing, pfmFactory, drawingPenSet, pfmSettings);
         this.imgFilterSettings = imgFilterSettings;
         this.imageData = imageData;
@@ -58,7 +58,7 @@ public class PFMTaskImage extends PFMTask {
             if(imageData.isVectorImage()){
                 updateMessage("Pre-Processing - Rasterizing from Vector");
             }
-            imgPlotting = imageData.createCroppedImage(drawing.getCanvas(), imgFilterSettings);
+            imgPlotting = imageData.createCroppedImage(drawing.getCanvas());
 
             DrawingBotV3.logger.fine("Applying Filters");
             for(ObservableImageFilter filter : imgFilterSettings.currentFilters.get()) {
@@ -147,7 +147,7 @@ public class PFMTaskImage extends PFMTask {
         return imageData.getSourceFile();
     }
 
-    public FilteredImageData getImageData(){
+    public ImageData getImageData(){
         return imageData;
     }
 

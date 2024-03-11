@@ -88,6 +88,13 @@ public class FlagStates {
         }
     }
 
+    public void loadState(FlagStates otherState){
+        clear();
+        for(Map.Entry<Flags.Flag<?>, Object> entry : STATE_MAP.entrySet()){
+            entry.setValue(otherState.getFlag(entry.getKey()));
+        }
+    }
+
 
     public void markForClear(Flags.Flag<?>...flags){
         toClear.addAll(Arrays.asList(flags));

@@ -5,10 +5,11 @@ import drawingbot.api.ICanvas;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.image.ImageFilterSettings;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.observables.ObservableDrawingSet;
 import drawingbot.pfm.PFMFactory;
+import drawingbot.plotting.canvas.SimpleCanvas;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -35,7 +36,7 @@ public class PFMTaskBuilder {
 
     // Image Data \\
     public ImageFilterSettings imageSettings;
-    public FilteredImageData imageData;
+    public ImageData imageData;
     public boolean useImageCanvas = true;
 
     /** If the tasks lifecycle is controlled by another task */
@@ -49,7 +50,7 @@ public class PFMTaskBuilder {
     public Consumer<PFMTask> postSetup;
     public Function<PFMTaskBuilder, PFMTask> customTaskSupplier;
 
-    public PFMTaskBuilder(DBTaskContext context, PFMFactory<?> factory, List<GenericSetting<?, ?>> settings, ICanvas canvas, DrawingSets drawingSets, ObservableDrawingSet activeSet, ImageFilterSettings imageSettings, FilteredImageData imageData, boolean isSubTask){
+    public PFMTaskBuilder(DBTaskContext context, PFMFactory<?> factory, List<GenericSetting<?, ?>> settings, ICanvas canvas, DrawingSets drawingSets, ObservableDrawingSet activeSet, ImageFilterSettings imageSettings, ImageData imageData, boolean isSubTask){
         this.context = context;
         this.pfmFactory = factory;
         this.canvas = canvas;
@@ -71,7 +72,7 @@ public class PFMTaskBuilder {
         return new PFMTaskBuilder(context, factory, context.project().getPFMSettings(factory), context.project().getDrawingArea(), context.project().getDrawingSets(), context.project().getActiveDrawingSet(), context.project().getImageSettings(), context.project().getOpenImage(), false);
     }
 
-    public static PFMTaskBuilder create(DBTaskContext context, PFMFactory<?> factory, List<GenericSetting<?, ?>> settings, ICanvas canvas, DrawingSets drawingSets, ObservableDrawingSet activeSet, ImageFilterSettings imageSettings, FilteredImageData imageData, boolean isSubTask){
+    public static PFMTaskBuilder create(DBTaskContext context, PFMFactory<?> factory, List<GenericSetting<?, ?>> settings, ICanvas canvas, DrawingSets drawingSets, ObservableDrawingSet activeSet, ImageFilterSettings imageSettings, ImageData imageData, boolean isSubTask){
         return new PFMTaskBuilder(context, factory, settings, canvas, drawingSets, activeSet, imageSettings, imageData, isSubTask);
     }
 
@@ -79,8 +80,7 @@ public class PFMTaskBuilder {
 
     public PFMTask createPFMTask(){
         if(imageData != null && useImageCanvas){
-            imageData.updateAll(imageSettings);
-            canvas = imageData.getDestCanvas();
+            canvas = new SimpleCanvas(imageData.createImageTargetCanvas(new SimpleCanvas(canvas)));
         }
 
         if(pfmSettings == null){
@@ -158,7 +158,7 @@ public class PFMTaskBuilder {
         return this;
     }
 
-    public PFMTaskBuilder setImageData(FilteredImageData imageData) {
+    public PFMTaskBuilder setImageData(ImageData imageData) {
         this.imageData = imageData;
         return this;
     }

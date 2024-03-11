@@ -13,7 +13,7 @@ import drawingbot.files.json.PresetData;
 import drawingbot.geom.MaskingSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class ObservableProject implements ITaskManager, DrawingSets.Listener, ImageFilterSettings.Listener, ObservableCanvas.Listener, PFMSettings.Listener, VersionControl.Listener  {
+public class ObservableProject implements ITaskManager, DrawingSets.Listener, ObservableCanvas.Listener, PFMSettings.Listener, VersionControl.Listener  {
 
     public static final String DEFAULT_NAME = "Untitled Project";
 
@@ -222,17 +222,17 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
      * Open Image
      */
 
-    public final ObjectProperty<FilteredImageData> openImage = new SimpleObjectProperty<>(null);
+    public final ObjectProperty<ImageData> openImage = new SimpleObjectProperty<>(null);
 
-    public FilteredImageData getOpenImage() {
+    public ImageData getOpenImage() {
         return openImage.get();
     }
 
-    public ObjectProperty<FilteredImageData> openImageProperty() {
+    public ObjectProperty<ImageData> openImageProperty() {
         return openImage;
     }
 
-    public void setOpenImage(FilteredImageData openImage) {
+    public void setOpenImage(ImageData openImage) {
         this.openImage.set(openImage);
     }
 
@@ -311,9 +311,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         // Register for Drawing Sets / Drawing Pen / Drawing Slot events
         PropertyUtil.addSpecialListener(drawingSets, this);
 
-        // Register for Image Filter Addition / Removal / Update event
-        PropertyUtil.addSpecialListener(imageSettings, this);
-
         // Register for PFM Settings User Edited event
         PropertyUtil.addSpecialListener(pfmSettings, this);
 
@@ -337,21 +334,20 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
         // Task / Drawing render bindings / listeners
         activeTask.addListener((observable, oldValue, newValue) -> {
-            if(oldValue != null && renderedTask.get() != oldValue){
-                oldValue.tryDestroy(); //TODO PROPER HANDLING OF DESTROYING TASKS / DRAWINGS
+            if(oldValue != null){
+                //Indicate to the JVM that a large amount of RAM could now be freed
+                System.gc();
             }
             setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
         });
         renderedTask.addListener((observable, oldValue, newValue) -> {
-            if(oldValue != null && activeTask.get() != oldValue){
-                oldValue.tryDestroy(); //TODO PROPER HANDLING OF DESTROYING TASKS / DRAWINGS
-            }
             setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
         });
         currentDrawing.addListener((observable, oldValue, newValue) -> {
             //Clear up the old drawing.
             if(oldValue != null){
-                //oldValue.reset(); TODO - DO WE NEED THIS?
+                //Indicate to the JVM that a large amount of RAM could now be freed
+                System.gc();
             }
             setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
         });
@@ -359,6 +355,10 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
             //If we override the export drawing, we are done with the previous one.
             if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING){
                 setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
+            }
+            if(oldValue != null){
+                //Indicate to the JVM that a large amount of RAM could now be freed
+                System.gc();
             }
         });
         displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
@@ -500,22 +500,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         onDrawingSetChanged();
     }
 
-    //// IMAGE FILTER EVENTS \\\\
-    @Override
-    public void onImageFilterAdded(ObservableImageFilter filter) {
-        onImageFiltersChanged();
-    }
-
-    @Override
-    public void onImageFilterRemoved(ObservableImageFilter filter) {
-        onImageFiltersChanged();
-    }
-
-    @Override
-    public void onImageFilterPropertyChanged(ObservableImageFilter filter, Observable property) {
-        onImageFilterChanged(filter);
-    }
-
     //// CANVAS EVENTS \\\\
 
     @Override
@@ -580,7 +564,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public void onCanvasChanged(){
         setRenderFlag(Flags.CANVAS_CHANGED, true);
-        markOpenImageForUpdate(FilteredImageData.UpdateType.FULL_UPDATE);
     }
 
     public void onDrawingCleared(EnumRendererType rendererType){
@@ -590,16 +573,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         if(rendererType.reRenderOpenGL()) {
             setRenderFlag(Flags.CLEAR_DRAWING_OPENGL, true);
         }
-    }
-
-    public void onImageFiltersChanged(){
-        setRenderFlag(Flags.IMAGE_FILTERS_FULL_UPDATE, true);
-        markOpenImageForUpdate(FilteredImageData.UpdateType.ALL_FILTERS);
-    }
-
-    public void onImageFilterDirty(){
-        setRenderFlag(Flags.IMAGE_FILTERS_PARTIAL_UPDATE, true);
-        markOpenImageForUpdate(FilteredImageData.UpdateType.PARTIAL_FILTERS);
     }
 
     public void resetView(){
@@ -616,11 +589,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
         updatePenDistribution();
     }
 
-    public void onImageFilterChanged(ObservableImageFilter filter){
-        filter.dirty.set(true);
-        onImageFilterDirty();
-    }
-
     public void updatePenDistribution(){
         if(currentDrawing.get() != null){
             DrawingBotV3.INSTANCE.globalFlags.setFlag(Flags.UPDATE_PEN_DISTRIBUTION, true);
@@ -633,13 +601,6 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Im
 
     public void onPFMSettingsUserEdited(){
         DrawingBotV3.INSTANCE.globalFlags.setFlag(Flags.PFM_SETTINGS_USER_EDITED, true);
-    }
-
-
-    public void markOpenImageForUpdate(FilteredImageData.UpdateType updateType){
-        if(openImage.get() != null){
-            openImage.get().markUpdate(updateType);
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

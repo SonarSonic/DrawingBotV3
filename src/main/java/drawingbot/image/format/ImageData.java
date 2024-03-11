@@ -10,6 +10,7 @@ import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.ImageCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.utils.EnumRotation;
+import drawingbot.utils.UnitsLength;
 import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.Nullable;
@@ -28,33 +29,26 @@ import java.io.File;
  *     <li>Filtering: applies any active image filters to the image data</li>
  * </ul>
  */
-public class FilteredImageData implements IProperties {
+public class ImageData implements IProperties {
 
     public final File sourceFile;
-    public final ICanvas targetCanvas;
+    public final BufferedImage sourceImage;
+    public final ICanvas sourceCanvas;
     public final ImageCropping imageCropping;
 
-    public final ICanvas sourceCanvas;
-    public BufferedImage sourceImage;
-
-    public ICanvas destCanvas;
-    public BufferedImage filteredImage;
-
-    public FilteredImageData(File sourceFile, ICanvas destCanvas, BufferedImage sourceImage){
-        this(sourceFile, destCanvas, new SimpleCanvas(sourceImage.getWidth(), sourceImage.getHeight()), sourceImage);
+    public ImageData(File sourceFile, BufferedImage sourceImage){
+        this(sourceFile, new SimpleCanvas(sourceImage.getWidth(), sourceImage.getHeight()), sourceImage);
     }
 
-    public FilteredImageData(File sourceFile, ICanvas destCanvas, ICanvas sourceCanvas, BufferedImage sourceImage){
+    public ImageData(File sourceFile, ICanvas sourceCanvas, BufferedImage sourceImage) {
         this.sourceFile = sourceFile;
-        this.targetCanvas = destCanvas;
-        this.destCanvas = destCanvas;
         this.sourceCanvas = sourceCanvas;
         this.sourceImage = sourceImage;
         this.imageCropping = new ImageCropping(sourceCanvas);
     }
 
     /**
-     * @return the file this {@link FilteredImageData} was imported from, could be null if it was created within the software
+     * @return the file this {@link ImageData} was imported from, could be null if it was created within the software
      */
     @Nullable
     public File getSourceFile(){
@@ -69,20 +63,6 @@ public class FilteredImageData implements IProperties {
     }
 
     /**
-     * @return The canvas which the filtered image should be sized to fit within
-     */
-    public ICanvas getTargetCanvas() {
-        return targetCanvas;
-    }
-
-    /**
-     * @return The canvas representing the created canvas.
-     */
-    public ICanvas getDestCanvas() {
-        return destCanvas;
-    }
-
-    /**
      * @return The settings of the pre crop applied to the image before processing
      */
     public ImageCropping getImageCropping() {
@@ -94,13 +74,6 @@ public class FilteredImageData implements IProperties {
      */
     public BufferedImage getSourceImage() {
         return sourceImage;
-    }
-
-    /**
-     * @return creates a new filtered version of the image, this ensures the latest settings are used, even if the displayed image hasn't been updated.
-     */
-    public BufferedImage getFilteredImage() {
-        return filteredImage == null ? sourceImage : filteredImage;
     }
 
     /**
@@ -119,11 +92,6 @@ public class FilteredImageData implements IProperties {
 
     ///////////////////////////////////////
 
-
-    ///////////////////////////////////////
-
-    public UpdateType nextUpdate = UpdateType.FULL_UPDATE;
-
     public void resetCrop() {
         getImageCropping().reset(getSourceCanvas());
     }
@@ -132,94 +100,33 @@ public class FilteredImageData implements IProperties {
         return getImageCropping().getCrop(getSourceCanvas());
     }
 
-    public enum UpdateType{
-        FULL_UPDATE, // The cropping of the image has changed, update canvas size, cropping and all filters
-        ALL_FILTERS, // All the filters should be updated
-        PARTIAL_FILTERS, // Some of the filters may have changed
-        NONE;
-
-        public boolean updateCropping(){
-            return this == FULL_UPDATE;
-        }
-
-        public boolean updateAllFilters(){
-            return updateCropping() || this == ALL_FILTERS;
-        }
-
-        public boolean updatePartialFilters(){
-            return updateAllFilters() || this == PARTIAL_FILTERS;
-        }
-    }
-
-    public void markUpdate(UpdateType type){
-        if(nextUpdate.ordinal() > type.ordinal()){
-            nextUpdate = type;
-        }
-    }
-
-    public void markCanvasForUpdate(){
-        markUpdate(UpdateType.FULL_UPDATE);
-    }
-
-    public void markFiltersForUpdate(){
-        markUpdate(UpdateType.ALL_FILTERS);
-    }
-
-    public void markPartialFiltersForUpdate(){
-        markUpdate(UpdateType.PARTIAL_FILTERS);
-    }
-
-    public boolean isValidated(){
-        return nextUpdate == UpdateType.NONE;
-    }
-
     ///////////////////////////////////////
-
 
     public ICanvas createPreCropCanvas(){
         Rectangle2D crop = getCrop();
-        return new SimpleCanvas((int)crop.getWidth(), (int)crop.getHeight());
+        return new SimpleCanvas(crop.getWidth(), crop.getHeight());
+    }
+
+    public ICanvas createImageTargetCanvas(ICanvas targetCanvas){
+        return new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageCropping.getImageRotation().flipAxis);
     }
 
     public BufferedImage createPreCroppedImage() {
         return applyPreCropping(sourceImage, getCrop());
     }
 
-    public BufferedImage createCroppedImage(ICanvas canvas, ImageFilterSettings settings){
-        BufferedImage image = createPreCroppedImage();
-        return applyCropping(image, canvas, imageCropping);
+    public BufferedImage createCroppedImage(ICanvas targetCanvas){
+        return applyCropping(createPreCroppedImage(), createImageTargetCanvas(targetCanvas), imageCropping);
     }
 
     ///////////////////////////////////////
 
-    private transient BufferedImage preCrop;
-    private transient BufferedImage cropped;
-
-    public void updateAll(ImageFilterSettings settings){
-        UpdateType updateType = nextUpdate;
-        nextUpdate = UpdateType.NONE;
-
-        ImageCanvas preCropCanvas = null;
-        if(cropped == null || preCrop == null || updateType.updateCropping()){
-            preCrop = applyPreCropping(sourceImage, getCrop());
-            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageCropping.getImageRotation().flipAxis);
-            cropped = applyCropping(preCrop, preCropCanvas, imageCropping);
-        }else{
-            preCropCanvas = new ImageCanvas(new SimpleCanvas(targetCanvas), createPreCropCanvas(), imageCropping.getImageRotation().flipAxis);
-        }
-
-        filteredImage = applyFilters(cropped, updateType.updateAllFilters(), settings);
-
-        destCanvas = preCropCanvas;
-    }
-
     /**
      * Creates a transform for converting from original image space -> canvas space
      * The transform handles crops + rotations + scaling
-     * @param settings the image settings to generate the transform from
      * @return the canvas transform as an AWT transform
      */
-    public AffineTransform getCanvasTransform(ImageFilterSettings settings, ICanvas destCanvas){
+    public AffineTransform getCanvasTransform(ICanvas targetCanvas){
         AffineTransform transform = new AffineTransform();
 
         ICanvas canvas = getSourceCanvas();
@@ -232,13 +139,11 @@ public class FilteredImageData implements IProperties {
         }
 
         //rotation transform
-        if(settings != null){
-            AffineTransform rotationTransform = ImageTools.getCanvasRotationTransform(canvas, imageCropping);
-            transform.preConcatenate(rotationTransform);
-        }
+        AffineTransform rotationTransform = ImageTools.getCanvasRotationTransform(canvas, imageCropping);
+        transform.preConcatenate(rotationTransform);
 
         //scale transform
-        AffineTransform scaleTransform = ImageTools.getCanvasScaleTransform(canvas, destCanvas);
+        AffineTransform scaleTransform = ImageTools.getCanvasScaleTransform(canvas, targetCanvas);
         transform.preConcatenate(scaleTransform);
         return transform;
     }

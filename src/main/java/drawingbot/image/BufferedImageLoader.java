@@ -3,7 +3,7 @@ package drawingbot.image;
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.utils.DBTask;
 import drawingbot.utils.EnumRotation;
 import org.jcodec.api.FrameGrab;
@@ -12,12 +12,17 @@ import org.jcodec.common.model.Picture;
 import org.jcodec.scale.AWTUtil;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.logging.Level;
 
 public class BufferedImageLoader extends DBTask<BufferedImage> {
@@ -42,12 +47,10 @@ public class BufferedImageLoader extends DBTask<BufferedImage> {
         DrawingBotV3.logger.log(Level.SEVERE, "Buffered Image Loader Failed", t);
     }
 
-    public static FilteredImageData loadFilteredImage(DBTaskContext context, String url, boolean internal) throws IOException {
+    public static ImageData loadImageData(DBTaskContext context, String url, boolean internal) throws IOException {
         BufferedImage source = loadImage(url, internal);
         if(source != null){
-            FilteredImageData filtered = new FilteredImageData(new File(url), context.project.drawingArea.get(), source);
-            filtered.updateAll(context.project.getImageSettings());
-            return filtered;
+            return new ImageData(new File(url), source);
         }
         return null;
     }
@@ -88,14 +91,17 @@ public class BufferedImageLoader extends DBTask<BufferedImage> {
     }
 
     public static BufferedImage convertToARGB(BufferedImage img){
-        if(img != null){
-            BufferedImage optimalImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            Graphics2D graphics = optimalImg.createGraphics();
-            graphics.drawImage(img, 0, 0, null);
-            graphics.dispose();
-            return optimalImg;
+        if(img == null){
+            return null;
         }
-        return null;
+        if(img.getType() == BufferedImage.TYPE_INT_ARGB){
+            return img;
+        }
+        BufferedImage optimalImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = optimalImg.createGraphics();
+        graphics.drawImage(img, 0, 0, null);
+        graphics.dispose();
+        return optimalImg;
     }
 
     public static class Transformed extends BufferedImageLoader {

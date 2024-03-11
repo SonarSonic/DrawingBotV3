@@ -75,6 +75,18 @@ public abstract class JFXDrawingDisplayMode extends DisplayModeDrawing implement
         }
     }
 
+    @Override
+    public boolean isRenderDirty(JFXRenderer jfr) {
+        if(getViewport().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CLEAR_DRAWING_JFX, Flags.CURRENT_DRAWING_CHANGED, Flags.ACTIVE_TASK_CHANGED, Flags.ACTIVE_TASK_CHANGED_STATE)){
+            return true;
+        }
+        PFMTask displayedTask = getDisplayedTask();
+        if(displayedTask!= null) {
+            return displayedTask.stage == EnumTaskStage.DO_PROCESS && displayedTask.getTaskGeometryIterator().hasNext();
+        }
+        return drawingIterator != null && drawingIterator.hasNext();
+    }
+
     public static class Drawing extends JFXDrawingDisplayMode {
 
         @Override

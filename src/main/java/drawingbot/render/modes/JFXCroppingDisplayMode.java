@@ -2,7 +2,7 @@ package drawingbot.render.modes;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.geom.shapes.GRectangle;
-import drawingbot.image.format.FilteredImageData;
+import drawingbot.image.format.ImageData;
 import drawingbot.javafx.util.JFXUtils;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.render.overlays.ShapeListEditingOverlays;
@@ -69,7 +69,7 @@ public class JFXCroppingDisplayMode extends JFXImageDisplayMode {
         filteredImageDataProperty().bind(DrawingBotV3.INSTANCE.projectOpenImage);
     }
 
-    public  void addListeners(FilteredImageData imageData){
+    public  void addListeners(ImageData imageData){
         if(imageData == null){
             return;
         }
@@ -79,7 +79,7 @@ public class JFXCroppingDisplayMode extends JFXImageDisplayMode {
         imageData.getImageCropping().cropHeight.addListener(valueChangeListener);
     }
 
-    public void removeListeners(FilteredImageData imageData){
+    public void removeListeners(ImageData imageData){
         if(imageData == null){
             return;
         }
@@ -90,7 +90,7 @@ public class JFXCroppingDisplayMode extends JFXImageDisplayMode {
     }
 
     public void updateImageDataFromCrop(){
-        FilteredImageData imageData = getFilteredImageData();
+        ImageData imageData = getFilteredImageData();
 
         double scale = imageData.getSourceCanvas().getPlottingScale();
         Rectangle2D rectangle2D = cropShape.transformed.getAWTShape().getBounds2D();
@@ -102,7 +102,7 @@ public class JFXCroppingDisplayMode extends JFXImageDisplayMode {
         transforming = false;
     }
 
-    public void updateCropFromImageData(FilteredImageData imageData){
+    public void updateCropFromImageData(ImageData imageData){
         if(imageData != null){
             Rectangle2D rectangle2D = imageData.getCrop();
             cropShape.geometry = new GRectangle((float) rectangle2D.getX(), (float) rectangle2D.getY(), (float) rectangle2D.getWidth(), (float) rectangle2D.getHeight());
@@ -148,17 +148,17 @@ public class JFXCroppingDisplayMode extends JFXImageDisplayMode {
 
     ////////////////////////////////////////////////////////
 
-    public ObjectProperty<FilteredImageData> filteredImageData = new SimpleObjectProperty<>();
+    public ObjectProperty<ImageData> filteredImageData = new SimpleObjectProperty<>();
 
-    public FilteredImageData getFilteredImageData() {
+    public ImageData getFilteredImageData() {
         return filteredImageData.get();
     }
 
-    public ObjectProperty<FilteredImageData> filteredImageDataProperty() {
+    public ObjectProperty<ImageData> filteredImageDataProperty() {
         return filteredImageData;
     }
 
-    public void setFilteredImageData(FilteredImageData filteredImageData) {
+    public void setFilteredImageData(ImageData filteredImageData) {
         this.filteredImageData.set(filteredImageData);
     }
 
