@@ -2,6 +2,7 @@ package drawingbot.drawing;
 
 import com.google.gson.annotations.JsonAdapter;
 import drawingbot.api.IDrawingPen;
+import drawingbot.api.ISpecialPenHandler;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.adapters.JsonAdapterDrawingPen;
 import drawingbot.javafx.GenericPreset;
@@ -26,6 +27,8 @@ public class DrawingPen implements IDrawingPen {
     public float colorSplitOffsetX = 0F;
     public float colorSplitOffsetY = 0F;
 
+    public ISpecialPenHandler specialColorHandler = null;
+
     //// PRESET DATA \\\\
     @Nullable
     public transient GenericPreset<IDrawingPen> preset;
@@ -38,6 +41,11 @@ public class DrawingPen implements IDrawingPen {
 
     public DrawingPen(String type, String name, int argb){
         this(type, name, argb, 100, 1F);
+    }
+
+    public DrawingPen(String type, String name, int argb, ISpecialPenHandler specialColorHandler) {
+        this(type, name, argb);
+        this.specialColorHandler = specialColorHandler;
     }
 
     public DrawingPen(String type, String name, int argb, int distributionWeight, float strokeSize){
@@ -59,6 +67,7 @@ public class DrawingPen implements IDrawingPen {
 
     public void update(IDrawingPen pen){
         update(pen.getType(), pen.getName(), pen.getARGB(), pen.getDistributionWeight(), pen.getStrokeSize(), pen.isEnabled());
+        this.specialColorHandler = pen.getSpecialColorHandler();
         if(pen.hasColorSplitterData()){
             this.hasColourSplitterData = true;
             this.colorSplitMultiplier = pen.getColorSplitMultiplier();
@@ -159,6 +168,11 @@ public class DrawingPen implements IDrawingPen {
     @Override
     public float getColorSplitOffsetY() {
         return colorSplitOffsetY;
+    }
+
+    @Override
+    public ISpecialPenHandler getSpecialColorHandler() {
+        return specialColorHandler;
     }
 
     @Override

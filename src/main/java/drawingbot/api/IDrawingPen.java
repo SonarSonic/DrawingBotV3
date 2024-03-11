@@ -56,6 +56,8 @@ public interface IDrawingPen {
 
     boolean isUserCreated();
 
+    ISpecialPenHandler getSpecialColorHandler();
+
     default GenericPreset<IDrawingPen> getLinkedPreset(){
         return null;
     }

@@ -2,7 +2,6 @@ package drawingbot.files.json.adapters;
 
 import com.google.gson.*;
 import drawingbot.api.IDrawingPen;
-import drawingbot.drawing.CustomPen;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.files.json.GsonHelper;
 import drawingbot.image.ImageTools;
@@ -54,12 +53,15 @@ public class JsonAdapterDrawingPen implements JsonSerializer<IDrawingPen>, JsonD
         }
 
         IDrawingPen actualPen = MasterRegistry.INSTANCE.getDrawingPenFromRegistryName(drawingPen.getCodeName());
-        if(actualPen instanceof CustomPen){
-            return actualPen;
-        }
+
         if(drawingPen.equals(actualPen)){
             return actualPen;
         }
+
+        if(actualPen != null && actualPen.getSpecialColorHandler() != null){
+            drawingPen.specialColorHandler = actualPen.getSpecialColorHandler();
+        }
+
         return drawingPen;
     }
 

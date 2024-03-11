@@ -1,14 +1,13 @@
 package drawingbot.plugins;
 
-import drawingbot.api.IPlugin;
-import drawingbot.drawing.CustomPen;
+import drawingbot.api.IDrawingPen;
+import drawingbot.api.ISpecialPenHandler;
 import drawingbot.drawing.DrawingPen;
 import drawingbot.drawing.DrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.DBConstants;
 import drawingbot.utils.Utils;
-import javafx.beans.property.BooleanProperty;
 
 import java.util.List;
 
@@ -54,72 +53,72 @@ public class SpecialPenPlugin extends AbstractPlugin {
 
         //// ORIGINAL COLOURS \\\\
 
-        ORIGINAL_COLOUR_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", -1) {
+        ORIGINAL_COLOUR_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", -1, new ISpecialPenHandler() {
             final int black = ImageTools.getARGB(255, 0, 0, 0);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return black;
                 }
                 return pfmARGB;
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_COLOUR_PEN);
 
-        ORIGINAL_GRAYSCALE_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale", -1) {
+        ORIGINAL_GRAYSCALE_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale", -1, new ISpecialPenHandler() {
             final int grey = ImageTools.getARGB(255, 25, 25, 25);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return grey;
                 }
                 return ImageTools.grayscaleFilter(pfmARGB);
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_GRAYSCALE_PEN);
 
-        ORIGINAL_RED_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Red", ImageTools.getARGB(255, 255, 0, 0)) {
+        ORIGINAL_RED_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Red", ImageTools.getARGB(255, 255, 0, 0), new ISpecialPenHandler() {
             final int red = ImageTools.getARGB(255, 255, 0, 0);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return red;
                 }
                 int red = ImageTools.red(pfmARGB);
                 return ImageTools.getARGB(255, red, 0, 0);
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_RED_PEN);
 
-        ORIGINAL_GREEN_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Green", ImageTools.getARGB(255, 0, 255, 0)) {
+        ORIGINAL_GREEN_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Green", ImageTools.getARGB(255, 0, 255, 0), new ISpecialPenHandler() {
             final int green = ImageTools.getARGB(255, 0, 255, 0);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return green;
                 }
                 int green = ImageTools.green(pfmARGB);
                 return ImageTools.getARGB(255, 0, green, 0);
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_GREEN_PEN);
 
-        ORIGINAL_BLUE_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Blue", ImageTools.getARGB(255, 0, 0, 255)) {
+        ORIGINAL_BLUE_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Blue", ImageTools.getARGB(255, 0, 0, 255), new ISpecialPenHandler() {
             final int blue = ImageTools.getARGB(255, 0, 0, 255);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return blue;
                 }
                 int blue = ImageTools.blue(pfmARGB);
                 return ImageTools.getARGB(255, 0, 0, blue);
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(ORIGINAL_BLUE_PEN);
 
         ORIGINAL_COLOUR_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour", List.of(ORIGINAL_COLOUR_PEN));
@@ -130,32 +129,32 @@ public class SpecialPenPlugin extends AbstractPlugin {
 
         //// INVERTED COLOURS \\\\
 
-        INVERTED_COLOUR_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour (Inverted)", -1) {
+        INVERTED_COLOUR_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour (Inverted)", -1, new ISpecialPenHandler() {
             final int white = ImageTools.getARGB(255, 255, 255, 255);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return white;
                 }
                 int a = pfmARGB & 0xff000000;
                 return a | (~pfmARGB & 0x00ffffff);
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(INVERTED_COLOUR_PEN);
 
-        INVERTED_GRAYSCALE_PEN = new CustomPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale (Inverted)", -1) {
+        INVERTED_GRAYSCALE_PEN = new DrawingPen(DBConstants.DRAWING_TYPE_SPECIAL, "Original Grayscale (Inverted)", -1, new ISpecialPenHandler(){
             final int softWhite = ImageTools.getARGB(255, 230, 230, 230);
 
             @Override
-            public int getCustomARGB(int pfmARGB) {
+            public int getCustomARGB(IDrawingPen drawingPen, int pfmARGB) {
                 if (pfmARGB == -1) {
                     return softWhite;
                 }
                 int a = pfmARGB & 0xff000000;
                 return ImageTools.grayscaleFilter(a | (~pfmARGB & 0x00ffffff));
             }
-        };
+        });
         MasterRegistry.INSTANCE.registerDrawingPen(INVERTED_GRAYSCALE_PEN);
 
         INVERTED_COLOUR_SET = new DrawingSet(DBConstants.DRAWING_TYPE_SPECIAL, "Original Colour (Inverted)", List.of(INVERTED_COLOUR_PEN));

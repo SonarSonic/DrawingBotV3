@@ -1,12 +1,11 @@
 package drawingbot.javafx.observables;
 
 import com.google.gson.annotations.JsonAdapter;
-import drawingbot.api.ICustomPen;
+import drawingbot.api.ISpecialPenHandler;
 import drawingbot.api.IDrawingPen;
 import drawingbot.api.IProperties;
 import drawingbot.files.json.adapters.JsonAdapterObservableDrawingPen;
 import drawingbot.image.ImageTools;
-import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.utils.SpecialListenable;
@@ -21,7 +20,7 @@ import java.awt.*;
 import java.text.NumberFormat;
 
 @JsonAdapter(JsonAdapterObservableDrawingPen.class)
-public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen.Listener> implements IDrawingPen, ICustomPen, IProperties {
+public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen.Listener> implements IDrawingPen, IProperties {
 
     public IDrawingPen source;
     public final SimpleIntegerProperty penNumber = new SimpleIntegerProperty(); //the pens index in the set
@@ -125,11 +124,6 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
     }
 
     @Override
-    public int getCustomARGB(int pfmARGB) {
-        return source instanceof ICustomPen ? ((ICustomPen) source).getCustomARGB(pfmARGB) : getARGB();
-    }
-
-    @Override
     public String toString(){
         return getName();
     }
@@ -175,6 +169,11 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
         return colorSplitOffsetY.get();
     }
 
+    @Override
+    public ISpecialPenHandler getSpecialColorHandler() {
+        return source.getSpecialColorHandler();
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -196,9 +195,9 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
         return awtColor;
     }
 
-    public java.awt.Color getAWTColor(Integer pfmARGB){
-        if(pfmARGB != null && source instanceof ICustomPen){
-            return new java.awt.Color(((ICustomPen) source).getCustomARGB(pfmARGB), true);
+    public java.awt.Color getAWTColor(int pfmARGB){
+        if(source.getSpecialColorHandler() != null){
+            return new java.awt.Color(source.getSpecialColorHandler().getCustomARGB(source, pfmARGB), true);
         }
         return getAWTColor();
     }
@@ -215,10 +214,17 @@ public class ObservableDrawingPen extends SpecialListenable<ObservableDrawingPen
     }
 
     public Color getFXColor(int pfmARGB){
-        if(source instanceof ICustomPen){
-            return ImageTools.getColorFromARGB(((ICustomPen) source).getCustomARGB(pfmARGB));
+        if(source.getSpecialColorHandler() != null){
+            return ImageTools.getColorFromARGB(source.getSpecialColorHandler().getCustomARGB(source, pfmARGB));
         }
         return finalJFXColor.get();
+    }
+
+    public int getARGB(int pfmARGB){
+        if(source.getSpecialColorHandler() != null){
+            return source.getSpecialColorHandler().getCustomARGB(source, pfmARGB);
+        }
+        return getARGB();
     }
 
     ///////////////////////////

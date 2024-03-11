@@ -85,8 +85,8 @@ public class GeometryUtils {
 
     public static boolean compareRenderColour(ObservableDrawingPen pen, IGeometry geometry1, IGeometry geometry2){
         if(Objects.equals(geometry1.getPenIndex(), geometry2.getPenIndex())){
-            int pathRGBA = geometry1.getSampledRGBA() != -1 ? pen.getCustomARGB(geometry1.getSampledRGBA()) : pen.getARGB();
-            int geoRGBA = geometry2.getSampledRGBA() != -1 ? pen.getCustomARGB(geometry2.getSampledRGBA()) : pen.getARGB();
+            int pathRGBA = geometry1.getSampledRGBA() != -1 ? pen.getARGB(geometry1.getSampledRGBA()) : pen.getARGB();
+            int geoRGBA = geometry2.getSampledRGBA() != -1 ? pen.getARGB(geometry2.getSampledRGBA()) : pen.getARGB();
             return pathRGBA == geoRGBA;
         }
         return false;

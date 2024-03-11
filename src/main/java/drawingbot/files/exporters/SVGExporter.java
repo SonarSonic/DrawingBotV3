@@ -1,7 +1,7 @@
 package drawingbot.files.exporters;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.ICustomPen;
+import drawingbot.api.ISpecialPenHandler;
 import drawingbot.drawing.DrawingStats;
 import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
@@ -139,7 +139,7 @@ public class SVGExporter {
                 // Transfer the graphics document into the host document
                 if(group.hasChildNodes()){
                     //the metadata for the stroke colour is lost when the stroke is black, this is a very ugly work around to prevent that, TODO find a better fix
-                    if(!(drawingPen.source instanceof ICustomPen) && drawingPen.getARGB() == ImageTools.getARGB(255, 0, 0, 0)){
+                    if(!(drawingPen.source instanceof ISpecialPenHandler) && drawingPen.getARGB() == ImageTools.getARGB(255, 0, 0, 0)){
                         Node node = group.getFirstChild();
                         if(node instanceof Element){
                             Element element = (Element) node;

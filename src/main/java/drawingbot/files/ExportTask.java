@@ -2,7 +2,7 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.api.ICustomPen;
+import drawingbot.api.ISpecialPenHandler;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.DrawingStats;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -271,7 +271,7 @@ public class ExportTask extends DBTask<Boolean> {
         Platform.runLater(() -> context.project().selectedExportedDrawing.set(entry));
 
         // Custom pens can't be optimised fully, so don't show their export output.
-        boolean customPens = drawing.getAllPens().stream().anyMatch(pen -> pen.source instanceof ICustomPen && !((ICustomPen) pen.source).canOptimisePenPaths());
+        boolean customPens = drawing.getAllPens().stream().anyMatch(pen -> pen.getSpecialColorHandler() != null && !pen.getSpecialColorHandler().canOptimisePenPaths(pen));
 
         if(DBPreferences.INSTANCE.showExportedDrawing.get() && exportHandler.isVector && !customPens && !shownExportPage){
             Platform.runLater(() -> {
