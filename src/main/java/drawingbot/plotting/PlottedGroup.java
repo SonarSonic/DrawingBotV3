@@ -125,7 +125,7 @@ public class PlottedGroup {
             Map<ObservableDrawingPen, List<IGeometry>> newMap = new HashMap<>();
             for(IGeometry geometry : geometries){
                 ObservableDrawingPen drawingPen = drawingSet.getPen(geometry.getPenIndex());
-                newMap.putIfAbsent(drawingPen, new ArrayList<>());
+                newMap.computeIfAbsent(drawingPen, (v) -> new ArrayList<>());
                 newMap.get(drawingPen).add(geometry);
             }
             geometriesPerPen = newMap;

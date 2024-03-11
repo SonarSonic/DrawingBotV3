@@ -55,6 +55,11 @@ public class GLine extends AbstractGeometry implements IGeometry, IPathElement {
     }
 
     @Override
+    public void renderAWT(Graphics2D graphics) {
+        graphics.drawLine((int)getX1(), (int)getY1(), (int)getX2(), (int)getY2());
+    }
+
+    @Override
     public IGeometry transformGeometry(AffineTransform transform) {
         float[] coords = new float[]{getX1(), getY1(), getX2(), getY2()};
         transform.transform(coords, 0, coords, 0, 2);

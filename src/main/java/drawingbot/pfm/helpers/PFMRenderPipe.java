@@ -10,6 +10,7 @@ import drawingbot.utils.EnumRescaleMode;
 import drawingbot.utils.Utils;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 
 /**
  * A basic class used for the rendering of geometries when erasing, having it as a seperate class allows for different implementations independent of the PFM.
@@ -77,7 +78,7 @@ public class PFMRenderPipe {
             data.preDraw();
             data.getCacheGraphics().setStroke(getDefaultStroke(lineWidth));
             data.getCacheGraphics().setColor(getDefaultEraseColor(adjust));
-            data.getCacheGraphics().draw(geometry.getAWTShape());
+            geometry.renderAWT(data.getCacheGraphics());
             data.postDraw(sampleTest);
 
             colourSamples = sampleTest.getCurrentAverage();
@@ -85,7 +86,7 @@ public class PFMRenderPipe {
             //original method: using bresenham, fast but with non-anti aliased lines and no support for lineWidth.
             sampleTest.resetColourSamples(adjust);
             sampleTest.setPixelDataTargets(reference, pixelData);
-            bresenhamHelper.plotShape(geometry.getAWTShape(), sampleTest);//Erase the geometry and gather colour samples
+            geometry.renderBresenham(bresenhamHelper, sampleTest);//Erase the geometry and gather colour samples
             colourSamples = sampleTest.getCurrentAverage();
         }
         return colourSamples;
