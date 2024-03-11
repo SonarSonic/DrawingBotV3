@@ -21,7 +21,7 @@ public class PresetDrawingPenManager extends AbstractPresetManager<IDrawingPen, 
     }
 
     @Override
-    public void updatePreset(DBTaskContext context, IDrawingPen target, GenericPreset<IDrawingPen> preset) {
+    public void updatePreset(DBTaskContext context, IDrawingPen target, GenericPreset<IDrawingPen> preset, boolean changesOnly) {
         if(target == null){
             return;
         }

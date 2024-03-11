@@ -277,7 +277,7 @@ public class FXHelper {
         final DBTaskContext context = DrawingBotV3.context();
         if(context.project().file.get() != null){
             GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset);
+            Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset, false);
 
             JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
             NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
@@ -310,7 +310,7 @@ public class FXHelper {
                 //context.project().updateExportDirectory(file.getParentFile()); //saving our project is not "Exporting"
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset);
+                Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset, false);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
                 NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
@@ -461,7 +461,7 @@ public class FXHelper {
         if(newPreset == null){
             return null;
         }
-        manager.updatePreset(DrawingBotV3.context(), target, newPreset);
+        manager.updatePreset(DrawingBotV3.context(), target, newPreset, false);
         return DialogPresetEdit.openPresetNewDialog(manager, newPreset, isInspector);
     }
 
@@ -474,7 +474,7 @@ public class FXHelper {
         }
 
         if(target != null){
-            manager.updatePreset(DrawingBotV3.context(), target, preset);
+            manager.updatePreset(DrawingBotV3.context(), target, preset, false);
         }
 
         GenericPreset<DATA> resultPreset = manager.getPresetLoader().editPreset(oldPreset, preset);

@@ -22,7 +22,7 @@ public class PresetDrawingSetManager extends AbstractPresetManager<IDrawingSet, 
     }
 
     @Override
-    public void updatePreset(DBTaskContext context, IDrawingSet target, GenericPreset<IDrawingSet> preset) {
+    public void updatePreset(DBTaskContext context, IDrawingSet target, GenericPreset<IDrawingSet> preset, boolean changesOnly) {
         if(target != null && preset.data instanceof DrawingSet set){
             set.pens.clear();
             set.colorHandler = null;

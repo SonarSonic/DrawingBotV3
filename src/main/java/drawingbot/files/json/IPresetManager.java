@@ -46,11 +46,13 @@ public interface IPresetManager<TARGET, DATA> {
 
     /**
      * Updates the given {@link GenericPreset} to match the settings from in the current target
-     * @param context the context for the update task
-     * @param target the current target
-     * @param preset the preset to update
+     *
+     * @param context     the context for the update task
+     * @param target      the current target
+     * @param preset      the preset to update
+     * @param changesOnly true if only changes should be stored in the preset
      */
-    void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset);
+    void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset, boolean changesOnly);
 
     /**
      * applies the presets settings
@@ -73,7 +75,7 @@ public interface IPresetManager<TARGET, DATA> {
      */
     default GenericPreset<DATA> createPresetFromTarget(DBTaskContext context, TARGET target){
         GenericPreset<DATA> preset = getPresetLoader().createNewPreset();
-        updatePreset(context, target, preset);
+        updatePreset(context, target, preset, false);
         return preset;
     }
 }

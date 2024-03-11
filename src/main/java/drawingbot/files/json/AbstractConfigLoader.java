@@ -29,7 +29,7 @@ public abstract class AbstractConfigLoader<CONFIG, DATA> extends AbstractPresetL
         if(preset == null){
             //If no preset is found then create a new default one
             preset = createNewPreset(presetType.registryName, "config", false);
-            getDefaultConfigManager().updatePreset(null, getConfig(), preset);
+            getDefaultConfigManager().updatePreset(null, getConfig(), preset, false);
 
             this.addPreset(preset);
             saveToJSON();
@@ -43,7 +43,7 @@ public abstract class AbstractConfigLoader<CONFIG, DATA> extends AbstractPresetL
         if(isLoading()){
             return;
         }
-        getDefaultConfigManager().updatePreset(null, getConfig(), configPreset.get());
+        getDefaultConfigManager().updatePreset(null, getConfig(), configPreset.get(), true);
         markDirty();
     }
 
@@ -56,7 +56,7 @@ public abstract class AbstractConfigLoader<CONFIG, DATA> extends AbstractPresetL
      * This won't wait for a background thread which could be cancelled, save the json on the main thread.
      */
     public void onShutdown(){
-        getDefaultConfigManager().updatePreset(null, getConfig(), configPreset.get());
+        getDefaultConfigManager().updatePreset(null, getConfig(), configPreset.get(), true);
         saveToJSON();
     }
 

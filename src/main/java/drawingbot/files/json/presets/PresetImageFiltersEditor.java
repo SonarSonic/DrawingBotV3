@@ -60,6 +60,6 @@ public class PresetImageFiltersEditor extends DefaultPresetEditor<ImageFilterSet
     @Override
     public void updatePreset() {
         super.updatePreset();
-        manager.updatePreset(DrawingBotV3.context(), imageFilterSettings, getEditingPreset());
+        manager.updatePreset(DrawingBotV3.context(), imageFilterSettings, getEditingPreset(), false);
     }
 }

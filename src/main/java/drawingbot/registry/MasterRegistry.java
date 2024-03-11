@@ -679,7 +679,7 @@ public class MasterRegistry {
     public <TARGET, DATA> void updatePreset(DBTaskContext context, GenericPreset<DATA> preset, TARGET target){
         IPresetManager<TARGET, DATA> manager = getPresetManager(preset.presetType, target);
         assert manager != null;
-        manager.updatePreset(context, target, preset);
+        manager.updatePreset(context, target, preset, false);
     }
 
     public <TARGET, DATA> void applyPresetToProject(DBTaskContext context, GenericPreset<DATA> preset, boolean changesOnly, boolean isLoading){
@@ -693,7 +693,7 @@ public class MasterRegistry {
         IPresetManager<TARGET, DATA> manager = getDefaultPresetManager(preset);
         assert manager != null;
         TARGET target = manager.getTargetFromContext(context);
-        manager.updatePreset(context, target, preset);
+        manager.updatePreset(context, target, preset, false);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

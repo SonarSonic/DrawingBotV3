@@ -31,7 +31,7 @@ public abstract class AbstractPresetManager<TARGET, DATA> implements IPresetMana
     /**
      * updates the presets settings with the ones currently configured
      */
-    public abstract void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset);
+    public abstract void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset, boolean changesOnly);
 
     /**
      * applies the presets settings

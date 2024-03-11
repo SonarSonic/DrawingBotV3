@@ -65,6 +65,6 @@ public class PresetDrawingSetEditor extends DefaultPresetEditor<IDrawingSet, IDr
     @Override
     public void updatePreset() {
         super.updatePreset();
-        manager.updatePreset(DrawingBotV3.context(), drawingSet, getEditingPreset());
+        manager.updatePreset(DrawingBotV3.context(), drawingSet, getEditingPreset(), false);
     }
 }

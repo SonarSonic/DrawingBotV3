@@ -51,7 +51,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
     }
 
     @Override
-    public void updatePreset(DBTaskContext context, ObservableProject project, GenericPreset<PresetProjectSettings> preset) {
+    public void updatePreset(DBTaskContext context, ObservableProject project, GenericPreset<PresetProjectSettings> preset, boolean changesOnly) {
         PlottedDrawing renderedDrawing = project.getCurrentDrawing();
         preset.data.imagePath = project.openImage.get() != null && project.openImage.get().getSourceFile() != null ? project.openImage.get().getSourceFile().getPath() : "";
         preset.data.timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.MEDIUM));

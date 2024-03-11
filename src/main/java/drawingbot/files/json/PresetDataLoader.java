@@ -93,7 +93,7 @@ public abstract class PresetDataLoader<MASTER extends PresetData> {
         public JsonElement saveData(DBTaskContext context, Gson gson, GenericPreset<MASTER> preset) {
             TARGET target = manager.getTargetFromContext(context);
             GenericPreset<SUB> data = manager.getPresetLoader().createNewPreset();
-            manager.updatePreset(context, target, data);
+            manager.updatePreset(context, target, data, false);
             return gson.toJsonTree(data, type);
         }
     }

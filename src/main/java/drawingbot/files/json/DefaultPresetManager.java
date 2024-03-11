@@ -45,12 +45,12 @@ public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> exte
     }
 
     @Override
-    public void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset) {
+    public void updatePreset(DBTaskContext context, TARGET target, GenericPreset<DATA> preset, boolean changesOnly) {
         if(target == null){
             return;
         }
         GenericSetting.updateSettingsFromInstance(settings, target);
-        preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), false);
+        preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), changesOnly);
 
         Gson gson = JsonLoaderManager.createDefaultGson();
         for(PresetDataLoader<DATA> loader : presetDataLoaders){

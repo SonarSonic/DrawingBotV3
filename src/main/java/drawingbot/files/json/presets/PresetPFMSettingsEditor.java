@@ -84,6 +84,6 @@ public class PresetPFMSettingsEditor extends DefaultPresetEditor<PFMSettings, Pr
     @Override
     public void updatePreset() {
         super.updatePreset();
-        manager.updatePreset(DrawingBotV3.context(), pfmSettings, getEditingPreset());
+        manager.updatePreset(DrawingBotV3.context(), pfmSettings, getEditingPreset(), false);
     }
 }

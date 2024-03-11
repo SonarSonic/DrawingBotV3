@@ -31,7 +31,7 @@ public class PresetPFMSettingsManager extends AbstractPresetManager<PFMSettings,
     }
 
     @Override
-    public void updatePreset(DBTaskContext context, PFMSettings target, GenericPreset<PresetData> preset) {
+    public void updatePreset(DBTaskContext context, PFMSettings target, GenericPreset<PresetData> preset, boolean changesOnly) {
         if(target == null){
             return;
         }

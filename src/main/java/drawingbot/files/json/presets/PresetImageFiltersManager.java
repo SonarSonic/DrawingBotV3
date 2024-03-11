@@ -25,7 +25,7 @@ public class PresetImageFiltersManager extends AbstractPresetManager<ImageFilter
     }
 
     @Override
-    public void updatePreset(DBTaskContext context, ImageFilterSettings target, GenericPreset<PresetImageFilters> preset) {
+    public void updatePreset(DBTaskContext context, ImageFilterSettings target, GenericPreset<PresetImageFilters> preset, boolean changesOnly) {
         if(target != null){
             preset.data.filters.clear();
             target.currentFilters.get().forEach(preset.data::copyFilter);
