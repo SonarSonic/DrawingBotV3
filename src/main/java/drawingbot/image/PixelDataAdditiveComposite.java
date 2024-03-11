@@ -5,8 +5,12 @@ import drawingbot.pfm.helpers.BresenhamHelper;
 import drawingbot.utils.Utils;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 
 /**
  * A special version of {@link PixelDataARGBY} which has the ability to perform additive draw operations with less performance overhead, not intended for general use, used directly by {@link drawingbot.pfm.helpers.PFMRenderPipe}
@@ -14,22 +18,24 @@ import java.awt.image.BufferedImage;
 public class PixelDataAdditiveComposite extends PixelDataARGBY{
 
     private BufferedImage cacheImage;
-    private Graphics2D cacheGraphics;
+    private final Graphics2D cacheGraphics;
 
-    public Rectangle2D cacheRect;
-    public boolean isDrawing = false;
+    private final Rectangle2D cacheRect = new Rectangle2D.Double(0, 0, 0, 0);
+    private final int[] cachePixelData = new int[1];
+    private final int[] cacheTransparent = new int[1];
+    private boolean isDrawing = false;
 
     public PixelDataAdditiveComposite(int width, int height) {
         super(width, height);
-
         BufferedImage cacheImage = ObservableWritableRaster.createObservableBufferedImage(width, height, (x, y) -> {
             if(!isDrawing){
                 return;
             }
-            if(this.cacheRect == null || this.cacheRect.isEmpty()){
-                this.cacheRect = new Rectangle2D.Double(x, y, 1, 1);
+            if(this.cacheRect.isEmpty()){
+                this.cacheRect.setRect(x, y, 1, 1);
+            }else{
+                this.cacheRect.add(x, y);
             }
-            this.cacheRect.add(x, y);
         });
         this.cacheImage = cacheImage;
         this.cacheGraphics = cacheImage.createGraphics();
@@ -42,38 +48,37 @@ public class PixelDataAdditiveComposite extends PixelDataARGBY{
     }
 
     public void preDraw(){
-        cacheRect = null;
+        cacheRect.setRect(0, 0, 0, 0);
         isDrawing = true;
     }
 
     public void postDraw(BresenhamHelper.IPixelSetter callback){
         isDrawing = false;
 
-        if(cacheRect == null){
+        if(cacheRect.isEmpty()){
             return;
         }
         for(int x = (int) cacheRect.getMinX(); x <= cacheRect.getMaxX() && x < cacheImage.getWidth(); x++){
             for(int y = (int) cacheRect.getMinY(); y <= cacheRect.getMaxY() && y < cacheImage.getHeight(); y++){
 
-                int argb = cacheImage.getRGB(x, y);
+                Object data = cacheImage.getRaster().getDataElements(x, y, cachePixelData);
+                int argb = cacheImage.getColorModel().getRGB(data);
                 int cacheAlpha = ImageTools.alpha(argb);
-                int cacheRed = ImageTools.red(argb);
-                int cacheGreen = ImageTools.green(argb);
-                int cacheBlue = ImageTools.blue(argb);
 
                 if(cacheAlpha != 0){ // Check we've drawn something
+                    int cacheRed = ImageTools.red(argb);
+                    int cacheGreen = ImageTools.green(argb);
+                    int cacheBlue = ImageTools.blue(argb);
 
                     doAdditiveBlend(x, y, (int)(cacheRed * (cacheAlpha/255F)), (int)(cacheGreen * (cacheAlpha/255F)), (int)(cacheBlue * (cacheAlpha/255F)));
 
                     if(callback != null){
                         callback.setPixel(x, y);
                     }
+                    cacheImage.getRaster().setDataElements(x, y, cacheTransparent);
                 }
             }
         }
-        //Clean Up - Remove any changes to prepare for the next draw
-        cacheGraphics.setBackground(new Color(0, 0, 0, 0));
-        cacheGraphics.clearRect((int) cacheRect.getMinX(), (int) cacheRect.getMinY(), (int) cacheRect.getWidth()+1, (int) cacheRect.getHeight()+1);
     }
 
     public void doAdditiveBlend(int x, int y, int addR, int addG, int addB){
@@ -91,6 +96,7 @@ public class PixelDataAdditiveComposite extends PixelDataARGBY{
     @Override
     public void destroy() {
         super.destroy();
+        cacheImage = null;
         cacheGraphics.dispose();
     }
 
