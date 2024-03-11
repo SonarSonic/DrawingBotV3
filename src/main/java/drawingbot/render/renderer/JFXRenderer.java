@@ -59,10 +59,13 @@ public class JFXRenderer extends RendererBase {
 
         final Affine fromScene = new Affine();
         sceneToRendererTransformProperty().bind(Bindings.createObjectBinding(() -> {
-
-            fromScene.setToTransform(getRendererToSceneTransform().createInverse());
+            if(getRendererToSceneTransform().determinant() != 0){
+                fromScene.setToTransform(getRendererToSceneTransform().createInverse());
+            }else{
+                fromScene.setToIdentity();
+            }
             return fromScene;
-        }, jfxCanvas.localToSceneTransformProperty(), renderScaleProperty()));
+        }, rendererToSceneTransformProperty()));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

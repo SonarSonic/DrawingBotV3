@@ -171,22 +171,6 @@ public abstract class RendererBase {
 
     ////////////////////////////////////////////////////////
 
-    private final ObjectProperty<Transform> canvasToSceneTransform = new SimpleObjectProperty<>();
-
-    public Transform getCanvasToSceneTransform() {
-        return canvasToSceneTransform.get();
-    }
-
-    public ObjectProperty<Transform> canvasToSceneTransformProperty() {
-        return canvasToSceneTransform;
-    }
-
-    public void setCanvasToSceneTransform(Transform canvasToSceneTransform) {
-        this.canvasToSceneTransform.set(canvasToSceneTransform);
-    }
-
-    ////////////////////////////////////////////////////////
-
     private final ObjectProperty<Transform> sceneToCanvasTransform = new SimpleObjectProperty<>();
 
 

@@ -29,6 +29,7 @@ import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
+import javafx.scene.transform.Transform;
 import javafx.stage.Screen;
 
 import java.util.HashMap;
@@ -88,6 +89,9 @@ public class Viewport extends Control {
                 displayedHeight.unbind();
                 dpiScaling.unbind();
 
+                rendererToSceneTransform.unbind();
+                sceneToRendererTransform.unbind();
+
                 oldValue.deactivateRenderer();
                 oldValue.setViewport(null);
                 ticker.stop();
@@ -101,6 +105,9 @@ public class Viewport extends Control {
                 displayedWidth.bind(Bindings.createDoubleBinding(() -> getCanvasScaledWidth() * newValue.getRenderScale(), canvasScaledWidthProperty(), newValue.renderScaleProperty()));
                 displayedHeight.bind(Bindings.createDoubleBinding(() -> getCanvasScaledHeight() * newValue.getRenderScale(), canvasScaledHeightProperty(), newValue.renderScaleProperty()));
                 dpiScaling.bind(Bindings.createDoubleBinding(this::calculateDPIScaling, canvasUnitsProperty(), canvasWidthProperty(), newValue.renderScaleProperty()));
+
+                rendererToSceneTransform.bind(newValue.rendererToSceneTransformProperty());
+                sceneToRendererTransform.bind(newValue.sceneToRendererTransformProperty());
 
                 newValue.activateRenderer();
                 ticker.start();
@@ -217,6 +224,27 @@ public class Viewport extends Control {
         //Create the scale to fit binding
         scaleToFit.bind(Bindings.createDoubleBinding(this::calculateScaleToFit, useDPIScalingProperty(), viewportWidthProperty(), viewportHeightProperty(), displayedWidthProperty(), displayedHeightProperty()));
 
+        //Transform Listeners
+        rendererToSceneTransformProperty().addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null) {
+                oldValue.setOnTransformChanged(null);
+            }
+            if(newValue != null){
+                newValue.setOnTransformChanged((e) -> markCanvasMoved());
+            }
+        });
+
+        sceneToRendererTransformProperty().addListener((observable, oldValue, newValue) -> {
+            if(oldValue != null) {
+                oldValue.setOnTransformChanged(null);
+            }
+            if(newValue != null){
+                newValue.setOnTransformChanged((e) -> markCanvasMoved());
+            }
+        });
+
+        //Transform Bindings
+
         // Add canvas move listeners
         zoomProperty().addListener((observable, oldValue, newValue) -> markCanvasMoved());
         scaleToFitProperty().addListener((observable, oldValue, newValue) -> markCanvasMoved());
@@ -236,6 +264,7 @@ public class Viewport extends Control {
         // Viewport scaling change listeners
         displayedWidthProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
         displayedHeightProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
+
         //scaleToFitProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
     }
 
@@ -319,7 +348,10 @@ public class Viewport extends Control {
             return;
         }
         performanceTimer.start();
-        updateTransforms();
+
+        if(getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_CHANGED, Flags.CANVAS_MOVED, Flags.CHANGED_RENDERER)){
+            updateTransforms();
+        }
 
         getRenderer().doRender();
         viewportOverlays.forEach(o -> {
@@ -328,7 +360,7 @@ public class Viewport extends Control {
             }
         });
 
-        getRenderFlags().applyMarkedChanges();
+        getRenderFlags().clear();
 
         performanceTimer.finish();
 
@@ -426,6 +458,40 @@ public class Viewport extends Control {
         canvasToSceneTransform.appendScale(getCanvasUnits().convertToMM, getCanvasUnits().convertToMM);
     }
 
+    ////////////////////////////////////////////////////////
+
+    private final ObjectProperty<Transform> rendererToSceneTransform = new SimpleObjectProperty<>();
+
+    public Transform getRendererToSceneTransform() {
+        return rendererToSceneTransform.get();
+    }
+
+    public ObjectProperty<Transform> rendererToSceneTransformProperty() {
+        return rendererToSceneTransform;
+    }
+
+    public void setRendererToSceneTransform(Transform rendererToSceneTransform) {
+        this.rendererToSceneTransform.set(rendererToSceneTransform);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    /**
+     * JFX Transformation from scene to renderer, it can take a point mapped to the scene and convert it to a local position in the drawing
+     */
+    private final ObjectProperty<Transform> sceneToRendererTransform = new SimpleObjectProperty<>();
+
+    public Transform getSceneToRendererTransform() {
+        return sceneToRendererTransform.get();
+    }
+
+    public ObjectProperty<Transform> sceneToRendererTransformProperty() {
+        return sceneToRendererTransform;
+    }
+
+    private void setSceneToRendererTransform(Transform sceneToRendererTransform) {
+        this.sceneToRendererTransform.set(sceneToRendererTransform);
+    }
 
     ////////////////////////////////////////////////////////
 

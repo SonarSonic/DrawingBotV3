@@ -1,6 +1,7 @@
 package drawingbot.render.viewport;
 
 import drawingbot.javafx.FXController;
+import drawingbot.javafx.util.JFXUtils;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ScrollPane;
@@ -34,7 +35,7 @@ public class ViewportSkin extends SkinBase<Viewport> {
         viewportScrollPane.setPannable(true);
         viewportScrollPane.setId("viewportScrollPane");
 
-        viewportScrollPane.contentProperty().addListener((observable, oldValue, newValue) -> {
+        JFXUtils.subscribeListener(viewportScrollPane.contentProperty(), (observable, oldValue, newValue) -> {
             if(newValue != null){
                 newValue.styleProperty().unbind();
                 newValue.styleProperty().bind(Bindings.createStringBinding(() -> {
