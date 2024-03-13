@@ -3,12 +3,10 @@ package drawingbot.render.viewport;
 import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.image.blend.EnumBlendMode;
-import drawingbot.javafx.observables.ObservableRectangle;
 import drawingbot.javafx.util.JFXUtils;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.render.renderer.RendererFactory;
 import drawingbot.render.renderer.RendererBase;
-import drawingbot.javafx.observables.TransformedPoint;
 import drawingbot.render.modes.DisplayModeBase;
 import drawingbot.render.overlays.ViewportOverlayBase;
 import drawingbot.utils.LazyTimer;
@@ -266,6 +264,12 @@ public class Viewport extends Control {
         displayedHeightProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
 
         //scaleToFitProperty().addListener((observable, oldValue, newValue) -> markViewportScalingChanged());
+    }
+
+    @Override
+    protected void updateBounds() {
+        super.updateBounds();
+        updateTransforms();
     }
 
     /**
@@ -864,6 +868,22 @@ public class Viewport extends Control {
 
     public void setViewportBackgroundColor(Color viewportBackgroundColor) {
         this.viewportBackgroundColor.set(viewportBackgroundColor);
+    }
+
+    ////////////////////////////////////////////////////////
+
+    private final ObjectProperty<Color> canvasColor = new SimpleObjectProperty<>(Color.WHITE);
+
+    public Color getCanvasColor() {
+        return canvasColor.get();
+    }
+
+    public ObjectProperty<Color> canvasColorProperty() {
+        return canvasColor;
+    }
+
+    public void setCanvasColor(Color canvasColor) {
+        this.canvasColor.set(canvasColor);
     }
 
     ////////////////////////////////////////////////////////

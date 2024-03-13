@@ -662,6 +662,7 @@ public class FXController extends AbstractFXController {
 
         viewport = new Viewport();
         viewport.viewportBackgroundColorProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.backgroundColor));
+        viewport.canvasColorProperty().bind(EasyBind.select(DrawingBotV3.INSTANCE.activeProject).select(p -> p.drawingArea).selectObject(d -> d.canvasColor));
 
         //Register mouse handlers for the colour picker
         viewport.addEventFilter(MouseEvent.MOUSE_MOVED, this::onMouseMovedColourPicker);

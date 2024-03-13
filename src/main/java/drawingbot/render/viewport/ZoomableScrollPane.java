@@ -110,7 +110,7 @@ public class ZoomableScrollPane extends ScrollPane {
     ////////////////////////////////////////////////////////
 
     public void onScroll(ScrollEvent event) {
-        if(getTarget() == null || event.isControlDown()){
+        if(getTarget() == null){
             return;
         }
 
