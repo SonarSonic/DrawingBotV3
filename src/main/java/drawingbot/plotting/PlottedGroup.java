@@ -8,10 +8,7 @@ import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class PlottedGroup {
@@ -122,15 +119,13 @@ public class PlottedGroup {
      */
     public Map<ObservableDrawingPen, List<IGeometry>> getGeometriesPerPen(){
         if(geometriesPerPen == null){
-            Map<ObservableDrawingPen, List<IGeometry>> newMap = new HashMap<>();
-            for(IGeometry geometry : geometries){
-                ObservableDrawingPen drawingPen = drawingSet.getPen(geometry.getPenIndex());
-                newMap.computeIfAbsent(drawingPen, (v) -> new ArrayList<>());
-                newMap.get(drawingPen).add(geometry);
-            }
-            geometriesPerPen = newMap;
+            PlottedDrawing.updatePerPenGeometryStats(parent);
         }
         return geometriesPerPen;
+    }
+
+    public void setGeometriesPerPen(Map<ObservableDrawingPen, List<IGeometry>> geometriesPerPen){
+        this.geometriesPerPen = geometriesPerPen;
     }
 
     public enum GroupDistributionType {

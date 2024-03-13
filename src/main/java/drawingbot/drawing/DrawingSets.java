@@ -87,7 +87,7 @@ public class DrawingSets extends SpecialListenable<DrawingSets.Listener> impleme
 
         //If available read the geometry stats from the drawing
         if(drawing != null){
-            PlottedDrawing.updatePerPenGeometryStats(drawing);
+            PlottedDrawing.applyPerPenGeometryStatsToDrawingPens(drawing);
         }
     }
 

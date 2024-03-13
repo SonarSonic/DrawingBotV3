@@ -1,6 +1,7 @@
 package drawingbot.plotting;
 
 import drawingbot.api.ICanvas;
+import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.DrawingSets;
 import drawingbot.drawing.DrawingStats;
 import drawingbot.geom.GeometryUtils;
@@ -176,7 +177,8 @@ public class PlottedDrawing {
     }
 
     public PlottedGroup getPlottedGroup(int groupID){
-        return groups.getOrDefault(groupID, groups.get(0));
+        PlottedGroup group = groups.get(groupID);
+        return group == null ? groups.get(0): group;
     }
 
     public PlottedGroup newPlottedGroup(ObservableDrawingSet drawingSet, PFMFactory<?> pfmFactory){
@@ -305,13 +307,13 @@ public class PlottedDrawing {
             }
 
             //Force refresh the geometry stats
-            perPenGeometryStats = getPerPenGeometryStats(this);
+            updatePerPenGeometryStats(this);
         }
     }
 
     public Map<ObservableDrawingPen, Integer> getPerPenGeometryStats(){
         if(perPenGeometryStats == null){
-            perPenGeometryStats = getPerPenGeometryStats(this);
+            updatePerPenGeometryStats(this);
         }
         return perPenGeometryStats;
     }
@@ -398,56 +400,43 @@ public class PlottedDrawing {
             ObservableDrawingPen pen = set.source.drawingSet.pens.get(i);
             if(pen.getPenNumber() != i){
                 pen.setPenNumber(i); //update pens number based on position
+                set.source.drawingSet.invalidateIndexToPenMap();
             }
         }
     }
 
-    public static Map<ObservableDrawingPen, Integer> getPerPenGeometryStats(PlottedDrawing plottedDrawing){
-        Map<PlottedGroup, Map<Integer, Integer>> perGroupStats = new HashMap<>();
+    public static void updatePerPenGeometryStats(PlottedDrawing drawing){
         Map<ObservableDrawingPen, Integer> perPenStats = new HashMap<>();
+        Map<PlottedGroup, Map<ObservableDrawingPen, List<IGeometry>>> groupGeometriesPerPen = new HashMap<>();
 
-        int actualVertexCount = 0;
+        drawing.groups.values().forEach(group -> groupGeometriesPerPen.put(group, new HashMap<>()));
 
-        //create a tally for each group
-        for(PlottedGroup group : plottedDrawing.groups.values()){
-            Map<Integer, Integer> map = new HashMap<>();
-            for(ObservableDrawingPen drawingPen : group.drawingSet.pens){
-                perPenStats.putIfAbsent(drawingPen, 0);
-                map.put(drawingPen.penNumber.get(), 0);
-            }
-            perGroupStats.put(group, map);
-        }
+        int displayedVertexCount = 0;
 
-        //tally all the geometries per group / per pen
-        for(IGeometry geometry : plottedDrawing.geometries){
-            if(geometry.getPenIndex() >= 0 && geometry.getGeometryIndex() >= plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= plottedDrawing.getDisplayedShapeMax()){
-                Map<Integer, Integer> stats = perGroupStats.get(plottedDrawing.getPlottedGroup(geometry.getGroupID()));
-                if(stats != null){
-                    stats.putIfAbsent(geometry.getPenIndex(), 0);
-                    stats.put(geometry.getPenIndex(), stats.get(geometry.getPenIndex())+1);
-                }
-                actualVertexCount += geometry.getVertexCount();
+        AsynchronousGeometryIterator iterator = new AsynchronousGeometryIterator(drawing);
+        while (iterator.hasNext()){
+            IGeometry geometry = iterator.next();
+            groupGeometriesPerPen.get(iterator.currentGroup).computeIfAbsent(iterator.currentPen, (v) -> new ArrayList<>());
+            groupGeometriesPerPen.get(iterator.currentGroup).get(iterator.currentPen).add(geometry);
+
+            if(IGeometryFilter.DEFAULT_VIEW_FILTER.filter(drawing, geometry, iterator.currentPen)){
+                displayedVertexCount++;
+                perPenStats.compute(iterator.currentPen, (k, v) -> v == null ? 1 : v + 1);
             }
         }
 
-        //combine the tallies into pen stats per unique pen
-        for(Map.Entry<PlottedGroup, Map<Integer, Integer>> groupStats : perGroupStats.entrySet()){
-            Map<Integer, Integer> stats = groupStats.getValue();
-            for(ObservableDrawingPen drawingPen : groupStats.getKey().drawingSet.pens){
-                perPenStats.putIfAbsent(drawingPen, 0);
-                perPenStats.put(drawingPen, perPenStats.get(drawingPen)+stats.get(drawingPen.penNumber.get()));
-            }
-        }
+        //Update the groups "geometriesPerPen" data
+        groupGeometriesPerPen.forEach(PlottedGroup::setGeometriesPerPen);
 
-        plottedDrawing.displayedVertexCount = actualVertexCount;
-        return perPenStats;
+        drawing.displayedVertexCount = displayedVertexCount;
+        drawing.perPenGeometryStats = perPenStats;
     }
 
     /**
      * Applies the Geometry Stats from this {@link PlottedDrawing} to all of the {@link ObservableDrawingPen}s in use
      * @param drawing the drawing to take the geometry stats from
      */
-    public static void updatePerPenGeometryStats(PlottedDrawing drawing){
+    public static void applyPerPenGeometryStatsToDrawingPens(PlottedDrawing drawing){
         drawing.getPerPenGeometryStats().forEach((pen, count) -> {
             pen.setGeometryStats(count, drawing.getGeometryCount());
         });
@@ -471,10 +460,12 @@ public class PlottedDrawing {
 
         int[] weights = getPenWeights(renderOrder, weighted);
         int totalWeight = getTotalWeight(weights);
+        int displayMin = set.plottedDrawing.getDisplayedShapeMin();
+        int displayMax = set.plottedDrawing.getDisplayedShapeMax();
 
         int visibleShapeCount = 0;
         for(IGeometry geometry : set.getGeometryList()){
-            if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()){ //TODO MAKE THIS A FILTER THING!!
+            if(geometry.getGeometryIndex() >= displayMin && geometry.getGeometryIndex() <= displayMax){ //TODO MAKE THIS A FILTER THING!!
                 visibleShapeCount ++;
             }
         }
@@ -493,7 +484,7 @@ public class PlottedDrawing {
                 //set pen references
                 for (; currentIndex < set.getGeometryList().size(); currentIndex++) {
                     IGeometry geometry = set.getGeometryList().get(currentIndex);
-                    if(geometry.getGeometryIndex() >= set.plottedDrawing.getDisplayedShapeMin() && geometry.getGeometryIndex() <= set.plottedDrawing.getDisplayedShapeMax()) { //TODO MAKE THIS A FILTER THING!!
+                    if(geometry.getGeometryIndex() >= displayMin && geometry.getGeometryIndex() <= displayMax) { //TODO MAKE THIS A FILTER THING!!
                         geometry.setPenIndex(pen.getPenNumber());
                         currentCount++;
                     }else{

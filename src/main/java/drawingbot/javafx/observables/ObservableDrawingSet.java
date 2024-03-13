@@ -24,7 +24,9 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonAdapter(JsonAdapterObservableDrawingSet.class)
@@ -33,6 +35,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
     public final SimpleStringProperty type = new SimpleStringProperty();
     public final SimpleStringProperty name = new SimpleStringProperty("");
     public final ObservableList<ObservableDrawingPen> pens = FXCollections.observableArrayList();
+
     public final SimpleObjectProperty<EnumDistributionOrder> distributionOrder = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<EnumDistributionType> distributionType = new SimpleObjectProperty<>();
     public final SimpleObjectProperty<ColorSeparationHandler> colorHandler = new SimpleObjectProperty<>();
@@ -87,6 +90,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         });
 
         PropertyUtil.addSpecialListenerWithSubList(this, pens, Listener::onDrawingPenAdded, Listener::onDrawingPenRemoved);
+        addSpecialListener(internalListener);
     }
 
     public void loadDrawingSet(IDrawingSet source){
@@ -99,14 +103,12 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
             pens.add(new ObservableDrawingPen(pens.size(), pen));
         }
 
-        if(source instanceof ObservableDrawingSet){
-            ObservableDrawingSet drawingSet = (ObservableDrawingSet)source;
+        if(source instanceof ObservableDrawingSet drawingSet){
             this.distributionOrder.set(drawingSet.distributionOrder.get());
             this.distributionType.set(drawingSet.distributionType.get());
         }
 
-        if(source instanceof IColorManagedDrawingSet){
-            IColorManagedDrawingSet cmDrawingSet = (IColorManagedDrawingSet) source;
+        if(source instanceof IColorManagedDrawingSet cmDrawingSet){
             ColorSeparationHandler handler = cmDrawingSet.getColorSeparationHandler();
             ColorSeparationSettings settings = cmDrawingSet.getColorSeparationSettings();
 
@@ -123,7 +125,7 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
             this.colorSettings.set(this.colorHandler.get().getDefaultSettings());
         }
 
-
+        updateIndexToPenMap();
         this.currentRenderOrder = calculateRenderOrder();
 
         loadingDrawingSet = false;
@@ -165,23 +167,12 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
     }
 
     public int getIndexOfPen(int penNumber){
-        int index = 0;
-        for(ObservableDrawingPen pen : pens){
-            if(pen.penNumber.get() == penNumber){
-                return index;
-            }
-            index++;
-        }
-        return -1;
+        return pens.indexOf(getIndexToPenMap().get(penNumber));
     }
 
     public ObservableDrawingPen getPen(int penNumber){
-        for(ObservableDrawingPen pen : pens){
-            if(pen.penNumber.get() == penNumber){
-                return pen;
-            }
-        }
-        return Register.INSTANCE.INVISIBLE_DRAWING_PEN;
+        ObservableDrawingPen drawingPen = getIndexToPenMap().get(penNumber);
+        return drawingPen != null ? drawingPen : Register.INSTANCE.INVISIBLE_DRAWING_PEN;
     }
 
     public boolean containsPen(IDrawingPen pen){
@@ -263,9 +254,50 @@ public class ObservableDrawingSet extends SpecialListenable<ObservableDrawingSet
         }
     }
 
+
+    ///////////////////////////
+
+    private final Map<Integer, ObservableDrawingPen> indexToPenMap = new LinkedHashMap<>();
+
+    public void invalidateIndexToPenMap(){
+        indexToPenMap.clear();
+    }
+
+    public void updateIndexToPenMap(){
+        indexToPenMap.clear();
+        getPens().forEach(pen -> indexToPenMap.put(pen.getPenNumber(), pen));
+    }
+
+    public Map<Integer, ObservableDrawingPen> getIndexToPenMap(){
+        if(indexToPenMap.isEmpty() && !pens.isEmpty()){
+            updateIndexToPenMap();
+        }
+        return indexToPenMap;
+    }
+
+    ///////////////////////////
+
+
     public static ObservableDrawingSet copy(ObservableDrawingSet toCopy) {
         return new ObservableDrawingSet(toCopy);
     }
+
+    public Listener internalListener = new Listener() {
+        @Override
+        public void onDrawingPenPropertyChanged(ObservableDrawingPen pen, Observable property) {
+            invalidateIndexToPenMap();
+        }
+
+        @Override
+        public void onDrawingPenAdded(ObservableDrawingPen pen) {
+            invalidateIndexToPenMap();
+        }
+
+        @Override
+        public void onDrawingPenRemoved(ObservableDrawingPen pen) {
+            invalidateIndexToPenMap();
+        }
+    };
 
     ///////////////////////////
 

@@ -2,7 +2,6 @@ package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.api.ISpecialPenHandler;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.drawing.DrawingStats;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -91,7 +90,7 @@ public class ExportTask extends DBTask<Boolean> {
 
     public void createExportPlottedDrawing(IGeometryFilter geometryFilter){
         exportDrawing = GeometryUtils.getOptimisedPlottedDrawing(this, geometryFilter, forceBypassOptimisation);
-        exportPenStats = PlottedDrawing.getPerPenGeometryStats(exportDrawing);
+        exportPenStats = exportDrawing.getPerPenGeometryStats();
         exportRenderOrder = filterActivePens(exportDrawing.getGlobalRenderOrder(), true);
         exportIterator = new DrawingGeometryIterator(exportDrawing, exportRenderOrder);
 
@@ -157,7 +156,7 @@ public class ExportTask extends DBTask<Boolean> {
 
         exportHandler.setupExport(this);
 
-        originalPenStats = PlottedDrawing.getPerPenGeometryStats(plottedDrawing);
+        originalPenStats = plottedDrawing.getPerPenGeometryStats();
         File baseSaveLocation = FileUtils.removeExtension(saveLocation);
 
         switch (exportMode){
