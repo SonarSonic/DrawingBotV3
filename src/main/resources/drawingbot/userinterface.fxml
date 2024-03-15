@@ -26,7 +26,7 @@
          <items>
             <VBox fx:id="vBoxLeftContainer" HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
                <children>
-                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" vbarPolicy="AS_NEEDED" VBox.vgrow="SOMETIMES">
                      <content>
                         <VBox fx:id="vBoxSettingsLeft" prefWidth="430.0" VBox.vgrow="ALWAYS">
                            <children>

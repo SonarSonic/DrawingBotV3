@@ -14,7 +14,7 @@
             <ComboBox fx:id="comboBoxPFM" prefHeight="25.0" prefWidth="246.0" visibleRowCount="100" />
          </children>
       </HBox>
-          <Separator prefHeight="3.0" prefWidth="412.0" />
+          <Separator prefHeight="3.0" prefWidth="380.0" />
           <ControlPresetSelector fx:id="controlPFMPreset"/>
         <ControlPFMSettingsEditor fx:id="controlPFMSettingsEditor"/>
       </children>

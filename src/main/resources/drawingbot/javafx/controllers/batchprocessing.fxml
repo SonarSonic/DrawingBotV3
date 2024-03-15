@@ -15,9 +15,9 @@
         <Label alignment="BOTTOM_LEFT" contentDisplay="RIGHT" minHeight="20.0" minWidth="80" text="Output Folder:" />
         <ControlDirectoryPicker fx:id="outputFolderPicker" HBox.hgrow="ALWAYS"/>
     </HBox>
-    <Separator layoutX="14.0" layoutY="105.0" prefHeight="0.0" prefWidth="376.0" />
+    <Separator layoutX="14.0" layoutY="105.0" prefHeight="0.0" prefWidth="380.0" />
     <Label layoutX="14.0" layoutY="117.0" text="Export Options:" />
-    <TableView fx:id="tableViewBatchExport" editable="true" layoutX="8.0" layoutY="144.0" minHeight="189.0" maxHeight="Infinity" prefHeight="1000" prefWidth="390.0" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tableViewBatchExport" editable="true" layoutX="8.0" layoutY="144.0" minHeight="189.0" maxHeight="Infinity" prefHeight="1000" prefWidth="380.0" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="tableColumnFileFormat" prefWidth="174.0" text="File Format" />
             <TableColumn fx:id="tableColumnPerDrawing" minWidth="3.000030517578125" text="per/drawing" />
