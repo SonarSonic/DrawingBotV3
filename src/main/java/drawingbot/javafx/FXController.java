@@ -291,11 +291,11 @@ public class FXController extends AbstractFXController {
                         continue;
                     }
                     if(format.isPremium && !FXApplication.isPremiumEnabled){
-                        MenuItem item = new MenuItem(format.description + " (Premium)");
+                        MenuItem item = new MenuItem(format.description + " " + format.extensionString + " (Premium)");
                         item.setOnAction(e -> showPremiumFeatureDialog());
                         menuExport.getItems().add(item);
                     }else{
-                        MenuItem item = new MenuItem(format.description);
+                        MenuItem item = new MenuItem(format.description + " " + format.extensionString);
                         item.setOnAction(e -> FXHelper.exportFile(DrawingBotV3.context(), format, exportMode));
                         menuExport.getItems().add(item);
                     }

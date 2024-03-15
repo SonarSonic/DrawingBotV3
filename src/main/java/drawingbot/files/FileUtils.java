@@ -116,6 +116,23 @@ public class FileUtils {
         return extensions;
     }
 
+    public static String getExtensionFilterString(FileChooser.ExtensionFilter[] extensionFilters){
+        StringBuilder stringBuilder = new StringBuilder();
+        for(FileChooser.ExtensionFilter filter : extensionFilters){
+            for(String extension : filter.getExtensions()){
+                if(!stringBuilder.isEmpty()){
+                    stringBuilder.append(", ");
+                }
+                stringBuilder.append(extension.replace("*", ""));
+            }
+        }
+        if(!stringBuilder.isEmpty()){
+            stringBuilder.insert(0, "(");
+            stringBuilder.append(")");
+        }
+        return stringBuilder.toString();
+    }
+
     public static String getTempDirectory() {
         return System.getProperty("java.io.tmpdir");
     }

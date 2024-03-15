@@ -185,10 +185,10 @@ public class PremiumPluginDummy extends AbstractPlugin {
 
     @Override
     public void init() {
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "Export HPGL File (.hpgl)", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Export Animation - (Image Sequence, .png, .jpg)", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA, FileUtils.FILTER_WEBP)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264", "Export Animation - (H.264, .mp4)", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_MP4)).setPremium();
-        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422", "Export Animation - (ProRes 422, .mov)", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_MOV)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.VECTOR, "hpgl_default", "HPGL File", false, (exportTask, saveLocation) -> {}, FileUtils.FILTER_HPGL, FileUtils.FILTER_TXT)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_img_seq", "Animation Image Sequence", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_PNG, FileUtils.FILTER_JPG, FileUtils.FILTER_WEBP, FileUtils.FILTER_TIF, FileUtils.FILTER_TGA)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_h264", "Animation H.264", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_MP4)).setPremium();
+        MasterRegistry.INSTANCE.registerDrawingExportHandler(new DrawingExportHandler(DrawingExportHandler.Category.ANIMATION, "animation_prores422", "Animation ProRes 422", false, (exportTask, saveLocation) -> { }, FileUtils.FILTER_MOV)).setPremium();
 
         MasterRegistry.INSTANCE.registerColourSplitter(new ColorSeparationHandler("CMYK"));
     }

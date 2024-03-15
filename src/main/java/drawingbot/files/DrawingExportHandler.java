@@ -14,6 +14,7 @@ public class DrawingExportHandler {
     public final Category category;
     public final String registryName;
     public final String description;
+    public final String extensionString;
     public final boolean isVector;
     public final FileChooser.ExtensionFilter[] filters;
     public FileChooser.ExtensionFilter selectedFilter;
@@ -30,6 +31,7 @@ public class DrawingExportHandler {
         this.category = category;
         this.registryName = registryName;
         this.description = description;
+        this.extensionString = FileUtils.getExtensionFilterString(filters);
         this.isVector = isVector;
         this.exportMethod = exportMethod;
         this.confirmDialog = confirmDialog;
