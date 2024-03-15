@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -10,7 +7,7 @@
 <?import org.controlsfx.glyphfont.Glyph?>
 <fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controls.ControlDrawingSetEditor">
 
-    <TableView fx:id="penTableView" editable="true" prefHeight="280.0" prefWidth="404.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+    <TableView fx:id="penTableView" editable="true" minHeight="200.0" prefWidth="404.0" maxHeight="Infinity" tableMenuButtonVisible="true" VBox.vgrow="SOMETIMES">
         <columns>
             <TableColumn fx:id="penEnableColumn" minWidth="7.0" prefWidth="28.0" />
             <TableColumn fx:id="penTypeColumn" prefWidth="92.0" sortable="false" text="Type" />

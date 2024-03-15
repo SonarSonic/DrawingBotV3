@@ -6,10 +6,9 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.glyphfont.*?>
 
-<?import drawingbot.javafx.controls.ControlPresetDrawingPen?>
 <?import drawingbot.javafx.controls.ControlPresetDrawingSet?>
 <?import drawingbot.javafx.controls.ControlDrawingSetEditor?>
-<VBox minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingSets">
+<VBox fx:id="root" prefHeight="940D" minHeight="540.0" minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingSets">
 
         <children>
             <ControlPresetDrawingSet fx:id="controlDrawingSetPreset"/>
@@ -51,11 +50,11 @@
                 </children>
             </HBox>
             <Separator layoutX="10.0" layoutY="419.0" prefWidth="380.0" />
-            <TitledPane contentDisplay="RIGHT" expanded="false" prefWidth="404.0" text="Drawing Set Slots" VBox.vgrow="ALWAYS">
+            <TitledPane fx:id="titledPaneDrawingSetSlots" contentDisplay="RIGHT" expanded="false" prefWidth="404.0" text="Drawing Set Slots">
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0">
                         <children>
-                            <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                            <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" spacing="4.0">
                                 <children>
                                 <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="41.0">
                                     <children>
@@ -66,7 +65,7 @@
                                         </Label>
                                     </children>
                                 </HBox>
-                                    <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" prefWidth="382.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+                                    <TableView fx:id="drawingSetTableView" editable="true" prefHeight="200.0" maxHeight="400" prefWidth="382.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
                                         <columns>
                                             <TableColumn fx:id="drawingSetNameColumn" prefWidth="115.0" sortable="false" text="Name" />
                                             <TableColumn fx:id="drawingSetPensColumn" editable="false" prefWidth="103.0" text="Pens" />
@@ -77,7 +76,7 @@
                                             <TableColumn fx:id="drawingSetPercentageColumn" minWidth="0.0" prefWidth="94.0" sortable="false" text="\%" visible="false" />
                                         </columns>
                                     </TableView>
-                                    <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
+                                    <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="25.0" prefHeight="25.0" prefWidth="378.0" spacing="10.0">
                                         <children>
                                             <Button fx:id="buttonAddDrawingSetSlot" mnemonicParsing="false" prefHeight="24.0" prefWidth="60.0">
                                                 <graphic>

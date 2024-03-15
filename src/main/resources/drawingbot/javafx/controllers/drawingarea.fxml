@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import drawingbot.javafx.controls.ControlPresetSelector?>
-<VBox prefHeight="327.0" minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
+<VBox minHeight="327.0" minWidth="410.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drawingbot.javafx.controllers.FXDrawingArea">
 
         <children>
             <ControlPresetSelector fx:id="controlDrawingAreaPreset"/>

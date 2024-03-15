@@ -9,7 +9,7 @@
 <?import org.controlsfx.glyphfont.Glyph?>
 <?import javafx.geometry.Insets?>
 <fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml" fx:controller="drawingbot.javafx.controls.ControlImageFiltersEditor">
-    <TableView fx:id="tableViewImageFilters" editable="true" prefHeight="205.0" prefWidth="390.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tableViewImageFilters" editable="true" minHeight="205.0" maxHeight="Infinity" prefHeight="1000" prefWidth="390.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="columnEnableImageFilter" minWidth="7.0" prefWidth="55.0" sortable="false" text="Enable" />
             <TableColumn fx:id="columnImageFilterType" editable="false" prefWidth="124.0" sortable="false" text="Filter Type" />

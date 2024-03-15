@@ -13,6 +13,7 @@ import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionOrder;
 import drawingbot.utils.EnumDistributionType;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -23,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.DefaultStringConverter;
 
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ public class FXDrawingSets extends AbstractFXController {
 
     ////////////////////////////////////////////////////////
 
+    public VBox root;
+
     public ControlPresetDrawingSet controlDrawingSetPreset;
     public ControlDrawingSetEditor controlDrawingSetEditor;
 
@@ -44,6 +48,7 @@ public class FXDrawingSets extends AbstractFXController {
     public ComboBox<ColorSeparationHandler> comboBoxColourSeperation = null;
     public Button buttonConfigureSplitter = null;
 
+    public TitledPane titledPaneDrawingSetSlots;
     public ComboBox<ObservableDrawingSet> comboBoxDrawingSets = null;
 
     public TableView<ObservableDrawingSet> drawingSetTableView = null;
@@ -65,6 +70,8 @@ public class FXDrawingSets extends AbstractFXController {
 
     @FXML
     public void initialize(){
+
+        root.minHeightProperty().bind(Bindings.createDoubleBinding(() -> titledPaneDrawingSetSlots.isExpanded() ? 900D : 540D, titledPaneDrawingSetSlots.expandedProperty()));
 
         final ChangeListener<ObservableDrawingSet> activeSetListener = (observable, oldValue, newValue) -> onChangedActiveDrawingSet(oldValue, newValue);
 

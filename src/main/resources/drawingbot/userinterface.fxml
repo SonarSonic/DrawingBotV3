@@ -26,27 +26,27 @@
          <items>
             <VBox fx:id="vBoxLeftContainer" HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
                <children>
-                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                  <ScrollPane fx:id="scrollPaneSettingsLeft" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox fx:id="vBoxSettingsLeft" prefWidth="430.0">
+                        <VBox fx:id="vBoxSettingsLeft" prefWidth="430.0" VBox.vgrow="ALWAYS">
                            <children>
-                              <TitledPane fx:id="titledPaneDrawingArea" expanded="false" maxHeight="1.7976931348623157E308" text="Drawing Area">
-                                   <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml" />
+                              <TitledPane fx:id="titledPaneDrawingArea" expanded="false" text="Drawing Area" VBox.vgrow="ALWAYS">
+                                   <fx:include fx:id="drawingArea" source="javafx/controllers/drawingarea.fxml"  VBox.vgrow="ALWAYS"/>
                               </TitledPane>
-                              <TitledPane fx:id="titledPaneImageProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Image Processing">
-                                   <fx:include fx:id="imageFilters" source="javafx/controllers/imageprocessing.fxml" />
+                              <TitledPane fx:id="titledPaneImageProcessing" expanded="false" text="Image Processing" VBox.vgrow="ALWAYS">
+                                   <fx:include fx:id="imageFilters" source="javafx/controllers/imageprocessing.fxml"  VBox.vgrow="ALWAYS"/>
                               </TitledPane>
-                              <TitledPane fx:id="titledPanePathFindingControls" expanded="true" maxHeight="1.7976931348623157E308" text="Path Finding Controls">
-                                   <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml" />
+                              <TitledPane fx:id="titledPanePathFindingControls" expanded="true" text="Path Finding Controls" VBox.vgrow="ALWAYS">
+                                   <fx:include fx:id="pfmSettings" source="javafx/controllers/pfmcontrols.fxml"  VBox.vgrow="ALWAYS"/>
                               </TitledPane>
-                              <TitledPane fx:id="titledPanePenSettings" maxHeight="1.7976931348623157E308" text="Pen Settings" VBox.vgrow="ALWAYS">
-                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml" />
+                              <TitledPane fx:id="titledPanePenSettings" text="Pen Settings" VBox.vgrow="ALWAYS">
+                                 <fx:include fx:id="drawingSets" source="javafx/controllers/drawingsets.fxml"  VBox.vgrow="ALWAYS"/>
                               </TitledPane>
-                              <TitledPane fx:id="titledPaneVersionControl" expanded="false" maxHeight="1.7976931348623157E308" text="Version Control">
-                                 <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml" />
+                              <TitledPane fx:id="titledPaneVersionControl" expanded="false" text="Version Control" VBox.vgrow="ALWAYS">
+                                 <fx:include fx:id="versionControl" source="javafx/controllers/versioncontrol.fxml"  VBox.vgrow="ALWAYS"/>
                               </TitledPane>
-                              <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" maxHeight="1.7976931348623157E308" text="Batch Processing">
-                                 <fx:include fx:id="batchProcessing" source="javafx/controllers/batchprocessing.fxml" />
+                              <TitledPane fx:id="titledPaneBatchProcessing" expanded="false" text="Batch Processing" VBox.vgrow="ALWAYS">
+                                 <fx:include fx:id="batchProcessing" source="javafx/controllers/batchprocessing.fxml"  VBox.vgrow="ALWAYS"/>
                               </TitledPane>
                            </children>
                         </VBox>
@@ -140,9 +140,9 @@
             </VBox>
             <VBox fx:id="vBoxRightContainer" HBox.hgrow="SOMETIMES" SplitPane.resizableWithParent="false">
                <children>
-                  <ScrollPane fx:id="scrollPaneSettingsRight" fitToWidth="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="0.0" vbarPolicy="ALWAYS" VBox.vgrow="SOMETIMES">
+                  <ScrollPane fx:id="scrollPaneSettingsRight" fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" minWidth="-Infinity" prefHeight="734.0" prefWidth="0.0" VBox.vgrow="ALWAYS">
                      <content>
-                        <VBox fx:id="vBoxSettingsRight" prefWidth="430.0" />
+                        <VBox fx:id="vBoxSettingsRight" prefWidth="430.0"  VBox.vgrow="ALWAYS"/>
                      </content>
                   </ScrollPane>
                </children>

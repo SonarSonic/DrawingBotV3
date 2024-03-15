@@ -31,7 +31,9 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -44,6 +46,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TitledPaneSkin;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -372,6 +375,7 @@ public class FXController extends AbstractFXController {
                 allPanes.add((TitledPane) node);
             }
         }
+
         parentPanes.add(vBoxSettingsRight);
         setDefaultDragEvents(scrollPaneSettingsRight);
 
@@ -383,7 +387,7 @@ public class FXController extends AbstractFXController {
                 vBoxRightContainer.setMaxWidth(0);
                 splitPane.setDividerPositions(0, 1);
             }else{
-                scrollPaneSettingsRight.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                scrollPaneSettingsRight.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
                 scrollPaneSettingsRight.setMaxWidth(-1);
                 scrollPaneSettingsRight.setPrefWidth(-1);
                 vBoxRightContainer.setMaxWidth(-1);
@@ -399,7 +403,7 @@ public class FXController extends AbstractFXController {
                 vBoxLeftContainer.setMaxWidth(0);
                 splitPane.setDividerPositions(1, 1);
             }else{
-                scrollPaneSettingsLeft.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                scrollPaneSettingsLeft.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
                 scrollPaneSettingsLeft.setMaxWidth(-1);
                 scrollPaneSettingsLeft.setPrefWidth(-1);
                 vBoxLeftContainer.setMaxWidth(-1);
@@ -419,7 +423,11 @@ public class FXController extends AbstractFXController {
         for(TitledPane pane : allPanes){
             MenuItem viewButton = new MenuItem(pane.getText());
             viewButton.setOnAction(e -> {
-                Platform.runLater(() -> allPanes.forEach(p -> p.expandedProperty().setValue(p == pane)));
+                Platform.runLater(() -> allPanes.forEach(p -> {
+                    if(p.getParent() == pane.getParent()){
+                        p.expandedProperty().setValue(p == pane);
+                    }
+                }));
             });
             menuView.getItems().add(viewButton);
 
@@ -1043,13 +1051,17 @@ public class FXController extends AbstractFXController {
             //create the root node
             ScrollPane scrollPane = new ScrollPane();
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             if(allowResizing){
                 scrollPane.setFitToWidth(true);
                 scrollPane.setFitToHeight(true);
                 VBox.setVgrow(scrollPane, Priority.ALWAYS);
                 HBox.setHgrow(scrollPane, Priority.ALWAYS);
-                scrollPane.setPrefWidth(420);
+
+                if(pane.getContent() instanceof VBox vBox){
+                    scrollPane.setPrefWidth(vBox.getWidth());
+                    scrollPane.setPrefHeight(vBox.getHeight()+10);
+                }
             }
 
             //transfer the content

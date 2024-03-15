@@ -114,7 +114,7 @@ public class RulerOverlays extends ViewportOverlayBase {
 
     @Override
     public void onRenderTick() {
-        if(getViewport().getRenderFlags().anyMatchAndMarkClear(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
+        if(getViewport().getRenderFlags().anyMatch(Flags.FORCE_REDRAW, Flags.CANVAS_MOVED, Flags.CANVAS_CHANGED, Flags.CHANGED_RENDERER)) {
             Point2D drawingOrigin = new Point2D(0D, 0D);
             Point2D drawingEnd = new Point2D(getViewport().getCanvasWidth(), getViewport().getCanvasHeight());
 
