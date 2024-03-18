@@ -116,7 +116,14 @@ public class ImageData implements IProperties {
     }
 
     public BufferedImage createCroppedImage(ICanvas targetCanvas){
-        return applyCropping(createPreCroppedImage(), createImageTargetCanvas(targetCanvas), imageCropping);
+        BufferedImage preCroppedImage = createPreCroppedImage();
+        BufferedImage croppedImage = applyCropping(preCroppedImage, createImageTargetCanvas(targetCanvas), imageCropping);
+
+        if(croppedImage == sourceImage){
+            croppedImage = ImageTools.deepCopy(croppedImage);
+        }
+
+        return croppedImage;
     }
 
     ///////////////////////////////////////
