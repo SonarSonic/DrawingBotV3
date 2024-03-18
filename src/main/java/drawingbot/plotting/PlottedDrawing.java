@@ -420,7 +420,7 @@ public class PlottedDrawing {
             groupGeometriesPerPen.get(iterator.currentGroup).get(iterator.currentPen).add(geometry);
 
             if(IGeometryFilter.DEFAULT_VIEW_FILTER.filter(drawing, geometry, iterator.currentPen)){
-                displayedVertexCount++;
+                displayedVertexCount+=geometry.getVertexCount();
                 perPenStats.compute(iterator.currentPen, (k, v) -> v == null ? 1 : v + 1);
             }
         }
