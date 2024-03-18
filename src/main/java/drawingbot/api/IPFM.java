@@ -28,6 +28,12 @@ public interface IPFM {
      */
     void run();
 
+    /**
+     * Called after {@link #run()}, used to clean up resources, and potentially re-order geometries
+     */
+    default void postProcess(){
+
+    }
 
     default void onStopped(){}
 

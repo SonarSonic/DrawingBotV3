@@ -82,6 +82,7 @@ public abstract class RendererBase {
         if(viewport == null){
             return 1;
         }
+        //TODO IS THERE STILL AN ISSUE WHERE RENDER SCALE WILL NOT BE PROPERLY UPDATED, ENCOUNTERED OCCASIONALLY, NEED TO RECREATE
         double width = viewport.getCanvasScaledWidth();
         double height = viewport.getCanvasScaledHeight();
 

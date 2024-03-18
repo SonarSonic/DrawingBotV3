@@ -558,7 +558,7 @@ public abstract class AbstractPresetLoader<DATA> implements IPresetLoader<DATA>,
 
     @Override
     public void restoreDefaultOrder(@Nullable List<GenericPreset<?>> displayedList){
-        List<GenericPreset<DATA>> originalOrder = loadedOrder.stream().map(this::findPresetFromID).collect(Collectors.toList());
+        List<GenericPreset<DATA>> originalOrder = loadedOrder.stream().map(this::findPresetFromID).filter(Objects::nonNull).toList();
 
         List<GenericPreset<DATA>> newOrder = new ArrayList<>();
 

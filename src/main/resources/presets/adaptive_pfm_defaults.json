@@ -133,9 +133,10 @@
       "version": "1.1",
       "presetSubType": "Adaptive Circular Scribbles",
       "presetName": "Messy TSP",
+      "enabled": true,
       "userCreated": false,
       "data": {
-        "settingList": {
+        "settings": {
           "Plotting Resolution": "1.0",
           "Max Sample Radius": "16.0",
           "Angular Velocity": "120.0",

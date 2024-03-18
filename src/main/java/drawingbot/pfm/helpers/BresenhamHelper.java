@@ -170,6 +170,15 @@ public class BresenhamHelper {
         plotLine(originX, originY, x1, y1, setter);
     }
 
+
+    public void plotAngledLineFromCentre(int centreX, int centreY, float length, float degree, IPixelSetter setter){
+        int x1 = (int)Math.ceil((Math.cos(Math.toRadians(degree))*(length/2)) + centreX);
+        int y1 = (int)Math.ceil((Math.sin(Math.toRadians(degree))*(length/2)) + centreY);
+        int x2 = (int)Math.ceil((Math.cos(Math.toRadians(degree+180))*(length/2)) + centreX);
+        int y2 = (int)Math.ceil((Math.sin(Math.toRadians(degree+180))*(length/2)) + centreY);
+        plotLine(x1, y1, x2, y2, setter);
+    }
+
     ///SRC: Bresenham Curve Rasterizing Algorithms - https://github.com/zingl/Bresenham by Zingl Alois
     public void plotLine(int x0, int y0, int x1, int y1, IPixelSetter setter){
 

@@ -183,6 +183,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
                 }
             }
             case POST_PROCESSING -> {
+                pfm.postProcess();
                 postProcessImages();
 
                 updateMessage("Updating Pen Distribution");
