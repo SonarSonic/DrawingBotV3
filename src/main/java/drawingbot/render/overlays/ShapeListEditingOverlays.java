@@ -207,22 +207,20 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
         super.activateViewportOverlay(viewport);
 
         if(viewport.getSkin() instanceof ViewportSkin skin){
-            addEventFilter(skin.foregroundOverlays, MouseEvent.MOUSE_PRESSED, this::onMousePressed);
+            skin.foregroundOverlays.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMousePressed);
 
-            addEventFilter(skin.viewportScrollPane, MouseEvent.MOUSE_PRESSED, e -> {
-                if(e.isPrimaryButtonDown()){
+            skin.viewportScrollPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+                if(getEnabled() && e.isPrimaryButtonDown()){
                     getActiveList().deselectAll();
                 }
             });
-            addEventFilter(skin.foregroundOverlays, MouseEvent.MOUSE_DRAGGED, this::onMouseDragged);
-            addEventFilter(skin.foregroundOverlays, MouseEvent.MOUSE_RELEASED, this::onMouseReleased);
+            skin.foregroundOverlays.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::onMouseDragged);
+            skin.foregroundOverlays.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onMouseReleased);
 
-            addEventHandler(skin.foregroundOverlays, KeyEvent.KEY_PRESSED, this::onKeyPressed);
-            addEventHandler(skin.foregroundOverlays, KeyEvent.KEY_RELEASED, this::onKeyReleased);
+            skin.foregroundOverlays.addEventHandler(KeyEvent.KEY_PRESSED, this::onKeyPressed);
+            skin.foregroundOverlays.addEventHandler(KeyEvent.KEY_RELEASED, this::onKeyReleased);
 
-            addEventHandler(skin.foregroundOverlays, KeyEvent.KEY_RELEASED, this::onKeyReleased);
-
-            addEventFilter(viewport.getCanvasToViewportTransform(), TransformChangedEvent.ANY, (e) -> globalTransformDirtyMarker.set(!globalTransformDirtyMarker.get()));
+            viewport.getCanvasToViewportTransform().addEventFilter(TransformChangedEvent.ANY, (e) -> globalTransformDirtyMarker.set(!globalTransformDirtyMarker.get()));
         }
 
         viewport.getForegroundOverlayNodes().add(editOverlaysPane);
@@ -576,6 +574,9 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
 
 
     public void onKeyPressed(KeyEvent event){
+        if(!getEnabled()){
+            return;
+        }
         //TODO KEY EVENTS ARE SLIGHTLY UNPREDICATABLE, ONLY REACT ON FOCUS, NOT ON HOVER
         if(delete.match(event)){
             getActiveList().deleteSelected();
@@ -631,6 +632,9 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
     }
 
     public void onKeyReleased(KeyEvent event){
+        if(!getEnabled()){
+            return;
+        }
         if(hasArrowKeyMove && up.match(event) || down.match(event) ||  left.match(event) || right.match(event)){
             getActiveList().runAction(getActiveList().confirmTransformAction());
             hasArrowKeyMove = false;
@@ -1014,6 +1018,10 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
     public boolean isDrawingPathElement = false;
 
     public void onMousePressed(MouseEvent event){
+        if(!getEnabled()){
+            return;
+        }
+
         if(getEditMode() == ViewportEditMode.DRAW_BEZIERS){
             if(event.isPrimaryButtonDown()){
                 // Find the point relative to the drawing
@@ -1065,6 +1073,9 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
     }
 
     public void onMouseDragged(MouseEvent event) {
+        if(!getEnabled()){
+            return;
+        }
         if (isDrawingPathElement) {
             if(currentPathElement.get() instanceof LineTo lineTo){
                 drawingShape.get().removeTempNextElement();
@@ -1080,6 +1091,9 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
     }
 
     public void onMouseReleased(MouseEvent event) {
+        if(!getEnabled()){
+            return;
+        }
         if (isDrawingPathElement) {
             if(currentPathElement.get() instanceof CubicCurveTo cubicCurveTo){
                 onVertexHandleReleased(VertexHandleType.BEZIER_CTRL_MASTER, cubicCurveTo, event, cubicCurveTo.controlX2Property(), cubicCurveTo.controlY2Property());

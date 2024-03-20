@@ -4,6 +4,7 @@ import drawingbot.render.shapes.JFXShape;
 import drawingbot.render.shapes.JFXShapeList;
 import drawingbot.render.viewport.Viewport;
 import drawingbot.utils.UnitsLength;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
@@ -15,6 +16,9 @@ import javafx.scene.transform.Affine;
  * It can also be overridden for other viewport overlays like {@link ShapeListEditingOverlays}
  */
 public class ShapeListOverlays extends ViewportOverlayBase {
+
+
+    public InvalidationListener updateCanvasListener;
 
     public ShapeListOverlays(){
 
@@ -38,6 +42,8 @@ public class ShapeListOverlays extends ViewportOverlayBase {
                 c.getAddedSubList().forEach(ShapeListOverlays.this::onShapeAdded);
             }
         };
+
+        updateCanvasListener = observable -> updateMaskToCanvasTransform();
 
         activeList.addListener((observable, oldValue, newValue) -> {
             if(oldValue != null){
@@ -159,7 +165,7 @@ public class ShapeListOverlays extends ViewportOverlayBase {
         super.activateViewportOverlay(viewport);
 
         strokeWidth.bind(Bindings.createDoubleBinding(() -> getViewport().getCanvasToViewportScale() * (viewport.getCanvasUnits().convertToMM /shapesUnits.get().convertToMM), shapesUnits, viewport.canvasUnitsProperty(), viewport.canvasToViewportScaleProperty()));
-        registerChangeListener(viewport.canvasUnitsProperty(), (observable, oldValue, newValue) -> updateMaskToCanvasTransform());
+        viewport.canvasUnitsProperty().addListener(updateCanvasListener);
         updateMaskToCanvasTransform();
 
         activeList.get().getDisplayedShapes().forEach(this::onShapeDisplayed);
@@ -168,6 +174,7 @@ public class ShapeListOverlays extends ViewportOverlayBase {
     @Override
     public void deactivateViewportOverlay(Viewport viewport) {
         activeList.get().getDisplayedShapes().forEach(this::onShapeHidden); //Run it first before the viewport is set to null
+        viewport.canvasUnitsProperty().removeListener(updateCanvasListener);
         super.deactivateViewportOverlay(viewport);
     }
 
