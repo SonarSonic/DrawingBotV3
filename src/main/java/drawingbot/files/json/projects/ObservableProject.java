@@ -334,31 +334,18 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Ob
 
         // Task / Drawing render bindings / listeners
         activeTask.addListener((observable, oldValue, newValue) -> {
-            if(oldValue != null){
-                //Indicate to the JVM that a large amount of RAM could now be freed
-                System.gc();
-            }
             setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
         });
         renderedTask.addListener((observable, oldValue, newValue) -> {
             setRenderFlag(Flags.ACTIVE_TASK_CHANGED, true);
         });
         currentDrawing.addListener((observable, oldValue, newValue) -> {
-            //Clear up the old drawing.
-            if(oldValue != null){
-                //Indicate to the JVM that a large amount of RAM could now be freed
-                System.gc();
-            }
             setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
         });
         exportDrawing.addListener((observable, oldValue, newValue) -> {
             //If we override the export drawing, we are done with the previous one.
             if(displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING){
                 setRenderFlag(Flags.CURRENT_DRAWING_CHANGED, true);
-            }
-            if(oldValue != null){
-                //Indicate to the JVM that a large amount of RAM could now be freed
-                System.gc();
             }
         });
         displayedDrawing.bind(Bindings.createObjectBinding(() -> displayMode.get() == Register.INSTANCE.DISPLAY_MODE_EXPORT_DRAWING ? exportDrawing.get() : currentDrawing.get(), displayMode, currentDrawing, exportDrawing));
