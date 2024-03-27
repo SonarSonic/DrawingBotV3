@@ -1,3 +1,42 @@
+### [v1.6.14-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.14-stable-free)
+- Added: 'Edge Trace' presets to Sketch PFMs, which utilise new 'Seed Type' setting, to create sketches which exaggerate edges and small details.
+- Added: 'Seed Type' to Sketch PFMs, ability to seed lines from Luminance / Edges / Sobel data
+- Added: Preset Manager - accessible via File/Preset Manager
+  - Re-order both user/system presets / change the default order of presets in menus
+  - Enable/Disable presets, prevent them from appearing in menus
+  - Edit presets with more detailed edit controls
+  - Import / Export multiple presets or all presets at once.
+  - Override in-built system presets with your own settings
+- Added: HPGL Custom Codes for more advanced configuring of HPGL Files, configurable Start, End, Pen Up, Pen Down, Start Pen Layer, End Pen Layer
+- Added: Additional GCode Wildcard, %PEN_ID% to allow more configurable tool changes
+- Added: Individual setting search functionality in the Preferences UI with automatic yellow highlighting
+- Improved: Viewport Rewrite: the main viewport has been re-written switching between OpenGL and JavaFX will now be more seamless and the canvas will be more responsive
+- Improved: 'Circular Scribbles' PFMs have been re-written and now create smoother scribbles
+- Improved: 'Hatch Sawtooth' PFM has been re-written it now creates more accurate results
+- Improved: CPU/GPU Usage when idle, the program will consume less resources in general when running in the background
+- Improved: Performance and responsiveness of the Hardware Accelerated Renderer
+- Improved: Memory footprint and speed of Sketch PFMs
+- Improved: Changes to Drawing Pen presets will be applied to existing Drawing Set presets when the pens match.
+- Improved: Presets now must have unique identifiers, to allow for more advanced editing
+- Improved: Simplified Batch Processing UX to allow easier editing of Input/Output Folders
+- Improved: Presets, added additional notifications while editing presets
+- Improved: Preferences now only save changes from default values, allowing defaults to be tweaked more easily in the future
+- Improved: Hardware Accelerated Renderer, start time, memory usage and speed
+- Improved: Speed of Pen Distribution re-calculations
+- Improved: UX the settings panes on the left will grow to fill available space when no other panes are open
+- Fixed: Added 'ocl-icd-opencl-dev' to linux dependencies, fixing "could not load libOpenCL.so" errors / the app failing to start on linux
+- Fixed: Hatch Sawtooth producing incomplete lines when used in Mosaic Segments
+- Fixed: CMYK + Streamlines stopping prematurely
+- Fixed: Streamlines Edge Fields inconsistency with OpenCL enabled
+- Fixed: PFM Layers not using Color Separation
+- Fixed: Slow pen distribution when using composite PFMs
+- Fixed: Roland DPX 3300 HPGL Preset
+- Fixed: 'Mask Settings' missing from the 'View' menu
+- Fixed: Menu Bar positioning with i3 Window Manager on Linux
+- Fixed: Black flicker when first starting the OpenGL Hardware Accelerated Renderer
+- Fixed: UI flickering / re-layout when opening the application
+- Fixed: Potential memory leaks, eventual application slow down
+
 ### [v1.6.13-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.13-stable-free)
 - Added: SVG Converter - Support for SVG Gradients when Colour Match is enabled
 - Added: Extra options for SVG Converter; 'Shape Outlines', 'Gradient Angle Match' and 'Gradient Colour Match'
