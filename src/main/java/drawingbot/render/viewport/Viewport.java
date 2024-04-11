@@ -139,10 +139,10 @@ public class Viewport extends Control {
             if(newValue != null){
                 //If the bound canvas is observable we will observe it to monitor for changes
                 if(newValue instanceof ObservableCanvas observableCanvas){
-                    canvasUnits.bind(observableCanvas.inputUnits);
+                    canvasUnits.bind(Bindings.createObjectBinding(observableCanvas::getUnits, observableCanvas));
                     canvasScale.bind(Bindings.createDoubleBinding(observableCanvas::getPlottingScale, observableCanvas));
-                    canvasWidth.bind(observableCanvas.width);
-                    canvasHeight.bind(observableCanvas.height);
+                    canvasWidth.bind(Bindings.createDoubleBinding(observableCanvas::getWidth, observableCanvas));
+                    canvasHeight.bind(Bindings.createDoubleBinding(observableCanvas::getHeight, observableCanvas));
                     canvasScaledWidth.bind(Bindings.createDoubleBinding(observableCanvas::getScaledWidth, observableCanvas));
                     canvasScaledHeight.bind(Bindings.createDoubleBinding(observableCanvas::getScaledHeight, observableCanvas));
                     observableCanvas.addSpecialListener(observableCanvasListener);
