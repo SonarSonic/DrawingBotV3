@@ -2,6 +2,7 @@ package drawingbot.javafx.controls;
 
 import drawingbot.javafx.GenericPreset;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.SkinBase;
 import javafx.scene.layout.HBox;
@@ -52,12 +53,31 @@ public class SkinPresetSelector<TARGET, DATA> extends SkinBase<ControlPresetSele
     private void refreshComboBox(){
         ControlPresetSelector<TARGET, DATA> control = getSkinnable();
 
-        ComboBox<GenericPreset<DATA>> oldComboBox = comboBox;
-        ComboBox<GenericPreset<DATA>> newComboBox = createComboBox(control);
+        if(shouldRecreateComboBoxOnRefresh()){
+            ComboBox<GenericPreset<DATA>> oldComboBox = comboBox;
+            ComboBox<GenericPreset<DATA>> newComboBox = createComboBox(control);
 
-        destroyComboBox(control, oldComboBox);
-        hBox.getChildren().set(0, newComboBox);
-        comboBox = newComboBox;
+            if(oldComboBox == newComboBox){
+                return;
+            }
+
+            destroyComboBox(control, oldComboBox);
+            hBox.getChildren().set(0, newComboBox);
+            comboBox = newComboBox;
+        }else{
+            //Unbind the data
+            comboBox.itemsProperty().unbind();
+            comboBox.valueProperty().unbindBidirectional(control.activePresetProperty());
+
+            //Rebing the data
+            comboBox.itemsProperty().bind(control.filteredPresetsProperty());
+            comboBox.valueProperty().bindBidirectional(control.activePresetProperty());
+
+            //Refresh the button cell
+            ListCell<GenericPreset<DATA>> cell = comboBox.getButtonCell();
+            comboBox.setButtonCell(null);
+            comboBox.setButtonCell(cell);
+        }
     }
 
 
@@ -82,6 +102,10 @@ public class SkinPresetSelector<TARGET, DATA> extends SkinBase<ControlPresetSele
     private void destroyComboBox(ControlPresetSelector<TARGET, DATA> control, ComboBox<GenericPreset<DATA>> comboBox){
         comboBox.valueProperty().unbindBidirectional(control.activePresetProperty());
         comboBox.itemsProperty().unbind();
+    }
+
+    public boolean shouldRecreateComboBoxOnRefresh(){
+        return false;
     }
 
 
