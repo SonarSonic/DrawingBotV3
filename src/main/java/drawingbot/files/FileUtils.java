@@ -52,30 +52,23 @@ public class FileUtils {
     }
 
     public static File removeExtension(File file){
-        String path = file.toString();
-        return new File(removeExtension(path));
+        return new File(removeExtension(file.toString()));
     }
 
-    public static String removeExtension(String string){
-        int end = string.lastIndexOf(".");
-        if(end == -1){
-            return string;
-        }
-        string = string.substring(0, end);
-        return string;
+    public static String removeExtension(String path){
+        return FilenameUtils.removeExtension(path);
     }
 
-    public static String getExtension(String string){
-        int begin = string.lastIndexOf(".");
-        if(begin == -1){
+    public static String getExtension(String path){
+        String result = FilenameUtils.getExtension(path);
+        if(result == null || result.isEmpty()){
             return "";
         }
-        return string.substring(begin);
+        return FilenameUtils.EXTENSION_SEPARATOR + result;
     }
 
-    public static boolean hasExtension(String string){
-        int begin = string.lastIndexOf(".");
-        return begin != -1;
+    public static boolean hasExtension(String path){
+        return FilenameUtils.indexOfExtension(path) != -1;
     }
 
     public static String getSafeFileName(String filename){
