@@ -77,6 +77,7 @@ public class BufferedImageLoader extends DBTask<BufferedImage> {
         BufferedImage img = null;
         if(stream != null){
             img = ImageIO.read(stream);
+            stream.close();
         }
 
         return convertToARGB(img);
