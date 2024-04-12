@@ -59,6 +59,7 @@ public class ControlDrawingSetEditor extends VBox {
 
     public ControlDrawingSetEditor() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("drawingseteditor.fxml"));
+        fxmlLoader.setClassLoader(getClass().getClassLoader());
         fxmlLoader.setRoot(this);
         fxmlLoader.setControllerFactory(c -> this);
 

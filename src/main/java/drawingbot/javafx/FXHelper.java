@@ -403,6 +403,7 @@ public class FXHelper {
     public static void initSeparateStageWithController(String fmxlPath, Stage stage, Object controller, String stageTitle, Modality modality){
         try {
             FXMLLoader exportUILoader = new FXMLLoader(FXController.class.getResource(fmxlPath));
+            exportUILoader.setClassLoader(FXController.class.getClassLoader());
             exportUILoader.setController(controller);
             initSeparateStageProps(exportUILoader.load(), stage, stageTitle, modality);
         } catch (IOException e) {
@@ -413,6 +414,7 @@ public class FXHelper {
     public static <T> T initSeparateStage(String fmxlPath, Stage stage, String stageTitle, Modality modality){
         try {
             FXMLLoader exportUILoader = new FXMLLoader(FXController.class.getResource(fmxlPath));
+            exportUILoader.setClassLoader(FXController.class.getClassLoader());
             Parent root = exportUILoader.load();
             T controller = exportUILoader.getController();
             exportUILoader.setController(controller);

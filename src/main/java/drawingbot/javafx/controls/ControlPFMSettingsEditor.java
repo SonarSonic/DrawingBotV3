@@ -52,6 +52,7 @@ public class ControlPFMSettingsEditor extends VBox implements ISpecialListenable
 
     public ControlPFMSettingsEditor() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("pfmsettingseditor.fxml"));
+        fxmlLoader.setClassLoader(getClass().getClassLoader());
         fxmlLoader.setRoot(this);
         fxmlLoader.setControllerFactory(c -> this);
 

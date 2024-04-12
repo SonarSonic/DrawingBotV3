@@ -46,6 +46,7 @@ public class ControlImageFiltersEditor extends VBox {
 
     public ControlImageFiltersEditor() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("imagefilterseditor.fxml"));
+        fxmlLoader.setClassLoader(getClass().getClassLoader());
         fxmlLoader.setRoot(this);
         fxmlLoader.setControllerFactory(c -> this);
 

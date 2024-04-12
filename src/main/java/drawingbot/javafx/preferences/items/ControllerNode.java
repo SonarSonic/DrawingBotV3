@@ -36,6 +36,7 @@ public class ControllerNode<C extends AbstractFXController> extends TreeNode {
         if(root == null && !loadFailed){
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(ControllerNode.class.getResource(fxmlPath));
+                fxmlLoader.setClassLoader(getClass().getClassLoader());
                 root = fxmlLoader.load();
                 controller = fxmlLoader.getController();
                 fxmlLoader.setController(controller);
