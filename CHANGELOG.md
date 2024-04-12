@@ -1,3 +1,11 @@
+### [v1.6.15-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.15-stable-free)
+- Fixed: Preset creation/editing dialogs appearing blank on macOS
+- Fixed: Prevent the Drawing Pen selection closing when a check-box is ticked.
+- Fixed: Issues editing created presets on macOS
+- Fixed: Loaded images, being prevented from being deleted in some situations.
+- Fixed: Ruler overlays not matching the drawing when no image is loaded with original sizing enabled.
+- Fixed: Files not saving in the correct location when exporting to a directory containing a "." on Linux.
+
 ### [v1.6.14-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.14-stable-free)
 - Added: 'Edge Trace' presets to Sketch PFMs, which utilise new 'Seed Type' setting, to create sketches which exaggerate edges and small details.
 - Added: 'Seed Type' to Sketch PFMs, ability to seed lines from Luminance / Edges / Sobel data
