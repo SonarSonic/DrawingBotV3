@@ -325,9 +325,7 @@ public class GeometryUtils {
                     break;
             }
             if(geometry != null){
-                geometry.setSampledRGBA(gPath.getSampledRGBA());
-                geometry.setPenIndex(gPath.getPenIndex());
-                geometry.setGroupID(gPath.getGroupID());
+                copyGeometryData(geometry, gPath);
                 consumer.accept(geometry);
             }
 
