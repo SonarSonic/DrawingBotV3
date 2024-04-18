@@ -42,6 +42,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
     public boolean finishEarly = false;
     public PlottingTools tools;
     public boolean isSubTask = false;
+    public boolean allowSubTaskMultiThreading = false;
 
     // RENDERING \\\
     public boolean skipReRender = false;
@@ -425,6 +426,14 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
      */
     public boolean isSubTask() {
         return isSubTask;
+    }
+
+    public boolean allowSubTaskMultiThreading(){
+        return allowSubTaskMultiThreading;
+    }
+
+    public boolean canUseMultiThreading(){
+        return !isSubTask() || allowSubTaskMultiThreading();
     }
 
     //// RENDERING \\\\

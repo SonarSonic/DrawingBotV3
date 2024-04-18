@@ -41,6 +41,7 @@ public class PFMTaskBuilder {
 
     /** If the tasks lifecycle is controlled by another task */
     public boolean isSubTask;
+    public boolean allowSubTaskMultiThreading;
 
     /** Set to true if you wish to bypass any external custom task suppliers / setup, e.g. if using a PFM inside another PFM and not in an external task this should be set to true */
     public boolean useInternalBuilder;
@@ -111,6 +112,7 @@ public class PFMTaskBuilder {
         }
 
         task.isSubTask = isSubTask;
+        task.allowSubTaskMultiThreading = allowSubTaskMultiThreading;
 
         if(postSetup != null){
             postSetup.accept(task);
@@ -170,6 +172,11 @@ public class PFMTaskBuilder {
 
     public PFMTaskBuilder setSubTask(boolean isSubTask) {
         this.isSubTask = isSubTask;
+        return this;
+    }
+
+    public PFMTaskBuilder setAllowSubTaskMultiThreading(boolean allowSubTaskMultiThreading) {
+        this.allowSubTaskMultiThreading = allowSubTaskMultiThreading;
         return this;
     }
 
