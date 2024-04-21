@@ -260,9 +260,9 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         if(!isSubTask && !isCancelled()){
             Platform.runLater(() -> {
                 //Switch from rendering the task to rendering the generated drawing
+                context.taskManager.setCurrentDrawing(drawing);
                 context.taskManager.setActiveTask(null);
                 context.taskManager.setRenderedTask(null);
-                context.taskManager.setCurrentDrawing(drawing);
             });
         }
         safeDestroy();

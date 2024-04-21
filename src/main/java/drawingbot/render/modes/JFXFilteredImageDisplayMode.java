@@ -46,7 +46,9 @@ public class JFXFilteredImageDisplayMode extends DisplayModeImage implements IJF
             setDisplayedImage(imageFilteringService.getFilteredImage());
             setDisplayCanvas(imageFilteringService.getFilteredCanvas());
             imageChanged = true;
-            getViewport().getRenderFlags().setFlag(Flags.FORCE_REDRAW, true);
+            if(isActive()){
+                getViewport().getRenderFlags().setFlag(Flags.FORCE_REDRAW, true);
+            }
         });
     }
 
