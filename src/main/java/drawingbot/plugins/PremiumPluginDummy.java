@@ -90,6 +90,9 @@ public class PremiumPluginDummy extends AbstractPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Flow Field", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Superformula", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Sketch Sweeping Curves", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Streamlines Edge Field", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Streamlines Flow Field", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Streamlines Superformula", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "ECS Drawing", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Spiral Circular Scribbles", Register.PFM_TYPE_SKETCH, DummyPFM::new).setPremium(true);
 
@@ -137,6 +140,7 @@ public class PremiumPluginDummy extends AbstractPlugin {
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Layers PFM", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "SVG Converter", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
         MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Pen Calibration", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
+        MasterRegistry.INSTANCE.registerPFM(DummyPFM.class, "Area Calibration", Register.PFM_TYPE_SPECIAL, DummyPFM::new).setPremium(true);
     }
 
     public Object[] disableBatchProcessingUI(Object... objects) {

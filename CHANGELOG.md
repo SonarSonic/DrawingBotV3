@@ -1,3 +1,11 @@
+### [v1.6.16-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.16-stable-free)
+- Added: 'Area Calibration' PFM, used for checking the size of the plotters drawing area and adjusting margins
+- Fixed: CMYK / Colour Match / Masking settings not saving / loading properly when saved in a project
+- Fixed: Older projects not reloading properly in some situations
+- Fixed: Viewport zoom resetting when a task is stopped, or when a task is completed
+- Fixed: HPGL plotters not being detected with "Detect Plotter" when the serial port echoes the input
+- Improved: Allow multi-threading when running tasks with Batch Processing
+
 ### [v1.6.15-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.15-stable-free)
 - Fixed: Preset creation/editing dialogs appearing blank on macOS
 - Fixed: Prevent the Drawing Pen selection closing when a check-box is ticked.
