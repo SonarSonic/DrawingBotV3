@@ -10,6 +10,9 @@ public class LazyTimer {
     private long startTime = -1;
     private long endTime = -1;
 
+    private long startPause = -1;
+    private long totalPausedTime = 0;
+
     public LazyTimer(){}
 
     /**
@@ -18,6 +21,19 @@ public class LazyTimer {
     public void start(){
         startTime = System.currentTimeMillis();
         endTime = -1;
+    }
+
+    public void pause(){
+        if(startPause == -1 && startTime != -1){
+            startPause = System.currentTimeMillis();
+        }
+    }
+
+    public void resume(){
+        if(startPause != -1){
+            totalPausedTime += System.currentTimeMillis() - startPause;
+            startPause = -1;
+        }
     }
 
     /**
@@ -35,13 +51,27 @@ public class LazyTimer {
         return endTime != -1;
     }
 
+    public boolean isPaused(){
+        return startPause != -1;
+    }
+
     public long getElapsedTime(){
-        return (endTime == -1 ? System.currentTimeMillis() : endTime) - startTime;
+        return (endTime == -1 ? System.currentTimeMillis() : endTime) - startTime - totalPausedTime;
+    }
+
+    public long estimateTotalTime(double taskProgress){
+        return (long)(getElapsedTime() / taskProgress);
+    }
+
+    public long estimateRemainingTime(double taskProgress){
+        long elapsedTime = getElapsedTime();
+        return (long)(elapsedTime / taskProgress) - elapsedTime;
     }
 
     public String getElapsedTimeFormatted(){
         return getElapsedTimeFormatted(getElapsedTime());
     }
+
     /**
      * Prints out the finishing time
      */
