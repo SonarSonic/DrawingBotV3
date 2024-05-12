@@ -39,7 +39,7 @@ public class ObservableVersion {
         this.notes.set(copy.notes.get());
         this.thumbnailID.set(copy.thumbnailID.get());
         this.preset.set(new GenericPreset<>(copy.preset.get()));
-        preset.get().data.isSubProject = copy.preset.get().data.isSubProject;
+        preset.get().data.isSubProject = true;//copy.preset.get().data.isSubProject;
 
         if(copy.thumbnail != null){
             this.thumbnail.set(copy.thumbnail.get());
@@ -55,7 +55,7 @@ public class ObservableVersion {
         this.file.set(preset.data.imagePath);
         this.notes.set(preset.data.notes);
         this.preset.set(preset);
-        preset.data.isSubProject = isSubProject;
+        preset.data.isSubProject = true;//isSubProject;
 
     }
 
