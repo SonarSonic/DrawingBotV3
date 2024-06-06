@@ -665,7 +665,7 @@ public class FXController extends AbstractFXController {
 
         choiceBoxDisplayMode.getItems().addAll(MasterRegistry.INSTANCE.displayModes.filtered(d->!d.isHidden()));
 
-        comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.values()));
+        comboBoxBlendMode.setItems(FXCollections.observableArrayList(EnumBlendMode.ACTIVE_MODES));
         buttonResetView.setOnAction(e -> DrawingBotV3.INSTANCE.resetView());
 
         viewport = new Viewport();

@@ -64,7 +64,7 @@ public abstract class JFXDrawingDisplayMode extends DisplayModeDrawing implement
             if(drawingIterator.hasNext()){
                 jfr.graphicsFX.scale(jfr.getRenderScale(), jfr.getRenderScale());
                 jfr.graphicsFX.translate(drawing.getCanvas().getScaledDrawingOffsetX(), drawing.getCanvas().getScaledDrawingOffsetY());
-                jfr.graphicsFX.setGlobalBlendMode(getViewport().getRendererBlendMode().javaFXVersion);
+                jfr.graphicsFX.setGlobalBlendMode(getViewport().getRendererBlendMode().jfxBlend);
 
                 RenderUtils.renderDrawingFX(jfr.graphicsFX, drawingIterator, getGeometryFilter(), jfr.getVertexRenderLimit(), jfr.getVertexRenderTimeOut());
 

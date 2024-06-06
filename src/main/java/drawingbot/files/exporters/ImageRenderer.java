@@ -3,7 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.api.ICanvas;
 import drawingbot.files.ExportTask;
 import drawingbot.files.json.projects.DBTaskContext;
-import drawingbot.image.blend.BlendComposite;
+import drawingbot.image.ImageTools;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.plotting.canvas.CanvasUtils;
@@ -22,7 +22,9 @@ public class ImageRenderer {
     public ICanvas canvas;
     public EnumBlendMode blendMode;
     public boolean isVideo;
-    public boolean useAlphaChannel;
+
+    public boolean drawBackground;
+    public int outputBufferedImageType;
 
     private Graphics2D graphics;
     private BufferedImage activeImage;
@@ -37,15 +39,16 @@ public class ImageRenderer {
     private double linearScale;
 
     public ImageRenderer(ExportTask exportTask, boolean isVideo) {
-        this(exportTask.context, exportTask.exportDrawing.getCanvas(), exportTask.context.project().blendMode.get(), isVideo, ImageExporter.useAlphaChannelOnRaster(exportTask));
+        this(exportTask.context, exportTask.exportDrawing.getCanvas(), exportTask.context.project().blendMode.get(), isVideo, ImageExporter.getOutputBufferedImageType(exportTask), ImageExporter.drawBackgroundOnRaster(exportTask));
     }
 
-    public ImageRenderer(DBTaskContext context, ICanvas canvas, EnumBlendMode blendMode, boolean isVideo, boolean useAlphaChannel) {
+    public ImageRenderer(DBTaskContext context, ICanvas canvas, EnumBlendMode blendMode, boolean isVideo, int outputBufferedImageType, boolean drawBackground) {
         this.context = context;
         this.canvas = canvas;
         this.blendMode = blendMode;
         this.isVideo = isVideo;
-        this.useAlphaChannel = useAlphaChannel;
+        this.outputBufferedImageType = outputBufferedImageType;
+        this.drawBackground = drawBackground;
     }
 
     private void setup() {
@@ -60,16 +63,16 @@ public class ImageRenderer {
             scaledWidth = (int) (canvas.getScaledWidth() * linearScale);
             scaledHeight = (int) (canvas.getScaledHeight() * linearScale);
 
-            activeImage = new BufferedImage(scaledWidth, scaledHeight, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-            graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, !useAlphaChannel);
+            activeImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+            graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, drawBackground);
 
             graphics.scale(linearScale, linearScale);
         } else {
             scaledWidth = rasterWidth;
             scaledHeight = rasterHeight;
 
-            activeImage = new BufferedImage(scaledWidth, scaledHeight, useAlphaChannel ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-            graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, !useAlphaChannel);
+            activeImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+            graphics = createFreshGraphics2D(context, activeImage, blendMode, isVideo, drawBackground);
 
             graphics.scale(scale, scale);
         }
@@ -101,26 +104,36 @@ public class ImageRenderer {
         return activeImage;
     }
 
-    public BufferedImage createExportImage() {
+    private BufferedImage getScaledImage() {
         if (scaledWidth == rasterWidth && scaledHeight == rasterHeight) {
             return activeImage;
         }
         return Scalr.resize(activeImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, rasterWidth, rasterHeight);
     }
 
+    public BufferedImage createExportImage() {
+        BufferedImage exportImage = getScaledImage();
+        if(exportImage.getType() == outputBufferedImageType){
+            return exportImage;
+        }
+        BufferedImage convertedImage = new BufferedImage(exportImage.getWidth(), exportImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        ImageTools.drawImage(exportImage, convertedImage);
+        return convertedImage;
+    }
 
     public static Graphics2D createFreshGraphics2D(DBTaskContext context, BufferedImage image, EnumBlendMode blendMode, boolean isVideo, boolean drawBackground){
         Graphics2D graphics = image.createGraphics();
+
+        graphics.setBackground(Color.WHITE);
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
         if(drawBackground){
             Graphics2DExporter.drawBackground(context, graphics, image.getWidth(), image.getHeight());
         }
 
-        if(blendMode != EnumBlendMode.NORMAL){
-            graphics.setComposite(new BlendComposite(blendMode));
-        }
+        graphics.setComposite(blendMode.awtComposite);
 
         return graphics;
     }

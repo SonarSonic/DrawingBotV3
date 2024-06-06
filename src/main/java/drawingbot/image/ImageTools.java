@@ -4,7 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IPixelData;
 import drawingbot.api.IProgressCallback;
-import drawingbot.image.blend.BlendComposite;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.format.ImageCropping;
 import drawingbot.image.kernels.IKernelFactory;
@@ -126,7 +125,7 @@ public class ImageTools {
         // paint both images, preserving the alpha channels
         Graphics2D g = combined.createGraphics();
         g.drawImage(image, 0, 0, null);
-        g.setComposite(new BlendComposite(blendMode));
+        g.setComposite(blendMode);
         g.drawImage(overlay, 0, 0, null);
 
 

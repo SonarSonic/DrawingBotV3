@@ -3,6 +3,7 @@ package drawingbot.files.exporters;
 import drawingbot.api.IGeometryFilter;
 import drawingbot.files.ExportTask;
 import drawingbot.image.ImageTools;
+import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.preferences.DBPreferences;
 
 import javax.imageio.ImageIO;
@@ -13,8 +14,12 @@ import java.io.IOException;
 
 public class ImageExporter {
 
-    public static boolean useAlphaChannelOnRaster(ExportTask exportTask){
-        return DBPreferences.INSTANCE.transparentPNG.get() && exportTask.extension.equals(".png");
+    public static boolean drawBackgroundOnRaster(ExportTask exportTask){
+        return !DBPreferences.INSTANCE.transparentPNG.get() || exportTask.context.project().blendMode.get() != EnumBlendMode.NORMAL;
+    }
+
+    public static int getOutputBufferedImageType(ExportTask exportTask){
+        return exportTask.extension.equals(".png") ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
     }
 
     public static void exportImage(ExportTask exportTask, File saveLocation) {
@@ -46,7 +51,7 @@ public class ImageExporter {
             exportTask.updateProgress(1, 1);
             return;
         }
-        BufferedImage image = new BufferedImage((int)exportTask.exportDrawing.getCanvas().getScaledWidth(), (int)exportTask.exportDrawing.getCanvas().getScaledHeight(), ImageExporter.useAlphaChannelOnRaster(exportTask) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage((int)exportTask.exportDrawing.getCanvas().getScaledWidth(), (int)exportTask.exportDrawing.getCanvas().getScaledHeight(), ImageExporter.getOutputBufferedImageType(exportTask));
         Graphics2D graphics = image.createGraphics();
 
         graphics.setColor(ImageTools.getAWTFromFXColor(exportTask.context.project.getDrawingArea().canvasColor.get()));
