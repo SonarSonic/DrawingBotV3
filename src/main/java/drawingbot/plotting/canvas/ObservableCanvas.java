@@ -234,11 +234,12 @@ public class ObservableCanvas extends SpecialListenable<ObservableCanvas.Listene
 
         copy.width.set(width.get());
         copy.height.set(height.get());
+
+        copy.drawingAreaGangPadding.set(drawingAreaGangPadding.get());
         copy.drawingAreaPaddingLeft.set(drawingAreaPaddingLeft.get());
         copy.drawingAreaPaddingRight.set(drawingAreaPaddingRight.get());
         copy.drawingAreaPaddingTop.set(drawingAreaPaddingTop.get());
         copy.drawingAreaPaddingBottom.set(drawingAreaPaddingBottom.get());
-        copy.drawingAreaGangPadding.set(drawingAreaGangPadding.get());
 
         copy.rescaleMode.set(rescaleMode.get());
         copy.targetPenWidth.set(targetPenWidth.get());
