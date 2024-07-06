@@ -1,5 +1,6 @@
 package drawingbot.pfm;
 
+import drawingbot.DrawingBotV3;
 import drawingbot.api.IProperties;
 import drawingbot.files.json.PresetData;
 import drawingbot.javafx.GenericPreset;
@@ -7,6 +8,7 @@ import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.settings.CategorySetting;
 import drawingbot.javafx.util.PropertyUtil;
 import drawingbot.registry.MasterRegistry;
+import drawingbot.registry.Register;
 import drawingbot.utils.EnumDistributionType;
 import drawingbot.utils.SpecialListenable;
 import javafx.beans.Observable;
@@ -134,7 +136,12 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
         factory.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 settings.set(MasterRegistry.INSTANCE.getNewObservableSettingsList(newValue));
-                sendListenerEvent(l -> l.onPFMChanged(oldValue, newValue));
+                sendListenerEvent(l -> l.onUserChangedPFM(oldValue, newValue));
+            }
+        });
+        selectedPreset.addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+                Register.PRESET_MANAGER_PFM.applyPreset(DrawingBotV3.context(), this, newValue, false);
             }
         });
     }
@@ -183,7 +190,7 @@ public class PFMSettings extends SpecialListenable<PFMSettings.Listener> impleme
 
     public interface Listener extends GenericSetting.Listener {
 
-        default void onPFMChanged(PFMFactory<?> oldValue, PFMFactory<?> newValue) {}
+        default void onUserChangedPFM(PFMFactory<?> oldValue, PFMFactory<?> newValue) {}
 
         default void onUserChangedPFMPreset(GenericPreset<PresetData> pfmPreset) {}
 

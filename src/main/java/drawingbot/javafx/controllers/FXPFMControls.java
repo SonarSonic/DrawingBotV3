@@ -118,11 +118,6 @@ public class FXPFMControls extends AbstractFXController {
 
         controlPFMPreset.quickSetup(Register.PRESET_MANAGER_PFM);
         controlPFMPreset.targetProperty().bind(pfmSettings);
-        controlPFMPreset.activePresetProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-                Register.PRESET_MANAGER_PFM.applyPreset(DrawingBotV3.context(), pfmSettings.get(), newValue, false);
-            }
-        });
         controlPFMPreset.setComboBoxFactory(() -> {
             ComboBox<GenericPreset<PresetData>> comboBox =  new ComboBox<>();
             comboBox.setOnAction(e -> pfmSettings.get().sendListenerEvent(l -> l.onUserChangedPFMPreset(controlPFMPreset.getActivePreset())));

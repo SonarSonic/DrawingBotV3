@@ -39,6 +39,7 @@ public class JsonAdapterPFMSettings implements JsonSerializer<PFMSettings>, Json
         if(jsonObject.has(JsonAdapterGenericPreset.PRESET_TYPE) && jsonObject.has(JsonAdapterGenericPreset.PRESET_NAME)){
             GenericPreset<PresetData> pfmPreset = context.deserialize(jsonObject, GenericPreset.class);
             Register.PRESET_MANAGER_PFM.applyPreset(DrawingBotV3.context(), pfmSettings, pfmPreset, false);
+            pfmSettings.setSelectedPreset(pfmPreset);
             return pfmSettings;
         }
         
