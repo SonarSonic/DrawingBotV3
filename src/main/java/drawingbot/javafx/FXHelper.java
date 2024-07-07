@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import drawingbot.DrawingBotV3;
 import drawingbot.FXApplication;
-import drawingbot.files.DrawingExportHandler;
-import drawingbot.files.ExportTask;
-import drawingbot.files.FileUtils;
-import drawingbot.files.LoggingHandler;
+import drawingbot.files.*;
 import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
@@ -46,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -273,6 +271,7 @@ public class FXHelper {
 
     /////////////////////////////////////////////////////
 
+    /////////////////////////////////////////////////////
 
     private static boolean forceClose = false;
 
@@ -383,6 +382,7 @@ public class FXHelper {
 
             JsonLoaderManager.exportPresetFile(project.file.get(), preset);
             project.hasChanged.set(false);
+            RecentProjectHandler.addRecentProject(project);
             callback.accept(project);
             NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + project.name.get(), project.file.get().toString(), new Action("Open Folder", event -> openFolder(project.file.get().getParentFile())));
         }else{
@@ -421,6 +421,7 @@ public class FXHelper {
 
                 JsonLoaderManager.exportPresetFile(file, preset);
                 project.hasChanged.set(false);
+                RecentProjectHandler.addRecentProject(project);
                 callback.accept(project);
                 NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + project.name.get(), project.file.get().toString(), new Action("Open Folder", event -> openFolder(project.file.get().getParentFile())));
             });

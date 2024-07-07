@@ -2,6 +2,7 @@ package drawingbot.files.loaders;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.FileUtils;
+import drawingbot.files.RecentProjectHandler;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.json.projects.PresetProjectSettings;
@@ -37,6 +38,7 @@ public class ProjectFileLoader extends AbstractFileLoader{
 
                 DrawingBotV3.INSTANCE.activeProjects.add(project);
                 DrawingBotV3.INSTANCE.activeProject.set(project);
+                RecentProjectHandler.addRecentProject(project);
             }
         });
         updateProgress(1, 1);

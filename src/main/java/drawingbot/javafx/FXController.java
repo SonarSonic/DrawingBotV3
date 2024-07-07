@@ -13,6 +13,7 @@ import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.controllers.*;
 import drawingbot.javafx.controls.ContextMenuObservableProject;
 import drawingbot.javafx.controls.DialogPremiumFeature;
+import drawingbot.javafx.controls.MenuOpenRecent;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.preferences.FXPreferences;
@@ -234,6 +235,9 @@ public class FXController extends AbstractFXController {
         menuOpen.setGraphic(fontAwesome.create(FontAwesome.Glyph.FOLDER_OPEN).color(Color.SLATEGRAY));
         menuOpen.setAccelerator(KeyCombination.valueOf("Ctrl + O"));
         menuFile.getItems().add(menuOpen);
+
+        MenuOpenRecent menuOpenRecent = new MenuOpenRecent("Open Recent");
+        menuFile.getItems().add(menuOpenRecent);
 
         MenuItem menuSave = new MenuItem("Save");
         menuSave.setOnAction(e -> FXHelper.saveProject());

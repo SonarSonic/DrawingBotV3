@@ -24,6 +24,7 @@ import drawingbot.pfm.PFMSettings;
 import drawingbot.plotting.canvas.SimpleCanvas;
 import drawingbot.registry.MasterRegistry;
 import drawingbot.registry.Register;
+import drawingbot.software.SoftwareManager;
 import drawingbot.utils.MetadataMap;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -83,6 +84,7 @@ public class JsonLoaderManager {
         builder.registerTypeAdapter(ImageCropping.class, new JsonAdapterImageCropping());
         builder.registerTypeAdapter(VersionControl.class, new JsonAdapterVersionControl());
         builder.registerTypeAdapter(ObservableVersion.class, new JsonAdapterObservableVersion());
+        builder.registerTypeAdapter(File.class, new JsonAdapterFile());
         Hooks.runHook(Hooks.GSON_BUILDER_INIT_POST, builder);
         }
     };
@@ -265,6 +267,30 @@ public class JsonLoaderManager {
         return file;
     }
 
+
+    /**
+     * Imports a single .json
+     * @param file the file to read from
+     * @param type the data to import to the json file
+     */
+    public static <T> T importJsonFile(File file, Class<T> type){
+        T data = null;
+        try {
+            Gson gson = createDefaultGson();
+            JsonReader reader = gson.newJsonReader(new InputStreamReader(new FileInputStream(file)));
+            data = gson.fromJson(reader, type);
+            reader.close();
+        } catch (Throwable e) {
+            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error importing json file");
+        }
+        return data;
+    }
+
+    /**
+     * Exports a single .json
+     * @param file the destination
+     * @param instance the data to export to the json file
+     */
     public static <T> void exportJsonFile(File file, Class<T> type, T instance){
         try {
             Gson gson = createDefaultGson();

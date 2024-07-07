@@ -4,6 +4,7 @@ import drawingbot.api.API;
 import drawingbot.api.IPlugin;
 import drawingbot.api_impl.DrawingBotV3API;
 import drawingbot.files.LoggingHandler;
+import drawingbot.files.RecentProjectHandler;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.javafx.FXHelper;
@@ -169,6 +170,10 @@ public class FXApplication extends Application {
 
             DrawingBotV3.logger.config("Json Loader: Load JSON Files");
             JsonLoaderManager.loadJSONFiles();
+
+
+            DrawingBotV3.logger.config("Json Loader: Load recent projects");
+            RecentProjectHandler.loadRecentProjectData();
 
             DrawingBotV3.logger.config("DrawingBotV3: Loading User Interface");
             CountDownLatch latchA = new CountDownLatch(1);

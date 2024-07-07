@@ -184,6 +184,9 @@ public class DrawingBotV3 {
         // Tick the preset loaders, sending updates to the background thread
         JsonLoaderManager.INSTANCE.tick();
 
+        // Update recent project data
+        RecentProjectHandler.tick();
+
         // Tick all plugins
         SoftwareManager.getLoadedPlugins().forEach(IPlugin::tick);
 
