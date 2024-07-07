@@ -62,8 +62,8 @@ public class GCodeBuilder {
         command(GCodeExporter.replaceWildcards(this, settings.gcodeEndCode.getValue()));
 
         comment("Distance Moved: " + Utils.gcodeFloat(distanceMoved) + " mm");
-        comment("Distance Moved (Pen Up): " + Utils.gcodeFloat(distanceUp) + " mm");
-        comment("Distance Moved (Pen Down): " + Utils.gcodeFloat(distanceDown) + " mm");
+        comment("Distance Moved - Pen Up: " + Utils.gcodeFloat(distanceUp) + " mm");
+        comment("Distance Moved - Pen Down: " + Utils.gcodeFloat(distanceDown) + " mm");
         comment("Points Plotted: " + pointsDrawn + " points");
         comment("Pen Lifted: " + penLifts + " times");
         comment("Pen Dropped: " + penDrops + " times");
