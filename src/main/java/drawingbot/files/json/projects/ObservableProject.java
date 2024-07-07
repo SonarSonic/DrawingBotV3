@@ -42,11 +42,9 @@ import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
 
@@ -79,6 +77,19 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Ob
     public void setLoaded(boolean loaded) {
         this.loaded.set(loaded);
     }
+
+
+    ////////////////////////////
+
+    /**
+     * A list used for tracking the changes to any properties
+     */
+    public final ObservableList<Observable> trackingList = FXCollections.observableArrayList(E -> new Observable[]{E});
+
+    /**
+     * True if the project has been edited
+     */
+    public final BooleanProperty hasChanged = new SimpleBooleanProperty();
 
     ////////////////////////////
 
@@ -403,6 +414,10 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Ob
         };
 
         Hooks.runHook(Hooks.INIT_OBSERVABLE_PROJECT, this);
+
+        //Register all settings to the tracking list which must be saved to the file
+        trackingList.addAll(name, file, drawingArea, imageSettings, pfmSettings, drawingSets, versionControl, maskingSettings, displayMode, openImage, dpiScaling, blendMode, exportRange, currentDrawing);
+        trackingList.addListener((ListChangeListener<? super Observable>) c -> hasChanged.set(true));
     }
 
     public void tick(){

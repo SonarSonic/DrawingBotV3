@@ -340,8 +340,22 @@ public class FXController extends AbstractFXController {
 
         menuFile.getItems().add(new SeparatorMenuItem());
 
+        MenuItem menuCloseProject = new MenuItem("Close Project");
+        menuCloseProject.setOnAction(e -> {
+            FXHelper.closeProject(DrawingBotV3.project(), p -> {});
+        });
+        menuFile.getItems().add(menuCloseProject);
+
+        MenuItem menuCloseAllProjectS = new MenuItem("Close All Projects");
+        menuCloseAllProjectS.setOnAction(e -> {
+            FXHelper.saveAndCloseAllProjects(false);
+        });
+        menuFile.getItems().add(menuCloseAllProjectS);
+
+        menuFile.getItems().add(new SeparatorMenuItem());
+
         MenuItem menuQuit = new MenuItem("Quit");
-        menuQuit.setOnAction(e -> Platform.exit());
+        menuQuit.setOnAction(e -> FXHelper.exit());
         menuQuit.setGraphic(fontAwesome.create(FontAwesome.Glyph.CLOSE).color(Color.SLATEGRAY));
         menuFile.getItems().add(menuQuit);
 
@@ -514,15 +528,16 @@ public class FXController extends AbstractFXController {
 
         tabPaneProjects.minHeightProperty().bind(Bindings.createDoubleBinding(() -> DrawingBotV3.INSTANCE.activeProjects.size() > 1 ? 27D : 0D, DrawingBotV3.INSTANCE.activeProjects));
         tabPaneProjects.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            ObservableProject project = (ObservableProject) newValue.getProperties().get(ObservableProject.class);
-            DrawingBotV3.INSTANCE.activeProject.set(project);
+            if(newValue != null){
+                ObservableProject project = (ObservableProject) newValue.getProperties().get(ObservableProject.class);
+                DrawingBotV3.INSTANCE.activeProject.set(project);
+            }
         });
         DrawingBotV3.INSTANCE.activeProject.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
                 tabPaneProjects.getSelectionModel().select(newValue.tab.get());
             }
         });
-
 
         NotificationOverlays.INSTANCE.setTarget(vBoxMain);
 
@@ -544,18 +559,15 @@ public class FXController extends AbstractFXController {
                 DrawingBotV3.INSTANCE.activeProject.set(project);
             }
         });
-
          */
         tab.getProperties().put(ObservableProject.class, project);
-        tab.setOnClosed(e -> {
-            DrawingBotV3.INSTANCE.activeProjects.remove(project);
-            if(DrawingBotV3.INSTANCE.activeProjects.isEmpty()){
-                DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
-                DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
-            }else{
-                DrawingBotV3.INSTANCE.activeProject.set(DrawingBotV3.INSTANCE.activeProjects.get(0));
+
+        tab.setOnCloseRequest(e -> {
+            if(!FXHelper.closeProject(project, response -> {})){
+                e.consume();
             }
         });
+
         tab.setClosable(true);
         tabPaneProjects.getTabs().add(tab);
         project.tab.set(tab);

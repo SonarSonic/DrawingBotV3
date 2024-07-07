@@ -33,6 +33,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -250,6 +251,7 @@ public class FXApplication extends Application {
                     Register.PRESET_LOADER_PREFERENCES.applyConfigs();
 
                     DrawingBotV3.INSTANCE.resetView();
+                    primaryStage.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, FXHelper::onCloseRequest);
                     primaryStage.titleProperty().bind(Bindings.createStringBinding(() -> FXApplication.getSoftware().getDisplayName() + ", Version: " + FXApplication.getSoftware().getDisplayVersion() + ", " + "'" + DrawingBotV3.INSTANCE.projectName.get() + "'", DrawingBotV3.INSTANCE.projectName));
                     primaryStage.setResizable(true);
                     applyTheme(primaryStage);

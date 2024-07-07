@@ -10,6 +10,7 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.LoggingHandler;
 import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
+import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.*;
@@ -38,10 +39,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import org.controlsfx.control.action.Action;
 import org.jetbrains.annotations.Nullable;
 
@@ -273,25 +271,134 @@ public class FXHelper {
         return preset;
     }
 
-    public static void saveProject(){
-        final DBTaskContext context = DrawingBotV3.context();
-        if(context.project().file.get() != null){
-            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-            Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset, false);
+    /////////////////////////////////////////////////////
 
-            JsonLoaderManager.exportPresetFile(context.project.file.get(), preset);
-            NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
+
+    private static boolean forceClose = false;
+
+    public static boolean hasUnsavedProjects(){
+        return DrawingBotV3.INSTANCE.activeProjects.stream().anyMatch(p -> p.hasChanged.get());
+    }
+
+    public static void exit(){
+        if(hasUnsavedProjects()){
+            saveAndCloseAllProjects(true);
+            return;
+        }
+        Platform.exit();
+    }
+
+    public static void onCloseRequest(WindowEvent event){
+        if(forceClose){
+            return;
+        }
+        if(hasUnsavedProjects()){
+            saveAndCloseAllProjects(true);
+            event.consume();
+        }
+    }
+
+    public static void saveAndCloseAllProjects(boolean shouldQuit){
+
+        //Copy the list so we can close the projects as we go
+        List<ObservableProject> projectList = new ArrayList<>(DrawingBotV3.INSTANCE.activeProjects);
+
+        //Place the current project first
+        if(DrawingBotV3.INSTANCE.activeProject.get() != null){
+            projectList.remove(DrawingBotV3.INSTANCE.activeProject.get());
+            projectList.add(0, DrawingBotV3.INSTANCE.activeProject.get());
+        }
+
+        for(ObservableProject project : projectList){
+            if(!project.hasChanged.get()){
+                continue;
+            }
+            DrawingBotV3.INSTANCE.activeProject.set(project);
+            closeProject(project, response -> {
+                if(!response.shouldCancel()){
+                    saveAndCloseAllProjects(shouldQuit);
+                }
+            });
+            return;
+        }
+
+        if(shouldQuit){
+            forceClose = true;
+            Platform.exit();
+        }
+    }
+
+
+    public static boolean closeProject(ObservableProject project, Consumer<DialogSaveOnClose.ExitResponse> callback){
+        if(project == null){
+            return false;
+        }
+        DialogSaveOnClose dialogSaveOnClose = new DialogSaveOnClose(project.name.get());
+        dialogSaveOnClose.initOwner(FXApplication.getPrimaryStage());
+        Optional<DialogSaveOnClose.ExitResponse> response = dialogSaveOnClose.showAndWait();
+        if(response.isPresent()){
+            switch (response.get()){
+                case SAVE -> {
+                    saveProject(project, p -> {
+                        doCloseProject(p);
+                        callback.accept(response.get());
+                    });
+                    return true;
+                }
+                case DONT_SAVE -> {
+                    doCloseProject(project);
+                    callback.accept(response.get());
+                    return true;
+                }
+                case CANCEL_CLOSE -> {
+                    callback.accept(response.get());
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void doCloseProject(ObservableProject project){
+        DrawingBotV3.INSTANCE.activeProjects.remove(project);
+
+        if(DrawingBotV3.INSTANCE.activeProject.get() == project){
+            if(DrawingBotV3.INSTANCE.activeProjects.isEmpty()){
+                DrawingBotV3.INSTANCE.activeProject.set(new ObservableProject());
+                DrawingBotV3.INSTANCE.activeProjects.add(DrawingBotV3.INSTANCE.activeProject.get());
+            }else{
+                DrawingBotV3.INSTANCE.activeProject.set(DrawingBotV3.INSTANCE.activeProjects.get(0));
+            }
+        }
+    }
+
+    public static void saveProject(){
+        saveProject(DrawingBotV3.project(), p -> {});
+    }
+
+    public static void saveProject(ObservableProject project, Consumer<ObservableProject> callback){
+        if(project.file.get() != null){
+            GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
+            Register.PRESET_MANAGER_PROJECT.updatePreset(project.context, project, preset, false);
+
+            JsonLoaderManager.exportPresetFile(project.file.get(), preset);
+            project.hasChanged.set(false);
+            callback.accept(project);
+            NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + project.name.get(), project.file.get().toString(), new Action("Open Folder", event -> openFolder(project.file.get().getParentFile())));
         }else{
-            saveProjectAs();
+            saveProjectAs(project, callback);
         }
     }
 
     public static void saveProjectAs(){
-        final DBTaskContext context = DrawingBotV3.context();
-        File folder = context.project().getExportDirectory();
-        String projectName = context.project().name.get();
+        saveProject(DrawingBotV3.project(), p -> {});
+    }
 
-        PlottedDrawing renderedDrawing = DrawingBotV3.project().getCurrentDrawing();
+    public static void saveProjectAs(ObservableProject project, Consumer<ObservableProject> callback){
+        File folder = project.getExportDirectory();
+        String projectName = project.name.get();
+
+        PlottedDrawing renderedDrawing = project.getCurrentDrawing();
         if(renderedDrawing != null){
             File originalFile = renderedDrawing.getOriginalFile();
             if(originalFile != null){
@@ -304,16 +411,18 @@ public class FXHelper {
             if(file == null){
                 return;
             }
-            context.project.file.set(file);
-            context.project.name.set(FileUtils.removeExtension(file.getName()));
+            project.file.set(file);
+            project.name.set(FileUtils.removeExtension(file.getName()));
             DrawingBotV3.INSTANCE.backgroundService.submit(() -> {
                 //context.project().updateExportDirectory(file.getParentFile()); //saving our project is not "Exporting"
 
                 GenericPreset<PresetProjectSettings> preset = Register.PRESET_LOADER_PROJECT.createNewPreset();
-                Register.PRESET_MANAGER_PROJECT.updatePreset(context, context.project(), preset, false);
+                Register.PRESET_MANAGER_PROJECT.updatePreset(project.context, project, preset, false);
 
                 JsonLoaderManager.exportPresetFile(file, preset);
-                NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + context.project.name.get(), context.project.file.get().toString(), new Action("Open Folder", event -> openFolder(context.project.file.get().getParentFile())));
+                project.hasChanged.set(false);
+                callback.accept(project);
+                NotificationOverlays.INSTANCE.showWithSubtitle("Project Saved: " + project.name.get(), project.file.get().toString(), new Action("Open Folder", event -> openFolder(project.file.get().getParentFile())));
             });
         }, folder, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, FileUtils.FILTER_PROJECT, "Save Project", projectName);
     }
