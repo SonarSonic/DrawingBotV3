@@ -391,7 +391,7 @@ public class FXHelper {
     }
 
     public static void saveProjectAs(){
-        saveProject(DrawingBotV3.project(), p -> {});
+        saveProjectAs(DrawingBotV3.project(), p -> {});
     }
 
     public static void saveProjectAs(ObservableProject project, Consumer<ObservableProject> callback){

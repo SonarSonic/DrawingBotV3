@@ -4,8 +4,6 @@ import drawingbot.DrawingBotV3;
 import drawingbot.files.RecentProjectHandler;
 import drawingbot.javafx.FXHelper;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.text.TextFlow;
@@ -45,7 +43,7 @@ public class MenuOpenRecent extends Menu {
 
     }
 
-    public static class RecentProjectMenuItem extends CustomMenuItem {
+    public static class RecentProjectMenuItem extends MenuItem {
 
         public final File file;
 
@@ -56,7 +54,7 @@ public class MenuOpenRecent extends Menu {
             TextFlow textFlow = new TextFlow();
             FXHelper.addText(textFlow, 12, "normal", file.getName());
             FXHelper.addText(textFlow,  "-fx-font-size: 10px; -fx-font-style: italic;", "\n" + file.getParentFile().getPath());
-            setContent(textFlow);
+            setGraphic(textFlow);
             this.setOnAction(e -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false));
 
         }
