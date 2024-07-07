@@ -1,7 +1,6 @@
 package drawingbot.files;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.ObservableProject;
 import javafx.collections.FXCollections;
@@ -60,20 +59,6 @@ public class RecentProjectHandler {
         }
 
         recentProjectsChanged = true;
-    }
-
-    @JsonData
-    private static class RecentProjectData{
-
-        public ArrayList<File> recentFiles;
-
-        public RecentProjectData() {
-            //for GSON
-        }
-
-        public RecentProjectData(ArrayList<File> recentFiles) {
-            this.recentFiles = recentFiles;
-        }
     }
 
 }
