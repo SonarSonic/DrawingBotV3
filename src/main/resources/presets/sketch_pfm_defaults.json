@@ -318,7 +318,7 @@
           "Erase Max": "125",
           "Angularity": "0.0",
           "Squiggle Min Length": "25",
-          "Curvature": "0.5",
+          "Curvature": "0",
           "Random Seed": "0",
           "Line Density": "75.0",
           "Squiggle Max Deviation": "25.0"
