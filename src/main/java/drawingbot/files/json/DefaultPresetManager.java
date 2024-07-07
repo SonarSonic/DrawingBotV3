@@ -32,12 +32,12 @@ public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> exte
     }
 
     public final <C,V> GenericSetting<C, V> registerSetting(GenericSetting<C, V> setting){
-        settings.add(setting);
+        getSettings().add(setting);
         return setting;
     }
 
     public final void registerSettings(List<GenericSetting<?, ?>> setting){
-        settings.addAll(setting);
+        getSettings().addAll(setting);
     }
 
     public final void registerPresetDataLoader(PresetDataLoader<DATA> loader){
@@ -49,8 +49,8 @@ public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> exte
         if(target == null){
             return;
         }
-        GenericSetting.updateSettingsFromInstance(settings, target);
-        preset.data.settings = GenericSetting.toJsonMap(settings, new HashMap<>(), changesOnly);
+        GenericSetting.updateSettingsFromInstance(getSettings(), target);
+        preset.data.settings = GenericSetting.toJsonMap(getSettings(), new HashMap<>(), changesOnly);
 
         Gson gson = JsonLoaderManager.createDefaultGson();
         for(PresetDataLoader<DATA> loader : presetDataLoaders){
@@ -68,8 +68,8 @@ public abstract class DefaultPresetManager<TARGET, DATA extends PresetData> exte
         if(target == null){
             return;
         }
-        GenericSetting.applySettings(preset.data.settings, settings);
-        List<GenericSetting<?, ?>> toApply = settings;
+        GenericSetting.applySettings(preset.data.settings, getSettings());
+        List<GenericSetting<?, ?>> toApply = getSettings();
         if (changesOnly) {
             toApply = GenericSetting.filterSettings(toApply, preset.data.settings.keySet());
         }

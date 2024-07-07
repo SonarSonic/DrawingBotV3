@@ -8,8 +8,11 @@ import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettingsManager;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
+import drawingbot.javafx.GenericSetting;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.registry.MasterRegistry;
+
+import java.util.List;
 
 public class PresetPreferencesManager extends DefaultPresetManager<DBPreferences, PresetData> {
 
@@ -23,9 +26,13 @@ public class PresetPreferencesManager extends DefaultPresetManager<DBPreferences
     }
 
     @Override
+    public List<GenericSetting<?, ?>> getSettings() {
+        return MasterRegistry.INSTANCE.applicationSettings;
+    }
+
+    @Override
     public void registerDataLoaders() {
         super.registerDataLoaders();
-        registerSettings(MasterRegistry.INSTANCE.applicationSettings);
         registerPresetDataLoader(new PresetDataLoader.DataInstance<>(PresetData.class, "ui_state", PresetProjectSettingsManager.UIGlobalState.class, PresetProjectSettingsManager.UIGlobalState::new, 0){
 
             @Override
