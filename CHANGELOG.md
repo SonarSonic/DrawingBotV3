@@ -1,3 +1,19 @@
+### [v1.6.17-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.17-stable-free)
+- Added: File / Open Recent Menu, which shows the 15 most recently opened/saved projects
+- Added: Save project alert when closing the application or an individual project
+- Added: Close Project and Close All Projects shortcuts to File Menu
+- Added: Option to disable HPGL Buffer checks in HPGL preferences, fixes compatibility with some plotters
+- Fixed: Crash on load when OpenCL is not present on Windows operating systems
+- Fixed: Compatibility with running in Virtual Machines
+- Fixed: PFM Settings not loading properly when projects are re-opened
+- Fixed: Saved projects having large files sizes when multiple project versions are present
+- Fixed: Drawing Area padding not being applied properly when running Batch Processing mode
+- Fixed: Blend modes acting inconsistently when exporting images
+- Fixed: Advanced preferences not saving and reloading properly
+- Fixed: PFMs re-running when switching project when Auto Run PFM is enabled
+- Fixed: Sketch Sweeping Curves exiting the image area in unnatural way / changed default curvature to 0
+- Fixed: Mosaic styles window cut-off at the bottom
+
 ### [v1.6.16-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.16-stable-free)
 - Added: 'Area Calibration' PFM, used for checking the size of the plotters drawing area and adjusting margins
 - Fixed: CMYK / Colour Match / Masking settings not saving / loading properly when saved in a project
