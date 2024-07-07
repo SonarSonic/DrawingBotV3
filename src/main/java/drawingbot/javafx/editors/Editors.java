@@ -45,8 +45,8 @@ public class Editors {
 
             @Override
             public void dispose() {
-                getNode().selectedProperty().unbindBidirectional(property.valueProperty());
                 getNode().setOnAction(null);
+                getNode().selectedProperty().unbindBidirectional(property.valueProperty());
             }
         };
     }
@@ -61,8 +61,8 @@ public class Editors {
 
             @Override
             public void dispose() {
-                getNode().textProperty().unbindBidirectional(property.valueProperty());
                 getNode().setOnAction(null);
+                getNode().textProperty().unbindBidirectional(property.valueProperty());
             }
         };
     }
@@ -78,8 +78,8 @@ public class Editors {
 
             @Override
             public void dispose() {
-                getNode().valueProperty().unbindBidirectional(property.valueProperty());
                 getNode().setOnAction(null);
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
             }
         };
     }
@@ -94,8 +94,8 @@ public class Editors {
 
             @Override
             public void dispose() {
-                getNode().valueProperty().unbindBidirectional(property.valueProperty());
                 getNode().setOnAction(null);
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
             }
         };
     }
@@ -112,8 +112,8 @@ public class Editors {
 
             @Override
             public void dispose() {
-                getNode().valueProperty().unbindBidirectional(property.valueProperty());
                 getNode().setOnEdit(null);
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
             }
         };
     }
@@ -132,8 +132,8 @@ public class Editors {
 
             @Override
             public void dispose() {
-                getNode().valueProperty().unbindBidirectional(property.valueProperty());
                 getNode().setOnEdit(null);
+                getNode().valueProperty().unbindBidirectional(property.valueProperty());
             }
         };
     }
@@ -151,11 +151,11 @@ public class Editors {
 
             @Override
             public void dispose() {
+                getNode().setOnAction(null);
                 getNode().valueProperty().unbindBidirectional(property.valueProperty());
                 if(property instanceof OptionSetting<?, ?>){
                     getNode().itemsProperty().set(null);
                 }
-                getNode().setOnAction(null);
             }
         };
     }
@@ -172,9 +172,9 @@ public class Editors {
 
             @Override
             public void dispose() {
+                getNode().setOnAction(null);
                 getNode().valueProperty().unbindBidirectional(property.valueProperty());
                 getNode().itemsProperty().unbind();
-                getNode().setOnAction(null);
             }
         };
     }
@@ -227,8 +227,8 @@ public class Editors {
 
                 @Override
                 public void dispose() {
-                    this.imageView.setImage(null);
                     this.button.setOnAction(null);
+                    this.imageView.setImage(null);
                     setting.valueProperty().removeListener(valueListener);
 
                 }
@@ -249,9 +249,9 @@ public class Editors {
 
             @Override
             public void dispose() {
+                node.setOnAction(null);
                 node.textProperty().unbindBidirectional(property.valueProperty());
                 node.setTextFormatter(null);
-                node.setOnAction(null);
             }
         };
     }

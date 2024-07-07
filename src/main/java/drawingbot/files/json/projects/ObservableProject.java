@@ -514,12 +514,12 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Ob
     }
 
     @Override
-    public void onSettingUserEdited(GenericSetting<?, ?> setting) {
+    public void onUserEditedPFMSetting(GenericSetting<?, ?> setting) {
         onPFMSettingsUserEdited();
     }
 
     @Override
-    public void onPFMChanged(PFMFactory<?> oldValue, PFMFactory<?> newValue) {
+    public void onUserChangedPFM(PFMFactory<?> oldValue, PFMFactory<?> newValue) {
         onPFMSettingsUserEdited();
     }
 

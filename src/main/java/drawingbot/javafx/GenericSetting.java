@@ -640,7 +640,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
     public abstract GenericSetting<C, V> copy();
 
     public void sendUserEditedEvent() {
-        sendListenerEvent(l -> l.onSettingUserEdited(this));
+        sendListenerEvent(l -> l.onUserEditedPFMSetting(this));
     }
 
     @Override
@@ -655,7 +655,7 @@ public abstract class GenericSetting<C, V> extends SpecialListenable<GenericSett
         /**
          * Called only when the generic setting is edited by a user.
          */
-        default void onSettingUserEdited(GenericSetting<?, ?> setting) {
+        default void onUserEditedPFMSetting(GenericSetting<?, ?> setting) {
         }
 
     }
