@@ -20,8 +20,8 @@ public enum EnumWindowSize {
                 Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
                 stage.setMaximized(false);
                 stage.setFullScreen(false);
-                stage.setWidth(visualBounds.getWidth()/1.1);
-                stage.setHeight(visualBounds.getHeight()/1.1);
+                stage.setWidth(visualBounds.getWidth()*0.975);
+                stage.setHeight(visualBounds.getHeight()*0.95);
                 stage.centerOnScreen();
             }
             case WINDOWED -> {
