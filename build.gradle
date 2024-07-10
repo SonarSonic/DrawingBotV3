@@ -47,9 +47,6 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:${apache_commons_lang3}"
     implementation "org.apache.commons:commons-compress:${apache_compress}"
 
-    //// JOGL
-    implementation "org.jogamp.gluegen:gluegen-rt-main:${jogl_version}"
-    implementation "org.jogamp.jogl:jogl-all-main:${jogl_version}"
 }
 
 targetCompatibility = "19"
