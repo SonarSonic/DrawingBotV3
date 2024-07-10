@@ -5,6 +5,7 @@
 - Added: Option to disable HPGL Buffer checks in HPGL preferences, fixes compatibility with some plotters
 - Fixed: Crash on load when OpenCL is not present on Windows operating systems
 - Fixed: Compatibility with running in Virtual Machines
+- Fixed: OpenCL Acceleration performance on Apple Silicon
 - Fixed: PFM Settings not loading properly when projects are re-opened
 - Fixed: Saved projects having large files sizes when multiple project versions are present
 - Fixed: Drawing Area padding not being applied properly when running Batch Processing mode
@@ -13,6 +14,7 @@
 - Fixed: PFMs re-running when switching project when Auto Run PFM is enabled
 - Fixed: Sketch Sweeping Curves exiting the image area in unnatural way / changed default curvature to 0
 - Fixed: Mosaic styles window cut-off at the bottom
+- Improved: Increased default window size for easier usage on small screens.
 
 ### [v1.6.16-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.16-stable-free)
 - Added: 'Area Calibration' PFM, used for checking the size of the plotters drawing area and adjusting margins
