@@ -23,7 +23,7 @@ public class SoftwareDBV3Free implements ISoftware {
 
     public static final String displayName = "DrawingBotV3 Free";
     public static final String shortName = "DBV3";
-    public static final String rawVersion = "1.6.17";
+    public static final String rawVersion = "1.6.18";
     public static final String releaseType = "Stable";
     public static final String displayVersion = rawVersion + " " + releaseType;
 
