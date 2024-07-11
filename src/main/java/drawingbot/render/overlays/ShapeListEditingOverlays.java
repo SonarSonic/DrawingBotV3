@@ -15,6 +15,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -202,25 +203,26 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
         });
     }
 
+    public final EventHandler<MouseEvent> MOUSE_PRESSED = this::onMousePressed;
+    public final EventHandler<MouseEvent> MOUSE_DRAGGED = this::onMouseDragged;
+    public final EventHandler<MouseEvent> MOUSE_RELEASED = this::onMouseReleased;
+    public final EventHandler<KeyEvent> KEY_PRESSED = this::onKeyPressed;
+    public final EventHandler<KeyEvent> KEY_RELEASED = this::onKeyReleased;
+    public final EventHandler<TransformChangedEvent> TRANSFORM_CHANGE_EVENT = (e) -> globalTransformDirtyMarker.set(!globalTransformDirtyMarker.get());
+
     @Override
     public void activateViewportOverlay(Viewport viewport) {
         super.activateViewportOverlay(viewport);
 
         if(viewport.getSkin() instanceof ViewportSkin skin){
-            skin.foregroundOverlays.addEventFilter(MouseEvent.MOUSE_PRESSED, this::onMousePressed);
+            skin.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, MOUSE_PRESSED);
+            skin.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, MOUSE_DRAGGED);
+            skin.viewportScrollPane.addEventHandler(MouseEvent.MOUSE_RELEASED, MOUSE_RELEASED);
 
-            skin.viewportScrollPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-                if(getEnabled() && e.isPrimaryButtonDown()){
-                    getActiveList().deselectAll();
-                }
-            });
-            skin.foregroundOverlays.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::onMouseDragged);
-            skin.foregroundOverlays.addEventFilter(MouseEvent.MOUSE_RELEASED, this::onMouseReleased);
+            skin.viewportScrollPane.addEventFilter(KeyEvent.KEY_PRESSED, KEY_PRESSED);
+            skin.viewportScrollPane.addEventFilter(KeyEvent.KEY_RELEASED, KEY_RELEASED);
 
-            skin.foregroundOverlays.addEventHandler(KeyEvent.KEY_PRESSED, this::onKeyPressed);
-            skin.foregroundOverlays.addEventHandler(KeyEvent.KEY_RELEASED, this::onKeyReleased);
-
-            viewport.getCanvasToViewportTransform().addEventFilter(TransformChangedEvent.ANY, (e) -> globalTransformDirtyMarker.set(!globalTransformDirtyMarker.get()));
+            viewport.getCanvasToViewportTransform().addEventFilter(TransformChangedEvent.ANY, TRANSFORM_CHANGE_EVENT);
         }
 
         viewport.getForegroundOverlayNodes().add(editOverlaysPane);
@@ -229,6 +231,17 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
     @Override
     public void deactivateViewportOverlay(Viewport viewport) {
         super.deactivateViewportOverlay(viewport);
+
+        if(viewport.getSkin() instanceof ViewportSkin skin){
+            skin.viewportScrollPane.removeEventHandler(MouseEvent.MOUSE_PRESSED, MOUSE_PRESSED);
+            skin.viewportScrollPane.removeEventHandler(MouseEvent.MOUSE_DRAGGED, MOUSE_DRAGGED);
+            skin.viewportScrollPane.removeEventHandler(MouseEvent.MOUSE_RELEASED, MOUSE_RELEASED);
+
+            skin.viewportScrollPane.removeEventFilter(KeyEvent.KEY_PRESSED, KEY_PRESSED);
+            skin.viewportScrollPane.removeEventFilter(KeyEvent.KEY_RELEASED, KEY_RELEASED);
+
+            viewport.getCanvasToViewportTransform().removeEventFilter(TransformChangedEvent.ANY, TRANSFORM_CHANGE_EVENT);
+        }
 
         viewport.getForegroundOverlayNodes().remove(editOverlaysPane);
     }
@@ -1022,7 +1035,11 @@ public class ShapeListEditingOverlays extends ShapeListOverlays {
             return;
         }
 
-        if(getEditMode() == ViewportEditMode.DRAW_BEZIERS){
+        if(getEditMode() != ViewportEditMode.DRAW_BEZIERS){
+            if(event.isPrimaryButtonDown()){
+                getActiveList().deselectAll();
+            }
+        }else{
             if(event.isPrimaryButtonDown()){
                 // Find the point relative to the drawing
                 Point2D mousePoint = transformSceneToDrawing(new Point2D(event.getSceneX(), event.getSceneY()));

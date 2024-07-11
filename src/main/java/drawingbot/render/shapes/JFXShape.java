@@ -274,7 +274,13 @@ public class JFXShape {
     /**
      * Currently only used to prevent the interior being filled which the shape is being drawin
      */
-    public SimpleBooleanProperty drawing = new SimpleBooleanProperty(false);
+    public SimpleBooleanProperty drawing = new SimpleBooleanProperty(false){
+        @Override
+        protected void invalidated() {
+            super.invalidated();
+            updatePseudoClassState();
+        }
+    };
 
     public boolean isDrawing() {
         return drawing.get();
