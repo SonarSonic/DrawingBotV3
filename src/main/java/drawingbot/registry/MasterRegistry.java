@@ -14,7 +14,6 @@ import drawingbot.files.loaders.AbstractFileLoader;
 import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.shapes.JFXGeometryConverter;
-import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.GenericFactory;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.GenericSetting;
@@ -451,7 +450,6 @@ public class MasterRegistry {
 
     //// IMAGE FILTERS \\\\
     public Map<EnumFilterTypes, ObservableList<GenericFactory<BufferedImageOp>>> imgFilterFactories = FXCollections.observableMap(new LinkedHashMap<>());
-    public List<IKernelFactory> imgFilterKernelFactories = new ArrayList<>();
     public HashMap<Class<? extends BufferedImageOp>, List<GenericSetting<?, ?>>> imgFilterSettings = new LinkedHashMap<>();
 
     //public HashMap<Class<? extends BufferedImageOp>, Function<ObservableImageFilter, Dialog<ObservableImageFilter>>> imgFilterDialogs = new LinkedHashMap<>();
@@ -468,11 +466,6 @@ public class MasterRegistry {
         DrawingBotV3.logger.config("Registering Image Filter: " + name);
         imgFilterFactories.putIfAbsent(filterType, FXCollections.observableArrayList());
         imgFilterFactories.get(filterType).add(new GenericFactory(filterClass, name, create, isHidden));
-    }
-
-    public void registerImageFilterKernelFactory(IKernelFactory factory){
-        DrawingBotV3.logger.finest("Registering Image Filter Kernel Factory: for " + factory.getFactoryName());
-        imgFilterKernelFactories.add(factory);
     }
 
     public void registerImageFilterSetting(GenericSetting<? extends BufferedImageOp, ?> setting){
@@ -499,16 +492,6 @@ public class MasterRegistry {
                 if(factory.getRegistryName().equals(name)){
                     return factory;
                 }
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    public IKernelFactory getImageFilterKernel(BufferedImageOp op){
-        for(IKernelFactory factory : imgFilterKernelFactories){
-            if(factory.canProcess(op)){
-                return factory;
             }
         }
         return null;

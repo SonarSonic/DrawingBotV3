@@ -3,7 +3,6 @@ package drawingbot.image;
 import drawingbot.api.ICanvas;
 import drawingbot.api.IProgressCallback;
 import drawingbot.image.format.ImageData;
-import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.plotting.canvas.ObservableCanvas;
 import drawingbot.plotting.canvas.SimpleCanvas;
@@ -124,11 +123,7 @@ public class ImageFilteringService implements ImageFilterSettings.Listener, Obse
 
                     BufferedImageOp imageOp = filter.getBufferedImageOp();
 
-                    IKernelFactory kernelFactory = MasterRegistry.INSTANCE.getImageFilterKernel(imageOp);
-                    if(kernelFactory != null){
-                        BufferedImage dstImage = new BufferedImage(filteredImage.getWidth(), filteredImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                        filteredImage = kernelFactory.doProcess(imageOp, filteredImage, dstImage);
-                    }else if(stateCache.bufferedImage != null && isCachedImageCompatible(filteredImage, stateCache.bufferedImage)){
+                    if(stateCache.bufferedImage != null && isCachedImageCompatible(filteredImage, stateCache.bufferedImage)){
                         filteredImage = imageOp.filter(filteredImage, stateCache.bufferedImage);
                     }else{
                         filteredImage = imageOp.filter(filteredImage, null);

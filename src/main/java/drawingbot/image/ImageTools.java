@@ -6,10 +6,8 @@ import drawingbot.api.IPixelData;
 import drawingbot.api.IProgressCallback;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.image.format.ImageCropping;
-import drawingbot.image.kernels.IKernelFactory;
 import drawingbot.javafx.observables.ObservableImageFilter;
 import drawingbot.plotting.canvas.CanvasUtils;
-import drawingbot.registry.MasterRegistry;
 import drawingbot.utils.EnumCroppingMode;
 import drawingbot.utils.EnumRotation;
 import drawingbot.utils.UnitsLength;
@@ -34,14 +32,7 @@ public class ImageTools {
                 if(forceUpdate || filter.dirty.get()){
                     BufferedImageOp imageOp = filter.filterFactory.instance();
                     filter.filterSettings.forEach(setting -> setting.applySetting(imageOp));
-
-                    IKernelFactory kernelFactory = MasterRegistry.INSTANCE.getImageFilterKernel(imageOp);
-                    if(kernelFactory != null){
-                        BufferedImage dstImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                        image = kernelFactory.doProcess(imageOp, image, dstImage);
-                    }else{
-                        image = imageOp.filter(image, null);
-                    }
+                    image = imageOp.filter(image, null);
                     filter.dirty.set(false);
                     filter.cached.set(image);
                     forceUpdate = true; //one of the filters has changed, so all the ones after this need to be updated to

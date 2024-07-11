@@ -40,7 +40,6 @@ dependencies {
     implementation "org.jcodec:jcodec:${jcodec_version}"
     implementation "org.jcodec:jcodec-javase:${jcodec_version}"
     implementation "org.apache.bcel:bcel:${bcel_version}"
-    implementation "com.aparapi:aparapi:${aparapi_version}"
     implementation "org.controlsfx:controlsfx:${controlsfx_version}"
     implementation "org.sejda.imageio:webp-imageio:${webp_imageio_version}" //google webp support
     implementation "org.fxmisc.easybind:easybind:${easy_bind_version}"
