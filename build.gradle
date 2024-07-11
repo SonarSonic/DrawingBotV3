@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
@@ -45,7 +47,6 @@ dependencies {
     implementation "org.fxmisc.easybind:easybind:${easy_bind_version}"
     implementation "org.apache.commons:commons-lang3:${apache_commons_lang3}"
     implementation "org.apache.commons:commons-compress:${apache_compress}"
-
 }
 
 targetCompatibility = "19"
@@ -126,26 +127,28 @@ task renameLaunchers (type: Copy) { //temporary, due to bug in wix toolset
     dependsOn(jpackage)
     from ("$buildDir/jpackage-installers")
     into ("$buildDir/release")
+    def os = DefaultNativePlatform.currentOperatingSystem.toFamilyName()
+    def arch = DefaultNativePlatform.currentArchitecture.name
     def baseName = "$app_name" + "-" + "$app_version"
 
     //windows
     include "*.exe"
-    rename "(.*).exe", baseName + "-" + app_state + "-win" + ".exe"
+    rename "(.*).exe", "${baseName}-${app_state}-${os}-${arch}.exe"
 
     include "*.msi"
-    rename "(.*).msi", baseName + "-" + app_state + "-win" + ".msi"
+    rename "(.*).msi", "${baseName}-${app_state}-${os}-${arch}.msi"
 
     //mac
     include "*.pkg"
-    rename "(.*).pkg", baseName + "-" + app_state + "-mac" + ".pkg"
+    rename "(.*).pkg", "${baseName}-${app_state}-${os}-${arch}.pkg"
 
     //linux deb
     include "*.deb"
-    rename "(.*).deb", baseName + "-" + app_state + "-linux" + ".deb"
+    rename "(.*).deb", "${baseName}-${app_state}-${os}-${arch}.deb"
 
     //linux rpm
     include "*.rpm"
-    rename "(.*).rpm", baseName + "-" + app_state + "-linux" + ".rpm"
+    rename "(.*).rpm", "${baseName}-${app_state}-${os}-${arch}.rpm"
 }
 
 task moveShadowJar (type: Copy) {
@@ -163,7 +166,11 @@ task prepareRelease{
 
 // Used after signing the .exe in the application image
 task rezipWindowsImage(type: Zip){
-    getArchiveFileName().set("${app_name + "-" + app_version + "-" + app_state + "-win"}.zip")
+    def os = DefaultNativePlatform.currentOperatingSystem.toFamilyName()
+    def arch = DefaultNativePlatform.currentArchitecture.name
+    def baseName = "$app_name" + "-" + "$app_version"
+
+    getArchiveFileName().set("${baseName}-${app_state}-${os}-${arch}.zip")
     getDestinationDirectory().set(file("$buildDir/release"))
 
     from "$buildDir/jpackage/$app_name"
