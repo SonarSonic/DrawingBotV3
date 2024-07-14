@@ -1,3 +1,6 @@
+### [v1.6.19-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.19-stable-free)
+- Fixed: Canvas positioning after pressing reset on macOS
+
 ### [v1.6.18-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.18-stable-free)
 - Added: macOS .pkg files are now available natively for Apple Silicon, download the correct .pkg for your system for the best performance!
 - Fixed: Mask creation when using the 'draw' tool
