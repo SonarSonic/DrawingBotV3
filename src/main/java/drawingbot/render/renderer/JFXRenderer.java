@@ -102,6 +102,7 @@ public class JFXRenderer extends RendererBase {
             //Re-Render the canvas if the Display Mode is dirty
             if(jfxDisplayMode.isRenderDirty(this)){
                 graphicsFX.setGlobalBlendMode(BlendMode.SRC_OVER);
+                graphicsFX.setTransform(1, 0, 0, 1, 0, 0);
                 graphicsFX.save();
                 jfxDisplayMode.preRender(this);
                 jfxDisplayMode.doRender(this);
