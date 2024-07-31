@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.stream.Collectors;
 
 public class ExportTask extends DBTask<Boolean> {
 
@@ -165,7 +166,7 @@ public class ExportTask extends DBTask<Boolean> {
                 doExport(geometryFilter, saveLocation);
                 break;
             case PER_GROUP:
-                Collection<PlottedGroup> groups = plottedDrawing.groups.values();
+                Collection<PlottedGroup> groups = plottedDrawing.groups.values().stream().filter(g->!g.geometries.isEmpty()).collect(Collectors.toSet());
                 int groupPos = 0;
                 for(PlottedGroup group : groups){
                     updateTitle(exportHandler.description + ": " + (groupPos+1) + " / " + groups.size() + " - " + saveLocation.getPath());
