@@ -258,8 +258,8 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     }
 
     @Override
-    public void onStopped() {
-        super.onStopped();
+    public void destroy() {
+        super.destroy();
         if(targetCache != null){
             targetCache.destroy();
         }
