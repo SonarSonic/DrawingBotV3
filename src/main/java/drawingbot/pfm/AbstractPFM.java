@@ -21,7 +21,7 @@ public abstract class AbstractPFM implements IPFM {
     }
 
     @Override
-    public void onStopped() {
-        IPFM.super.onStopped();
+    public void destroy() {
+        IPFM.super.destroy();
     }
 }

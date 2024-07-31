@@ -1,7 +1,6 @@
 package drawingbot.plotting;
 
 import drawingbot.DrawingBotV3;
-import drawingbot.api.ICanvas;
 import drawingbot.api.IPFM;
 import drawingbot.files.json.presets.PresetPFMSettingsManager;
 import drawingbot.files.json.projects.DBTaskContext;
@@ -314,13 +313,15 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
      */
     public void stopElegantly(){
         subTasks.forEach(PFMTask::stopElegantly);
-        DrawingBotV3.logger.info(stage.toString());
         if(stage.ordinal() < EnumTaskStage.DO_PROCESS.ordinal()){
             //If the task hasn't started processing yet we just cancel it and prevent the next stage from occuring
             cancel();
         }else if(stage == EnumTaskStage.DO_PROCESS){
             //If the task is processing, allow it to finish processing and complete the post-processing, finishing stages to create a useable result
             finishEarly = true;
+            if(pfm != null){
+                pfm.stopElegantly();
+            }
         }
     }
 
@@ -348,7 +349,7 @@ public class PFMTask extends DBTask<PlottedDrawing> implements ISpecialListenabl
         subTasks.clear();
 
         if(pfm != null){
-            pfm.onStopped();
+            pfm.destroy();
             pfm = null;
         }
 
