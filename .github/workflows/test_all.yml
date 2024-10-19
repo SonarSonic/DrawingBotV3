@@ -71,7 +71,7 @@ jobs:
         
         steps:
         - name: Download Windows Tests
-          uses: actions/download-artifact@v2
+          uses: actions/download-artifact@v4.1.7
           with:
             name: reg-windows-latest
             path: tests/images
