@@ -3,6 +3,7 @@ package drawingbot.render.viewport;
 import drawingbot.javafx.FXController;
 import drawingbot.javafx.util.JFXUtils;
 import javafx.beans.binding.Bindings;
+import javafx.event.Event;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SkinBase;
@@ -61,6 +62,11 @@ public class ViewportSkin extends SkinBase<Viewport> {
         backgroundOverlays.getStylesheets().add(FXController.class.getResource(STYLESHEET_VIEWPORT_OVERLAYS).toExternalForm());
         EasyBind.listBind(backgroundOverlays.getChildren(), getSkinnable().getBackgroundOverlayNodes());
 
+        backgroundOverlays.setOnScroll(e -> {
+            //HACK: Solid overlays will block passing the zoom event, so we send the event down if we didn't use it
+            Event.fireEvent(viewportScrollPane.getContent(), e.copyFor(e.getSource(), viewportScrollPane.getContent()));
+            e.consume();
+        });
 
         Rectangle foregroundClip = new Rectangle(1, 1,0,0); //x/y of 1 to keep the ScrollPanes border
         foregroundClip.widthProperty().bind(getSkinnable().viewportWidthProperty()); //14 = subtract the scrollbars
@@ -75,6 +81,11 @@ public class ViewportSkin extends SkinBase<Viewport> {
         foregroundOverlays.getStylesheets().add(FXController.class.getResource(STYLESHEET_VIEWPORT_OVERLAYS).toExternalForm());
         EasyBind.listBind(foregroundOverlays.getChildren(), getSkinnable().getForegroundOverlayNodes());
 
+        foregroundOverlays.setOnScroll(e -> {
+            //HACK: Solid overlays will block passing the zoom event, so we send the event down if we didn't use it
+            Event.fireEvent(backgroundOverlays, e.copyFor(e.getSource(), backgroundOverlays));
+            e.consume();
+        });
 
         //Wrap the viewport & overlay
         viewport = new VBox();
