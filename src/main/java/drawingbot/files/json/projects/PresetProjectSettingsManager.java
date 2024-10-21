@@ -203,7 +203,28 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
                     AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
-                            FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
+                            File initialDirectory = null;
+
+                            // 1) Use the image files original directory
+                            File parent = new File(preset.data.imagePath).getParentFile();
+                            if(parent.exists()){
+                                initialDirectory = parent;
+                            }
+
+                            // 2) Use the projects location as the initial directory
+                            if(initialDirectory == null && context.project().file.get() != null){
+                                File projectParentDirectory = context.project().file.get().getParentFile();
+                                if(projectParentDirectory.exists()){
+                                    initialDirectory = projectParentDirectory;
+                                }
+                            }
+
+                            // 3) Use the last import directory
+                            if(initialDirectory == null){
+                                initialDirectory = context.project().getImportDirectory();
+                            }
+
+                            FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), initialDirectory, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             ImageData imageData = loadingTask.getValue();
