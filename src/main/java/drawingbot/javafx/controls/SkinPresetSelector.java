@@ -1,12 +1,10 @@
 package drawingbot.javafx.controls;
 
 import drawingbot.javafx.GenericPreset;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.SkinBase;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.util.Callback;
 
 public class SkinPresetSelector<TARGET, DATA> extends SkinBase<ControlPresetSelector<TARGET, DATA>> {
 
@@ -77,6 +75,11 @@ public class SkinPresetSelector<TARGET, DATA> extends SkinBase<ControlPresetSele
             ListCell<GenericPreset<DATA>> cell = comboBox.getButtonCell();
             comboBox.setButtonCell(null);
             comboBox.setButtonCell(cell);
+
+            //Refresh the list view cells
+            Callback<ListView<GenericPreset<DATA>>, ListCell<GenericPreset<DATA>>> cellFactory =  comboBox.getCellFactory();
+            comboBox.setCellFactory(null);
+            comboBox.setCellFactory(cellFactory);
         }
     }
 
