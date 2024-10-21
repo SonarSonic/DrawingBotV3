@@ -199,8 +199,8 @@ public class ShapeListOverlays extends ViewportOverlayBase {
         if(getViewport() == null){
             return;
         }
-        shape.jfxShape.getTransforms().add(getViewport().getCanvasToViewportTransform());
-        shape.jfxShape.getTransforms().add(getMaskToCanvasTransform());
+        shape.jfxShape.getTransforms().add(0, getViewport().getCanvasToViewportTransform());
+        shape.jfxShape.getTransforms().add(1, getMaskToCanvasTransform());
         shape.jfxShape.strokeWidthProperty().bind(strokeWidthProperty());
         shape.jfxShape.setOnMousePressed(e -> onSelectableClicked(shape, e));
         getViewport().getBackgroundOverlayNodes().add(shape.jfxShape);
