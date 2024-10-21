@@ -2,6 +2,7 @@ package drawingbot.javafx.controls;
 
 import drawingbot.DrawingBotV3;
 import drawingbot.files.RecentProjectHandler;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.javafx.FXHelper;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Menu;
@@ -10,6 +11,7 @@ import javafx.scene.text.TextFlow;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class MenuOpenRecent extends Menu {
@@ -55,7 +57,7 @@ public class MenuOpenRecent extends Menu {
             FXHelper.addText(textFlow, 12, "normal", file.getName());
             FXHelper.addText(textFlow,  "-fx-font-size: 10px; -fx-font-style: italic;", "\n" + file.getParentFile().getPath());
             setGraphic(textFlow);
-            this.setOnAction(e -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false));
+            this.setOnAction(e -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.of(FileLoaderFlags.PROJECT_LOADING)));
 
         }
     }

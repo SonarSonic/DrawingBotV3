@@ -6,6 +6,7 @@ import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * Some file loaders may return null FilteredImageData, e.g. Project Loaders
@@ -13,14 +14,12 @@ import java.io.File;
 public abstract class AbstractFileLoader extends DBTask<ImageData> {
 
     public File file;
-    public boolean internal;
-    public boolean isSubTask;
+    public Set<FileLoaderFlags> flags;
 
-    public AbstractFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask){
+    public AbstractFileLoader(DBTaskContext context, File file, Set<FileLoaderFlags> flags){
         super(context);
         this.file = file;
-        this.internal = internal;
-        this.isSubTask = isSubTask;
+        this.flags = flags;
     }
 
     public abstract boolean hasImageData();
@@ -31,7 +30,7 @@ public abstract class AbstractFileLoader extends DBTask<ImageData> {
      * Called after the image data has been loaded into DrawingBotV3, allowing the loader to run additional steps
      */
     public void onFileLoaded(){
-        if(!isSubTask){
+        if(!flags.contains(FileLoaderFlags.SUB_TASK)){
             NotificationOverlays.INSTANCE.showWithSubtitle("Loaded " + getFileTypeDisplayName(), file.toString());
         }
     }

@@ -9,6 +9,7 @@ import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.json.projects.PresetProjectSettings;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.javafx.controls.*;
 import drawingbot.javafx.observables.ObservableImageFilter;
@@ -47,6 +48,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -65,15 +67,15 @@ public class FXHelper {
     public static final ButtonType buttonResetToDefault = new ButtonType("Reset to default", ButtonBar.ButtonData.OTHER);
 
     public static void importFile(DBTaskContext context){
-        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.noneOf(FileLoaderFlags.class)), FileUtils.IMPORT_IMAGES, FileUtils.IMPORT_VIDEOS, FileUtils.FILTER_SVG);
     }
 
     public static void importImageFile(DBTaskContext context){
-        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_IMAGES);
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.noneOf(FileLoaderFlags.class)), FileUtils.IMPORT_IMAGES);
     }
 
     public static void importVideoFile(DBTaskContext context){
-        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.IMPORT_VIDEOS);
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.noneOf(FileLoaderFlags.class)), FileUtils.IMPORT_VIDEOS);
     }
 
     public static void importSVGFile(DBTaskContext context){
@@ -81,12 +83,12 @@ public class FXHelper {
             FXController.showPremiumFeatureDialog();
             return;
         }
-        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, false), FileUtils.FILTER_SVG);
+        importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.noneOf(FileLoaderFlags.class)), FileUtils.FILTER_SVG);
     }
 
     public static void importProject(DBTaskContext context){
         importFile(context, (file, chooser) -> {
-            DrawingBotV3.INSTANCE.openFile(context, file, false, false);
+            DrawingBotV3.INSTANCE.openFile(context, file, EnumSet.noneOf(FileLoaderFlags.class));
         }, new FileChooser.ExtensionFilter[]{FileUtils.FILTER_PROJECT}, "Open DBV3 Project");
     }
 

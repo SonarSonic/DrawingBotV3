@@ -7,11 +7,12 @@ import drawingbot.image.format.ImageData;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Set;
 
 public class ImageFileLoader extends AbstractFileLoader {
 
-    public ImageFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
-        super(context, file, internal, isSubTask);
+    public ImageFileLoader(DBTaskContext context, File file, Set<FileLoaderFlags> flags) {
+        super(context, file, flags);
     }
 
     @Override
@@ -26,7 +27,7 @@ public class ImageFileLoader extends AbstractFileLoader {
         updateTitle("Importing Image: " + file.toString());
 
         updateMessage("Loading");
-        BufferedImage source = BufferedImageLoader.loadImage(file.toString(), internal);
+        BufferedImage source = BufferedImageLoader.loadImage(file.toString(), flags.contains(FileLoaderFlags.INTERNAL_FILE));
 
 
         updateMessage("Finished");

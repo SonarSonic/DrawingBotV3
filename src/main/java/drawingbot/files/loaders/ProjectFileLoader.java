@@ -14,11 +14,12 @@ import drawingbot.render.overlays.NotificationOverlays;
 import javafx.application.Platform;
 
 import java.io.File;
+import java.util.Set;
 
 public class ProjectFileLoader extends AbstractFileLoader{
     
-    public ProjectFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
-        super(context, file, internal, isSubTask);
+    public ProjectFileLoader(DBTaskContext context, File file, Set<FileLoaderFlags> flags) {
+        super(context, file, flags);
     }
 
     @Override

@@ -5,6 +5,7 @@ import drawingbot.DrawingBotV3;
 import drawingbot.api.Hooks;
 import drawingbot.files.FileUtils;
 import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.GenericPreset;
 import drawingbot.javafx.observables.ObservableDrawingSet;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.UUID;
 
 /**
@@ -150,10 +152,10 @@ class PresetProjectSettingsManagerLegacy {
             project.openImage.set(null);
             project.context.taskManager.setCurrentDrawing(null);
             if(!presetData.imagePath.isEmpty()) {
-                AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), false, true);
+                AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), EnumSet.of(FileLoaderFlags.PROJECT_LOADING, FileLoaderFlags.SUB_TASK));
                 loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.FAILED) {
-                        FXHelper.importFile(project.context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
+                        FXHelper.importFile(project.context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.of(FileLoaderFlags.PROJECT_LOADING, FileLoaderFlags.SUB_TASK)), new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                     }
                 });
                 DrawingBotV3.INSTANCE.taskMonitor.queueTask(loadingTask);
@@ -166,11 +168,11 @@ class PresetProjectSettingsManagerLegacy {
                 project.openImage.set(null);
                 project.context.taskManager.setCurrentDrawing(null);
                 Platform.runLater(() -> {
-                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), false, true);
+                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(DrawingBotV3.context(), new File(presetData.imagePath), EnumSet.of(FileLoaderFlags.PROJECT_LOADING, FileLoaderFlags.SUB_TASK));
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
                             FXHelper.importFile(project.context, (file, chooser) -> {
-                                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, false, true);
+                                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), file, EnumSet.of(FileLoaderFlags.PROJECT_LOADING, FileLoaderFlags.SUB_TASK));
                                 DrawingBotV3.INSTANCE.taskService.submit(() -> Hooks.runHook(Hooks.DESERIALIZE_DRAWING_STATE, project.context, presetData.drawingState));
                             }, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_IMAGES}, "Locate the input image");
                         }

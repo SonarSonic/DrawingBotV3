@@ -11,6 +11,7 @@ import drawingbot.files.json.*;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.PresetProjectSettings;
 import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.files.loaders.IFileLoaderFactory;
 import drawingbot.geom.shapes.IGeometry;
 import drawingbot.geom.shapes.JFXGeometryConverter;
@@ -557,14 +558,14 @@ public class MasterRegistry {
         return exportHandler;
     }
 
-    public AbstractFileLoader getFileLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask){
+    public AbstractFileLoader getFileLoader(DBTaskContext context, File file, Set<FileLoaderFlags> flags){
         for(IFileLoaderFactory factory : fileLoaderFactories){
-            AbstractFileLoader loader = factory.createLoader(context, file, internal, isSubTask);
+            AbstractFileLoader loader = factory.createLoader(context, file, flags);
             if(loader != null){
                 return loader;
             }
         }
-        return fallbackFileLoaderFactory.createLoader(context, file, internal, isSubTask);
+        return fallbackFileLoaderFactory.createLoader(context, file, flags);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////

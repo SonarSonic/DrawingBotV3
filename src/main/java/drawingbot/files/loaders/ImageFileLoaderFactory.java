@@ -2,6 +2,7 @@ package drawingbot.files.loaders;
 import drawingbot.files.json.projects.DBTaskContext;
 
 import java.io.File;
+import java.util.Set;
 
 public class ImageFileLoaderFactory implements IFileLoaderFactory{
 
@@ -11,8 +12,8 @@ public class ImageFileLoaderFactory implements IFileLoaderFactory{
     }
 
     @Override
-    public AbstractFileLoader createLoader(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
-        return new ImageFileLoader(context, file, internal, isSubTask);
+    public AbstractFileLoader createLoader(DBTaskContext context, File file, Set<FileLoaderFlags> flags) {
+        return new ImageFileLoader(context, file, flags);
     }
 
 }

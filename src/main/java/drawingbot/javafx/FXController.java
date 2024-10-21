@@ -9,6 +9,7 @@ import drawingbot.files.FileUtils;
 import drawingbot.files.UpdateChecker;
 import drawingbot.files.json.JsonData;
 import drawingbot.files.json.projects.ObservableProject;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.image.blend.EnumBlendMode;
 import drawingbot.javafx.controllers.*;
 import drawingbot.javafx.controls.ContextMenuObservableProject;
@@ -740,7 +741,7 @@ public class FXController extends AbstractFXController {
             boolean success = false;
             if(db.hasFiles()){
                 List<File> files = db.getFiles();
-                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), false, false);
+                DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), files.get(0), EnumSet.noneOf(FileLoaderFlags.class));
                 success = true;
             }
 

@@ -5,6 +5,8 @@
 package drawingbot;
 
 import java.io.File;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -16,6 +18,7 @@ import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.files.json.projects.ObservableProject;
 import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.format.ImageData;
 import drawingbot.javafx.FXController;
@@ -292,26 +295,44 @@ public class DrawingBotV3 {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private Set<FileLoaderFlags> createFileLoaderFlags(boolean internal, boolean isSubTask){
+        EnumSet<FileLoaderFlags> flags = EnumSet.noneOf(FileLoaderFlags.class);
+        if(internal){
+            flags.add(FileLoaderFlags.INTERNAL_FILE);
+        }
+        if(isSubTask){
+            flags.add(FileLoaderFlags.INTERNAL_FILE);
+        }
+        return flags;
+    }
 
     public void openFile(DBTaskContext context, File file, boolean internal, boolean isSubTask) {
-        AbstractFileLoader loadingTask = getImageLoaderTask(context, file, internal, isSubTask);
+        openFile(context, file, createFileLoaderFlags(internal, isSubTask));
+    }
+
+    public void openFile(DBTaskContext context, File file, Set<FileLoaderFlags> flags) {
+        AbstractFileLoader loadingTask = getImageLoaderTask(context, file, flags);
         if(loadingTask != null){
             taskMonitor.queueTask(loadingTask);
         }
     }
 
     public AbstractFileLoader getImageLoaderTask(DBTaskContext context, File file, boolean internal, boolean isSubTask){
-        AbstractFileLoader loadingTask = MasterRegistry.INSTANCE.getFileLoader(context, file, internal, isSubTask);
+        return getImageLoaderTask(context, file, createFileLoaderFlags(internal, isSubTask));
+    }
+
+    public AbstractFileLoader getImageLoaderTask(DBTaskContext context, File file, Set<FileLoaderFlags> flags){
+        AbstractFileLoader loadingTask = MasterRegistry.INSTANCE.getFileLoader(context, file, flags);
 
         //if the file loader could provide an image, wipe the current one
-        if(!isSubTask && loadingTask.hasImageData() && context.project.activeTask.get() != null){
+        if(!flags.contains(FileLoaderFlags.SUB_TASK) && loadingTask.hasImageData() && context.project.activeTask.get() != null){
             context.project.activeTask.get().cancel();
             context.taskManager().setActiveTask(null);
             context.project.openImage.set(null);
         }
 
         loadingTask.setOnSucceeded(e -> {
-            if(!isSubTask && e.getSource().getValue() != null){
+            if(!flags.contains(FileLoaderFlags.SUB_TASK) && e.getSource().getValue() != null){
                 context.project.openImage.set((ImageData) e.getSource().getValue());
                 Platform.runLater(() -> context.project().setDisplayMode(Register.INSTANCE.DISPLAY_MODE_IMAGE));
             }

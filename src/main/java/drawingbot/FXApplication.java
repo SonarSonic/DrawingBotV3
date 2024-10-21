@@ -7,6 +7,7 @@ import drawingbot.files.LoggingHandler;
 import drawingbot.files.RecentProjectHandler;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.projects.ObservableProject;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.preferences.DBPreferences;
 import drawingbot.javafx.util.MouseMonitor;
@@ -39,6 +40,7 @@ import javafx.stage.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -274,7 +276,7 @@ public class FXApplication extends Application {
                 DrawingBotV3.logger.info("Attempting to load file at startup");
                 try {
                     File startupFile =  new File(launchArgs[0]);
-                    DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), startupFile, false, false);
+                    DrawingBotV3.INSTANCE.openFile(DrawingBotV3.context(), startupFile, EnumSet.noneOf(FileLoaderFlags.class));
                 } catch (Exception e) {
                     DrawingBotV3.logger.log(Level.SEVERE, "Failed to load file at startup", e);
                 }

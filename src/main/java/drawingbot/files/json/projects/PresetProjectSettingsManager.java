@@ -13,6 +13,7 @@ import drawingbot.files.json.JsonData;
 import drawingbot.files.json.JsonLoaderManager;
 import drawingbot.files.json.PresetDataLoader;
 import drawingbot.files.loaders.AbstractFileLoader;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.image.format.ImageData;
 import drawingbot.image.format.ImageCropping;
 import drawingbot.javafx.FXHelper;
@@ -32,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -200,7 +202,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
             @Override
             public void loadData(DBTaskContext context, ImageCropping data, GenericPreset<PresetProjectSettings> preset) {
                 if(!preset.data.imagePath.isEmpty()) {
-                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), false, false);
+                    AbstractFileLoader loadingTask = DrawingBotV3.INSTANCE.getImageLoaderTask(context, new File(preset.data.imagePath), EnumSet.of(FileLoaderFlags.PROJECT_LOADING));
                     loadingTask.stateProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue == Worker.State.FAILED) {
                             File initialDirectory = null;
@@ -224,7 +226,7 @@ public class PresetProjectSettingsManager extends AbstractPresetManager<Observab
                                 initialDirectory = context.project().getImportDirectory();
                             }
 
-                            FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, false, false), initialDirectory, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
+                            FXHelper.importFile(context, (file, chooser) -> DrawingBotV3.INSTANCE.openFile(context, file, EnumSet.of(FileLoaderFlags.PROJECT_LOADING)), initialDirectory, new FileChooser.ExtensionFilter[]{FileUtils.IMPORT_ALL}, "Locate the input image");
                         }
                         if(newValue == Worker.State.SUCCEEDED){
                             ImageData imageData = loadingTask.getValue();

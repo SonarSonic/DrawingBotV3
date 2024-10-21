@@ -10,6 +10,7 @@ import drawingbot.files.ExportedDrawingEntry;
 import drawingbot.files.FileUtils;
 import drawingbot.files.VersionControl;
 import drawingbot.files.json.PresetData;
+import drawingbot.files.loaders.FileLoaderFlags;
 import drawingbot.geom.MaskingSettings;
 import drawingbot.image.ImageFilterSettings;
 import drawingbot.image.blend.EnumBlendMode;
@@ -50,6 +51,7 @@ import javafx.scene.control.Tab;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -303,7 +305,7 @@ public class ObservableProject implements ITaskManager, DrawingSets.Listener, Ob
         exportRange.set(project.exportRange.get());
 
         if(openImage.get() != null){
-            DrawingBotV3.INSTANCE.openFile(context, openImage.get().getSourceFile(), false, true);
+            DrawingBotV3.INSTANCE.openFile(context, openImage.get().getSourceFile(), EnumSet.of(FileLoaderFlags.SUB_TASK, FileLoaderFlags.PROJECT_LOADING));
         }
         if(currentDrawing.get() != null) {
             currentDrawing.set(project.currentDrawing.get().copy());
