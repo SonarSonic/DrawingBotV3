@@ -89,7 +89,7 @@ runtime {
         def imgType = currentOs.windows ? 'ico' : currentOs.macOsX ? 'icns' : 'png'
         imageOptions += ['--icon', "src/main/resources/images/icon.$imgType"]
         appVersion = "$app_version"
-        installerOptions += ['--resource-dir', "src/main/resources"]
+        installerOptions += ['--resource-dir', "src/main/resources/jpackage"]
         installerOptions += ['--vendor', 'Oliver Edward Lansdell']
         installerOutputDir = file("$buildDir/jpackage-installers")
         if(currentOs.windows) {
