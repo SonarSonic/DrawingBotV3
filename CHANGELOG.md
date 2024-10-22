@@ -1,3 +1,17 @@
+### [v1.6.20-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.20-stable-free)
+- Added: 'Directional Dashes' preset to Streamlines Edge Field
+- Added: 'Sketchy Freehand', 'ECS Curves', 'Digital Layers', 'Messy Curves' presets to Layers PFM
+- Fixed: Export per/pen in Batch Processing not producing an output
+- Fixed: Mosaic PFMs & Layers PFM not responding to stop requests
+- Fixed: Gigantic project files with versions data prior to v1.6.17 will now have unnecessary data removed when re-opened + re-saved
+- Fixed: Selecting different PFMs in Mosaic PFMs will now respond to changes and keep the correct PFMs name
+- Fixed: Reloading SVG projects would overwrite previously saved settings
+- Fixed: Rescaling SVG masks would result in inconsistent scaling once the mask was moved
+- Fixed: Zoom behaviour while hovering the mouse over a mask.
+- Fixed: Pen selection check boxes not updating after the drawing set is changed
+- Improved: Initial directory location when re-locating missing source images, use either the images original location, the projects location or last import directory
+- Improved: Added 'Reloading Drawing: Complete' message when reloading projects, to indicate the process is complete
+
 ### [v1.6.19-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.19-stable-free)
 - Fixed: Canvas positioning after pressing reset on macOS
 
