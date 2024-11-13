@@ -301,7 +301,7 @@ public class DrawingBotV3 {
             flags.add(FileLoaderFlags.INTERNAL_FILE);
         }
         if(isSubTask){
-            flags.add(FileLoaderFlags.INTERNAL_FILE);
+            flags.add(FileLoaderFlags.SUB_TASK);
         }
         return flags;
     }
