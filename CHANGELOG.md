@@ -1,3 +1,8 @@
+### [v1.6.21-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.21-stable-free)
+- Added: Windows Code Signing, removes Unknown Publisher warnings
+- Fixed: Batch Processing not starting, 'sourceImage' is null
+- Fixed: SVG Converter not filling some shapes, where negative scaling is applied
+
 ### [v1.6.20-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.20-stable-free)
 - Added: 'Directional Dashes' preset to Streamlines Edge Field
 - Added: 'Sketchy Freehand', 'ECS Curves', 'Digital Layers', 'Messy Curves' presets to Layers PFM
