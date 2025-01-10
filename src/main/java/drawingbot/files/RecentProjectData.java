@@ -8,7 +8,7 @@ import java.util.ArrayList;
 @JsonData
 public class RecentProjectData {
 
-    public ArrayList<File> recentFiles;
+    public ArrayList<File> recentFiles = new ArrayList<>();
 
     public RecentProjectData() {
         //for GSON
