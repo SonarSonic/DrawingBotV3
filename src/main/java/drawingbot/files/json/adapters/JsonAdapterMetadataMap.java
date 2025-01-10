@@ -34,7 +34,7 @@ public class JsonAdapterMetadataMap implements JsonSerializer<MetadataMap>, Json
             if(metadataType == null) {
                 continue;
             }
-            Object value = context.deserialize(metadata.get("key"), metadataType.type);
+            Object value = context.deserialize(metadata.get(key), metadataType.type);
             if(value == null){
                 continue;
             }
