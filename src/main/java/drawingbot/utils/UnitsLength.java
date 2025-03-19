@@ -4,6 +4,7 @@ public enum UnitsLength {
 
     MILLIMETRES("mm", "mm", 1D),
     CENTIMETRES("cm", "cm", 10D),
+    METRES("m", "m", 1000D),
     INCHES("inches", "in", 25.4D),
     PIXELS("pixels", "px", 1D);
 

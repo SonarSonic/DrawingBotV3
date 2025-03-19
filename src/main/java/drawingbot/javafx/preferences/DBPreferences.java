@@ -120,6 +120,10 @@ public class DBPreferences implements ISettings {
 
     public final BooleanSetting<?> allowMultiplePathMoves = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "allowMultiplePathMoves", false));
 
+    public final BooleanSetting<?> pathSplittingEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "pathSplittingEnabled", false));
+    public final DoubleSetting<?> pathSplittingDistance = (DoubleSetting<?>) register(createDoubleSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "pathSplittingDistance", 500).setDisplaySlider(false));
+    public final OptionSetting<?, UnitsLength> pathSplittingUnits = register(createOptionSetting(DBPreferences.class, UnitsLength.class, CATEGORY_OPTIMISATION, "pathSplittingUnits", FXCollections.observableArrayList(UnitsLength.values()), UnitsLength.METRES));
+
 
     ///////////////////////////////////////////////
 

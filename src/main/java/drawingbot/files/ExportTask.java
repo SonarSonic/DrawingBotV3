@@ -7,6 +7,7 @@ import drawingbot.drawing.DrawingStats;
 import drawingbot.files.json.projects.DBTaskContext;
 import drawingbot.geom.GeometryUtils;
 import drawingbot.geom.operation.GeometryOperationAddExportPaths;
+import drawingbot.geom.operation.PlottedDrawingSplitter;
 import drawingbot.javafx.FXHelper;
 import drawingbot.javafx.controls.DialogExportNPens;
 import drawingbot.javafx.observables.ObservableDrawingPen;
@@ -19,6 +20,7 @@ import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.Register;
 import drawingbot.render.overlays.NotificationOverlays;
 import drawingbot.utils.DBTask;
+import drawingbot.utils.UnitsLength;
 import javafx.application.Platform;
 import javafx.scene.control.Dialog;
 import org.controlsfx.control.action.Action;
@@ -89,8 +91,8 @@ public class ExportTask extends DBTask<Boolean> {
         return inExport ? exportPenStats.get(drawingPen) : originalPenStats.get(drawingPen);
     }
 
-    public void createExportPlottedDrawing(IGeometryFilter geometryFilter){
-        exportDrawing = GeometryUtils.getOptimisedPlottedDrawing(this, geometryFilter, forceBypassOptimisation);
+    public void setupDrawingExport(PlottedDrawing nextDrawing){
+        exportDrawing = nextDrawing;
         exportPenStats = exportDrawing.getPerPenGeometryStats();
         exportRenderOrder = filterActivePens(exportDrawing.getGlobalRenderOrder(), true);
         exportIterator = new DrawingGeometryIterator(exportDrawing, exportRenderOrder);
@@ -106,12 +108,43 @@ public class ExportTask extends DBTask<Boolean> {
         if(overwrite || Files.notExists(saveLocation.toPath())){
 
             updateMessage("Optimising Paths");
-            createExportPlottedDrawing(geometryFilter);
+            PlottedDrawing optimisedDrawing = GeometryUtils.getOptimisedPlottedDrawing(this, geometryFilter, forceBypassOptimisation);
+
+            List<PlottedDrawing> outputDrawings = List.of(optimisedDrawing);
+            boolean splitDrawing = false;
+
+            if(exportHandler.isVector && !forceBypassOptimisation && DBPreferences.INSTANCE.pathOptimisationEnabled.get() && DBPreferences.INSTANCE.pathSplittingEnabled.get()){
+                updateMessage("Splitting Paths");
+                double splitDistance = DBPreferences.INSTANCE.pathSplittingDistance.get();
+                UnitsLength splitUnits = DBPreferences.INSTANCE.pathSplittingUnits.get();
+
+                double splitDistanceUnits = UnitsLength.convert(splitDistance, splitUnits, UnitsLength.MILLIMETRES) * optimisedDrawing.canvas.getPlottingScale();
+
+                PlottedDrawingSplitter splitter = new PlottedDrawingSplitter(splitDistanceUnits, optimisedDrawing);
+                outputDrawings = splitter.getOutputDrawings();
+                splitDrawing = true;
+            }
 
             updateMessage("Exporting Paths");
             renderedGeometries = 0;
-            exportHandler.exportMethod.export(this, saveLocation);
-            onDrawingExported(exportDrawing, geometryFilter, saveLocation);
+            int splitIndex = 0;
+            for(PlottedDrawing outputDrawing : outputDrawings){
+
+                if(isCancelled()){
+                    break;
+                }
+
+                File outputLocation = saveLocation;
+                if(splitDrawing){
+                    File file = FileUtils.removeExtension(outputLocation);
+                    outputLocation = new File(file.getPath() + "_split" + splitIndex + extension);
+                }
+
+                setupDrawingExport(outputDrawing);
+                exportHandler.exportMethod.export(this, outputLocation);
+                onDrawingExported(exportDrawing, geometryFilter, outputLocation);
+                splitIndex++;
+            }
         }
     }
 

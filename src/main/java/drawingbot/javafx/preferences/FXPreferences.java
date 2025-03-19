@@ -229,8 +229,14 @@ public class FXPreferences extends AbstractFXController {
                         new SettingNode<>("Enabled", settings.multipassEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
                         new SettingNode<>("Passes", settings.multipassCount).setDisabledProperty(settings.multipassEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
 
-                        new SettingNode<>("Allow multiple moves in exported paths", settings.allowMultiplePathMoves).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                        new LabelNode("Reduces the amount of path elements in SVG/Vector exports").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling()
+                        new LabelNode("Split drawings by travel").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Exports multiple files split by pen-down distance, use export per/pen for best results").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode<>("Enabled", settings.pathSplittingEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new SettingUnitsNode<>("Split Distance", settings.pathSplittingDistance, settings.pathSplittingUnits).setDisabledProperty(settings.pathSplittingEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())) ,
+
+                        new LabelNode("Allow multiple moves in exported paths").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
+                        new LabelNode("Reduces the amount of path elements in SVG/Vector exports").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
+                        new SettingNode<>("Enabled", settings.allowMultiplePathMoves).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not())
                 ),
                 pageSVG = EditorSheet.page("SVG",
                         new LabelNode("General").setTitleStyling(),
