@@ -1,3 +1,10 @@
+### [v1.6.22-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.22-stable-free)
+- Added: 'Split drawings by travel' for exporting multiple files split by pen-down distance, can be configured in File / Preferences / Export Settings / Path Optimisation
+- Added: 'Allow multiple moves in exported paths' option to allow multiple path moves in exported vector paths, allows for better compatibility with other software e.g. Cricut Design Space, can be configured in File / Preferences / Export Settings / Path Optimisation
+- Improved: SVG Loading / SVG Converter to allow loading of invalid / malformed SVG files, the majority of SVGs will now load successfully
+- Improved: Tweaked default pen settings column sizing to show full hex values
+- Fixed: The application not starting when the recent projects file is corrupted/empty
+
 ### [v1.6.21-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.21-stable-free)
 - Added: Windows Code Signing, removes Unknown Publisher warnings
 - Fixed: Batch Processing not starting, 'sourceImage' is null
