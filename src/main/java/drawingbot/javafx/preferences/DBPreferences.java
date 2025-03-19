@@ -118,6 +118,9 @@ public class DBPreferences implements ISettings {
     public final BooleanSetting<?> multipassEnabled = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "multipassEnabled", false));
     public final IntegerSetting<?> multipassCount = (IntegerSetting<?>) register(createRangedIntSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "multipassCount", 1, 1, 100)).setDisplaySlider(false);
 
+    public final BooleanSetting<?> allowMultiplePathMoves = register(createBooleanSetting(DBPreferences.class, CATEGORY_OPTIMISATION, "allowMultiplePathMoves", false));
+
+
     ///////////////////////////////////////////////
 
     //// USER INTERFACE \\\\

@@ -80,6 +80,9 @@ public class GeometryUtils {
                 geometryOperations.add(new GeometryOperationSortGeometries());
             }
         }
+        if(DBPreferences.INSTANCE.allowMultiplePathMoves.get()) {
+            geometryOperations.add(new GeometryOperationSimplify(filter, true, true));
+        }
         return geometryOperations;
     }
 

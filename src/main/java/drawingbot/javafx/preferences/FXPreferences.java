@@ -227,8 +227,10 @@ public class FXPreferences extends AbstractFXController {
                         new LabelNode("Line Multipass").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setTitleStyling(),
                         new LabelNode("Draws over each geometry multiple times").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling(),
                         new SettingNode<>("Enabled", settings.multipassEnabled).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
-                        new SettingNode<>("Passes", settings.multipassCount).setDisabledProperty(settings.multipassEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not()))
+                        new SettingNode<>("Passes", settings.multipassCount).setDisabledProperty(settings.multipassEnabled.asBooleanProperty().not().or(settings.pathOptimisationEnabled.asBooleanProperty().not())),
 
+                        new SettingNode<>("Allow multiple moves in exported paths", settings.allowMultiplePathMoves).setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()),
+                        new LabelNode("Reduces the amount of path elements in SVG/Vector exports").setDisabledProperty(settings.pathOptimisationEnabled.asBooleanProperty().not()).setSubtitleStyling()
                 ),
                 pageSVG = EditorSheet.page("SVG",
                         new LabelNode("General").setTitleStyling(),
