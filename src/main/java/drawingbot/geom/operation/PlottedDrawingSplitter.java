@@ -82,8 +82,8 @@ public class PlottedDrawingSplitter {
                             segmentLength = Utils.distance(lastX, lastY, nextX, nextY);
                         }
                         case PathIterator.SEG_CUBICTO -> {
-                            nextX = coords[3];
-                            nextY = coords[4];
+                            nextX = coords[4];
+                            nextY = coords[5];
                             segmentLength = Utils.distance(lastX, lastY, nextX, nextY);
                         }
                         case PathIterator.SEG_CLOSE -> {
