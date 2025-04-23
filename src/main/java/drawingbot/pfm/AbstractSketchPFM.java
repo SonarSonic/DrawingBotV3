@@ -69,7 +69,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             radiusMax = value;
         }
 
-        if(eraseMin < eraseMin){
+        if(eraseMax < eraseMin){
             float value = eraseMin;
             eraseMin = eraseMax;
             eraseMax = value;
