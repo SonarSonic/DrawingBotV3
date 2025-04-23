@@ -72,6 +72,9 @@ public class FXApplication extends Application {
             // Disable LCD Font Smoothing on MacOS, before JavaFX is initialised
             System.setProperty("prism.lcdtext", "false");
             System.setProperty("prism.text", "t2k");
+
+            // Fix issues with the application not minimising on macOS
+            System.getProperties().setProperty("java.awt.headless", "true");
         }
 
         // Setup console / file logging
