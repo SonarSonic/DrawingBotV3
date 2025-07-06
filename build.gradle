@@ -30,7 +30,6 @@ dependencies {
     testImplementation "junit:junit:${junit_version}"
 
     //shadowed dependencies
-    implementation "org.jfree:org.jfree.fxgraphics2d:${fxgraphics_version}"
     implementation "com.itextpdf:itextpdf:${itext_version}"
     implementation "org.imgscalr:imgscalr-lib:${imgscalr_version}"
     implementation "com.google.code.gson:gson:${gson_version}"
