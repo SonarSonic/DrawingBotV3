@@ -37,6 +37,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     public double lineProgress = 0;
     public double lumProgress = 0;
     public double actualProgress = 0;
+    public int squiggleCount = 0;
 
     // ERASING \\
     public float radiusMin = 1F, radiusMax = 4F;
@@ -113,7 +114,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
             findDarkestPixelMethod.accept(tools.getPixelData(), context.current);
 
             // Create a linking geometry, to draw this forced pen move
-            if(!shouldLiftPen && context.hasResult()){
+            if(!shouldLiftPen && squiggleCount > 0 && context.last[0] != context.current[0] && context.last[1] != context.current[1]){
                 addLinkingGeometry(tools.getPixelData(), context.last, context.current);
             }
 
@@ -121,7 +122,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
 
             // Keep track of the squiggle's deviation
             float initialDarkness = tools.getPixelData().getLuminance(context.getX(), context.getY());
-            float allowableDarkness = !shouldLiftPen ? Float.MAX_VALUE : initialDarkness + Math.max(1, 255 * squiggleMaxDeviation);
+            float allowableDarkness = !shouldLiftPen ? desiredLuminance : initialDarkness + Math.max(1, desiredLuminance * squiggleMaxDeviation);
             boolean failed = false;
 
             // Run the loop until it is stopped in the case of should lift pen, or run it until the maximum squiggle length if we should lift the pen
@@ -147,6 +148,11 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
                         break;
                     }
 
+                }
+
+                if(!shouldLiftPen && context.getAvgLuminance() > allowableDarkness){
+                    failed = true;
+                    break;
                 }
 
                 // The generated geometry has passed all our tests, add it too the drawing & update the context
@@ -188,7 +194,7 @@ public abstract class AbstractSketchPFM extends AbstractDarkestPFM {
     }
 
     public void endSquiggle(){
-
+        squiggleCount++;
     }
 
     protected boolean updateProgress(PlottingTools tools){
