@@ -105,7 +105,6 @@ runtime {
             installerOptions += ['--linux-rpm-license-type', "GPLv3+"]
             installerOptions += ['--linux-menu-group', "Graphics;VectorGraphics;ImageProcessing;Java;"]
             installerOptions += ['--linux-shortcut']
-            installerType = 'rpm'
         }else if (currentOs.macOsX) {
             imageOptions += ['--icon', "src/main/resources/images/icon.icns"]
             installerOptions += ['--mac-package-name', "drawingbotv3"]
