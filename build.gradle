@@ -98,8 +98,7 @@ runtime {
             imageOptions += ['--icon', "src/main/resources/images/icon.ico"]
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut']
             installerType = 'msi'
-        }n
-        else if (currentOs.linux) {
+        }else if (currentOs.linux) {
             imageOptions += ['--icon', "src/main/resources/images/icon.png"]
             installerOptions += ['--linux-package-name', "drawingbotv3"]
             installerOptions += ['--linux-deb-maintainer', "support@drawingbotv3.com"]
@@ -107,8 +106,7 @@ runtime {
             installerOptions += ['--linux-menu-group', "Graphics;VectorGraphics;ImageProcessing;Java;"]
             installerOptions += ['--linux-shortcut']
             installerType = 'rpm'
-        }
-        else if (currentOs.macOsX) {
+        }else if (currentOs.macOsX) {
             imageOptions += ['--icon', "src/main/resources/images/icon.icns"]
             installerOptions += ['--mac-package-name', "drawingbotv3"]
             if(project.hasProperty("developer")){
