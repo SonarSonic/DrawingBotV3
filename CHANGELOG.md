@@ -1,3 +1,19 @@
+### [v1.6.23-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.23-stable-free)
+- Improved: Performance of Streamlines Edge Field during Refine ETF stage, when OpenCL is enabled
+- Improved: Accuracy of 'Split drawings by travel' on drawings containing curves
+- Improved: macOS desktop icons have been updated to match Apple Style Guidelines - thanks to reidab
+- Improved: Linux desktop icons will now show the correct icon instead of the java default
+- Fixed: Sketch PFMS 'Should Lift Pen' - preventing the PFM from completing in some situations / not having any affect
+- Fixed: Color Match 'Pen Limit' not having any effect on non-sketch PFMs
+- Fixed: Application startup failing when no OpenCL library is detected
+- Fixed: Streamlines Edge Field crashing in a long running applications with 'CL_OUT_OF_RESOURCES'
+- Fixed: Validation of user 'eraseMin' / 'eraseMax' settings
+- Fixed: macOS applications not minimizing properly on Free Version
+- Fixed: Linux packages failing to install due to unsupported .zst compression
+- Fixed: Linux application installation failing on Fedora Linux due to missing ocl-icd-opencl-dev
+- Fixed: Linux freezing when opening directories / webpages
+- Note: Linux users are recommended to install the correct OpenCL library for their distro to benefit from full hardware acceleration.
+
 ### [v1.6.22-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.22-stable-free)
 - Added: 'Split drawings by travel' for exporting multiple files split by pen-down distance, can be configured in File / Preferences / Export Settings / Path Optimisation
 - Added: 'Allow multiple moves in exported paths' option to allow multiple path moves in exported vector paths, allows for better compatibility with other software e.g. Cricut Design Space, can be configured in File / Preferences / Export Settings / Path Optimisation
