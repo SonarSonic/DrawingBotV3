@@ -83,22 +83,34 @@ runtime {
 
     jpackage{
         def currentOs = org.gradle.internal.os.OperatingSystem.current()
-        def imgType = currentOs.windows ? 'ico' : currentOs.macOsX ? 'icns' : 'png'
-        imageOptions += ['--icon', "src/main/resources/images/icon.$imgType"]
         appVersion = "$app_version"
+
+        imageOptions += ["--verbose"]
+
         installerOptions += ['--resource-dir', "src/main/resources/jpackage"]
-        installerOptions += ['--vendor', 'Oliver Edward Lansdell']
+        installerOptions += ['--description', 'Convert images into vector art']
+        installerOptions += ['--vendor', 'Ollie Lansdell']
+        installerOptions += ['--copyright', 'Copyright Ollie Lansdell 2025, All rights reserved']
+        installerOptions += ['--file-associations', "src/main/resources/jpackage/FAprojects.properties"]
+        installerOptions += ["--verbose"]
         installerOutputDir = file("$buildDir/jpackage-installers")
         if(currentOs.windows) {
+            imageOptions += ['--icon', "src/main/resources/images/icon.ico"]
             installerOptions += ['--win-dir-chooser', '--win-menu', '--win-shortcut']
             installerType = 'msi'
-        }
+        }n
         else if (currentOs.linux) {
-            installerOptions += ['--linux-package-name', "drawingbotv3",'--linux-shortcut']
+            imageOptions += ['--icon', "src/main/resources/images/icon.png"]
+            installerOptions += ['--linux-package-name', "drawingbotv3"]
+            installerOptions += ['--linux-deb-maintainer', "support@drawingbotv3.com"]
+            installerOptions += ['--linux-rpm-license-type', "GPLv3+"]
+            installerOptions += ['--linux-menu-group', "Graphics;VectorGraphics;ImageProcessing;Java;"]
+            installerOptions += ['--linux-shortcut']
+            installerType = 'rpm'
         }
         else if (currentOs.macOsX) {
-            imageOptions += ["--verbose"]
-            installerOptions += ["--verbose", '--mac-package-name', "drawingbotv3"]
+            imageOptions += ['--icon', "src/main/resources/images/icon.icns"]
+            installerOptions += ['--mac-package-name', "drawingbotv3"]
             if(project.hasProperty("developer")){
                 String id = project.getProperty("developer")
                 project.logger.lifecycle('Found a developer id, adding mac-signing')
@@ -108,7 +120,6 @@ runtime {
                 project.logger.lifecycle('No developer id, disabling mac-signing')
             }
         }
-        installerOptions += ['--file-associations', "src/main/resources/jpackage/FAprojects.properties"]
     }
 }
 
