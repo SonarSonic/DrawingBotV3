@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -489,26 +490,38 @@ public class FXHelper {
     }
 
     public static void openURL(String url) {
-        try {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(URI.create(url));
-            }else if(Utils.getOS().isMac()){
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            EventQueue.invokeLater(() -> {
+                try {
+                    Desktop.getDesktop().browse(URI.create(url));
+                } catch (IOException e) {
+                    DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening webpage: " + url);
+                }
+            });
+        }else if(Utils.getOS().isMac()){
+            try {
                 Runtime.getRuntime().exec("open " + url);
+            } catch (IOException e) {
+                DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening webpage: " + url);
             }
-        } catch (IOException e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening webpage: " + url);
         }
     }
 
     public static void openFolder(File directory){
-        try {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                Desktop.getDesktop().open(directory);
-            }else if(Utils.getOS().isMac()){
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+            EventQueue.invokeLater(() -> {
+                try {
+                    Desktop.getDesktop().open(directory);
+                } catch (IOException e) {
+                    DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening directory: " + directory);
+                }
+            });
+        }else if(Utils.getOS().isMac()){
+            try {
                 Runtime.getRuntime().exec("open " + directory.getPath());
+            } catch (IOException e) {
+                DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening directory: " + directory);
             }
-        } catch (IOException e) {
-            DrawingBotV3.logger.log(Level.WARNING, e, () -> "Error opening directory: " + directory);
         }
     }
 
