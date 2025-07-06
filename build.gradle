@@ -62,9 +62,7 @@ application {
 }
 
 runtime {
-
-    //using --compress=1 to avoid issues with zip.dll loading - see: https://bugs.openjdk.java.net/browse/JDK-8254920?attachmentViewMode=list
-    options = ['--strip-debug', '--compress', '1', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     modules = [
             'java.sql',
             'java.desktop',
