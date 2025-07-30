@@ -1,3 +1,6 @@
+### [v1.6.24-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.24-stable-free)
+- Fixed: Application crashing when running Color Match with OpenCL Acceleration enabled.
+
 ### [v1.6.23-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.23-stable-free)
 - Improved: Performance of Streamlines Edge Field during Refine ETF stage, when OpenCL is enabled
 - Improved: Accuracy of 'Split drawings by travel' on drawings containing curves
