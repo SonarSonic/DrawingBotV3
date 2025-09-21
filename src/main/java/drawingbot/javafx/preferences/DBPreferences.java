@@ -196,8 +196,13 @@ public class DBPreferences implements ISettings {
 
     //// PRESET SETTINGS \\\\
 
-    private final MapSetting<?, String, String> defaultPresets = register(new MapSetting<>(DBPreferences.class, String.class, String.class, CATEGORY_ADVANCED, "defaultPresets", FXCollections.observableMap(new HashMap<>())));
+    private final MapSetting<?, String, String> defaultPresets = register(new MapSetting<>(DBPreferences.class, String.class, String.class, CATEGORY_ADVANCED, "defaultPresets", FXCollections.observableHashMap()));
+    {
+        //Fix: Changes to the defaultPresets not being detected due to modification of the original 'defaultValue' map
+        defaultPresets.set(FXCollections.observableHashMap());
+    }
     public BooleanProperty flagDefaultPresetChange = new SimpleBooleanProperty(false);
+
 
     ///////////////////////////////////////////////
 
