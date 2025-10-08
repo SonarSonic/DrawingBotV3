@@ -12,13 +12,17 @@ import drawingbot.utils.flags.FlagStates;
 import drawingbot.utils.flags.Flags;
 
 /**
- * This operation is always run when performing a vector based export, and creates a copy of the Geometries
+ * This operation is always run when performing a vector-based export, and creates a copy of the Geometries
  * It combines any obvious path elements with obvious continuity, i.e. continuity which was established by the PFM
  */
 public class GeometryOperationSimplify extends AbstractGeometryOperation {
 
     public IGeometryFilter geometryFilter;
     public boolean includeMultipleMoves;
+
+    private GPath currentPath;
+    private PlottedDrawing newDrawing;
+    private PlottedGroup newGroup;
 
     public GeometryOperationSimplify(IGeometryFilter geometryFilter, boolean forExport, boolean includeMultipleMoves) {
         super();
@@ -29,75 +33,83 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
 
     @Override
     public PlottedDrawing run(PlottedDrawing originalDrawing) {
-        PlottedDrawing newDrawing = createPlottedDrawing(originalDrawing);
+        this.newDrawing = createPlottedDrawing(originalDrawing);
 
         int index = 0;
         for(PlottedGroup group : originalDrawing.groups.values()){
-            PlottedGroup newGroup = newDrawing.getPlottedGroup(group.getGroupID());
+            this.newGroup = newDrawing.getPlottedGroup(group.getGroupID());
             FlagStates pfmFlags = group.pfmFactory == null ? Flags.DEFAULT_PFM_STATE : group.pfmFactory.getFlags();
             if(pfmFlags.getFlag(Flags.PFM_BYPASS_GEOMETRY_OPTIMISING) || !pfmFlags.getFlag(Flags.PFM_GEOMETRY_SIMPLIFY)){
                 group.geometries.forEach(g -> newDrawing.addGeometry(g, newGroup));
                 continue;
             }
 
-            GPath currentPath = null;
+            startPath();
             for(IGeometry geometry : group.geometries){
                 ObservableDrawingPen pen = group.drawingSet.getPen(geometry.getPenIndex());
                 if(geometryFilter.filter(originalDrawing, geometry, pen)){
-                    if(geometry instanceof IPathElement){
-                        IPathElement element = (IPathElement) geometry;
-
-                        if(currentPath != null){
-                            //check the render colour and continuity if they match, add it too the path
-                            if(GeometryUtils.compareRenderColour(pen, currentPath, element)){
-                                boolean continuity = GeometryUtils.comparePathContinuity(currentPath, element);
-                                if(continuity){
-                                    element.addToPath(false, currentPath);
-                                    continue;
-                                }else if(includeMultipleMoves && element.getGroupID() == currentPath.getGroupID()){
-                                    element.addToPath(true, currentPath);
-                                    continue;
-                                }
-                            }
-                            //add the completed path to the drawing
-                            newDrawing.addGeometry(currentPath, newGroup);
-                        }
-
-                        //if the last geometry isn't a GPath or the Element can't be added create a new GPath
-                        currentPath = element instanceof GPath ? ((GPath) element).copyOpenPath() :  new GPath(element, true);
-                    }else{
-                        if(currentPath != null){
-                            //add the completed path to the drawing
-                            newDrawing.addGeometry(currentPath, newGroup);
-                            currentPath = null;
-                        }
-                        newDrawing.addGeometry(geometry.copyGeometry(), newGroup);
-                    }
+                    consumeGeometry(geometry, newGroup, pen);
                 }
                 index++;
                 updateProgress(index, originalDrawing.getGeometryCount());
             }
-
-            if(currentPath != null){
-                newDrawing.addGeometry(currentPath, newGroup);
-            }
+            finishPath();
         }
-
-        //remove empty groups
-        /*
-        List<Integer> toRemove = new ArrayList<>();
-        for(PlottedGroup group : newDrawing.groups.values()){
-            if(group.geometries.isEmpty()){
-                toRemove.add(group.groupID);
-            }
-        }
-
-        for(Integer i : toRemove){
-            newDrawing.groups.remove(i);
-        }
-         */
-
         return newDrawing;
+    }
+
+    private void startPath(){
+        if(currentPath != null){
+            finishPath();
+        }
+        currentPath = new GPath();
+    }
+
+    private void finishPath(){
+        if(currentPath != null && currentPath.getVertexCount() != 0){
+            newDrawing.addGeometry(currentPath, newGroup);
+        }
+        currentPath = null;
+    }
+
+    public boolean tryExtendCurrentPath(IGeometry geometry, ObservableDrawingPen pen){
+        if(currentPath == null){
+            return false;
+        }
+        if(geometry instanceof IPathElement element){
+            if(GeometryUtils.compareRenderColour(pen, currentPath, element)){
+                boolean continuity = GeometryUtils.comparePathContinuity(currentPath, element);
+                if(continuity){
+                    element.addToPath(false, currentPath);
+                    return true;
+                }else if(includeMultipleMoves && element.getGroupID() == currentPath.getGroupID()){
+                    element.addToPath(true, currentPath);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void consumeGeometry(IGeometry geometry, PlottedGroup newGroup, ObservableDrawingPen pen){
+        if(!includeMultipleMoves && geometry instanceof GPath path){
+            if(GeometryUtils.getSubPathCount(path.awtPath) > 1){
+                GeometryUtils.splitGPathIntoSubPaths(path, subPath -> consumeGeometry(subPath, newGroup, pen));
+                return;
+            }
+        }
+
+        if(currentPath == null && tryExtendCurrentPath(geometry, pen)){
+            return;
+        }
+
+        finishPath();
+
+        if(geometry instanceof IPathElement element){
+            currentPath = element instanceof GPath ? ((GPath) element).copyOpenPath() :  new GPath(element, true);
+        }else{
+            newDrawing.addGeometry(geometry.copyGeometry(), newGroup);
+        }
     }
 
     @Override

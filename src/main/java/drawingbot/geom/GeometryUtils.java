@@ -11,6 +11,7 @@ import drawingbot.geom.operation.GeometryOperationSortGeometries;
 import drawingbot.geom.shapes.*;
 import drawingbot.javafx.observables.ObservableDrawingPen;
 import drawingbot.javafx.preferences.DBPreferences;
+import drawingbot.plotting.PathBuilder;
 import drawingbot.plotting.PlottedDrawing;
 import drawingbot.plotting.canvas.CanvasUtils;
 import drawingbot.registry.MasterRegistry;
@@ -336,6 +337,52 @@ public class GeometryUtils {
         }
     }
 
+
+    public static void splitGPathIntoSubPaths(GPath gPath, Consumer<IGeometry> consumer){
+        PathIterator pathIterator = gPath.getAWTShape().getPathIterator(null);
+
+        float lastMoveX = 0;
+        float lastMoveY = 0;
+        boolean hasMoveTo = false;
+
+        float currentX = 0;
+        float currentY = 0;
+
+        PathBuilder pathBuilder = new PathBuilder(s -> {
+            GeometryUtils.copyGeometryData(s, gPath);
+            consumer.accept(s);
+        });
+
+        pathBuilder.startPath();
+        float[] coords = new float[6];
+        for(; !pathIterator.isDone(); pathIterator.next()){
+            int type = pathIterator.currentSegment(coords);
+            switch (type){
+                case PathIterator.SEG_MOVETO:
+                    if(!pathBuilder.isContinuation(coords[0], coords[1])){
+                        pathBuilder.endPath();
+                        pathBuilder.startPath();
+                    }
+                    pathBuilder.moveTo(coords[0], coords[1]);
+                    break;
+                case PathIterator.SEG_LINETO:
+                    pathBuilder.lineTo(coords[0], coords[1]);
+                    break;
+                case PathIterator.SEG_QUADTO:
+                    pathBuilder.quadTo(coords[0], coords[1], coords[2], coords[3]);
+                    break;
+                case PathIterator.SEG_CUBICTO:
+                    pathBuilder.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    pathBuilder.closePath();
+                    pathBuilder.endPath();
+                    break;
+            }
+        }
+        pathBuilder.endPath();
+    }
+
     public static IGeometry copyGeometryData(IGeometry copy, IGeometry reference){
         copy.setGeometryIndex(reference.getGeometryIndex());
         copy.setPFMPenIndex(reference.getPFMPenIndex());
@@ -372,6 +419,20 @@ public class GeometryUtils {
             return string.replaceAll("0*$","").replaceAll("\\.$","");
         }
         return string;
+    }
+
+    public static int getSubPathCount(Shape shape){
+        int count = 0;
+        PathIterator iterator = shape.getPathIterator(null);
+        double[] coords = new double[6];
+        while(!iterator.isDone()){
+            int segType = iterator.currentSegment(coords);
+            if(segType == PathIterator.SEG_MOVETO){
+                count++;
+            }
+            iterator.next();
+        }
+        return count;
     }
 
     public static int getSegmentCount(Shape shape){
