@@ -363,7 +363,10 @@ public class GeometryUtils {
                         pathBuilder.endPath();
                         pathBuilder.startPath();
                     }
-                    pathBuilder.moveTo(coords[0], coords[1]);
+
+                    if(!pathBuilder.hasMoveTo()){
+                        pathBuilder.moveTo(coords[0], coords[1]);
+                    }
                     break;
                 case PathIterator.SEG_LINETO:
                     pathBuilder.lineTo(coords[0], coords[1]);

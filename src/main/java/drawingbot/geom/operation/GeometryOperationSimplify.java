@@ -47,7 +47,7 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
             for(IGeometry geometry : group.geometries){
                 ObservableDrawingPen pen = group.drawingSet.getPen(geometry.getPenIndex());
                 if(geometryFilter.filter(originalDrawing, geometry, pen)){
-                    consumeGeometry(geometry, newGroup, pen);
+                    splitGeometry(geometry, newGroup, pen);
                 }
                 index++;
                 updateProgress(index, originalDrawing.getGeometryCount());
@@ -90,14 +90,17 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
         return false;
     }
 
-    public void consumeGeometry(IGeometry geometry, PlottedGroup newGroup, ObservableDrawingPen pen){
+    public void splitGeometry(IGeometry geometry, PlottedGroup newGroup, ObservableDrawingPen pen){
         if(!includeMultipleMoves && geometry instanceof GPath path){
             if(GeometryUtils.getSubPathCount(path.awtPath) > 1){
                 GeometryUtils.splitGPathIntoSubPaths(path, subPath -> consumeGeometry(subPath, newGroup, pen));
                 return;
             }
         }
+        consumeGeometry(geometry, newGroup, pen);
+    }
 
+    public void consumeGeometry(IGeometry geometry, PlottedGroup newGroup, ObservableDrawingPen pen){
         if(currentPath != null && tryExtendCurrentPath(geometry, pen)){
             return;
         }
