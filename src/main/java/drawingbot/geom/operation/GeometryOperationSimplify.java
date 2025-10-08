@@ -44,7 +44,6 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
                 continue;
             }
 
-            startPath();
             for(IGeometry geometry : group.geometries){
                 ObservableDrawingPen pen = group.drawingSet.getPen(geometry.getPenIndex());
                 if(geometryFilter.filter(originalDrawing, geometry, pen)){
@@ -99,7 +98,7 @@ public class GeometryOperationSimplify extends AbstractGeometryOperation {
             }
         }
 
-        if(currentPath == null && tryExtendCurrentPath(geometry, pen)){
+        if(currentPath != null && tryExtendCurrentPath(geometry, pen)){
             return;
         }
 
