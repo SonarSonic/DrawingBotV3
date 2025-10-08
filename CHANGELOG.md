@@ -1,3 +1,9 @@
+### [v1.6.25-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.25-stable-free)
+- Improved: Quality and Accuracy of Voronoi Triangulation + Voronoi Tree
+- Fixed: Default Presets not being saved when restarting the application
+- Fixed: Path Optimization not optimizing paths with multiple sub paths when exporting
+- Fixed: TopologyException preventing Voronoi Diagrams from completing
+
 ### [v1.6.24-stable](https://github.com/SonarSonic/DrawingBotV3/releases/tag/v1.6.24-stable-free)
 - Fixed: Application crashing when running Color Match with OpenCL Acceleration enabled.
 
