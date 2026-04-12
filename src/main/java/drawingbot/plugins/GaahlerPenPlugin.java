@@ -5,6 +5,8 @@ import drawingbot.drawing.DrawingSet;
 import drawingbot.image.ImageTools;
 import drawingbot.registry.MasterRegistry;
 
+import java.util.List;
+
 public class GaahlerPenPlugin extends AbstractPenPlugin {
 
     public static final GaahlerPenPlugin INSTANCE = new GaahlerPenPlugin();
@@ -37,8 +39,30 @@ public class GaahlerPenPlugin extends AbstractPenPlugin {
 
     @Override
     public void registerPenSets() {
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Metallic Silvers", getDrawingPensFromCodes("1", "2", "3", "4", "5", "6")));
-        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Metallic Golds", getDrawingPensFromCodes("7", "8", "9", "10")));
+        // Full set
         MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Metallic Markers", getDrawingPensFromCodes(manufacturerCodes.keySet().toArray(new Object[0]))));
+
+        // Silver range: dark to bright
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Silver Gradient", getDrawingPensFromCodes("6", "4", "5", "3", "2", "1")));
+
+        // Gold range: dark to bright
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Gold Gradient", getDrawingPensFromCodes("8", "9", "7", "10")));
+
+        // Cool silver through dark midpoint into warm gold
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Silver to Gold", getDrawingPensFromCodes("1", "2", "5", "6", "8", "10")));
+
+        // Steel base with copper highlight, weighted distribution
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Copper Accent on Steel", List.of(
+                new DrawingPen("Gaahler Metallic Markers", "GM-06 Zirconium Black", ImageTools.getARGB(255, 48, 48, 45), 120, 1.0F),
+                new DrawingPen("Gaahler Metallic Markers", "GM-03 Dark Steel", ImageTools.getARGB(255, 105, 105, 100), 100, 1.0F),
+                new DrawingPen("Gaahler Metallic Markers", "GM-01 Aluminium", ImageTools.getARGB(255, 200, 200, 200), 80, 1.0F),
+                new DrawingPen("Gaahler Metallic Markers", "GM-07 Red Copper", ImageTools.getARGB(255, 180, 130, 110), 60, 1.0F)
+        )));
+
+        // Three darkest pens for dramatic plots
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Dark Monochrome", getDrawingPensFromCodes("6", "4", "5")));
+
+        // Maximum contrast: darkest, brightest, gold
+        MasterRegistry.INSTANCE.registerDrawingSet(new DrawingSet("Gaahler", "Bright Contrast", getDrawingPensFromCodes("6", "1", "10")));
     }
 }
