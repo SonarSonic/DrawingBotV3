@@ -183,6 +183,7 @@ public class Register implements IPlugin {
                 BicPensPlugin.INSTANCE,
                 CopicPenPlugin.INSTANCE,
                 DiamineInkPlugin.INSTANCE,
+                GaahlerPenPlugin.INSTANCE,
                 SakuraPenPlugin.INSTANCE,
                 SpecialPenPlugin.INSTANCE,
                 StabiloPensPlugin.INSTANCE,
